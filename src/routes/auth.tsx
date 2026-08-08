@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { captureAttribution } from "@/lib/attribution";
 import { trackTeaser } from "@/lib/teaser-track";
 import { trackAppEvent } from "@/lib/app-track";
-import { lovable } from "@/integrations/lovable";
 import { Pulse } from "@/components/aura/primitives";
 import { StreamText } from "@/components/aura/stream-text";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -25,18 +24,35 @@ function safeNextPath(next?: string): "/console" | "/missions" | "/akquise" | "/
   return "/console";
 }
 
+/** Short founder invite codes — not Supabase PKCE `code` values (long opaque strings). */
+function looksLikeInviteCode(value: string): boolean {
+  return /^[A-Za-z0-9_]{3,32}$/.test(value.trim());
+}
+
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { code?: string; ref?: string; mode?: AuthMode; next?: string } => ({
-    ...(typeof search["code"] === "string" ? { code: search["code"] as string } : {}),
-    ...(typeof search["ref"] === "string" ? { ref: search["ref"] as string } : {}),
-    ...(typeof search["mode"] === "string" &&
-    ["signin", "signup", "forgot", "reset", "magic"].includes(search["mode"] as string)
-      ? { mode: search["mode"] as AuthMode }
-      : {}),
-    ...(typeof search["next"] === "string" ? { next: search["next"] as string } : {}),
-  }),
+  ): { invite?: string; code?: string; ref?: string; mode?: AuthMode; next?: string } => {
+    const inviteRaw =
+      typeof search["invite"] === "string"
+        ? search["invite"]
+        : typeof search["code"] === "string" && looksLikeInviteCode(search["code"])
+          ? search["code"]
+          : undefined;
+    return {
+      ...(inviteRaw ? { invite: inviteRaw } : {}),
+      // Keep raw `code` when it is a PKCE auth code (not an invite) for session exchange.
+      ...(typeof search["code"] === "string" && !looksLikeInviteCode(search["code"])
+        ? { code: search["code"] }
+        : {}),
+      ...(typeof search["ref"] === "string" ? { ref: search["ref"] as string } : {}),
+      ...(typeof search["mode"] === "string" &&
+      ["signin", "signup", "forgot", "reset", "magic"].includes(search["mode"] as string)
+        ? { mode: search["mode"] as AuthMode }
+        : {}),
+      ...(typeof search["next"] === "string" ? { next: search["next"] as string } : {}),
+    };
+  },
   head: () => ({
     meta: [
       { title: "Enter Aura OS — AI Company Operating System" },
@@ -98,7 +114,13 @@ function takeStoredInvite() {
 }
 
 function authRedirectUrl(mode?: AuthMode) {
-  const origin = typeof window !== "undefined" ? window.location.origin : SITE_URL;
+  // Prefer canonical production origin so magic-link / OAuth emails always hit the allowlist.
+  // Localhost keeps window origin so local Docker auth still works.
+  const host = typeof window !== "undefined" ? window.location.hostname : "";
+  const origin =
+    host === "localhost" || host === "127.0.0.1"
+      ? window.location.origin
+      : SITE_URL;
   const q = mode ? `?mode=${mode}` : "";
   return `${origin}/auth${q}`;
 }
@@ -106,13 +128,14 @@ function authRedirectUrl(mode?: AuthMode) {
 function AuthPage() {
   const navigate = useNavigate();
   const {
-    code: codeFromLink,
+    invite: inviteFromLink,
+    code: authCodeFromLink,
     ref: refFromLink,
     mode: modeFromLink,
     next: nextFromLink,
   } = Route.useSearch();
   const postAuthTo = safeNextPath(nextFromLink);
-  const [invite, setInvite] = useState(codeFromLink ?? "");
+  const [invite, setInvite] = useState(inviteFromLink ?? "");
   const [mode, setMode] = useState<AuthMode>(modeFromLink ?? "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -127,34 +150,61 @@ function AuthPage() {
 
   useEffect(() => {
     rememberRef(refFromLink);
-    if (codeFromLink) {
-      setInvite(codeFromLink);
-      rememberInvite(codeFromLink);
+    if (inviteFromLink) {
+      setInvite(inviteFromLink);
+      rememberInvite(inviteFromLink);
     }
     captureAttribution();
     trackTeaser("signup_view", { placement: "auth" });
 
-    void supabase.auth.getSession().then(async ({ data }) => {
-      if (!data.session) return;
+    let cancelled = false;
+
+    async function finishIfSession() {
+      const { data } = await supabase.auth.getSession();
+      if (cancelled || !data.session) return false;
       const hash = typeof window !== "undefined" ? window.location.hash : "";
       if (hash.includes("type=recovery") || modeFromLink === "reset") {
         setMode("reset");
-        return;
+        return true;
       }
-      // Magic link / OAuth / already signed-in return — claim pending invite/ref then enter
       await burnInviteIfNeeded();
       await claimReferral();
       navigate({ to: postAuthTo });
-    });
+      return true;
+    }
+
+    void (async () => {
+      // Explicit PKCE exchange for magic-link / OAuth returns (`?code=` is NOT an invite).
+      if (authCodeFromLink) {
+        const { error } = await supabase.auth.exchangeCodeForSession(authCodeFromLink);
+        if (error) {
+          console.warn("auth code exchange", error.message);
+          toast.error("That sign-in link expired or was already used. Request a new magic link.");
+        } else if (!cancelled) {
+          // Drop the one-time code from the URL so refresh doesn't re-exchange.
+          window.history.replaceState({}, "", `/auth${modeFromLink ? `?mode=${modeFromLink}` : ""}`);
+        }
+      }
+
+      if (cancelled) return;
+      if (await finishIfSession()) return;
+    })();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
       if (event === "PASSWORD_RECOVERY") {
         setMode("reset");
         toast.message("Choose a new password to finish recovery.");
+        return;
+      }
+      if (event === "SIGNED_IN") {
+        void finishIfSession();
       }
     });
 
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount once for auth listener
   }, []);
 
@@ -298,12 +348,13 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          emailRedirectTo: authRedirectUrl(),
+          emailRedirectTo: authRedirectUrl(magicCreatesUser ? "signup" : "signin"),
           shouldCreateUser: magicCreatesUser,
         },
       });
       if (error) throw error;
-      toast.success("Magic link sent — check your inbox (and spam).");
+      toast.success("Magic link sent — open it on this device to finish signing in.");
+      trackAppEvent("signup_complete", { method: "magic_link" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not send magic link");
     } finally {
@@ -342,15 +393,21 @@ function AuthPage() {
     }
     rememberRef(refFromLink);
     rememberInvite(invite.trim().toUpperCase() || undefined);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Google sign-in failed. Try email or magic link instead.");
-      return;
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: authRedirectUrl(mode === "signup" ? "signup" : "signin"),
+          queryParams: { access_type: "offline", prompt: "consent" },
+        },
+      });
+      if (error) throw error;
+      // Browser navigates to Google; session is finished on return via getSession().
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Google sign-in failed. Try email instead.");
+      setBusy(false);
     }
-    if (result.redirected) return;
-    await afterAuthenticated();
   }
 
   const title =

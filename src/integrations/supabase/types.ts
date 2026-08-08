@@ -2649,6 +2649,54 @@ export type Database = {
         }
         Relationships: []
       }
+      whitelist_progress: {
+        Row: {
+          chat_channel: string | null
+          comment_post: boolean
+          completed_at: string | null
+          created_at: string
+          email: string
+          follow_farcaster: boolean
+          follow_x: boolean
+          id: string
+          invite_code: string | null
+          like_post: boolean
+          share_post: boolean
+          updated_at: string
+          visitor_id: string
+        }
+        Insert: {
+          chat_channel?: string | null
+          comment_post?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email: string
+          follow_farcaster?: boolean
+          follow_x?: boolean
+          id?: string
+          invite_code?: string | null
+          like_post?: boolean
+          share_post?: boolean
+          updated_at?: string
+          visitor_id: string
+        }
+        Update: {
+          chat_channel?: string | null
+          comment_post?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string
+          follow_farcaster?: boolean
+          follow_x?: boolean
+          id?: string
+          invite_code?: string | null
+          like_post?: boolean
+          share_post?: boolean
+          updated_at?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       wallet_bindings: {
         Row: {
           address: string
@@ -3085,8 +3133,25 @@ export type Database = {
         }
       }
       check_invite_code: { Args: { _code: string }; Returns: boolean }
+      claim_whitelist_invite: {
+        Args: { _email: string; _visitor_id: string }
+        Returns: Json
+      }
+      get_whitelist_progress: {
+        Args: { _email: string; _visitor_id: string }
+        Returns: Json
+      }
       redeem_invite_code: { Args: { _code: string }; Returns: boolean }
       referral_code_valid: { Args: { _code: string }; Returns: boolean }
+      upsert_whitelist_task: {
+        Args: {
+          _chat_channel?: string | null
+          _email: string
+          _task: string
+          _visitor_id: string
+        }
+        Returns: Json
+      }
       spin_daily_wheel: {
         Args: { _company_id: string }
         Returns: {

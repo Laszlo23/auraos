@@ -1,8 +1,8 @@
 # Supabase: local now, own cloud at cutover
 
-Aura OS keeps **Postgres + Auth + Storage + RLS** on Supabase. Lovable’s cloud project
-(`jyiiaajyvamjabpjaltp`) is fine for preview, but day-to-day Cursor work should use
-**local Docker** so you own migrations.
+Aura OS keeps **Postgres + Auth + Storage + RLS** on Supabase. Production uses your
+**Supabase Pro** project `fjmrlnwqzjhyzerruhsq`. Day-to-day Cursor work can still use
+**local Docker** so you own migrations offline.
 
 ## Do not buy a second Pro just to escape Lovable
 
@@ -10,7 +10,7 @@ Aura OS keeps **Postgres + Auth + Storage + RLS** on Supabase. Lovable’s cloud
 |---|---|
 | Local Cursor | `supabase start` → `http://127.0.0.1:54321` |
 | Lovable preview | Existing managed project (manual SQL only when preview must match) |
-| Production on your server | **One** owned Supabase project (Free → Pro when needed) or self-host |
+| Production (`aibusiness.fun`) | Managed Supabase Pro (`fjmrlnwqzjhyzerruhsq`) |
 
 ## Daily local workflow
 
@@ -82,38 +82,21 @@ Pending / recent migrations that local already has (and Lovable may lack until p
 - `20260808140000_social_oauth_engagement.sql`
 - `20260808160000_smart_wallet_security.sql`
 
-## Cutover: own cloud (when aibusiness.fun leaves Lovable hosting)
+## Production (aibusiness.fun): Supabase Pro
 
-1. Create **one** Supabase project under your org (start Free).
-2. Install CLI login: `npx supabase login`
-3. Link and push:
+Project: `fjmrlnwqzjhyzerruhsq` → `https://fjmrlnwqzjhyzerruhsq.supabase.co`
 
-```bash
-npx supabase link --project-ref <your-project-ref>
-npx supabase db push
-```
+| Piece | Value |
+|---|---|
+| App env | `/opt/auraos/.env` on the VPS |
+| Client keys | `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` |
+| Server key | `SUPABASE_SERVICE_ROLE_KEY` (dashboard → API Keys) |
+| Auth redirects | Site URL `https://aibusiness.fun`; allowlist `https://aibusiness.fun/**`, `https://aibusiness.fun/auth`, `https://www.aibusiness.fun/**` |
+| Google | Dashboard → Authentication → Providers → Google (enable + Client ID/Secret) |
+| Magic link | Works via Supabase email once Site URL / redirect allowlist include `aibusiness.fun` (see above). Invite links use `?invite=CODE` — do not use `?code=` (reserved for PKCE). |
 
-4. Production env on your server:
-
-```bash
-SUPABASE_URL=https://<ref>.supabase.co
-SUPABASE_PUBLISHABLE_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_PUBLISHABLE_KEY=...
-SITE_URL=https://aibusiness.fun
-OAUTH_REDIRECT_BASE=https://aibusiness.fun
-```
-
-5. Dashboard → Auth → redirect allowlist: `https://aibusiness.fun/**`
-6. Update OAuth apps (X / LinkedIn / Meta / Google) to production callback URLs.
-7. Export any data you need from Lovable’s DB before disconnecting it.
-8. Upgrade that single project to Pro only when you need PITR, larger limits, or team seats.
-
-### Self-host alternative
-
-Run the official Supabase Docker stack on your VPS if you want zero Supabase Cloud cost.
-Higher ops (backups, upgrades, TLS). Prefer managed cloud unless you already run Postgres ops.
+Apply new SQL with MCP `apply_migration` or CLI `db push` after `supabase link`.
+Then rebuild/restart Aura OS so Vite-baked `VITE_SUPABASE_*` keys stay in sync.
 
 ## Troubleshooting
 
