@@ -1,0 +1,122 @@
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
+
+import { cn } from "@/lib/utils";
+
+/**
+ * Cinematic hero film — same asset as https://aibusiness.fun/
+ * Served from `/aura-hero.mp4` (mirrored locally; Lovable `/__l5e` 404s outside Cloud).
+ * Canvas aurora is only a fallback if the film fails to load.
+ */
+export function HeroFilm({ className }: { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoOk, setVideoOk] = useState(false);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const scale = useTransform(scrollYProgress, [0, 1], [1.06, 1.24]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.15]);
+
+  useEffect(() => {
+    if (videoOk) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let raf = 0;
+    let w = 0;
+    let h = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const orbs = Array.from({ length: 4 }, (_, i) => ({
+      x: 0.2 + i * 0.2,
+      y: 0.3 + (i % 2) * 0.2,
+      r: 0.28,
+      speed: 0.1 + i * 0.04,
+      phase: i * 1.4,
+    }));
+
+    const resize = () => {
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const draw = (t: number) => {
+      const sec = t * 0.001;
+      ctx.fillStyle = "#07090e";
+      ctx.fillRect(0, 0, w, h);
+      for (const o of orbs) {
+        const x = (o.x + Math.sin(sec * o.speed + o.phase) * 0.06) * w;
+        const y = (o.y + Math.cos(sec * o.speed * 0.9 + o.phase) * 0.05) * h;
+        const r = o.r * Math.max(w, h);
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, "rgba(0, 229, 255, 0.2)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, [videoOk]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const ok = () => setVideoOk(true);
+    const fail = () => setVideoOk(false);
+    v.addEventListener("loadeddata", ok);
+    v.addEventListener("playing", ok);
+    v.addEventListener("error", fail);
+    void v.play().catch(() => setVideoOk(false));
+    return () => {
+      v.removeEventListener("loadeddata", ok);
+      v.removeEventListener("playing", ok);
+      v.removeEventListener("error", fail);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
+      aria-hidden="true"
+    >
+      <motion.div style={{ scale, opacity }} className="absolute inset-0">
+        {!videoOk ? (
+          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+        ) : null}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/aura-teaser-poster.jpg"
+          className={cn(
+            "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
+            videoOk ? "opacity-100" : "opacity-0",
+          )}
+        >
+          {/* Production film mirrored locally from aibusiness.fun */}
+          <source src="/aura-hero.mp4" type="video/mp4" />
+        </video>
+      </motion.div>
+
+      {/* Same veil recipe as production — readable type, film still present */}
+      <div className="absolute inset-0 bg-background/62" />
+      <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_0%,transparent,var(--background)_82%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" />
+    </div>
+  );
+}

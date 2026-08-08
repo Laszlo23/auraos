@@ -1,0 +1,58 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+.output
+.vinxi
+.tanstack/**
+.nitro
+.wrangler/
+.dev.vars
+
+# Env secrets — never commit (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+
+# Local overrides / IDE
+*.local
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.cursor/
+
+# Local Supabase / Docker leftovers
+supabase/.temp
+supabase/.branches
+supabase/.env
+
+# Build / coverage / caches
+coverage
+*.tsbuildinfo
+.eslintcache
+.cache
+
+# Large local media mirrors (download via scripts/fetch-media.sh)
+# Keep posters/images tracked; video is too large for git.
+public/*.mp4
+!public/.gitkeep
+
+# OS / tooling
+Thumbs.db
+*.pem
+*.key
+secrets/

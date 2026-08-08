@@ -1,0 +1,1 @@
+-- Empty seed. Add demo founders/companies here if you want fixtures on db reset.
