@@ -57,6 +57,20 @@ export async function publishDueChannelPosts(limit = 20) {
   for (const post of due ?? []) {
     try {
       const provider = post.provider as "x" | "linkedin" | "meta";
+      // Autopublish gate: scheduled drip stays queued until the founder turns it on.
+      const { data: conn } = await supabaseAdmin
+        .from("channel_connections")
+        .select("auto_publish, status")
+        .eq("company_id", post.company_id)
+        .eq("provider", provider)
+        .maybeSingle();
+      if (!conn || conn.status !== "connected") {
+        continue;
+      }
+      if (!conn.auto_publish) {
+        continue;
+      }
+
       const result = await publishToProvider(provider, post.company_id, post.body, {
         replyToExternalId: post.reply_to_external_id,
       });

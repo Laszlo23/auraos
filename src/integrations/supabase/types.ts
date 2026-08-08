@@ -735,6 +735,7 @@ export type Database = {
         Row: {
           agent_name: string | null
           body: string
+          campaign_key: string | null
           company_id: string
           created_at: string
           error: string | null
@@ -753,6 +754,7 @@ export type Database = {
         Insert: {
           agent_name?: string | null
           body: string
+          campaign_key?: string | null
           company_id: string
           created_at?: string
           error?: string | null
@@ -771,6 +773,7 @@ export type Database = {
         Update: {
           agent_name?: string | null
           body?: string
+          campaign_key?: string | null
           company_id?: string
           created_at?: string
           error?: string | null
@@ -1613,6 +1616,32 @@ export type Database = {
           uses?: number
         }
         Relationships: []
+      }
+      invite_redemptions: {
+        Row: {
+          user_id: string
+          code: string
+          redeemed_at: string
+        }
+        Insert: {
+          user_id: string
+          code: string
+          redeemed_at?: string
+        }
+        Update: {
+          user_id?: string
+          code?: string
+          redeemed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_redemptions_code_fkey"
+            columns: ["code"]
+            isOneToOne: false
+            referencedRelation: "invite_codes"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       knowledge_items: {
         Row: {
@@ -3053,6 +3082,7 @@ export type Database = {
           agents: number | null
           companies: number | null
           paid_calls: number | null
+          tasks: number | null
           usdc_paid: number | null
         }
         Relationships: []

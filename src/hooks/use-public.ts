@@ -35,6 +35,7 @@ export type NetworkTotals = {
   paid_calls: number | null;
   agents: number | null;
   companies: number | null;
+  tasks: number | null;
   actions_24h: number | null;
 };
 

@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import type { AuthChangeEvent } from "@supabase/supabase-js";
+import type { AuthChangeEvent, User } from "@supabase/supabase-js";
 
 import { supabase } from "@/integrations/supabase/client";
 import { captureAttribution } from "@/lib/attribution";
@@ -16,6 +16,8 @@ import { OG_IMAGE, SITE_URL } from "@/lib/site";
 type AuthMode = "signin" | "signup" | "forgot" | "reset" | "magic";
 
 const SAFE_NEXT = new Set(["/console", "/missions", "/akquise", "/trading", "/onboarding"]);
+/** Accounts newer than this are treated as first-time signups for invite burn. */
+const NEW_USER_WINDOW_MS = 2 * 60 * 1000;
 
 function safeNextPath(next?: string): "/console" | "/missions" | "/akquise" | "/trading" | "/onboarding" {
   if (next && SAFE_NEXT.has(next)) {
@@ -24,9 +26,25 @@ function safeNextPath(next?: string): "/console" | "/missions" | "/akquise" | "/
   return "/console";
 }
 
+function isNewUser(user: User): boolean {
+  const created = Date.parse(user.created_at);
+  if (Number.isNaN(created)) return false;
+  return Date.now() - created < NEW_USER_WINDOW_MS;
+}
+
 /** Short founder invite codes — not Supabase PKCE `code` values (long opaque strings). */
 function looksLikeInviteCode(value: string): boolean {
   return /^[A-Za-z0-9_]{3,32}$/.test(value.trim());
+}
+
+function defaultAuthMode(opts: {
+  mode?: AuthMode;
+  invite?: string;
+  ref?: string;
+}): AuthMode {
+  if (opts.mode) return opts.mode;
+  if (opts.invite || opts.ref) return "signup";
+  return "signin";
 }
 
 export const Route = createFileRoute("/auth")({
@@ -113,6 +131,14 @@ function takeStoredInvite() {
   }
 }
 
+function peekStoredInvite() {
+  try {
+    return sessionStorage.getItem(INVITE_KEY);
+  } catch {
+    return null;
+  }
+}
+
 function authRedirectUrl(mode?: AuthMode) {
   // Prefer canonical production origin so magic-link / OAuth emails always hit the allowlist.
   // Localhost keeps window origin so local Docker auth still works.
@@ -125,6 +151,37 @@ function authRedirectUrl(mode?: AuthMode) {
   return `${origin}/auth${q}`;
 }
 
+async function resolvePostAuthPath(
+  explicitNext?: string,
+): Promise<"/console" | "/missions" | "/akquise" | "/trading" | "/onboarding"> {
+  if (explicitNext && explicitNext !== "/console" && SAFE_NEXT.has(explicitNext)) {
+    return explicitNext as "/console" | "/missions" | "/akquise" | "/trading" | "/onboarding";
+  }
+
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) return safeNextPath(explicitNext);
+
+  const { data: companies } = await supabase
+    .from("companies")
+    .select("id")
+    .eq("owner_id", user.id)
+    .order("created_at")
+    .limit(1);
+
+  const companyId = companies?.[0]?.id;
+  if (!companyId) return "/onboarding";
+
+  const { data: progress } = await supabase
+    .from("founder_progress")
+    .select("onboarded")
+    .eq("company_id", companyId)
+    .maybeSingle();
+
+  if (!progress || !progress.onboarded) return "/onboarding";
+  return safeNextPath(explicitNext);
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const {
@@ -134,15 +191,32 @@ function AuthPage() {
     mode: modeFromLink,
     next: nextFromLink,
   } = Route.useSearch();
-  const postAuthTo = safeNextPath(nextFromLink);
   const [invite, setInvite] = useState(inviteFromLink ?? "");
-  const [mode, setMode] = useState<AuthMode>(modeFromLink ?? "signup");
+  const [mode, setMode] = useState<AuthMode>(() =>
+    defaultAuthMode({
+      ...(modeFromLink ? { mode: modeFromLink } : {}),
+      ...(inviteFromLink ? { invite: inviteFromLink } : {}),
+      ...(refFromLink ? { ref: refFromLink } : {}),
+    }),
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [busy, setBusy] = useState(false);
   /** Magic link from signup creates users; from sign-in it must not. */
-  const [magicCreatesUser, setMagicCreatesUser] = useState(true);
+  const [magicCreatesUser, setMagicCreatesUser] = useState(Boolean(inviteFromLink || refFromLink));
+  /** New OAuth user landed without a usable invite — stay on /auth until they enter one. */
+  const [needsInviteToContinue, setNeedsInviteToContinue] = useState(false);
+
+  const finishingRef = useRef(false);
+  const postAuthDoneRef = useRef(false);
+  const cancelledRef = useRef(false);
+  const modeFromLinkRef = useRef(modeFromLink);
+  const nextFromLinkRef = useRef(nextFromLink);
+  const refFromLinkRef = useRef(refFromLink);
+  modeFromLinkRef.current = modeFromLink;
+  nextFromLinkRef.current = nextFromLink;
+  refFromLinkRef.current = refFromLink;
 
   useEffect(() => {
     if (modeFromLink) setMode(modeFromLink);
@@ -157,37 +231,35 @@ function AuthPage() {
     captureAttribution();
     trackTeaser("signup_view", { placement: "auth" });
 
-    let cancelled = false;
-
-    async function finishIfSession() {
-      const { data } = await supabase.auth.getSession();
-      if (cancelled || !data.session) return false;
-      const hash = typeof window !== "undefined" ? window.location.hash : "";
-      if (hash.includes("type=recovery") || modeFromLink === "reset") {
-        setMode("reset");
-        return true;
-      }
-      await burnInviteIfNeeded();
-      await claimReferral();
-      navigate({ to: postAuthTo });
-      return true;
-    }
+    cancelledRef.current = false;
 
     void (async () => {
-      // Explicit PKCE exchange for magic-link / OAuth returns (`?code=` is NOT an invite).
+      // detectSessionInUrl already exchanges PKCE on init. Only retry if still no session.
       if (authCodeFromLink) {
-        const { error } = await supabase.auth.exchangeCodeForSession(authCodeFromLink);
-        if (error) {
-          console.warn("auth code exchange", error.message);
-          toast.error("That sign-in link expired or was already used. Request a new magic link.");
-        } else if (!cancelled) {
-          // Drop the one-time code from the URL so refresh doesn't re-exchange.
-          window.history.replaceState({}, "", `/auth${modeFromLink ? `?mode=${modeFromLink}` : ""}`);
+        const { data: early } = await supabase.auth.getSession();
+        if (!early.session) {
+          const { error } = await supabase.auth.exchangeCodeForSession(authCodeFromLink);
+          if (error) {
+            console.warn("auth code exchange", error.message);
+            const { data: after } = await supabase.auth.getSession();
+            if (!after.session && !cancelledRef.current) {
+              toast.error(
+                "That sign-in link expired or was already used. Request a new magic link.",
+              );
+            }
+          }
+        }
+        if (!cancelledRef.current) {
+          window.history.replaceState(
+            {},
+            "",
+            `/auth${modeFromLinkRef.current ? `?mode=${modeFromLinkRef.current}` : ""}`,
+          );
         }
       }
 
-      if (cancelled) return;
-      if (await finishIfSession()) return;
+      if (cancelledRef.current) return;
+      await finishPostAuth("mount");
     })();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
@@ -197,12 +269,12 @@ function AuthPage() {
         return;
       }
       if (event === "SIGNED_IN") {
-        void finishIfSession();
+        void finishPostAuth("signed_in");
       }
     });
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
       sub.subscription.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount once for auth listener
@@ -218,7 +290,7 @@ function AuthPage() {
 
   /** Validate invite/referral without burning invite uses. */
   async function passGate(): Promise<boolean> {
-    const referral = (refFromLink ?? peekStoredRef() ?? "").trim().toUpperCase();
+    const referral = (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase();
     if (referral) {
       rememberRef(referral);
       const { data } = await supabase.rpc("referral_code_valid", { _code: referral });
@@ -231,17 +303,9 @@ function AuthPage() {
     }
     const { data: ok, error } = await supabase.rpc("check_invite_code", { _code: code });
     if (error) {
-      // Fallback if migration not applied yet
-      const { data: redeemed, error: redeemErr } = await supabase.rpc("redeem_invite_code", {
-        _code: code,
-      });
-      if (redeemErr) throw redeemErr;
-      if (!redeemed) {
-        toast.error("That invite code isn't valid — join the waitlist for a seat.");
-        return false;
-      }
-      rememberInvite(code);
-      return true;
+      console.warn("check_invite_code", error.message);
+      toast.error("Could not validate invite — try again in a moment.");
+      return false;
     }
     if (!ok) {
       toast.error("That invite code isn't valid — join the waitlist for a seat.");
@@ -251,31 +315,96 @@ function AuthPage() {
     return true;
   }
 
-  async function burnInviteIfNeeded() {
-    const code = takeStoredInvite() || invite.trim().toUpperCase();
-    if (!code) return;
-    // Referral path doesn't need invite burn
-    const referral = (refFromLink ?? "").trim().toUpperCase();
+  /**
+   * Redeem invite for brand-new users only. Returning users clear leftover storage
+   * without consuming uses. Storage-only — never falls back to React invite state.
+   */
+  async function burnInviteIfNeeded(user: User): Promise<boolean> {
+    if (!isNewUser(user)) {
+      takeStoredInvite();
+      return true;
+    }
+
+    // Prior successful redeem (or race after first finishPostAuth) — do not block.
+    const { data: prior } = await supabase
+      .from("invite_redemptions")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (prior) {
+      takeStoredInvite();
+      return true;
+    }
+
+    const referral = (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase();
     if (referral) {
       const { data } = await supabase.rpc("referral_code_valid", { _code: referral });
-      if (data) return;
+      if (data) {
+        takeStoredInvite();
+        return true;
+      }
     }
-    const { error } = await supabase.rpc("redeem_invite_code", { _code: code });
-    if (error) console.warn("invite redeem after signup", error.message);
+
+    const code = takeStoredInvite();
+    if (!code) return false;
+
+    const { data, error } = await supabase.rpc("redeem_invite_code", { _code: code });
+    if (error) {
+      console.warn("invite redeem after signup", error.message);
+      rememberInvite(code);
+      return false;
+    }
+    if (!data) {
+      rememberInvite(code);
+      return false;
+    }
+    return true;
   }
 
   async function claimReferral() {
-    const referral = takeStoredRef() || (refFromLink ?? "").trim().toUpperCase() || null;
+    const referral =
+      takeStoredRef() || (refFromLinkRef.current ?? "").trim().toUpperCase() || null;
     if (!referral) return;
     const { data } = await supabase.rpc("attribute_referral", { _code: referral });
     if (data) toast.success("Invite applied — 1,000 AURA welcome bonus added.");
   }
 
-  async function afterAuthenticated() {
-    await burnInviteIfNeeded();
-    await claimReferral();
-    trackAppEvent("signup_complete", {});
-    navigate({ to: postAuthTo });
+  async function finishPostAuth(reason: "mount" | "signed_in" | "submit") {
+    if (postAuthDoneRef.current || finishingRef.current || cancelledRef.current) return false;
+    finishingRef.current = true;
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (cancelledRef.current || !data.session?.user) return false;
+
+      const user = data.session.user;
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+      if (hash.includes("type=recovery") || modeFromLinkRef.current === "reset") {
+        setMode("reset");
+        return true;
+      }
+
+      const inviteOk = await burnInviteIfNeeded(user);
+      if (!inviteOk) {
+        setNeedsInviteToContinue(true);
+        setMode("signup");
+        setMagicCreatesUser(true);
+        toast.error("Enter a valid invite code to finish creating your company.");
+        return false;
+      }
+
+      setNeedsInviteToContinue(false);
+      await claimReferral();
+      if (isNewUser(user)) {
+        trackAppEvent("signup_complete", { method: reason });
+      }
+
+      const dest = await resolvePostAuthPath(nextFromLinkRef.current);
+      postAuthDoneRef.current = true;
+      if (!cancelledRef.current) navigate({ to: dest });
+      return true;
+    } finally {
+      finishingRef.current = false;
+    }
   }
 
   async function submitPassword(e: React.FormEvent) {
@@ -288,6 +417,15 @@ function AuthPage() {
           return;
         }
         if (!(await passGate())) return;
+
+        // Already signed in (e.g. Google) but still needs invite — just finish.
+        const { data: existing } = await supabase.auth.getSession();
+        if (existing.session && (needsInviteToContinue || isNewUser(existing.session.user))) {
+          rememberInvite(invite.trim().toUpperCase() || peekStoredInvite() || undefined);
+          await finishPostAuth("submit");
+          return;
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -295,7 +433,7 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.session) {
-          await afterAuthenticated();
+          await finishPostAuth("submit");
           return;
         }
         toast.success("Check your email to confirm your account, then sign in.");
@@ -309,7 +447,7 @@ function AuthPage() {
           password,
         });
         if (error) throw error;
-        await afterAuthenticated();
+        await finishPostAuth("submit");
         return;
       }
 
@@ -325,11 +463,19 @@ function AuthPage() {
         const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
         toast.success("Password updated — you're in.");
-        await afterAuthenticated();
+        await finishPostAuth("submit");
         return;
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      const raw = err instanceof Error ? err.message : "Something went wrong";
+      const lower = raw.toLowerCase();
+      if (lower.includes("rate limit") || lower.includes("email limit")) {
+        toast.error(
+          "Email limit reached — wait a few minutes, or raise Auth → Rate Limits in the Supabase dashboard.",
+        );
+      } else {
+        toast.error(raw);
+      }
     } finally {
       setBusy(false);
     }
@@ -354,9 +500,16 @@ function AuthPage() {
       });
       if (error) throw error;
       toast.success("Magic link sent — open it on this device to finish signing in.");
-      trackAppEvent("signup_complete", { method: "magic_link" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not send magic link");
+      const raw = err instanceof Error ? err.message : "Could not send magic link";
+      const lower = raw.toLowerCase();
+      if (lower.includes("rate limit") || lower.includes("email limit")) {
+        toast.error(
+          "Email limit reached — wait a few minutes, or raise Auth → Rate Limits in the Supabase dashboard.",
+        );
+      } else {
+        toast.error(raw);
+      }
     } finally {
       setBusy(false);
     }
@@ -376,13 +529,23 @@ function AuthPage() {
       toast.success("Password reset email sent — open the link, then set a new password here.");
       setMode("signin");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not send reset email");
+      const raw = err instanceof Error ? err.message : "Could not send reset email";
+      const lower = raw.toLowerCase();
+      if (lower.includes("rate limit") || lower.includes("email limit")) {
+        toast.error(
+          "Email limit reached — wait a few minutes, or raise Auth → Rate Limits in the Supabase dashboard.",
+        );
+      } else {
+        toast.error(raw);
+      }
     } finally {
       setBusy(false);
     }
   }
 
   async function google() {
+    // Signup mode requires invite up front. Sign-in mode lets returning Google users through;
+    // finishPostAuth blocks brand-new Google accounts until they redeem an invite.
     if (mode === "signup") {
       try {
         if (!(await passGate())) return;
@@ -395,15 +558,28 @@ function AuthPage() {
     rememberInvite(invite.trim().toUpperCase() || undefined);
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      // VPS / custom host: use Supabase Google OAuth (Lovable's /~oauth/initiate is Cloud-only).
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: authRedirectUrl(mode === "signup" ? "signup" : "signin"),
           queryParams: { access_type: "offline", prompt: "consent" },
+          skipBrowserRedirect: true,
         },
       });
-      if (error) throw error;
-      // Browser navigates to Google; session is finished on return via getSession().
+      if (error) {
+        const lower = error.message.toLowerCase();
+        if (lower.includes("provider is not enabled") || lower.includes("unsupported provider")) {
+          throw new Error(
+            "Google sign-in is not enabled on this project yet. Use email + password or a magic link for now.",
+          );
+        }
+        throw error;
+      }
+      if (!data.url) {
+        throw new Error("Google sign-in did not return a redirect URL.");
+      }
+      window.location.assign(data.url);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed. Try email instead.");
       setBusy(false);
@@ -412,7 +588,9 @@ function AuthPage() {
 
   const title =
     mode === "signup"
-      ? "Create your company"
+      ? needsInviteToContinue
+        ? "One more step"
+        : "Create your company"
       : mode === "forgot"
         ? "Reset your password"
         : mode === "reset"
@@ -423,7 +601,9 @@ function AuthPage() {
 
   const subtitle =
     mode === "signup"
-      ? "Your agents will be hired and briefed the moment you arrive."
+      ? needsInviteToContinue
+        ? "Your account is ready — enter a valid invite to open Aura OS."
+        : "Your agents will be hired and briefed the moment you arrive."
       : mode === "forgot"
         ? "We'll email you a link to set a new password."
         : mode === "reset"
@@ -480,7 +660,7 @@ function AuthPage() {
             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
 
-            {mode !== "forgot" && mode !== "reset" && mode !== "magic" ? (
+            {mode !== "forgot" && mode !== "reset" && mode !== "magic" && !needsInviteToContinue ? (
               <button
                 type="button"
                 onClick={() => void google()}
@@ -508,7 +688,7 @@ function AuthPage() {
               </button>
             ) : null}
 
-            {mode !== "forgot" && mode !== "reset" && mode !== "magic" ? (
+            {mode !== "forgot" && mode !== "reset" && mode !== "magic" && !needsInviteToContinue ? (
               <div className="my-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground/70">
                 <span className="h-px flex-1 bg-border" /> or{" "}
                 <span className="h-px flex-1 bg-border" />
@@ -607,6 +787,41 @@ function AuthPage() {
                   className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
                 >
                   Prefer password?
+                </button>
+              </form>
+            ) : needsInviteToContinue ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void (async () => {
+                    setBusy(true);
+                    try {
+                      if (!(await passGate())) return;
+                      await finishPostAuth("submit");
+                    } finally {
+                      setBusy(false);
+                    }
+                  })();
+                }}
+                className="space-y-3"
+              >
+                <input
+                  id="auth-invite-continue"
+                  required
+                  value={invite}
+                  onChange={(e) => setInvite(e.target.value.toUpperCase())}
+                  maxLength={32}
+                  placeholder="INVITE CODE"
+                  aria-label="Invite code"
+                  autoComplete="one-time-code"
+                  className="w-full rounded-2xl border border-gold/30 bg-gold/8 px-4 py-3 text-sm uppercase tracking-[0.16em] outline-none focus:border-gold/60"
+                />
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                >
+                  {busy ? "Checking…" : "Enter Aura OS"}
                 </button>
               </form>
             ) : (
@@ -720,7 +935,7 @@ function AuthPage() {
               </div>
             ) : null}
 
-            {mode === "signup" ? (
+            {mode === "signup" && !needsInviteToContinue ? (
               <button
                 type="button"
                 disabled={busy}
@@ -734,7 +949,7 @@ function AuthPage() {
               </button>
             ) : null}
 
-            {mode === "signup" || mode === "signin" ? (
+            {(mode === "signup" || mode === "signin") && !needsInviteToContinue ? (
               <button
                 type="button"
                 onClick={() => setMode(mode === "signup" ? "signin" : "signup")}

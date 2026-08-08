@@ -303,3 +303,131 @@ export const approveEngagementReply = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/**
+ * Seed the fair-launch X drip into channel_posts (scheduled).
+ * Idempotent via campaign_key. Turns on auto_publish + reply_mode auto for X.
+ */
+export const startLaunchDripCampaign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string; enableAutoReply?: boolean }) => ({
+    companyId: String(input.companyId),
+    enableAutoReply: input.enableAutoReply !== false,
+  }))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { SOCIAL_AGENTS } = await import("@/lib/social-oauth.server");
+    const { buildLaunchDripSchedule, LAUNCH_DRIP_CAMPAIGN, launchDripSummary } =
+      await import("@/lib/x-launch-campaign");
+
+    const { data: company } = await supabaseAdmin
+      .from("companies")
+      .select("id")
+      .eq("id", data.companyId)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!company) throw new Error("Company not found");
+
+    const { data: conn } = await supabaseAdmin
+      .from("channel_connections")
+      .select("id, status, auto_publish, reply_mode")
+      .eq("company_id", data.companyId)
+      .eq("provider", "x")
+      .maybeSingle();
+    if (!conn || conn.status !== "connected") {
+      throw new Error("Connect X on Channels first (OAuth — no password).");
+    }
+
+    const slots = buildLaunchDripSchedule();
+    if (!slots.length) throw new Error("No drip slots to schedule.");
+
+    let created = 0;
+    let skipped = 0;
+    for (const s of slots) {
+      const { error: oneErr } = await supabaseAdmin.from("channel_posts").insert({
+        company_id: data.companyId,
+        provider: "x",
+        body: s.body,
+        status: "scheduled",
+        scheduled_at: s.scheduledAt,
+        agent_name: SOCIAL_AGENTS.x,
+        campaign_key: s.campaignKey,
+        impressions: 0,
+        likes: 0,
+        reposts: 0,
+      });
+      if (oneErr) {
+        if (oneErr.code === "23505") skipped += 1;
+        else throw oneErr;
+      } else {
+        created += 1;
+      }
+    }
+
+    await supabaseAdmin
+      .from("channel_connections")
+      .update({
+        auto_publish: true,
+        ...(data.enableAutoReply ? { reply_mode: "auto" } : {}),
+        last_sync: new Date().toISOString(),
+      })
+      .eq("id", conn.id);
+
+    await supabaseAdmin.from("activity_events").insert({
+      company_id: data.companyId,
+      kind: "publish",
+      message: `Vela seeded ${LAUNCH_DRIP_CAMPAIGN} (${created} new, ${skipped} already queued)`,
+    });
+
+    const { data: posts } = await supabaseAdmin
+      .from("channel_posts")
+      .select("id, campaign_key, scheduled_at, body, status")
+      .eq("company_id", data.companyId)
+      .eq("provider", "x")
+      .like("campaign_key", `${LAUNCH_DRIP_CAMPAIGN}%`)
+      .order("scheduled_at", { ascending: true });
+
+    return {
+      ok: true as const,
+      created,
+      skipped,
+      summary: launchDripSummary(slots),
+      posts: posts ?? [],
+    };
+  });
+
+/** Upcoming / recent launch-drip posts for the Channels UI. */
+export const getLaunchDripStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string }) => ({
+    companyId: String(input.companyId),
+  }))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { LAUNCH_DRIP_CAMPAIGN, buildLaunchDripSchedule, launchDripSummary } =
+      await import("@/lib/x-launch-campaign");
+
+    const { data: company } = await supabaseAdmin
+      .from("companies")
+      .select("id")
+      .eq("id", data.companyId)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!company) throw new Error("Company not found");
+
+    const { data: posts } = await supabaseAdmin
+      .from("channel_posts")
+      .select("id, body, status, scheduled_at, published_at, external_url, error, campaign_key")
+      .eq("company_id", data.companyId)
+      .eq("provider", "x")
+      .like("campaign_key", `${LAUNCH_DRIP_CAMPAIGN}%`)
+      .order("scheduled_at", { ascending: true });
+
+    const preview = buildLaunchDripSchedule();
+    return {
+      campaign: LAUNCH_DRIP_CAMPAIGN,
+      seeded: (posts?.length ?? 0) > 0,
+      posts: posts ?? [],
+      preview: launchDripSummary(preview),
+    };
+  });

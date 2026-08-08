@@ -134,18 +134,21 @@ export const createStrategyFromPrompt = createServerFn({ method: "POST" })
     try {
       const json = (await agentJson(
         `You are Quant, an on-chain spot trading strategist for Base USDC/WETH only.
-Return JSON {"name":"...","summary":"...","spec":{"timeframe":"1h"|"4h"|"1d","symbols":["WETH/USDC"],"entry":{"type":"ma_cross"|"breakout"|"smart_money_follow","params":{}},"exit":{"stop_pct":number,"take_profit_pct":number},"sizing":{"risk_pct_equity":number,"max_notional_usdc":number}}}.
-Keep risk_pct_equity ≤ 1 and max_notional_usdc ≤ 500. No leverage. No shorts that need borrow.`,
+Return JSON {"name":"...","summary":"...","honesty_note":"...","spec":{"timeframe":"1h"|"4h"|"1d","symbols":["WETH/USDC"],"entry":{"type":"ma_cross"|"breakout"|"smart_money_follow","params":{}},"exit":{"stop_pct":number,"take_profit_pct":number},"sizing":{"risk_pct_equity":number,"max_notional_usdc":number}}}.
+Keep risk_pct_equity ≤ 1 and max_notional_usdc ≤ 500. No leverage. No shorts that need borrow.
+If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), honesty_note must say that is unlikely and summary must describe a capped learning strategy — never promise the target.`,
         data.prompt,
         "summary",
       )) as {
         name?: string;
         summary?: string;
+        honesty_note?: string;
         spec?: unknown;
       };
       spec = validateStrategySpec(json.spec);
       if (json.name) name = String(json.name).slice(0, 80);
-      if (json.summary) summary = String(json.summary).slice(0, 400);
+      const honesty = json.honesty_note ? ` ${String(json.honesty_note).slice(0, 180)}` : "";
+      if (json.summary) summary = `${String(json.summary).slice(0, 320)}${honesty}`.slice(0, 400);
     } catch {
       spec = validateStrategySpec({
         timeframe: "1h",

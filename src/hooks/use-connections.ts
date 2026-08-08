@@ -3,9 +3,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import {
   disconnectSocial,
+  getLaunchDripStatus,
   getSocialStatus,
   publishSocialNow,
   setSocialReplyMode,
+  startLaunchDripCampaign,
   startSocialConnect,
 } from "@/lib/social.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -205,6 +207,38 @@ export function useToggleAutoPublish() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["table", "channel_connections"] });
       void qc.invalidateQueries({ queryKey: ["social-status"] });
+    },
+  });
+}
+
+export function useLaunchDripStatus() {
+  const { data: company } = useCompany();
+  return useQuery({
+    queryKey: ["launch-drip", company?.id],
+    enabled: Boolean(company?.id),
+    staleTime: 20_000,
+    queryFn: () => getLaunchDripStatus({ data: { companyId: company!.id } }),
+  });
+}
+
+export function useStartLaunchDrip() {
+  const qc = useQueryClient();
+  const { data: company } = useCompany();
+  return useMutation({
+    mutationFn: async (opts?: { enableAutoReply?: boolean }) => {
+      if (!company) throw new Error("No company yet.");
+      return startLaunchDripCampaign({
+        data: {
+          companyId: company.id,
+          enableAutoReply: opts?.enableAutoReply !== false,
+        },
+      });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["launch-drip"] });
+      void qc.invalidateQueries({ queryKey: ["table", "channel_posts"] });
+      void qc.invalidateQueries({ queryKey: ["social-status"] });
+      void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
     },
   });
 }

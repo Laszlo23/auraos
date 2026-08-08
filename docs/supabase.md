@@ -66,6 +66,33 @@ npm run db:stop && npm run db:start
 
 Confirm in Studio → Authentication → URL Configuration, or rely on config.toml (source of truth).
 
+### Local login broken? (common)
+
+`.env.local` overrides Vite to local Supabase (`127.0.0.1:54321`). If Docker is not running, **every login fails**.
+
+Fix: either start Docker + `npm run db:start`, **or** point `.env.local` at the cloud project (current default when Docker is off). Restart `npm run dev` after changing env.
+
+**Google sign-in (production):**
+
+1. Supabase Dashboard → Authentication → Providers → Google must be **enabled** with Client ID + Secret.
+2. In Google Cloud Console → Credentials → OAuth client
+   `573598326867-nhc2piqe668qa4t6t26pqllrik85vj88.apps.googleusercontent.com`,
+   add Authorized redirect URI:
+   `https://fjmrlnwqzjhyzerruhsq.supabase.co/auth/v1/callback`
+3. Authorized JavaScript origins should include `https://aibusiness.fun` (and localhost for local).
+4. Supabase Site URL / redirect allowlist must include `https://aibusiness.fun/**`.
+
+If step 2 is missing, Google shows `redirect_uri_mismatch`. Email/password and magic link still work.
+
+Do **not** use Lovable’s `/~oauth/initiate` broker on the VPS — that route is Cloud-only and 404s on `aibusiness.fun`.
+
+Cloud password auth health check:
+
+```bash
+curl -sS -H "apikey: $VITE_SUPABASE_PUBLISHABLE_KEY" \
+  "$VITE_SUPABASE_URL/auth/v1/health"
+```
+
 ## Migration discipline (source of truth)
 
 1. **Always** add schema changes as a new file under `supabase/migrations/`
@@ -81,6 +108,13 @@ Pending / recent migrations that local already has (and Lovable may lack until p
 - `20260808120000_phase0_integrity.sql`
 - `20260808140000_social_oauth_engagement.sql`
 - `20260808160000_smart_wallet_security.sql`
+- `20260808190000_channel_posts_campaign_key.sql` — `campaign_key` for fair-launch X drip idempotency
+
+## X fair-launch drip (Channels)
+
+See the full go-live guide: [`docs/x-launch-drip.md`](./x-launch-drip.md) (share kit, OAuth, cron, Autopublish, troubleshooting).
+
+Short version: set `X_CLIENT_ID` / `X_CLIENT_SECRET` / `WORKER_SECRET` → cron `/api/workers/tick` → Channels **Connect X** → **Start fair-launch drip**. Never use an X password.
 
 ## Production (aibusiness.fun): Supabase Pro
 

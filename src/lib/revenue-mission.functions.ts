@@ -14,13 +14,15 @@ import {
   makeShareSlug,
   parseTargetAmount,
   planRevenueMissionWithLlm,
+  parseMissionBrief,
   proposeNextBestActionWithLlm,
   type MissionPlan,
   type MissionProjected,
   type NextBestAction,
 } from "@/lib/revenue-mission.server";
 
-export { isRevenueMissionGoal, parseTargetAmount };
+export { isRevenueMissionGoal, parseTargetAmount, parseMissionBrief };
+export type { MissionBrief } from "@/lib/revenue-mission-brief";
 
 type LooseDb = { from: (table: string) => any };
 function asDb(client: unknown): LooseDb {
@@ -226,13 +228,31 @@ export async function createRevenueMissionCore(
   const goal = input.goal.trim().slice(0, 500);
   if (goal.length < 8) throw new Error("Describe the mission (at least 8 characters).");
 
-  const targetUsdc = input.targetUsdc ?? parseTargetAmount(goal);
+  const brief = parseMissionBrief(goal);
+  const targetUsdc = input.targetUsdc ?? brief.targetUsdc;
+  const budgetUsdc = input.budgetUsdc ?? brief.budgetUsdc;
+  const timelineDays =
+    input.deadlineAt != null
+      ? Math.max(
+          1,
+          Math.ceil(
+            (new Date(input.deadlineAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000),
+          ),
+        )
+      : brief.timelineDays;
+  const deadlineAt =
+    input.deadlineAt ||
+    new Date(Date.now() + timelineDays * 24 * 60 * 60 * 1000).toISOString();
+
   const { plan, projected, agents } = await planRevenueMissionWithLlm({
     goal,
     targetUsdc,
+    budgetUsdc,
+    timelineDays,
     industry: input.industry ?? null,
     location: input.location ?? null,
-    risk: input.risk ?? "medium",
+    risk: input.risk ?? brief.risk,
+    channelHint: brief.channelHint,
   });
 
   const num = await nextMissionNumber(db, company.id);
@@ -246,11 +266,11 @@ export async function createRevenueMissionCore(
       mission_number: num,
       goal_text: goal,
       target_usdc: targetUsdc,
-      deadline_at: input.deadlineAt || null,
-      budget_usdc: input.budgetUsdc ?? 0,
+      deadline_at: deadlineAt,
+      budget_usdc: budgetUsdc,
       industry: input.industry || null,
       location: input.location || null,
-      risk: input.risk || "medium",
+      risk: input.risk || brief.risk,
       status: "planned",
       plan,
       projected,
@@ -269,8 +289,8 @@ export async function createRevenueMissionCore(
     missionId: row.id as string,
     agentName: "Atlas",
     kind: "plan",
-    message: "CEO · Building strategy",
-    result: plan.summary,
+    message: "CEO · Mission brief ready for founder review",
+    result: `${plan.feasibility}: ${plan.summary}`,
   });
 
   await db.from("activity_events").insert({
@@ -338,6 +358,48 @@ export const startRevenueMission = createServerFn({ method: "POST" })
     if (!mission) throw new Error("Mission not found");
     if (mission.status !== "planned" && mission.status !== "paused") {
       throw new Error("Mission is already started or finished.");
+    }
+
+    // Resume from hold — do not re-seed agents/tasks.
+    if (mission.status === "paused") {
+      const agentsStatus = {
+        ...((mission.agents_status || {}) as Record<string, string>),
+      };
+      for (const key of Object.keys(agentsStatus)) {
+        if (agentsStatus[key] === "paused" || agentsStatus[key] === "waiting") {
+          agentsStatus[key] = "working";
+        }
+      }
+      await db
+        .from("revenue_missions")
+        .update({
+          status: "active",
+          agents_status: agentsStatus,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", mission.id);
+
+      await db
+        .from("tasks")
+        .update({ status: "queued" })
+        .eq("mission_id", mission.id)
+        .eq("company_id", company.id)
+        .eq("status", "paused");
+
+      await appendEvent(db, {
+        companyId: company.id,
+        missionId: mission.id,
+        agentName: "Atlas",
+        kind: "resume",
+        message: "CEO · Mission resumed from hold",
+      });
+
+      const { data: resumed } = await db
+        .from("revenue_missions")
+        .select("*")
+        .eq("id", mission.id)
+        .single();
+      return hydrateMission(db, (resumed || mission) as Record<string, unknown>);
     }
 
     const plan = (mission.plan || {}) as MissionPlan;
@@ -808,6 +870,203 @@ export const completeRevenueMission = createServerFn({ method: "POST" })
       .single();
     return hydrateMission(db, (updated || mission) as Record<string, unknown>);
   });
+
+/** Put an active mission on hold — pauses open tasks so agents stop working it. */
+export const pauseRevenueMission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { missionId: string }) => ({
+    missionId: String(input.missionId),
+  }))
+  .handler(async ({ data, context }) => {
+    const db = asDb(context.supabase);
+    const company = await ownedCompany(db, context.userId);
+    const { data: mission } = await db
+      .from("revenue_missions")
+      .select("*")
+      .eq("id", data.missionId)
+      .eq("company_id", company.id)
+      .maybeSingle();
+    if (!mission) throw new Error("Mission not found");
+    if (mission.status !== "active") {
+      throw new Error("Only an active mission can be put on hold.");
+    }
+
+    const agentsStatus = {
+      ...((mission.agents_status || {}) as Record<string, string>),
+    };
+    for (const key of Object.keys(agentsStatus)) {
+      agentsStatus[key] = "paused";
+    }
+
+    await db
+      .from("tasks")
+      .update({ status: "paused" })
+      .eq("mission_id", mission.id)
+      .eq("company_id", company.id)
+      .in("status", ["queued", "running", "pending", "pending_approval", "queue"]);
+
+    await db
+      .from("revenue_missions")
+      .update({
+        status: "paused",
+        agents_status: agentsStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", mission.id);
+
+    await appendEvent(db, {
+      companyId: company.id,
+      missionId: mission.id,
+      agentName: "Atlas",
+      kind: "pause",
+      message: "CEO · Mission put on hold by founder",
+    });
+
+    const { data: updated } = await db
+      .from("revenue_missions")
+      .select("*")
+      .eq("id", mission.id)
+      .single();
+    return hydrateMission(db, (updated || mission) as Record<string, unknown>);
+  });
+
+/**
+ * Delete a mistaken / abandoned mission.
+ * Allowed for planned, paused, failed, draft. Active missions must be held first.
+ * Complete missions stay as history (use hold+delete only before completion).
+ */
+export const deleteRevenueMission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { missionId: string }) => ({
+    missionId: String(input.missionId),
+  }))
+  .handler(async ({ data, context }) => {
+    const db = asDb(context.supabase);
+    const company = await ownedCompany(db, context.userId);
+    const { data: mission } = await db
+      .from("revenue_missions")
+      .select("id, status, mission_number, goal_text")
+      .eq("id", data.missionId)
+      .eq("company_id", company.id)
+      .maybeSingle();
+    if (!mission) throw new Error("Mission not found");
+
+    const status = String(mission.status);
+    if (status === "active") {
+      throw new Error("Put the mission on hold first, then delete it.");
+    }
+    if (status === "complete") {
+      throw new Error("Completed missions stay in history and cannot be deleted.");
+    }
+    if (!["planned", "paused", "failed", "draft"].includes(status)) {
+      throw new Error(`Cannot delete a mission in status “${status}”.`);
+    }
+
+    await db
+      .from("tasks")
+      .update({ status: "paused" })
+      .eq("mission_id", mission.id)
+      .eq("company_id", company.id)
+      .in("status", ["queued", "running", "pending", "pending_approval", "queue", "paused"]);
+
+    const { error } = await db
+      .from("revenue_missions")
+      .delete()
+      .eq("id", mission.id)
+      .eq("company_id", company.id);
+    if (error) throw new Error(error.message || "Could not delete mission");
+
+    await db.from("activity_events").insert({
+      company_id: company.id,
+      kind: "mission",
+      message: `Revenue mission #${mission.mission_number} deleted: "${String(mission.goal_text || "").slice(0, 80)}"`,
+    });
+
+    return { ok: true as const, missionId: mission.id as string };
+  });
+
+/** Re-run AI valuation / plan for a mission that is not complete. */
+export const evaluateRevenueMission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { missionId: string }) => ({
+    missionId: String(input.missionId),
+  }))
+  .handler(async ({ data, context }) => {
+    const db = asDb(context.supabase);
+    const company = await ownedCompany(db, context.userId);
+    const { data: mission } = await db
+      .from("revenue_missions")
+      .select("*")
+      .eq("id", data.missionId)
+      .eq("company_id", company.id)
+      .maybeSingle();
+    if (!mission) throw new Error("Mission not found");
+    if (mission.status === "complete") {
+      throw new Error("Completed missions keep their final numbers — start a new one to re-plan.");
+    }
+
+    const goal = String(mission.goal_text || "");
+    const brief = parseMissionBrief(goal);
+    const targetUsdc = Number(mission.target_usdc) || brief.targetUsdc;
+    const budgetUsdc = Number(mission.budget_usdc) || brief.budgetUsdc;
+    const timelineDays = mission.deadline_at
+      ? Math.max(
+          1,
+          Math.ceil(
+            (new Date(String(mission.deadline_at)).getTime() - Date.now()) /
+              (24 * 60 * 60 * 1000),
+          ),
+        )
+      : brief.timelineDays;
+
+    const { plan, projected, agents } = await planRevenueMissionWithLlm({
+      goal,
+      targetUsdc,
+      budgetUsdc,
+      timelineDays,
+      industry: (mission.industry as string | null) ?? null,
+      location: (mission.location as string | null) ?? null,
+      risk: (mission.risk as "low" | "medium" | "high") || brief.risk,
+      channelHint: brief.channelHint,
+    });
+
+    const patch: Record<string, unknown> = {
+      plan,
+      projected,
+      target_usdc: targetUsdc,
+      budget_usdc: budgetUsdc,
+      risk: mission.risk || brief.risk,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Only refresh roster status when still in planning / hold (not mid-flight active).
+    if (mission.status === "planned" || mission.status === "paused" || mission.status === "draft") {
+      patch["agents_status"] = emptyAgentsStatus(agents);
+    }
+
+    await db.from("revenue_missions").update(patch).eq("id", mission.id);
+
+    await appendEvent(db, {
+      companyId: company.id,
+      missionId: mission.id,
+      agentName: "Atlas",
+      kind: "valuate",
+      message: "CEO · Re-valued mission for the founder",
+      result: `${plan.feasibility}: ${currencyish(projected.revenue_usdc)} revenue · ${currencyish(projected.profit_usdc)} profit (projected)`,
+    });
+
+    const { data: updated } = await db
+      .from("revenue_missions")
+      .select("*")
+      .eq("id", mission.id)
+      .single();
+    return hydrateMission(db, (updated || mission) as Record<string, unknown>);
+  });
+
+function currencyish(n: number | null | undefined) {
+  const v = Number(n) || 0;
+  return `$${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+}
 
 export const getPublicMission = createServerFn({ method: "GET" })
   .inputValidator((input: { slug: string }) => ({

@@ -51,9 +51,11 @@ import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedX402RouteImport } from './routes/_authenticated/x402'
 import { Route as ApiCeoRouteImport } from './routes/api/ceo'
 import { Route as CompanySlugRouteImport } from './routes/company.$slug'
+import { Route as EmbedPostIdRouteImport } from './routes/embed.$postId'
 import { Route as MShareSlugRouteImport } from './routes/m.$shareSlug'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
+import { Route as VPostIdRouteImport } from './routes/v.$postId'
 import { Route as AuthenticatedMissionsIdRouteImport } from './routes/_authenticated/missions.$id'
 import { Route as ApiBillingCheckoutRouteImport } from './routes/api/billing/checkout'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
@@ -284,6 +286,11 @@ const CompanySlugRoute = CompanySlugRouteImport.update({
   path: '/company/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmbedPostIdRoute = EmbedPostIdRouteImport.update({
+  id: '/embed/$postId',
+  path: '/embed/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MShareSlugRoute = MShareSlugRouteImport.update({
   id: '/m/$shareSlug',
   path: '/m/$shareSlug',
@@ -297,6 +304,11 @@ const RRunIdRoute = RRunIdRouteImport.update({
 const UHandleRoute = UHandleRouteImport.update({
   id: '/u/$handle',
   path: '/u/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VPostIdRoute = VPostIdRouteImport.update({
+  id: '/v/$postId',
+  path: '/v/$postId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedMissionsIdRoute = AuthenticatedMissionsIdRouteImport.update({
@@ -445,9 +457,11 @@ export interface FileRoutesByFullPath {
   '/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
   '/company/$slug': typeof CompanySlugRoute
+  '/embed/$postId': typeof EmbedPostIdRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/r/$runId': typeof RRunIdRoute
   '/u/$handle': typeof UHandleRoute
+  '/v/$postId': typeof VPostIdRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -510,9 +524,11 @@ export interface FileRoutesByTo {
   '/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
   '/company/$slug': typeof CompanySlugRoute
+  '/embed/$postId': typeof EmbedPostIdRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/r/$runId': typeof RRunIdRoute
   '/u/$handle': typeof UHandleRoute
+  '/v/$postId': typeof VPostIdRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -577,9 +593,11 @@ export interface FileRoutesById {
   '/_authenticated/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
   '/company/$slug': typeof CompanySlugRoute
+  '/embed/$postId': typeof EmbedPostIdRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/r/$runId': typeof RRunIdRoute
   '/u/$handle': typeof UHandleRoute
+  '/v/$postId': typeof VPostIdRoute
   '/_authenticated/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -644,9 +662,11 @@ export interface FileRouteTypes {
     | '/x402'
     | '/api/ceo'
     | '/company/$slug'
+    | '/embed/$postId'
     | '/m/$shareSlug'
     | '/r/$runId'
     | '/u/$handle'
+    | '/v/$postId'
     | '/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/webhook'
@@ -709,9 +729,11 @@ export interface FileRouteTypes {
     | '/x402'
     | '/api/ceo'
     | '/company/$slug'
+    | '/embed/$postId'
     | '/m/$shareSlug'
     | '/r/$runId'
     | '/u/$handle'
+    | '/v/$postId'
     | '/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/webhook'
@@ -775,9 +797,11 @@ export interface FileRouteTypes {
     | '/_authenticated/x402'
     | '/api/ceo'
     | '/company/$slug'
+    | '/embed/$postId'
     | '/m/$shareSlug'
     | '/r/$runId'
     | '/u/$handle'
+    | '/v/$postId'
     | '/_authenticated/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/webhook'
@@ -813,9 +837,11 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiCeoRoute: typeof ApiCeoRoute
   CompanySlugRoute: typeof CompanySlugRoute
+  EmbedPostIdRoute: typeof EmbedPostIdRoute
   MShareSlugRoute: typeof MShareSlugRoute
   RRunIdRoute: typeof RRunIdRoute
   UHandleRoute: typeof UHandleRoute
+  VPostIdRoute: typeof VPostIdRoute
   ApiBillingCheckoutRoute: typeof ApiBillingCheckoutRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
@@ -1132,6 +1158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompanySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/embed/$postId': {
+      id: '/embed/$postId'
+      path: '/embed/$postId'
+      fullPath: '/embed/$postId'
+      preLoaderRoute: typeof EmbedPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/m/$shareSlug': {
       id: '/m/$shareSlug'
       path: '/m/$shareSlug'
@@ -1151,6 +1184,13 @@ declare module '@tanstack/react-router' {
       path: '/u/$handle'
       fullPath: '/u/$handle'
       preLoaderRoute: typeof UHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v/$postId': {
+      id: '/v/$postId'
+      path: '/v/$postId'
+      fullPath: '/v/$postId'
+      preLoaderRoute: typeof VPostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/missions/$id': {
@@ -1383,9 +1423,11 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiCeoRoute: ApiCeoRoute,
   CompanySlugRoute: CompanySlugRoute,
+  EmbedPostIdRoute: EmbedPostIdRoute,
   MShareSlugRoute: MShareSlugRoute,
   RRunIdRoute: RRunIdRoute,
   UHandleRoute: UHandleRoute,
+  VPostIdRoute: VPostIdRoute,
   ApiBillingCheckoutRoute: ApiBillingCheckoutRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,

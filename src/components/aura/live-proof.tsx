@@ -9,20 +9,30 @@ import { useNetworkTotals } from "@/hooks/use-public";
  * Permanent proof strip on the landing page. Every number is read from the
  * network's own ledgers — nothing here is written by hand.
  */
+function liveValue(n: number | null | undefined, ready: boolean): string {
+  if (!ready) return "—";
+  return Number(n ?? 0).toLocaleString();
+}
+
 export function LiveProof() {
-  const { data } = useNetworkTotals();
+  const { data, isSuccess, isError } = useNetworkTotals();
+  const ready = isSuccess || isError;
   const stats = [
     {
       label: "Companies on Aura OS",
-      value: Number(data?.companies ?? 0).toLocaleString(),
+      value: liveValue(data?.companies, ready),
     },
     {
       label: "AI employees at work",
-      value: Number(data?.agents ?? 0).toLocaleString(),
+      value: liveValue(data?.agents, ready),
+    },
+    {
+      label: "Open tasks",
+      value: liveValue(data?.tasks, ready),
     },
     {
       label: "Actions in 24h",
-      value: Number(data?.actions_24h ?? 0).toLocaleString(),
+      value: liveValue(data?.actions_24h, ready),
     },
   ];
 
@@ -55,7 +65,7 @@ export function LiveProof() {
             Watch it live <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="border-t border-border/50 pt-4 sm:border-t-0 sm:border-l sm:pl-5 sm:pt-0 first:border-l-0 first:pl-0">
               <p className="num text-[clamp(1.75rem,4vw,2.4rem)] font-semibold leading-none tracking-tight">

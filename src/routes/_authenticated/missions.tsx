@@ -61,7 +61,17 @@ function MissionsPage() {
                   <span className="text-xs tabular-nums text-muted-foreground">
                     {currency(m.actuals?.revenue_usdc ?? 0)} / {currency(m.target_usdc)}
                   </span>
-                  <Chip tone={m.status === "active" ? "primary" : "gold"}>{m.status}</Chip>
+                  <Chip
+                    tone={
+                      m.status === "active"
+                        ? "primary"
+                        : m.status === "paused"
+                          ? "gold"
+                          : "gold"
+                    }
+                  >
+                    {m.status}
+                  </Chip>
                 </div>
               </Link>
             </li>

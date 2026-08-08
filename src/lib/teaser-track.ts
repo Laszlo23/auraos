@@ -12,7 +12,9 @@ export type TeaserEvent =
   | "download"
   | "landing_view"
   | "signup_view"
-  | "share";
+  | "share"
+  | "social_join"
+  | "launch_share";
 
 const KEY = "aura.visitor";
 

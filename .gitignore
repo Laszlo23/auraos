@@ -46,8 +46,9 @@ coverage
 .eslintcache
 .cache
 
-# Large local media mirrors (download via scripts/fetch-media.sh)
-# Keep posters/images tracked; video is too large for git.
+# Large local media mirrors (download via scripts/fetch-media.sh;
+# ship share-kit clips with scripts/deploy-share-media.sh — too large for git).
+# Keep posters/images tracked; video stays local + VPS-synced.
 public/*.mp4
 !public/.gitkeep
 

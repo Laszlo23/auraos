@@ -13,6 +13,34 @@ export type Quest = {
 
 export const COMMUNITY_QUESTS: Quest[] = [
   {
+    key: "community:follow-x",
+    label: "Follow on X",
+    hint: "Follow @buildingcultu3",
+    glyph: "⌁",
+    xp: 80,
+  },
+  {
+    key: "community:join-discord",
+    label: "Join Discord",
+    hint: "Enter the Building Culture server",
+    glyph: "◈",
+    xp: 120,
+  },
+  {
+    key: "community:join-telegram",
+    label: "Join Telegram",
+    hint: "Get launch updates in the group",
+    glyph: "▲",
+    xp: 120,
+  },
+  {
+    key: "community:follow-farcaster",
+    label: "Follow on Farcaster",
+    hint: "Follow 0xleonardo",
+    glyph: "◎",
+    xp: 80,
+  },
+  {
     key: "community:first-post",
     label: "First word",
     hint: "Share something with the network",

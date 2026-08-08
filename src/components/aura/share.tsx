@@ -73,8 +73,13 @@ export function ShareBar({
   const u = encodeURIComponent(url);
   const t = encodeURIComponent(text);
 
-  const track = (network: string) =>
-    trackTeaser("share", { placement: `${network}:${placement}`.slice(0, 40) });
+  const track = (network: string) => {
+    const place = `${network}:${placement}`.slice(0, 40);
+    trackTeaser("share", { placement: place });
+    if (placement.includes("launch")) {
+      trackTeaser("launch_share", { placement: place });
+    }
+  };
 
   const copy = async () => {
     try {

@@ -50,7 +50,7 @@ const FAQ = [
   },
   {
     q: "Why is it invite only?",
-    a: "Every company runs live AI employees, and that costs real compute. We open seats in small waves so each founding company gets full speed, real support, and a rate that never goes up. When a wave is full, it closes \u2014 quietly.",
+    a: "Every company runs live AI employees, and that costs real compute. Earn an invite by completing a short community task board (follow, engage, join Discord or Telegram) — or wait for a wave. Founding companies get full speed, real support, and a rate that never goes up.",
   },
   {
     q: "What do I actually get as a founding member?",

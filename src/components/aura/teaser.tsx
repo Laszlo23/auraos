@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Play, X } from "lucide-react";
 
 import { trackTeaser } from "@/lib/teaser-track";
@@ -24,6 +25,7 @@ export function TeaserLightbox({
   placement?: string;
   onClaim?: () => void;
 }) {
+  const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const marks = useRef<Set<string>>(new Set());
   const [loaded, setLoaded] = useState(false);
@@ -129,11 +131,11 @@ export function TeaserLightbox({
             trackTeaser("cta_click", { placement, positionPct: pct });
             onClose();
             if (onClaim) onClaim();
-            else document.getElementById("claim")?.scrollIntoView({ behavior: "smooth" });
+            else void navigate({ to: "/access" });
           }}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
         >
-          Claim a founding seat <ArrowRight className="h-4 w-4" />
+          Earn your invite <ArrowRight className="h-4 w-4" />
         </button>
 
         <a

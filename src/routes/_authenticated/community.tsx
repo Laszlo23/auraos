@@ -2,17 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Pin, Send, Sparkles } from "lucide-react";
+import { Check, ExternalLink, Heart, MessageCircle, Pin, Send, Sparkles } from "lucide-react";
 
 import { PageHeader, Panel, Chip, Pulse, DataRow } from "@/components/aura/primitives";
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { FoundingCohort } from "@/components/aura/scarcity";
 import { COMMUNITY_QUESTS, QuestTrail } from "@/components/aura/quests";
+import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import { VideoBackdrop } from "@/components/aura/video-bg";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import { useAwardXp, useProgress } from "@/hooks/use-progress";
 import { useNetworkTotals } from "@/hooks/use-public";
 import { supabase } from "@/integrations/supabase/client";
+import { SOCIAL_LINKS } from "@/lib/site";
+import { trackTeaser } from "@/lib/teaser-track";
 import { num, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/community")({
       {
         name: "description",
         content:
-          "Trade playbooks with founders whose companies run themselves. Signals from agents, patterns from the network.",
+          "Trade playbooks with founders whose companies run themselves. Join Discord, Telegram, X and Farcaster before fair launch.",
       },
       { property: "og:title", content: "Aura OS Community" },
       {
@@ -82,6 +85,11 @@ function CommunityPage() {
     award.mutate({ amount, quest });
   };
 
+  const confirmSocial = (questKey: string, label: string, xp: number, socialId: string) => {
+    trackTeaser("social_join", { placement: `${socialId}:community`.slice(0, 40) });
+    pop(label, xp, questKey);
+  };
+
   const like = async (post: Post) => {
     if (liked.has(post.id)) return;
     setLiked((s) => new Set(s).add(post.id));
@@ -117,13 +125,74 @@ function CommunityPage() {
       <PageHeader
         eyebrow="The network"
         title="Community"
-        description="Founders whose companies run themselves — and the agents that run them. Everything here compounds."
+        description="Founders whose companies run themselves — and the agents that run them. Rally Building Culture before fair launch."
         actions={
-          <Chip tone="gold">
-            <Pulse tone="gold" /> {num(companiesOnline)} companies online
-          </Chip>
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip tone="gold">
+              <Pulse tone="gold" /> {num(companiesOnline)} companies online
+            </Chip>
+            <Chip>
+              <LaunchCountdown variant="compact" showSocials={false} placement="community" />
+            </Chip>
+          </div>
         }
       />
+
+      <Panel label="Rally the network" glow>
+        <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
+          Open each channel, then confirm — honor system XP for growing the cohort before T-0.
+        </p>
+        <div className="grid gap-2.5 sm:grid-cols-2">
+          {SOCIAL_LINKS.map((s) => {
+            const earned = done.has(s.questKey);
+            return (
+              <div
+                key={s.id}
+                className={cn(
+                  "flex flex-col gap-3 rounded-2xl px-3.5 py-3 sm:flex-row sm:items-center",
+                  earned ? "bg-primary/10" : "bg-foreground/5",
+                )}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold">{s.hint}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {s.label} · +{s.xp} XP
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      trackTeaser("social_join", {
+                        placement: `${s.id}:community_open`.slice(0, 40),
+                      })
+                    }
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border/50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                  >
+                    Open <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <button
+                    type="button"
+                    disabled={earned}
+                    onClick={() => confirmSocial(s.questKey, s.hint, s.xp, s.id)}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary transition-opacity hover:opacity-80 disabled:opacity-50"
+                  >
+                    {earned ? (
+                      <>
+                        <Check className="h-3 w-3" /> Done
+                      </>
+                    ) : (
+                      "Confirm"
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
 
       <Panel label="Founder challenge" glow>
         <QuestTrail quests={COMMUNITY_QUESTS} completed={done} />
@@ -256,7 +325,7 @@ function CommunityPage() {
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
               <p className="text-[13px] leading-relaxed text-muted-foreground">
                 Connect your channels early so agents can draft posts and replies for you to
-                approve — that is how companies compound reach.
+                approve — that is how companies compound reach. Fair launch is on the public clock.
               </p>
             </div>
           </Panel>

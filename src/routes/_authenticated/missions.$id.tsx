@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -11,8 +11,11 @@ import { SITE_URL } from "@/lib/site";
 import {
   completeRevenueMission,
   computeNextBestAction,
+  deleteRevenueMission,
+  evaluateRevenueMission,
   executeNextBestAction,
   getRevenueMission,
+  pauseRevenueMission,
   startRevenueMission,
 } from "@/lib/revenue-mission.functions";
 import { useAwardXp } from "@/hooks/use-progress";
@@ -27,6 +30,7 @@ export const Route = createFileRoute("/_authenticated/missions/$id")({
 
 function MissionDetailPage() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const award = useAwardXp();
 
@@ -40,13 +44,50 @@ function MissionDetailPage() {
   const agentName = (agentId?: string | null) =>
     agents.find((a) => a.id === agentId)?.name ?? null;
 
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["revenue-mission", id] });
+    qc.invalidateQueries({ queryKey: ["revenue-missions"] });
+  };
+
   const start = useMutation({
     mutationFn: () => startRevenueMission({ data: { missionId: id } }),
+    onSuccess: async (mission) => {
+      if (mission.status === "active") {
+        await award.mutateAsync({ quest: "mission:started", amount: 60 });
+      }
+      invalidate();
+      toast.success("Mission live");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const pause = useMutation({
+    mutationFn: () => pauseRevenueMission({ data: { missionId: id } }),
+    onSuccess: () => {
+      invalidate();
+      toast.success("Mission on hold");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const evaluate = useMutation({
+    mutationFn: () => evaluateRevenueMission({ data: { missionId: id } }),
+    onSuccess: (mission) => {
+      invalidate();
+      const feas = mission.plan?.feasibility ?? "plan";
+      toast.success(
+        `Valued · ${feas} · ${currency(mission.projected?.revenue_usdc ?? 0)} projected revenue`,
+      );
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteRevenueMission({ data: { missionId: id } }),
     onSuccess: async () => {
-      await award.mutateAsync({ quest: "mission:started", amount: 60 });
-      qc.invalidateQueries({ queryKey: ["revenue-mission", id] });
       qc.invalidateQueries({ queryKey: ["revenue-missions"] });
-      toast.success("Mission started");
+      toast.success("Mission deleted");
+      await navigate({ to: "/missions" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -54,7 +95,7 @@ function MissionDetailPage() {
   const execute = useMutation({
     mutationFn: () => executeNextBestAction({ data: { missionId: id } }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["revenue-mission", id] });
+      invalidate();
       toast.success("Action dispatched");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -72,7 +113,7 @@ function MissionDetailPage() {
       if ((mission.actuals?.revenue_usdc ?? 0) > 0) {
         await award.mutateAsync({ quest: "mission:first_settlement", amount: 80 });
       }
-      qc.invalidateQueries({ queryKey: ["revenue-mission", id] });
+      invalidate();
       toast.success("Mission complete — share card unlocked");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -101,6 +142,14 @@ function MissionDetailPage() {
     mission.share_slug && mission.status === "complete"
       ? `${SITE_URL}/m/${mission.share_slug}`
       : null;
+  const canDelete = ["planned", "paused", "failed", "draft"].includes(mission.status);
+  const canEvaluate = mission.status !== "complete";
+  const busy =
+    start.isPending ||
+    pause.isPending ||
+    evaluate.isPending ||
+    remove.isPending ||
+    complete.isPending;
 
   return (
     <div className="space-y-6">
@@ -111,7 +160,10 @@ function MissionDetailPage() {
         actions={
           <div className="flex flex-wrap gap-2">
             <Chip tone="primary">{mission.status}</Chip>
-            <Link to="/missions" className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <Link
+              to="/missions"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+            >
               All missions
             </Link>
           </div>
@@ -148,22 +200,76 @@ function MissionDetailPage() {
         {mission.status === "planned" && (
           <button
             type="button"
-            disabled={start.isPending}
+            disabled={busy}
             onClick={() => start.mutate()}
             className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
           >
             Start mission
           </button>
         )}
-        {mission.status === "active" && (
+        {mission.status === "paused" && (
           <button
             type="button"
-            disabled={complete.isPending}
-            onClick={() => complete.mutate()}
-            className="rounded-2xl bg-foreground px-5 py-2.5 text-xs font-semibold text-background"
+            disabled={busy}
+            onClick={() => start.mutate()}
+            className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
           >
-            Mark complete
+            Resume mission
           </button>
+        )}
+        {mission.status === "active" && (
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => pause.mutate()}
+              className="rounded-2xl border border-border px-5 py-2.5 text-xs font-semibold"
+            >
+              Put on hold
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => complete.mutate()}
+              className="rounded-2xl bg-foreground px-5 py-2.5 text-xs font-semibold text-background"
+            >
+              Mark complete
+            </button>
+          </>
+        )}
+        {canEvaluate && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => evaluate.mutate()}
+            className="rounded-2xl border border-border px-5 py-2.5 text-xs font-semibold"
+          >
+            {evaluate.isPending ? "Valuing…" : "AI value this mission"}
+          </button>
+        )}
+        {canDelete && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              if (
+                !window.confirm(
+                  "Delete this mission? This cannot be undone. Use this for wrong or abandoned goals.",
+                )
+              ) {
+                return;
+              }
+              remove.mutate();
+            }}
+            className="rounded-2xl border border-destructive/40 px-5 py-2.5 text-xs font-semibold text-destructive"
+          >
+            Delete mission
+          </button>
+        )}
+        {mission.status === "active" && (
+          <p className="w-full text-[11px] text-muted-foreground">
+            To delete an active mission, put it on hold first.
+          </p>
         )}
         {shareUrl && (
           <a
@@ -180,16 +286,84 @@ function MissionDetailPage() {
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel label="Plan">
           <p className="text-[13px] text-muted-foreground">{mission.plan?.summary}</p>
+          {mission.plan?.feasibility_note && (
+            <p className="mt-3 rounded-2xl border border-border/50 bg-foreground/[0.03] px-3 py-2 text-[12px]">
+              <span className="font-semibold capitalize">{mission.plan.feasibility ?? "plan"}</span>
+              {" — "}
+              {mission.plan.feasibility_note}
+            </p>
+          )}
+          {mission.plan?.path_to_target && (
+            <p className="mt-3 text-[12px] text-muted-foreground">
+              Path · {mission.plan.path_to_target}
+            </p>
+          )}
           <p className="mt-3 text-[12px]">
             Offer · {mission.plan?.offer} · Price · {currency(mission.plan?.price_usdc ?? 0)} ·
             Customers needed · {mission.plan?.customers_needed ?? "—"}
+            {mission.plan?.capital_usdc != null && (
+              <> · Capital · {currency(mission.plan.capital_usdc)}</>
+            )}
+            {mission.plan?.timeline_days != null && <> · {mission.plan.timeline_days}d</>}
           </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[12px]">
+            <div className="rounded-xl border border-border/50 px-3 py-2">
+              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Cost</p>
+              <p className="font-semibold tabular-nums">
+                {currency(mission.projected?.cost_usdc ?? 0)}
+                {mission.projected?.cost_aura ? (
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · {mission.projected.cost_aura} AURA
+                  </span>
+                ) : null}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border/50 px-3 py-2">
+              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Revenue</p>
+              <p className="font-semibold tabular-nums">
+                {currency(mission.projected?.revenue_usdc ?? 0)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border/50 px-3 py-2">
+              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Profit</p>
+              <p className="font-semibold tabular-nums">
+                {currency(mission.projected?.profit_usdc ?? 0)}
+              </p>
+            </div>
+          </div>
+          {mission.plan?.assumptions?.length || mission.plan?.risks?.length ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 text-[12px] text-muted-foreground">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.16em]">Assumptions</p>
+                <ul className="mt-1 space-y-1">
+                  {(mission.plan?.assumptions || []).map((a) => (
+                    <li key={a}>· {a}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.16em]">Risks</p>
+                <ul className="mt-1 space-y-1">
+                  {(mission.plan?.risks || []).map((a) => (
+                    <li key={a}>· {a}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : null}
           <ol className="mt-4 space-y-2 text-[13px]">
             {(mission.plan?.steps || []).map((s) => (
               <li key={s.order}>
                 <span className="text-muted-foreground">{s.order}.</span>{" "}
-                <span className="font-medium">{s.agent}</span> · {s.title}
+                <span className="font-medium">{s.agent}</span>
+                {s.day ? <span className="text-muted-foreground"> · day {s.day}</span> : null}
+                {" · "}
+                {s.title}
                 <span className="text-muted-foreground"> · {s.kind}</span>
+                {s.detail ? (
+                  <p className="mt-0.5 text-[12px] text-muted-foreground">{s.detail}</p>
+                ) : null}
               </li>
             ))}
           </ol>
@@ -202,10 +376,10 @@ function MissionDetailPage() {
               <p className="mt-2 text-[13px] text-muted-foreground">{nba.detail}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Chip tone="primary">{nba.assignee}</Chip>
-                <Chip tone="gold">{nba.expected_cost_aura ?? 0} AURA · projected</Chip>
                 <Chip tone="gold">
-                  +{currency(nba.expected_upside_usdc ?? 0)} · projected
+                  {nba.expected_cost_aura ?? 0} AURA · projected
                 </Chip>
+                <Chip tone="gold">+{currency(nba.expected_upside_usdc ?? 0)} · projected</Chip>
               </div>
               {mission.status === "active" && (
                 <button
@@ -250,16 +424,18 @@ function MissionDetailPage() {
           <Pulse /> WHO · WHAT · WHEN · COST · RESULT
         </p>
         <ul className="space-y-3 text-[12px]">
-          {(events as {
-            id: string;
-            agent_name: string;
-            message: string;
-            cost_aura: number;
-            cost_usdc: number;
-            result: string | null;
-            created_at: string;
-            status: string;
-          }[]).map((e) => (
+          {(
+            events as {
+              id: string;
+              agent_name: string;
+              message: string;
+              cost_aura: number;
+              cost_usdc: number;
+              result: string | null;
+              created_at: string;
+              status: string;
+            }[]
+          ).map((e) => (
             <li key={e.id} className="border-b border-border/40 pb-2">
               <span className="font-medium">{e.agent_name}</span>
               <span className="text-muted-foreground"> · {e.message}</span>
@@ -280,15 +456,17 @@ function MissionDetailPage() {
 
       <Panel label="Proof of work">
         <div className="grid gap-3 md:grid-cols-2">
-          {(tasks as {
-            id: string;
-            title: string;
-            status: string;
-            result?: string | null;
-            agent_id?: string | null;
-            completed_at?: string | null;
-            created_at?: string | null;
-          }[]).map((t) => (
+          {(
+            tasks as {
+              id: string;
+              title: string;
+              status: string;
+              result?: string | null;
+              agent_id?: string | null;
+              completed_at?: string | null;
+              created_at?: string | null;
+            }[]
+          ).map((t) => (
             <ProofOfWork
               key={t.id}
               agentName={agentName(t.agent_id)}
@@ -306,7 +484,10 @@ function MissionDetailPage() {
           )}
         </div>
         {mission.akquise_campaign_id && (
-          <Link to="/akquise" className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+          <Link
+            to="/akquise"
+            className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary"
+          >
             Open lead hunter →
           </Link>
         )}

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Check, Link2, Loader2, MessageCircle, RefreshCw, Send, Sparkles } from "lucide-react";
+import { Check, Link2, Loader2, MessageCircle, Radio, RefreshCw, Send, Sparkles } from "lucide-react";
 import { toast as notify } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -12,9 +12,11 @@ import {
   SOCIALS,
   useConnectChannel,
   useDisconnectChannel,
+  useLaunchDripStatus,
   usePublishSocial,
   useSetReplyMode,
   useSocialStatus,
+  useStartLaunchDrip,
   useToggleAutoPublish,
   type SocialProvider,
 } from "@/hooks/use-connections";
@@ -22,6 +24,7 @@ import { useAwardXp } from "@/hooks/use-progress";
 import { approveEngagementReply } from "@/lib/social.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { compact, timeAgo } from "@/lib/format";
+import { TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/channels")({
@@ -89,6 +92,9 @@ function ChannelsPage() {
   const setReplyMode = useSetReplyMode();
   const toggleAuto = useToggleAutoPublish();
   const award = useAwardXp();
+  const { data: drip } = useLaunchDripStatus();
+  const startDrip = useStartLaunchDrip();
+  const xStatus = statuses.find((s) => s.provider === "x");
 
   const [pending, setPending] = useState<string | null>(null);
   const [burst, setBurst] = useState(0);
@@ -325,6 +331,117 @@ function ChannelsPage() {
       </div>
 
       {isLoading ? <p className="text-sm text-muted-foreground">Loading channels…</p> : null}
+
+      <Panel label="Fair-launch X drip" glow>
+        <p className="text-[12px] leading-relaxed text-muted-foreground">
+          Schedule ~2–3 posts/day through {TOKEN_LAUNCH_DISPLAY}. Each tweet is text + a watch link
+          to the share kit clip. Connect X with OAuth (never a password). Autopublish must stay on
+          for the worker to send them. Mentions use reply mode below.
+        </p>
+        {!xStatus?.connected ? (
+          <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">
+            Connect X above first, then start the drip. Needs{" "}
+            <span className="font-mono text-[11px]">X_CLIENT_ID</span> /{" "}
+            <span className="font-mono text-[11px]">X_CLIENT_SECRET</span> in env.
+          </p>
+        ) : null}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            disabled={!xStatus?.connected || startDrip.isPending}
+            onClick={() =>
+              startDrip.mutate(
+                { enableAutoReply: true },
+                {
+                  onSuccess: (res) => {
+                    notify.success(
+                      res.created
+                        ? `Queued ${res.created} posts${res.skipped ? ` (${res.skipped} already set)` : ""}.`
+                        : res.skipped
+                          ? "Drip already seeded — nothing new to add."
+                          : "Drip ready.",
+                    );
+                    celebrate("Launch drip armed", 120, "channels:launch-drip");
+                  },
+                  onError: (e) =>
+                    notify.error(e instanceof Error ? e.message : "Could not start drip"),
+                },
+              )
+            }
+            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {startDrip.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Radio className="h-3.5 w-3.5" />
+            )}
+            {drip?.seeded ? "Re-sync drip schedule" : "Start fair-launch drip"}
+          </button>
+          <Chip>
+            {drip?.seeded
+              ? `${drip.posts.length} in queue`
+              : drip?.preview
+                ? `Preview · ${drip.preview.count} slots`
+                : "Not seeded"}
+          </Chip>
+          {xStatus?.connected ? (
+            <Chip tone={xStatus.auto_publish ? "primary" : "neutral"}>
+              Autopublish {xStatus.auto_publish ? "on" : "off — drip paused"}
+            </Chip>
+          ) : null}
+        </div>
+        {drip?.posts && drip.posts.length > 0 ? (
+          <ul className="mt-4 max-h-56 space-y-2 overflow-y-auto">
+            {drip.posts.slice(0, 12).map((p) => (
+              <li
+                key={p.id}
+                className="rounded-xl border border-border/40 bg-foreground/[0.03] px-3 py-2"
+              >
+                <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                  <span>{p.status}</span>
+                  <span className="num normal-case tracking-normal">
+                    {p.scheduled_at
+                      ? new Date(p.scheduled_at).toLocaleString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—"}
+                  </span>
+                </div>
+                <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-foreground/90">
+                  {p.body}
+                </p>
+                {p.external_url ? (
+                  <a
+                    href={p.external_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block text-[11px] text-primary hover:underline"
+                  >
+                    Open on X
+                  </a>
+                ) : null}
+                {p.error ? (
+                  <p className="mt-1 text-[11px] text-destructive">{p.error}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : drip?.preview ? (
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Will schedule {drip.preview.count} posts
+            {drip.preview.firstAt
+              ? ` from ${new Date(drip.preview.firstAt).toLocaleString()}`
+              : ""}
+            {drip.preview.lastAt
+              ? ` through ${new Date(drip.preview.lastAt).toLocaleString()}`
+              : ""}
+            .
+          </p>
+        ) : null}
+      </Panel>
 
       <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
         <Panel label="Compose & publish" glow>
