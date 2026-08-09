@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { PageHeader, Panel, Chip, Pulse, Meter, DataRow } from "@/components/aura/primitives";
+import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import {
   SOCIALS,
@@ -260,7 +261,13 @@ function ChannelsPage() {
                       Comment replies
                     </p>
                     <div className="flex gap-1">
-                      {(["off", "draft", "auto"] as const).map((mode) => (
+                      {(
+                        [
+                          { mode: "off" as const, label: "Off" },
+                          { mode: "draft" as const, label: "Approve" },
+                          { mode: "auto" as const, label: "Free" },
+                        ] as const
+                      ).map(({ mode, label }) => (
                         <button
                           key={mode}
                           type="button"
@@ -272,25 +279,28 @@ function ChannelsPage() {
                                 onSuccess: () =>
                                   notify.success(
                                     mode === "auto"
-                                      ? "Agents reply automatically."
+                                      ? "Comments are free — agents reply automatically."
                                       : mode === "draft"
-                                        ? "Agents draft replies for your approval."
+                                        ? "Each reply waits for your approval."
                                         : "Replies paused.",
                                   ),
                               },
                             )
                           }
                           className={cn(
-                            "flex-1 rounded-xl px-2 py-1.5 text-[10px] capitalize transition-colors",
+                            "flex-1 rounded-xl px-2 py-1.5 text-[10px] transition-colors",
                             state?.reply_mode === mode
                               ? "bg-primary/14 text-primary"
                               : "bg-foreground/6 text-muted-foreground",
                           )}
                         >
-                          {mode}
+                          {label}
                         </button>
                       ))}
                     </div>
+                    <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">
+                      Free = no per-comment approval. Approve = draft queue.
+                    </p>
                   </div>
                 </div>
               ) : null}
@@ -686,7 +696,8 @@ function ChannelsPage() {
           </p>
         ) : (
           <div className="space-y-3">
-            {pendingEngagements.slice(0, 12).map((e) => (
+            <SocialReplyBulkBar count={pendingEngagements.length} showFreeAuto />
+            {pendingEngagements.slice(0, pendingEngagements.length > 5 ? 5 : 12).map((e) => (
               <div key={e.id} className="glass-soft rounded-2xl p-4">
                 <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                   <MessageCircle className="h-3 w-3 text-primary" />
@@ -743,6 +754,11 @@ function ChannelsPage() {
                 ) : null}
               </div>
             ))}
+            {pendingEngagements.length > 5 ? (
+              <p className="text-[11px] text-muted-foreground">
+                Showing 5 of {pendingEngagements.length}. Use Send all or Free comments above.
+              </p>
+            ) : null}
           </div>
         )}
       </Panel>

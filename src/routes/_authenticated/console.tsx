@@ -16,6 +16,7 @@ import {
 } from "@/components/aura/command/mission-pipeline";
 import { ProofOfWorkStrip } from "@/components/aura/command/proof-strip";
 import { WorkforceBoard } from "@/components/aura/command/workforce-board";
+import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
 import { Chip, Panel, Pulse, Shimmer } from "@/components/aura/primitives";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
@@ -132,6 +133,10 @@ function Home() {
 
   const running = tasks.filter((t) => t.status === "running" || t.status === "queued");
   const awaiting = tasks.filter((t) => t.status === "pending_approval");
+  const socialAwaiting = awaiting.filter((t) =>
+    Boolean(t.result?.startsWith("social-reply:")),
+  );
+  const otherAwaiting = awaiting.filter((t) => !t.result?.startsWith("social-reply:"));
   const done = tasks.filter((t) => t.status === "completed" || t.status === "done").length;
   const failedCount = tasks.filter((t) => t.status === "failed").length;
   const briefing = insights.find((i) => i.kind === "thought");
@@ -263,61 +268,118 @@ function Home() {
       </Panel>
 
       {/* Approvals — sticky priority */}
-      {awaiting.length > 0 && (
+      {(socialAwaiting.length > 0 || otherAwaiting.length > 0) && (
         <Panel label="Needs your approval" glow delay={0.01}>
-          <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
-            Founder gate. Approve here — agents execute after you say yes.
-            {awaiting.some((t) => t.result?.startsWith("social-reply:"))
-              ? " Social replies post live when you approve."
-              : null}
-          </p>
-          <div className="space-y-3">
-            {awaiting.slice(0, 8).map((t) => {
-              const isSocial = Boolean(t.result?.startsWith("social-reply:"));
-              const draftPreview = t.description
-                ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
-                : null;
-              return (
-                <div
-                  key={t.id}
-                  className="rounded-2xl border border-gold/30 bg-gold/5 px-3.5 py-3"
-                >
-                  <div className="flex flex-wrap items-start gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-medium leading-snug">{t.title}</p>
-                      {draftPreview ? (
-                        <p className="mt-1.5 line-clamp-3 text-[12px] leading-relaxed text-muted-foreground">
-                          {draftPreview}
-                        </p>
-                      ) : null}
+          {socialAwaiting.length > 0 ? (
+            <div className="mb-5 space-y-3">
+              <p className="text-[12px] leading-relaxed text-muted-foreground">
+                Comment replies — send one-by-one, or clear the queue.{" "}
+                <span className="text-foreground/80">
+                  Free comments (auto)
+                </span>{" "}
+                lets Vela reply without asking next time.
+              </p>
+              <SocialReplyBulkBar count={socialAwaiting.length} showFreeAuto />
+              <div className="space-y-3">
+                {socialAwaiting.slice(0, socialAwaiting.length > 5 ? 5 : 12).map((t) => {
+                  const draftPreview = t.description
+                    ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
+                    : null;
+                  return (
+                    <div
+                      key={t.id}
+                      className="rounded-2xl border border-gold/30 bg-gold/5 px-3.5 py-3"
+                    >
+                      <div className="flex flex-wrap items-start gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-medium leading-snug">{t.title}</p>
+                          {draftPreview ? (
+                            <p className="mt-1.5 line-clamp-3 text-[12px] leading-relaxed text-muted-foreground">
+                              {draftPreview}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="flex shrink-0 gap-1.5">
+                          <button
+                            type="button"
+                            disabled={approve.isPending || reject.isPending}
+                            onClick={() => approve.mutate(t.id)}
+                            className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
+                          >
+                            {approve.isPending ? "…" : "Send reply"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={approve.isPending || reject.isPending}
+                            onClick={() => reject.mutate(t.id)}
+                            className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground disabled:opacity-50"
+                          >
+                            Ignore
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex shrink-0 gap-1.5">
-                      <button
-                        type="button"
-                        disabled={approve.isPending || reject.isPending}
-                        onClick={() => approve.mutate(t.id)}
-                        className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
-                      >
-                        {approve.isPending
-                          ? "…"
-                          : isSocial
-                            ? "Send reply"
-                            : "Approve & run"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={approve.isPending || reject.isPending}
-                        onClick={() => reject.mutate(t.id)}
-                        className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground disabled:opacity-50"
-                      >
-                        Reject
-                      </button>
+                  );
+                })}
+              </div>
+              {socialAwaiting.length > 5 ? (
+                <p className="text-[11px] text-muted-foreground">
+                  Showing 5 of {socialAwaiting.length}. Use Send all / Free comments above for the
+                  rest.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {otherAwaiting.length > 0 ? (
+            <>
+              <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
+                Founder gate for company work — approve here and agents execute.
+              </p>
+              <div className="space-y-3">
+                {otherAwaiting.slice(0, 8).map((t) => {
+                  const draftPreview = t.description
+                    ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
+                    : null;
+                  return (
+                    <div
+                      key={t.id}
+                      className="rounded-2xl border border-border/50 bg-foreground/[0.03] px-3.5 py-3"
+                    >
+                      <div className="flex flex-wrap items-start gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-medium leading-snug">{t.title}</p>
+                          {draftPreview ? (
+                            <p className="mt-1.5 line-clamp-3 text-[12px] leading-relaxed text-muted-foreground">
+                              {draftPreview}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="flex shrink-0 gap-1.5">
+                          <button
+                            type="button"
+                            disabled={approve.isPending || reject.isPending}
+                            onClick={() => approve.mutate(t.id)}
+                            className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
+                          >
+                            {approve.isPending ? "…" : "Approve & run"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={approve.isPending || reject.isPending}
+                            onClick={() => reject.mutate(t.id)}
+                            className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground disabled:opacity-50"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : null}
         </Panel>
       )}
 

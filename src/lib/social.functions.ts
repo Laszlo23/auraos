@@ -395,6 +395,191 @@ export const approveEngagementReply = createServerFn({ method: "POST" })
   });
 
 /**
+ * Bulk-handle comment/mention drafts so founders aren't stuck approving 5+ one-by-one.
+ * - send_all: post every drafted reply (cap)
+ * - ignore_all: mark pending/drafted ignored + clear matching approval tasks
+ * - free_auto: set reply_mode=auto (future comments free) + ignore backlog (or send if flush=send)
+ */
+export const bulkResolveEngagements = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      action: "send_all" | "ignore_all" | "free_auto";
+      provider?: string;
+      limit?: number;
+      /** When free_auto: what to do with the existing queue. Default ignore. */
+      flush?: "ignore" | "send";
+    }) => {
+      const action = input.action;
+      if (action !== "send_all" && action !== "ignore_all" && action !== "free_auto") {
+        throw new Error("Invalid action");
+      }
+      const provider = input.provider ? String(input.provider) : undefined;
+      if (provider && !["x", "linkedin", "meta"].includes(provider)) {
+        throw new Error("Unknown provider");
+      }
+      const limit = Math.min(40, Math.max(1, Number(input.limit) || 25));
+      const flush = input.flush === "send" ? "send" : "ignore";
+      return { action, provider, limit, flush } as const;
+    },
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { replyToEngagement } = await import("@/lib/social-api.server");
+
+    const { data: company } = await supabaseAdmin
+      .from("companies")
+      .select("id")
+      .eq("owner_id", context.userId)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (!company) throw new Error("No company");
+
+    if (data.action === "free_auto") {
+      const providers = data.provider
+        ? [data.provider]
+        : (["x", "linkedin", "meta"] as const);
+      for (const provider of providers) {
+        await supabaseAdmin
+          .from("channel_connections")
+          .update({ reply_mode: "auto" })
+          .eq("company_id", company.id)
+          .eq("provider", provider)
+          .eq("status", "connected");
+      }
+    }
+
+    const shouldSend =
+      data.action === "send_all" || (data.action === "free_auto" && data.flush === "send");
+    const shouldIgnore =
+      data.action === "ignore_all" || (data.action === "free_auto" && data.flush === "ignore");
+
+    let sent = 0;
+    let ignored = 0;
+    const errors: string[] = [];
+
+    if (shouldSend) {
+      let q = supabaseAdmin
+        .from("channel_engagements")
+        .select("id, provider, company_id, external_id, reply_body, status")
+        .eq("company_id", company.id)
+        .in("status", ["drafted", "pending"])
+        .order("created_at", { ascending: true })
+        .limit(data.limit);
+      if (data.provider) q = q.eq("provider", data.provider);
+      const { data: rows } = await q;
+
+      for (const row of rows ?? []) {
+        const replyBody = String(row.reply_body ?? "").trim();
+        if (!replyBody) {
+          await supabaseAdmin
+            .from("channel_engagements")
+            .update({ status: "ignored" })
+            .eq("id", row.id);
+          ignored += 1;
+          continue;
+        }
+        try {
+          const externalReplyId = await replyToEngagement(
+            row.provider as "x" | "linkedin" | "meta",
+            row.company_id,
+            row.external_id,
+            replyBody,
+          );
+          await supabaseAdmin
+            .from("channel_engagements")
+            .update({
+              status: "replied",
+              reply_body: replyBody,
+              external_reply_id: externalReplyId,
+              replied_at: new Date().toISOString(),
+            })
+            .eq("id", row.id);
+          const sourceKey = `social-reply:${row.provider}:${row.external_id}`;
+          await supabaseAdmin
+            .from("tasks")
+            .update({
+              status: "completed",
+              progress: 100,
+              completed_at: new Date().toISOString(),
+              result: `Reply sent · ${sourceKey}`,
+            })
+            .eq("company_id", company.id)
+            .eq("status", "pending_approval")
+            .eq("result", sourceKey);
+          sent += 1;
+        } catch (e) {
+          errors.push(e instanceof Error ? e.message : String(e));
+        }
+      }
+
+      if (sent > 0) {
+        await supabaseAdmin.from("activity_events").insert({
+          company_id: company.id,
+          kind: "reply",
+          message: `Founder bulk-sent ${sent} comment replies`,
+        });
+      }
+    }
+
+    if (shouldIgnore) {
+      let q = supabaseAdmin
+        .from("channel_engagements")
+        .select("id, provider, external_id")
+        .eq("company_id", company.id)
+        .in("status", ["drafted", "pending"])
+        .limit(data.limit);
+      if (data.provider) q = q.eq("provider", data.provider);
+      const { data: rows } = await q;
+      for (const row of rows ?? []) {
+        await supabaseAdmin
+          .from("channel_engagements")
+          .update({ status: "ignored" })
+          .eq("id", row.id);
+        const sourceKey = `social-reply:${row.provider}:${row.external_id}`;
+        await supabaseAdmin
+          .from("tasks")
+          .update({
+            status: "cancelled",
+            progress: 0,
+            result: `Ignored · ${sourceKey}`,
+          })
+          .eq("company_id", company.id)
+          .eq("status", "pending_approval")
+          .eq("result", sourceKey);
+        ignored += 1;
+      }
+      if (ignored > 0) {
+        await supabaseAdmin.from("activity_events").insert({
+          company_id: company.id,
+          kind: "decision",
+          message:
+            data.action === "free_auto"
+              ? `Comment replies set to auto — cleared ${ignored} from the queue`
+              : `Founder ignored ${ignored} comment replies`,
+        });
+      }
+    }
+
+    if (data.action === "free_auto") {
+      await supabaseAdmin.from("activity_events").insert({
+        company_id: company.id,
+        kind: "decision",
+        message: `Comment replies are free (auto)${data.provider ? ` on ${data.provider}` : ""} — no per-comment approval`,
+      });
+    }
+
+    return {
+      ok: true as const,
+      action: data.action,
+      sent,
+      ignored,
+      errors: errors.slice(0, 5),
+    };
+  });
+
+/**
  * Seed the fair-launch X drip into channel_posts (scheduled).
  * Idempotent via campaign_key. Turns on auto_publish + reply_mode auto for X.
  */

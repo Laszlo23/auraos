@@ -195,10 +195,11 @@ export async function syncSocialEngagement(limitCompanies = 20, companyId?: stri
 
       const replySourceKey = `social-reply:${provider}:${c.externalId}`;
 
-      // Autonomy 0 always drafts for founder approval, even if reply_mode is auto
-      const forceDraft = (company?.autonomy ?? 0) === 0 || conn.reply_mode === "draft";
-
-      if (forceDraft || conn.reply_mode === "draft") {
+      // reply_mode owns comment/mention handling:
+      // - draft → founder approves each reply
+      // - auto → free-for-all replies (no per-comment approval, even at autonomy 0)
+      // Mission/task autonomy still applies elsewhere.
+      if (conn.reply_mode === "draft") {
         await supabaseAdmin
           .from("channel_engagements")
           .update({ status: "drafted", reply_body: reply })
