@@ -3,6 +3,7 @@
 #
 # MP4s are served from /opt/auraos/public (gitignored). That directory tree must
 # be traversable by the caddy user: `chmod 755 /opt/auraos /opt/auraos/public`.
+# Never put long immutable Cache-Control on *.mp4 — a 403 would be sticky for a week.
 
 aibusiness.fun, www.aibusiness.fun {
   encode gzip zstd
@@ -14,19 +15,14 @@ aibusiness.fun, www.aibusiness.fun {
     -Server
   }
 
-  # Only cache successful hashed/static assets — never stamp Cache-Control onto 403/404.
-  @staticOk {
-    path *.js *.css *.woff2 *.jpg *.jpeg *.png *.webp *.svg *.ico
-    status 200
-  }
-  header @staticOk Cache-Control "public, max-age=604800, immutable"
+  # Hashed/static assets only (not mp4 — errors must not be cached immutable).
+  @static path *.js *.css *.woff2 *.jpg *.jpeg *.png *.webp *.svg *.ico
+  header @static Cache-Control "public, max-age=604800, immutable"
 
   # Kit videos + posters live on disk (too large for Nitro build / git).
   @media path *.mp4 /share/*
   handle @media {
     root * /opt/auraos/public
-    @ok status 200
-    header @ok Cache-Control "public, max-age=86400"
     file_server
   }
 
