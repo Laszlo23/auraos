@@ -174,10 +174,10 @@ function MarketplacePage() {
       avatar: entry[2],
       accent: "primary",
       status: "active",
-      current_task: "Reading the company knowledge base",
+      current_task: "Just hired — awaiting first brief",
       health: 100,
-      performance: 82,
-      activity: 60,
+      performance: 0,
+      activity: 0,
       revenue_generated: 0,
       credits_used: 0,
       tasks_completed: 0,
@@ -187,7 +187,7 @@ function MarketplacePage() {
     await supabase.from("activity_events").insert({
       company_id: company.id,
       kind: "hire",
-      message: `${name} joined the company and is reading the knowledge base`,
+      message: `${name} joined the company — onboard brief queued`,
     });
     trackAppEvent("marketplace_hire", {
       company_id: company.id,

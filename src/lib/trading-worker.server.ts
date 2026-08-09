@@ -851,7 +851,7 @@ export async function executeApprovedSignals(limit = 5) {
             tasks_completed: (quant.tasks_completed ?? 0) + 1,
             lessons_count: (quant.lessons_count ?? 0) + 1,
             current_task: `Filled ${signal.symbol}`,
-            activity: 90,
+            activity: 0,
           })
           .eq("id", quant.id);
       }

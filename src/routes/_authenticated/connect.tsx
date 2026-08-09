@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/connect")({
       {
         name: "description",
         content:
-          "Connect X, Meta, LinkedIn, your mailbox and your wallet in one pass. Your agents take it from there.",
+          "Connect X, Meta, LinkedIn, TikTok, Farcaster, your mailbox and your wallet in one pass. Your agents take it from there.",
       },
       { property: "og:title", content: "Connect — wire up your AI company in one screen" },
       {
@@ -46,12 +46,14 @@ const MAILBOXES: { id: MailboxProvider; name: string; blurb: string }[] = [
   {
     id: "google_mail",
     name: "Gmail",
-    blurb: "Agents send from your own address. Replies land in your inbox.",
+    blurb:
+      "Company outbound uses your Gmail. Agents draft; you approve every send. Replies stay in your inbox.",
   },
   {
     id: "microsoft_outlook",
     name: "Outlook",
-    blurb: "Microsoft 365 mailboxes, same personal deliverability.",
+    blurb:
+      "Company outbound uses your Outlook. Agents draft; you approve every send. Replies stay in your inbox.",
   },
 ];
 
@@ -230,7 +232,7 @@ function ConnectPage() {
       <PageHeader
         eyebrow="Setup"
         title="Connect everything once"
-        description="Three taps and your agents can publish, write and get paid. Nothing else to configure."
+        description="Three taps: socials, your mailbox (agents need it for outreach), and wallet. Sends stay founder-approved."
         actions={
           <Chip tone={done === 3 ? "primary" : "gold"}>
             <Plug className="h-3 w-3" /> {done}/3 wired

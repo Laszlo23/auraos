@@ -32,11 +32,11 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/channels")({
   head: () => ({
     meta: [
-      { title: "Channels — X, Meta & LinkedIn on autopilot | Aura OS" },
+      { title: "Channels — X, Meta, LinkedIn, TikTok & Farcaster | Aura OS" },
       {
         name: "description",
         content:
-          "Connect X, Meta and LinkedIn in one click. Agents publish, listen to comments and reply in your brand voice.",
+          "Connect X, Meta, LinkedIn, TikTok and Farcaster in one click. Agents publish, listen, and reply in your brand voice.",
       },
       { property: "og:title", content: "Channels — social autopilot for your AI company" },
       { name: "robots", content: "noindex, nofollow" },
@@ -74,6 +74,8 @@ const META = {
   x: { name: "X", glyph: "𝕏" },
   meta: { name: "Meta", glyph: "∞" },
   linkedin: { name: "LinkedIn", glyph: "in" },
+  tiktok: { name: "TikTok", glyph: "♪" },
+  farcaster: { name: "Farcaster", glyph: "FC" },
 } as const;
 
 function ChannelsPage() {
@@ -242,7 +244,11 @@ function ChannelsPage() {
                       Add{" "}
                       {s.id === "meta"
                         ? "META_APP_ID / META_APP_SECRET"
-                        : `${s.id.toUpperCase()}_CLIENT_ID`}{" "}
+                        : s.id === "tiktok"
+                          ? "TIKTOK_CLIENT_KEY / TIKTOK_CLIENT_SECRET"
+                          : s.id === "farcaster"
+                            ? "NEYNAR_API_KEY + FARCASTER FID/key"
+                            : `${s.id.toUpperCase()}_CLIENT_ID`}{" "}
                       in env to enable.
                     </p>
                   ) : null}

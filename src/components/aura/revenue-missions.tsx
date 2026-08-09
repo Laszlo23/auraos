@@ -746,8 +746,16 @@ function ActiveMissionStrip({
         </ul>
         <div className="mt-4 flex flex-wrap gap-2">
           {Object.entries(mission.agents_status || {}).map(([name, st]) => (
-            <Chip key={name} tone={st === "working" || st === "coordinating" ? "primary" : "gold"}>
-              {st === "working" || st === "coordinating" ? "●" : "○"} {name} · {st}
+            <Chip
+              key={name}
+              tone={
+                st === "working" || st === "queued" || st === "coordinating"
+                  ? "primary"
+                  : "gold"
+              }
+            >
+              {st === "working" || st === "queued" || st === "coordinating" ? "●" : "○"} {name} ·{" "}
+              {st}
             </Chip>
           ))}
         </div>

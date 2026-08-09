@@ -507,6 +507,5 @@ Recent: ${opts.recentEvents.slice(0, 8).join(" | ")}`,
 export function emptyAgentsStatus(agents: string[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const a of agents) out[a] = "waiting";
-  if (agents[0]) out[agents[0]!] = "coordinating";
   return out;
 }

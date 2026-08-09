@@ -35,7 +35,7 @@ async function ensureQuant(supabase: {
       current_task: "Standing by for strategy approval",
       health: 100,
       performance: 0,
-      activity: 20,
+      activity: 0,
       revenue_generated: 0,
       credits_used: 0,
       tasks_completed: 0,

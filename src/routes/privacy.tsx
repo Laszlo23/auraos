@@ -74,9 +74,10 @@ function PrivacyPage() {
 
       <LegalSection title="Connected accounts">
         <p>
-          When you connect Google Mail, Outlook, X, LinkedIn, or Meta, we store the tokens needed
-          for the features you turn on (send mail, publish, reply). You can disconnect channels at
-          any time from Connect or Channels; we then stop using those credentials for new actions.
+          When you connect Google Mail, Outlook, X, LinkedIn, Meta, TikTok, or Farcaster, we store
+          the tokens needed for the features you turn on (send mail, publish, reply). You can
+          disconnect channels at any time from Connect or Channels; we then stop using those
+          credentials for new actions.
         </p>
       </LegalSection>
 

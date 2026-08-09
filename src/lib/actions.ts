@@ -168,14 +168,8 @@ export function useDispatchTask() {
         .single();
       if (error || !created) throw error ?? new Error("Could not create task");
 
-      await supabase
-        .from("agents")
-        .update({
-          current_task: title.slice(0, 180),
-          activity: Math.max(55, 40),
-          status: "active",
-        })
-        .eq("id", agentId);
+      // Do not mark the agent busy here — current_task / Active derive from
+      // running|queued tasks once the worker actually starts (or queues) work.
 
       const who = agentRow.name;
       await supabase.from("activity_events").insert({

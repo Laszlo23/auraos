@@ -98,7 +98,7 @@ function CustomersPage() {
                         agent: "Juno",
                         priority: c.status === "active" ? "medium" : "high",
                         roi: 0,
-                        activity: `Juno opened a follow-up with ${c.name}`,
+                        activity: `Follow-up with ${c.name} queued for Juno`,
                       },
                       {
                         onSuccess: (res) =>

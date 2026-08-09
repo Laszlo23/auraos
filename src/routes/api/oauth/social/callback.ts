@@ -2,13 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import {
   exchangeCode,
+  isSocialProvider,
   redirectBase,
   saveConnectionTokens,
   type SocialProvider,
 } from "@/lib/social-oauth.server";
 
-const isProvider = (v: string): v is SocialProvider =>
-  v === "x" || v === "linkedin" || v === "meta";
+const isProvider = (v: string): v is SocialProvider => isSocialProvider(v);
 
 export const Route = createFileRoute("/api/oauth/social/callback")({
   server: {

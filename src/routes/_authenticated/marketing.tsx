@@ -75,7 +75,7 @@ function MarketingPage() {
         title: `Run campaign — ${c.name}`,
         agent: "Vela",
         priority: "medium",
-        activity: `Vela resumed the "${c.name}" campaign`,
+        activity: `Campaign "${c.name}" marked running — Vela task queued`,
       });
     }
     trackAppEvent("campaign_toggled", {
@@ -223,7 +223,7 @@ function MarketingPage() {
                         title: `Brief on ${c.name}`,
                         agent: "Vela",
                         priority: "low",
-                        activity: `Vela is briefing on "${c.name}"`,
+                        activity: `Brief on "${c.name}" queued for Vela`,
                       })
                     }
                     className="rounded-2xl bg-foreground/6 px-3 py-2 text-[11px] transition-colors hover:bg-foreground/12"

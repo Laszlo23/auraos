@@ -298,10 +298,10 @@ export const dispatchMission = createServerFn({ method: "POST" })
             avatar: def.avatar,
             accent: def.accent,
             status: "active",
-            current_task: `Mission: ${data.mission.slice(0, 80)}`,
+            current_task: "Just hired — awaiting first brief",
             health: 100,
             performance: 0,
-            activity: 70,
+            activity: 0,
             revenue_generated: 0,
             credits_used: 0,
             tasks_completed: 0,
@@ -330,22 +330,13 @@ export const dispatchMission = createServerFn({ method: "POST" })
         .select("id")
         .single();
 
-      await asDb(context.supabase)
-        .from("agents")
-        .update({
-          current_task: data.mission.slice(0, 120),
-          activity: 85,
-          status: "active",
-        })
-        .eq("id", agentId);
-
       if (task?.id) created.push({ agent: name, taskId: task.id as string, status });
     }
 
     await asDb(context.supabase).from("activity_events").insert({
       company_id: company.id,
       kind: "mission",
-      message: `Mission launched: "${data.mission.slice(0, 100)}" · ${created.length} employees activated`,
+      message: `Mission launched: "${data.mission.slice(0, 100)}" · ${created.length} employees tasked`,
     });
 
     let worker: { ok: boolean; tasksProcessed?: number } | null = null;
@@ -870,10 +861,10 @@ export const hirePublishedAgent = createServerFn({ method: "POST" })
         avatar: "◇",
         accent: "primary",
         status: "active",
-        current_task: "Onboarding from marketplace",
+        current_task: "Just hired — awaiting first brief",
         health: 100,
         performance: 0,
-        activity: 40,
+        activity: 0,
         revenue_generated: 0,
         credits_used: 0,
         tasks_completed: 0,

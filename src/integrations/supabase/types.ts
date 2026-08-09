@@ -2803,6 +2803,50 @@ export type Database = {
           },
         ]
       }
+      weekly_reports: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          share_public: boolean
+          share_slug: string | null
+          snapshot: Json
+          updated_at: string
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          share_public?: boolean
+          share_slug?: string | null
+          snapshot?: Json
+          updated_at?: string
+          week_end: string
+          week_start: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          share_public?: boolean
+          share_slug?: string | null
+          snapshot?: Json
+          updated_at?: string
+          week_end?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_reports_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wheel_spins: {
         Row: {
           amount: number

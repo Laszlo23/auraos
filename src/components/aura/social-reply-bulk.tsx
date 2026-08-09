@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   count: number;
   /** Limit provider scope — default all, use "x" on X-heavy queues. */
-  provider?: "x" | "linkedin" | "meta";
+  provider?: "x" | "linkedin" | "meta" | "tiktok" | "farcaster";
   className?: string;
   /** Show free-auto CTA when queue is getting heavy. */
   showFreeAuto?: boolean;
@@ -41,9 +41,9 @@ export function SocialReplyBulkBar({
       bulkResolveEngagements({
         data: {
           action: input.action,
-          provider,
           limit: 40,
-          flush: input.flush,
+          ...(provider ? { provider } : {}),
+          ...(input.flush ? { flush: input.flush } : {}),
         },
       }),
     onSuccess: (res) => {

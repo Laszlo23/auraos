@@ -1,9 +1,23 @@
-// Server-only social OAuth helpers for X, LinkedIn, and Meta (Facebook/Instagram).
+// Server-only social OAuth helpers for X, LinkedIn, Meta, TikTok, and Farcaster.
 import { createHash, randomBytes } from "node:crypto";
 
 import { decryptConnectionKey, encryptConnectionKey } from "@/server/connectionKeyCrypto";
 
-export type SocialProvider = "x" | "linkedin" | "meta";
+export type SocialProvider = "x" | "linkedin" | "meta" | "tiktok" | "farcaster";
+
+export const ALL_SOCIAL_PROVIDERS: SocialProvider[] = [
+  "x",
+  "meta",
+  "linkedin",
+  "tiktok",
+  "farcaster",
+];
+
+export function isSocialProvider(v: unknown): v is SocialProvider {
+  return (
+    v === "x" || v === "linkedin" || v === "meta" || v === "tiktok" || v === "farcaster"
+  );
+}
 
 export type SocialTokens = {
   accessToken: string;
@@ -21,6 +35,16 @@ export const SOCIAL_AGENTS: Record<SocialProvider, string> = {
   x: "Vela",
   meta: "Vela",
   linkedin: "Orin",
+  tiktok: "Vela",
+  farcaster: "Orin",
+};
+
+export const SOCIAL_LABELS: Record<SocialProvider, string> = {
+  x: "X",
+  meta: "Meta",
+  linkedin: "LinkedIn",
+  tiktok: "TikTok",
+  farcaster: "Farcaster",
 };
 
 function base64Url(buf: Buffer): string {
@@ -42,14 +66,30 @@ export function redirectBase(request: Request): string {
   ).replace(/\/$/, "");
 }
 
+function linkedInClientId(): string | undefined {
+  return process.env["LINKEDIN_CLIENT_ID"] || process.env["LINKEDIN_APP_ID"] || undefined;
+}
+
+function linkedInClientSecret(): string | undefined {
+  return process.env["LINKEDIN_CLIENT_SECRET"] || process.env["LINKEDIN_APP_SECRET"] || undefined;
+}
+
 export function socialConfigured(provider: SocialProvider): boolean {
   switch (provider) {
     case "x":
       return Boolean(process.env["X_CLIENT_ID"] && process.env["X_CLIENT_SECRET"]);
     case "linkedin":
-      return Boolean(process.env["LINKEDIN_CLIENT_ID"] && process.env["LINKEDIN_CLIENT_SECRET"]);
+      return Boolean(linkedInClientId() && linkedInClientSecret());
     case "meta":
       return Boolean(process.env["META_APP_ID"] && process.env["META_APP_SECRET"]);
+    case "tiktok":
+      return Boolean(process.env["TIKTOK_CLIENT_KEY"] && process.env["TIKTOK_CLIENT_SECRET"]);
+    case "farcaster":
+      return Boolean(
+        process.env["NEYNAR_API_KEY"] &&
+          process.env["NEYNAR_FARCASTER_FID"] &&
+          process.env["NEYNAR_CUSTODY_PRIVATE_KEY"],
+      );
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;
@@ -79,10 +119,14 @@ export function authorizeUrl(
     case "linkedin": {
       const url = new URL("https://www.linkedin.com/oauth/v2/authorization");
       url.searchParams.set("response_type", "code");
-      url.searchParams.set("client_id", process.env["LINKEDIN_CLIENT_ID"]!);
+      url.searchParams.set("client_id", linkedInClientId()!);
       url.searchParams.set("redirect_uri", opts.redirectUri);
       url.searchParams.set("state", opts.state);
-      url.searchParams.set("scope", "openid profile email w_member_social");
+      // openid/profile/email = Sign In with LinkedIn (connect works).
+      // w_member_social needs the "Share on LinkedIn" product approved — append when granted.
+      const scopes = ["openid", "profile", "email"];
+      if (process.env["LINKEDIN_SHARE_SCOPE"] === "1") scopes.push("w_member_social");
+      url.searchParams.set("scope", scopes.join(" "));
       return url.toString();
     }
     case "meta": {
@@ -105,6 +149,17 @@ export function authorizeUrl(
       );
       return url.toString();
     }
+    case "tiktok": {
+      const url = new URL("https://www.tiktok.com/v2/auth/authorize/");
+      url.searchParams.set("client_key", process.env["TIKTOK_CLIENT_KEY"]!);
+      url.searchParams.set("redirect_uri", opts.redirectUri);
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("scope", "user.info.basic,video.upload,video.publish");
+      url.searchParams.set("state", opts.state);
+      return url.toString();
+    }
+    case "farcaster":
+      throw new Error("Farcaster uses the Neynar signer flow — call startFarcasterConnect instead.");
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;
@@ -186,8 +241,8 @@ async function exchangeLinkedIn(code: string, redirectUri: string): Promise<Soci
       grant_type: "authorization_code",
       code,
       redirect_uri: redirectUri,
-      client_id: process.env["LINKEDIN_CLIENT_ID"]!,
-      client_secret: process.env["LINKEDIN_CLIENT_SECRET"]!,
+      client_id: linkedInClientId()!,
+      client_secret: linkedInClientSecret()!,
     }),
   });
   const tokenJson = (await tokenRes.json()) as {
@@ -301,6 +356,63 @@ async function exchangeMeta(code: string, redirectUri: string): Promise<SocialTo
   };
 }
 
+async function exchangeTikTok(code: string, redirectUri: string): Promise<SocialTokens> {
+  const tokenRes = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded", "Cache-Control": "no-cache" },
+    body: new URLSearchParams({
+      client_key: process.env["TIKTOK_CLIENT_KEY"]!,
+      client_secret: process.env["TIKTOK_CLIENT_SECRET"]!,
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: redirectUri,
+    }),
+  });
+  const tokenJson = (await tokenRes.json()) as {
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+    refresh_expires_in?: number;
+    open_id?: string;
+    scope?: string;
+    error?: string;
+    error_description?: string;
+    message?: string;
+  };
+  if (!tokenRes.ok || !tokenJson.access_token) {
+    throw new Error(
+      tokenJson.error_description ||
+        tokenJson.message ||
+        tokenJson.error ||
+        "TikTok token exchange failed",
+    );
+  }
+
+  let handle: string | null = null;
+  const meRes = await fetch(
+    "https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,username,avatar_url",
+    { headers: { Authorization: `Bearer ${tokenJson.access_token}` } },
+  );
+  if (meRes.ok) {
+    const me = (await meRes.json()) as {
+      data?: { user?: { display_name?: string; username?: string; open_id?: string } };
+    };
+    const user = me.data?.user;
+    handle = user?.username ? `@${user.username}` : (user?.display_name ?? null);
+  }
+
+  return {
+    accessToken: tokenJson.access_token,
+    refreshToken: tokenJson.refresh_token ?? null,
+    expiresAt: tokenJson.expires_in
+      ? new Date(Date.now() + tokenJson.expires_in * 1000).toISOString()
+      : null,
+    scopes: tokenJson.scope ?? null,
+    externalUserId: tokenJson.open_id ?? null,
+    handle,
+  };
+}
+
 export async function exchangeCode(
   provider: SocialProvider,
   code: string,
@@ -314,6 +426,10 @@ export async function exchangeCode(
       return exchangeLinkedIn(code, redirectUri);
     case "meta":
       return exchangeMeta(code, redirectUri);
+    case "tiktok":
+      return exchangeTikTok(code, redirectUri);
+    case "farcaster":
+      throw new Error("Farcaster does not use OAuth code exchange.");
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;
@@ -365,8 +481,8 @@ export async function refreshAccessToken(
       body: new URLSearchParams({
         grant_type: "refresh_token",
         refresh_token: refreshToken,
-        client_id: process.env["LINKEDIN_CLIENT_ID"]!,
-        client_secret: process.env["LINKEDIN_CLIENT_SECRET"]!,
+        client_id: linkedInClientId()!,
+        client_secret: linkedInClientSecret()!,
       }),
     });
     const json = (await res.json()) as {
@@ -381,6 +497,33 @@ export async function refreshAccessToken(
       expiresAt: json.expires_in
         ? new Date(Date.now() + json.expires_in * 1000).toISOString()
         : null,
+    };
+  }
+  if (provider === "tiktok") {
+    const res = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "Cache-Control": "no-cache" },
+      body: new URLSearchParams({
+        client_key: process.env["TIKTOK_CLIENT_KEY"]!,
+        client_secret: process.env["TIKTOK_CLIENT_SECRET"]!,
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+      }),
+    });
+    const json = (await res.json()) as {
+      access_token?: string;
+      refresh_token?: string;
+      expires_in?: number;
+      scope?: string;
+    };
+    if (!res.ok || !json.access_token) return null;
+    return {
+      accessToken: json.access_token,
+      refreshToken: json.refresh_token ?? refreshToken,
+      expiresAt: json.expires_in
+        ? new Date(Date.now() + json.expires_in * 1000).toISOString()
+        : null,
+      scopes: json.scope ?? null,
     };
   }
   return null;

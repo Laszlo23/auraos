@@ -54,7 +54,8 @@ function CookiesPage() {
 
       <LegalSection title="Third parties">
         <p>
-          When you connect Google, Microsoft, X, LinkedIn, or Meta, those providers may set their
+          When you connect Google, Microsoft, X, LinkedIn, Meta, TikTok, or Farcaster, those
+          providers may set their
           own cookies during OAuth. Their policies apply to that part of the flow. Analytics or
           payment processors (if enabled) may set their own essential cookies.
         </p>

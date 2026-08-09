@@ -81,15 +81,19 @@ export function agentVoice(name: string): AgentVoice {
 
 export function agentStatusLine(
   name: string,
-  opts: { paused?: boolean; activity?: number; currentTask?: string | null; failed?: boolean },
+  opts: {
+    paused?: boolean;
+    /** True when agent has a running or queued task. */
+    busy?: boolean;
+    currentTask?: string | null;
+    failed?: boolean;
+  },
 ): string {
   const voice = agentVoice(name);
   if (opts.paused) return "Paused by founder.";
   if (opts.failed) return voice.failed;
   const task = opts.currentTask?.trim();
   if (task && task.toLowerCase().includes("wait")) return voice.waiting;
-  if ((opts.activity ?? 0) > 40 || (task && task.length > 0 && !/waiting|idle|ready/i.test(task))) {
-    return voice.working;
-  }
+  if (opts.busy) return voice.working;
   return voice.idle;
 }

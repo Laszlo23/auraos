@@ -76,7 +76,7 @@ function SalesPage() {
       description: `Move ${deal.name} into ${nextStage} and run the next play.`,
       agent: "Orin",
       priority: "high",
-      activity: `Orin moved ${deal.name} to ${nextStage}`,
+      activity: `You moved ${deal.name} to ${nextStage}; Orin follow-up queued`,
     });
     trackAppEvent("deal_advanced", {
       company_id: company?.id,
@@ -92,7 +92,7 @@ function SalesPage() {
       <PageHeader
         eyebrow="Pipeline"
         title={deals.length ? `Orin is carrying ${currency(pipeline)}` : "Orin's pipeline is empty"}
-        description="Every lead is qualified, sequenced and negotiated. Advance a deal to queue Orin's next play."
+        description="Every lead is qualified, sequenced and negotiated. Advancing a deal updates the pipeline and queues Orin's next play — it does not invent closed work."
       />
 
       <div className="mb-8 grid gap-5 sm:grid-cols-3">

@@ -209,7 +209,7 @@ function ProductsPage() {
                         agent: "Vela",
                         priority: "high",
                         roi: 0,
-                        activity: `Vela opened a campaign for ${p.name}`,
+                        activity: `Promote task for ${p.name} queued for Vela`,
                       },
                       {
                         onSuccess: (res) =>

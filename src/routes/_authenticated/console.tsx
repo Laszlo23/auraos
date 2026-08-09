@@ -29,6 +29,7 @@ import { COMPANY_QUESTS } from "@/lib/gamify";
 import { levelFromXp, useProgress } from "@/hooks/use-progress";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import { useChannels } from "@/hooks/use-connections";
+import { useMailboxes } from "@/hooks/use-mailbox";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
 import { useSubscription } from "@/hooks/use-tokens";
 import { useApproveTask, useProposeNextActions, useRejectTask } from "@/lib/actions";
@@ -125,6 +126,17 @@ function Home() {
     limit: 6,
   });
   const { data: channels = [] } = useChannels();
+  const { data: mailboxes = [] } = useMailboxes();
+  const mailboxLive = mailboxes.some((m) => m.connected);
+  const { data: akquiseCampaigns = [] } = useCompanyTable<{ id: string }>("akquise_campaigns", {
+    orderBy: "created_at",
+    ascending: false,
+    limit: 1,
+  });
+  const needsMailbox =
+    !mailboxLive &&
+    (akquiseCampaigns.length > 0 ||
+      missions.some((m) => m.status === "active" || m.status === "planned"));
   const { simple } = useSimpleMode();
   const propose = useProposeNextActions();
   const approve = useApproveTask();
@@ -258,6 +270,21 @@ function Home() {
         actions24hApprox={events.length}
         productHint={productHint}
       />
+
+      {needsMailbox ? (
+        <Panel label="Mailbox needed" glow delay={0.01}>
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            Outreach is ready, but agents have no company email yet. Connect Gmail or Outlook —
+            drafts stay AI, every send stays your click.
+          </p>
+          <Link
+            to="/connect"
+            className="mt-4 inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+          >
+            Connect mailbox <ArrowUpRight className="h-3 w-3" />
+          </Link>
+        </Panel>
+      ) : null}
 
       {/* Pipeline */}
       <Panel label="Mission → execute → proof → grow" delay={0.01}>

@@ -411,9 +411,17 @@ function MissionDetailPage() {
       <Panel label="Employees">
         <div className="flex flex-wrap gap-2">
           {Object.entries(mission.agents_status || {}).map(([name, st]) => (
-            <Chip key={name} tone={st === "working" || st === "coordinating" ? "primary" : "gold"}>
+            <Chip
+              key={name}
+              tone={
+                st === "working" || st === "queued" || st === "coordinating"
+                  ? "primary"
+                  : "gold"
+              }
+            >
               {AGENT_ROSTER[name]?.avatar ?? "·"}{" "}
-              {st === "working" || st === "coordinating" ? "●" : "○"} {name} · {st}
+              {st === "working" || st === "queued" || st === "coordinating" ? "●" : "○"} {name} ·{" "}
+              {st}
             </Chip>
           ))}
         </div>

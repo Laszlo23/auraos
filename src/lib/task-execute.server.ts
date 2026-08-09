@@ -189,6 +189,17 @@ export async function executeTask(
     result: `${agentName} started — building a plan…`,
   });
 
+  if (task.agent_id) {
+    await db
+      .from("agents")
+      .update({
+        current_task: task.title.slice(0, 180),
+        activity: 0,
+        status: "active",
+      })
+      .eq("id", task.agent_id);
+  }
+
   await db.from("activity_events").insert({
     company_id: task.company_id,
     agent_id: task.agent_id,
@@ -427,6 +438,16 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
       completed_at: nowIso(),
       artifact,
     });
+    if (task.agent_id) {
+      await db
+        .from("agents")
+        .update({
+          current_task: "Standing by",
+          activity: 0,
+          status: "active",
+        })
+        .eq("id", task.agent_id);
+    }
     await db.from("activity_events").insert({
       company_id: task.company_id,
       agent_id: task.agent_id,
@@ -495,13 +516,12 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
     await db
       .from("agents")
       .update({
-        current_task: `Wrapped: ${task.title.slice(0, 80)}`,
+        current_task: "Standing by",
         credits_used: agentCredits + TASK_COST,
         memory: nextMemory,
         tasks_completed: agentTasksCompleted + 1,
         lessons_count: agentLessons + (learned ? 1 : 0),
-        activity: Math.min(100, 40 + ((agentTasksCompleted + 1) % 60)),
-        performance: Math.min(99, 80 + Math.floor((agentTasksCompleted + 1) / 5)),
+        activity: 0,
         status: "active",
       })
       .eq("id", task.agent_id);

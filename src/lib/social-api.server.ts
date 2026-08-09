@@ -31,6 +31,17 @@ export async function publishToProvider(
       return publishLinkedIn(conn.accessToken, conn.externalUserId, body);
     case "meta":
       return publishMeta(conn.accessToken, conn.metaPageId, conn.igUserId, body);
+    case "tiktok": {
+      if (!opts?.sharePostId) {
+        throw new Error("TikTok needs a video — pick a share clip or attach media.");
+      }
+      return publishTikTokVideo(conn.accessToken, body, opts.sharePostId);
+    }
+    case "farcaster": {
+      const { publishFarcasterCast } = await import("@/lib/farcaster-neynar.server");
+      const cast = await publishFarcasterCast(conn.accessToken, body);
+      return { externalPostId: cast.hash, externalUrl: cast.url };
+    }
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;
@@ -251,6 +262,100 @@ async function publishFacebookPage(
   };
 }
 
+async function publishTikTokVideo(
+  token: string,
+  caption: string,
+  sharePostId: string,
+): Promise<PublishResult> {
+  const { loadShareVideoBytes } = await import("@/lib/share-media.server");
+  const { bytes } = await loadShareVideoBytes(sharePostId);
+  const title = caption.slice(0, 150) || "Aura OS";
+
+  // Prefer inbox upload (video.upload) — works before Direct Post approval.
+  const initRes = await fetch("https://open.tiktokapis.com/v2/post/publish/inbox/video/init/", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json; charset=UTF-8",
+    },
+    body: JSON.stringify({
+      source_info: {
+        source: "FILE_UPLOAD",
+        video_size: bytes.length,
+        chunk_size: bytes.length,
+        total_chunk_count: 1,
+      },
+    }),
+  });
+  const initJson = (await initRes.json()) as {
+    data?: { publish_id?: string; upload_url?: string };
+    error?: { code?: string; message?: string };
+  };
+  if (!initRes.ok || !initJson.data?.upload_url || !initJson.data.publish_id) {
+    // Fall back to Direct Post init when inbox is unavailable but publish is approved.
+    const direct = await fetch("https://open.tiktokapis.com/v2/post/publish/video/init/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({
+        post_info: {
+          title,
+          privacy_level: "SELF_ONLY",
+          disable_duet: false,
+          disable_comment: false,
+          disable_stitch: false,
+        },
+        source_info: {
+          source: "FILE_UPLOAD",
+          video_size: bytes.length,
+          chunk_size: bytes.length,
+          total_chunk_count: 1,
+        },
+      }),
+    });
+    const directJson = (await direct.json()) as {
+      data?: { publish_id?: string; upload_url?: string };
+      error?: { code?: string; message?: string };
+    };
+    if (!direct.ok || !directJson.data?.upload_url || !directJson.data.publish_id) {
+      throw new Error(
+        initJson.error?.message ||
+          directJson.error?.message ||
+          "TikTok publish failed — confirm video.upload / video.publish scopes are approved.",
+      );
+    }
+    await putTikTokVideo(directJson.data.upload_url, bytes);
+    return {
+      externalPostId: directJson.data.publish_id,
+      externalUrl: null,
+    };
+  }
+
+  await putTikTokVideo(initJson.data.upload_url, bytes);
+  return {
+    externalPostId: initJson.data.publish_id,
+    externalUrl: null,
+  };
+}
+
+async function putTikTokVideo(uploadUrl: string, bytes: Buffer) {
+  const put = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "video/mp4",
+      "Content-Range": `bytes 0-${bytes.length - 1}/${bytes.length}`,
+      "Content-Length": String(bytes.length),
+    },
+    body: new Uint8Array(bytes),
+  });
+  if (!put.ok) {
+    const err = await put.text().catch(() => "");
+    throw new Error(err || "TikTok video upload failed");
+  }
+}
+
 export type RemoteComment = {
   externalId: string;
   authorHandle: string | null;
@@ -273,6 +378,9 @@ export async function fetchRecentComments(
       return fetchMetaComments(conn.accessToken, conn.metaPageId, conn.igUserId);
     case "linkedin":
       // LinkedIn comment APIs need org/page products — return empty until Marketing API is approved.
+      return [];
+    case "tiktok":
+    case "farcaster":
       return [];
     default: {
       const _exhaustive: never = provider;
@@ -395,6 +503,26 @@ export async function replyToEngagement(
     }
     case "linkedin":
       throw new Error("LinkedIn comment replies need Marketing API access.");
+    case "tiktok":
+      throw new Error("TikTok comment replies are not available via API yet.");
+    case "farcaster": {
+      const res = await fetch("https://api.neynar.com/v2/farcaster/cast/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          api_key: process.env["NEYNAR_API_KEY"]!,
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          signer_uuid: conn.accessToken,
+          text: replyBody.slice(0, 320),
+          parent: externalId,
+        }),
+      });
+      const json = (await res.json()) as { cast?: { hash?: string }; message?: string };
+      if (!res.ok || !json.cast?.hash) throw new Error(json.message || "Farcaster reply failed");
+      return json.cast.hash;
+    }
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;

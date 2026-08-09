@@ -63,7 +63,7 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
   const errors: string[] = [];
   for (const post of due ?? []) {
     try {
-      const provider = post.provider as "x" | "linkedin" | "meta";
+      const provider = post.provider as "x" | "linkedin" | "meta" | "tiktok" | "farcaster";
       // Autopublish gate: scheduled drip stays queued until the founder turns it on.
       const { data: conn } = await supabaseAdmin
         .from("channel_connections")
@@ -133,7 +133,7 @@ export async function syncSocialEngagement(limitCompanies = 20, companyId?: stri
   let replied = 0;
 
   for (const conn of connections ?? []) {
-    const provider = conn.provider as "x" | "linkedin" | "meta";
+    const provider = conn.provider as "x" | "linkedin" | "meta" | "tiktok" | "farcaster";
     const comments = await fetchRecentComments(provider, conn.company_id);
     if (!comments.length) continue;
 
@@ -236,7 +236,7 @@ export async function syncSocialEngagement(limitCompanies = 20, companyId?: stri
           await supabaseAdmin.from("activity_events").insert({
             company_id: conn.company_id,
             kind: "reply",
-            message: `${provider === "linkedin" ? "Orin" : "Vela"} replied on ${provider}`,
+            message: `${provider === "linkedin" || provider === "farcaster" ? "Orin" : "Vela"} replied on ${provider}`,
           });
         } catch {
           await supabaseAdmin

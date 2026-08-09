@@ -5,16 +5,19 @@ import {
   disconnectSocial,
   getLaunchDripStatus,
   getSocialStatus,
+  pollFarcasterSigner,
   publishShareClipToX,
   publishSocialNow,
   setSocialReplyMode,
+  startFarcasterConnect,
   startLaunchDripCampaign,
   startSocialConnect,
 } from "@/lib/social.functions";
 import { SHARE_POSTS } from "@/lib/share-posts";
 import { supabase } from "@/integrations/supabase/client";
+import type { SocialProvider as ServerSocialProvider } from "@/lib/social-oauth.server";
 
-export type SocialProvider = "x" | "meta" | "linkedin";
+export type SocialProvider = ServerSocialProvider;
 
 export type ChannelRow = {
   id: string;
@@ -77,6 +80,20 @@ export const SOCIALS: {
     blurb: "B2B credibility, partners and hiring.",
     agent: "Orin",
   },
+  {
+    id: "tiktok",
+    name: "TikTok",
+    glyph: "♪",
+    blurb: "Short-form video — share clips and launch moments.",
+    agent: "Vela",
+  },
+  {
+    id: "farcaster",
+    name: "Farcaster",
+    glyph: "FC",
+    blurb: "Crypto-native casts for founders and builders.",
+    agent: "Orin",
+  },
 ];
 
 export function useChannels() {
@@ -128,6 +145,46 @@ export function useConnectChannel() {
   return useMutation({
     mutationFn: async (provider: SocialProvider) => {
       if (!company) throw new Error("No company yet.");
+      if (provider === "farcaster") {
+        const popup = window.open("", "aura-social", "width=620,height=760");
+        if (!popup) throw new Error("Allow popups to connect your account — one click, then done.");
+        try {
+          const { approvalUrl, signerUuid, state } = await startFarcasterConnect({
+            data: { companyId: company.id },
+          });
+          popup.location.href = approvalUrl;
+          const deadline = Date.now() + 5 * 60_000;
+          while (Date.now() < deadline) {
+            if (popup.closed) {
+              // Keep polling briefly — user may have approved in Warpcast and closed the tab.
+            }
+            await new Promise((r) => setTimeout(r, 2500));
+            const result = await pollFarcasterSigner({
+              data: { companyId: company.id, state, signerUuid },
+            });
+            if (result.approved) {
+              try {
+                popup.close();
+              } catch {
+                /* ignore */
+              }
+              return;
+            }
+            if (popup.closed && result.status === "revoked") {
+              throw new Error("Farcaster connect was cancelled.");
+            }
+          }
+          throw new Error("Timed out waiting for Farcaster approval — open Warpcast and try again.");
+        } catch (error) {
+          try {
+            popup.close();
+          } catch {
+            /* ignore */
+          }
+          throw error;
+        }
+      }
+
       const popup = window.open("", "aura-social", "width=620,height=760");
       if (!popup) throw new Error("Allow popups to connect your account — one click, then done.");
       try {
@@ -135,7 +192,6 @@ export function useConnectChannel() {
           data: { provider, companyId: company.id },
         });
         const done = waitForPopup(popup);
-        // Pass session cookie by navigating same-origin start URL
         popup.location.href = authorizationUrl;
         await done;
       } catch (error) {

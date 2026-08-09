@@ -37,7 +37,7 @@ function AutomationPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Reflexes"
+        eyebrow="Internal / not live"
         title="Standing instructions"
         description="Catalog of automation recipes saved for your company. Pause/resume updates status in the database — a dedicated runner is not live yet, so these do not fire on their own."
       />

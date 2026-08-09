@@ -4,14 +4,14 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import {
   authorizeUrl,
+  isSocialProvider,
   newPkce,
   redirectBase,
   socialConfigured,
   type SocialProvider,
 } from "@/lib/social-oauth.server";
 
-const isProvider = (v: string | null): v is SocialProvider =>
-  v === "x" || v === "linkedin" || v === "meta";
+const isProvider = (v: string | null): v is SocialProvider => isSocialProvider(v);
 
 function accessTokenFromRequest(request: Request): string | null {
   const auth = request.headers.get("authorization");
@@ -44,6 +44,9 @@ export const Route = createFileRoute("/api/oauth/social/start")({
 
         if (!companyId || !isProvider(providerParam)) {
           return new Response("provider and company_id are required", { status: 400 });
+        }
+        if (providerParam === "farcaster") {
+          return new Response("Use the in-app Farcaster connect flow", { status: 400 });
         }
         if (!socialConfigured(providerParam)) {
           return new Response("Social OAuth is not configured for this provider", { status: 503 });

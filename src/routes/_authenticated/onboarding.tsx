@@ -65,6 +65,8 @@ const CHANNELS = [
   { id: "x", name: "X", glyph: "𝕏" },
   { id: "meta", name: "Meta", glyph: "∞" },
   { id: "linkedin", name: "LinkedIn", glyph: "in" },
+  { id: "tiktok", name: "TikTok", glyph: "♪" },
+  { id: "farcaster", name: "Farcaster", glyph: "FC" },
 ];
 
 function Onboarding() {

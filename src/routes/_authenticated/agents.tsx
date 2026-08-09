@@ -55,6 +55,10 @@ function memoryFactCount(memory: string | null | undefined) {
 
 function AgentsPage() {
   const { data: agents = [] } = useCompanyTable<Agent>("agents", { orderBy: "created_at" });
+  const { data: tasks = [] } = useCompanyTable<{ id: string; status: string; agent_id?: string | null }>(
+    "tasks",
+    { orderBy: "created_at" },
+  );
   const [open, setOpen] = useState<Agent | null>(null);
   const qc = useQueryClient();
 
@@ -70,12 +74,19 @@ function AgentsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  function agentBusy(agentId: string) {
+    return tasks.some(
+      (t) =>
+        t.agent_id === agentId && (t.status === "running" || t.status === "queued"),
+    );
+  }
+
   return (
     <div>
       <PageHeader
         eyebrow="Workforce"
         title={agents.length <= 1 ? "Atlas is ready to build a team" : "Employees as economic workers"}
-        description="Status, tasks, AURA spent, attributed revenue (0 until settlements), performance, and memory. Pause stops new assignment."
+        description="Status comes from real tasks (queued/running). Pause stops new assignment."
       />
 
       {agents.length === 0 ? (
@@ -108,8 +119,8 @@ function AgentsPage() {
                   </p>
                 </div>
                 <span className="ml-auto flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Pulse tone={a.paused ? "muted" : a.activity > 60 ? "primary" : "muted"} />
-                  {a.paused ? "paused" : a.activity > 60 ? "working" : "idle"}
+                  <Pulse tone={a.paused ? "muted" : agentBusy(a.id) ? "primary" : "muted"} />
+                  {a.paused ? "paused" : agentBusy(a.id) ? "working" : "idle"}
                 </span>
               </div>
 

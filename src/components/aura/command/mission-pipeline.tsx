@@ -123,11 +123,9 @@ export function deriveMissionPipeline(input: {
       ? "failed"
       : input.runningTasks > 0
         ? "active"
-        : active
-          ? "active"
-          : complete || input.completedTasks > 0
-            ? "completed"
-            : "locked";
+        : complete || input.completedTasks > 0
+          ? "completed"
+          : "locked";
 
   const proof: PipelineStageState =
     input.completedTasks > 0

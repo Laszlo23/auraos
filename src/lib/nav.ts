@@ -26,7 +26,6 @@ import {
   Trophy,
   Users,
   Wallet,
-  Workflow,
 } from "lucide-react";
 
 export type NavItem = {
@@ -50,6 +49,15 @@ export const NAV: NavItem[] = [
     plain: "Home",
     hint: "How your company is doing today",
     icon: Gauge,
+    group: "Company",
+    core: true,
+  },
+  {
+    to: "/report",
+    label: "Week in review",
+    plain: "Report",
+    hint: "Boss-ready summary of posts and agent work this week",
+    icon: Receipt,
     group: "Company",
     core: true,
   },
@@ -200,13 +208,6 @@ export const NAV: NavItem[] = [
     label: "Analytics",
     hint: "Traffic and conversion numbers",
     icon: Activity,
-    group: "Surface",
-  },
-  {
-    to: "/automation",
-    label: "Automation",
-    hint: "Rules that run without you (preview — runner not live yet)",
-    icon: Workflow,
     group: "Surface",
   },
 

@@ -108,7 +108,7 @@ async function ensureAgent(
   supabase: LooseDb,
   companyId: string,
   name: string,
-  currentTask: string,
+  _currentTask: string,
 ) {
   const def = AGENT_ROSTER[name];
   if (!def) return null;
@@ -123,8 +123,6 @@ async function ensureAgent(
     await supabase
       .from("agents")
       .update({
-        current_task: currentTask.slice(0, 120),
-        activity: 85,
         status: "active",
         paused: false,
       })
@@ -140,10 +138,10 @@ async function ensureAgent(
       avatar: def.avatar,
       accent: def.accent,
       status: "active",
-      current_task: currentTask.slice(0, 120),
+      current_task: "Just hired — awaiting first brief",
       health: 100,
       performance: 0,
-      activity: 70,
+      activity: 0,
       revenue_generated: 0,
       credits_used: 0,
       tasks_completed: 0,
@@ -367,7 +365,7 @@ export const startRevenueMission = createServerFn({ method: "POST" })
       };
       for (const key of Object.keys(agentsStatus)) {
         if (agentsStatus[key] === "paused" || agentsStatus[key] === "waiting") {
-          agentsStatus[key] = "working";
+          agentsStatus[key] = "queued";
         }
       }
       await db
@@ -429,7 +427,7 @@ export const startRevenueMission = createServerFn({ method: "POST" })
     });
 
     for (const agent of agents) {
-      agentsStatus[agent] = "coordinating";
+      agentsStatus[agent] = "waiting";
       const agentId = await ensureAgent(
         db,
         company.id,
@@ -441,7 +439,7 @@ export const startRevenueMission = createServerFn({ method: "POST" })
         missionId: mission.id,
         agentName: agent,
         kind: "activate",
-        message: `${agent} · Online for mission #${mission.mission_number}`,
+        message: `${agent} · Assigned to mission #${mission.mission_number}`,
       });
 
       const step = (plan.steps || []).find((s) => s.agent === agent && s.kind !== "prospect");
@@ -457,7 +455,7 @@ export const startRevenueMission = createServerFn({ method: "POST" })
           roi: 0,
           progress: 0,
         });
-        agentsStatus[agent] = status === "queued" ? "working" : "waiting_approval";
+        agentsStatus[agent] = status === "queued" ? "queued" : "waiting_approval";
       }
     }
 
@@ -478,7 +476,7 @@ export const startRevenueMission = createServerFn({ method: "POST" })
         if (linkErr && !/mission_id|schema cache|42703|PGRST204/i.test(linkErr.message || "")) {
           throw linkErr;
         }
-        agentsStatus[firstProspect.agent] = "working";
+        agentsStatus[firstProspect.agent] = "done";
         await appendEvent(db, {
           companyId: company.id,
           missionId: mission.id,
@@ -687,7 +685,8 @@ export const executeNextBestAction = createServerFn({ method: "POST" })
     const agentsStatus = {
       ...((mission.agents_status || {}) as Record<string, string>),
     };
-    agentsStatus[nba.assignee] = "working";
+    agentsStatus[nba.assignee] =
+      effectiveStatus === "pending_approval" ? "waiting_approval" : "queued";
 
     await appendEvent(db, {
       companyId: company.id,

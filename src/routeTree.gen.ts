@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AccessRouteImport } from './routes/access'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LiveRouteImport } from './routes/live'
@@ -42,6 +43,7 @@ import { Route as AuthenticatedMarketplaceRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMissionsRouteImport } from './routes/_authenticated/missions'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
+import { Route as AuthenticatedReportRouteImport } from './routes/_authenticated/report'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
@@ -57,6 +59,7 @@ import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as VPostIdRouteImport } from './routes/v.$postId'
+import { Route as WShareSlugRouteImport } from './routes/w.$shareSlug'
 import { Route as AuthenticatedMissionsIdRouteImport } from './routes/_authenticated/missions.$id'
 import { Route as ApiBillingCheckoutRouteImport } from './routes/api/billing/checkout'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
@@ -99,6 +102,11 @@ const AuthRoute = AuthRouteImport.update({
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GrantsRoute = GrantsRouteImport.update({
@@ -242,6 +250,11 @@ const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReportRoute = AuthenticatedReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSalesRoute = AuthenticatedSalesRouteImport.update({
   id: '/sales',
   path: '/sales',
@@ -315,6 +328,11 @@ const UHandleRoute = UHandleRouteImport.update({
 const VPostIdRoute = VPostIdRouteImport.update({
   id: '/v/$postId',
   path: '/v/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WShareSlugRoute = WShareSlugRouteImport.update({
+  id: '/w/$shareSlug',
+  path: '/w/$shareSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedMissionsIdRoute = AuthenticatedMissionsIdRouteImport.update({
@@ -426,6 +444,7 @@ export interface FileRoutesByFullPath {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/cookies': typeof CookiesRoute
+  '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRoute
@@ -454,6 +473,7 @@ export interface FileRoutesByFullPath {
   '/missions': typeof AuthenticatedMissionsRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tasks': typeof AuthenticatedTasksRoute
@@ -469,6 +489,7 @@ export interface FileRoutesByFullPath {
   '/r/$runId': typeof RRunIdRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
+  '/w/$shareSlug': typeof WShareSlugRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -494,6 +515,7 @@ export interface FileRoutesByTo {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/cookies': typeof CookiesRoute
+  '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRoute
@@ -522,6 +544,7 @@ export interface FileRoutesByTo {
   '/missions': typeof AuthenticatedMissionsRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/tasks': typeof AuthenticatedTasksRoute
@@ -537,6 +560,7 @@ export interface FileRoutesByTo {
   '/r/$runId': typeof RRunIdRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
+  '/w/$shareSlug': typeof WShareSlugRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -564,6 +588,7 @@ export interface FileRoutesById {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/cookies': typeof CookiesRoute
+  '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRoute
@@ -592,6 +617,7 @@ export interface FileRoutesById {
   '/_authenticated/missions': typeof AuthenticatedMissionsRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
+  '/_authenticated/report': typeof AuthenticatedReportRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
@@ -607,6 +633,7 @@ export interface FileRoutesById {
   '/r/$runId': typeof RRunIdRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
+  '/w/$shareSlug': typeof WShareSlugRoute
   '/_authenticated/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -634,6 +661,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/cookies'
+    | '/faq'
     | '/grants'
     | '/leaderboard'
     | '/live'
@@ -662,6 +690,7 @@ export interface FileRouteTypes {
     | '/missions'
     | '/onboarding'
     | '/products'
+    | '/report'
     | '/sales'
     | '/settings'
     | '/tasks'
@@ -677,6 +706,7 @@ export interface FileRouteTypes {
     | '/r/$runId'
     | '/u/$handle'
     | '/v/$postId'
+    | '/w/$shareSlug'
     | '/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/webhook'
@@ -702,6 +732,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/cookies'
+    | '/faq'
     | '/grants'
     | '/leaderboard'
     | '/live'
@@ -730,6 +761,7 @@ export interface FileRouteTypes {
     | '/missions'
     | '/onboarding'
     | '/products'
+    | '/report'
     | '/sales'
     | '/settings'
     | '/tasks'
@@ -745,6 +777,7 @@ export interface FileRouteTypes {
     | '/r/$runId'
     | '/u/$handle'
     | '/v/$postId'
+    | '/w/$shareSlug'
     | '/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/webhook'
@@ -771,6 +804,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/cookies'
+    | '/faq'
     | '/grants'
     | '/leaderboard'
     | '/live'
@@ -799,6 +833,7 @@ export interface FileRouteTypes {
     | '/_authenticated/missions'
     | '/_authenticated/onboarding'
     | '/_authenticated/products'
+    | '/_authenticated/report'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
     | '/_authenticated/tasks'
@@ -814,6 +849,7 @@ export interface FileRouteTypes {
     | '/r/$runId'
     | '/u/$handle'
     | '/v/$postId'
+    | '/w/$shareSlug'
     | '/_authenticated/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/webhook'
@@ -841,6 +877,7 @@ export interface RootRouteChildren {
   AccessRoute: typeof AccessRoute
   AuthRoute: typeof AuthRoute
   CookiesRoute: typeof CookiesRoute
+  FaqRoute: typeof FaqRoute
   GrantsRoute: typeof GrantsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveRoute: typeof LiveRoute
@@ -855,6 +892,7 @@ export interface RootRouteChildren {
   RRunIdRoute: typeof RRunIdRoute
   UHandleRoute: typeof UHandleRoute
   VPostIdRoute: typeof VPostIdRoute
+  WShareSlugRoute: typeof WShareSlugRoute
   ApiBillingCheckoutRoute: typeof ApiBillingCheckoutRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
@@ -910,6 +948,13 @@ declare module '@tanstack/react-router' {
       path: '/cookies'
       fullPath: '/cookies'
       preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/grants': {
@@ -1108,6 +1153,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/report': {
+      id: '/_authenticated/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof AuthenticatedReportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sales': {
       id: '/_authenticated/sales'
       path: '/sales'
@@ -1211,6 +1263,13 @@ declare module '@tanstack/react-router' {
       path: '/v/$postId'
       fullPath: '/v/$postId'
       preLoaderRoute: typeof VPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$shareSlug': {
+      id: '/w/$shareSlug'
+      path: '/w/$shareSlug'
+      fullPath: '/w/$shareSlug'
+      preLoaderRoute: typeof WShareSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/missions/$id': {
@@ -1385,6 +1444,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMissionsRoute: typeof AuthenticatedMissionsRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
+  AuthenticatedReportRoute: typeof AuthenticatedReportRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
@@ -1417,6 +1477,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMissionsRoute: AuthenticatedMissionsRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
+  AuthenticatedReportRoute: AuthenticatedReportRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
@@ -1435,6 +1496,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessRoute: AccessRoute,
   AuthRoute: AuthRoute,
   CookiesRoute: CookiesRoute,
+  FaqRoute: FaqRoute,
   GrantsRoute: GrantsRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveRoute: LiveRoute,
@@ -1449,6 +1511,7 @@ const rootRouteChildren: RootRouteChildren = {
   RRunIdRoute: RRunIdRoute,
   UHandleRoute: UHandleRoute,
   VPostIdRoute: VPostIdRoute,
+  WShareSlugRoute: WShareSlugRoute,
   ApiBillingCheckoutRoute: ApiBillingCheckoutRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,

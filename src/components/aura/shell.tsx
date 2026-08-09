@@ -112,7 +112,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
         )}
       >
         <div className="glass flex-1 overflow-y-auto rounded-3xl px-2.5 py-4">
-          <div className={cn("mb-6 flex items-center gap-2.5 px-2", collapsed && "justify-center")}>
+          <Link
+            to="/console"
+            title="Dashboard"
+            className={cn(
+              "mb-6 flex items-center gap-2.5 rounded-2xl px-2 py-1 transition-colors hover:bg-foreground/5",
+              collapsed && "justify-center",
+            )}
+          >
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-primary/15 text-lg text-primary">
               {company?.emoji ?? "◎"}
             </span>
@@ -124,7 +131,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 </p>
               </div>
             )}
-          </div>
+          </Link>
 
           {visibleGroups.map((group) => (
             <div key={group} className="mb-5">
@@ -205,7 +212,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 space-y-2 px-4 pt-4 md:px-5">
           <div className="glass flex items-center gap-3 rounded-3xl px-4 py-2.5">
-            <div className="hidden min-w-0 items-center gap-2.5 lg:flex">
+            <Link
+              to="/console"
+              title="Dashboard"
+              className="hidden min-w-0 items-center gap-2.5 rounded-2xl transition-opacity hover:opacity-80 lg:flex"
+            >
               <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/15 text-sm text-primary">
                 {company?.emoji ?? "◎"}
               </span>
@@ -220,7 +231,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <span className="ml-1 flex shrink-0 items-center gap-1.5 rounded-full bg-primary/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                 <Pulse /> active
               </span>
-            </div>
+            </Link>
 
             <button
               onClick={() => setPaletteOpen(true)}

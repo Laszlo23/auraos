@@ -11,7 +11,11 @@ import { ShareBar } from "@/components/aura/share";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
-const SITE_LINKS = [{ to: "/share", label: "Share kit" }, { to: "/access", label: "Earn invite" }] as const;
+const SITE_LINKS = [
+  { to: "/share", label: "Share kit" },
+  { to: "/access", label: "Earn invite" },
+  { to: "/faq", label: "FAQ" },
+] as const;
 
 const LEGAL_LINKS = [
   { to: "/privacy", label: "Privacy" },

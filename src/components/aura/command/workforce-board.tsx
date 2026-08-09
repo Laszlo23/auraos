@@ -36,6 +36,13 @@ function failedCount(agentId: string, tasks: TaskLite[]) {
   return tasks.filter((t) => t.agent_id === agentId && t.status === "failed").length;
 }
 
+function hasOpenWork(agentId: string, tasks: TaskLite[]) {
+  return tasks.some(
+    (t) =>
+      t.agent_id === agentId && (t.status === "running" || t.status === "queued"),
+  );
+}
+
 export function WorkforceBoard({ agents, tasks }: Props) {
   return (
     <Panel
@@ -51,21 +58,20 @@ export function WorkforceBoard({ agents, tasks }: Props) {
       }
     >
       <p className="mb-4 text-[13px] text-muted-foreground">
-        You own the company. They do the work. Metrics below are from the roster — zeros when
-        nothing real has happened.
+        You own the company. They do the work. Active means a real task is queued or running.
       </p>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {agents.map((a) => {
           const fails = failedCount(a.id, tasks);
+          const busy = hasOpenWork(a.id, tasks);
           const voice = agentVoice(a.name);
           const line = agentStatusLine(a.name, {
-            paused: a.paused,
-            activity: a.activity,
+            busy,
             currentTask: a.current_task,
-            failed: fails > 0 && (a.activity ?? 0) < 20,
+            failed: fails > 0 && !busy,
+            ...(a.paused ? { paused: true as const } : {}),
           });
-          const active =
-            !a.paused && ((a.activity ?? 0) > 40 || Boolean(a.current_task?.trim()));
+          const active = !a.paused && busy;
           return (
             <div
               key={a.id}
@@ -84,7 +90,7 @@ export function WorkforceBoard({ agents, tasks }: Props) {
                     {a.role}
                   </p>
                 </div>
-                <Chip tone={a.paused ? undefined : active ? "primary" : undefined}>
+                <Chip tone={a.paused ? "neutral" : active ? "primary" : "neutral"}>
                   {a.paused ? "Paused" : active ? "Active" : "Idle"}
                 </Chip>
               </div>
@@ -92,7 +98,7 @@ export function WorkforceBoard({ agents, tasks }: Props) {
                 {voice.tagline}
               </p>
               <p className="mt-2 line-clamp-2 text-[13px] leading-snug text-foreground/85">
-                {a.current_task?.trim() || line}
+                {busy && a.current_task?.trim() ? a.current_task : line}
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
                 <span>Done · {a.tasks_completed ?? 0}</span>
@@ -114,8 +120,8 @@ export function WorkforceBoard({ agents, tasks }: Props) {
                 <AssignAgentTask
                   agentId={a.id}
                   agentName={a.name}
-                  paused={a.paused}
                   variant="inline"
+                  {...(a.paused !== undefined ? { paused: a.paused } : {})}
                 />
                 <Link
                   to="/tasks"

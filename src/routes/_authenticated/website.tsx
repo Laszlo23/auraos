@@ -97,7 +97,7 @@ function WebsitePage() {
         description: `${text}\n\nUpdate the knowledge item titled "Landing page" with concrete hero, CTA, and section copy. Never invent traffic, LCP, CVR, or SEO scores.`,
         agent: "Iris",
         priority: "high",
-        activity: `Iris queued storefront edit — "${text.slice(0, 60)}"`,
+        activity: `Storefront edit queued for Iris — "${text.slice(0, 60)}"`,
         founderApproved: true,
       },
       {

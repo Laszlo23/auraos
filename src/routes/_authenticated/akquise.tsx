@@ -428,8 +428,22 @@ function AkquisePage() {
 
           <Panel label="Your mailbox" glow={Boolean(connectedBox)}>
             <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Send is always your action — Aura never emails silently.
+              Agents draft from research; you send from this mailbox. Aura never emails silently.
             </p>
+            {connectedBox ? (
+              <p className="mt-2 text-[12px] text-foreground/85">
+                From:{" "}
+                <span className="font-medium">{connectedBox.account ?? connectedBox.provider}</span>
+              </p>
+            ) : (
+              <p className="mt-2 text-[12px] text-gold">
+                Connect Gmail or Outlook before Send —{" "}
+                <Link to="/connect" className="underline hover:text-foreground">
+                  open Connect
+                </Link>
+                .
+              </p>
+            )}
             <div className="mt-4 space-y-2">
               {(mailboxes as MailboxState[]).map((box) => {
                 const meta = MAILBOX_META[box.provider];
@@ -702,8 +716,18 @@ function AkquisePage() {
                         )}
                         {lead.status === "sent"
                           ? `Sent ${timeAgo(lead.sent_at ?? lead.created_at)}`
-                          : "Send"}
+                          : connectedBox
+                            ? "Send"
+                            : "Connect mailbox"}
                       </button>
+                      {!connectedBox && lead.draft_body ? (
+                        <Link
+                          to="/connect"
+                          className="rounded-2xl bg-gold/14 px-3 py-2 text-[11px] font-medium text-gold"
+                        >
+                          Wire mailbox
+                        </Link>
+                      ) : null}
                       {lead.source_url ? (
                         <a
                           href={lead.source_url}

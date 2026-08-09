@@ -1,10 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { socialConfigured, type SocialProvider } from "@/lib/social-oauth.server";
+import {
+  ALL_SOCIAL_PROVIDERS,
+  isSocialProvider,
+  socialConfigured,
+  type SocialProvider,
+} from "@/lib/social-oauth.server";
 
-const isProvider = (v: unknown): v is SocialProvider =>
-  v === "x" || v === "linkedin" || v === "meta";
+const isProvider = isSocialProvider;
 
 export const getSocialStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -28,18 +32,23 @@ export const getSocialStatus = createServerFn({ method: "GET" })
       )
       .eq("company_id", data.companyId);
 
-    const providers: SocialProvider[] = ["x", "meta", "linkedin"];
+    const providers: SocialProvider[] = [...ALL_SOCIAL_PROVIDERS];
     return providers.map((provider) => {
       const row = rows?.find((r) => r.provider === provider);
       const scopes = String(row?.scopes ?? "");
       const hasMediaWrite = scopes.split(/\s+/).includes("media.write");
+      const hasTikTokPublish =
+        scopes.includes("video.publish") || scopes.includes("video.upload");
       const connected = row?.status === "connected";
       return {
         provider,
         available: socialConfigured(provider),
         connected,
-        needsReconnect: Boolean(row && row.status !== "connected") || (connected && provider === "x" && !hasMediaWrite),
-        canPostVideo: connected && hasMediaWrite,
+        needsReconnect:
+          Boolean(row && row.status !== "connected") ||
+          (connected && provider === "x" && !hasMediaWrite),
+        canPostVideo:
+          (connected && hasMediaWrite) || (connected && provider === "tiktok" && hasTikTokPublish),
         handle: row?.handle ?? null,
         followers: row?.followers ?? 0,
         engagement: row?.engagement ?? 0,
@@ -62,9 +71,13 @@ export const startSocialConnect = createServerFn({ method: "POST" })
     return { provider: input.provider, companyId: String(input.companyId) };
   })
   .handler(async ({ data, context }) => {
+    if (data.provider === "farcaster") {
+      throw new Error("Use startFarcasterConnect for Farcaster.");
+    }
     if (!socialConfigured(data.provider)) {
+      const { SOCIAL_LABELS } = await import("@/lib/social-oauth.server");
       throw new Error(
-        `${data.provider === "meta" ? "Meta" : data.provider === "x" ? "X" : "LinkedIn"} is not configured yet. Add the app credentials in env.`,
+        `${SOCIAL_LABELS[data.provider]} is not configured yet. Add the app credentials in env.`,
       );
     }
     const { getRequest } = await import("@tanstack/react-start/server");
@@ -89,7 +102,7 @@ export const startSocialConnect = createServerFn({ method: "POST" })
         .maybeSingle();
       if (!fallback) {
         throw new Error(
-          "No company on this account yet — finish onboarding, then connect X. (This is not an X connection error.)",
+          "No company on this account yet — finish onboarding, then connect a channel.",
         );
       }
       companyId = fallback.id as string;
@@ -118,6 +131,102 @@ export const startSocialConnect = createServerFn({ method: "POST" })
       challenge,
     });
     return { authorizationUrl };
+  });
+
+export const startFarcasterConnect = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string }) => ({
+    companyId: String(input.companyId),
+  }))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { createFarcasterSignerPending } = await import("@/lib/farcaster-neynar.server");
+    const { newPkce } = await import("@/lib/social-oauth.server");
+
+    let companyId = data.companyId;
+    const { data: owned } = await supabaseAdmin
+      .from("companies")
+      .select("id")
+      .eq("id", companyId)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!owned) {
+      const { data: fallback } = await supabaseAdmin
+        .from("companies")
+        .select("id")
+        .eq("owner_id", context.userId)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!fallback) throw new Error("No company on this account yet.");
+      companyId = fallback.id as string;
+    }
+
+    const pending = await createFarcasterSignerPending();
+    const { state } = newPkce();
+    await supabaseAdmin.from("social_oauth_states").upsert({
+      state,
+      provider: "farcaster",
+      company_id: companyId,
+      user_id: context.userId,
+      code_verifier: pending.signerUuid,
+      popup: true,
+      created_at: new Date().toISOString(),
+    });
+
+    return {
+      state,
+      signerUuid: pending.signerUuid,
+      approvalUrl: pending.approvalUrl,
+    };
+  });
+
+export const pollFarcasterSigner = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string; state: string; signerUuid: string }) => ({
+    companyId: String(input.companyId),
+    state: String(input.state),
+    signerUuid: String(input.signerUuid),
+  }))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const {
+      lookupFarcasterSigner,
+      saveApprovedFarcasterSigner,
+    } = await import("@/lib/farcaster-neynar.server");
+
+    const { data: row } = await supabaseAdmin
+      .from("social_oauth_states")
+      .select("*")
+      .eq("state", data.state)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!row || row.provider !== "farcaster") {
+      throw new Error("Farcaster connect session expired — try again.");
+    }
+    if (row.code_verifier !== data.signerUuid) {
+      throw new Error("Signer mismatch — restart Farcaster connect.");
+    }
+
+    const status = await lookupFarcasterSigner(data.signerUuid);
+    if (status.status !== "approved") {
+      return { status: status.status, approved: false as const };
+    }
+
+    await saveApprovedFarcasterSigner(row.company_id, status);
+    await supabaseAdmin.from("social_oauth_states").delete().eq("state", data.state);
+    await supabaseAdmin.from("activity_events").insert({
+      company_id: row.company_id,
+      kind: "decision",
+      message: `Orin connected Farcaster${status.username ? ` · ${status.username}` : ""}`,
+    });
+
+    return {
+      status: status.status,
+      approved: true as const,
+      handle: status.username,
+      fid: status.fid,
+    };
   });
 
 export const disconnectSocial = createServerFn({ method: "POST" })
@@ -350,7 +459,7 @@ export const approveEngagementReply = createServerFn({ method: "POST" })
 
     // Learning write-back for the social agent (Vela / Orin)
     const { mergeAgentMemory } = await import("@/lib/agent-memory");
-    const agentName = row.provider === "linkedin" ? "Orin" : "Vela";
+    const agentName = row.provider === "linkedin" || row.provider === "farcaster" ? "Orin" : "Vela";
     const { data: agent } = await supabaseAdmin
       .from("agents")
       .select("id, memory, lessons_count, tasks_completed")
@@ -415,7 +524,7 @@ export const bulkResolveEngagements = createServerFn({ method: "POST" })
         throw new Error("Invalid action");
       }
       const provider = input.provider ? String(input.provider) : undefined;
-      if (provider && !["x", "linkedin", "meta"].includes(provider)) {
+      if (provider && !isProvider(provider)) {
         throw new Error("Unknown provider");
       }
       const limit = Math.min(40, Math.max(1, Number(input.limit) || 25));
@@ -437,9 +546,7 @@ export const bulkResolveEngagements = createServerFn({ method: "POST" })
     if (!company) throw new Error("No company");
 
     if (data.action === "free_auto") {
-      const providers = data.provider
-        ? [data.provider]
-        : (["x", "linkedin", "meta"] as const);
+      const providers = data.provider ? [data.provider] : [...ALL_SOCIAL_PROVIDERS];
       for (const provider of providers) {
         await supabaseAdmin
           .from("channel_connections")
@@ -482,7 +589,7 @@ export const bulkResolveEngagements = createServerFn({ method: "POST" })
         }
         try {
           const externalReplyId = await replyToEngagement(
-            row.provider as "x" | "linkedin" | "meta",
+            row.provider as SocialProvider,
             row.company_id,
             row.external_id,
             replyBody,
