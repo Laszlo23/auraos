@@ -33,6 +33,8 @@ export const getSocialStatus = createServerFn({ method: "GET" })
       .eq("company_id", data.companyId);
 
     const providers: SocialProvider[] = [...ALL_SOCIAL_PROVIDERS];
+    const { neynarApiConfigured } = await import("@/lib/farcaster-neynar.server");
+    const fcRead = neynarApiConfigured();
     return providers.map((provider) => {
       const row = rows?.find((r) => r.provider === provider);
       const scopes = String(row?.scopes ?? "");
@@ -40,9 +42,12 @@ export const getSocialStatus = createServerFn({ method: "GET" })
       const hasTikTokPublish =
         scopes.includes("video.publish") || scopes.includes("video.upload");
       const connected = row?.status === "connected";
+      const writeReady = socialConfigured(provider);
       return {
         provider,
-        available: socialConfigured(provider),
+        available: writeReady || (provider === "farcaster" && fcRead),
+        canConnect: writeReady,
+        readOnly: provider === "farcaster" && fcRead && !writeReady,
         connected,
         needsReconnect:
           Boolean(row && row.status !== "connected") ||
@@ -140,8 +145,20 @@ export const startFarcasterConnect = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { createFarcasterSignerPending } = await import("@/lib/farcaster-neynar.server");
+    const {
+      connectEnvAgentSigner,
+      createFarcasterSignerPending,
+      farcasterAgentConnectReady,
+      farcasterManagedSignerReady,
+      farcasterWriteConfigured,
+    } = await import("@/lib/farcaster-neynar.server");
     const { newPkce } = await import("@/lib/social-oauth.server");
+
+    if (!farcasterWriteConfigured()) {
+      throw new Error(
+        "Farcaster casting needs NEYNAR_API_KEY plus NEYNAR_AGENT_ID (one-click), or NEYNAR_UID/FID + CUSTODY key.",
+      );
+    }
 
     let companyId = data.companyId;
     const { data: owned } = await supabaseAdmin
@@ -162,6 +179,29 @@ export const startFarcasterConnect = createServerFn({ method: "POST" })
       companyId = fallback.id as string;
     }
 
+    // Preferred: approved agent/bot signer from .env — no Warpcast popup.
+    if (farcasterAgentConnectReady()) {
+      const connected = await connectEnvAgentSigner(companyId);
+      await supabaseAdmin.from("activity_events").insert({
+        company_id: companyId,
+        kind: "decision",
+        message: `Orin connected Farcaster${connected.handle ? ` · ${connected.handle}` : ""}`,
+      });
+      return {
+        mode: "agent" as const,
+        approved: true as const,
+        handle: connected.handle,
+        fid: connected.fid,
+        signerUuid: connected.signerUuid,
+      };
+    }
+
+    if (!farcasterManagedSignerReady()) {
+      throw new Error(
+        "Set NEYNAR_AGENT_ID for one-click connect, or NEYNAR_FARCASTER_FID + NEYNAR_CUSTODY_PRIVATE_KEY.",
+      );
+    }
+
     const pending = await createFarcasterSignerPending();
     const { state } = newPkce();
     await supabaseAdmin.from("social_oauth_states").upsert({
@@ -175,6 +215,8 @@ export const startFarcasterConnect = createServerFn({ method: "POST" })
     });
 
     return {
+      mode: "managed" as const,
+      approved: false as const,
       state,
       signerUuid: pending.signerUuid,
       approvalUrl: pending.approvalUrl,

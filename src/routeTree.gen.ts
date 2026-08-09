@@ -57,6 +57,7 @@ import { Route as EmbedPostIdRouteImport } from './routes/embed.$postId'
 import { Route as MShareSlugRouteImport } from './routes/m.$shareSlug'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
+import { Route as TbShareSlugRouteImport } from './routes/tb.$shareSlug'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as VPostIdRouteImport } from './routes/v.$postId'
 import { Route as WShareSlugRouteImport } from './routes/w.$shareSlug'
@@ -320,6 +321,11 @@ const RRunIdRoute = RRunIdRouteImport.update({
   path: '/r/$runId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TbShareSlugRoute = TbShareSlugRouteImport.update({
+  id: '/tb/$shareSlug',
+  path: '/tb/$shareSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UHandleRoute = UHandleRouteImport.update({
   id: '/u/$handle',
   path: '/u/$handle',
@@ -487,6 +493,7 @@ export interface FileRoutesByFullPath {
   '/m/$shareSlug': typeof MShareSlugRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
+  '/tb/$shareSlug': typeof TbShareSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
@@ -558,6 +565,7 @@ export interface FileRoutesByTo {
   '/m/$shareSlug': typeof MShareSlugRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
+  '/tb/$shareSlug': typeof TbShareSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
@@ -631,6 +639,7 @@ export interface FileRoutesById {
   '/m/$shareSlug': typeof MShareSlugRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
+  '/tb/$shareSlug': typeof TbShareSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
@@ -704,6 +713,7 @@ export interface FileRouteTypes {
     | '/m/$shareSlug'
     | '/oauth/consent'
     | '/r/$runId'
+    | '/tb/$shareSlug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
@@ -775,6 +785,7 @@ export interface FileRouteTypes {
     | '/m/$shareSlug'
     | '/oauth/consent'
     | '/r/$runId'
+    | '/tb/$shareSlug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
@@ -847,6 +858,7 @@ export interface FileRouteTypes {
     | '/m/$shareSlug'
     | '/oauth/consent'
     | '/r/$runId'
+    | '/tb/$shareSlug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
@@ -890,6 +902,7 @@ export interface RootRouteChildren {
   MShareSlugRoute: typeof MShareSlugRoute
   OauthConsentRoute: typeof OauthConsentRoute
   RRunIdRoute: typeof RRunIdRoute
+  TbShareSlugRoute: typeof TbShareSlugRoute
   UHandleRoute: typeof UHandleRoute
   VPostIdRoute: typeof VPostIdRoute
   WShareSlugRoute: typeof WShareSlugRoute
@@ -1251,6 +1264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RRunIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tb/$shareSlug': {
+      id: '/tb/$shareSlug'
+      path: '/tb/$shareSlug'
+      fullPath: '/tb/$shareSlug'
+      preLoaderRoute: typeof TbShareSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$handle': {
       id: '/u/$handle'
       path: '/u/$handle'
@@ -1509,6 +1529,7 @@ const rootRouteChildren: RootRouteChildren = {
   MShareSlugRoute: MShareSlugRoute,
   OauthConsentRoute: OauthConsentRoute,
   RRunIdRoute: RRunIdRoute,
+  TbShareSlugRoute: TbShareSlugRoute,
   UHandleRoute: UHandleRoute,
   VPostIdRoute: VPostIdRoute,
   WShareSlugRoute: WShareSlugRoute,

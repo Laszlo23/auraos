@@ -171,6 +171,13 @@ export function aiProviderNames(): AiProviderName[] {
   return providers().map((p) => p.name);
 }
 
+/** Per-provider request budget — prevents hung gateways from stalling the desk. */
+const AI_FETCH_MS = 12_000;
+
+function fetchTimeoutSignal(ms = AI_FETCH_MS): AbortSignal {
+  return AbortSignal.timeout(ms);
+}
+
 type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
 function isSoftFail(status: number, detail: string): boolean {
@@ -207,6 +214,7 @@ export async function aiChat(opts: {
       res = await fetch(p.chatUrl, {
         method: "POST",
         headers: p.headers,
+        signal: fetchTimeoutSignal(),
         body: JSON.stringify({
           model: opts.model ?? p.model,
           messages,
@@ -219,15 +227,18 @@ export async function aiChat(opts: {
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
       if (isSoftFail(res.status, detail)) {
-        lastError = `${p.name} unavailable (${res.status})`;
+        lastError = `${p.name} soft-fail`;
         continue;
       }
-      lastError = `${p.name} failed (${res.status}): ${detail.slice(0, 160)}`;
+      lastError = `${p.name} ${res.status}`;
       continue;
     }
-    const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    return body.choices?.[0]?.message?.content ?? "";
+    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    const text = data.choices?.[0]?.message?.content?.trim();
+    if (text) return text;
+    lastError = `${p.name} empty`;
   }
+
   throw new Error(`${lastError}. ${aiConfigHint()}`);
 }
 
@@ -256,6 +267,7 @@ export async function aiChatStream(opts: {
       upstream = await fetch(p.chatUrl, {
         method: "POST",
         headers: p.headers,
+        signal: fetchTimeoutSignal(20_000),
         body: JSON.stringify({
           model: opts.model ?? p.model,
           stream: true,
@@ -344,6 +356,7 @@ export async function aiJson(
       res = await fetch(p.chatUrl, {
         method: "POST",
         headers: p.headers,
+        signal: fetchTimeoutSignal(),
         body: JSON.stringify({
           model: p.model,
           messages: [

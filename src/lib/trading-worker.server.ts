@@ -103,6 +103,24 @@ async function spentTodayUsdc(db: Admin, companyId: string): Promise<number> {
   }, 0);
 }
 
+async function deskEquityUsdc(
+  db: Admin,
+  company: { id: string; owner_id?: string; max_notional_usdc_day?: number },
+): Promise<number> {
+  const dayCap = Number(company.max_notional_usdc_day ?? 250);
+  if (!company.owner_id) return dayCap;
+  const { data: wallet } = await db
+    .from("wallet_bindings")
+    .select("address")
+    .eq("user_id", company.owner_id)
+    .eq("kind", "smart")
+    .maybeSingle();
+  if (!wallet?.address) return dayCap;
+  const { fetchWalletUsdcBalance } = await import("@/lib/trading/wallet-equity.server");
+  const usdc = await fetchWalletUsdcBalance(wallet.address);
+  return usdc > 0 ? usdc : dayCap;
+}
+
 /** Ingest large USDC/WETH transfers for followed wallets via Alchemy. */
 export async function ingestSmartMoney(limitCompanies = 30) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -219,7 +237,7 @@ export async function ingestSmartMoney(limitCompanies = 30) {
           events += 1;
           const { data: company } = await db
             .from("companies")
-            .select("id, trading_armed, max_notional_usdc_day, max_risk_pct")
+            .select("id, trading_armed, max_notional_usdc_day, max_risk_pct, owner_id")
             .eq("id", w.company_id)
             .maybeSingle();
           if (company?.trading_armed && t._dir === "in" && asset !== "USDC") {
@@ -239,6 +257,7 @@ export async function ingestSmartMoney(limitCompanies = 30) {
             if (followStrat) {
               const boost = await companyNotionalBoost(db, company.id);
               const spent = await spentTodayUsdc(db, company.id);
+              const equityUsdc = await deskEquityUsdc(db, company);
               const spec = validateStrategySpec(followStrat.spec);
               const notional = sizeTradeNotional({
                 requested: Number(company.max_notional_usdc_day ?? 250) * 0.15,
@@ -246,7 +265,7 @@ export async function ingestSmartMoney(limitCompanies = 30) {
                 maxNotionalDay: Number(company.max_notional_usdc_day ?? 250),
                 spentToday: spent,
                 maxRiskPct: Number(company.max_risk_pct ?? 0.5),
-                equityUsdc: Number(company.max_notional_usdc_day ?? 250),
+                equityUsdc,
                 notionalBoostPct: boost,
               });
               if (notional >= 5) {
@@ -281,7 +300,7 @@ export async function evaluateStrategies(limit = 20) {
   const db = supabaseAdmin as unknown as Admin;
   const { data: companies } = await db
     .from("companies")
-    .select("id, trading_armed, max_risk_pct, max_notional_usdc_day")
+    .select("id, trading_armed, max_risk_pct, max_notional_usdc_day, owner_id")
     .eq("trading_armed", true)
     .limit(limit);
 
@@ -290,9 +309,11 @@ export async function evaluateStrategies(limit = 20) {
     id: string;
     max_notional_usdc_day?: number;
     max_risk_pct?: number;
+    owner_id?: string;
   }[]) {
     const boost = await companyNotionalBoost(db, company.id);
     const spent = await spentTodayUsdc(db, company.id);
+    const equityUsdc = await deskEquityUsdc(db, company);
     const { data: strategies } = await db
       .from("trading_strategies")
       .select("*")
@@ -355,7 +376,7 @@ export async function evaluateStrategies(limit = 20) {
           maxNotionalDay: Number(company.max_notional_usdc_day ?? 250),
           spentToday: spent,
           maxRiskPct: Number(company.max_risk_pct ?? 0.5),
-          equityUsdc: Number(company.max_notional_usdc_day ?? 250),
+          equityUsdc,
           notionalBoostPct: boost,
         });
         if (notional < 5) continue;
@@ -619,7 +640,8 @@ export async function manageOpenPositions(limit = 20) {
   return { marked, closed, errors };
 }
 
-/** Execute approved signals via OKX + Light Account when desk armed. */
+/** Execute approved signals via OKX + Light Account when desk armed.
+ *  Paper desks get mark fills tagged paper=true (never arena). */
 export async function executeApprovedSignals(limit = 5) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
@@ -630,8 +652,7 @@ export async function executeApprovedSignals(limit = 5) {
     executeContractUserOp,
   } = await import("@/lib/wallet.server");
 
-  if (!okxConfigured()) return { executed: 0, errors: ["okx_not_configured"] };
-
+  const liveOkx = okxConfigured();
   const network = activeNetwork();
   const cid = chainId(network);
   const errors: string[] = [];
@@ -660,12 +681,18 @@ export async function executeApprovedSignals(limit = 5) {
       const { data: company } = await db
         .from("companies")
         .select(
-          "id, trading_armed, max_notional_usdc_day, max_slippage_bps, owner_id, max_risk_pct",
+          "id, trading_armed, trading_paper, max_notional_usdc_day, max_slippage_bps, owner_id, max_risk_pct",
         )
         .eq("id", signal.company_id)
         .maybeSingle();
       if (!company?.trading_armed) {
         await db.from("trading_signals").update({ status: "expired" }).eq("id", signal.id);
+        continue;
+      }
+
+      const paper = Boolean((company as { trading_paper?: boolean }).trading_paper);
+      if (!paper && !liveOkx) {
+        errors.push("okx_not_configured");
         continue;
       }
 
@@ -686,6 +713,7 @@ export async function executeApprovedSignals(limit = 5) {
 
       const spent = await spentTodayUsdc(db, company.id);
       const boost = await companyNotionalBoost(db, company.id);
+      const equityUsdc = await deskEquityUsdc(db, company);
       let specMax = Number(signal.notional_usdc) || 25;
       if (signal.strategy_id) {
         const { data: strat } = await db
@@ -708,7 +736,7 @@ export async function executeApprovedSignals(limit = 5) {
         maxNotionalDay: Number(company.max_notional_usdc_day ?? 250),
         spentToday: spent,
         maxRiskPct: Number(company.max_risk_pct ?? 0.5),
-        equityUsdc: Number(company.max_notional_usdc_day ?? 250),
+        equityUsdc,
         notionalBoostPct: boost,
       });
       if (notional < 5) {
@@ -719,6 +747,42 @@ export async function executeApprovedSignals(limit = 5) {
         continue;
       }
 
+      const mark = await fetchMarkPrice(signal.symbol || "WETH/USDC").catch(() => ({
+        price: Number(signal.entry_price) || 0,
+        source: "signal",
+      }));
+
+      if (paper) {
+        await db.from("trades").insert({
+          company_id: company.id,
+          strategy_id: signal.strategy_id,
+          signal_id: signal.id,
+          symbol: signal.symbol || "WETH/USDC",
+          side: "long",
+          size: notional,
+          entry: mark.price,
+          exit: null,
+          pnl: 0,
+          confidence: signal.confidence,
+          status: "open",
+          rationale: `[PAPER] ${signal.rationale ?? "Simulated mark fill"}`,
+          paper: true,
+          mark_price: mark.price,
+          chain_id: cid,
+          opened_at: new Date().toISOString(),
+        });
+        await db.from("trading_signals").update({ status: "executed" }).eq("id", signal.id);
+        await db.from("activity_events").insert({
+          company_id: company.id,
+          kind: "trade",
+          message: `Quant paper-opened ${signal.symbol} ($${notional.toFixed(0)}) — not arena`,
+          value: notional,
+        });
+        executed += 1;
+        continue;
+      }
+
+      // ——— Live OKX path (unchanged below, uses notional/equity already sized) ———
       const { data: wallet } = await db
         .from("wallet_bindings")
         .select("address, owner_key_enc, deployed, user_id")
@@ -795,11 +859,6 @@ export async function executeApprovedSignals(limit = 5) {
           ? await executeBatchUserOps(pk, calls)
           : await executeContractUserOp(pk, calls[0]!);
 
-      const mark = await fetchMarkPrice(signal.symbol || "WETH/USDC").catch(() => ({
-        price: Number(signal.entry_price) || 0,
-        source: "signal",
-      }));
-
       await db
         .from("trading_orders")
         .update({
@@ -822,6 +881,7 @@ export async function executeApprovedSignals(limit = 5) {
         confidence: signal.confidence,
         status: "open",
         rationale: signal.rationale,
+        paper: false,
         tx_hash: result.userOpHash,
         token_in: pair.quote,
         token_out: pair.base,

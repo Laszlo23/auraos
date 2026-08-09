@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { PageHeader, Panel, Chip, Pulse, Meter, DataRow } from "@/components/aura/primitives";
 import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
+import { FarcasterPulse } from "@/components/aura/farcaster-pulse";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import {
   SOCIALS,
@@ -247,9 +248,13 @@ function ChannelsPage() {
                         : s.id === "tiktok"
                           ? "TIKTOK_CLIENT_KEY / TIKTOK_CLIENT_SECRET"
                           : s.id === "farcaster"
-                            ? "NEYNAR_API_KEY + FARCASTER FID/key"
+                            ? "NEYNAR_API_KEY"
                             : `${s.id.toUpperCase()}_CLIENT_ID`}{" "}
                       in env to enable.
+                    </p>
+                  ) : state?.readOnly && s.id === "farcaster" ? (
+                    <p className="mt-2 text-[11px] text-primary">
+                      Read live via Neynar. Add NEYNAR_AGENT_ID (or FID + custody key) to cast.
                     </p>
                   ) : null}
                 </div>
@@ -357,7 +362,11 @@ function ChannelsPage() {
                   <button
                     type="button"
                     onClick={() => void onConnect(s.id)}
-                    disabled={!state?.available || pending === s.id || connect.isPending}
+                    disabled={
+                      !(state?.canConnect ?? state?.available) ||
+                      pending === s.id ||
+                      connect.isPending
+                    }
                     className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
                     {pending === s.id ? (
@@ -365,11 +374,13 @@ function ChannelsPage() {
                     ) : (
                       <Link2 className="h-3.5 w-3.5" />
                     )}
-                    {state?.available
+                    {state?.canConnect ?? state?.available
                       ? state.needsReconnect
                         ? `Reconnect ${s.name}`
                         : `Connect ${s.name}`
-                      : "Coming soon"}
+                      : state?.readOnly
+                        ? "Read-only (pulse below)"
+                        : "Coming soon"}
                   </button>
                 )}
               </div>
@@ -382,6 +393,8 @@ function ChannelsPage() {
           );
         })}
       </div>
+
+      <FarcasterPulse />
 
       {isLoading ? <p className="text-sm text-muted-foreground">Loading channels…</p> : null}
 

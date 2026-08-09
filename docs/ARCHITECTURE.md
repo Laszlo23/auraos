@@ -30,7 +30,7 @@ Entry points:
 
 1. **UI** — `/connect` and `/channels` via `useConnectChannel` / connection hooks.
 2. **Server** — `src/lib/social.functions.ts` → `social-oauth.server.ts` / `social-api.server.ts`.
-3. **Farcaster** — Neynar managed signer in `farcaster-neynar.server.ts` (approve in Warpcast, then poll).
+3. **Farcaster** — Neynar agent signer (`NEYNAR_AGENT_ID`) one-click connect, or managed signer + Warpcast approve in `farcaster-neynar.server.ts`.
 
 Guide: [social-channels.md](social-channels.md).
 
@@ -50,6 +50,13 @@ Guide: [social-channels.md](social-channels.md).
 - Workforce **Active** = open `running` / `queued` task for that agent (not inflated `activity` scores).
 - `current_task` is set when a task starts running; cleared to idle on complete/fail.
 - Activity feed copy must not claim agent movement before the worker runs.
+
+## Trading edge pack
+
+- **Backtest Lab** on `/trading` — walk-forward, trailing stops, fee drag, preset compare, shareable `/tb/$slug`.
+- **Paper desk** — mark fills tagged `paper`; excluded from weekly arena.
+- Sizing prefers **wallet USDC**; live-vs-backtest report after closed fills.
+- Candle source remains an honest CEX proxy label (not Base fills).
 
 ## Phase 3 (deferred) — subdomain + vanity mail
 

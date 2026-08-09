@@ -84,12 +84,16 @@ export function socialConfigured(provider: SocialProvider): boolean {
       return Boolean(process.env["META_APP_ID"] && process.env["META_APP_SECRET"]);
     case "tiktok":
       return Boolean(process.env["TIKTOK_CLIENT_KEY"] && process.env["TIKTOK_CLIENT_SECRET"]);
-    case "farcaster":
-      return Boolean(
-        process.env["NEYNAR_API_KEY"] &&
-          process.env["NEYNAR_FARCASTER_FID"] &&
-          process.env["NEYNAR_CUSTODY_PRIVATE_KEY"],
-      );
+    case "farcaster": {
+      // Agent/bot signer (NEYNAR_AGENT_ID) OR classic FID + custody key.
+      const api = Boolean(process.env["NEYNAR_API_KEY"]?.trim());
+      const agent =
+        process.env["NEYNAR_AGENT_ID"]?.trim() || process.env["NEYNAR_SIGNER_UUID"]?.trim();
+      const fid =
+        process.env["NEYNAR_FARCASTER_FID"]?.trim() || process.env["NEYNAR_UID"]?.trim();
+      const custody = process.env["NEYNAR_CUSTODY_PRIVATE_KEY"]?.trim();
+      return Boolean(api && (agent || (fid && custody)));
+    }
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;

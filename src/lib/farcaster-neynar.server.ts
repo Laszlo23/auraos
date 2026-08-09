@@ -4,7 +4,6 @@ import { privateKeyToAccount } from "viem/accounts";
 import {
   encryptToken,
   saveConnectionTokens,
-  socialConfigured,
   type SocialTokens,
 } from "@/lib/social-oauth.server";
 
@@ -22,6 +21,54 @@ function neynarHeaders(): HeadersInit {
     api_key: apiKey(),
     Accept: "application/json",
   };
+}
+
+/** True when we can call Neynar read APIs (search, feeds, profiles). */
+export function neynarApiConfigured(): boolean {
+  return Boolean(process.env["NEYNAR_API_KEY"]?.trim());
+}
+
+/**
+ * Bot / agent signer UUID from env.
+ * Prefer NEYNAR_AGENT_ID (Neynar agent dashboard) or NEYNAR_SIGNER_UUID.
+ */
+export function neynarAgentSignerUuid(): string | null {
+  const raw =
+    process.env["NEYNAR_AGENT_ID"]?.trim() || process.env["NEYNAR_SIGNER_UUID"]?.trim() || "";
+  return raw || null;
+}
+
+/** App / bot FID — NEYNAR_FARCASTER_FID or alias NEYNAR_UID. */
+export function neynarFid(): number | null {
+  const raw =
+    process.env["NEYNAR_FARCASTER_FID"]?.trim() || process.env["NEYNAR_UID"]?.trim() || "";
+  if (!raw) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+export function neynarClientId(): string | null {
+  return process.env["NEYNAR_CLIENT_ID"]?.trim() || null;
+}
+
+/** Custody key for classic managed-signer approval (optional when agent signer is set). */
+function neynarCustodyKey(): string | null {
+  return process.env["NEYNAR_CUSTODY_PRIVATE_KEY"]?.trim() || null;
+}
+
+/** One-click connect using an already-approved agent/bot signer. */
+export function farcasterAgentConnectReady(): boolean {
+  return Boolean(neynarApiConfigured() && neynarAgentSignerUuid());
+}
+
+/** Classic Warpcast-approve flow (create signer + custody EIP-712). */
+export function farcasterManagedSignerReady(): boolean {
+  return Boolean(neynarApiConfigured() && neynarFid() != null && neynarCustodyKey());
+}
+
+/** True when founders can connect a write signer (cast / reply). */
+export function farcasterWriteConfigured(): boolean {
+  return farcasterAgentConnectReady() || farcasterManagedSignerReady();
 }
 
 /** EIP-712 SignedKeyRequest for Farcaster key registry on Optimism. */
@@ -65,16 +112,199 @@ export type FarcasterSignerPending = {
   status: string;
 };
 
-export async function createFarcasterSignerPending(): Promise<FarcasterSignerPending> {
-  if (!socialConfigured("farcaster")) {
+export type FarcasterCastCard = {
+  hash: string;
+  text: string;
+  author: string;
+  authorFid: number;
+  likes: number;
+  recasts: number;
+  replies: number;
+  timestamp: string | null;
+  url: string;
+  channel: string | null;
+};
+
+export type FarcasterUserCard = {
+  fid: number;
+  username: string;
+  displayName: string;
+  bio: string;
+  followerCount: number;
+  followingCount: number;
+  pfpUrl: string | null;
+  score: number | null;
+};
+
+function mapCast(raw: Record<string, unknown>): FarcasterCastCard | null {
+  const hash = typeof raw["hash"] === "string" ? raw["hash"] : null;
+  if (!hash) return null;
+  const author = (raw["author"] ?? {}) as Record<string, unknown>;
+  const username = typeof author["username"] === "string" ? author["username"] : "unknown";
+  const fid = Number(author["fid"] ?? 0);
+  const reactions = (raw["reactions"] ?? {}) as Record<string, unknown>;
+  const channel = (raw["channel"] ?? null) as { id?: string } | null;
+  const repliesObj = raw["replies"] as { count?: number } | undefined;
+  return {
+    hash,
+    text: String(raw["text"] ?? "").slice(0, 500),
+    author: username,
+    authorFid: fid,
+    likes: Number(reactions["likes_count"] ?? 0),
+    recasts: Number(reactions["recasts_count"] ?? 0),
+    replies: Number(repliesObj?.count ?? 0),
+    timestamp: typeof raw["timestamp"] === "string" ? raw["timestamp"] : null,
+    url: `https://warpcast.com/${username}/${hash.slice(0, 10)}`,
+    channel: channel?.id ?? null,
+  };
+}
+
+export async function searchFarcasterCasts(
+  query: string,
+  limit = 12,
+): Promise<FarcasterCastCard[]> {
+  const q = query.trim().slice(0, 120);
+  if (!q) return [];
+  const url = new URL(`${NEYNAR_BASE}/farcaster/cast/search`);
+  url.searchParams.set("q", q);
+  url.searchParams.set("limit", String(Math.min(25, Math.max(1, limit))));
+  const res = await fetch(url, { headers: neynarHeaders() });
+  const json = (await res.json()) as {
+    result?: { casts?: Record<string, unknown>[] };
+    message?: string;
+  };
+  if (!res.ok) throw new Error(json.message || `Cast search failed (${res.status})`);
+  return (json.result?.casts ?? [])
+    .map((c) => mapCast(c))
+    .filter((c): c is FarcasterCastCard => Boolean(c));
+}
+
+export async function fetchChannelFeed(
+  channelId: string,
+  limit = 12,
+): Promise<FarcasterCastCard[]> {
+  const id = channelId.replace(/^\/+/, "").trim().slice(0, 64) || "base";
+  const url = new URL(`${NEYNAR_BASE}/farcaster/feed/channels`);
+  url.searchParams.set("channel_ids", id);
+  url.searchParams.set("with_recasts", "false");
+  url.searchParams.set("limit", String(Math.min(25, Math.max(1, limit))));
+  const res = await fetch(url, { headers: neynarHeaders() });
+  const json = (await res.json()) as {
+    casts?: Record<string, unknown>[];
+    message?: string;
+  };
+  if (!res.ok) throw new Error(json.message || `Channel feed failed (${res.status})`);
+  return (json.casts ?? [])
+    .map((c) => mapCast(c))
+    .filter((c): c is FarcasterCastCard => Boolean(c));
+}
+
+export async function searchFarcasterUsers(
+  query: string,
+  limit = 8,
+): Promise<FarcasterUserCard[]> {
+  const q = query.trim().replace(/^@/, "").slice(0, 64);
+  if (!q) return [];
+  const url = new URL(`${NEYNAR_BASE}/farcaster/user/search`);
+  url.searchParams.set("q", q);
+  url.searchParams.set("limit", String(Math.min(20, Math.max(1, limit))));
+  const res = await fetch(url, { headers: neynarHeaders() });
+  const json = (await res.json()) as {
+    result?: { users?: Record<string, unknown>[] };
+    message?: string;
+  };
+  if (!res.ok) throw new Error(json.message || `User search failed (${res.status})`);
+  return (json.result?.users ?? []).map((u) => {
+    const profile = (u["profile"] ?? {}) as { bio?: { text?: string } };
+    return {
+      fid: Number(u["fid"] ?? 0),
+      username: String(u["username"] ?? ""),
+      displayName: String(u["display_name"] ?? u["username"] ?? ""),
+      bio: String(profile.bio?.text ?? "").slice(0, 240),
+      followerCount: Number(u["follower_count"] ?? 0),
+      followingCount: Number(u["following_count"] ?? 0),
+      pfpUrl: typeof u["pfp_url"] === "string" ? u["pfp_url"] : null,
+      score: typeof u["score"] === "number" ? u["score"] : null,
+    };
+  });
+}
+
+/** Mentions / replies for a connected FID (needs write connect to act on them). */
+export async function fetchFarcasterNotifications(fid: number): Promise<
+  Array<{
+    externalId: string;
+    authorHandle: string | null;
+    authorName: string | null;
+    body: string;
+  }>
+> {
+  if (!fid) return [];
+  const url = new URL(`${NEYNAR_BASE}/farcaster/notifications`);
+  url.searchParams.set("fid", String(fid));
+  url.searchParams.set("type", "mentions,replies");
+  url.searchParams.set("priority_mode", "false");
+  const res = await fetch(url, { headers: neynarHeaders() });
+  if (!res.ok) return [];
+  const json = (await res.json()) as {
+    notifications?: Array<{
+      cast?: {
+        hash?: string;
+        text?: string;
+        author?: { username?: string; display_name?: string };
+      };
+    }>;
+  };
+  return (json.notifications ?? [])
+    .map((n) => {
+      const cast = n.cast;
+      if (!cast?.hash || !cast.text) return null;
+      return {
+        externalId: cast.hash,
+        authorHandle: cast.author?.username ? `@${cast.author.username}` : null,
+        authorName: cast.author?.display_name ?? null,
+        body: cast.text.slice(0, 500),
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => Boolean(x));
+}
+
+/**
+ * Attach the env agent signer to a company (no Warpcast popup).
+ * Uses NEYNAR_AGENT_ID / NEYNAR_SIGNER_UUID — must already be approved with write perms.
+ */
+export async function connectEnvAgentSigner(companyId: string): Promise<{
+  handle: string | null;
+  fid: number | null;
+  signerUuid: string;
+}> {
+  const uuid = neynarAgentSignerUuid();
+  if (!uuid) {
+    throw new Error("Set NEYNAR_AGENT_ID (or NEYNAR_SIGNER_UUID) to connect the bot signer.");
+  }
+  const status = await lookupFarcasterSigner(uuid);
+  if (status.status !== "approved") {
     throw new Error(
-      "Farcaster is not configured. Set NEYNAR_API_KEY, NEYNAR_FARCASTER_FID, and NEYNAR_CUSTODY_PRIVATE_KEY.",
+      `Neynar agent signer is ${status.status} — approve it in the Neynar dashboard first.`,
+    );
+  }
+  await saveApprovedFarcasterSigner(companyId, status);
+  return {
+    handle: status.username,
+    fid: status.fid,
+    signerUuid: status.signerUuid,
+  };
+}
+
+export async function createFarcasterSignerPending(): Promise<FarcasterSignerPending> {
+  if (!farcasterManagedSignerReady()) {
+    throw new Error(
+      "Managed Farcaster connect needs NEYNAR_API_KEY, NEYNAR_FARCASTER_FID (or NEYNAR_UID), and NEYNAR_CUSTODY_PRIVATE_KEY. Or set NEYNAR_AGENT_ID for one-click bot connect.",
     );
   }
 
-  const appFid = Number(process.env["NEYNAR_FARCASTER_FID"]);
-  if (!Number.isFinite(appFid) || appFid <= 0) {
-    throw new Error("NEYNAR_FARCASTER_FID must be your app FID number.");
+  const appFid = neynarFid();
+  if (appFid == null) {
+    throw new Error("NEYNAR_FARCASTER_FID (or NEYNAR_UID) must be your FID number.");
   }
 
   const createRes = await fetch(`${NEYNAR_BASE}/farcaster/signer/`, {

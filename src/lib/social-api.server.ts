@@ -380,8 +380,13 @@ export async function fetchRecentComments(
       // LinkedIn comment APIs need org/page products — return empty until Marketing API is approved.
       return [];
     case "tiktok":
-    case "farcaster":
       return [];
+    case "farcaster": {
+      const fid = Number(conn.externalUserId ?? 0);
+      if (!fid || !process.env["NEYNAR_API_KEY"]) return [];
+      const { fetchFarcasterNotifications } = await import("@/lib/farcaster-neynar.server");
+      return fetchFarcasterNotifications(fid);
+    }
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;

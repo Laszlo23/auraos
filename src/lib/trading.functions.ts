@@ -4,10 +4,15 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { mergeAgentMemory } from "@/lib/agent-memory";
 import { agentJson } from "@/lib/x402-ai";
 import {
+  buildBacktestRiskCard,
   runBacktest,
+  runWalkForward,
   validateStrategySpec,
   type StrategySpec,
 } from "@/lib/trading/backtest.server";
+import { TRADING_PRESETS } from "@/lib/trading/presets";
+import { fetchWalletUsdcBalance } from "@/lib/trading/wallet-equity.server";
+import { SITE_URL } from "@/lib/site";
 
 const QUANT_MEMORY =
   "Trading desk Quant. Risk-first. Never invent fills. Respect founder caps. Prefer WETH/USDC on Base. Learn from every confirmed swap.";
@@ -128,36 +133,53 @@ export const createStrategyFromPrompt = createServerFn({ method: "POST" })
     await ownedCompany(context.supabase, context.userId, data.companyId);
     const quant = await ensureQuant(context.supabase, data.companyId);
 
-    let spec: StrategySpec;
-    let name = "Prompt strategy";
-    let summary = data.prompt.slice(0, 240);
-    try {
-      const json = (await agentJson(
-        `You are Quant, an on-chain spot trading strategist for Base USDC/WETH only.
-Return JSON {"name":"...","summary":"...","honesty_note":"...","spec":{"timeframe":"1h"|"4h"|"1d","symbols":["WETH/USDC"],"entry":{"type":"ma_cross"|"breakout"|"smart_money_follow","params":{}},"exit":{"stop_pct":number,"take_profit_pct":number},"sizing":{"risk_pct_equity":number,"max_notional_usdc":number}}}.
-Keep risk_pct_equity ≤ 1 and max_notional_usdc ≤ 500. No leverage. No shorts that need borrow.
-If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), honesty_note must say that is unlikely and summary must describe a capped learning strategy — never promise the target.`,
-        data.prompt,
-        "summary",
-      )) as {
-        name?: string;
-        summary?: string;
-        honesty_note?: string;
-        spec?: unknown;
-      };
-      spec = validateStrategySpec(json.spec);
-      if (json.name) name = String(json.name).slice(0, 80);
-      const honesty = json.honesty_note ? ` ${String(json.honesty_note).slice(0, 180)}` : "";
-      if (json.summary) summary = `${String(json.summary).slice(0, 320)}${honesty}`.slice(0, 400);
-    } catch {
-      spec = validateStrategySpec({
+    const fallbackSpec = (): StrategySpec =>
+      validateStrategySpec({
         timeframe: "1h",
         symbols: ["WETH/USDC"],
         entry: { type: "ma_cross", params: { fast: 12, slow: 26 } },
         exit: { stop_pct: 2, take_profit_pct: 4 },
         sizing: { risk_pct_equity: 0.5, max_notional_usdc: 100 },
       });
+
+    let spec: StrategySpec = fallbackSpec();
+    let name = "Prompt strategy";
+    let summary = `Draft from: ${data.prompt.slice(0, 160)}`;
+    let usedFallback = true;
+
+    try {
+      const draftAi = agentJson(
+        `You are Quant, an on-chain spot trading strategist for Base USDC/WETH only.
+Return JSON {"name":"...","summary":"...","honesty_note":"...","spec":{"timeframe":"1h"|"4h"|"1d","symbols":["WETH/USDC"],"entry":{"type":"ma_cross"|"breakout"|"smart_money_follow","params":{}},"exit":{"stop_pct":number,"take_profit_pct":number},"sizing":{"risk_pct_equity":number,"max_notional_usdc":number}}}.
+Keep risk_pct_equity ≤ 1 and max_notional_usdc ≤ 500. No leverage. No shorts that need borrow.
+If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), honesty_note must say that is unlikely and summary must describe a capped learning strategy — never promise the target.`,
+        data.prompt,
+        "summary",
+      );
+      // Prevent unhandled rejection if we time out first and fall back.
+      void draftAi.catch(() => undefined);
+
+      const json = (await Promise.race([
+        draftAi,
+        new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error("ai_timeout")), 12_000);
+        }),
+      ])) as {
+        name?: string;
+        summary?: string;
+        honesty_note?: string;
+        spec?: unknown;
+      };
+
+      spec = validateStrategySpec(json.spec);
+      if (json.name) name = String(json.name).slice(0, 80);
+      const honesty = json.honesty_note ? ` ${String(json.honesty_note).slice(0, 180)}` : "";
+      if (json.summary) summary = `${String(json.summary).slice(0, 320)}${honesty}`.slice(0, 400);
+      usedFallback = false;
+    } catch {
+      spec = fallbackSpec();
       summary = `Fallback MA-cross on WETH/USDC from: ${data.prompt.slice(0, 120)}`;
+      usedFallback = true;
     }
 
     const { data: row, error } = await context.supabase
@@ -173,7 +195,9 @@ If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), ho
       })
       .select("*")
       .single();
-    if (error || !row) throw error ?? new Error("Could not save strategy");
+    if (error || !row) {
+      throw new Error(error?.message || "Could not save strategy");
+    }
 
     await context.supabase
       .from("agents")
@@ -189,6 +213,7 @@ If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), ho
       name: row.name as string,
       status: row.status as string,
       summary: (row.summary as string | null) ?? null,
+      usedFallback,
     };
   });
 
@@ -214,14 +239,22 @@ export const runStrategyBacktest = createServerFn({ method: "POST" })
     const { candles, source } = await fetchCandles({
       symbol: spec.symbols[0] ?? "WETH/USDC",
       timeframe: spec.timeframe,
-      limit: 240,
+      limit: 360,
     });
     const result = runBacktest(candles, spec, source);
+    const risk = buildBacktestRiskCard(spec, result);
+    const window = {
+      from_ms: candles[0]?.t ?? null,
+      to_ms: candles.at(-1)?.t ?? null,
+      bars: candles.length,
+      timeframe: spec.timeframe,
+    };
+    const backtest = { ...result, risk, window };
 
     const { data: updated, error } = await context.supabase
       .from("trading_strategies")
       .update({
-        backtest: result,
+        backtest,
         status: strategy.status === "approved" ? "approved" : "backtested",
         updated_at: new Date().toISOString(),
       })
@@ -232,19 +265,7 @@ export const runStrategyBacktest = createServerFn({ method: "POST" })
     return {
       id: updated.id as string,
       status: updated.status as string,
-      backtest: updated.backtest
-        ? {
-            win_rate: Number((updated.backtest as { win_rate?: number }).win_rate ?? 0),
-            total_return_pct: Number(
-              (updated.backtest as { total_return_pct?: number }).total_return_pct ?? 0,
-            ),
-            max_drawdown_pct: Number(
-              (updated.backtest as { max_drawdown_pct?: number }).max_drawdown_pct ?? 0,
-            ),
-            trade_count: Number((updated.backtest as { trade_count?: number }).trade_count ?? 0),
-            source: String((updated.backtest as { source?: string }).source ?? ""),
-          }
-        : null,
+      backtest,
     };
   });
 
@@ -530,11 +551,19 @@ export const applyTradingPreset = createServerFn({ method: "POST" })
       limit: 240,
     });
     const result = runBacktest(candles, preset.spec, source);
+    const risk = buildBacktestRiskCard(preset.spec, result);
+    const window = {
+      from_ms: candles[0]?.t ?? null,
+      to_ms: candles.at(-1)?.t ?? null,
+      bars: candles.length,
+      timeframe: preset.spec.timeframe,
+    };
+    const backtest = { ...result, risk, window };
 
     await context.supabase
       .from("trading_strategies")
       .update({
-        backtest: result,
+        backtest,
         status: "approved",
         summary: preset.tagline,
         spec: preset.spec,
@@ -560,12 +589,7 @@ export const applyTradingPreset = createServerFn({ method: "POST" })
       strategyId,
       name: preset.name,
       status: "approved" as const,
-      backtest: {
-        win_rate: result.win_rate,
-        total_return_pct: result.total_return_pct,
-        max_drawdown_pct: result.max_drawdown_pct,
-        trade_count: result.trade_count,
-      },
+      backtest,
     };
   });
 
@@ -576,7 +600,7 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
     const { data: company } = await context.supabase
       .from("companies")
       .select(
-        "id, trading_armed, max_risk_pct, max_notional_usdc_day, quant_boost_until, quant_boost_pct",
+        "id, trading_armed, max_risk_pct, max_notional_usdc_day, quant_boost_until, quant_boost_pct, trading_paper",
       )
       .eq("owner_id", context.userId)
       .order("created_at", { ascending: true })
@@ -605,30 +629,7 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
 
     let usdc = 0;
     if (wallet?.address) {
-      try {
-        const { activeNetwork, alchemyRpcUrl, USDC_ADDRESSES } = await import(
-          "@/lib/chain-config"
-        );
-        const network = activeNetwork();
-        const url = alchemyRpcUrl({ network });
-        if (url) {
-          const balanceOf = `0x70a08231000000000000000000000000${wallet.address.slice(2).toLowerCase()}`;
-          const res = await fetch(url, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              jsonrpc: "2.0",
-              id: 1,
-              method: "eth_call",
-              params: [{ to: USDC_ADDRESSES[network], data: balanceOf }, "latest"],
-            }),
-          });
-          const json = (await res.json()) as { result?: string };
-          if (json.result) usdc = Number(BigInt(json.result)) / 1e6;
-        }
-      } catch {
-        usdc = 0;
-      }
+      usdc = await fetchWalletUsdcBalance(wallet.address);
     }
 
     const { data: keys } = await context.supabase
@@ -663,6 +664,7 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
       hasApprovedStrategy,
       hasBacktest,
       armed: Boolean(company.trading_armed),
+      paper: Boolean((company as { trading_paper?: boolean }).trading_paper),
       canArm,
       blockReason,
       quantBoostUntil: (company as { quant_boost_until?: string | null }).quant_boost_until ?? null,
@@ -696,6 +698,45 @@ export const getHolderPerks = createServerFn({ method: "GET" })
       hasGenesisNft: false,
       genesisNftContract: nftContract,
     });
+  });
+
+/** Live market quote for the Trading Desk (poll from client). */
+export const getMarketQuote = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input?: { symbol?: string }) => ({
+    symbol: String(input?.symbol ?? "WETH/USDC"),
+  }))
+  .handler(async ({ data }) => {
+    const { fetchLiveMarketQuote } = await import("@/lib/trading/market-data.server");
+    return fetchLiveMarketQuote(data.symbol);
+  });
+
+/** OHLC candles for the Quant Desk chart. */
+export const getMarketCandles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input?: { symbol?: string; interval?: string; limit?: number }) => {
+    const interval = String(input?.interval ?? "15m");
+    const allowed = ["5m", "15m", "1h", "4h", "1d"] as const;
+    if (!allowed.includes(interval as (typeof allowed)[number])) {
+      throw new Error("Invalid chart interval");
+    }
+    return {
+      symbol: String(input?.symbol ?? "WETH/USDC"),
+      interval: interval as "5m" | "15m" | "1h" | "4h" | "1d",
+      limit: Math.min(200, Math.max(40, Number(input?.limit ?? 96))),
+    };
+  })
+  .handler(async ({ data }) => {
+    const { fetchMarketCandles } = await import("@/lib/trading/market-data.server");
+    return fetchMarketCandles(data);
+  });
+
+/** Compact BTC/ETH/SOL/USDC mood strip. */
+export const getMarketPulse = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { fetchMarketPulse } = await import("@/lib/trading/market-data.server");
+    return fetchMarketPulse();
   });
 
 export const getTradingArena = createServerFn({ method: "GET" })
@@ -771,5 +812,287 @@ export const getTradingArena = createServerFn({ method: "GET" })
       },
       entries: mapped,
       you,
+    };
+  });
+
+function randomShareSlug() {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let s = "";
+  for (let i = 0; i < 10; i++) s += alphabet[Math.floor(Math.random() * alphabet.length)]!;
+  return s;
+}
+
+/** Lab: run / re-run backtest with walk-forward, optional bars or date window. */
+export const runBacktestLab = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      companyId: string;
+      strategyId: string;
+      bars?: number;
+      /** Inclusive window start (ms since epoch). */
+      fromMs?: number;
+      /** Inclusive window end (ms since epoch). */
+      toMs?: number;
+      walkForward?: boolean;
+      feeBps?: number;
+      startingEquity?: number;
+    }) => input,
+  )
+  .handler(async ({ data, context }) => {
+    await ownedCompany(context.supabase, context.userId, data.companyId);
+    const { data: strategy } = await context.supabase
+      .from("trading_strategies")
+      .select("*")
+      .eq("id", data.strategyId)
+      .eq("company_id", data.companyId)
+      .maybeSingle();
+    if (!strategy) throw new Error("Strategy not found");
+
+    const spec = validateStrategySpec(strategy.spec);
+    const { fetchCandles } = await import("@/lib/trading/market-data.server");
+    const useRange =
+      data.fromMs != null &&
+      data.toMs != null &&
+      Number.isFinite(data.fromMs) &&
+      Number.isFinite(data.toMs);
+    const bars = Math.min(500, Math.max(80, data.bars ?? 360));
+    const { candles, source } = await fetchCandles(
+      useRange
+        ? {
+            symbol: spec.symbols[0] ?? "WETH/USDC",
+            timeframe: spec.timeframe,
+            startTime: data.fromMs!,
+            endTime: data.toMs!,
+          }
+        : {
+            symbol: spec.symbols[0] ?? "WETH/USDC",
+            timeframe: spec.timeframe,
+            limit: bars,
+          },
+    );
+    const opts = {
+      ...(data.feeBps != null ? { feeBps: data.feeBps } : {}),
+      ...(data.startingEquity != null ? { startingEquity: data.startingEquity } : {}),
+    };
+    const full = runBacktest(candles, spec, source, opts);
+    const walk = data.walkForward
+      ? runWalkForward(candles, spec, source, opts)
+      : null;
+    const risk = buildBacktestRiskCard(spec, full);
+    const window = {
+      from_ms: candles[0]?.t ?? null,
+      to_ms: candles.at(-1)?.t ?? null,
+      bars: candles.length,
+      timeframe: spec.timeframe,
+    };
+
+    await context.supabase
+      .from("trading_strategies")
+      .update({
+        backtest: {
+          ...full,
+          risk,
+          window,
+          ...(walk
+            ? {
+                walk_forward: {
+                  train_bars: walk.train_bars,
+                  test_bars: walk.test_bars,
+                  in_sample_return_pct: walk.in_sample.total_return_pct,
+                  out_of_sample_return_pct: walk.out_of_sample.total_return_pct,
+                  in_sample_dd_pct: walk.in_sample.max_drawdown_pct,
+                  out_of_sample_dd_pct: walk.out_of_sample.max_drawdown_pct,
+                  out_of_sample_win_rate: walk.out_of_sample.win_rate,
+                },
+              }
+            : {}),
+        },
+        status: strategy.status === "approved" ? "approved" : "backtested",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", strategy.id);
+
+    return {
+      strategyId: strategy.id as string,
+      name: strategy.name as string,
+      full: { ...full, risk, window },
+      walk,
+    };
+  });
+
+/** Compare all presets on the same candle window. */
+export const comparePresetBacktests = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string; bars?: number }) => input)
+  .handler(async ({ data, context }) => {
+    await ownedCompany(context.supabase, context.userId, data.companyId);
+    const { fetchCandles } = await import("@/lib/trading/market-data.server");
+    const bars = Math.min(500, Math.max(80, data.bars ?? 360));
+    const results = [];
+    for (const preset of TRADING_PRESETS) {
+      const { candles, source } = await fetchCandles({
+        symbol: preset.spec.symbols[0] ?? "WETH/USDC",
+        timeframe: preset.spec.timeframe,
+        limit: bars,
+      });
+      const full = runBacktest(candles, preset.spec, source);
+      const walk = runWalkForward(candles, preset.spec, source);
+      results.push({
+        id: preset.id,
+        name: preset.name,
+        tagline: preset.tagline,
+        riskLabel: preset.riskLabel,
+        full,
+        oos_return_pct: walk.out_of_sample.total_return_pct,
+        oos_dd_pct: walk.out_of_sample.max_drawdown_pct,
+        oos_win_rate: walk.out_of_sample.win_rate,
+      });
+    }
+    return { results, bars };
+  });
+
+/** Freeze a backtest snapshot for sharing. */
+export const shareBacktestSnapshot = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string; strategyId: string }) => input)
+  .handler(async ({ data, context }) => {
+    await ownedCompany(context.supabase, context.userId, data.companyId);
+    const { data: strategy } = await context.supabase
+      .from("trading_strategies")
+      .select("id, name, backtest, spec")
+      .eq("id", data.strategyId)
+      .eq("company_id", data.companyId)
+      .maybeSingle();
+    if (!strategy?.backtest) throw new Error("Run a backtest first");
+
+    const slug = randomShareSlug();
+    const title = `${strategy.name} backtest`;
+    const { error } = await context.supabase.from("trading_backtest_shares").insert({
+      company_id: data.companyId,
+      strategy_id: strategy.id,
+      share_slug: slug,
+      title,
+      payload: {
+        name: strategy.name,
+        spec: strategy.spec,
+        backtest: strategy.backtest,
+        shared_at: new Date().toISOString(),
+      },
+    });
+    if (error) throw error;
+    return { shareSlug: slug, url: `${SITE_URL}/tb/${slug}` };
+  });
+
+/** Paper vs live desk mode. Paper fills never enter the arena. */
+export const setTradingPaperMode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string; paper: boolean }) => input)
+  .handler(async ({ data, context }) => {
+    await ownedCompany(context.supabase, context.userId, data.companyId);
+    const { error } = await context.supabase
+      .from("companies")
+      .update({ trading_paper: data.paper })
+      .eq("id", data.companyId);
+    if (error) {
+      if (/trading_paper|42703|PGRST204/i.test(error.message || "")) {
+        throw new Error("Paper mode needs migration 20260809140000_trading_edge_pack.");
+      }
+      throw error;
+    }
+    await context.supabase.from("activity_events").insert({
+      company_id: data.companyId,
+      kind: "decision",
+      message: data.paper
+        ? "Trading desk set to Paper — simulated fills, excluded from arena"
+        : "Trading desk set to Live — real Base swaps when armed",
+    });
+    return { paper: data.paper };
+  });
+
+/** Compare closed live fills to the strategy's last backtest. */
+export const getExecutionVsBacktest = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string; strategyId?: string }) => input)
+  .handler(async ({ data, context }) => {
+    await ownedCompany(context.supabase, context.userId, data.companyId);
+    let strategyQuery = context.supabase
+      .from("trading_strategies")
+      .select("id, name, backtest")
+      .eq("company_id", data.companyId)
+      .order("updated_at", { ascending: false })
+      .limit(1);
+    if (data.strategyId) {
+      strategyQuery = context.supabase
+        .from("trading_strategies")
+        .select("id, name, backtest")
+        .eq("company_id", data.companyId)
+        .eq("id", data.strategyId)
+        .limit(1);
+    }
+    const { data: strategies } = await strategyQuery;
+    const strategy = strategies?.[0];
+    const bt = (strategy?.backtest ?? null) as {
+      total_return_pct?: number;
+      win_rate?: number;
+      max_drawdown_pct?: number;
+      trade_count?: number;
+      avg_win_pct?: number;
+      avg_loss_pct?: number;
+      expectancy_pct?: number;
+    } | null;
+
+    let tradesQuery = context.supabase
+      .from("trades")
+      .select("pnl, entry, exit, size, status, paper, strategy_id")
+      .eq("company_id", data.companyId)
+      .eq("status", "closed")
+      .eq("paper", false)
+      .order("closed_at", { ascending: false })
+      .limit(50);
+    if (data.strategyId) {
+      tradesQuery = tradesQuery.eq("strategy_id", data.strategyId);
+    }
+    const { data: closed } = await tradesQuery;
+    const list = (closed ?? []) as {
+      pnl: number;
+      entry: number;
+      exit: number | null;
+      size: number;
+    }[];
+    const liveCount = list.length;
+    const livePnl = list.reduce((s, t) => s + Number(t.pnl ?? 0), 0);
+    const liveWins = list.filter((t) => Number(t.pnl) > 0).length;
+    const liveWinRate = liveCount ? Math.round((liveWins / liveCount) * 100) : 0;
+    const liveRets = list
+      .filter((t) => t.entry && t.exit && t.size)
+      .map((t) => ((Number(t.exit) - Number(t.entry)) / Number(t.entry)) * 100);
+    const liveAvgRet =
+      liveRets.length > 0
+        ? Number((liveRets.reduce((a, b) => a + b, 0) / liveRets.length).toFixed(3))
+        : 0;
+
+    return {
+      strategyId: (strategy?.id as string) ?? null,
+      strategyName: (strategy?.name as string) ?? null,
+      backtest: bt
+        ? {
+            total_return_pct: Number(bt.total_return_pct ?? 0),
+            win_rate: Number(bt.win_rate ?? 0),
+            max_drawdown_pct: Number(bt.max_drawdown_pct ?? 0),
+            trade_count: Number(bt.trade_count ?? 0),
+            expectancy_pct: Number(bt.expectancy_pct ?? 0),
+          }
+        : null,
+      live: {
+        trade_count: liveCount,
+        realized_pnl: Number(livePnl.toFixed(4)),
+        win_rate: liveWinRate,
+        avg_return_pct: liveAvgRet,
+      },
+      note:
+        liveCount < 3
+          ? "Need a few closed live fills before this comparison means much."
+          : "Live includes fees/slippage; backtest is a CEX candle proxy. Gaps are expected.",
     };
   });

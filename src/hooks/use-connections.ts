@@ -36,6 +36,8 @@ export type ChannelRow = {
 export type SocialStatus = {
   provider: SocialProvider;
   available: boolean;
+  canConnect?: boolean;
+  readOnly?: boolean;
   connected: boolean;
   needsReconnect?: boolean;
   canPostVideo?: boolean;
@@ -91,7 +93,7 @@ export const SOCIALS: {
     id: "farcaster",
     name: "Farcaster",
     glyph: "FC",
-    blurb: "Crypto-native casts for founders and builders.",
+    blurb: "Neynar-powered casts, channel feeds, and builder community.",
     agent: "Orin",
   },
 ];
@@ -146,13 +148,20 @@ export function useConnectChannel() {
     mutationFn: async (provider: SocialProvider) => {
       if (!company) throw new Error("No company yet.");
       if (provider === "farcaster") {
+        const started = await startFarcasterConnect({
+          data: { companyId: company.id },
+        });
+        // Env agent signer (NEYNAR_AGENT_ID) — instant, no Warpcast popup.
+        if (started.mode === "agent" && started.approved) {
+          return;
+        }
+        if (started.mode !== "managed" || !started.approvalUrl || !started.state || !started.signerUuid) {
+          throw new Error("Farcaster connect did not return an approval link.");
+        }
         const popup = window.open("", "aura-social", "width=620,height=760");
         if (!popup) throw new Error("Allow popups to connect your account — one click, then done.");
         try {
-          const { approvalUrl, signerUuid, state } = await startFarcasterConnect({
-            data: { companyId: company.id },
-          });
-          popup.location.href = approvalUrl;
+          popup.location.href = started.approvalUrl;
           const deadline = Date.now() + 5 * 60_000;
           while (Date.now() < deadline) {
             if (popup.closed) {
@@ -160,7 +169,11 @@ export function useConnectChannel() {
             }
             await new Promise((r) => setTimeout(r, 2500));
             const result = await pollFarcasterSigner({
-              data: { companyId: company.id, state, signerUuid },
+              data: {
+                companyId: company.id,
+                state: started.state,
+                signerUuid: started.signerUuid,
+              },
             });
             if (result.approved) {
               try {

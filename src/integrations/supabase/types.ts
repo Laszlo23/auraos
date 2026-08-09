@@ -66,6 +66,145 @@ export type Database = {
           },
         ]
       }
+      agent_hires: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          hirer_company_id: string
+          id: string
+          listing_id: string
+          price_aura: number
+          royalty_aura: number
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          hirer_company_id: string
+          id?: string
+          listing_id: string
+          price_aura?: number
+          royalty_aura?: number
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          hirer_company_id?: string
+          id?: string
+          listing_id?: string
+          price_aura?: number
+          royalty_aura?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_hires_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_hires_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "public_company_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_hires_hirer_company_id_fkey"
+            columns: ["hirer_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_hires_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "agent_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_listings: {
+        Row: {
+          category: string
+          companies_using: number
+          created_at: string
+          creator_company_id: string
+          creator_user_id: string
+          id: string
+          instructions: string
+          name: string
+          price_aura: number
+          price_usdc: number
+          pricing_model: string
+          rating: number
+          revenue_aura: number
+          role: string
+          royalty_bps: number
+          skills: string[]
+          status: string
+          success_rate: number
+          summary: string
+          tasks_completed: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          companies_using?: number
+          created_at?: string
+          creator_company_id: string
+          creator_user_id: string
+          id?: string
+          instructions?: string
+          name: string
+          price_aura?: number
+          price_usdc?: number
+          pricing_model?: string
+          rating?: number
+          revenue_aura?: number
+          role: string
+          royalty_bps?: number
+          skills?: string[]
+          status?: string
+          success_rate?: number
+          summary: string
+          tasks_completed?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          companies_using?: number
+          created_at?: string
+          creator_company_id?: string
+          creator_user_id?: string
+          id?: string
+          instructions?: string
+          name?: string
+          price_aura?: number
+          price_usdc?: number
+          pricing_model?: string
+          rating?: number
+          revenue_aura?: number
+          role?: string
+          royalty_bps?: number
+          skills?: string[]
+          status?: string
+          success_rate?: number
+          summary?: string
+          tasks_completed?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_listings_creator_company_id_fkey"
+            columns: ["creator_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_session_keys: {
         Row: {
           agent_id: string | null
@@ -165,13 +304,13 @@ export type Database = {
           created_at: string
           credits_used: number
           current_task: string | null
-          daily_budget_aura?: number
+          daily_budget_aura: number
           health: number
           id: string
           lessons_count: number
           memory: string | null
           name: string
-          paused?: boolean
+          paused: boolean
           performance: number
           revenue_generated: number
           role: string
@@ -232,30 +371,31 @@ export type Database = {
       }
       akquise_campaigns: {
         Row: {
-          agents_labeled?: string[]
-          artifact?: Json
-          aura_spent?: number
+          agents_labeled: string[]
+          artifact: Json
+          aura_spent: number
           brief: string
           company_id: string
-          completed_at?: string | null
+          completed_at: string | null
           created_at: string
-          goal?: string | null
+          goal: string | null
           id: string
           language: string
+          mission_id: string | null
           name: string
           objective: string
-          plan?: Json
+          plan: Json
           region: string | null
           seed_urls: string[]
-          share_public?: boolean
-          share_slug?: string | null
-          started_at?: string | null
+          share_public: boolean
+          share_slug: string | null
+          started_at: string | null
           status: string
-          steps?: Json
-          target_count?: number
-          template?: string
+          steps: Json
+          target_count: number
+          template: string
           tone: string
-          verify?: Json
+          verify: Json
         }
         Insert: {
           agents_labeled?: string[]
@@ -268,6 +408,7 @@ export type Database = {
           goal?: string | null
           id?: string
           language?: string
+          mission_id?: string | null
           name: string
           objective?: string
           plan?: Json
@@ -294,6 +435,7 @@ export type Database = {
           goal?: string | null
           id?: string
           language?: string
+          mission_id?: string | null
           name?: string
           objective?: string
           plan?: Json
@@ -317,6 +459,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "akquise_campaigns_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_missions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       akquise_leads: {
@@ -329,7 +478,7 @@ export type Database = {
           draft_subject: string | null
           email: string | null
           id: string
-          metadata?: Json
+          metadata: Json
           name: string | null
           org: string | null
           phone: string | null
@@ -367,6 +516,7 @@ export type Database = {
           draft_subject?: string | null
           email?: string | null
           id?: string
+          metadata?: Json
           name?: string | null
           org?: string | null
           phone?: string | null
@@ -729,6 +879,13 @@ export type Database = {
             referencedRelation: "channel_connections"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "channel_engagements_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "channel_posts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       channel_posts: {
@@ -799,36 +956,6 @@ export type Database = {
           },
         ]
       }
-      social_oauth_states: {
-        Row: {
-          code_verifier: string
-          company_id: string
-          created_at: string
-          popup: boolean
-          provider: string
-          state: string
-          user_id: string
-        }
-        Insert: {
-          code_verifier: string
-          company_id: string
-          created_at?: string
-          popup?: boolean
-          provider: string
-          state: string
-          user_id: string
-        }
-        Update: {
-          code_verifier?: string
-          company_id?: string
-          created_at?: string
-          popup?: boolean
-          provider?: string
-          state?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       community_posts: {
         Row: {
           author_name: string
@@ -881,28 +1008,29 @@ export type Database = {
       }
       companies: {
         Row: {
-          allowed_symbols?: string[]
-          autonomy?: number
+          allowed_symbols: string[]
+          autonomy: number
           created_at: string
           credits: number
-          daily_aura_budget?: number
+          daily_aura_budget: number
           emoji: string
           id: string
-          max_notional_usdc_day?: number
-          max_risk_pct?: number
-          max_slippage_bps?: number
+          max_notional_usdc_day: number
+          max_risk_pct: number
+          max_slippage_bps: number
           mrr: number
           name: string
           owner_id: string
-          quant_boost_pct?: number
-          quant_boost_until?: string | null
-          reputation?: number
+          quant_boost_pct: number
+          quant_boost_until: string | null
+          reputation: number
           runway_days: number
-          slug?: string | null
+          slug: string | null
           strategy: string | null
           tagline: string | null
-          theme?: string
-          trading_armed?: boolean
+          theme: string
+          trading_armed: boolean
+          trading_paper: boolean
         }
         Insert: {
           allowed_symbols?: string[]
@@ -927,6 +1055,7 @@ export type Database = {
           tagline?: string | null
           theme?: string
           trading_armed?: boolean
+          trading_paper?: boolean
         }
         Update: {
           allowed_symbols?: string[]
@@ -951,8 +1080,79 @@ export type Database = {
           tagline?: string | null
           theme?: string
           trading_armed?: boolean
+          trading_paper?: boolean
         }
         Relationships: []
+      }
+      company_ledger_entries: {
+        Row: {
+          agent_id: string | null
+          amount_aura: number
+          amount_usdc: number
+          company_id: string
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          kind: string
+          metadata: Json
+          source: string
+          source_id: string | null
+          status: string
+        }
+        Insert: {
+          agent_id?: string | null
+          amount_aura?: number
+          amount_usdc?: number
+          company_id: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind: string
+          metadata?: Json
+          source?: string
+          source_id?: string | null
+          status?: string
+        }
+        Update: {
+          agent_id?: string | null
+          amount_aura?: number
+          amount_usdc?: number
+          company_id?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          metadata?: Json
+          source?: string
+          source_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_ledger_entries_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ledger_entries_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "public_company_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_ledger_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contest_challenges: {
         Row: {
@@ -1619,19 +1819,19 @@ export type Database = {
       }
       invite_redemptions: {
         Row: {
-          user_id: string
           code: string
           redeemed_at: string
+          user_id: string
         }
         Insert: {
-          user_id: string
           code: string
           redeemed_at?: string
+          user_id: string
         }
         Update: {
-          user_id?: string
           code?: string
           redeemed_at?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -2015,6 +2215,298 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue_mission_events: {
+        Row: {
+          agent_name: string
+          company_id: string
+          cost_aura: number
+          cost_usdc: number
+          created_at: string
+          id: string
+          kind: string
+          message: string
+          mission_id: string
+          result: string | null
+          status: string
+        }
+        Insert: {
+          agent_name?: string
+          company_id: string
+          cost_aura?: number
+          cost_usdc?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          message: string
+          mission_id: string
+          result?: string | null
+          status?: string
+        }
+        Update: {
+          agent_name?: string
+          company_id?: string
+          cost_aura?: number
+          cost_usdc?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          message?: string
+          mission_id?: string
+          result?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_mission_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_mission_events_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      revenue_missions: {
+        Row: {
+          agents_status: Json
+          akquise_campaign_id: string | null
+          budget_usdc: number
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          deadline_at: string | null
+          goal_text: string
+          id: string
+          industry: string | null
+          interventions: number
+          location: string | null
+          mission_number: number
+          next_best_action: Json
+          plan: Json
+          projected: Json
+          risk: string
+          share_public: boolean
+          share_slug: string | null
+          started_at: string | null
+          status: string
+          target_usdc: number
+          updated_at: string
+        }
+        Insert: {
+          agents_status?: Json
+          akquise_campaign_id?: string | null
+          budget_usdc?: number
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          deadline_at?: string | null
+          goal_text: string
+          id?: string
+          industry?: string | null
+          interventions?: number
+          location?: string | null
+          mission_number?: number
+          next_best_action?: Json
+          plan?: Json
+          projected?: Json
+          risk?: string
+          share_public?: boolean
+          share_slug?: string | null
+          started_at?: string | null
+          status?: string
+          target_usdc?: number
+          updated_at?: string
+        }
+        Update: {
+          agents_status?: Json
+          akquise_campaign_id?: string | null
+          budget_usdc?: number
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          deadline_at?: string | null
+          goal_text?: string
+          id?: string
+          industry?: string | null
+          interventions?: number
+          location?: string | null
+          mission_number?: number
+          next_best_action?: Json
+          plan?: Json
+          projected?: Json
+          risk?: string
+          share_public?: boolean
+          share_slug?: string | null
+          started_at?: string | null
+          status?: string
+          target_usdc?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_missions_akquise_campaign_id_fkey"
+            columns: ["akquise_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "akquise_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_missions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      smart_money_events: {
+        Row: {
+          amount: number
+          amount_usd: number | null
+          asset: string
+          block_num: number | null
+          company_id: string | null
+          counterparty: string | null
+          created_at: string
+          direction: string
+          id: string
+          summary: string | null
+          tx_hash: string | null
+          wallet_address: string
+          wallet_id: string | null
+        }
+        Insert: {
+          amount?: number
+          amount_usd?: number | null
+          asset: string
+          block_num?: number | null
+          company_id?: string | null
+          counterparty?: string | null
+          created_at?: string
+          direction: string
+          id?: string
+          summary?: string | null
+          tx_hash?: string | null
+          wallet_address: string
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number
+          amount_usd?: number | null
+          asset?: string
+          block_num?: number | null
+          company_id?: string | null
+          counterparty?: string | null
+          created_at?: string
+          direction?: string
+          id?: string
+          summary?: string | null
+          tx_hash?: string | null
+          wallet_address?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smart_money_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "smart_money_events_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "smart_money_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      smart_money_wallets: {
+        Row: {
+          address: string
+          company_id: string | null
+          created_at: string
+          curated: boolean
+          follow: boolean
+          id: string
+          label: string
+          tags: string[]
+        }
+        Insert: {
+          address: string
+          company_id?: string | null
+          created_at?: string
+          curated?: boolean
+          follow?: boolean
+          id?: string
+          label: string
+          tags?: string[]
+        }
+        Update: {
+          address?: string
+          company_id?: string | null
+          created_at?: string
+          curated?: boolean
+          follow?: boolean
+          id?: string
+          label?: string
+          tags?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smart_money_wallets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_oauth_states: {
+        Row: {
+          code_verifier: string
+          company_id: string
+          created_at: string
+          popup: boolean
+          provider: string
+          state: string
+          user_id: string
+        }
+        Insert: {
+          code_verifier: string
+          company_id: string
+          created_at?: string
+          popup?: boolean
+          provider: string
+          state: string
+          user_id: string
+        }
+        Update: {
+          code_verifier?: string
+          company_id?: string
+          created_at?: string
+          popup?: boolean
+          provider?: string
+          state?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_oauth_states_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           auto_renew: boolean
@@ -2077,324 +2569,10 @@ export type Database = {
           },
         ]
       }
-      trading_strategies: {
-        Row: {
-          agent_id: string | null
-          backtest: Record<string, unknown> | null
-          company_id: string
-          created_at: string
-          id: string
-          name: string
-          prompt: string
-          spec: Record<string, unknown>
-          status: string
-          summary: string | null
-          updated_at: string
-        }
-        Insert: {
-          agent_id?: string | null
-          backtest?: Record<string, unknown> | null
-          company_id: string
-          created_at?: string
-          id?: string
-          name: string
-          prompt: string
-          spec?: Record<string, unknown>
-          status?: string
-          summary?: string | null
-          updated_at?: string
-        }
-        Update: {
-          agent_id?: string | null
-          backtest?: Record<string, unknown> | null
-          company_id?: string
-          created_at?: string
-          id?: string
-          name?: string
-          prompt?: string
-          spec?: Record<string, unknown>
-          status?: string
-          summary?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      trading_signals: {
-        Row: {
-          company_id: string
-          confidence: number
-          created_at: string
-          entry_price: number | null
-          expires_at: string | null
-          id: string
-          mark_price: number | null
-          metadata: Record<string, unknown>
-          notional_usdc: number
-          rationale: string | null
-          side: string
-          source: string
-          status: string
-          strategy_id: string | null
-          symbol: string
-        }
-        Insert: {
-          company_id: string
-          confidence?: number
-          created_at?: string
-          entry_price?: number | null
-          expires_at?: string | null
-          id?: string
-          mark_price?: number | null
-          metadata?: Record<string, unknown>
-          notional_usdc?: number
-          rationale?: string | null
-          side: string
-          source?: string
-          status?: string
-          strategy_id?: string | null
-          symbol: string
-        }
-        Update: {
-          company_id?: string
-          confidence?: number
-          created_at?: string
-          entry_price?: number | null
-          expires_at?: string | null
-          id?: string
-          mark_price?: number | null
-          metadata?: Record<string, unknown>
-          notional_usdc?: number
-          rationale?: string | null
-          side?: string
-          source?: string
-          status?: string
-          strategy_id?: string | null
-          symbol?: string
-        }
-        Relationships: []
-      }
-      trading_orders: {
-        Row: {
-          amount_in: string | null
-          amount_out: string | null
-          company_id: string
-          confirmed_at: string | null
-          created_at: string
-          error: string | null
-          id: string
-          quote_snapshot: Record<string, unknown> | null
-          side: string
-          signal_id: string | null
-          slippage_bps: number | null
-          status: string
-          strategy_id: string | null
-          symbol: string
-          token_in: string | null
-          token_out: string | null
-          tx_hash: string | null
-          user_op_hash: string | null
-        }
-        Insert: {
-          amount_in?: string | null
-          amount_out?: string | null
-          company_id: string
-          confirmed_at?: string | null
-          created_at?: string
-          error?: string | null
-          id?: string
-          quote_snapshot?: Record<string, unknown> | null
-          side: string
-          signal_id?: string | null
-          slippage_bps?: number | null
-          status?: string
-          strategy_id?: string | null
-          symbol: string
-          token_in?: string | null
-          token_out?: string | null
-          tx_hash?: string | null
-          user_op_hash?: string | null
-        }
-        Update: {
-          amount_in?: string | null
-          amount_out?: string | null
-          company_id?: string
-          confirmed_at?: string | null
-          created_at?: string
-          error?: string | null
-          id?: string
-          quote_snapshot?: Record<string, unknown> | null
-          side?: string
-          signal_id?: string | null
-          slippage_bps?: number | null
-          status?: string
-          strategy_id?: string | null
-          symbol?: string
-          token_in?: string | null
-          token_out?: string | null
-          tx_hash?: string | null
-          user_op_hash?: string | null
-        }
-        Relationships: []
-      }
-      trading_seasons: {
-        Row: {
-          created_at: string
-          ends_at: string
-          id: string
-          name: string
-          prize_pool_aura: number
-          slug: string
-          starts_at: string
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          ends_at: string
-          id?: string
-          name: string
-          prize_pool_aura?: number
-          slug: string
-          starts_at: string
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          ends_at?: string
-          id?: string
-          name?: string
-          prize_pool_aura?: number
-          slug?: string
-          starts_at?: string
-          status?: string
-        }
-        Relationships: []
-      }
-      trading_season_entries: {
-        Row: {
-          company_id: string
-          company_name: string | null
-          id: string
-          max_drawdown_pct: number
-          open_pnl: number
-          rank: number | null
-          realized_pnl: number
-          score: number
-          season_id: string
-          trade_count: number
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          company_name?: string | null
-          id?: string
-          max_drawdown_pct?: number
-          open_pnl?: number
-          rank?: number | null
-          realized_pnl?: number
-          score?: number
-          season_id: string
-          trade_count?: number
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          company_name?: string | null
-          id?: string
-          max_drawdown_pct?: number
-          open_pnl?: number
-          rank?: number | null
-          realized_pnl?: number
-          score?: number
-          season_id?: string
-          trade_count?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      smart_money_wallets: {
-        Row: {
-          address: string
-          company_id: string | null
-          created_at: string
-          curated: boolean
-          follow: boolean
-          id: string
-          label: string
-          tags: string[]
-        }
-        Insert: {
-          address: string
-          company_id?: string | null
-          created_at?: string
-          curated?: boolean
-          follow?: boolean
-          id?: string
-          label: string
-          tags?: string[]
-        }
-        Update: {
-          address?: string
-          company_id?: string | null
-          created_at?: string
-          curated?: boolean
-          follow?: boolean
-          id?: string
-          label?: string
-          tags?: string[]
-        }
-        Relationships: []
-      }
-      smart_money_events: {
-        Row: {
-          amount: number
-          amount_usd: number | null
-          asset: string
-          block_num: number | null
-          company_id: string | null
-          counterparty: string | null
-          created_at: string
-          direction: string
-          id: string
-          summary: string | null
-          tx_hash: string | null
-          wallet_address: string
-          wallet_id: string | null
-        }
-        Insert: {
-          amount?: number
-          amount_usd?: number | null
-          asset: string
-          block_num?: number | null
-          company_id?: string | null
-          counterparty?: string | null
-          created_at?: string
-          direction: string
-          id?: string
-          summary?: string | null
-          tx_hash?: string | null
-          wallet_address: string
-          wallet_id?: string | null
-        }
-        Update: {
-          amount?: number
-          amount_usd?: number | null
-          asset?: string
-          block_num?: number | null
-          company_id?: string | null
-          counterparty?: string | null
-          created_at?: string
-          direction?: string
-          id?: string
-          summary?: string | null
-          tx_hash?: string | null
-          wallet_address?: string
-          wallet_id?: string | null
-        }
-        Relationships: []
-      }
       tasks: {
         Row: {
           agent_id: string | null
+          artifact: Json
           company_id: string
           completed_at: string | null
           created_at: string
@@ -2402,16 +2580,19 @@ export type Database = {
           description: string | null
           due_at: string | null
           id: string
+          mission_id: string | null
           priority: string
           progress: number
           result: string | null
           roi: number
           started_at: string | null
           status: string
+          steps: Json
           title: string
         }
         Insert: {
           agent_id?: string | null
+          artifact?: Json
           company_id: string
           completed_at?: string | null
           created_at?: string
@@ -2419,16 +2600,19 @@ export type Database = {
           description?: string | null
           due_at?: string | null
           id?: string
+          mission_id?: string | null
           priority?: string
           progress?: number
           result?: string | null
           roi?: number
           started_at?: string | null
           status?: string
+          steps?: Json
           title: string
         }
         Update: {
           agent_id?: string | null
+          artifact?: Json
           company_id?: string
           completed_at?: string | null
           created_at?: string
@@ -2436,12 +2620,14 @@ export type Database = {
           description?: string | null
           due_at?: string | null
           id?: string
+          mission_id?: string | null
           priority?: string
           progress?: number
           result?: string | null
           roi?: number
           started_at?: string | null
           status?: string
+          steps?: Json
           title?: string
         }
         Relationships: [
@@ -2464,6 +2650,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "revenue_missions"
             referencedColumns: ["id"]
           },
         ]
@@ -2585,6 +2778,7 @@ export type Database = {
           id: string
           mark_price: number | null
           opened_at: string
+          paper: boolean
           pnl: number
           rationale: string | null
           side: string
@@ -2610,6 +2804,7 @@ export type Database = {
           id?: string
           mark_price?: number | null
           opened_at?: string
+          paper?: boolean
           pnl?: number
           rationale?: string | null
           side?: string
@@ -2635,6 +2830,7 @@ export type Database = {
           id?: string
           mark_price?: number | null
           opened_at?: string
+          paper?: boolean
           pnl?: number
           rationale?: string | null
           side?: string
@@ -2650,6 +2846,373 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "trades_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trades_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "trading_signals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trades_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "trading_strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_backtest_shares: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          payload: Json
+          share_slug: string
+          strategy_id: string | null
+          title: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          share_slug: string
+          strategy_id?: string | null
+          title: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          share_slug?: string
+          strategy_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_backtest_shares_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_backtest_shares_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "trading_strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_orders: {
+        Row: {
+          amount_in: string | null
+          amount_out: string | null
+          company_id: string
+          confirmed_at: string | null
+          created_at: string
+          error: string | null
+          id: string
+          quote_snapshot: Json | null
+          side: string
+          signal_id: string | null
+          slippage_bps: number | null
+          status: string
+          strategy_id: string | null
+          symbol: string
+          token_in: string | null
+          token_out: string | null
+          tx_hash: string | null
+          user_op_hash: string | null
+        }
+        Insert: {
+          amount_in?: string | null
+          amount_out?: string | null
+          company_id: string
+          confirmed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          quote_snapshot?: Json | null
+          side: string
+          signal_id?: string | null
+          slippage_bps?: number | null
+          status?: string
+          strategy_id?: string | null
+          symbol: string
+          token_in?: string | null
+          token_out?: string | null
+          tx_hash?: string | null
+          user_op_hash?: string | null
+        }
+        Update: {
+          amount_in?: string | null
+          amount_out?: string | null
+          company_id?: string
+          confirmed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          quote_snapshot?: Json | null
+          side?: string
+          signal_id?: string | null
+          slippage_bps?: number | null
+          status?: string
+          strategy_id?: string | null
+          symbol?: string
+          token_in?: string | null
+          token_out?: string | null
+          tx_hash?: string | null
+          user_op_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_orders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_orders_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "trading_signals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_orders_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "trading_strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_season_entries: {
+        Row: {
+          company_id: string
+          company_name: string | null
+          id: string
+          max_drawdown_pct: number
+          open_pnl: number
+          rank: number | null
+          realized_pnl: number
+          score: number
+          season_id: string
+          trade_count: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          company_name?: string | null
+          id?: string
+          max_drawdown_pct?: number
+          open_pnl?: number
+          rank?: number | null
+          realized_pnl?: number
+          score?: number
+          season_id: string
+          trade_count?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          company_name?: string | null
+          id?: string
+          max_drawdown_pct?: number
+          open_pnl?: number
+          rank?: number | null
+          realized_pnl?: number
+          score?: number
+          season_id?: string
+          trade_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_season_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_season_entries_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "trading_seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_seasons: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          name: string
+          prize_pool_aura: number
+          slug: string
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          name: string
+          prize_pool_aura?: number
+          slug: string
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          name?: string
+          prize_pool_aura?: number
+          slug?: string
+          starts_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      trading_signals: {
+        Row: {
+          company_id: string
+          confidence: number
+          created_at: string
+          entry_price: number | null
+          expires_at: string | null
+          id: string
+          mark_price: number | null
+          metadata: Json
+          notional_usdc: number
+          rationale: string | null
+          side: string
+          source: string
+          status: string
+          strategy_id: string | null
+          symbol: string
+        }
+        Insert: {
+          company_id: string
+          confidence?: number
+          created_at?: string
+          entry_price?: number | null
+          expires_at?: string | null
+          id?: string
+          mark_price?: number | null
+          metadata?: Json
+          notional_usdc?: number
+          rationale?: string | null
+          side: string
+          source?: string
+          status?: string
+          strategy_id?: string | null
+          symbol: string
+        }
+        Update: {
+          company_id?: string
+          confidence?: number
+          created_at?: string
+          entry_price?: number | null
+          expires_at?: string | null
+          id?: string
+          mark_price?: number | null
+          metadata?: Json
+          notional_usdc?: number
+          rationale?: string | null
+          side?: string
+          source?: string
+          status?: string
+          strategy_id?: string | null
+          symbol?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_signals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_signals_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "trading_strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_strategies: {
+        Row: {
+          agent_id: string | null
+          backtest: Json | null
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+          prompt: string
+          spec: Json
+          status: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          backtest?: Json | null
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+          prompt: string
+          spec?: Json
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          backtest?: Json | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          prompt?: string
+          spec?: Json
+          status?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_strategies_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_strategies_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "public_company_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_strategies_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -2675,57 +3238,6 @@ export type Database = {
           email?: string
           id?: string
           source?: string
-        }
-        Relationships: []
-      }
-      whitelist_progress: {
-        Row: {
-          chat_channel: string | null
-          comment_post: boolean
-          completed_at: string | null
-          created_at: string
-          email: string
-          follow_farcaster: boolean
-          follow_x: boolean
-          id: string
-          invite_code: string | null
-          like_post: boolean
-          share_post: boolean
-          updated_at: string
-          visitor_id: string
-          visits: Json
-        }
-        Insert: {
-          chat_channel?: string | null
-          comment_post?: boolean
-          completed_at?: string | null
-          created_at?: string
-          email: string
-          follow_farcaster?: boolean
-          follow_x?: boolean
-          id?: string
-          invite_code?: string | null
-          like_post?: boolean
-          share_post?: boolean
-          updated_at?: string
-          visitor_id: string
-          visits?: Json
-        }
-        Update: {
-          chat_channel?: string | null
-          comment_post?: boolean
-          completed_at?: string | null
-          created_at?: string
-          email?: string
-          follow_farcaster?: boolean
-          follow_x?: boolean
-          id?: string
-          invite_code?: string | null
-          like_post?: boolean
-          share_post?: boolean
-          updated_at?: string
-          visitor_id?: string
-          visits?: Json
         }
         Relationships: []
       }
@@ -2897,6 +3409,126 @@ export type Database = {
           {
             foreignKeyName: "wheel_spins_company_id_fkey"
             columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whitelist_progress: {
+        Row: {
+          chat_channel: string | null
+          comment_post: boolean
+          completed_at: string | null
+          created_at: string
+          email: string
+          follow_farcaster: boolean
+          follow_x: boolean
+          id: string
+          invite_code: string | null
+          like_post: boolean
+          share_post: boolean
+          updated_at: string
+          visitor_id: string
+          visits: Json
+        }
+        Insert: {
+          chat_channel?: string | null
+          comment_post?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email: string
+          follow_farcaster?: boolean
+          follow_x?: boolean
+          id?: string
+          invite_code?: string | null
+          like_post?: boolean
+          share_post?: boolean
+          updated_at?: string
+          visitor_id: string
+          visits?: Json
+        }
+        Update: {
+          chat_channel?: string | null
+          comment_post?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string
+          follow_farcaster?: boolean
+          follow_x?: boolean
+          id?: string
+          invite_code?: string | null
+          like_post?: boolean
+          share_post?: boolean
+          updated_at?: string
+          visitor_id?: string
+          visits?: Json
+        }
+        Relationships: []
+      }
+      work_jobs: {
+        Row: {
+          accepted_company_id: string | null
+          brief: string
+          budget_usdc: number
+          category: string
+          compute_estimate_usdc: number
+          created_at: string
+          deadline_at: string | null
+          id: string
+          platform_fee_bps: number
+          poster_company_id: string | null
+          poster_label: string
+          result_summary: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_company_id?: string | null
+          brief: string
+          budget_usdc?: number
+          category?: string
+          compute_estimate_usdc?: number
+          created_at?: string
+          deadline_at?: string | null
+          id?: string
+          platform_fee_bps?: number
+          poster_company_id?: string | null
+          poster_label?: string
+          result_summary?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_company_id?: string | null
+          brief?: string
+          budget_usdc?: number
+          category?: string
+          compute_estimate_usdc?: number
+          created_at?: string
+          deadline_at?: string | null
+          id?: string
+          platform_fee_bps?: number
+          poster_company_id?: string | null
+          poster_label?: string
+          result_summary?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_jobs_accepted_company_id_fkey"
+            columns: ["accepted_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_jobs_poster_company_id_fkey"
+            columns: ["poster_company_id"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
@@ -3136,36 +3768,103 @@ export type Database = {
       }
     }
     Functions: {
-      advance_referral: { Args: { _stage: string }; Returns: boolean }
-      agent_spend: {
-        Args: { _amount: number; _session_key_id: string; _slug: string }
+      _whitelist_ensure_row: {
+        Args: { _email: string; _visitor_id: string }
         Returns: {
-          agent_id: string | null
-          amount_usdc: number
-          company_id: string | null
+          chat_channel: string | null
+          comment_post: boolean
+          completed_at: string | null
           created_at: string
-          direction: string
+          email: string
+          follow_farcaster: boolean
+          follow_x: boolean
           id: string
-          latency_ms: number | null
-          network: string
-          owner_share: number
-          payer: string | null
-          platform_fee: number
-          session_key_id: string | null
-          slug: string
-          status: string
-          treasury_share: number
-          tx_hash: string | null
+          invite_code: string | null
+          like_post: boolean
+          share_post: boolean
+          updated_at: string
+          visitor_id: string
+          visits: Json
         }
         SetofOptions: {
           from: "*"
-          to: "x402_calls"
+          to: "whitelist_progress"
           isOneToOne: true
           isSetofReturn: false
         }
       }
+      _whitelist_snapshot: {
+        Args: { r: Database["public"]["Tables"]["whitelist_progress"]["Row"] }
+        Returns: Json
+      }
+      advance_referral: { Args: { _stage: string }; Returns: boolean }
+      agent_spend:
+        | {
+            Args: { _amount: number; _session_key_id: string; _slug: string }
+            Returns: {
+              agent_id: string | null
+              amount_usdc: number
+              company_id: string | null
+              created_at: string
+              direction: string
+              id: string
+              latency_ms: number | null
+              network: string
+              owner_share: number
+              payer: string | null
+              platform_fee: number
+              session_key_id: string | null
+              slug: string
+              status: string
+              treasury_share: number
+              tx_hash: string | null
+            }
+            SetofOptions: {
+              from: "*"
+              to: "x402_calls"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              _action?: string
+              _amount: number
+              _session_key_id: string
+              _slug: string
+            }
+            Returns: {
+              agent_id: string | null
+              amount_usdc: number
+              company_id: string | null
+              created_at: string
+              direction: string
+              id: string
+              latency_ms: number | null
+              network: string
+              owner_share: number
+              payer: string | null
+              platform_fee: number
+              session_key_id: string | null
+              slug: string
+              status: string
+              treasury_share: number
+              tx_hash: string | null
+            }
+            SetofOptions: {
+              from: "*"
+              to: "x402_calls"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       attribute_referral: { Args: { _code: string }; Returns: boolean }
+      check_invite_code: { Args: { _code: string }; Returns: boolean }
       claim_earnings: { Args: { _company_id: string }; Returns: number }
+      claim_whitelist_invite: {
+        Args: { _email: string; _visitor_id: string }
+        Returns: Json
+      }
       ensure_referral_code: {
         Args: never
         Returns: {
@@ -3183,6 +3882,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      get_whitelist_progress: {
+        Args: { _email: string; _visitor_id: string }
+        Returns: Json
+      }
+      mark_whitelist_visit: {
+        Args: { _email: string; _task: string; _visitor_id: string }
+        Returns: Json
       }
       owns_company: { Args: { _company_id: string }; Returns: boolean }
       recompute_entry_score: {
@@ -3209,30 +3916,8 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      check_invite_code: { Args: { _code: string }; Returns: boolean }
-      claim_whitelist_invite: {
-        Args: { _email: string; _visitor_id: string }
-        Returns: Json
-      }
-      get_whitelist_progress: {
-        Args: { _email: string; _visitor_id: string }
-        Returns: Json
-      }
-      mark_whitelist_visit: {
-        Args: { _email: string; _task: string; _visitor_id: string }
-        Returns: Json
-      }
       redeem_invite_code: { Args: { _code: string }; Returns: boolean }
       referral_code_valid: { Args: { _code: string }; Returns: boolean }
-      upsert_whitelist_task: {
-        Args: {
-          _chat_channel?: string | null
-          _email: string
-          _task: string
-          _visitor_id: string
-        }
-        Returns: Json
-      }
       spin_daily_wheel: {
         Args: { _company_id: string }
         Returns: {
@@ -3257,6 +3942,17 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      teaser_insert_allowed: { Args: { p_session: string }; Returns: boolean }
+      upsert_whitelist_task: {
+        Args: {
+          _chat_channel?: string
+          _email: string
+          _task: string
+          _visitor_id: string
+        }
+        Returns: Json
+      }
+      user_has_company_seat: { Args: { _uid?: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

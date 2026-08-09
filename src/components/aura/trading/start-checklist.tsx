@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Check, Circle, Loader2 } from "lucide-react";
+import { Check, KeyRound, Loader2, Play, Sparkles, Wallet } from "lucide-react";
 
-import { Panel } from "@/components/aura/primitives";
+import { Chip, Panel } from "@/components/aura/primitives";
 import { cn } from "@/lib/utils";
 
 export type DeskReadiness = {
@@ -12,144 +12,281 @@ export type DeskReadiness = {
   hasApprovedStrategy: boolean;
   hasBacktest: boolean;
   armed: boolean;
+  paper?: boolean;
   canArm: boolean;
   blockReason: string | null;
 };
 
-type StepAction = {
-  label: string;
-  to?: string;
-  onClick?: () => void;
-  busy?: boolean;
-};
+type Phase = "strategy" | "key" | "go-live" | "done";
 
-type Step = {
-  key: string;
-  label: string;
-  hint: string;
-  done: boolean;
-  action?: StepAction;
-};
+function currentPhase(r: DeskReadiness | undefined): Phase {
+  if (!r) return "strategy";
+  const hasStrategy = Boolean(r.hasApprovedStrategy || r.hasBacktest);
+  if (!hasStrategy) return "strategy";
+  if (!r.hasTradeKey) return "key";
+  if (!r.armed) return "go-live";
+  return "done";
+}
 
-export function StartQuantChecklist({
+/**
+ * Single-focus trading onboarding: strategy → Trade session key → fund & arm.
+ * Only the active step gets a big CTA so founders are not hunting the page.
+ */
+export function TradingSetup({
   readiness,
   onIssueKey,
   issuingKey,
+  onStartSteadyEth,
+  steadyBusy,
+  onArm,
+  armBusy,
+  onEnablePaper,
+  paperBusy,
+  onReviewBacktest,
 }: {
   readiness: DeskReadiness | undefined;
   onIssueKey: () => void;
   issuingKey?: boolean;
+  onStartSteadyEth: () => void;
+  steadyBusy?: boolean;
+  onArm: () => void;
+  armBusy?: boolean;
+  onEnablePaper?: () => void;
+  paperBusy?: boolean;
+  onReviewBacktest?: () => void;
 }) {
   const r = readiness;
-  const steps: Step[] = [
+  const phase = currentPhase(r);
+  const hasStrategy = Boolean(r?.hasApprovedStrategy || r?.hasBacktest);
+
+  const steps = [
+    { id: "strategy" as const, label: "Pick a strategy", done: hasStrategy },
+    { id: "key" as const, label: "Trade session key", done: Boolean(r?.hasTradeKey) },
     {
-      key: "fund",
-      label: "Fund smart wallet",
-      hint: r?.funded
-        ? `${r.usdc.toFixed(2)} USDC ready`
-        : "Deposit USDC on Base — this is Quant’s working capital",
-      done: Boolean(r?.funded),
-      ...(r?.funded
-        ? {}
-        : { action: { label: "Open Wallet", to: "/wallet" } satisfies StepAction }),
-    },
-    {
-      key: "key",
-      label: "Issue Trade session key",
-      hint: "Lets Quant swap inside your caps — you can revoke anytime",
-      done: Boolean(r?.hasTradeKey),
-      ...(r?.hasTradeKey
-        ? {}
-        : {
-            action: {
-              label: issuingKey ? "Issuing…" : "Issue Trade key",
-              onClick: onIssueKey,
-              ...(issuingKey ? { busy: true } : {}),
-            } satisfies StepAction,
-          }),
-    },
-    {
-      key: "preset",
-      label: "Pick a safe preset",
-      hint: "No trading plan needed — Steady ETH is the default",
-      done: Boolean(r?.hasApprovedStrategy),
-    },
-    {
-      key: "backtest",
-      label: "Review the backtest",
-      hint: "See return, win rate, and max drawdown in plain numbers",
-      done: Boolean(r?.hasBacktest || r?.hasApprovedStrategy),
-    },
-    {
-      key: "arm",
-      label: "Arm the desk",
-      hint: r?.canArm
-        ? "Caps are on — Disarm is always one click away"
-        : (r?.blockReason ?? "Finish the steps above first"),
+      id: "go-live" as const,
+      label: "Fund & arm",
       done: Boolean(r?.armed),
     },
   ];
 
-  const doneCount = steps.filter((s) => s.done).length;
-
   return (
-    <Panel label="Start Quant" glow data-tour="trading-checklist">
+    <Panel label="Get Quant ready" glow data-tour="trading-checklist" className="overflow-hidden">
       <p className="text-[13px] leading-relaxed text-muted-foreground">
-        Five clear steps. Markets can lose money — your daily USDC cap and Disarm are the kill
-        switch.
+        Three steps. Backtest first (see every trade + dollar risk — no money moves). Then grant a{" "}
+        <span className="font-semibold text-foreground">Trade session key</span>. Then fund USDC + a
+        little ETH for gas and arm — live fills are real Base swaps.
       </p>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-foreground/8">
-        <div
-          className="h-full rounded-full bg-gold transition-all"
-          style={{ width: `${(doneCount / steps.length) * 100}%` }}
-        />
-      </div>
-      <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-        {doneCount} / {steps.length} ready
-      </p>
-      <ol className="mt-5 space-y-3">
-        {steps.map((s, idx) => (
-          <li key={s.key} className="flex items-start gap-3">
-            <span
-              className={cn(
-                "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
-                s.done ? "bg-gold/20 text-gold" : "bg-foreground/8 text-muted-foreground",
-              )}
-            >
-              {s.done ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-3 w-3" />}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-semibold">
-                <span className="mr-2 text-[10px] text-muted-foreground">{idx + 1}.</span>
+
+      <ol className="mt-5 flex flex-wrap gap-2">
+        {steps.map((s, idx) => {
+          const active = phase === s.id || (phase === "done" && s.id === "go-live");
+          return (
+            <li key={s.id}>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold",
+                  s.done
+                    ? "bg-gold/16 text-gold"
+                    : active
+                      ? "bg-primary/16 text-primary"
+                      : "bg-foreground/6 text-muted-foreground",
+                )}
+              >
+                {s.done ? (
+                  <Check className="h-3 w-3" />
+                ) : (
+                  <span className="num text-[10px] opacity-70">{idx + 1}</span>
+                )}
                 {s.label}
-              </p>
-              <p className="mt-0.5 text-[12px] text-muted-foreground">{s.hint}</p>
-              {s.action && (
-                <div className="mt-2">
-                  {s.action.to ? (
-                    <Link
-                      to={s.action.to}
-                      className="inline-flex rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary"
-                    >
-                      {s.action.label}
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={s.action.busy}
-                      onClick={s.action.onClick}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-gold/16 px-3 py-1.5 text-[11px] font-semibold text-gold disabled:opacity-50"
-                    >
-                      {s.action.busy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
-                      {s.action.label}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </li>
-        ))}
+              </span>
+            </li>
+          );
+        })}
       </ol>
+
+      {phase === "strategy" ? (
+        <div className="mt-6 rounded-2xl border border-gold/25 bg-gold/[0.06] p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <Chip tone="gold">Step 1 · no wallet needed</Chip>
+              <h3 className="mt-3 text-lg font-semibold tracking-tight">
+                See a strategy backtest in one tap
+              </h3>
+              <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
+                Steady ETH drafts a gentle plan, runs it on real candle history, and shows every
+                simulated trade plus how much you could lose per idea. Still practice — no USDC
+                moves yet.
+              </p>
+            </div>
+            <Sparkles className="h-8 w-8 shrink-0 text-gold/80" />
+          </div>
+          <button
+            type="button"
+            disabled={steadyBusy}
+            onClick={onStartSteadyEth}
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 py-3.5 text-sm font-semibold text-background disabled:opacity-50 sm:w-auto"
+          >
+            {steadyBusy ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Running Steady ETH…
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                Start with Steady ETH
+              </>
+            )}
+          </button>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Prefer another preset? Scroll to the cards below — same one-tap flow.
+          </p>
+        </div>
+      ) : null}
+
+      {phase === "key" ? (
+        <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/[0.07] p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <Chip tone="primary">Step 2 · required</Chip>
+              <h3 className="mt-3 text-lg font-semibold tracking-tight">
+                Issue a Trade session key
+              </h3>
+              <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
+                This is a <span className="font-semibold text-foreground">permission slip</span> for
+                Quant — not your seed phrase. It lets the agent place capped on-chain swaps on Base
+                through your smart wallet. You can revoke it anytime on Wallet. Without this key,
+                Arm stays locked.
+              </p>
+            </div>
+            <KeyRound className="h-8 w-8 shrink-0 text-primary" />
+          </div>
+          <ul className="mt-4 space-y-1.5 text-[12px] text-muted-foreground">
+            <li>· Spend stays inside your daily USDC cap</li>
+            <li>· Only Trade actions — not withdrawals to random addresses</li>
+            <li>· Revoke = Quant stops immediately</li>
+          </ul>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={issuingKey}
+              onClick={onIssueKey}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              {issuingKey ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Issuing key…
+                </>
+              ) : (
+                <>
+                  <KeyRound className="h-4 w-4" />
+                  Issue Trade session key
+                </>
+              )}
+            </button>
+            {onReviewBacktest ? (
+              <button
+                type="button"
+                onClick={onReviewBacktest}
+                className="rounded-2xl bg-foreground/8 px-4 py-3.5 text-sm font-semibold"
+              >
+                Re-read backtest
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {phase === "go-live" ? (
+        <div className="mt-6 rounded-2xl border border-border/60 bg-foreground/[0.03] p-5">
+          <Chip tone="gold">Step 3 · on-chain</Chip>
+          <h3 className="mt-3 text-lg font-semibold tracking-tight">Fund the wallet, then arm</h3>
+          <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
+            When armed, Quant executes fully on Base — real DEX swaps from your smart wallet. Deposit{" "}
+            <span className="font-semibold text-foreground">USDC</span> for size and keep a little{" "}
+            <span className="font-semibold text-foreground">ETH for gas</span> (or use a sponsored
+            path if available). DEX fees and slippage are separate from the backtest fee model. Prefer{" "}
+            <span className="font-semibold text-foreground">Paper</span> first if you want simulated
+            fills — paper never scores in the arena.
+          </p>
+          <div className="mt-4 grid gap-2 text-[12px]">
+            <p className={cn(r?.funded ? "text-gold" : "text-muted-foreground")}>
+              {r?.funded
+                ? `✓ Funded · ${r.usdc.toFixed(2)} USDC`
+                : "○ Need at least $5 USDC on Base"}
+            </p>
+            <p className="text-muted-foreground">
+              ○ Keep a small ETH balance for network gas on Base
+            </p>
+            <p className="text-gold">✓ Trade session key ready</p>
+            <p className={cn(r?.hasApprovedStrategy ? "text-gold" : "text-muted-foreground")}>
+              {r?.hasApprovedStrategy ? "✓ Strategy approved" : "○ Approve a strategy"}
+            </p>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {!r?.funded ? (
+              <Link
+                to="/wallet"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground"
+              >
+                <Wallet className="h-4 w-4" />
+                Open Wallet & deposit
+              </Link>
+            ) : null}
+            {onEnablePaper && !r?.paper ? (
+              <button
+                type="button"
+                disabled={paperBusy}
+                onClick={onEnablePaper}
+                className="rounded-2xl bg-foreground/8 px-4 py-3.5 text-sm font-semibold disabled:opacity-50"
+              >
+                {paperBusy ? "Switching…" : "Switch to Paper first"}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              disabled={armBusy || !r?.canArm}
+              title={r?.blockReason ?? undefined}
+              onClick={onArm}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gold px-5 py-3.5 text-sm font-semibold text-background disabled:opacity-45"
+            >
+              {armBusy ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              Arm Quant
+            </button>
+          </div>
+          {!r?.canArm && r?.blockReason ? (
+            <p className="mt-3 text-[12px] text-gold/90">{r.blockReason}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {phase === "done" ? (
+        <div className="mt-6 rounded-2xl border border-gold/20 bg-gold/[0.05] p-5">
+          <p className="text-sm font-semibold text-gold">Quant is armed</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Caps and Disarm are your kill switch. Revisit the lab anytime to re-check strategies.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {onReviewBacktest ? (
+              <button
+                type="button"
+                onClick={onReviewBacktest}
+                className="rounded-2xl bg-foreground/8 px-4 py-2.5 text-xs font-semibold"
+              >
+                Open Backtest Lab
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </Panel>
   );
 }
+
+/** @deprecated Use TradingSetup */
+export const StartQuantChecklist = TradingSetup;

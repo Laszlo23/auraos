@@ -53,22 +53,24 @@ For `PULL_FROM_URL` later, verify `aibusiness.fun` (or your CDN prefix) under Ti
 
 ## Farcaster (Neynar)
 
-Not OAuth — **managed signer**:
+Not classic OAuth — **Neynar signer**:
 
-Env:
+Env (preferred — agent / bot):
 
 - `NEYNAR_API_KEY`
-- `NEYNAR_FARCASTER_FID` — app FID that owns the signer requests
-- `NEYNAR_CUSTODY_PRIVATE_KEY` — hex key for the custody address of that FID (used to EIP-712 sign key requests; Neynar can sponsor gas)
+- `NEYNAR_AGENT_ID` (or `NEYNAR_SIGNER_UUID`) — already-approved signer with write perms
+- `NEYNAR_UID` or `NEYNAR_FARCASTER_FID` — FID for mentions / identity (optional for cast)
 
-Flow:
+Flow (agent):
 
 1. Founder clicks Connect Farcaster.
-2. Server creates a signer + registers a signed key (`sponsored_by_neynar: true`).
-3. Popup opens Warpcast approval URL; founder slides to approve.
-4. App polls until status is `approved`, then stores encrypted `signer_uuid` and FID.
+2. Server attaches the env agent signer to the company (no Warpcast popup).
+3. Publish uses Neynar `POST /v2/farcaster/cast` with that `signer_uuid`.
 
-Publish: Neynar `POST /v2/farcaster/cast` with the stored signer UUID (text casts).
+Fallback (managed signer + Warpcast approve):
+
+- `NEYNAR_FARCASTER_FID` / `NEYNAR_UID` + `NEYNAR_CUSTODY_PRIVATE_KEY`
+- Server creates a signer, registers a signed key (`sponsored_by_neynar: true`), popup for Warpcast approval, then poll until `approved`.
 
 Docs: [Neynar managed signers](https://docs.neynar.com/docs/integrate-managed-signers).
 

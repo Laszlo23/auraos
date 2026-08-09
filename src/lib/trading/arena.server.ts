@@ -101,6 +101,7 @@ export async function recomputeTradingArena(db: Admin) {
       .select("pnl, closed_at, opened_at")
       .eq("company_id", c.id)
       .eq("status", "closed")
+      .eq("paper", false)
       .gte("closed_at", season.starts_at)
       .lt("closed_at", season.ends_at);
 
@@ -112,7 +113,8 @@ export async function recomputeTradingArena(db: Admin) {
       .from("trades")
       .select("pnl, mark_price, entry, size")
       .eq("company_id", c.id)
-      .eq("status", "open");
+      .eq("status", "open")
+      .eq("paper", false);
 
     let openPnl = 0;
     for (const t of (openTrades ?? []) as {
