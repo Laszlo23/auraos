@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /**
@@ -52,12 +53,12 @@ export function VideoBackdrop({
           loop
           playsInline
           preload="metadata"
-          poster="/aura-teaser-poster.jpg"
+          poster={mediaPath("/aura-teaser-poster.jpg")}
           className="h-full w-full scale-110 object-cover"
           style={{ opacity: intensity, filter: "saturate(1.15) contrast(1.05)" }}
           onError={() => setFailed(true)}
         >
-          <source src="/aura-hero.mp4" type="video/mp4" />
+          <source src={mediaPath("/aura-hero.mp4")} type="video/mp4" />
         </video>
       ) : (
         <div

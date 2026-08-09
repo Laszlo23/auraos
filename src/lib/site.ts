@@ -8,6 +8,19 @@ export const LEGAL_UPDATED = "August 8, 2026";
 /** Absolute URL for a path on the canonical domain. */
 export const url = (path = "/") => `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
+/**
+ * Bump when public media must bypass stale CDN/browser caches
+ * (e.g. after a mistaken immutable Cache-Control on 403 responses).
+ */
+export const MEDIA_CACHE_BUST = "20260809b";
+
+/** Public asset path with cache-bust query (videos, posters). */
+export function mediaPath(path: string) {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  const join = p.includes("?") ? "&" : "?";
+  return `${p}${join}v=${MEDIA_CACHE_BUST}`;
+}
+
 /** Studio / brand entity behind the fair launch. */
 export const BUILDING_CULTURE = {
   name: "Building Culture LLC",

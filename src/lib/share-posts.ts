@@ -1,4 +1,4 @@
-import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
+import { SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
 
 export type ShareAspect = "vertical" | "landscape";
 
@@ -240,11 +240,11 @@ export const SHARE_POSTS: SharePost[] = [
 ];
 
 export function shareVideoSrc(file: string) {
-  return `/${file}.mp4`;
+  return mediaPath(`/${file}.mp4`);
 }
 
 export function sharePosterSrc(file: string) {
-  return `/share/${file}.jpg`;
+  return mediaPath(`/share/${file}.jpg`);
 }
 
 export function shareDownloadName(file: string) {
@@ -266,11 +266,11 @@ export function shareEmbedUrl(postId: string) {
 }
 
 export function shareVideoAbsoluteUrl(file: string) {
-  return `${SITE_URL}/${file}.mp4`;
+  return `${SITE_URL}${mediaPath(`/${file}.mp4`)}`;
 }
 
 export function sharePosterAbsoluteUrl(file: string) {
-  return `${SITE_URL}/share/${file}.jpg`;
+  return `${SITE_URL}${mediaPath(`/share/${file}.jpg`)}`;
 }
 
 export function getSharePost(postId: string): SharePost | undefined {

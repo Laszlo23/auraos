@@ -50,6 +50,7 @@ import {
   TOKEN_LAUNCH_LABEL,
   WHITELIST_REQUIRED_COUNT,
   WHITELIST_TASKS,
+  mediaPath,
   type WhitelistTaskId,
 } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -100,7 +101,7 @@ export const Route = createFileRoute("/")({
           description:
             "Own a company. AI employees execute real work — create, execute, earn, grow. You keep the upside.",
           thumbnailUrl: [`${SITE_URL}/aura-teaser-poster.jpg`],
-          contentUrl: `${SITE_URL}/aura-teaser.mp4`,
+          contentUrl: `${SITE_URL}${mediaPath("/aura-teaser.mp4")}`,
           uploadDate: "2026-08-06",
           duration: "PT15S",
         }),
@@ -261,7 +262,7 @@ const ACTS: {
     line: "Wake the team.",
     body: "CEO, growth, sales, product, engineering, customers, finance, social. You give one mission. They split it, execute it, report back.",
     tone: "primary",
-    film: "/act-agents.mp4",
+    film: mediaPath("/act-agents.mp4"),
     icon: Bot,
   },
   {
@@ -270,7 +271,7 @@ const ACTS: {
     line: "They execute. You own the upside.",
     body: "Every meaningful action shows who, what, when, cost, and result. Real business activity — not chat fluff. Optional specialists (like Quant) come later.",
     tone: "gold",
-    film: "/act-quant.mp4",
+    film: mediaPath("/act-quant.mp4"),
     icon: CircleDollarSign,
   },
   {
@@ -279,7 +280,7 @@ const ACTS: {
     line: "Create. Execute. Earn. Grow.",
     body: "Completed work levels the company. Reinvest in better agents. Compete on the board. Build an economy of autonomous companies.",
     tone: "primary",
-    film: "/act-rewards.mp4",
+    film: mediaPath("/act-rewards.mp4"),
     icon: Rocket,
   },
 ];

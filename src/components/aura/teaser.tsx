@@ -3,11 +3,12 @@ import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Play, X } from "lucide-react";
 
 import { trackTeaser } from "@/lib/teaser-track";
+import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /** Local mirrors of production assets from https://aibusiness.fun/ */
-const TEASER_POSTER = "/aura-teaser-poster.jpg";
-const TEASER_VIDEO = "/aura-teaser.mp4";
+const TEASER_POSTER = mediaPath("/aura-teaser-poster.jpg");
+const TEASER_VIDEO = mediaPath("/aura-teaser.mp4");
 
 /**
  * 15-second vertical teaser cut from the Aura hero film.

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /**
@@ -121,17 +122,17 @@ export function HeroFilm({ className }: { className?: string }) {
             loop
             playsInline
             preload="metadata"
-            poster="/aura-teaser-poster.jpg"
+            poster={mediaPath("/aura-teaser-poster.jpg")}
             className={cn(
               "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
               videoOk ? "opacity-100" : "opacity-0",
             )}
           >
-            <source src="/aura-hero.mp4" type="video/mp4" />
+            <source src={mediaPath("/aura-hero.mp4")} type="video/mp4" />
           </video>
         ) : (
           <img
-            src="/aura-teaser-poster.jpg"
+            src={mediaPath("/aura-teaser-poster.jpg")}
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
             decoding="async"

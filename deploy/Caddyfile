@@ -1,0 +1,34 @@
+# Production Caddy for aibusiness.fun
+# Install: cp deploy/Caddyfile /etc/caddy/Caddyfile && systemctl reload caddy
+#
+# MP4s are served from /opt/auraos/public (gitignored). That directory tree must
+# be traversable by the caddy user: `chmod 755 /opt/auraos /opt/auraos/public`.
+
+aibusiness.fun, www.aibusiness.fun {
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options nosniff
+    Referrer-Policy strict-origin-when-cross-origin
+    Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    -Server
+  }
+
+  # Only cache successful hashed/static assets — never stamp Cache-Control onto 403/404.
+  @staticOk {
+    path *.js *.css *.woff2 *.jpg *.jpeg *.png *.webp *.svg *.ico
+    status 200
+  }
+  header @staticOk Cache-Control "public, max-age=604800, immutable"
+
+  # Kit videos + posters live on disk (too large for Nitro build / git).
+  @media path *.mp4 /share/*
+  handle @media {
+    root * /opt/auraos/public
+    @ok status 200
+    header @ok Cache-Control "public, max-age=86400"
+    file_server
+  }
+
+  reverse_proxy 127.0.0.1:3000
+}
