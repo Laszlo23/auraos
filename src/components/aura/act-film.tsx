@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,10 +12,11 @@ export function ActFilm({ src, className }: { src: string; className?: string })
   const videoRef = useRef<HTMLVideoElement>(null);
   const [armed, setArmed] = useState(false);
   const [ready, setReady] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || reducedMotion) return;
     const io = new IntersectionObserver(
       (entries) => {
         const visible = entries[0]?.isIntersecting ?? false;
@@ -28,7 +30,7 @@ export function ActFilm({ src, className }: { src: string; className?: string })
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <div
@@ -36,7 +38,7 @@ export function ActFilm({ src, className }: { src: string; className?: string })
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
-      {armed ? (
+      {armed && !reducedMotion ? (
         <video
           ref={videoRef}
           muted

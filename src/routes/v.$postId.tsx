@@ -9,7 +9,6 @@ import {
   downloadShareVideo,
   fetchShareVideoFile,
   getSharePost,
-  shareEmbedUrl,
   sharePosterAbsoluteUrl,
   sharePosterSrc,
   shareVideoAbsoluteUrl,
@@ -40,7 +39,6 @@ export const Route = createFileRoute("/v/$postId")({
     const watch = shareWatchUrl(post.id);
     const poster = sharePosterAbsoluteUrl(post.file);
     const video = shareVideoAbsoluteUrl(post.file);
-    const embed = shareEmbedUrl(post.id);
     const title = `${post.title} — Aura OS`;
     const description = `${post.hook} ${post.vibe}`;
     return {
@@ -63,11 +61,6 @@ export const Route = createFileRoute("/v/$postId")({
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
         { name: "twitter:image", content: poster },
-        { name: "twitter:player", content: embed },
-        { name: "twitter:player:width", content: String(dims.width) },
-        { name: "twitter:player:height", content: String(dims.height) },
-        { name: "twitter:player:stream", content: video },
-        { name: "twitter:player:stream:content_type", content: "video/mp4" },
       ],
       links: [{ rel: "canonical", href: watch }],
     };

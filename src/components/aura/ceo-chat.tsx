@@ -22,9 +22,11 @@ type Knowledge = { id: string; title: string; summary: string | null };
 
 export const CEO_PROMPTS = [
   "What should we do this week?",
-  "Propose three tasks I can approve",
   "How do we get our first paying customer?",
-  "Brief me on what the agents remember",
+  "What is currently blocking growth?",
+  "Which employee is performing best?",
+  "Where are we wasting money?",
+  "What mission should we run next?",
 ];
 
 export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {

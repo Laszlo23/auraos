@@ -85,26 +85,31 @@ export function useSpinWheel() {
       }
       const spin = data as Spin;
 
-      // Settle the grant on the (dev-mode) chain and persist the receipt.
-      try {
-        const receipt = await settleGrant({
-          ref: spin.id,
-          amount: spin.amount,
-          reason: spin.label,
-        });
-        await supabase
-          .from("wheel_spins")
-          .update({
-            tx_hash: receipt.txHash,
-            chain_network: receipt.network,
-            chain_status: receipt.status === "anchored" ? "anchored" : "dev-settled",
-            settled_at: new Date().toISOString(),
-          })
-          .eq("id", spin.id);
-        return { ...spin, tx_hash: receipt.txHash, chain_network: receipt.network };
-      } catch {
-        return spin;
-      }
+      // Settle on-chain in the background so the wheel can spin immediately.
+      void (async () => {
+        try {
+          const receipt = await settleGrant({
+            ref: spin.id,
+            amount: spin.amount,
+            reason: spin.label,
+          });
+          await supabase
+            .from("wheel_spins")
+            .update({
+              tx_hash: receipt.txHash,
+              chain_network: receipt.network,
+              chain_status: receipt.status === "anchored" ? "anchored" : "dev-settled",
+              settled_at: new Date().toISOString(),
+            })
+            .eq("id", spin.id);
+          void qc.invalidateQueries({ queryKey: ["wheel-spin"] });
+          void qc.invalidateQueries({ queryKey: ["wheel-history"] });
+        } catch {
+          /* grant already credited in DB — chain stamp is best-effort */
+        }
+      })();
+
+      return spin;
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["wheel-spin"] });

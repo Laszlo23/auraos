@@ -362,10 +362,14 @@ export const draftLeadEmail = createServerFn({ method: "POST" })
     }
 
     const template = getTemplate(campaign["template"] as string | undefined);
+    const lang = String(campaign["language"] ?? "de");
+    const { languageStyleBlock, sanitizeBrandNames } = await import("./ai-language");
     const raw = await askAi(
-      `You write cold outreach emails. Language: ${String(campaign["language"] ?? "de")}. Tone: ${String(campaign["tone"] ?? "warm-professional")}.
+      `You write cold outreach emails.
+${languageStyleBlock(lang)}
+Tone: ${String(campaign["tone"] ?? "warm-professional")}.
 Template context: ${template.label}.
-Rules: reference at least one concrete detail from the research so it cannot be mistaken for a template. Max 130 words. No hype, no emoji, no "I hope this email finds you well". One clear, low-friction call to action. Sign off with a placeholder line "{{signature}}".
+Rules: reference at least one concrete detail from the research so it cannot be mistaken for a template. Max 130 words. No hype, no emoji, no "I hope this email finds you well" / "ich hoffe diese Nachricht erreicht Sie wohlauf". One clear, low-friction call to action. Sign off with a placeholder line "{{signature}}".
 Never invent facts. Return ONLY JSON: {"subject": string, "body": string}.`,
       `Goal/brief: ${String(campaign["goal"] || campaign["brief"] || "")}
 Objective: ${String(campaign["objective"] ?? "research")}
@@ -374,8 +378,8 @@ Research:\n${context_md.slice(0, 4000)}`,
     );
 
     const draft = parseJsonBlock<{ subject?: string; body?: string }>(raw, {});
-    const subject = (draft.subject ?? "").slice(0, 200);
-    const body = draft.body ?? "";
+    const subject = sanitizeBrandNames((draft.subject ?? "").slice(0, 200));
+    const body = sanitizeBrandNames(draft.body ?? "");
     if (!subject || !body) throw new Error("The agent could not write this one — try again.");
 
     const { error: updateError } = await supabase

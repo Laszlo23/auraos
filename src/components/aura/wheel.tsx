@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { useSpinWheel, useTodaySpin, type Spin } from "@/hooks/use-wheel";
@@ -18,6 +19,13 @@ const segmentFill = (tone: "primary" | "gold", i: number) => {
   return `color-mix(in oklab, ${base} ${alpha}%, transparent)`;
 };
 
+/** Pointer is at top (12 o'clock). Segment i is centered at this absolute angle. */
+function landingAngle(prizeIndex: number) {
+  const center = prizeIndex * STEP + STEP / 2;
+  // Rotate wheel so segment center sits under the top pointer.
+  return (360 - center + 360) % 360;
+}
+
 /**
  * The daily reserve drop. One spin per company per day, drawn and settled
  * server-side. Rendered as a tilted 3D disc with a machined rim.
@@ -28,20 +36,49 @@ export function DailyWheel() {
   const [angle, setAngle] = useState(0);
   const [burst, setBurst] = useState(0);
   const [won, setWon] = useState<Spin | null>(null);
+  const [spinning, setSpinning] = useState(false);
+  const angleRef = useRef(0);
 
-  const spent = Boolean(today);
+  const spent = Boolean(today) && !spinning;
   const result = today ?? won;
+  const busy = spinning || spin.isPending;
 
   const pull = async () => {
-    if (spent || spin.isPending) return;
-    const drop = await spin.mutateAsync();
-    const index = Math.max(
-      0,
-      WHEEL_PRIZES.findIndex((p) => p.label === drop.label),
-    );
-    setAngle((a) => a + 360 * 5 + (360 - index * STEP - STEP / 2) - (a % 360));
-    setWon(drop);
-    setTimeout(() => setBurst((n) => n + 1), 2900);
+    if (spent || busy) return;
+
+    setSpinning(true);
+    // Immediate visual spin — don't wait on the network.
+    const windup = angleRef.current + 360 * 6;
+    angleRef.current = windup;
+    setAngle(windup);
+
+    try {
+      const drop = await spin.mutateAsync();
+      let index = WHEEL_PRIZES.findIndex((p) => p.label === drop.label);
+      if (index < 0) {
+        index = WHEEL_PRIZES.findIndex((p) => p.kind === drop.prize_kind);
+      }
+      index = Math.max(0, index);
+
+      const target = landingAngle(index);
+      const currentMod = ((angleRef.current % 360) + 360) % 360;
+      let delta = target - currentMod;
+      if (delta < 0) delta += 360;
+      // Extra full turns so the landing still feels like a spin.
+      const final = angleRef.current + 360 * 3 + delta;
+      angleRef.current = final;
+      setAngle(final);
+      setWon(drop);
+      window.setTimeout(() => setBurst((n) => n + 1), 3200);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Spin failed — try again.");
+      // Ease back a little so a failed pull doesn't leave a wild angle.
+      const reset = angleRef.current - (angleRef.current % 360);
+      angleRef.current = reset;
+      setAngle(reset);
+    } finally {
+      window.setTimeout(() => setSpinning(false), 3400);
+    }
   };
 
   return (
@@ -56,6 +93,7 @@ export function DailyWheel() {
       <div className="relative" style={{ perspective: "900px" }}>
         <span className="pointer-events-none absolute -bottom-3 left-1/2 h-8 w-44 -translate-x-1/2 rounded-[100%] bg-black/50 blur-xl" />
 
+        {/* Tilt wrapper separate from the spinning node (avoids transform fights). */}
         <div
           className="relative grid h-60 w-60 place-items-center"
           style={{ transform: "rotateX(24deg)", transformStyle: "preserve-3d" }}
@@ -71,9 +109,13 @@ export function DailyWheel() {
 
           <motion.div
             animate={{ rotate: angle }}
-            transition={{ duration: 3, ease: [0.12, 0.9, 0.15, 1] }}
+            initial={false}
+            transition={{
+              duration: spinning ? 3.4 : 0.6,
+              ease: spinning ? [0.12, 0.75, 0.08, 1] : "easeOut",
+            }}
             className="relative h-56 w-56 rounded-full"
-            style={{ transformStyle: "preserve-3d", willChange: "transform" }}
+            style={{ willChange: "transform" }}
           >
             <svg
               viewBox="0 0 240 240"
@@ -142,8 +184,9 @@ export function DailyWheel() {
           </motion.div>
 
           <button
-            onClick={pull}
-            disabled={spent || spin.isPending}
+            type="button"
+            onClick={() => void pull()}
+            disabled={spent || busy}
             style={{ transform: "translateZ(26px)" }}
             className={cn(
               "absolute grid h-[68px] w-[68px] place-items-center rounded-full text-[10px] font-bold uppercase tracking-[0.16em] transition-all",
@@ -152,7 +195,7 @@ export function DailyWheel() {
               "hover:brightness-110 active:translate-y-[1px] disabled:opacity-45 disabled:hover:brightness-100",
             )}
           >
-            {spin.isPending ? "···" : spent ? "Done" : "Spin"}
+            {busy ? "···" : spent ? "Done" : "Spin"}
           </button>
         </div>
 

@@ -28,7 +28,15 @@ export async function createEmptyCompany(ownerId: string) {
     })
     .select()
     .single();
-  if (error || !company) throw error ?? new Error("Could not create company");
+  if (error || !company) {
+    const msg = error?.message ?? "Could not create company";
+    if (/row-level security|policy|42501/i.test(msg)) {
+      throw new Error(
+        "Invite required — redeem an invite code (or founder referral) before creating a company.",
+      );
+    }
+    throw error ?? new Error(msg);
+  }
 
   const cid = company.id;
 

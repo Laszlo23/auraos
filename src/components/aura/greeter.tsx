@@ -15,7 +15,7 @@ const OPENING =
 const PROMPTS = [
   "What is Aura OS, really?",
   "Who are the eight agents?",
-  "How does the trading agent work?",
+  "How does an AI employee actually work?",
   "How do I get a founding seat?",
 ];
 

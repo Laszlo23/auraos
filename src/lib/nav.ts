@@ -127,7 +127,6 @@ export const NAV: NavItem[] = [
     icon: CandlestickChart,
     group: "Revenue",
     live: true,
-    core: true,
   },
   {
     to: "/wallet",
@@ -189,11 +188,12 @@ export const NAV: NavItem[] = [
   {
     to: "/channels",
     label: "Channels",
-    plain: "Social accounts",
-    hint: "X, LinkedIn and Meta posting",
+    plain: "Social posts",
+    hint: "Schedule posts, Autopublish, and fair-launch drip",
     icon: Hash,
     group: "Surface",
     live: true,
+    core: true,
   },
   {
     to: "/analytics",
@@ -257,6 +257,7 @@ export const NAV: NavItem[] = [
     icon: Gift,
     group: "System",
     live: true,
+    core: true,
   },
   {
     to: "/identity",

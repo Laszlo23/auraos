@@ -12,6 +12,7 @@ export type Company = {
   runway_days: number;
   mrr: number;
   strategy: string | null;
+  slug?: string | null;
   autonomy?: number;
   theme?: "dark" | "light" | string | null;
   trading_armed?: boolean;

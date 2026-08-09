@@ -25,13 +25,22 @@ export const Route = createFileRoute("/api/public/x402/outreach-draft")({
         const language = (typeof body.language === "string" ? body.language : "en").slice(0, 12);
         if (lead.length < 3 || offer.length < 3)
           return jsonResponse({ error: "invalid_input" }, { status: 400 });
-        return withPayment("outreach-draft", request, () =>
-          agentJson(
-            'You are the Aura Akquise desk. Draft one cold outreach email that a busy operator would actually answer. Schema: {"subject":string,"body":string,"opening_line":string,"cta":string,"followup":string,"tone":string}. Under 130 words in body, no fluff, no emoji.',
-            `Language: ${language}\nLead: ${lead}\nOffer: ${offer}`,
+        const { languageStyleBlock, sanitizeBrandNames } = await import("@/lib/ai-language");
+        return withPayment("outreach-draft", request, async () => {
+          const draft = (await agentJson(
+            `You are the Aura Akquise desk. Draft one cold outreach email that a busy operator would actually answer.
+${languageStyleBlock(language)}
+Schema: {"subject":string,"body":string,"opening_line":string,"cta":string,"followup":string,"tone":string}. Under 130 words in body, no fluff, no emoji.`,
+            `Lead: ${lead}\nOffer: ${offer}`,
             "draft",
-          ),
-        );
+          )) as Record<string, unknown>;
+          for (const key of ["subject", "body", "opening_line", "cta", "followup"] as const) {
+            if (typeof draft[key] === "string") {
+              draft[key] = sanitizeBrandNames(draft[key] as string);
+            }
+          }
+          return draft;
+        });
       },
     },
   },

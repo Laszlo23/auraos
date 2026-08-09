@@ -19,23 +19,27 @@ export const getSocialStatus = createServerFn({ method: "GET" })
       .eq("id", data.companyId)
       .eq("owner_id", context.userId)
       .maybeSingle();
-    if (!company) throw new Error("Company not found");
+    if (!company) throw new Error("Your company wasn't found for this account. Refresh and try again.");
 
     const { data: rows } = await supabaseAdmin
       .from("channel_connections")
       .select(
-        "id, provider, handle, status, followers, engagement, reach, auto_publish, agent_name, last_sync, reply_mode, meta_page_name, ig_user_id",
+        "id, provider, handle, status, followers, engagement, reach, auto_publish, agent_name, last_sync, reply_mode, meta_page_name, ig_user_id, scopes",
       )
       .eq("company_id", data.companyId);
 
     const providers: SocialProvider[] = ["x", "meta", "linkedin"];
     return providers.map((provider) => {
       const row = rows?.find((r) => r.provider === provider);
+      const scopes = String(row?.scopes ?? "");
+      const hasMediaWrite = scopes.split(/\s+/).includes("media.write");
+      const connected = row?.status === "connected";
       return {
         provider,
         available: socialConfigured(provider),
-        connected: row?.status === "connected",
-        needsReconnect: Boolean(row && row.status !== "connected"),
+        connected,
+        needsReconnect: Boolean(row && row.status !== "connected") || (connected && provider === "x" && !hasMediaWrite),
+        canPostVideo: connected && hasMediaWrite,
         handle: row?.handle ?? null,
         followers: row?.followers ?? 0,
         engagement: row?.engagement ?? 0,
@@ -83,7 +87,11 @@ export const startSocialConnect = createServerFn({ method: "POST" })
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
-      if (!fallback) throw new Error("Company not found — finish onboarding first.");
+      if (!fallback) {
+        throw new Error(
+          "No company on this account yet — finish onboarding, then connect X. (This is not an X connection error.)",
+        );
+      }
       companyId = fallback.id as string;
     }
 
@@ -229,6 +237,74 @@ export const publishSocialNow = createServerFn({ method: "POST" })
     return { ok: true, postId: post.id, externalUrl: result.externalUrl };
   });
 
+/** Post a share-kit clip to X with native MP4 media (requires media.write). */
+export const publishShareClipToX = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string; sharePostId: string; caption?: string }) => {
+    const sharePostId = String(input.sharePostId || "").trim();
+    if (!sharePostId) throw new Error("Pick a clip");
+    return {
+      companyId: String(input.companyId),
+      sharePostId,
+      caption: input.caption ? String(input.caption).trim() : undefined,
+    };
+  })
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { publishToProvider } = await import("@/lib/social-api.server");
+    const { SOCIAL_AGENTS } = await import("@/lib/social-oauth.server");
+    const { getSharePost, shareWatchUrl } = await import("@/lib/share-posts");
+    const { SITE_URL } = await import("@/lib/site");
+
+    const { data: company } = await supabaseAdmin
+      .from("companies")
+      .select("id, slug, name")
+      .eq("id", data.companyId)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!company) throw new Error("Your company wasn't found for this account. Refresh and try again.");
+
+    const clip = getSharePost(data.sharePostId);
+    if (!clip) throw new Error("Unknown share clip");
+
+    const watch = shareWatchUrl(clip.id);
+    const passport = company.slug ? ` ${SITE_URL}/company/${company.slug}` : "";
+    const caption =
+      data.caption ||
+      `${clip.hook}\n\n${watch}${passport}`.slice(0, 280);
+
+    const result = await publishToProvider("x", data.companyId, caption, {
+      sharePostId: clip.id,
+    });
+
+    const { data: post, error } = await supabaseAdmin
+      .from("channel_posts")
+      .insert({
+        company_id: data.companyId,
+        provider: "x",
+        body: caption,
+        status: "published",
+        published_at: new Date().toISOString(),
+        agent_name: SOCIAL_AGENTS.x,
+        external_post_id: result.externalPostId,
+        external_url: result.externalUrl ?? null,
+        impressions: 0,
+        likes: 0,
+        reposts: 0,
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+
+    await supabaseAdmin.from("activity_events").insert({
+      company_id: data.companyId,
+      kind: "publish",
+      message: `${SOCIAL_AGENTS.x} posted clip "${clip.title}" on X with native video`,
+    });
+
+    return { ok: true, postId: post.id, externalUrl: result.externalUrl };
+  });
+
 export const approveEngagementReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { engagementId: string; reply?: string }) => ({
@@ -300,6 +376,20 @@ export const approveEngagementReply = createServerFn({ method: "POST" })
       kind: "reply",
       message: `Founder approved ${agentName}'s ${row.provider} reply`,
     });
+
+    // Complete matching pending approval task(s) spawned by the worker.
+    const sourceKey = `social-reply:${row.provider}:${row.external_id}`;
+    await supabaseAdmin
+      .from("tasks")
+      .update({
+        status: "completed",
+        progress: 100,
+        completed_at: new Date().toISOString(),
+        result: `Reply sent · ${sourceKey}`,
+      })
+      .eq("company_id", row.company_id)
+      .eq("status", "pending_approval")
+      .eq("result", sourceKey);
 
     return { ok: true };
   });

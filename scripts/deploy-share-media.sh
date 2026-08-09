@@ -65,6 +65,10 @@ ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o BatchMode=yes "$HOST" \
 
 echo "==> fix permissions for Caddy file_server"
 ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o BatchMode=yes "$HOST" \
-  "chown -R root:caddy $REMOTE_PUBLIC && chmod -R u=rwX,g=rX,o=rX $REMOTE_PUBLIC && chmod a+r $REMOTE_OUTPUT_PUBLIC/*.mp4 2>/dev/null || true"
+  "chmod 755 /opt/auraos && \
+   chmod -R a+rX $REMOTE_PUBLIC && \
+   chown -R aura:aura $REMOTE_PUBLIC && \
+   chmod a+r $REMOTE_OUTPUT_PUBLIC/*.mp4 2>/dev/null || true; \
+   chmod -R a+rX $REMOTE_OUTPUT_PUBLIC/share 2>/dev/null || true"
 
 echo "Done."

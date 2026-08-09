@@ -67,7 +67,10 @@ export function authorizeUrl(
       url.searchParams.set("response_type", "code");
       url.searchParams.set("client_id", process.env["X_CLIENT_ID"]!);
       url.searchParams.set("redirect_uri", opts.redirectUri);
-      url.searchParams.set("scope", "tweet.read tweet.write users.read offline.access like.read");
+      url.searchParams.set(
+        "scope",
+        "tweet.read tweet.write users.read offline.access like.read media.write",
+      );
       url.searchParams.set("state", opts.state);
       url.searchParams.set("code_challenge", opts.challenge);
       url.searchParams.set("code_challenge_method", "S256");

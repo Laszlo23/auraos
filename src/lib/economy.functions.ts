@@ -352,7 +352,7 @@ export const dispatchMission = createServerFn({ method: "POST" })
     if (created.some((c) => c.status === "queued")) {
       try {
         const { processTaskQueue } = await import("@/lib/task-worker.server");
-        const res = await processTaskQueue(Math.min(8, created.length));
+        const res = await processTaskQueue(Math.min(8, created.length), company.id);
         worker = { ok: true, tasksProcessed: res.processed };
       } catch {
         worker = { ok: false };
@@ -421,46 +421,170 @@ export const getPublicCompany = createServerFn({ method: "GET" })
     const admin = asDb(supabaseAdmin);
     const { data: company } = await admin
       .from("companies")
-      .select("id, name, slug, tagline, reputation, autonomy, created_at")
+      .select("id, name, slug, tagline, reputation, autonomy, created_at, emoji")
       .eq("slug", data.slug)
       .maybeSingle();
     if (!company) return null;
 
+    const companyId = company.id as string;
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
     const { data: ledger } = await asDb(supabaseAdmin)
       .from("company_ledger_entries")
       .select("kind, amount_usdc, status")
-      .eq("company_id", company.id)
+      .eq("company_id", companyId)
       .eq("status", "settled");
-    const totals = totalsFromLedger((ledger ?? []) as { kind: string; amount_usdc: number; status: string }[]);
+    const totals = totalsFromLedger(
+      (ledger ?? []) as { kind: string; amount_usdc: number; status: string }[],
+    );
 
-    const { count: agents } = await asDb(supabaseAdmin)
-      .from("agents")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", company.id);
-    const { count: tasks } = await asDb(supabaseAdmin)
-      .from("tasks")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", company.id)
-      .in("status", ["completed", "done"]);
-    const { data: progress } = await asDb(supabaseAdmin)
-      .from("founder_progress")
-      .select("xp, level, seat_number")
-      .eq("company_id", company.id)
-      .maybeSingle();
+    const [
+      { count: agentsCount },
+      { count: tasksCompleted },
+      { count: actions24h },
+      { data: progress },
+      { data: agentRows },
+      { data: events },
+      { data: posts },
+      { data: missions },
+    ] = await Promise.all([
+      asDb(supabaseAdmin)
+        .from("agents")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", companyId),
+      asDb(supabaseAdmin)
+        .from("tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", companyId)
+        .in("status", ["completed", "done"]),
+      asDb(supabaseAdmin)
+        .from("activity_events")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", companyId)
+        .gte("created_at", dayAgo),
+      asDb(supabaseAdmin)
+        .from("founder_progress")
+        .select("xp, level, seat_number")
+        .eq("company_id", companyId)
+        .maybeSingle(),
+      asDb(supabaseAdmin)
+        .from("agents")
+        .select("name, role, status, avatar, accent, current_task, performance, tasks_completed")
+        .eq("company_id", companyId)
+        .order("name")
+        .limit(12),
+      asDb(supabaseAdmin)
+        .from("activity_events")
+        .select("id, kind, message, value, created_at")
+        .eq("company_id", companyId)
+        .order("created_at", { ascending: false })
+        .limit(24),
+      asDb(supabaseAdmin)
+        .from("channel_posts")
+        .select("id, provider, body, status, published_at, external_url, agent_name")
+        .eq("company_id", companyId)
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(8),
+      asDb(supabaseAdmin)
+        .from("revenue_missions")
+        .select("id, goal_text, status, share_slug, share_public, projected, target_usdc")
+        .eq("company_id", companyId)
+        .eq("share_public", true)
+        .order("created_at", { ascending: false })
+        .limit(6),
+    ]);
 
     return {
       name: company.name as string,
       slug: company.slug as string,
       tagline: (company.tagline as string | null) ?? null,
+      emoji: (company.emoji as string | null) ?? "◎",
       reputation: Number(company.reputation ?? 50),
       autonomy: clampAutonomy(company.autonomy),
       level: Number(progress?.level ?? 1),
       seat: progress?.seat_number ?? null,
-      agents: agents ?? 0,
-      tasksCompleted: tasks ?? 0,
+      agents: agentsCount ?? 0,
+      tasksCompleted: tasksCompleted ?? 0,
+      actions24h: actions24h ?? 0,
       revenue: totals.lifetime,
       profit: totals.profit,
       createdAt: company.created_at as string,
+      roster: (
+        (agentRows ?? []) as Array<{
+          name: string | null;
+          role: string | null;
+          status: string | null;
+          avatar: string | null;
+          accent: string | null;
+          current_task: string | null;
+          performance: number | null;
+          tasks_completed: number | null;
+        }>
+      ).map((a) => ({
+        name: String(a.name ?? "Agent"),
+        role: String(a.role ?? ""),
+        status: String(a.status ?? "idle"),
+        avatar: String(a.avatar ?? "◎"),
+        accent: String(a.accent ?? "cyan"),
+        currentTask: a.current_task ?? null,
+        performance: Number(a.performance ?? 0),
+        tasksCompleted: Number(a.tasks_completed ?? 0),
+      })),
+      receipts: (
+        (events ?? []) as Array<{
+          id: string;
+          kind: string | null;
+          message: string | null;
+          value: number | null;
+          created_at: string;
+        }>
+      ).map((e) => ({
+        id: String(e.id),
+        kind: String(e.kind ?? "system"),
+        message: String(e.message ?? ""),
+        value: e.value != null ? Number(e.value) : null,
+        createdAt: String(e.created_at),
+      })),
+      posts: (
+        (posts ?? []) as Array<{
+          id: string;
+          provider: string | null;
+          body: string | null;
+          published_at: string | null;
+          external_url: string | null;
+          agent_name: string | null;
+        }>
+      ).map((p) => ({
+        id: String(p.id),
+        provider: String(p.provider ?? ""),
+        body: String(p.body ?? ""),
+        publishedAt: p.published_at ?? null,
+        externalUrl: p.external_url ?? null,
+        agentName: p.agent_name ?? null,
+      })),
+      missions: (
+        (missions ?? []) as Array<{
+          id: string;
+          goal_text: string | null;
+          status: string | null;
+          share_slug: string | null;
+          share_public: boolean | null;
+          projected: { revenue_usdc?: number } | null;
+          target_usdc: number | null;
+        }>
+      ).map((m) => {
+        const projected = m.projected ?? {};
+        return {
+          id: String(m.id),
+          goal: String(m.goal_text ?? ""),
+          status: String(m.status ?? ""),
+          progress: 0,
+          shareSlug: m.share_slug ?? null,
+          targetUsdc: Number(m.target_usdc ?? 0),
+          actualRevenue: Number(projected.revenue_usdc ?? 0),
+        };
+      }),
     };
   });
 

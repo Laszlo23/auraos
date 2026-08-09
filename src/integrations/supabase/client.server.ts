@@ -36,8 +36,38 @@ function createSupabaseAdminClient() {
   const SUPABASE_URL =
     process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
   // Prefer classic service_role JWT; also accept new opaque secret keys (sb_secret_…).
-  const SUPABASE_SERVICE_ROLE_KEY =
-    process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"];
+  // SUPABASE_SERVICE_ROLE_KEY_SECRET is a common local alias when the main var was
+  // accidentally filled with the anon JWT.
+  const candidates = [
+    process.env["SUPABASE_SERVICE_ROLE_KEY"],
+    process.env["SUPABASE_SECRET_KEY"],
+    process.env["SUPABASE_SERVICE_ROLE_KEY_SECRET"],
+  ].filter((v): v is string => Boolean(v && v.trim()));
+
+  let SUPABASE_SERVICE_ROLE_KEY = candidates[0];
+  for (const key of candidates) {
+    if (key.startsWith("sb_secret_")) {
+      SUPABASE_SERVICE_ROLE_KEY = key;
+      break;
+    }
+    if (key.split(".").length === 3) {
+      try {
+        const payload = key.split(".")[1]!;
+        const pad = "=".repeat((4 - (payload.length % 4)) % 4);
+        const claim = JSON.parse(
+          Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64").toString(
+            "utf8",
+          ),
+        ) as { role?: string };
+        if (claim.role === "service_role") {
+          SUPABASE_SERVICE_ROLE_KEY = key;
+          break;
+        }
+      } catch {
+        /* keep scanning */
+      }
+    }
+  }
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [
@@ -49,6 +79,27 @@ function createSupabaseAdminClient() {
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Add the service_role / secret key from Supabase → Project Settings → API Keys.`;
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
+  }
+
+  // Fail loudly if someone pasted the anon JWT into SERVICE_ROLE — RLS then
+  // makes every admin lookup look like "Company not found".
+  if (SUPABASE_SERVICE_ROLE_KEY.split(".").length === 3) {
+    try {
+      const payload = SUPABASE_SERVICE_ROLE_KEY.split(".")[1]!;
+      const pad = "=".repeat((4 - (payload.length % 4)) % 4);
+      const claim = JSON.parse(
+        Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64").toString(
+          "utf8",
+        ),
+      ) as { role?: string };
+      if (claim.role && claim.role !== "service_role") {
+        throw new Error(
+          `SUPABASE_SERVICE_ROLE_KEY has role "${claim.role}" — use the service_role secret from Supabase → Settings → API, not the anon/publishable key.`,
+        );
+      }
+    } catch (e) {
+      if (e instanceof Error && e.message.includes("SUPABASE_SERVICE_ROLE_KEY has role")) throw e;
+    }
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {

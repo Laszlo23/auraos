@@ -1,7 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink, KeyRound } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Copy,
+  ExternalLink,
+  KeyRound,
+  Lock,
+  Timer,
+} from "lucide-react";
 
 import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import { Chip, Panel, Pulse } from "@/components/aura/primitives";
@@ -43,6 +52,15 @@ export const Route = createFileRoute("/access")({
   component: AccessPage,
 });
 
+/** Client hold slightly above server min (8s) so confirm rarely races. */
+const VISIT_HOLD_MS = 12_000;
+const VISIT_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+
+type VisitProof = {
+  opened_at?: string | null;
+  confirmed_at?: string | null;
+};
+
 type Progress = {
   follow_x: boolean;
   follow_farcaster: boolean;
@@ -53,6 +71,7 @@ type Progress = {
   invite_code: string | null;
   complete: boolean;
   done_count: number;
+  visits: Record<string, VisitProof>;
 };
 
 const EMPTY: Progress = {
@@ -65,7 +84,22 @@ const EMPTY: Progress = {
   invite_code: null,
   complete: false,
   done_count: 0,
+  visits: {},
 };
+
+function parseVisits(raw: unknown): Record<string, VisitProof> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, VisitProof> = {};
+  for (const [key, val] of Object.entries(raw as Record<string, unknown>)) {
+    if (!val || typeof val !== "object") continue;
+    const v = val as Record<string, unknown>;
+    out[key] = {
+      opened_at: typeof v["opened_at"] === "string" ? v["opened_at"] : null,
+      confirmed_at: typeof v["confirmed_at"] === "string" ? v["confirmed_at"] : null,
+    };
+  }
+  return out;
+}
 
 function parseProgress(raw: unknown): Progress {
   if (!raw || typeof raw !== "object") return EMPTY;
@@ -82,6 +116,7 @@ function parseProgress(raw: unknown): Progress {
     invite_code: typeof o["invite_code"] === "string" ? o["invite_code"] : null,
     complete: Boolean(o["complete"]),
     done_count: typeof o["done_count"] === "number" ? o["done_count"] : 0,
+    visits: parseVisits(o["visits"]),
   };
 }
 
@@ -110,6 +145,17 @@ function isDone(task: WhitelistTask, p: Progress): boolean {
   }
 }
 
+function visitKey(task: WhitelistTask): string {
+  return task.id;
+}
+
+function formatProofTime(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
 function AccessPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -117,6 +163,10 @@ function AccessPage() {
   const [busyTask, setBusyTask] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [copied, setCopied] = useState(false);
+  /** Tasks where the user left this tab after opening the link. */
+  const [returned, setReturned] = useState<Record<string, boolean>>({});
+  const [now, setNow] = useState(() => Date.now());
+  const [pendingOpen, setPendingOpen] = useState<string | null>(null);
 
   const required = useMemo(() => WHITELIST_TASKS.filter((t) => t.group === "required"), []);
   const chatTasks = useMemo(() => WHITELIST_TASKS.filter((t) => t.group === "chat_or"), []);
@@ -142,7 +192,37 @@ function AccessPage() {
       setEmail(saved);
       void load(saved);
     }
+    try {
+      const raw = window.localStorage.getItem("aura.whitelist.returned");
+      if (raw) setReturned(JSON.parse(raw) as Record<string, boolean>);
+    } catch {
+      /* ignore */
+    }
   }, [load]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 500);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // After Open, require the tab to go hidden then visible again (user left & came back).
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState !== "visible" || !pendingOpen) return;
+      setReturned((prev) => {
+        const next = { ...prev, [pendingOpen]: true };
+        try {
+          window.localStorage.setItem("aura.whitelist.returned", JSON.stringify(next));
+        } catch {
+          /* ignore */
+        }
+        return next;
+      });
+      setPendingOpen(null);
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [pendingOpen]);
 
   const rememberEmail = (value: string) => {
     setEmail(value);
@@ -162,9 +242,66 @@ function AccessPage() {
     return value;
   };
 
+  const openTask = async (task: WhitelistTask) => {
+    const em = ensureEmail();
+    if (!em) return;
+
+    setBusyTask(`open:${task.id}`);
+    const { data, error } = await supabase.rpc("mark_whitelist_visit", {
+      _email: em,
+      _visitor_id: visitorId(),
+      _task: visitKey(task),
+    });
+    setBusyTask(null);
+
+    if (error) {
+      toast.error(
+        error.message.includes("invalid_email") ? "Invalid email." : "Could not record visit.",
+      );
+      return;
+    }
+
+    setProgress(parseProgress(data));
+    setPendingOpen(task.id);
+    setReturned((prev) => {
+      const next = { ...prev, [task.id]: false };
+      try {
+        window.localStorage.setItem("aura.whitelist.returned", JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+
+    trackTeaser("social_join", { placement: `access_open_${task.id}`.slice(0, 40) });
+    window.open(task.href, "_blank", "noopener,noreferrer");
+    toast.message("Do the action on the other tab, then come back to confirm.");
+  };
+
   const confirmTask = async (task: WhitelistTask) => {
     const em = ensureEmail();
     if (!em) return;
+
+    const key = visitKey(task);
+    const visit = progress.visits[key];
+    const openedMs = visit?.opened_at ? Date.parse(visit.opened_at) : NaN;
+    if (!Number.isFinite(openedMs)) {
+      toast.error("Open the link first — we need visit proof.");
+      return;
+    }
+    if (now - openedMs < VISIT_HOLD_MS) {
+      toast.error("Spend a few seconds on the link, then confirm.");
+      return;
+    }
+    if (now - openedMs > VISIT_MAX_AGE_MS) {
+      toast.error("That visit expired — open the link again.");
+      return;
+    }
+    if (!returned[task.id] && !visit?.confirmed_at) {
+      toast.error("Come back from the other tab first, then confirm.");
+      return;
+    }
+
     setBusyTask(task.id);
     const args =
       task.group === "chat_or"
@@ -183,12 +320,25 @@ function AccessPage() {
     const { data, error } = await supabase.rpc("upsert_whitelist_task", args);
     setBusyTask(null);
     if (error) {
-      toast.error(error.message.includes("invalid_email") ? "Invalid email." : "Could not save that task.");
+      const msg = error.message || "";
+      if (msg.includes("visit_required")) {
+        toast.error("Open the link first — confirm stays locked until then.");
+      } else if (msg.includes("visit_too_soon")) {
+        toast.error("Too fast — finish the action, wait a moment, then confirm.");
+      } else if (msg.includes("visit_expired")) {
+        toast.error("Visit expired — open the link again.");
+      } else if (msg.includes("visitor_mismatch")) {
+        toast.error("Use the same browser that earned this invite.");
+      } else if (msg.includes("invalid_email")) {
+        toast.error("Invalid email.");
+      } else {
+        toast.error("Could not save that task.");
+      }
       return;
     }
     trackTeaser("social_join", { placement: `access_${task.id}`.slice(0, 40) });
     setProgress(parseProgress(data));
-    toast.success("Task confirmed");
+    toast.success("Task confirmed — proof saved");
   };
 
   const claim = async () => {
@@ -205,10 +355,13 @@ function AccessPage() {
     });
     setClaiming(false);
     if (error) {
+      const msg = error.message || "";
       toast.error(
-        error.message.includes("incomplete")
+        msg.includes("incomplete")
           ? "Tasks incomplete — confirm each step, then claim."
-          : "Could not mint invite. Try again.",
+          : msg.includes("visitor_mismatch")
+            ? "Use the same browser that earned this invite."
+            : "Could not mint invite. Try again.",
       );
       return;
     }
@@ -247,46 +400,111 @@ function AccessPage() {
       task.group === "chat_or" &&
       progress.chat_channel !== null &&
       progress.chat_channel !== task.id;
+    const key = visitKey(task);
+    const visit = progress.visits[key];
+    const openedMs = visit?.opened_at ? Date.parse(visit.opened_at) : NaN;
+    const hasVisit = Number.isFinite(openedMs);
+    const age = hasVisit ? now - openedMs : 0;
+    const holdLeft = hasVisit ? Math.max(0, VISIT_HOLD_MS - age) : VISIT_HOLD_MS;
+    const visitFresh = hasVisit && age <= VISIT_MAX_AGE_MS;
+    const cameBack = Boolean(returned[task.id]) || Boolean(visit?.confirmed_at);
+    const canConfirm =
+      !done &&
+      !progress.invite_code &&
+      !chatAltDone &&
+      visitFresh &&
+      holdLeft === 0 &&
+      cameBack;
+
+    let statusLabel = "1 · Open the link";
+    if (done) statusLabel = "Confirmed";
+    else if (!hasVisit || !visitFresh) statusLabel = "1 · Open the link";
+    else if (!cameBack) statusLabel = "2 · Finish action · return here";
+    else if (holdLeft > 0) statusLabel = `2 · Wait ${Math.ceil(holdLeft / 1000)}s`;
+    else statusLabel = "3 · Confirm";
 
     return (
       <div
         className={cn(
-          "flex flex-col gap-3 rounded-2xl px-3.5 py-3.5 sm:flex-row sm:items-center",
+          "flex flex-col gap-3 rounded-2xl px-3.5 py-3.5",
           done ? "bg-primary/10" : chatAltDone ? "bg-foreground/[0.03] opacity-60" : "bg-foreground/5",
         )}
       >
-        <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-semibold">{task.label}</p>
-          <p className="text-[11px] text-muted-foreground">{task.hint}</p>
-        </div>
-        <div className="flex shrink-0 gap-2">
-          <a
-            href={task.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackTeaser("social_join", { placement: `access_open_${task.id}`.slice(0, 40) })
-            }
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border/50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
-          >
-            Open <ExternalLink className="h-3 w-3" />
-          </a>
-          <button
-            type="button"
-            disabled={done || Boolean(progress.invite_code) || busyTask === task.id || chatAltDone}
-            onClick={() => void confirmTask(task)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary transition-opacity hover:opacity-80 disabled:opacity-50"
-          >
-            {done ? (
-              <>
-                <Check className="h-3 w-3" /> Done
-              </>
-            ) : busyTask === task.id ? (
-              "…"
-            ) : (
-              "Confirm"
-            )}
-          </button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-semibold">{task.label}</p>
+            <p className="text-[11px] text-muted-foreground">{task.hint}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em]">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-lg px-2 py-1",
+                  done
+                    ? "bg-primary/15 text-primary"
+                    : canConfirm
+                      ? "bg-gold/15 text-gold"
+                      : "bg-foreground/6 text-muted-foreground",
+                )}
+              >
+                {done ? <Check className="h-3 w-3" /> : holdLeft > 0 && hasVisit ? <Timer className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                {statusLabel}
+              </span>
+              {visit?.opened_at ? (
+                <span className="text-muted-foreground/80 normal-case tracking-normal">
+                  Opened {formatProofTime(visit.opened_at)}
+                  {visit.confirmed_at ? ` · Confirmed ${formatProofTime(visit.confirmed_at)}` : ""}
+                </span>
+              ) : (
+                <span className="text-muted-foreground/70 normal-case tracking-normal">
+                  Confirm unlocks after you open & return
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <button
+              type="button"
+              disabled={done || Boolean(progress.invite_code) || chatAltDone || busyTask === `open:${task.id}`}
+              onClick={() => void openTask(task)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border/50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-50"
+            >
+              {busyTask === `open:${task.id}` ? (
+                "…"
+              ) : (
+                <>
+                  Open <ExternalLink className="h-3 w-3" />
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              disabled={!canConfirm || busyTask === task.id}
+              title={
+                !hasVisit
+                  ? "Open the link first"
+                  : !cameBack
+                    ? "Return from the other tab first"
+                    : holdLeft > 0
+                      ? `Wait ${Math.ceil(holdLeft / 1000)}s`
+                      : "Confirm this task"
+              }
+              onClick={() => void confirmTask(task)}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {done ? (
+                <>
+                  <Check className="h-3 w-3" /> Done
+                </>
+              ) : busyTask === task.id ? (
+                "…"
+              ) : canConfirm ? (
+                "Confirm"
+              ) : (
+                <>
+                  <Lock className="h-3 w-3" /> Confirm
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -320,8 +538,9 @@ function AccessPage() {
           {WHITELIST_REQUIRED_COUNT} tasks → your invite → Aura OS
         </p>
         <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Own a company staffed by AI employees. Complete these Building Culture community tasks,
-          confirm each step, claim a one-use invite, and enter Aura OS.
+          Own a company staffed by AI employees. For each task: tap Open, do the action in the new
+          tab, come back here — Confirm unlocks after a short wait (about 12 seconds) once you
+          return.
         </p>
 
         <Panel label="Your email" className="mt-10" glow>
@@ -358,7 +577,7 @@ function AccessPage() {
 
         <section className="mt-8 space-y-2.5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Required
+            Required · Open → do it → return → Confirm
           </p>
           {required.map((t) => (
             <TaskRow key={t.id} task={t} />

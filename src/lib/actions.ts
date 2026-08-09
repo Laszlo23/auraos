@@ -74,17 +74,30 @@ export type NewTask = {
   title: string;
   description?: string;
   agent?: string;
+  /** Prefer agent UUID when assigning from an employee card. */
+  agentId?: string;
   priority?: "low" | "medium" | "high" | "critical";
   roi?: number;
   activity?: string;
   /** Founder-originated dispatch (mission / button). Autonomy decides queue vs approval. */
   founderApproved?: boolean;
+  /**
+   * Direct assign from an employee card.
+   * Autonomy 0 still gates; otherwise queues immediately (founder already wrote the brief).
+   */
+  directAssign?: boolean;
 };
 
-function initialStatus(autonomy: number | undefined, founderApproved?: boolean) {
+function initialStatus(
+  autonomy: number | undefined,
+  opts: { founderApproved?: boolean; directAssign?: boolean },
+) {
+  if (opts.directAssign) {
+    return (autonomy ?? 0) <= 0 ? "pending_approval" : "queued";
+  }
   return taskStatusForAutonomy({
     autonomy,
-    founderApproved: founderApproved ?? true,
+    founderApproved: opts.founderApproved ?? true,
   });
 }
 
@@ -109,7 +122,7 @@ export function useDispatchTask() {
   return useMutation({
     mutationFn: async (task: NewTask) => {
       if (!company) throw new Error("No company yet");
-      let agentId = findAgent(task.agent);
+      let agentId = task.agentId ?? findAgent(task.agent);
       if (!agentId && task.agent && AGENT_ROSTER[task.agent]) {
         agentId = await hireAgentIfNeeded(company.id, task.agent);
       }
@@ -120,41 +133,99 @@ export function useDispatchTask() {
             : "No agents hired yet.",
         );
       }
-      const status = initialStatus(company.autonomy, task.founderApproved ?? true);
-      const { error } = await supabase.from("tasks").insert({
-        company_id: company.id,
-        agent_id: agentId,
-        title: task.title,
-        description: task.description ?? null,
-        status,
-        priority: task.priority ?? "medium",
-        roi: task.roi ?? 0,
-        progress: 0,
+
+      const { data: agentRow } = await supabase
+        .from("agents")
+        .select("id, name, paused")
+        .eq("id", agentId)
+        .eq("company_id", company.id)
+        .maybeSingle();
+      if (!agentRow) throw new Error("Employee not found on this company.");
+      if (agentRow.paused) {
+        throw new Error(`${agentRow.name} is paused — resume them before assigning.`);
+      }
+
+      const status = initialStatus(company.autonomy, {
+        founderApproved: task.founderApproved ?? true,
+        directAssign: task.directAssign,
       });
-      if (error) throw error;
+      const title = task.title.trim();
+      if (title.length < 4) throw new Error("Give a clearer one-line task.");
+
+      const { data: created, error } = await supabase
+        .from("tasks")
+        .insert({
+          company_id: company.id,
+          agent_id: agentId,
+          title,
+          description: task.description?.trim() || null,
+          status,
+          priority: task.priority ?? "medium",
+          roi: task.roi ?? 0,
+          progress: 0,
+        })
+        .select("id, status")
+        .single();
+      if (error || !created) throw error ?? new Error("Could not create task");
+
+      await supabase
+        .from("agents")
+        .update({
+          current_task: title.slice(0, 180),
+          activity: Math.max(55, 40),
+          status: "active",
+        })
+        .eq("id", agentId);
+
+      const who = agentRow.name;
       await supabase.from("activity_events").insert({
         company_id: company.id,
         agent_id: agentId,
-        kind: "task",
+        kind: task.directAssign ? "decision" : "task",
         message:
           status === "pending_approval"
-            ? `Awaiting approval: ${task.activity ?? task.title}`
-            : (task.activity ?? task.title),
+            ? task.directAssign
+              ? `Founder assigned ${who} (needs approval): ${task.activity ?? title}`
+              : `Awaiting approval: ${task.activity ?? title}`
+            : task.directAssign
+              ? `Founder assigned ${who}: ${task.activity ?? title}`
+              : (task.activity ?? title),
       });
+
       if (status === "queued") {
-        const tick = await kickWorker();
+        const tick = await kickWorker(created.id);
         if (!tick?.ok) {
-          // Task is still queued — cron can pick it up; be honest with the caller
-          return { status, workerRan: false as const };
+          return { status, workerRan: false as const, taskId: created.id, agentName: who };
         }
-        return { status, workerRan: true as const, tasksProcessed: tick.tasksProcessed };
+        return {
+          status,
+          workerRan: true as const,
+          tasksProcessed: tick.tasksProcessed,
+          taskId: created.id,
+          agentName: who,
+        };
       }
-      return { status, workerRan: false as const };
+      return { status, workerRan: false as const, taskId: created.id, agentName: who };
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       void qc.invalidateQueries({ queryKey: ["table", "tasks"] });
       void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
       void qc.invalidateQueries({ queryKey: ["table", "agents"] });
+      if (res.status === "pending_approval") {
+        toast.success(
+          res.agentName
+            ? `Assigned to ${res.agentName} — approve on Command Center to run`
+            : "Task awaiting your approval",
+        );
+      } else if (res.workerRan) {
+        toast.success(
+          res.agentName ? `${res.agentName} is on it` : "Task queued — agents executing",
+        );
+      } else {
+        toast.success(
+          res.agentName ? `${res.agentName} queued — worker will pick it up` : "Task queued",
+        );
+      }
     },
     onError: (e) =>
       toast.error(e instanceof Error ? e.message : "Couldn't reach the agents — try again."),
@@ -220,6 +291,42 @@ export function useApproveTask() {
   return useMutation({
     mutationFn: async (taskId: string) => {
       if (!company) throw new Error("No company yet");
+
+      const { data: task } = await supabase
+        .from("tasks")
+        .select("id, result, description, status")
+        .eq("id", taskId)
+        .eq("company_id", company.id)
+        .maybeSingle();
+      if (!task || task.status !== "pending_approval") {
+        throw new Error("Task is not waiting for approval");
+      }
+
+      // Social reply tasks: post the real reply instead of generic agent work.
+      const sourceKey = typeof task.result === "string" ? task.result : "";
+      if (sourceKey.startsWith("social-reply:")) {
+        const parts = sourceKey.split(":");
+        const provider = parts[1];
+        const externalId = parts.slice(2).join(":");
+        if (!provider || !externalId) throw new Error("Invalid social reply task");
+        const { data: eng } = await supabase
+          .from("channel_engagements")
+          .select("id, reply_body")
+          .eq("company_id", company.id)
+          .eq("provider", provider)
+          .eq("external_id", externalId)
+          .maybeSingle();
+        if (!eng) throw new Error("Engagement not found — open Channels to reply");
+        const { approveEngagementReply } = await import("@/lib/social.functions");
+        await approveEngagementReply({
+          data: {
+            engagementId: eng.id,
+            ...(eng.reply_body ? { reply: eng.reply_body } : {}),
+          },
+        });
+        return { kind: "social" as const, workerRan: false, tasksProcessed: 0, focusedOk: true };
+      }
+
       const { error } = await supabase
         .from("tasks")
         // steps/artifact are new columns — cast until generated Database types catch up
@@ -263,6 +370,7 @@ export function useApproveTask() {
       });
       const tick = await kickWorker(taskId);
       return {
+        kind: "task" as const,
         workerRan: Boolean(tick?.ok),
         tasksProcessed: tick?.tasksProcessed ?? 0,
         focusedOk: tick?.focusedTaskOk ?? null,
@@ -273,6 +381,11 @@ export function useApproveTask() {
       void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
       void qc.invalidateQueries({ queryKey: ["table", "agents"] });
       void qc.invalidateQueries({ queryKey: ["table", "knowledge_items"] });
+      void qc.invalidateQueries({ queryKey: ["table", "channel_engagements"] });
+      if (res.kind === "social") {
+        toast.success("Reply sent.");
+        return;
+      }
       if (res.focusedOk || (res.workerRan && res.tasksProcessed > 0)) {
         toast.success("Approved — agent ran plan, research, and filed a result.");
       } else if (res.workerRan) {
@@ -281,7 +394,7 @@ export function useApproveTask() {
         toast.success("Approved and queued. Worker will pick it up shortly.");
       }
     },
-    onError: () => toast.error("Couldn't approve that task."),
+    onError: (e: Error) => toast.error(e.message || "Couldn't approve that task."),
   });
 }
 
@@ -293,6 +406,32 @@ export function useRejectTask() {
   return useMutation({
     mutationFn: async (taskId: string) => {
       if (!company) throw new Error("No company yet");
+
+      const { data: task } = await supabase
+        .from("tasks")
+        .select("id, result, status")
+        .eq("id", taskId)
+        .eq("company_id", company.id)
+        .maybeSingle();
+      if (!task || task.status !== "pending_approval") {
+        throw new Error("Task is not waiting for approval");
+      }
+
+      const sourceKey = typeof task.result === "string" ? task.result : "";
+      if (sourceKey.startsWith("social-reply:")) {
+        const parts = sourceKey.split(":");
+        const provider = parts[1];
+        const externalId = parts.slice(2).join(":");
+        if (provider && externalId) {
+          await supabase
+            .from("channel_engagements")
+            .update({ status: "ignored" })
+            .eq("company_id", company.id)
+            .eq("provider", provider)
+            .eq("external_id", externalId);
+        }
+      }
+
       const { error } = await supabase
         .from("tasks")
         .update({ status: "failed", result: "Rejected by founder.", progress: 0 })
@@ -309,9 +448,10 @@ export function useRejectTask() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["table", "tasks"] });
       void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
+      void qc.invalidateQueries({ queryKey: ["table", "channel_engagements"] });
       toast.message("Proposal dismissed.");
     },
-    onError: () => toast.error("Couldn't reject that task."),
+    onError: (e: Error) => toast.error(e.message || "Couldn't reject that task."),
   });
 }
 

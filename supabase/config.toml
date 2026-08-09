@@ -60,6 +60,13 @@ enable_confirmations = false
 [auth.sms]
 enable_signup = false
 
+# Supabase OAuth 2.1 server (Aura as IdP for third-party clients).
+# Cloud: enable under Authentication → OAuth Server and set path `/oauth/consent`.
+[auth.oauth_server]
+enabled = true
+authorization_url_path = "/oauth/consent"
+allow_dynamic_registration = false
+
 [realtime]
 enabled = true
 

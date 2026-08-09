@@ -4,12 +4,26 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   ArrowRight,
+  Bot,
+  Building2,
+  ChartNoAxesCombined,
   ChevronDown,
+  CircleDollarSign,
   Disc3,
+  Heart,
   KeyRound,
+  MessageSquare,
   Play,
+  Quote,
+  Rocket,
+  Share2,
   Sparkles,
+  Timer,
   Trophy,
+  UserPlus,
+  Users,
+  Workflow,
+  type LucideIcon,
 } from "lucide-react";
 
 import { Chip, Panel } from "@/components/aura/primitives";
@@ -25,6 +39,7 @@ import { LiveProof } from "@/components/aura/live-proof";
 import { OnboardingTour } from "@/components/aura/tour";
 import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import { ShareKitTeaser } from "@/components/aura/share-kit";
+import { CompanyOrg } from "@/components/aura/company-org";
 import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
 import {
@@ -35,6 +50,7 @@ import {
   TOKEN_LAUNCH_LABEL,
   WHITELIST_REQUIRED_COUNT,
   WHITELIST_TASKS,
+  type WhitelistTaskId,
 } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,12 +61,12 @@ export const Route = createFileRoute("/")({
       { title: "Aura OS — Own a company. Let AI make money." },
       {
         name: "description",
-        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. Wake autonomous AI employees, give one mission, and own the upside. Invite-only founding cohort.`,
+        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. AI executes the work. You control the company. Invite-only founding companies.`,
       },
       { property: "og:title", content: "Aura OS — Own a company. Let AI make money." },
       {
         property: "og:description",
-        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. Not a chat window — a company you own. AI employees execute while you keep the upside.`,
+        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. You're the owner. The staff just happen to be AI — and you keep the upside.`,
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: SITE_URL },
@@ -62,25 +78,18 @@ export const Route = createFileRoute("/")({
         content: "Aura OS — a glowing cyan orbit mark on deep charcoal",
       },
       { property: "og:locale", content: "en_US" },
-      { property: "og:video", content: `${SITE_URL}/aura-teaser.mp4` },
-      { property: "og:video:secure_url", content: `${SITE_URL}/aura-teaser.mp4` },
-      { property: "og:video:type", content: "video/mp4" },
-      { property: "og:video:width", content: "1080" },
-      { property: "og:video:height", content: "1920" },
-      { name: "twitter:card", content: "player" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Aura OS — Own a company. Let AI make money." },
       {
         name: "twitter:description",
-        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. Wake AI employees. Give one mission. Own the upside.`,
+        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. AI executes the work. You control the company — and own the upside.`,
       },
       { name: "twitter:image", content: OG_IMAGE },
-      { name: "twitter:player", content: `${SITE_URL}/aura-teaser.mp4` },
-      { name: "twitter:player:width", content: "1080" },
-      { name: "twitter:player:height", content: "1920" },
-      { name: "twitter:player:stream", content: `${SITE_URL}/aura-teaser.mp4` },
-      { name: "twitter:player:stream:content_type", content: "video/mp4" },
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
+    links: [
+      { rel: "canonical", href: `${SITE_URL}/` },
+      { rel: "preload", as: "image", href: "/aura-teaser-poster.jpg", fetchPriority: "high" },
+    ],
     scripts: [
       {
         type: "application/ld+json",
@@ -89,7 +98,7 @@ export const Route = createFileRoute("/")({
           "@type": "VideoObject",
           name: "Aura OS — 15 second teaser",
           description:
-            "Own a company staffed by AI employees that execute real work — create, execute, earn, grow.",
+            "Own a company. AI employees execute real work — create, execute, earn, grow. You keep the upside.",
           thumbnailUrl: [`${SITE_URL}/aura-teaser-poster.jpg`],
           contentUrl: `${SITE_URL}/aura-teaser.mp4`,
           uploadDate: "2026-08-06",
@@ -101,12 +110,38 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const LOOP = [
-  { step: "CREATE", body: "You name the company. AI employees wake up ready to work." },
-  { step: "EXECUTE", body: "You give one goal in plain words. They split the work and do it." },
-  { step: "EARN", body: "You see real results — cost, proof, and money in — not chat fluff." },
-  { step: "GROW", body: "You reinvest. Hire better agents. The company compounds." },
+const LOOP: { step: string; body: string; icon: LucideIcon }[] = [
+  {
+    step: "CREATE",
+    body: "You name the company. AI employees wake up ready to work.",
+    icon: Building2,
+  },
+  {
+    step: "EXECUTE",
+    body: "You give one goal in plain words. They split the work and do it.",
+    icon: Workflow,
+  },
+  {
+    step: "EARN",
+    body: "You see real results — cost, proof, and money in — not chat fluff.",
+    icon: CircleDollarSign,
+  },
+  {
+    step: "GROW",
+    body: "You reinvest. Hire better agents. The company compounds.",
+    icon: ChartNoAxesCombined,
+  },
 ];
+
+const TASK_ICONS: Record<WhitelistTaskId, LucideIcon> = {
+  follow_x: UserPlus,
+  follow_farcaster: Users,
+  like_post: Heart,
+  comment_post: MessageSquare,
+  share_post: Quote,
+  discord: MessageSquare,
+  telegram: Share2,
+};
 
 /** Read-only preview of whitelist tasks — progress lives on /access. */
 function UnlockAccessBand() {
@@ -134,26 +169,36 @@ function UnlockAccessBand() {
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {required.map((t, i) => (
-            <div
-              key={t.id}
-              className="glass flex items-start gap-3 rounded-2xl px-4 py-3.5"
-            >
-              <span className="num mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-primary/12 text-[11px] font-semibold text-primary">
-                {i + 1}
-              </span>
-              <div className="min-w-0">
-                <p className="text-[13px] font-semibold">{t.label}</p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{t.hint}</p>
+          {required.map((t, i) => {
+            const Icon = TASK_ICONS[t.id];
+            return (
+              <div key={t.id} className="glass flex items-start gap-3 rounded-2xl px-4 py-3.5">
+                <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="num text-[10px] font-semibold tracking-[0.2em] text-primary/70">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <p className="text-[13px] font-semibold">{t.label}</p>
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{t.hint}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div className="glass flex items-start gap-3 rounded-2xl px-4 py-3.5 sm:col-span-2 lg:col-span-1">
-            <span className="num mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-gold/15 text-[11px] font-semibold text-gold">
-              {required.length + 1}
+            <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold">
+              <Users className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <p className="text-[13px] font-semibold">Join Discord or Telegram</p>
+              <div className="flex items-center gap-2">
+                <span className="num text-[10px] font-semibold tracking-[0.2em] text-gold/80">
+                  {String(required.length + 1).padStart(2, "0")}
+                </span>
+                <p className="text-[13px] font-semibold">Join Discord or Telegram</p>
+              </div>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
                 Pick one: {chat.map((c) => c.label).join(" · ")}
               </p>
@@ -192,48 +237,61 @@ const PILLARS = [
 ];
 
 /** The story. Four acts, one screen each — reads like a scroll on phone, like film on desktop. */
-const ACTS = [
+const ACTS: {
+  no: string;
+  kicker: string;
+  line: string;
+  body: string;
+  tone: "muted" | "primary" | "gold";
+  film: string | null;
+  icon: LucideIcon;
+}[] = [
   {
     no: "01",
     kicker: "The problem",
     line: "You are currently the whole company.",
     body: "Ops, growth, support, research, the books. Twelve tabs and one human. The ceiling is your calendar.",
-    tone: "muted" as const,
-    film: null as string | null,
+    tone: "muted",
+    film: null,
+    icon: Timer,
   },
   {
     no: "02",
     kicker: "The switch",
     line: "Wake the team.",
-    body: "CEO, growth, social, product, engineering, customers, finance, quant. You give one mission. They split it, execute it, report back.",
-    tone: "primary" as const,
+    body: "CEO, growth, sales, product, engineering, customers, finance, social. You give one mission. They split it, execute it, report back.",
+    tone: "primary",
     film: "/act-agents.mp4",
+    icon: Bot,
   },
   {
     no: "03",
     kicker: "The work",
     line: "They execute. You own the upside.",
-    body: "Every meaningful action shows who, what, when, cost, and result. Quant can trade with caps — as one employee, not the whole product.",
-    tone: "gold" as const,
+    body: "Every meaningful action shows who, what, when, cost, and result. Real business activity — not chat fluff. Optional specialists (like Quant) come later.",
+    tone: "gold",
     film: "/act-quant.mp4",
+    icon: CircleDollarSign,
   },
   {
     no: "04",
     kicker: "The loop",
     line: "Create. Execute. Earn. Grow.",
     body: "Completed work levels the company. Reinvest in better agents. Compete on the board. Build an economy of autonomous companies.",
-    tone: "primary" as const,
+    tone: "primary",
     film: "/act-rewards.mp4",
+    icon: Rocket,
   },
 ];
 
 const TICKER = [
   "OWN A COMPANY",
-  "AI MAKES MONEY",
+  "YOU OWN THE COMPANY",
+  "STAFF HAPPEN TO BE AI",
   "FAIR LAUNCH · 14 AUG 14:14 CEST",
   "CREATE → EXECUTE → EARN → GROW",
   "PROOF OF WORK",
-  "FOUNDING COHORT",
+  "FOUNDING COMPANIES",
   "AUTONOMOUS EMPLOYEES",
 ];
 
@@ -272,6 +330,17 @@ function Act({ act, index }: { act: (typeof ACTS)[number]; index: number }) {
       {act.film ? <ActFilm src={act.film} className="-z-10" /> : null}
       <div className={index % 2 === 1 ? "ml-auto max-w-2xl text-left sm:text-right" : "max-w-2xl"}>
         <div className={`flex items-center gap-3 ${index % 2 === 1 ? "sm:justify-end" : ""}`}>
+          <span
+            className={`grid h-9 w-9 place-items-center rounded-xl ${
+              act.tone === "gold"
+                ? "bg-gold/15 text-gold"
+                : act.tone === "primary"
+                  ? "bg-primary/15 text-primary"
+                  : "bg-foreground/8 text-muted-foreground"
+            }`}
+          >
+            <act.icon className="h-4 w-4" />
+          </span>
           <span className="num text-[11px] font-semibold tracking-[0.3em] text-primary">
             {act.no}
           </span>
@@ -424,8 +493,8 @@ function Landing() {
             transition={{ duration: 0.9, delay: 0.25 }}
             className="mt-6 max-w-lg text-[16px] leading-relaxed text-foreground/75 sm:text-[17px]"
           >
-            Wake autonomous AI employees. Give one mission. They execute — research, outreach,
-            product, trading — while you own the upside.
+            AI executes the work. You control the company. Give one mission — employees handle
+            research, outreach, sales, product, and operations — while you own the upside.
           </motion.p>
           <motion.p
             initial={{ opacity: 0 }}
@@ -480,6 +549,75 @@ function Landing() {
         </div>
       </section>
 
+      {/* Meme beat — ownership joke before documentation */}
+      <section className="relative z-10 flex min-h-[70svh] snap-start items-center overflow-hidden border-y border-primary/10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(34,211,238,0.08),transparent_50%),linear-gradient(180deg,transparent,rgba(0,0,0,0.35))]"
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-6 py-20 sm:py-28">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.6 }}
+            className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary"
+          >
+            The joke
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.75, delay: 0.05 }}
+            className="mt-4 max-w-3xl font-display text-[clamp(2.2rem,7vw,4.2rem)] leading-[0.98] tracking-tight"
+          >
+            You sleep.
+            <br />
+            <span className="text-primary">Your company doesn&apos;t.</span>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.7, delay: 0.12 }}
+            className="mt-5 max-w-lg text-[16px] leading-relaxed text-foreground/75"
+          >
+            You&apos;re the owner. The staff just happen to be AI.
+          </motion.p>
+          <motion.ul
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: 0.7, delay: 0.18 }}
+            className="mt-8 max-w-md space-y-2.5 text-[15px] text-muted-foreground"
+          >
+            {[
+              "Find customers",
+              "Build products",
+              "Run marketing",
+              "Research markets",
+              "Handle operations",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-3">
+                <span className="h-1 w-1 shrink-0 rotate-45 bg-primary" aria-hidden />
+                {item}
+              </li>
+            ))}
+          </motion.ul>
+          <motion.a
+            href="#how"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.28 }}
+            className="mt-10 inline-flex items-center gap-2 text-[13px] font-semibold text-primary underline-offset-4 hover:underline"
+          >
+            See how it works <ArrowRight className="h-3.5 w-3.5" />
+          </motion.a>
+        </div>
+      </section>
+
       {/* How it works — early, plain language */}
       <section
         id="how"
@@ -493,7 +631,7 @@ function Landing() {
             Create. Execute. Earn. Grow.
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            Not another chat window. A company you own — you give the goal, AI employees do the
+            You&apos;re the owner. The staff just happen to be AI — you give the goal, they do the
             work, you keep the upside.
           </p>
         </div>
@@ -505,14 +643,29 @@ function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ delay: i * 0.07, duration: 0.55 }}
-              className="glass rounded-3xl px-4 py-5"
+              className="glass relative rounded-3xl px-4 py-5"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
-                {l.step}
+              {i < LOOP.length - 1 ? (
+                <span
+                  aria-hidden
+                  className="absolute -right-2 top-1/2 z-[1] hidden -translate-y-1/2 text-primary/50 sm:block"
+                >
+                  →
+                </span>
+              ) : null}
+              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/12 text-primary">
+                <l.icon className="h-4 w-4" />
+              </span>
+              <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+                {String(i + 1).padStart(2, "0")} · {l.step}
               </p>
               <p className="mt-2 text-[13px] leading-snug text-muted-foreground">{l.body}</p>
             </motion.div>
           ))}
+        </div>
+
+        <div className="mt-12">
+          <CompanyOrg />
         </div>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
@@ -531,6 +684,8 @@ function Landing() {
         </div>
       </section>
 
+      <LiveProof />
+
       <UnlockAccessBand />
 
       {/* Fair launch — one countdown + socials (no duplicate rally column) */}
@@ -541,7 +696,10 @@ function Landing() {
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <h2 className="font-display text-[clamp(2rem,6vw,3.2rem)] leading-[0.98] tracking-tight">
             Fair launch.
-            <span className="block text-primary">Same clock for everyone.</span>
+            <span className="mt-1 flex items-center gap-3 text-primary">
+              <Rocket className="h-7 w-7 shrink-0 sm:h-8 sm:w-8" aria-hidden />
+              Same clock for everyone.
+            </span>
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
             Fair launch. No team-dump narrative — the countdown ends {TOKEN_LAUNCH_DISPLAY}. Join
@@ -562,8 +720,6 @@ function Landing() {
       </div>
 
       <Explainer />
-
-      <LiveProof />
 
       <ShareKitTeaser />
 
@@ -601,8 +757,8 @@ function Landing() {
             <span className="text-gold">Then own the upside.</span>
           </h2>
           <p className="mt-5 max-w-md text-[14px] leading-relaxed text-muted-foreground">
-            Founding seats open before the fair launch ({TOKEN_LAUNCH_DISPLAY}). Complete the
-            community tasks, unlock your invite, and wake a company that works while you sleep.
+            Founding company seats open before the fair launch ({TOKEN_LAUNCH_DISPLAY}). Complete
+            the community tasks, unlock your invite, and wake a company that works while you sleep.
           </p>
           <div className="mt-8">
             <FoundingCohort />
@@ -671,7 +827,7 @@ function Landing() {
             ) : (
               <form onSubmit={join} className="space-y-3">
                 <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  Leave your email and we&apos;ll send a code as the cohort opens — or skip the
+                  Leave your email and we&apos;ll send a code as founding seats open — or skip the
                   wait and earn access above.
                 </p>
                 <input

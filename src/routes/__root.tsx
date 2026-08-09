@@ -75,6 +75,49 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+/** Load GA after first paint so it does not compete with LCP / fonts. */
+function DeferredAnalytics() {
+  useEffect(() => {
+    const id = "G-PZMRS91Q88";
+    const boot = () => {
+      if (document.getElementById("aura-gtag")) return;
+      const w = window as Window & {
+        dataLayer?: unknown[];
+        gtag?: (...args: unknown[]) => void;
+      };
+      w.dataLayer = w.dataLayer || [];
+      w.gtag = function gtag(...args: unknown[]) {
+        w.dataLayer!.push(args);
+      };
+      w.gtag("js", new Date());
+      w.gtag("config", id, { send_page_view: true });
+      const s = document.createElement("script");
+      s.id = "aura-gtag";
+      s.async = true;
+      s.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+      document.head.appendChild(s);
+    };
+
+    const ric = (
+      window as Window & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      }
+    ).requestIdleCallback;
+    if (typeof ric === "function") {
+      const handle = ric(boot, { timeout: 3500 });
+      return () => {
+        (
+          window as Window & { cancelIdleCallback?: (id: number) => void }
+        ).cancelIdleCallback?.(handle);
+      };
+    }
+    const t = window.setTimeout(boot, 2200);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  return null;
+}
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -87,6 +130,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Aura OS runs your company as a living organism of autonomous AI employees — strategy, growth, sales, and operations, awake around the clock.",
       },
       { name: "author", content: "Aura OS" },
+      { name: "theme-color", content: "#07090e" },
+      { name: "robots", content: "index,follow,max-image-preview:large" },
       { property: "og:title", content: "Aura OS — The AI Company Operating System" },
       {
         property: "og:description",
@@ -106,25 +151,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       {
-        src: "https://www.googletagmanager.com/gtag/js?id=G-PZMRS91Q88",
-        async: true,
-      },
-      {
-        children: `window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-PZMRS91Q88');`,
-      },
-      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: SITE_NAME,
-          url: SITE_URL,
-          image: OG_IMAGE,
-          description:
-            "Aura OS runs your company as a living organism of autonomous AI employees — strategy, growth, sales, and operations, awake around the clock.",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: SITE_NAME,
+              url: SITE_URL,
+              image: OG_IMAGE,
+              description:
+                "Aura OS runs your company as a living organism of autonomous AI employees — strategy, growth, sales, and operations, awake around the clock.",
+            },
+            {
+              "@type": "Organization",
+              name: SITE_NAME,
+              url: SITE_URL,
+              logo: `${SITE_URL}/favicon.png`,
+              sameAs: ["https://x.com/buildingcultu3"],
+            },
+          ],
         }),
       },
     ],
@@ -133,7 +179,7 @@ gtag('config', 'G-PZMRS91Q88');`,
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap",
       },
       {
         rel: "stylesheet",
@@ -141,6 +187,7 @@ gtag('config', 'G-PZMRS91Q88');`,
       },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
+      { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
     ],
   }),
   shellComponent: RootShell,
@@ -168,10 +215,19 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+      >
+        Skip to content
+      </a>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AuroraField />
-      <Outlet />
+      <div id="main">
+        <Outlet />
+      </div>
       <Toaster position="top-center" />
+      <DeferredAnalytics />
     </QueryClientProvider>
   );
 }

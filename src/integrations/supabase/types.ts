@@ -2693,6 +2693,7 @@ export type Database = {
           share_post: boolean
           updated_at: string
           visitor_id: string
+          visits: Json
         }
         Insert: {
           chat_channel?: string | null
@@ -2708,6 +2709,7 @@ export type Database = {
           share_post?: boolean
           updated_at?: string
           visitor_id: string
+          visits?: Json
         }
         Update: {
           chat_channel?: string | null
@@ -2723,6 +2725,7 @@ export type Database = {
           share_post?: boolean
           updated_at?: string
           visitor_id?: string
+          visits?: Json
         }
         Relationships: []
       }
@@ -3169,6 +3172,10 @@ export type Database = {
       }
       get_whitelist_progress: {
         Args: { _email: string; _visitor_id: string }
+        Returns: Json
+      }
+      mark_whitelist_visit: {
+        Args: { _email: string; _task: string; _visitor_id: string }
         Returns: Json
       }
       redeem_invite_code: { Args: { _code: string }; Returns: boolean }

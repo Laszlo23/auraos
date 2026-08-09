@@ -1,24 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { cn } from "@/lib/utils";
 
 /**
  * Cinematic hero film — same asset as https://aibusiness.fun/
- * Served from `/aura-hero.mp4` (mirrored locally; Lovable `/__l5e` 404s outside Cloud).
- * Canvas aurora is only a fallback if the film fails to load.
+ * Served from `/aura-hero.mp4`. Canvas aurora is only a fallback if the film fails.
+ * Plays only while in view; respects prefers-reduced-motion (poster / canvas only).
  */
 export function HeroFilm({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoOk, setVideoOk] = useState(false);
+  const [inView, setInView] = useState(true);
+  const reducedMotion = usePrefersReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const scale = useTransform(scrollYProgress, [0, 1], [1.06, 1.24]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.15]);
 
   useEffect(() => {
-    if (videoOk) return;
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries[0]?.isIntersecting ?? false;
+        setInView(visible);
+      },
+      { rootMargin: "10% 0px", threshold: 0.05 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (videoOk || reducedMotion) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -67,23 +84,24 @@ export function HeroFilm({ className }: { className?: string }) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [videoOk]);
+  }, [videoOk, reducedMotion]);
 
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
+    if (!v || reducedMotion) return;
     const ok = () => setVideoOk(true);
     const fail = () => setVideoOk(false);
     v.addEventListener("loadeddata", ok);
     v.addEventListener("playing", ok);
     v.addEventListener("error", fail);
-    void v.play().catch(() => setVideoOk(false));
+    if (inView) void v.play().catch(() => setVideoOk(false));
+    else v.pause();
     return () => {
       v.removeEventListener("loadeddata", ok);
       v.removeEventListener("playing", ok);
       v.removeEventListener("error", fail);
     };
-  }, []);
+  }, [inView, reducedMotion]);
 
   return (
     <div
@@ -91,29 +109,37 @@ export function HeroFilm({ className }: { className?: string }) {
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
       aria-hidden="true"
     >
-      <motion.div style={{ scale, opacity }} className="absolute inset-0">
+      <motion.div style={{ scale: reducedMotion ? 1 : scale, opacity }} className="absolute inset-0">
         {!videoOk ? (
           <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         ) : null}
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster="/aura-teaser-poster.jpg"
-          className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
-            videoOk ? "opacity-100" : "opacity-0",
-          )}
-        >
-          {/* Production film mirrored locally from aibusiness.fun */}
-          <source src="/aura-hero.mp4" type="video/mp4" />
-        </video>
+        {!reducedMotion ? (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="/aura-teaser-poster.jpg"
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
+              videoOk ? "opacity-100" : "opacity-0",
+            )}
+          >
+            <source src="/aura-hero.mp4" type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src="/aura-teaser-poster.jpg"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+            decoding="async"
+            fetchPriority="high"
+          />
+        )}
       </motion.div>
 
-      {/* Same veil recipe as production — readable type, film still present */}
       <div className="absolute inset-0 bg-background/62" />
       <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_0%,transparent,var(--background)_82%)]" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" />

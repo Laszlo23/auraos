@@ -1,7 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Chip, Meter, PageHeader, Panel, Shimmer } from "@/components/aura/primitives";
+import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { currency, timeAgo } from "@/lib/format";
 import { listRevenueMissions } from "@/lib/revenue-mission.functions";
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/missions")({
 });
 
 function MissionsPage() {
+  const [peekMissionId, setPeekMissionId] = useState<string | null>(null);
   const { data: missions = [], isLoading } = useQuery({
     queryKey: ["revenue-missions"],
     queryFn: () => listRevenueMissions(),
@@ -43,10 +46,10 @@ function MissionsPage() {
         <ul className="space-y-3">
           {missions.map((m) => (
             <li key={m.id}>
-              <Link
-                to="/missions/$id"
-                params={{ id: m.id }}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 px-4 py-3 transition hover:border-primary/30"
+              <button
+                type="button"
+                onClick={() => setPeekMissionId(m.id)}
+                className="flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 px-4 py-3 text-left transition hover:border-primary/30"
               >
                 <div className="min-w-0">
                   <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
@@ -73,11 +76,19 @@ function MissionsPage() {
                     {m.status}
                   </Chip>
                 </div>
-              </Link>
+              </button>
             </li>
           ))}
         </ul>
       </Panel>
+
+      <MissionDetailSheet
+        missionId={peekMissionId}
+        open={Boolean(peekMissionId)}
+        onOpenChange={(next) => {
+          if (!next) setPeekMissionId(null);
+        }}
+      />
     </div>
   );
 }

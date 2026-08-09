@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { Check, Link2, Loader2, MessageCircle, Radio, RefreshCw, Send, Sparkles } from "lucide-react";
@@ -10,9 +10,11 @@ import { PageHeader, Panel, Chip, Pulse, Meter, DataRow } from "@/components/aur
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import {
   SOCIALS,
+  SHARE_CLIP_OPTIONS,
   useConnectChannel,
   useDisconnectChannel,
   useLaunchDripStatus,
+  usePublishShareClip,
   usePublishSocial,
   useSetReplyMode,
   useSocialStatus,
@@ -26,7 +28,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { compact, timeAgo } from "@/lib/format";
 import { TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 import { cn } from "@/lib/utils";
-
 export const Route = createFileRoute("/_authenticated/channels")({
   head: () => ({
     meta: [
@@ -89,6 +90,7 @@ function ChannelsPage() {
   const connect = useConnectChannel();
   const disconnect = useDisconnectChannel();
   const publish = usePublishSocial();
+  const publishClip = usePublishShareClip();
   const setReplyMode = useSetReplyMode();
   const toggleAuto = useToggleAutoPublish();
   const award = useAwardXp();
@@ -101,6 +103,7 @@ function ChannelsPage() {
   const [toast, setToast] = useState<{ label: string; amount: number } | null>(null);
   const [composeProvider, setComposeProvider] = useState<SocialProvider>("x");
   const [composeBody, setComposeBody] = useState("");
+  const [clipId, setClipId] = useState(SHARE_CLIP_OPTIONS[0]?.id ?? "4am");
   const [editing, setEditing] = useState(false);
   const DEFAULT_INSTRUCTION =
     "Publish two posts a week per channel. Never announce a restock before inventory clears fourteen days of cover. Match the brand's calm voice. Reply to comments warmly and briefly.";
@@ -171,11 +174,45 @@ function ChannelsPage() {
         title="Channels"
         description="One click to connect X, Meta (Facebook + Instagram) or LinkedIn. Your agents publish, listen, and reply — you keep the veto."
         actions={
-          <Chip tone="primary">
-            <Sparkles className="h-3 w-3" /> {connected}/3 live
-          </Chip>
+          <div className="flex flex-wrap items-center gap-2">
+            {company?.slug ? (
+              <Link
+                to="/company/$slug"
+                params={{ slug: company.slug }}
+                className="rounded-2xl border border-border/50 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-primary"
+              >
+                Public receipts
+              </Link>
+            ) : null}
+            <Chip tone="primary">
+              <Sparkles className="h-3 w-3" /> {connected}/3 live
+            </Chip>
+          </div>
         }
       />
+
+      {xStatus?.connected && xStatus.needsReconnect ? (
+        <Panel label="Reconnect X for native video" glow>
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            Your X token is missing <span className="font-mono text-[11px]">media.write</span>.
+            Reconnect once so drip posts and clip publishes can attach the MP4 — not just the watch
+            link.
+          </p>
+          <button
+            type="button"
+            disabled={pending === "x"}
+            onClick={() => void onConnect("x")}
+            className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground"
+          >
+            {pending === "x" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Link2 className="h-3.5 w-3.5" />
+            )}
+            Reconnect X
+          </button>
+        </Panel>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-3">
         {SOCIALS.map((s, i) => {
@@ -334,9 +371,10 @@ function ChannelsPage() {
 
       <Panel label="Fair-launch X drip" glow>
         <p className="text-[12px] leading-relaxed text-muted-foreground">
-          Schedule ~2–3 posts/day through {TOKEN_LAUNCH_DISPLAY}. Each tweet is text + a watch link
-          to the share kit clip. Connect X with OAuth (never a password). Autopublish must stay on
-          for the worker to send them. Mentions use reply mode below.
+          Schedule ~2–3 posts/day through {TOKEN_LAUNCH_DISPLAY}. Each tweet is a short line + watch
+          link, and when <span className="font-mono text-[11px]">media.write</span> is granted the
+          worker attaches the native MP4. Connect X with OAuth (never a password). Autopublish must
+          stay on for the worker to send them.
         </p>
         {!xStatus?.connected ? (
           <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">
@@ -522,6 +560,61 @@ function ChannelsPage() {
               Schedule +1h
             </button>
           </div>
+        </Panel>
+
+        <Panel label="Post share-kit clip to X" glow>
+          <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
+            Native MP4 upload + caption. Requires{" "}
+            <span className="font-mono text-[11px]">media.write</span> (reconnect X if prompted).
+            Leaves a receipt on your public company page.
+          </p>
+          <select
+            value={clipId}
+            onChange={(e) => setClipId(e.target.value)}
+            aria-label="Share kit clip"
+            className="w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] outline-none"
+          >
+            {SHARE_CLIP_OPTIONS.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            disabled={!xStatus?.connected || publishClip.isPending}
+            onClick={() =>
+              publishClip.mutate(
+                { sharePostId: clipId },
+                {
+                  onSuccess: (res) => {
+                    celebrate("Clip on X", 80, "publish:clip");
+                    notify.success(res.externalUrl ? "Clip posted with video." : "Posted.");
+                    if (res.externalUrl) {
+                      window.open(res.externalUrl, "_blank", "noopener,noreferrer");
+                    }
+                  },
+                  onError: (e) =>
+                    notify.error(
+                      e instanceof Error
+                        ? e.message
+                        : "Clip publish failed — reconnect X for media.write",
+                    ),
+                },
+              )
+            }
+            className="mt-3 inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            {publishClip.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Radio className="h-3.5 w-3.5" />
+            )}
+            {publishClip.isPending ? "Uploading video…" : "Post clip with video"}
+          </button>
+          {xStatus?.connected && !xStatus.canPostVideo ? (
+            <p className="mt-2 text-[11px] text-gold">Reconnect X above first to unlock video.</p>
+          ) : null}
         </Panel>
 
         <Panel label="Standing instruction" delay={0.06}>

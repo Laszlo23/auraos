@@ -1,0 +1,146 @@
+import { Link } from "@tanstack/react-router";
+
+import { AssignAgentTask } from "@/components/aura/assign-agent-task";
+import { Chip, Panel } from "@/components/aura/primitives";
+import { agentStatusLine, agentVoice } from "@/lib/agent-personality";
+import { currency } from "@/lib/format";
+import { cn } from "@/lib/utils";
+
+export type WorkforceAgent = {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  activity: number;
+  current_task: string | null;
+  paused?: boolean;
+  performance?: number | null;
+  tasks_completed?: number | null;
+  credits_used?: number | null;
+  revenue_generated?: number | null;
+  status?: string | null;
+};
+
+type TaskLite = {
+  id: string;
+  status: string;
+  agent_id?: string | null;
+};
+
+type Props = {
+  agents: WorkforceAgent[];
+  tasks: TaskLite[];
+};
+
+function failedCount(agentId: string, tasks: TaskLite[]) {
+  return tasks.filter((t) => t.agent_id === agentId && t.status === "failed").length;
+}
+
+export function WorkforceBoard({ agents, tasks }: Props) {
+  return (
+    <Panel
+      label="AI workforce"
+      delay={0.08}
+      action={
+        <Link
+          to="/agents"
+          className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:text-primary"
+        >
+          View all
+        </Link>
+      }
+    >
+      <p className="mb-4 text-[13px] text-muted-foreground">
+        You own the company. They do the work. Metrics below are from the roster — zeros when
+        nothing real has happened.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {agents.map((a) => {
+          const fails = failedCount(a.id, tasks);
+          const voice = agentVoice(a.name);
+          const line = agentStatusLine(a.name, {
+            paused: a.paused,
+            activity: a.activity,
+            currentTask: a.current_task,
+            failed: fails > 0 && (a.activity ?? 0) < 20,
+          });
+          const active =
+            !a.paused && ((a.activity ?? 0) > 40 || Boolean(a.current_task?.trim()));
+          return (
+            <div
+              key={a.id}
+              className={cn(
+                "rounded-2xl border border-border/50 bg-foreground/[0.03] p-4",
+                active && "border-primary/30",
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-foreground/8 text-base">
+                  {a.avatar}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-semibold tracking-tight">{a.name}</p>
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                    {a.role}
+                  </p>
+                </div>
+                <Chip tone={a.paused ? undefined : active ? "primary" : undefined}>
+                  {a.paused ? "Paused" : active ? "Active" : "Idle"}
+                </Chip>
+              </div>
+              <p className="mt-3 text-[12px] italic leading-snug text-muted-foreground">
+                {voice.tagline}
+              </p>
+              <p className="mt-2 line-clamp-2 text-[13px] leading-snug text-foreground/85">
+                {a.current_task?.trim() || line}
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
+                <span>Done · {a.tasks_completed ?? 0}</span>
+                <span>Failed · {fails}</span>
+                <span>AURA · {a.credits_used ?? 0}</span>
+                <span>
+                  Attributed ·{" "}
+                  {(a.revenue_generated ?? 0) > 0
+                    ? currency(a.revenue_generated ?? 0)
+                    : "$0"}
+                </span>
+              </div>
+              {(a.performance ?? 0) > 0 ? (
+                <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                  Performance {a.performance}
+                </p>
+              ) : null}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <AssignAgentTask
+                  agentId={a.id}
+                  agentName={a.name}
+                  paused={a.paused}
+                  variant="inline"
+                />
+                <Link
+                  to="/tasks"
+                  className="rounded-xl bg-foreground/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+                >
+                  View work
+                </Link>
+                {a.name === "Atlas" ? (
+                  <Link
+                    to="/ceo"
+                    className="rounded-xl bg-foreground/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+                  >
+                    Ask Atlas
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+        {agents.length === 0 ? (
+          <p className="text-[13px] text-muted-foreground sm:col-span-2">
+            No employees hired yet — start a mission and Atlas will staff the plan.
+          </p>
+        ) : null}
+      </div>
+    </Panel>
+  );
+}

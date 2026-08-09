@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
-const LINES = ["waking the eight", "arming the trading desk", "loading the reserve"];
+const LINES = ["waking the eight", "loading the roster", "loading the reserve"];
 
 /**
  * Cinematic boot curtain. Plays once per browser session so returning

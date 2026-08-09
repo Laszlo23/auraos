@@ -116,7 +116,8 @@ async function planRun(opts: {
   const raw = await askAi(
     `You plan cold-outreach / research runs for Aura OS. Return ONLY JSON:
 {"queries":string[]}.
-queries: 3-6 concrete web search queries to find prospects matching the goal. No invented facts. Language mix DE/EN ok for EU.`,
+queries: 3-6 concrete web search queries to find prospects matching the goal. No invented facts. Language mix DE/EN ok for EU.
+Never translate product names in queries (Discord, Telegram, LinkedIn stay English).`,
     `Template: ${opts.template.id}
 Goal: ${opts.goal}
 Brief: ${opts.brief}

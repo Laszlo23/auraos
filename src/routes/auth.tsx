@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
@@ -19,9 +19,33 @@ const SAFE_NEXT = new Set(["/console", "/missions", "/akquise", "/trading", "/on
 /** Accounts newer than this are treated as first-time signups for invite burn. */
 const NEW_USER_WINDOW_MS = 2 * 60 * 1000;
 
-function safeNextPath(next?: string): "/console" | "/missions" | "/akquise" | "/trading" | "/onboarding" {
+type PostAuthDest =
+  | "/console"
+  | "/missions"
+  | "/akquise"
+  | "/trading"
+  | "/onboarding"
+  | `/oauth/consent?${string}`;
+
+/** Same-origin return to Supabase OAuth Server consent UI. */
+function oauthConsentReturn(next?: string): PostAuthDest | null {
+  if (!next || !next.startsWith("/oauth/consent")) return null;
+  try {
+    const url = new URL(next, SITE_URL);
+    if (url.origin !== SITE_URL || url.pathname !== "/oauth/consent") return null;
+    const id = url.searchParams.get("authorization_id");
+    if (!id) return null;
+    return `/oauth/consent?authorization_id=${encodeURIComponent(id)}`;
+  } catch {
+    return null;
+  }
+}
+
+function safeNextPath(next?: string): PostAuthDest {
+  const consent = oauthConsentReturn(next);
+  if (consent) return consent;
   if (next && SAFE_NEXT.has(next)) {
-    return next as "/console" | "/missions" | "/akquise" | "/trading" | "/onboarding";
+    return next as PostAuthDest;
   }
   return "/console";
 }
@@ -139,7 +163,7 @@ function peekStoredInvite() {
   }
 }
 
-function authRedirectUrl(mode?: AuthMode) {
+function authRedirectUrl(mode?: AuthMode, next?: string) {
   // Prefer canonical production origin so magic-link / OAuth emails always hit the allowlist.
   // Localhost keeps window origin so local Docker auth still works.
   const host = typeof window !== "undefined" ? window.location.hostname : "";
@@ -147,15 +171,20 @@ function authRedirectUrl(mode?: AuthMode) {
     host === "localhost" || host === "127.0.0.1"
       ? window.location.origin
       : SITE_URL;
-  const q = mode ? `?mode=${mode}` : "";
-  return `${origin}/auth${q}`;
+  const params = new URLSearchParams();
+  if (mode) params.set("mode", mode);
+  const consent = oauthConsentReturn(next);
+  if (consent) params.set("next", consent);
+  const q = params.toString();
+  return q ? `${origin}/auth?${q}` : `${origin}/auth`;
 }
 
-async function resolvePostAuthPath(
-  explicitNext?: string,
-): Promise<"/console" | "/missions" | "/akquise" | "/trading" | "/onboarding"> {
+async function resolvePostAuthPath(explicitNext?: string): Promise<PostAuthDest> {
+  const consent = oauthConsentReturn(explicitNext);
+  if (consent) return consent;
+
   if (explicitNext && explicitNext !== "/console" && SAFE_NEXT.has(explicitNext)) {
-    return explicitNext as "/console" | "/missions" | "/akquise" | "/trading" | "/onboarding";
+    return explicitNext as PostAuthDest;
   }
 
   const { data: auth } = await supabase.auth.getUser();
@@ -316,16 +345,10 @@ function AuthPage() {
   }
 
   /**
-   * Redeem invite for brand-new users only. Returning users clear leftover storage
-   * without consuming uses. Storage-only — never falls back to React invite state.
+   * Ensure the signed-in user has a company seat (invite redemption or referral)
+   * before leaving /auth. Server RLS also enforces this on companies INSERT.
    */
   async function burnInviteIfNeeded(user: User): Promise<boolean> {
-    if (!isNewUser(user)) {
-      takeStoredInvite();
-      return true;
-    }
-
-    // Prior successful redeem (or race after first finishPostAuth) — do not block.
     const { data: prior } = await supabase
       .from("invite_redemptions")
       .select("user_id")
@@ -336,16 +359,41 @@ function AuthPage() {
       return true;
     }
 
+    const { data: existingCompany } = await supabase
+      .from("companies")
+      .select("id")
+      .eq("owner_id", user.id)
+      .limit(1)
+      .maybeSingle();
+    if (existingCompany) {
+      takeStoredInvite();
+      return true;
+    }
+
+    const { data: referralRow } = await supabase
+      .from("referrals")
+      .select("id")
+      .eq("referred_id", user.id)
+      .maybeSingle();
+    if (referralRow) {
+      takeStoredInvite();
+      return true;
+    }
+
     const referral = (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase();
     if (referral) {
-      const { data } = await supabase.rpc("referral_code_valid", { _code: referral });
-      if (data) {
-        takeStoredInvite();
-        return true;
+      const { data: valid } = await supabase.rpc("referral_code_valid", { _code: referral });
+      if (valid) {
+        const { data: attributed } = await supabase.rpc("attribute_referral", { _code: referral });
+        if (attributed) {
+          takeStoredInvite();
+          takeStoredRef();
+          return true;
+        }
       }
     }
 
-    const code = takeStoredInvite();
+    const code = takeStoredInvite() || invite.trim().toUpperCase() || null;
     if (!code) return false;
 
     const { data, error } = await supabase.rpc("redeem_invite_code", { _code: code });
@@ -400,7 +448,15 @@ function AuthPage() {
 
       const dest = await resolvePostAuthPath(nextFromLinkRef.current);
       postAuthDoneRef.current = true;
-      if (!cancelledRef.current) navigate({ to: dest });
+      if (!cancelledRef.current) {
+        if (dest.startsWith("/oauth/consent")) {
+          window.location.assign(dest);
+        } else {
+          navigate({
+            to: dest as "/console" | "/missions" | "/akquise" | "/trading" | "/onboarding",
+          });
+        }
+      }
       return true;
     } finally {
       finishingRef.current = false;
@@ -562,7 +618,10 @@ function AuthPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: authRedirectUrl(mode === "signup" ? "signup" : "signin"),
+          redirectTo: authRedirectUrl(
+            mode === "signup" ? "signup" : "signin",
+            nextFromLinkRef.current,
+          ),
           queryParams: { access_type: "offline", prompt: "consent" },
           skipBrowserRedirect: true,
         },
@@ -805,6 +864,17 @@ function AuthPage() {
                 }}
                 className="space-y-3"
               >
+                <p className="rounded-2xl border border-gold/25 bg-gold/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
+                  You&apos;re signed in — enter your invite to open your company. Don&apos;t have one
+                  yet?{" "}
+                  <Link
+                    to="/access"
+                    className="font-semibold text-primary underline-offset-2 hover:underline"
+                  >
+                    Earn one on the whitelist
+                  </Link>
+                  .
+                </p>
                 <input
                   id="auth-invite-continue"
                   required

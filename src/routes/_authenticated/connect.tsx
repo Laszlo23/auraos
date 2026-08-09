@@ -282,9 +282,19 @@ function ConnectPage() {
               status={live ? "connected" : available ? "idle" : "soon"}
             >
               {live ? (
-                <Action tone="ghost" onClick={() => disconnectChannel.mutate(s.id)}>
-                  Disconnect
-                </Action>
+                <div className="flex flex-wrap items-center gap-2">
+                  {s.id === "x" ? (
+                    <Link
+                      to="/channels"
+                      className="rounded-2xl bg-primary/14 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary transition-opacity hover:opacity-80"
+                    >
+                      Open Channels → drip
+                    </Link>
+                  ) : null}
+                  <Action tone="ghost" onClick={() => disconnectChannel.mutate(s.id)}>
+                    Disconnect
+                  </Action>
+                </div>
               ) : available ? (
                 <Action
                   loading={pending === s.id}
@@ -298,6 +308,15 @@ function ConnectPage() {
             </Row>
           );
         })}
+        {byProvider.get("x")?.status === "connected" || statusByProvider.get("x")?.connected ? (
+          <div className="border-t border-border/40 px-4 py-3 text-[12.5px] leading-relaxed text-muted-foreground">
+            X is linked. Next:{" "}
+            <Link to="/channels" className="font-semibold text-primary hover:underline">
+              Channels
+            </Link>{" "}
+            → turn on Autopublish → start fair-launch drip.
+          </div>
+        ) : null}
       </Panel>
 
       <Panel label="Mailbox" bodyClassName="p-0" delay={0.1}>

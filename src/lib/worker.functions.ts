@@ -6,6 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * Founder-triggered worker tick — runs with the user session, not WORKER_SECRET.
  * Used after Approve so agents actually process queued tasks immediately.
  * Pass taskId to execute that task first (plan → research → deliverable).
+ * Always scoped to the caller's company (never global).
  */
 export const triggerWorkerTick = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -23,9 +24,10 @@ export const triggerWorkerTick = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!company) throw new Error("No company");
 
+    const companyId = company.id as string;
+
     const { processTaskQueue, processOneTask, publishDueChannelPosts, syncSocialEngagement } =
       await import("@/lib/task-worker.server");
-    const { runTradingTick } = await import("@/lib/trading-worker.server");
 
     let one: { ok: boolean; error?: string } | null = null;
     if (data.taskId) {
@@ -33,18 +35,17 @@ export const triggerWorkerTick = createServerFn({ method: "POST" })
         .from("tasks")
         .select("id")
         .eq("id", data.taskId)
-        .eq("company_id", company.id)
+        .eq("company_id", companyId)
         .maybeSingle();
       if (owned?.id) {
         one = await processOneTask(owned.id);
       }
     }
 
-    // Other queued work; skip re-running the focused task if it just completed
-    const tasks = await processTaskQueue(data.taskId ? 4 : 8);
-    const channels = await publishDueChannelPosts(20);
-    const engagement = await syncSocialEngagement(20);
-    const trading = await runTradingTick();
+    // Tenant-scoped only — cron `/api/workers/tick` remains the global runner.
+    const tasks = await processTaskQueue(data.taskId ? 4 : 8, companyId);
+    const channels = await publishDueChannelPosts(20, companyId);
+    const engagement = await syncSocialEngagement(20, companyId);
 
     const tasksProcessed = (one?.ok ? 1 : 0) + tasks.processed;
     return {
@@ -57,6 +58,5 @@ export const triggerWorkerTick = createServerFn({ method: "POST" })
       focusedTaskOk: one?.ok ?? null,
       channels,
       engagement,
-      trading,
     };
   });

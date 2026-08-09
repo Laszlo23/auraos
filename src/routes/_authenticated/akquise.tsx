@@ -344,20 +344,25 @@ function AkquisePage() {
             placeholder="Region — e.g. Wien, Österreich"
             className="rounded-2xl border border-border bg-foreground/5 px-4 py-3 text-[13px] outline-none focus:border-primary/40"
           />
-          <div className="flex items-center gap-1 rounded-2xl bg-foreground/6 p-1">
-            {(["de", "en"] as const).map((lang) => (
-              <button
-                key={lang}
-                type="button"
-                onClick={() => setLanguage(lang)}
-                className={cn(
-                  "flex-1 rounded-xl px-3 py-2 text-[11px]",
-                  language === lang ? "bg-primary/16 text-primary" : "text-muted-foreground",
-                )}
-              >
-                {lang.toUpperCase()}
-              </button>
-            ))}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1 rounded-2xl bg-foreground/6 p-1">
+              {(["de", "en"] as const).map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => setLanguage(lang)}
+                  className={cn(
+                    "flex-1 rounded-xl px-3 py-2 text-[11px]",
+                    language === lang ? "bg-primary/16 text-primary" : "text-muted-foreground",
+                  )}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <p className="px-1 text-[10px] leading-snug text-muted-foreground">
+              DE: klares Alltagsdeutsch. Markennamen bleiben Englisch (Discord, Telegram, LinkedIn).
+            </p>
           </div>
         </div>
         <textarea

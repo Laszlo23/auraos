@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 
+import { AssignAgentTask } from "@/components/aura/assign-agent-task";
 import { Chip, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
 import { useCompanyTable } from "@/hooks/use-aura";
@@ -195,6 +196,16 @@ function AgentsPage() {
               <p className="mt-2 text-sm leading-relaxed">
                 {open.current_task || "Waiting for founder direction"}
               </p>
+
+              <div className="mt-6">
+                <AssignAgentTask
+                  agentId={open.id}
+                  agentName={open.name}
+                  paused={open.paused}
+                  variant="sheet"
+                  onAssigned={() => setOpen(null)}
+                />
+              </div>
 
               <p className="mt-6 text-xs uppercase tracking-[0.2em] text-muted-foreground">
                 Memory ({memoryFactCount(open.memory)} facts)

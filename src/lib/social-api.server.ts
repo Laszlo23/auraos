@@ -11,14 +11,22 @@ export async function publishToProvider(
   provider: SocialProvider,
   companyId: string,
   body: string,
-  opts?: { replyToExternalId?: string | null },
+  opts?: { replyToExternalId?: string | null; sharePostId?: string | null },
 ): Promise<PublishResult> {
   const conn = await loadConnectionSecrets(companyId, provider);
   if (!conn) throw new Error(`Connect ${provider} first.`);
 
   switch (provider) {
-    case "x":
-      return publishX(conn.accessToken, body, opts?.replyToExternalId);
+    case "x": {
+      let mediaIds: string[] | undefined;
+      if (opts?.sharePostId) {
+        const { loadShareVideoBytes } = await import("@/lib/share-media.server");
+        const { bytes } = await loadShareVideoBytes(opts.sharePostId);
+        const mediaId = await uploadXVideo(conn.accessToken, bytes);
+        mediaIds = [mediaId];
+      }
+      return publishX(conn.accessToken, body, opts?.replyToExternalId, mediaIds);
+    }
     case "linkedin":
       return publishLinkedIn(conn.accessToken, conn.externalUserId, body);
     case "meta":
@@ -30,13 +38,114 @@ export async function publishToProvider(
   }
 }
 
+/** Chunked X API v2 media upload (OAuth 2.0 user token + media.write). */
+export async function uploadXVideo(token: string, bytes: Buffer): Promise<string> {
+  const initRes = await fetch("https://api.x.com/2/media/upload/initialize", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      media_type: "video/mp4",
+      total_bytes: bytes.length,
+      media_category: "tweet_video",
+    }),
+  });
+  const initJson = (await initRes.json()) as {
+    data?: { id?: string };
+    detail?: string;
+    title?: string;
+    errors?: Array<{ message?: string }>;
+  };
+  const mediaId = initJson.data?.id;
+  if (!initRes.ok || !mediaId) {
+    throw new Error(
+      initJson.detail ||
+        initJson.title ||
+        initJson.errors?.[0]?.message ||
+        "X media INIT failed — reconnect X to grant media.write",
+    );
+  }
+
+  const CHUNK = 2 * 1024 * 1024;
+  let segment = 0;
+  for (let offset = 0; offset < bytes.length; offset += CHUNK) {
+    const chunk = bytes.subarray(offset, Math.min(offset + CHUNK, bytes.length));
+    const form = new FormData();
+    form.append(
+      "media",
+      new Blob([new Uint8Array(chunk)], { type: "application/octet-stream" }),
+      `segment-${segment}.mp4`,
+    );
+    form.append("segment_index", String(segment));
+    const appendRes = await fetch(`https://api.x.com/2/media/upload/${mediaId}/append`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+    if (!appendRes.ok) {
+      const err = await appendRes.text().catch(() => "");
+      throw new Error(err || `X media APPEND failed at segment ${segment}`);
+    }
+    segment += 1;
+  }
+
+  const finRes = await fetch(`https://api.x.com/2/media/upload/${mediaId}/finalize`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const finJson = (await finRes.json()) as {
+    data?: {
+      processing_info?: {
+        state?: string;
+        check_after_secs?: number;
+        error?: { message?: string };
+      };
+    };
+    detail?: string;
+    title?: string;
+  };
+  if (!finRes.ok) {
+    throw new Error(finJson.detail || finJson.title || "X media FINALIZE failed");
+  }
+
+  let info = finJson.data?.processing_info;
+  let polls = 0;
+  while (info && (info.state === "pending" || info.state === "in_progress") && polls < 40) {
+    const wait = Math.max(2, Math.min(20, info.check_after_secs ?? 5)) * 1000;
+    await new Promise((r) => setTimeout(r, wait));
+    const statusRes = await fetch(`https://api.x.com/2/media/upload?media_id=${mediaId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const statusJson = (await statusRes.json()) as {
+      data?: {
+        processing_info?: {
+          state?: string;
+          check_after_secs?: number;
+          error?: { message?: string };
+        };
+      };
+    };
+    info = statusJson.data?.processing_info;
+    polls += 1;
+  }
+  if (info?.state === "failed") {
+    throw new Error(info.error?.message || "X media processing failed");
+  }
+
+  return mediaId;
+}
+
 async function publishX(
   token: string,
   text: string,
   replyTo?: string | null,
+  mediaIds?: string[],
 ): Promise<PublishResult> {
   const payload: Record<string, unknown> = { text: text.slice(0, 280) };
   if (replyTo) payload["reply"] = { in_reply_to_tweet_id: replyTo };
+  if (mediaIds?.length) payload["media"] = { media_ids: mediaIds };
   const res = await fetch("https://api.twitter.com/2/tweets", {
     method: "POST",
     headers: {
@@ -302,12 +411,21 @@ export async function draftSocialReply(opts: {
   provider: string;
 }): Promise<string> {
   try {
+    const { detectAiLang, languageStyleBlock, sanitizeBrandNames } =
+      await import("@/lib/ai-language");
+    const lang = detectAiLang(opts.comment);
     const json = (await agentJson(
-      `You are ${opts.provider === "linkedin" ? "Orin" : "Vela"}, the growth agent for ${opts.companyName}. Write one short public reply. Calm, helpful, on-brand. No hashtags spam. Under 220 characters for X when needed. Return JSON {"reply":"..."}.`,
+      `You are ${opts.provider === "linkedin" ? "Orin" : "Vela"}, the growth agent for ${opts.companyName}. Write one short public reply.
+${languageStyleBlock(lang)}
+Calm, helpful, on-brand. No hashtag spam. Under 220 characters for X when needed. Match the commenter's language.
+Return JSON {"reply":"..."}.`,
       `Standing instruction: ${opts.instruction ?? "Match the brand's calm voice."}\nAuthor: ${opts.author ?? "someone"}\nComment: ${opts.comment}`,
       "reply",
     )) as { reply?: string };
-    return (json.reply ?? "Thanks for sharing that — we'll take a look.").trim();
+    const reply = sanitizeBrandNames(
+      (json.reply ?? (lang === "de" ? "Danke fürs Teilen — wir schauen uns das an." : "Thanks for sharing that — we'll take a look.")).trim(),
+    );
+    return reply;
   } catch {
     return "Thanks for the note — appreciated.";
   }

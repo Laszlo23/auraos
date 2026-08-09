@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 
 import { Chip, Meter, Panel, Pulse } from "@/components/aura/primitives";
+import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
 import { AGENT_ROSTER } from "@/lib/agent-roster";
 import { autonomyLabel } from "@/lib/company-economy";
 import { currency, timeAgo } from "@/lib/format";
@@ -36,6 +36,7 @@ export function RevenueMissionsBand() {
   const [risk, setRisk] = useState<"low" | "medium" | "high">("medium");
   const [ackedDecisions, setAckedDecisions] = useState<Record<string, boolean>>({});
   const [ackedFeasibility, setAckedFeasibility] = useState(false);
+  const [peekMissionId, setPeekMissionId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -183,11 +184,11 @@ export function RevenueMissionsBand() {
 
   return (
     <div className="space-y-5">
-      <Panel label="Revenue Missions" glow delay={0.01}>
+      <Panel label="Primary mission" glow delay={0.01}>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
-          You set the goal and the constraints. Atlas drafts a plan you can challenge — then you
-          start. Settled USDC only from the ledger; everything else is labeled projected. Autonomy:{" "}
-          {autonomyLabel(company?.autonomy)}.
+          What do you want your company to achieve? Atlas drafts the plan. You approve. Employees
+          execute. Settled USDC only from the ledger — everything else is labeled projected.
+          Autonomy: {autonomyLabel(company?.autonomy)}.
         </p>
 
         <label className="mt-5 block">
@@ -198,7 +199,7 @@ export function RevenueMissionsBand() {
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             rows={3}
-            placeholder='e.g. "Make €1,000 this week with trading — I will deposit €10"'
+            placeholder='I want to make €1,000 selling websites to Austrian businesses this month.'
             aria-label="Revenue mission goal"
             disabled={phase === "building" || phase === "starting"}
             className="mt-2 w-full resize-none rounded-2xl border border-border bg-foreground/5 px-4 py-3 text-sm outline-none focus:border-primary/40 disabled:opacity-60"
@@ -212,7 +213,7 @@ export function RevenueMissionsBand() {
                 type="button"
                 disabled={goal.trim().length < 8}
                 onClick={openBriefing}
-                className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
               >
                 Review with Atlas
               </button>
@@ -222,9 +223,9 @@ export function RevenueMissionsBand() {
                   type="button"
                   disabled={createMut.isPending}
                   onClick={() => createMut.mutate()}
-                  className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                  className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary-foreground disabled:opacity-50"
                 >
-                  Build the plan
+                  {createMut.isPending ? "Atlas planning…" : "Build Atlas plan"}
                 </button>
                 <button
                   type="button"
@@ -336,10 +337,16 @@ export function RevenueMissionsBand() {
                   )}
                 </div>
               )}
-              {revealStep >= 3 && plan && (
+                  {revealStep >= 3 && plan && (
                 <>
-                  <p className="text-sm font-medium">Here is the plan for you to own.</p>
-                  <p className="text-[13px] leading-relaxed text-muted-foreground">{plan.summary}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+                    Mission
+                  </p>
+                  <p className="text-sm font-medium">{draft.goal_text}</p>
+                  <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                    Atlas recommends
+                  </p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{plan.summary}</p>
                   {plan.feasibility_note && (
                     <p className="rounded-2xl border border-border/60 bg-foreground/[0.03] px-4 py-3 text-[13px]">
                       <span className="font-semibold capitalize">{plan.feasibility}</span>
@@ -363,7 +370,7 @@ export function RevenueMissionsBand() {
                     <MiniStat
                       label="Projected revenue"
                       value={currency(draft.projected?.revenue_usdc ?? 0)}
-                      hint="projected — not settled"
+                      hint="Projection — not actual revenue"
                     />
                     <MiniStat
                       label="Offer math"
@@ -501,12 +508,12 @@ export function RevenueMissionsBand() {
                         type="button"
                         disabled={startMut.isPending || !canStart}
                         onClick={() => startMut.mutate(draft.id)}
-                        className="rounded-2xl bg-foreground px-5 py-2.5 text-xs font-semibold text-background disabled:opacity-50"
+                        className="rounded-2xl bg-foreground px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-background disabled:opacity-50"
                       >
                         {startMut.isPending
                           ? "Starting…"
                           : canStart
-                            ? "Start mission"
+                            ? "Approve plan"
                             : "Confirm your calls above"}
                       </button>
                       <button
@@ -522,13 +529,13 @@ export function RevenueMissionsBand() {
                     </div>
                   )}
                   {draft.status !== "planned" && (
-                    <Link
-                      to="/missions/$id"
-                      params={{ id: draft.id }}
+                    <button
+                      type="button"
+                      onClick={() => setPeekMissionId(draft.id)}
                       className="inline-block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary"
                     >
                       Open mission →
-                    </Link>
+                    </button>
                   )}
                 </>
               )}
@@ -540,7 +547,7 @@ export function RevenueMissionsBand() {
       {!isLoading && missions.length > 0 && (
         <div className="grid gap-3 md:grid-cols-2">
           {missions.slice(0, 4).map((m) => (
-            <MissionCard key={m.id} mission={m} />
+            <MissionCard key={m.id} mission={m} onOpen={() => setPeekMissionId(m.id)} />
           ))}
         </div>
       )}
@@ -551,8 +558,17 @@ export function RevenueMissionsBand() {
           onExecute={() => nbaMut.mutate(active.id)}
           onRefreshNba={() => refreshNba.mutate(active.id)}
           executing={nbaMut.isPending}
+          onOpenDetail={() => setPeekMissionId(active.id)}
         />
       )}
+
+      <MissionDetailSheet
+        missionId={peekMissionId}
+        open={Boolean(peekMissionId)}
+        onOpenChange={(next) => {
+          if (!next) setPeekMissionId(null);
+        }}
+      />
     </div>
   );
 }
@@ -601,15 +617,21 @@ function MiniStat({ label, value, hint }: { label: string; value: string; hint: 
   );
 }
 
-function MissionCard({ mission }: { mission: RevenueMissionRow }) {
+function MissionCard({
+  mission,
+  onOpen,
+}: {
+  mission: RevenueMissionRow;
+  onOpen: () => void;
+}) {
   const actual = mission.actuals?.revenue_usdc ?? 0;
   const progress = Math.round((mission.progress ?? 0) * 100);
   const feasibility = mission.plan?.feasibility;
   return (
-    <Link
-      to="/missions/$id"
-      params={{ id: mission.id }}
-      className="glass-soft block rounded-2xl p-4 transition hover:border-primary/30"
+    <button
+      type="button"
+      onClick={onOpen}
+      className="glass-soft block w-full rounded-2xl p-4 text-left transition hover:border-primary/30"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -633,7 +655,7 @@ function MissionCard({ mission }: { mission: RevenueMissionRow }) {
           <p className="font-semibold tabular-nums">{currency(actual)}</p>
         </div>
         <div>
-          <p className="text-muted-foreground">Projected rev</p>
+          <p className="text-muted-foreground">Projected (not actual)</p>
           <p className="tabular-nums">{currency(mission.projected?.revenue_usdc ?? 0)}</p>
         </div>
         <div>
@@ -647,7 +669,7 @@ function MissionCard({ mission }: { mission: RevenueMissionRow }) {
           {progress}% · actual / target (0 until ledger settlement)
         </p>
       </div>
-    </Link>
+    </button>
   );
 }
 
@@ -656,11 +678,13 @@ function ActiveMissionStrip({
   onExecute,
   onRefreshNba,
   executing,
+  onOpenDetail,
 }: {
   mission: RevenueMissionRow;
   onExecute: () => void;
   onRefreshNba: () => void;
   executing: boolean;
+  onOpenDetail: () => void;
 }) {
   const { data: detail } = useQuery({
     queryKey: ["revenue-mission", mission.id],
@@ -762,13 +786,13 @@ function ActiveMissionStrip({
             Compute next best action →
           </button>
         )}
-        <Link
-          to="/missions/$id"
-          params={{ id: mission.id }}
+        <button
+          type="button"
+          onClick={onOpenDetail}
           className="mt-4 block text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-primary"
         >
           Full mission detail →
-        </Link>
+        </button>
       </Panel>
     </div>
   );

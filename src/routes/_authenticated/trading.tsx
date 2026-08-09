@@ -473,8 +473,9 @@ function TradingPage() {
             <p className="mt-3 text-[12px] text-gold/90">{readiness.blockReason}</p>
           )}
           <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">
-            Markets can lose money. Caps limit damage; Disarm stops new risk. Swaps settle on Base
-            through your smart wallet — never invented fills.
+            Trading involves risk. Past or projected performance does not guarantee future results.
+            Caps limit damage; Disarm stops new risk. Swaps settle on Base through your smart wallet —
+            never invented fills. Experimental · high risk when stretching capital.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <DataRow label="Approved strategies" value={approvedCount} tone="primary" />

@@ -48,6 +48,7 @@ export function ShareKit({
   const [captionIx, setCaptionIx] = useState(0);
   const [copied, setCopied] = useState<"caption" | "link" | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [mediaArmed, setMediaArmed] = useState(false);
   const [busy, setBusy] = useState<"dl" | "native" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -70,11 +71,13 @@ export function ShareKit({
   useEffect(() => {
     setCaptionIx(0);
     setPlaying(false);
+    setMediaArmed(false);
     setCopied(null);
     const v = videoRef.current;
     if (v) {
       v.pause();
-      v.currentTime = 0;
+      v.removeAttribute("src");
+      v.load();
     }
   }, [activeId]);
 
@@ -198,6 +201,18 @@ export function ShareKit({
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
+      if (!mediaArmed) {
+        setMediaArmed(true);
+        v.src = shareVideoSrc(post.file);
+        v.load();
+        const onReady = () => {
+          v.removeEventListener("canplay", onReady);
+          void v.play().catch(() => undefined);
+          setPlaying(true);
+        };
+        v.addEventListener("canplay", onReady);
+        return;
+      }
       void v.play().catch(() => undefined);
       setPlaying(true);
     } else {
@@ -215,10 +230,10 @@ export function ShareKit({
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
             Share kit · free for everyone
           </p>
-          <h2 className="mt-2 font-display text-[clamp(1.75rem,5vw,2.75rem)] leading-[0.98] tracking-tight">
+          <h1 className="mt-2 font-display text-[clamp(1.75rem,5vw,2.75rem)] leading-[0.98] tracking-tight">
             Steal these posts.
             <span className="block text-muted-foreground">Share the hosted clip.</span>
-          </h2>
+          </h1>
           <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
             Pick a clip, copy a caption, and share the watch link — the video stays hosted on Aura.
             Download the MP4 only when a platform needs a native upload (LinkedIn, TikTok, Reels).
@@ -277,12 +292,10 @@ export function ShareKit({
               poster={sharePosterSrc(post.file)}
               playsInline
               loop
-              preload="metadata"
+              preload="none"
               onPlay={() => setPlaying(true)}
               onPause={() => setPlaying(false)}
-            >
-              <source src={shareVideoSrc(post.file)} type="video/mp4" />
-            </video>
+            />
             <button
               type="button"
               onClick={togglePlay}
@@ -447,9 +460,20 @@ export function ShareKitTeaser({ className }: { className?: string }) {
               <span className="block text-primary">Hosted clips.</span>
             </h2>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-              Copy a caption that doesn&apos;t sound like a press release. Share the watch link — or
-              download for native upload. Everyone can share — no invite required.
+              You own the company. The staff just happen to be AI — captions and watch links that
+              sound like that, not a press release. Download for native upload when you need it.
             </p>
+            <ul className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <li className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">
+                <Copy className="h-3 w-3 text-primary" /> Caption
+              </li>
+              <li className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">
+                <Link2 className="h-3 w-3 text-primary" /> Watch link
+              </li>
+              <li className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">
+                <Download className="h-3 w-3 text-primary" /> MP4
+              </li>
+            </ul>
             <Link
               to="/share"
               onClick={() => trackTeaser("share", { placement: "landing_kit_cta" })}
@@ -476,6 +500,7 @@ export function ShareKitTeaser({ className }: { className?: string }) {
                   src={sharePosterSrc(p.file)}
                   alt=""
                   loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <span className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />

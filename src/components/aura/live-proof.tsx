@@ -1,9 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
+import {
+  Activity,
+  ArrowRight,
+  Bot,
+  Building2,
+  ListTodo,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Pulse } from "@/components/aura/primitives";
-import { useNetworkTotals } from "@/hooks/use-public";
+import { useNetworkTotals, usePublicFeed, type FeedRow } from "@/hooks/use-public";
 
 /**
  * Permanent proof strip on the landing page. Every number is read from the
@@ -14,27 +21,54 @@ function liveValue(n: number | null | undefined, ready: boolean): string {
   return Number(n ?? 0).toLocaleString();
 }
 
+function feedLine(row: FeedRow): { who: string; what: string } | null {
+  const who = row.handle?.trim() || row.source || "Aura";
+  const what = (row.title || row.detail || row.kind || "Activity").trim();
+  const lower = what.toLowerCase();
+  // Hide reply-draft / approval spam from the public proof strip.
+  if (
+    lower.includes("approve") &&
+    (lower.includes("reply") || lower.includes("comment"))
+  ) {
+    return null;
+  }
+  if (lower.startsWith("draft:") || lower.includes("social-reply")) {
+    return null;
+  }
+  return { who, what };
+}
+
 export function LiveProof() {
   const { data, isSuccess, isError } = useNetworkTotals();
+  const feed = usePublicFeed(4);
   const ready = isSuccess || isError;
-  const stats = [
+  const stats: { label: string; value: string; icon: LucideIcon }[] = [
     {
       label: "Companies on Aura OS",
       value: liveValue(data?.companies, ready),
+      icon: Building2,
     },
     {
       label: "AI employees at work",
       value: liveValue(data?.agents, ready),
+      icon: Bot,
     },
     {
       label: "Open tasks",
       value: liveValue(data?.tasks, ready),
+      icon: ListTodo,
     },
     {
       label: "Actions in 24h",
       value: liveValue(data?.actions_24h, ready),
+      icon: Activity,
     },
   ];
+
+  const lines = (feed.data ?? [])
+    .map(feedLine)
+    .filter((line): line is { who: string; what: string } => line !== null)
+    .slice(0, 4);
 
   return (
     <section className="relative z-10 mx-auto max-w-6xl px-6 py-10">
@@ -48,7 +82,7 @@ export function LiveProof() {
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
-              <Pulse /> Live system
+              <Pulse /> Live right now
             </p>
             <h2 className="font-display text-[clamp(1.5rem,4vw,2.4rem)] leading-[1.05] tracking-tight">
               The operating system is already online.
@@ -67,7 +101,13 @@ export function LiveProof() {
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.label} className="border-t border-border/50 pt-4 sm:border-t-0 sm:border-l sm:pl-5 sm:pt-0 first:border-l-0 first:pl-0">
+            <div
+              key={s.label}
+              className="border-t border-border/50 pt-4 sm:border-t-0 sm:border-l sm:pl-5 sm:pt-0 first:border-l-0 first:pl-0"
+            >
+              <span className="mb-3 grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
+                <s.icon className="h-3.5 w-3.5" />
+              </span>
               <p className="num text-[clamp(1.75rem,4vw,2.4rem)] font-semibold leading-none tracking-tight">
                 {s.value}
               </p>
@@ -77,6 +117,29 @@ export function LiveProof() {
             </div>
           ))}
         </div>
+
+        {lines.length > 0 ? (
+          <div className="mt-8 border-t border-border/40 pt-5">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              Latest activity
+            </p>
+            <ul className="space-y-2.5">
+              {lines.map((line, i) => (
+                <li
+                  key={`${line.who}-${line.what}-${i}`}
+                  className="flex items-start gap-2.5 text-[13px] leading-snug text-muted-foreground"
+                >
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+                  <span>
+                    <span className="font-medium text-foreground/90">{line.who}</span>
+                    <span className="text-muted-foreground/50"> · </span>
+                    {line.what}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </motion.div>
     </section>
   );

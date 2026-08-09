@@ -1,41 +1,61 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import {
+  Brain,
+  ChevronDown,
+  ClipboardCheck,
+  Moon,
+  Scale,
+  ShieldCheck,
+  UserRoundPlus,
+  type LucideIcon,
+} from "lucide-react";
 
 /**
  * The "explain it to anyone" section. No jargon, no acronyms — three plain
  * sentences, three steps, and an honest answer to "why can't I just sign up?".
  */
-const STEPS = [
+const STEPS: {
+  no: string;
+  title: string;
+  body: string;
+  icon: LucideIcon;
+}[] = [
   {
     no: "01",
     title: "You describe the business",
     body: "In normal words. \u201cI sell apartments in Vienna.\u201d That\u2019s enough to start.",
+    icon: ClipboardCheck,
   },
   {
     no: "02",
     title: "AI employees get hired",
-    body: "A CEO, a marketer, a salesperson, a trader. Each one has a job, a memory and a budget.",
+    body: "A CEO, a marketer, a salesperson, product, ops. Each one has a job, a memory and a budget.",
+    icon: UserRoundPlus,
   },
   {
     no: "03",
     title: "They work while you sleep",
-    body: "They find leads, write posts, place trades, and report back in one short summary.",
+    body: "They find leads, write posts, ship work, and report back in one short summary.",
+    icon: Moon,
   },
 ];
 
-const WHY = [
+const WHY: { title: string; body: string; icon: LucideIcon }[] = [
   {
     title: "Because it never forgets",
     body: "Every agent writes to one shared company memory. Ask a question today and it answers with everything the company learned since day one.",
+    icon: Brain,
   },
   {
     title: "Because work is measured, not promised",
     body: "Every action has a cost and a result attached. You see what each employee earned or spent \u2014 not a chat log.",
+    icon: Scale,
   },
   {
     title: "Because you stay the boss",
     body: "Nothing spends money or goes public until you approve it. You can pause any employee mid-task.",
+    icon: ShieldCheck,
   },
 ];
 
@@ -62,7 +82,7 @@ export function Explainer() {
   const [open, setOpen] = useState<number | null>(2);
 
   return (
-    <section id="how" className="relative z-10 mx-auto max-w-6xl scroll-mt-20 px-6 py-20">
+    <section id="plain" className="relative z-10 mx-auto max-w-6xl scroll-mt-20 px-6 py-20">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -89,7 +109,12 @@ export function Explainer() {
             transition={{ delay: i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="glass rounded-3xl p-6"
           >
-            <span className="num text-[11px] tracking-[0.3em] text-primary">{s.no}</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/12 text-primary">
+                  <s.icon className="h-4 w-4" />
+              </span>
+              <span className="num text-[11px] tracking-[0.3em] text-primary">{s.no}</span>
+            </div>
             <p className="mt-4 text-[15px] font-semibold leading-snug">{s.title}</p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{s.body}</p>
           </motion.div>
@@ -103,9 +128,14 @@ export function Explainer() {
           </p>
           <div className="mt-6 space-y-6">
             {WHY.map((w) => (
-              <div key={w.title} className="border-l border-primary/30 pl-5">
-                <p className="text-[14px] font-semibold">{w.title}</p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{w.body}</p>
+              <div key={w.title} className="flex gap-4 border-l border-primary/30 pl-5">
+                <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <w.icon className="h-3.5 w-3.5" />
+                </span>
+                <div>
+                  <p className="text-[14px] font-semibold">{w.title}</p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{w.body}</p>
+                </div>
               </div>
             ))}
           </div>

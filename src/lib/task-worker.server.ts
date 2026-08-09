@@ -3,21 +3,26 @@ import { executeTask } from "@/lib/task-execute.server";
 /**
  * Process queued/running tasks with real plan → research → synthesize execution.
  * Never picks up pending_approval — founder must approve first.
+ * Pass `companyId` for founder-triggered ticks (tenant-scoped). Cron omits it (global).
  */
 export async function processTaskQueue(
   limit = 5,
+  companyId?: string,
 ): Promise<{ processed: number; errors: string[] }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const errors: string[] = [];
   let processed = 0;
 
-  const { data: tasks, error } = await supabaseAdmin
+  let q = supabaseAdmin
     .from("tasks")
     .select("id, status")
     .in("status", ["queued", "running", "queue", "pending"])
     .lt("progress", 100)
     .order("created_at", { ascending: true })
     .limit(limit);
+  if (companyId) q = q.eq("company_id", companyId);
+
+  const { data: tasks, error } = await q;
 
   if (error) return { processed: 0, errors: [error.message] };
   if (!tasks?.length) return { processed: 0, errors: [] };
@@ -41,16 +46,18 @@ export async function processOneTask(
 }
 
 /** Publish due scheduled posts via live social APIs when tokens exist. */
-export async function publishDueChannelPosts(limit = 20) {
+export async function publishDueChannelPosts(limit = 20, companyId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { publishToProvider } = await import("@/lib/social-api.server");
   const now = new Date().toISOString();
-  const { data: due } = await supabaseAdmin
+  let q = supabaseAdmin
     .from("channel_posts")
     .select("id, company_id, provider, body, agent_name, reply_to_external_id")
     .eq("status", "scheduled")
     .lte("scheduled_at", now)
     .limit(limit);
+  if (companyId) q = q.eq("company_id", companyId);
+  const { data: due } = await q;
 
   let published = 0;
   const errors: string[] = [];
@@ -71,8 +78,13 @@ export async function publishDueChannelPosts(limit = 20) {
         continue;
       }
 
+      const { sharePostIdFromBody } = await import("@/lib/share-media.server");
+      const sharePostId =
+        provider === "x" ? sharePostIdFromBody(String(post.body ?? "")) : null;
+
       const result = await publishToProvider(provider, post.company_id, post.body, {
         replyToExternalId: post.reply_to_external_id,
+        sharePostId,
       });
       await supabaseAdmin
         .from("channel_posts")
@@ -103,17 +115,19 @@ export async function publishDueChannelPosts(limit = 20) {
 }
 
 /** Pull comments/mentions and auto-reply (or draft) based on reply_mode. */
-export async function syncSocialEngagement(limitCompanies = 20) {
+export async function syncSocialEngagement(limitCompanies = 20, companyId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { fetchRecentComments, draftSocialReply, replyToEngagement } =
     await import("@/lib/social-api.server");
 
-  const { data: connections } = await supabaseAdmin
+  let q = supabaseAdmin
     .from("channel_connections")
     .select("id, company_id, provider, reply_mode, handle")
     .eq("status", "connected")
     .neq("reply_mode", "off")
     .limit(limitCompanies);
+  if (companyId) q = q.eq("company_id", companyId);
+  const { data: connections } = await q;
 
   let ingested = 0;
   let replied = 0;
@@ -145,6 +159,10 @@ export async function syncSocialEngagement(limitCompanies = 20) {
         .maybeSingle();
       if (existing?.status === "replied" || existing?.status === "ignored") continue;
 
+      // Already drafted once — do not spawn another "Approve … reply" task every tick.
+      const alreadyDrafted = existing?.status === "drafted";
+      if (alreadyDrafted) continue;
+
       let engagementId = existing?.id;
       if (!engagementId) {
         const { data: inserted } = await supabaseAdmin
@@ -175,6 +193,8 @@ export async function syncSocialEngagement(limitCompanies = 20) {
         provider,
       });
 
+      const replySourceKey = `social-reply:${provider}:${c.externalId}`;
+
       // Autonomy 0 always drafts for founder approval, even if reply_mode is auto
       const forceDraft = (company?.autonomy ?? 0) === 0 || conn.reply_mode === "draft";
 
@@ -183,13 +203,13 @@ export async function syncSocialEngagement(limitCompanies = 20) {
           .from("channel_engagements")
           .update({ status: "drafted", reply_body: reply })
           .eq("id", engagementId);
-        await supabaseAdmin.from("tasks").insert({
-          company_id: conn.company_id,
-          title: `Approve ${provider} reply to ${c.authorHandle ?? "comment"}`,
-          description: `Draft: ${reply}\n\nOriginal: ${c.body}`,
-          status: "pending_approval",
-          priority: "high",
-          progress: 0,
+        await insertSocialReplyTaskOnce({
+          companyId: conn.company_id,
+          provider,
+          author: c.authorHandle ?? "comment",
+          reply,
+          original: c.body,
+          sourceKey: replySourceKey,
         });
         continue;
       }
@@ -222,10 +242,47 @@ export async function syncSocialEngagement(limitCompanies = 20) {
             .from("channel_engagements")
             .update({ status: "drafted", reply_body: reply })
             .eq("id", engagementId);
+          await insertSocialReplyTaskOnce({
+            companyId: conn.company_id,
+            provider,
+            author: c.authorHandle ?? "comment",
+            reply,
+            original: c.body,
+            sourceKey: replySourceKey,
+          });
         }
       }
     }
   }
 
   return { ingested, replied };
+}
+
+/** One approval task per social mention — keyed in `result` for idempotency across ticks. */
+async function insertSocialReplyTaskOnce(opts: {
+  companyId: string;
+  provider: string;
+  author: string;
+  reply: string;
+  original: string;
+  sourceKey: string;
+}) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: existingTask } = await supabaseAdmin
+    .from("tasks")
+    .select("id")
+    .eq("company_id", opts.companyId)
+    .eq("result", opts.sourceKey)
+    .maybeSingle();
+  if (existingTask) return;
+
+  await supabaseAdmin.from("tasks").insert({
+    company_id: opts.companyId,
+    title: `Approve ${opts.provider} reply to ${opts.author}`,
+    description: `Draft: ${opts.reply}\n\nOriginal: ${opts.original}`,
+    status: "pending_approval",
+    priority: "high",
+    progress: 0,
+    result: opts.sourceKey,
+  });
 }

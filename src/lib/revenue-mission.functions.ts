@@ -529,7 +529,7 @@ export const startRevenueMission = createServerFn({ method: "POST" })
     if (status === "queued") {
       try {
         const { processTaskQueue } = await import("@/lib/task-worker.server");
-        await processTaskQueue(Math.min(6, agents.length));
+        await processTaskQueue(Math.min(6, agents.length), company.id);
       } catch {
         /* non-fatal */
       }
@@ -783,7 +783,7 @@ export const executeNextBestAction = createServerFn({ method: "POST" })
     if (effectiveStatus === "queued") {
       try {
         const { processTaskQueue } = await import("@/lib/task-worker.server");
-        await processTaskQueue(2);
+        await processTaskQueue(2, company.id);
       } catch {
         /* ignore */
       }

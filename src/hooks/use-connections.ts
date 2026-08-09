@@ -5,11 +5,13 @@ import {
   disconnectSocial,
   getLaunchDripStatus,
   getSocialStatus,
+  publishShareClipToX,
   publishSocialNow,
   setSocialReplyMode,
   startLaunchDripCampaign,
   startSocialConnect,
 } from "@/lib/social.functions";
+import { SHARE_POSTS } from "@/lib/share-posts";
 import { supabase } from "@/integrations/supabase/client";
 
 export type SocialProvider = "x" | "meta" | "linkedin";
@@ -33,6 +35,7 @@ export type SocialStatus = {
   available: boolean;
   connected: boolean;
   needsReconnect?: boolean;
+  canPostVideo?: boolean;
   handle: string | null;
   followers: number;
   engagement: number;
@@ -179,6 +182,33 @@ export function usePublishSocial() {
     },
   });
 }
+
+export function usePublishShareClip() {
+  const qc = useQueryClient();
+  const { data: company } = useCompany();
+  return useMutation({
+    mutationFn: async (input: { sharePostId: string; caption?: string }) => {
+      if (!company) throw new Error("No company yet.");
+      return publishShareClipToX({
+        data: {
+          companyId: company.id,
+          sharePostId: input.sharePostId,
+          ...(input.caption != null ? { caption: input.caption } : {}),
+        },
+      });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["table", "channel_posts"] });
+      void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
+      void qc.invalidateQueries({ queryKey: ["social-status"] });
+    },
+  });
+}
+
+export const SHARE_CLIP_OPTIONS = SHARE_POSTS.slice(0, 8).map((p) => ({
+  id: p.id,
+  title: p.title,
+}));
 
 export function useSetReplyMode() {
   const qc = useQueryClient();

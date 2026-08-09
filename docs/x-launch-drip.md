@@ -77,7 +77,9 @@ Connect X (OAuth)
 - Cadence: slots at **09:14 / 13:14 / 18:14 CEST**, quiet before 07:00.
 - Ends at `TOKEN_LAUNCH_AT` (`14 Aug 2026 · 14:14 CEST`) from [`src/lib/site.ts`](../src/lib/site.ts).
 - Bodies are ≤280 chars: short line + `https://aibusiness.fun/v/{postId}`.
-- **No native video upload to X** (OAuth2 media gap). Humans can still download MP4s from `/share`.
+- Worker attaches the native MP4 when the X token includes `media.write` (reconnect Channels → X after scope add).
+- Humans can still download MP4s from `/share`.
+- Public company receipts: `/company/{slug}` (activity, roster, posts).
 - Re-seeding is idempotent via unique `(company_id, campaign_key)`.
 
 Migration required once:
@@ -108,20 +110,27 @@ Callback URL must match: `{OAUTH_REDIRECT_BASE}/api/oauth/social/callback`.
 
 ### 2. Database
 
-Apply `20260808190000_channel_posts_campaign_key.sql` if not already applied.
+`campaign_key` on `channel_posts` is required for idempotent drip seeding
+(`20260808190000_channel_posts_campaign_key.sql`). Applied on prod as of 2026-08-09.
 
-### 3. Worker cron
+### 3. Worker cron (required)
 
-Every 5–15 minutes:
+Every 5–15 minutes on the VPS (or any scheduler that can hit prod):
 
 ```bash
-curl -sS -H "Authorization: Bearer $WORKER_SECRET" \
-  https://aibusiness.fun/api/workers/tick
+# Example crontab — replace SECRET from /opt/auraos/.env WORKER_SECRET
+*/10 * * * * curl -sS -H "Authorization: Bearer SECRET" \
+  https://aibusiness.fun/api/workers/tick >/dev/null
 ```
 
-Without this, scheduled posts never leave the queue.
+Without this, scheduled posts never leave the queue. Founder Approve only runs a
+**tenant-scoped** tick — it cannot publish other companies’ drip.
 
-### 4. Media
+### 4. X OAuth scopes
+
+Reconnect X if `media.write` is missing — video drip uploads fail without it.
+
+### 5. Media
 
 ```bash
 bash scripts/deploy-share-media.sh
@@ -129,7 +138,7 @@ bash scripts/deploy-share-media.sh
 
 Confirm `https://aibusiness.fun/4am.mp4` (and posters under `/share/`) return 200.
 
-### 5. Founder actions in the app
+### 6. Founder actions in the app
 
 1. Sign in → **Channels**
 2. **Connect X** (popup OAuth — no password)

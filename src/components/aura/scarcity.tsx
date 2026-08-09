@@ -7,7 +7,7 @@ import { Meter } from "./primitives";
 const TOTAL_SEATS = 2000;
 
 /**
- * Founding cohort counter driven by real company count (no inflated seat theater).
+ * Founding companies counter driven by real company count (no inflated seat theater).
  */
 export function FoundingCohort({
   seat,
@@ -24,7 +24,7 @@ export function FoundingCohort({
   if (compactMode) {
     return (
       <span className="text-[11px] tracking-wide text-muted-foreground">
-        Founding cohort · <span className="num text-gold">{remaining}</span> seats remain
+        Founding companies · <span className="num text-gold">{num(remaining)}</span> seats remaining
       </span>
     );
   }
@@ -36,16 +36,13 @@ export function FoundingCohort({
       transition={{ duration: 1.2, delay: 0.3 }}
       className="w-full max-w-sm"
     >
-      <div className="mb-2 flex items-baseline justify-between text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-        <span>Founding cohort</span>
-        <span className="num text-gold">
-          {num(taken)} / {num(TOTAL_SEATS)}
-        </span>
+      <div className="mb-2 flex items-baseline justify-between gap-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+        <span>Founding companies</span>
+        <span className="num text-gold">{num(remaining)} seats remaining</span>
       </div>
       <Meter value={pct} tone="gold" />
       <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground/80">
-        Founding companies keep their token rate for life. When the cohort closes, it closes
-        quietly.
+        Locked pricing. Founding badge. Invite code. When the cohort closes, it closes quietly.
       </p>
     </motion.div>
   );
