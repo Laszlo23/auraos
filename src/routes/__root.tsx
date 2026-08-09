@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuroraField } from "@/components/aura/aurora";
+import { BetaBadge } from "@/components/aura/beta-badge";
 import { Toaster } from "@/components/ui/sonner";
 import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 
@@ -227,6 +228,7 @@ function RootComponent() {
         <Outlet />
       </div>
       <Toaster position="top-center" />
+      <BetaBadge />
       <DeferredAnalytics />
     </QueryClientProvider>
   );
