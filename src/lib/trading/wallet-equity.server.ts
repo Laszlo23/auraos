@@ -26,3 +26,27 @@ export async function fetchWalletUsdcBalance(address: string): Promise<number> {
     return 0;
   }
 }
+
+/** Native ETH balance (for gas + in-app convert prompts). */
+export async function fetchWalletEthBalance(address: string): Promise<number> {
+  try {
+    const { activeNetwork, alchemyRpcUrl } = await import("@/lib/chain-config");
+    const url = alchemyRpcUrl({ network: activeNetwork() });
+    if (!url) return 0;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_getBalance",
+        params: [address, "latest"],
+      }),
+    });
+    const json = (await res.json()) as { result?: string };
+    if (!json.result) return 0;
+    return Number(BigInt(json.result)) / 1e18;
+  } catch {
+    return 0;
+  }
+}

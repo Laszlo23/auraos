@@ -2,6 +2,7 @@ import type { Address, Hex } from "viem";
 
 import { mergeAgentMemory } from "@/lib/agent-memory";
 import { activeNetwork, alchemyRpcUrl, chainId, USDC_ADDRESSES } from "@/lib/chain-config";
+import { parseOkxSwapCalldata } from "@/lib/okx.server";
 import { recomputeTradingArena } from "@/lib/trading/arena.server";
 import { validateStrategySpec, type StrategySpec } from "@/lib/trading/backtest.server";
 import { fetchCandles, fetchMarkPrice } from "@/lib/trading/market-data.server";
@@ -16,44 +17,8 @@ function encodeApprove(spender: Address, amount: bigint): Hex {
   return `${ERC20_APPROVE_SELECTOR}${spenderWord}${amountWord}` as Hex;
 }
 
-function parseOkxSwap(raw: unknown): {
-  to: Address;
-  data: Hex;
-  value: bigint;
-  toAmount?: string;
-  approveTo?: Address;
-} {
-  const root = Array.isArray(raw) ? raw[0] : raw;
-  const obj = (root ?? {}) as Record<string, unknown>;
-  const tx = (obj["tx"] ?? obj) as Record<string, unknown>;
-  const to = String(tx["to"] ?? "");
-  const data = String(tx["data"] ?? "");
-  if (!/^0x[a-fA-F0-9]{40}$/.test(to) || !data.startsWith("0x")) {
-    throw new Error("OKX swap response missing calldata");
-  }
-  const valueRaw = tx["value"];
-  const value =
-    typeof valueRaw === "string" || typeof valueRaw === "number"
-      ? BigInt(valueRaw)
-      : 0n;
-  const router = obj["routerResult"] as Record<string, unknown> | undefined;
-  const toAmount =
-    router && typeof router["toTokenAmount"] === "string"
-      ? router["toTokenAmount"]
-      : undefined;
-  const approveTx = obj["approveTransaction"] ?? obj["approveData"];
-  let approveTo: Address | undefined;
-  if (approveTx && typeof approveTx === "object") {
-    const a = approveTx as Record<string, unknown>;
-    if (typeof a["to"] === "string") approveTo = a["to"] as Address;
-  }
-  return {
-    to: to as Address,
-    data: data as Hex,
-    value,
-    ...(toAmount ? { toAmount } : {}),
-    ...(approveTo ? { approveTo } : {}),
-  };
+function parseOkxSwap(raw: unknown) {
+  return parseOkxSwapCalldata(raw);
 }
 
 type Admin = {

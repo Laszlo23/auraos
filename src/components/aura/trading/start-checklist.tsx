@@ -8,6 +8,7 @@ export type DeskReadiness = {
   funded: boolean;
   walletReady?: boolean;
   usdc: number;
+  eth?: number;
   hasTradeKey: boolean;
   hasApprovedStrategy: boolean;
   hasBacktest: boolean;
@@ -73,8 +74,8 @@ export function TradingSetup({
     <Panel label="Get Quant ready" glow data-tour="trading-checklist" className="overflow-hidden">
       <p className="text-[13px] leading-relaxed text-muted-foreground">
         Three steps. Backtest first (see every trade + dollar risk — no money moves). Then grant a{" "}
-        <span className="font-semibold text-foreground">Trade session key</span>. Then fund USDC + a
-        little ETH for gas and arm — live fills are real Base swaps.
+        <span className="font-semibold text-foreground">Trade session key</span>. Then fund USDC
+        (deposit USDC or ETH and convert on Wallet via OKX) and arm — live fills are real Base swaps.
       </p>
 
       <ol className="mt-5 flex flex-wrap gap-2">
@@ -204,9 +205,9 @@ export function TradingSetup({
           <h3 className="mt-3 text-lg font-semibold tracking-tight">Fund the wallet, then arm</h3>
           <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
             When armed, Quant executes fully on Base — real DEX swaps from your smart wallet. Deposit{" "}
-            <span className="font-semibold text-foreground">USDC</span> for size and keep a little{" "}
-            <span className="font-semibold text-foreground">ETH for gas</span> (or use a sponsored
-            path if available). DEX fees and slippage are separate from the backtest fee model. Prefer{" "}
+            <span className="font-semibold text-foreground">USDC</span> for size, or deposit{" "}
+            <span className="font-semibold text-foreground">ETH</span> and convert to USDC in Wallet
+            (OKX). Keep a little ETH for gas unless sponsorship is on. Prefer{" "}
             <span className="font-semibold text-foreground">Paper</span> first if you want simulated
             fills — paper never scores in the arena.
           </p>
@@ -214,7 +215,9 @@ export function TradingSetup({
             <p className={cn(r?.funded ? "text-gold" : "text-muted-foreground")}>
               {r?.funded
                 ? `✓ Funded · ${r.usdc.toFixed(2)} USDC`
-                : "○ Need at least $5 USDC on Base"}
+                : (r?.eth ?? 0) >= 0.002
+                  ? `○ Have ${(r?.eth ?? 0).toFixed(4)} ETH — convert to USDC on Wallet`
+                  : "○ Need at least $5 USDC on Base (or ETH → USDC on Wallet)"}
             </p>
             <p className="text-muted-foreground">
               ○ Keep a small ETH balance for network gas on Base
@@ -231,7 +234,7 @@ export function TradingSetup({
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground"
               >
                 <Wallet className="h-4 w-4" />
-                Open Wallet & deposit
+                {(r?.eth ?? 0) >= 0.002 ? "Convert ETH on Wallet" : "Open Wallet & deposit"}
               </Link>
             ) : null}
             {onEnablePaper && !r?.paper ? (

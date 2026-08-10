@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDownLeft,
+  ArrowLeftRight,
   ArrowUpRight,
   Check,
   Copy,
@@ -18,6 +19,7 @@ import { Chip, DataRow, Panel, Pulse } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
 import { useMyHandle } from "@/hooks/use-identity";
 import { useProvisionSmartWallet, useSmartWallet } from "@/hooks/use-earn";
+import { executeTreasurySwap, getOkxStatus, type TreasurySwapDirection } from "@/lib/okx.functions";
 import {
   getTreasuryActivity,
   getTreasuryBalance,
@@ -51,11 +53,13 @@ function KindIcon({ kind }: { kind: TreasuryActivityItem["kind"] }) {
  * Trust-first treasury overview: deposit address, live balances, recent activity.
  */
 export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
+  const qc = useQueryClient();
   const { data: handle } = useMyHandle();
   const handleId = handle?.id;
   const { data: wallet, isLoading: walletLoading } = useSmartWallet(handleId);
   const provision = useProvisionSmartWallet();
   const [copied, setCopied] = useState<"addr" | "usdc" | null>(null);
+  const [swapAmount, setSwapAmount] = useState("max");
 
   const treasury = useQuery({
     queryKey: ["treasury-balance"],
@@ -68,6 +72,23 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
     refetchInterval: 30_000,
     enabled: Boolean(treasury.data?.address),
   });
+  const okx = useQuery({
+    queryKey: ["okx-status"],
+    queryFn: () => getOkxStatus(),
+    staleTime: 60_000,
+  });
+
+  const swap = useMutation({
+    mutationFn: (direction: TreasurySwapDirection) =>
+      executeTreasurySwap({ data: { direction, amount: swapAmount || "max" } }),
+    onSuccess: async (res) => {
+      toast.success(`${res.fromLabel} → ${res.toLabel} submitted`);
+      await qc.invalidateQueries({ queryKey: ["treasury-balance"] });
+      await qc.invalidateQueries({ queryKey: ["treasury-activity"] });
+      await qc.invalidateQueries({ queryKey: ["trading-readiness"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const address =
     treasury.data?.address ?? (wallet as { address?: string } | null)?.address ?? null;
@@ -76,6 +97,7 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
   const networkLabel = treasury.data?.label ?? "Base";
   const usdc = treasury.data?.usdc ?? 0;
   const eth = treasury.data?.eth ?? 0;
+  const weth = treasury.data?.weth ?? 0;
 
   const qrUrl = useMemo(() => {
     if (!address) return null;
@@ -219,8 +241,8 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
             <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
               Accepted assets
             </p>
-            <p className="mt-1 text-[13px] font-medium">USDC · ETH</p>
-            <p className="text-[11px] text-muted-foreground">Same network only</p>
+            <p className="mt-1 text-[13px] font-medium">USDC · ETH · WETH</p>
+            <p className="text-[11px] text-muted-foreground">Convert ETH in-app via OKX</p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
@@ -231,6 +253,75 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
       </Panel>
+
+      {!compact ? (
+        <Panel label="Convert for trading desk" glow>
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            Quant buys with <span className="font-semibold text-foreground">USDC</span> and holds{" "}
+            <span className="font-semibold text-foreground">WETH</span>. Deposit ETH, then convert
+            in-app via OKX DEX — no external wallet needed. A small ETH buffer is kept for gas.
+          </p>
+          {!okx.data?.configured ? (
+            <p className="mt-3 text-[12px] text-muted-foreground">
+              OKX rails are not configured on this server yet — deposit USDC directly for now.
+            </p>
+          ) : (
+            <>
+              <label className="mt-4 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                Amount (ETH / WETH)
+                <input
+                  value={swapAmount}
+                  onChange={(e) => setSwapAmount(e.target.value)}
+                  placeholder="max"
+                  className="mt-2 w-full rounded-2xl border border-border/50 bg-background/60 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50"
+                />
+              </label>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Use <span className="font-mono">max</span> to convert almost all (minus gas buffer).
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={swap.isPending || eth < 0.0005}
+                  onClick={() => swap.mutate("eth_to_usdc")}
+                  className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-45"
+                >
+                  {swap.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ArrowLeftRight className="h-4 w-4" />
+                  )}
+                  ETH → USDC
+                </button>
+                <button
+                  type="button"
+                  disabled={swap.isPending || eth < 0.0005}
+                  onClick={() => swap.mutate("eth_to_weth")}
+                  className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-4 py-3 text-sm font-semibold disabled:opacity-45"
+                >
+                  ETH → WETH
+                </button>
+                <button
+                  type="button"
+                  disabled={swap.isPending || weth < 0.0001}
+                  onClick={() => swap.mutate("weth_to_usdc")}
+                  className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-4 py-3 text-sm font-semibold disabled:opacity-45"
+                >
+                  WETH → USDC
+                </button>
+              </div>
+            </>
+          )}
+          <div className="mt-4">
+            <Link
+              to="/trading"
+              className="text-[12px] font-semibold text-primary hover:underline"
+            >
+              Open trading desk →
+            </Link>
+          </div>
+        </Panel>
+      ) : null}
 
       <div className={cn("grid gap-5", compact ? "sm:grid-cols-2" : "md:grid-cols-2")}>
         <Panel label="Balances">
@@ -255,13 +346,17 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
           </div>
           <div className="mt-5">
             <DataRow
-              label="ETH (gas / native)"
+              label="ETH (native)"
               value={eth.toLocaleString(undefined, { maximumFractionDigits: 6 })}
             />
             <DataRow
+              label="WETH (desk inventory)"
+              value={weth.toLocaleString(undefined, { maximumFractionDigits: 6 })}
+            />
+            <DataRow
               label="Trading desk"
-              value={usdc > 0 ? "Funded" : "Awaiting deposit"}
-              tone={usdc > 0 ? "gold" : "default"}
+              value={usdc >= 5 ? "Funded" : eth > 0.002 ? "Convert ETH → USDC" : "Awaiting deposit"}
+              tone={usdc >= 5 ? "gold" : "default"}
             />
           </div>
           {treasury.data?.usdcToken ? (

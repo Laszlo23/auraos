@@ -141,6 +141,47 @@ export async function okxDexSwap(input: {
   return okxFetch(path);
 }
 
+/** Normalize OKX aggregator swap response into calldata for Light Account UserOps. */
+export function parseOkxSwapCalldata(raw: unknown): {
+  to: `0x${string}`;
+  data: `0x${string}`;
+  value: bigint;
+  toAmount?: string;
+  approveTo?: `0x${string}`;
+} {
+  const root = Array.isArray(raw) ? raw[0] : raw;
+  const obj = (root ?? {}) as Record<string, unknown>;
+  const tx = (obj["tx"] ?? obj) as Record<string, unknown>;
+  const to = String(tx["to"] ?? "");
+  const data = String(tx["data"] ?? "");
+  if (!/^0x[a-fA-F0-9]{40}$/.test(to) || !data.startsWith("0x")) {
+    throw new Error("OKX swap response missing calldata");
+  }
+  const valueRaw = tx["value"];
+  const value =
+    typeof valueRaw === "string" || typeof valueRaw === "number" ? BigInt(valueRaw) : 0n;
+  const router = obj["routerResult"] as Record<string, unknown> | undefined;
+  const toAmount =
+    router && typeof router["toTokenAmount"] === "string"
+      ? router["toTokenAmount"]
+      : undefined;
+  const approveTx = obj["approveTransaction"] ?? obj["approveData"];
+  let approveTo: `0x${string}` | undefined;
+  if (approveTx && typeof approveTx === "object") {
+    const a = approveTx as Record<string, unknown>;
+    if (typeof a["to"] === "string" && /^0x[a-fA-F0-9]{40}$/.test(a["to"])) {
+      approveTo = a["to"] as `0x${string}`;
+    }
+  }
+  return {
+    to: to as `0x${string}`,
+    data: data as `0x${string}`,
+    value,
+    ...(toAmount ? { toAmount } : {}),
+    ...(approveTo ? { approveTo } : {}),
+  };
+}
+
 /** Lightweight token risk hint via OKX security endpoint when available. */
 export async function okxTokenSecurity(input: {
   chainId: string;

@@ -11,7 +11,7 @@ import {
   type StrategySpec,
 } from "@/lib/trading/backtest.server";
 import { TRADING_PRESETS } from "@/lib/trading/presets";
-import { fetchWalletUsdcBalance } from "@/lib/trading/wallet-equity.server";
+import { fetchWalletEthBalance, fetchWalletUsdcBalance } from "@/lib/trading/wallet-equity.server";
 import { SITE_URL } from "@/lib/site";
 
 const QUANT_MEMORY =
@@ -631,8 +631,10 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
       .maybeSingle();
 
     let usdc = 0;
+    let eth = 0;
     if (wallet?.address) {
       usdc = await fetchWalletUsdcBalance(wallet.address);
+      if (usdc < 5) eth = await fetchWalletEthBalance(wallet.address);
     }
 
     const { data: keys } = await context.supabase
@@ -653,8 +655,12 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
 
     const reallyFunded = usdc >= 5;
     let blockReason: string | null = null;
-    if (!reallyFunded) blockReason = "Deposit at least $5 USDC on Base";
-    else if (!hasTradeKey) blockReason = "Issue a session key with Trade permission";
+    if (!reallyFunded) {
+      blockReason =
+        eth >= 0.002
+          ? "Convert ETH → USDC on /wallet (OKX), need at least $5 USDC"
+          : "Deposit at least $5 USDC on Base (or ETH and convert on /wallet)";
+    } else if (!hasTradeKey) blockReason = "Issue a session key with Trade permission";
     else if (!hasApprovedStrategy) blockReason = "Approve a strategy (pick a preset)";
     const canArm = reallyFunded && hasTradeKey && hasApprovedStrategy;
 
@@ -663,6 +669,7 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
       funded: reallyFunded,
       walletReady: Boolean(wallet?.address),
       usdc,
+      eth,
       hasTradeKey,
       hasApprovedStrategy,
       hasBacktest,

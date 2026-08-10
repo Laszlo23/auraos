@@ -59,12 +59,14 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       .maybeSingle();
 
     const usdcAddress = USDC_ADDRESSES[network];
+    const wethAddress = WETH_ADDRESSES[network];
     const explorer = explorerBase(network);
     const base = {
       address: null as string | null,
       walletId: null as string | null,
       usdc: 0,
       eth: 0,
+      weth: 0,
       network,
       chainId: chainId(network),
       label: chainLabel(network),
@@ -75,13 +77,13 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       provider: null as string | null,
       sponsored: Boolean(process.env["ALCHEMY_GAS_POLICY_ID"]),
       usdcToken: usdcAddress,
-      wethToken: WETH_ADDRESSES[network],
+      wethToken: wethAddress,
       explorerAddressUrl: null as string | null,
       explorerTokenUrl: `${explorer}/token/${usdcAddress}`,
       depositHint:
         network === "base"
-          ? "Send USDC on Base (chain ID 8453) only. Other chains will lose funds."
-          : "Send USDC on Base Sepolia (testnet) only. Mainnet funds will not appear here.",
+          ? "Send USDC or ETH on Base (chain ID 8453). Convert ETH → USDC in-app for the trading desk."
+          : "Send USDC or ETH on Base Sepolia (testnet). Convert ETH → USDC in-app for the desk.",
     };
 
     if (!wallet?.address) return base;
@@ -89,18 +91,22 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
     const url = alchemyRpcUrl({ network });
     let usdc = 0;
     let eth = 0;
+    let weth = 0;
     if (url) {
       try {
         const balanceOf = `0x70a08231000000000000000000000000${wallet.address.slice(2).toLowerCase()}`;
-        const [usdcRaw, ethRaw] = await Promise.all([
+        const [usdcRaw, ethRaw, wethRaw] = await Promise.all([
           ethCall(url, usdcAddress, balanceOf),
           ethBalance(url, wallet.address),
+          ethCall(url, wethAddress, balanceOf),
         ]);
         usdc = Number(usdcRaw) / 1e6;
         eth = Number(ethRaw) / 1e18;
+        weth = Number(wethRaw) / 1e18;
       } catch {
         usdc = 0;
         eth = 0;
+        weth = 0;
       }
     }
 
@@ -110,6 +116,7 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       walletId: wallet.id as string,
       usdc,
       eth,
+      weth,
       deployed: Boolean(wallet.deployed),
       legacy: Boolean(wallet.legacy),
       verified: Boolean(wallet.verified),
