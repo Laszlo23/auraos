@@ -42,7 +42,9 @@ export const AKQUISE_TEMPLATES: AkquiseTemplate[] = [
 Return ONLY a JSON array. Each item: {"name":string|null,"org":string|null,"email":string|null,"phone":string|null,"address":string|null,"snippet":string,"score":number,"source_url":string,"website_signals":string[]}.
 snippet: why this company may need a new site (cite visible signals only).
 website_signals: short facts from the page (e.g. "copyright 2016", "http only", "table layout").
-score: fit vs brief using the scoring rubric. Never invent emails or phones — null if not on page. Skip directories and social profiles. Max 15 items per batch.`,
+score: fit vs brief using the scoring rubric. Never invent emails or phones — null if not on page.
+If a source is a directory/listing, still extract each named business with its own website URL as source_url when present.
+Prefer real local SMEs over social profiles. Max 15 items per batch.`,
     outputKind: "leads",
     objectiveDefault: "research",
   },

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Download,
   Loader2,
@@ -42,6 +42,16 @@ import { timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/akquise")({
+  validateSearch: (search: Record<string, unknown>): { autostart?: boolean; region?: string } => ({
+    ...(search["autostart"] === true ||
+    search["autostart"] === "1" ||
+    search["autostart"] === "true"
+      ? { autostart: true }
+      : {}),
+    ...(typeof search["region"] === "string" && search["region"].trim()
+      ? { region: search["region"].trim().slice(0, 80) }
+      : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Lead hunter — Aura OS" },
@@ -140,9 +150,11 @@ function leadsToCsv(rows: Lead[]) {
 }
 
 function AkquisePage() {
+  const search = Route.useSearch();
   const { data: company } = useCompany();
   const qc = useQueryClient();
   const award = useAwardXp();
+  const autoStarted = useRef(false);
 
   const { data: campaignsRaw = [] } = useCompanyTable<Campaign>("akquise_campaigns", {
     orderBy: "created_at",
@@ -173,6 +185,11 @@ function AkquisePage() {
   const [toastXp, setToastXp] = useState<{ label: string; amount: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastShare, setLastShare] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (search.region && !region) setRegion(search.region);
+    else if (!region && company?.city) setRegion(String(company.city));
+  }, [search.region, company?.city, region]);
 
   const celebrate = (label: string, amount: number, quest?: string) => {
     setBurst((n) => n + 1);
@@ -211,15 +228,61 @@ function AkquisePage() {
     onSuccess: async (res) => {
       await refresh();
       setActiveId(res.campaignId);
-      celebrate(`${res.added} prospects · ${res.auraSpent} AURA`, 200, "akquise:research");
-      toast.success(
-        res.added
-          ? `Got it. Found ${res.added} real prospects.`
-          : "Run finished — no prospects on these sources. Try a sharper goal.",
-      );
+      if (res.added > 0) {
+        celebrate(`${res.added} prospects · ${res.auraSpent} AURA`, 200, "akquise:research");
+        toast.success(`Got it. Found ${res.added} real prospects.`);
+      } else {
+        toast.error(
+          "Run finished with 0 prospects. Sharpen the goal/region or add FIRECRAWL_API_KEY for stronger search.",
+        );
+      }
     },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error) => {
+      setError(e.message);
+      toast.error(e.message);
+    },
   });
+
+  useEffect(() => {
+    if (!search.autostart || autoStarted.current) return;
+    if (!company?.id) return;
+    autoStarted.current = true;
+    const city = String(search.region || company.city || "Wien");
+    const niche = String(company.niche || "lokaler Betrieb");
+    const name = String(company.name || "unser Unternehmen");
+    const autoGoal = `Finde 15 passende lokale Interessenten für ${name} (${niche}) in ${city}.`;
+    setRegion(city);
+    setLanguage("de");
+    setTemplate("website_leads");
+    setGoal(autoGoal);
+    void (async () => {
+      try {
+        const res = await runAkquiseGoal({
+          data: {
+            goal: autoGoal,
+            template: "website_leads",
+            region: city,
+            language: "de",
+            seedUrls: [],
+            targetCount: 15,
+            name: "Neukunden Lead Hunt",
+          },
+        });
+        await refresh();
+        setActiveId(res.campaignId);
+        if (res.added > 0) {
+          celebrate(`${res.added} prospects · ${res.auraSpent} AURA`, 200, "akquise:research");
+          toast.success(`Got it. Found ${res.added} real prospects.`);
+        } else {
+          toast.error("Autostart finished with 0 prospects. Try a sharper region or add FIRECRAWL_API_KEY.");
+        }
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Lead hunt failed";
+        setError(msg);
+        toast.error(msg);
+      }
+    })();
+  }, [search.autostart, search.region, company]);
 
   const research = useMutation({
     mutationFn: (campaignId: string) => researchLeads({ data: { campaignId } }),

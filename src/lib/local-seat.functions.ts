@@ -249,6 +249,14 @@ export async function applyBoostPackKickoff(
         objective: "research",
       });
     }
+    await supabase.from("knowledge_items").insert({
+      company_id: companyId,
+      title: "Neukunden · Lead Hunter",
+      summary:
+        "Öffne /akquise?autostart=1 um die Recherche jetzt zu starten. Keine Fake-Leads — nur Web-Quellen.",
+      cluster: "Lokal",
+      source: "Boost",
+    });
   }
 }
 

@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, QrCode, Users } from "lucide-react";
+import { ArrowRight, QrCode, Radar, Users } from "lucide-react";
 
 import { Panel, Shimmer } from "@/components/aura/primitives";
 import { getOwnerNachbarCheckinCode } from "@/lib/nachbar.functions";
 import { SITE_URL } from "@/lib/site";
+import { useCompany } from "@/hooks/use-aura";
 
 export const Route = createFileRoute("/_authenticated/kunden")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/kunden")({
 });
 
 function KundenPage() {
+  const { data: company } = useCompany();
   const { data, isLoading } = useQuery({
     queryKey: ["owner-nachbar-checkin"],
     queryFn: () => getOwnerNachbarCheckinCode(),
@@ -21,6 +23,7 @@ function KundenPage() {
 
   const code = data?.code || "";
   const deepLink = code ? `${SITE_URL}/nachbar/c/${code}` : "";
+  const region = company?.city || undefined;
 
   return (
     <div className="space-y-5">
@@ -30,11 +33,26 @@ function KundenPage() {
           Neukunden & Check-in
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Gäste checken mit Aura Nachbar ein und verdienen Punkte — Google bleibt optional und unbezahlt.
+          Gäste checken mit Aura Nachbar ein. Lead Hunter findet echte lokale Interessenten — keine
+          Fake-Listen.
         </p>
       </div>
 
-      <Panel label="Nachbar Check-in QR" glow>
+      <Panel label="Lead Hunter" glow>
+        <p className="text-sm text-muted-foreground">
+          Startet eine echte Web-Recherche für deinen Betrieb
+          {region ? ` in ${region}` : ""}. Ergebnisse landen unter Akquise.
+        </p>
+        <Link
+          to="/akquise"
+          search={{ autostart: true, ...(region ? { region } : {}) }}
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
+        >
+          <Radar className="h-4 w-4" /> Jetzt Leads suchen <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </Panel>
+
+      <Panel label="Nachbar Check-in QR">
         {isLoading ? <Shimmer className="h-16" /> : null}
         {!isLoading && code ? (
           <>
@@ -53,35 +71,15 @@ function KundenPage() {
         ) : null}
       </Panel>
 
-      <Panel label="Akquise">
+      <Panel label="Akquise-Board">
         <p className="text-sm text-muted-foreground">
-          Vorlagen für Friseur, Beauty, Gastro und Immobilien. Entwürfe auf Deutsch, Versand erst nach
-          deiner Freigabe.
+          Vorlagen und Versand — du bleibst Absender.
         </p>
         <Link
           to="/akquise"
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold"
         >
-          <Users className="h-4 w-4" /> Akquise öffnen <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </Panel>
-
-      <Panel label="Pipeline">
-        <Link
-          to="/sales"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold"
-        >
-          Sales-Board <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </Panel>
-
-      <Panel label="Tipp">
-        <p className="text-sm text-muted-foreground">
-          Das Boost-Paket <strong className="text-foreground">Neukunden</strong> legt eine
-          Akquise-Kampagne an und füllt dein Boost-Guthaben.
-        </p>
-        <Link to="/boost" className="mt-3 inline-block text-sm font-semibold text-primary">
-          Zu Boost →
+          <Users className="h-4 w-4" /> Zum Lead-Board <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </Panel>
     </div>

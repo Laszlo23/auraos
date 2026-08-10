@@ -8,6 +8,7 @@ import {
   firecrawlScrape,
   firecrawlSearch,
   parseJsonBlock,
+  researchProviderLabel,
   type ScrapedPage,
 } from "@/lib/akquise.server";
 import { getTemplate, type AkquiseTemplate, type AkquiseTemplateId } from "@/lib/akquise-templates";
@@ -250,22 +251,26 @@ export async function executeAkquiseRun(opts: {
   step(steps, "plan", "Planning search strategy", "done", `${plan.queries.length} queries`);
 
   const pageMap = new Map<string, ScrapedPage>();
-  step(steps, "search", "Searching the web", "running");
+  step(steps, "search", `Searching the web (${researchProviderLabel()})`, "running");
 
   const maxQueryRounds = Math.min(8, plan.queries.length);
+  const searchErrors: string[] = [];
   for (let i = 0; i < maxQueryRounds; i++) {
     const q = plan.queries[i]!;
     try {
       const found = await firecrawlSearch(q, 5);
       for (const p of found) pageMap.set(normalizeUrl(p.url), p);
-    } catch (e) {
       step(
         steps,
         `search_${i}`,
         `Search: ${q.slice(0, 48)}`,
-        "failed",
-        e instanceof Error ? e.message : "search failed",
+        found.length ? "done" : "failed",
+        `${found.length} hits`,
       );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "search failed";
+      searchErrors.push(msg);
+      step(steps, `search_${i}`, `Search: ${q.slice(0, 48)}`, "failed", msg);
     }
     if (pageMap.size >= target * 2) break;
   }
@@ -278,10 +283,17 @@ export async function executeAkquiseRun(opts: {
   step(
     steps,
     "search",
-    "Searching the web",
+    `Searching the web (${researchProviderLabel()})`,
     pageMap.size ? "done" : "failed",
     `${pageMap.size} unique pages`,
   );
+
+  if (pageMap.size === 0) {
+    const hint = searchErrors[0] || "No pages returned.";
+    throw new Error(
+      `Lead hunt found zero web sources. ${hint} Tip: set FIRECRAWL_API_KEY for stronger search, or refine the goal/region.`,
+    );
+  }
 
   // For website_leads: deepen scrape on company-looking URLs
   if (template.id === "website_leads" || template.id === "competitor_spy") {
