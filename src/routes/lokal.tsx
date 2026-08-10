@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 
+import { LanguageToggle } from "@/components/aura/language-toggle";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { useLocale } from "@/hooks/use-locale";
 import {
   authHrefForLokal,
   captureAttribution,
@@ -42,13 +44,23 @@ export const Route = createFileRoute("/lokal")({
 });
 
 function LokalLandingPage() {
+  const { t, locale, setLocale } = useLocale();
+
   useEffect(() => {
     rememberFunnel("local");
-    rememberLocale("de");
+    // Path /lokal is an explicit DE product entry (override unless ?lang=en).
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("lang") === "en") {
+      rememberLocale("en");
+      setLocale("en");
+    } else {
+      rememberLocale("de");
+      setLocale("de");
+    }
     captureAttribution();
-  }, []);
+  }, [setLocale]);
 
-  const href = authHrefForLokal("signup");
+  const href = authHrefForLokal("signup", locale);
 
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
@@ -72,18 +84,19 @@ function LokalLandingPage() {
           <span className="font-display text-lg font-medium text-muted-foreground sm:text-xl">
             Lokal
           </span>
+          <LanguageToggle className="ml-auto" />
           <a
             href="/presentation-lokal.pptx"
             download
-            className="ml-auto rounded-2xl border border-border/50 px-4 py-2 text-xs font-semibold"
+            className="rounded-2xl border border-border/50 px-4 py-2 text-xs font-semibold"
           >
-            Präsentation
+            {t("lokal.deck")}
           </a>
           <a
             href={href}
             className="rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
           >
-            App starten
+            {t("lokal.ctaStart")}
           </a>
         </div>
       </header>
@@ -93,63 +106,55 @@ function LokalLandingPage() {
           Aura · Lokal
         </p>
         <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.6rem,8vw,4.4rem)] font-semibold leading-[0.96] tracking-tight">
-          Dein lokales Geschäft — online, sichtbar, bewertet.
+          {t("lokal.hero")}
         </h1>
         <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-muted-foreground">
-          Für Friseur, Beauty, Gastronomie und Immobilien: Social automatisieren, Kunden gewinnen und
-          echte Google-Bewertungen anfragen — als einfache Handy-App.
+          {t("lokal.blurb")}
         </p>
         <div className="mt-9 flex flex-wrap gap-3">
           <a
             href={href}
             className="rounded-2xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_12px_40px_-18px_oklch(0.55_0.12_200)] transition-transform hover:scale-[1.02]"
           >
-            Local Seat · {LOCAL_SEAT_EUR} €
+            {t("lokal.ctaSeat", { eur: LOCAL_SEAT_EUR })}
           </a>
           <a
             href="#barzahlung"
             className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
           >
-            Barzahlung & Codes
+            {t("lokal.ctaCash")}
           </a>
           <a
             href="/presentation-lokal.pptx"
             download
             className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
           >
-            Präsentation laden
+            {t("lokal.ctaDeck")}
           </a>
           <Link
             to="/nachbar"
             className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
           >
-            Aura Nachbar (Gäste)
+            {t("lokal.ctaNachbar")}
           </Link>
         </div>
-        <p className="mt-5 text-[12px] text-muted-foreground">
-          Friseur · Beauty · Gastro · Immobilien · Handwerk
-        </p>
+        <p className="mt-5 text-[12px] text-muted-foreground">{t("lokal.niches")}</p>
       </section>
 
       <section className="relative border-t border-border/40 py-16">
         <div className="mx-auto grid max-w-5xl gap-10 px-6 sm:grid-cols-3">
           <div>
-            <h2 className="font-display text-xl font-semibold">Social</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Kanäle verbinden, Posts freigeben — ohne Agentur-Chaos.
-            </p>
+            <h2 className="font-display text-xl font-semibold">{t("nav.social")}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{t("social.blurb")}</p>
           </div>
           <div>
-            <h2 className="font-display text-xl font-semibold">Kunden</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Lokale Leads finden und Anschreiben vorbereiten — du bleibst der Absender.
-            </p>
+            <h2 className="font-display text-xl font-semibold">{t("nav.kunden")}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{t("kunden.blurb")}</p>
           </div>
           <div>
-            <h2 className="font-display text-xl font-semibold">Bewertungen</h2>
+            <h2 className="font-display text-xl font-semibold">{t("nav.bewertungen")}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Review Boost: bis zu {REVIEW_BOOST_INVITE_GOAL} Einladungen an echte Kunden (erste{" "}
-              {LOCAL_COHORT_CAP} Betriebe).
+              Review Boost: {REVIEW_BOOST_INVITE_GOAL} · {LOCAL_COHORT_CAP}
             </p>
           </div>
         </div>
@@ -160,15 +165,12 @@ function LokalLandingPage() {
           <h2 className="font-display text-3xl font-semibold tracking-tight">
             {LOCAL_SEAT_EUR} € Local Seat
           </h2>
-          <p className="mt-3 max-w-xl text-sm text-muted-foreground">
-            Einmalig freischalten. Meist bar an der Theke — du bekommst einen Code und löst ihn in der
-            App ein. Karte (Stripe) geht auch.
-          </p>
+          <p className="mt-3 max-w-xl text-sm text-muted-foreground">{t("boost.seatBlurb")}</p>
           <a
             href={href}
             className="mt-8 inline-flex rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
           >
-            Jetzt starten
+            {t("lokal.ctaStart")}
           </a>
         </div>
       </section>

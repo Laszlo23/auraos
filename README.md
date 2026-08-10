@@ -24,7 +24,7 @@ Honest by default: workforce **Active** means a real queued/running task; quiet 
 | Surface | Path | Purpose |
 |---|---|---|
 | Command center | `/console` | Missions, workforce, approvals, live activity |
-| Aura Lokal (DE) | `/lokal` | German local-business landing |
+| Aura Lokal (DE/EN) | `/lokal` | Local-business landing (browser language + toggle) |
 | Local funnel (EN) | `/for/local` | English local / Review Boost funnel |
 | Public shop card | `/b/$slug` | Homepage + socials + review CTA |
 | Aura Nachbar | `/nachbar` | Patron app — check-in, earn, friends |
@@ -59,6 +59,14 @@ Architecture overview: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - Variable **names** and empty placeholders live only in [.env.example](.env.example).
 - Production secrets stay on the VPS (`/opt/auraos/.env`); deploy rsync never overwrites that file.
 - Docs may name env vars; they must never contain real values.
+
+## Locale (DE / EN)
+
+UI language follows `?lang=` / `/lokal` → stored `aura.ui_locale` → browser `navigator.language` → `en`. Toggle EN/DE in the Lokal shell and marketing headers. Catalog: `src/lib/i18n/`. Stripe smoke checklist: [docs/STRIPE_CHECKLIST.md](docs/STRIPE_CHECKLIST.md).
+
+## FIO crypto handles
+
+FIO is Aura's **primary crypto-handle rail** (receive / map wallets). In-app `@handles` stay for social/leaderboard. See [docs/FIO.md](docs/FIO.md). Smoke: `node scripts/fio-smoke.mjs`.
 
 ## Social channels
 

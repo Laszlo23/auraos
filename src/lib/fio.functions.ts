@@ -2,22 +2,57 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { FIO_CHAIN_PAIRS } from "@/lib/fio";
 
 const lookupInput = z.object({
   fioHandle: z.string().min(3),
   chainCode: z.string().default("ETH"),
   tokenCode: z.string().default("ETH"),
+  /** When true, try ETH/BASE/USDC pairs until one maps. */
+  tryAlternates: z.boolean().optional(),
 });
+
+/** Public read-only FIO resolution — no auth (for collab / send-to-handle UX). */
+export const resolveFioPublic = createServerFn({ method: "POST" })
+  .inputValidator((input) => lookupInput.parse(input))
+  .handler(async ({ data }) => {
+    const { isValidFioHandle, lookupFioHandle, lookupFioHandleAny, normaliseFioHandle } =
+      await import("./fio.server");
+    const fioHandle = normaliseFioHandle(data.fioHandle);
+    if (!isValidFioHandle(fioHandle)) throw new Error("FIO handles look like name@domain.");
+    if (data.tryAlternates) {
+      return lookupFioHandleAny(
+        fioHandle,
+        FIO_CHAIN_PAIRS.map((p) => ({ chainCode: p.chainCode, tokenCode: p.tokenCode })),
+      );
+    }
+    return lookupFioHandle({
+      fioHandle,
+      chainCode: data.chainCode,
+      tokenCode: data.tokenCode,
+    });
+  });
 
 /** Read-only FIO resolution — shows what a handle maps to before attesting. */
 export const resolveFio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => lookupInput.parse(input))
   .handler(async ({ data }) => {
-    const { isValidFioHandle, lookupFioHandle, normaliseFioHandle } = await import("./fio.server");
+    const { isValidFioHandle, lookupFioHandle, lookupFioHandleAny, normaliseFioHandle } =
+      await import("./fio.server");
     const fioHandle = normaliseFioHandle(data.fioHandle);
     if (!isValidFioHandle(fioHandle)) throw new Error("FIO handles look like name@domain.");
-    return lookupFioHandle({ ...data, fioHandle });
+    if (data.tryAlternates) {
+      return lookupFioHandleAny(
+        fioHandle,
+        FIO_CHAIN_PAIRS.map((p) => ({ chainCode: p.chainCode, tokenCode: p.tokenCode })),
+      );
+    }
+    return lookupFioHandle({
+      fioHandle,
+      chainCode: data.chainCode,
+      tokenCode: data.tokenCode,
+    });
   });
 
 /**
@@ -28,7 +63,8 @@ export const attestFio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => lookupInput.extend({ walletId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { isValidFioHandle, lookupFioHandle, normaliseFioHandle } = await import("./fio.server");
+    const { isValidFioHandle, lookupFioHandleAny, normaliseFioHandle } =
+      await import("./fio.server");
     const fioHandle = normaliseFioHandle(data.fioHandle);
     if (!isValidFioHandle(fioHandle)) throw new Error("FIO handles look like name@domain.");
 
@@ -41,14 +77,29 @@ export const attestFio = createServerFn({ method: "POST" })
     if (!wallet) throw new Error("Wallet slot not found.");
     if (!wallet.verified) throw new Error("Verify that wallet with a signature first.");
 
-    const lookup = await lookupFioHandle({
-      fioHandle,
-      chainCode: data.chainCode,
-      tokenCode: data.tokenCode,
+    const pairs =
+      data.tryAlternates !== false
+        ? [
+            { chainCode: data.chainCode, tokenCode: data.tokenCode },
+            ...FIO_CHAIN_PAIRS.map((p) => ({ chainCode: p.chainCode, tokenCode: p.tokenCode })),
+          ]
+        : [{ chainCode: data.chainCode, tokenCode: data.tokenCode }];
+
+    // Deduplicate pairs while preserving order.
+    const seen = new Set<string>();
+    const unique = pairs.filter((p) => {
+      const k = `${p.chainCode}:${p.tokenCode}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
     });
+
+    const lookup = await lookupFioHandleAny(fioHandle, unique);
     if (!lookup.registered) throw new Error("That FIO handle is not registered on chain.");
     if (!lookup.publicAddress) {
-      throw new Error(`No ${data.tokenCode} address is mapped to ${fioHandle} yet.`);
+      throw new Error(
+        `No mapped address on ${unique.map((p) => `${p.chainCode}/${p.tokenCode}`).join(", ")}. Map your wallet in the FIO app first.`,
+      );
     }
 
     const matches = lookup.publicAddress.toLowerCase() === wallet.address.toLowerCase();
@@ -61,11 +112,13 @@ export const attestFio = createServerFn({ method: "POST" })
           handle_id: wallet.handle_id,
           wallet_id: wallet.id,
           fio_handle: fioHandle,
-          chain_code: data.chainCode,
-          token_code: data.tokenCode,
+          chain_code: lookup.chainCode,
+          token_code: lookup.tokenCode,
           resolved_address: lookup.publicAddress,
           verified: matches,
           attested_at: matches ? new Date().toISOString() : null,
+          status: matches ? "valid" : "unmapped",
+          last_checked_at: new Date().toISOString(),
         },
         { onConflict: "handle_id,fio_handle,chain_code,token_code" },
       )

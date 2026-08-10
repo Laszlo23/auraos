@@ -386,7 +386,10 @@ export const updateTradingRisk = createServerFn({ method: "POST" })
       max_notional_usdc_day?: number;
       max_slippage_bps?: number;
     } = {};
-    if (data.max_risk_pct != null) patch.max_risk_pct = Math.min(5, Math.max(0.1, data.max_risk_pct));
+    if (data.max_risk_pct != null) {
+      const { clampFounderRiskPct } = await import("@/lib/trading/risk-policy");
+      patch.max_risk_pct = clampFounderRiskPct(data.max_risk_pct);
+    }
     if (data.max_notional_usdc_day != null) {
       patch.max_notional_usdc_day = Math.min(10_000, Math.max(10, data.max_notional_usdc_day));
     }

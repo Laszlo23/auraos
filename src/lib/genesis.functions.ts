@@ -12,6 +12,7 @@ import {
   walletOwnsGenesis,
 } from "@/lib/genesis.server";
 import { SITE_URL } from "@/lib/site";
+import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
 
 export type GenesisPurchaseStatus = {
   status: "none" | "pending" | "paid" | "minted" | "failed";
@@ -167,24 +168,8 @@ export const createGenesisCheckout = createServerFn({ method: "POST" })
     params.set("line_items[0][price]", priceId);
     params.set("line_items[0][quantity]", "1");
     if (user?.email) params.set("customer_email", user.email);
-    params.set("payment_method_types[0]", "card");
 
-    const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${secret}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params,
-    });
-    const session = (await stripeRes.json()) as {
-      id?: string;
-      url?: string;
-      error?: { message?: string };
-    };
-    if (!stripeRes.ok || !session.url || !session.id) {
-      throw new Error(session.error?.message || "Could not create Genesis checkout");
-    }
+    const session = await createStripeCheckoutSession(secret, params);
 
     await supabaseAdmin
       .from("genesis_purchases")

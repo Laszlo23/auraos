@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   AtSign,
   BadgeCheck,
+  ExternalLink,
   Link2,
   Loader2,
   RefreshCw,
@@ -17,6 +18,7 @@ import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { Chip, PageHeader, Panel } from "@/components/aura/primitives";
 import { SessionKeysPanel, SmartWalletPanel } from "@/components/aura/smart-wallet";
 import { useAwardXp } from "@/hooks/use-progress";
+import { FIO_CHAIN_PAIRS, fioRegisterUrl, suggestFioFromAuraHandle } from "@/lib/fio";
 import { getOkxStatus } from "@/lib/okx.functions";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -256,10 +258,12 @@ function lastChecked(rows: { last_checked_at: string | null }[]) {
 
 function FioPanel({
   handleId,
+  auraHandle,
   wallets,
   onAttested,
 }: {
   handleId: string;
+  auraHandle: string;
   wallets: WalletBinding[];
   onAttested: () => void;
 }) {
@@ -282,22 +286,46 @@ function FioPanel({
   }, [needsSweep, handleId, revalidate]);
 
   const verifiedWallets = wallets.filter((w) => w.verified);
-  const [fio, setFio] = useState("");
+  const suggested = suggestFioFromAuraHandle(auraHandle);
+  const [fio, setFio] = useState(suggested);
   const [walletId, setWalletId] = useState<string>(verifiedWallets[0]?.id ?? "");
   const [preview, setPreview] = useState<string | null>(null);
+  const [pair, setPair] = useState(FIO_CHAIN_PAIRS[0]!);
 
   const active = walletId || verifiedWallets[0]?.id || "";
+  const primary = attestations.find((a) => a.status === "valid");
 
   return (
-    <Panel label="FIO attestations" delay={0.1}>
-      <p className="mb-4 text-[13px] leading-relaxed text-muted-foreground">
-        Bind a FIO crypto handle to a verified wallet. We resolve the handle on the FIO chain and
-        store the attestation only when it maps to the exact address you signed with.
+    <Panel label="FIO crypto handle" glow delay={0.05}>
+      <p className="mb-3 text-[13px] leading-relaxed text-muted-foreground">
+        FIO is Aura&apos;s main crypto-handle service — human-readable receive addresses that travel
+        across wallets. Your in-app @{auraHandle} stays for the leaderboard; FIO is how people send
+        you crypto without pasting 0x… strings.
       </p>
+
+      {primary ? (
+        <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-primary">Primary FIO</p>
+          <p className="mt-1 font-display text-xl font-semibold">{primary.fio_handle}</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {primary.chain_code}/{primary.token_code} ·{" "}
+            {primary.resolved_address ? shortHash(primary.resolved_address) : "—"}
+          </p>
+        </div>
+      ) : (
+        <a
+          href={fioRegisterUrl(suggested)}
+          target="_blank"
+          rel="noreferrer"
+          className="mb-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold transition-colors hover:border-primary/40"
+        >
+          Get a FIO handle · map your wallet <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      )}
 
       {verifiedWallets.length === 0 ? (
         <p className="text-[12.5px] text-gold">
-          Verify at least one wallet slot to attest a FIO handle.
+          Verify at least one wallet slot, then attest so we can prove the on-chain mapping.
         </p>
       ) : (
         <div className="space-y-3">
@@ -305,6 +333,7 @@ function FioPanel({
             {verifiedWallets.map((w) => (
               <button
                 key={w.id}
+                type="button"
                 onClick={() => setWalletId(w.id)}
                 className={cn(
                   "rounded-2xl px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition-opacity",
@@ -318,6 +347,24 @@ function FioPanel({
             ))}
           </div>
 
+          <div className="flex flex-wrap gap-2">
+            {FIO_CHAIN_PAIRS.map((p) => (
+              <button
+                key={`${p.chainCode}-${p.tokenCode}`}
+                type="button"
+                onClick={() => setPair(p)}
+                className={cn(
+                  "rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider",
+                  pair.chainCode === p.chainCode && pair.tokenCode === p.tokenCode
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-foreground/8 text-muted-foreground",
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
           <label className="glass-soft flex items-center gap-2 rounded-2xl px-4 py-3">
             <Link2 className="h-4 w-4 shrink-0 text-primary" />
             <input
@@ -326,7 +373,7 @@ function FioPanel({
                 setFio(e.target.value.toLowerCase().replace(/[^a-z0-9@-]/g, ""));
                 setPreview(null);
               }}
-              placeholder="founder@aura"
+              placeholder={suggested}
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
             />
           </label>
@@ -337,12 +384,23 @@ function FioPanel({
 
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               disabled={!fio.includes("@") || resolve.isPending}
               onClick={async () => {
                 try {
-                  const res = await resolve.mutateAsync({ fioHandle: fio });
+                  const res = await resolve.mutateAsync({
+                    fioHandle: fio,
+                    chainCode: pair.chainCode,
+                    tokenCode: pair.tokenCode,
+                    tryAlternates: true,
+                  });
                   if (!res.registered) toast.error("That FIO handle is not registered yet.");
-                  else if (!res.publicAddress) toast.error("No ETH address mapped to that handle.");
+                  else if (!res.publicAddress)
+                    toast.error("No public address mapped — open FIO app and map this wallet.");
+                  else
+                    toast.success(
+                      `Mapped ${res.chainCode}/${res.tokenCode} · ${shortHash(res.publicAddress)}`,
+                    );
                   setPreview(res.publicAddress ? shortHash(res.publicAddress) : null);
                 } catch (error) {
                   toast.error(error instanceof Error ? error.message : "Lookup failed.");
@@ -353,11 +411,17 @@ function FioPanel({
               {resolve.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Resolve
             </button>
             <button
+              type="button"
               disabled={!fio.includes("@") || !active || attest.isPending}
               onClick={async () => {
                 try {
-                  await attest.mutateAsync({ fioHandle: fio, walletId: active });
-                  setFio("");
+                  await attest.mutateAsync({
+                    fioHandle: fio,
+                    walletId: active,
+                    chainCode: pair.chainCode,
+                    tokenCode: pair.tokenCode,
+                    tryAlternates: true,
+                  });
                   setPreview(null);
                   onAttested();
                 } catch (error) {
@@ -366,7 +430,8 @@ function FioPanel({
               }}
               className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
             >
-              {attest.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Attest
+              {attest.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Set as
+              primary
             </button>
           </div>
         </div>
@@ -379,6 +444,7 @@ function FioPanel({
               {revalidate.isPending ? "re-checking on chain…" : lastChecked(attestations)}
             </p>
             <button
+              type="button"
               onClick={() => revalidate.mutate(handleId)}
               disabled={revalidate.isPending}
               className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
@@ -403,9 +469,10 @@ function FioPanel({
                 </p>
               </div>
               <Chip tone={a.status === "valid" ? "primary" : "gold"}>
-                {a.status === "valid" ? "attested" : a.status === "changed" ? "updated" : "expired"}
+                {a.status === "valid" ? "live" : a.status === "changed" ? "updated" : "expired"}
               </Chip>
               <button
+                type="button"
                 onClick={() => remove.mutate(a.id)}
                 className="text-muted-foreground transition-colors hover:text-foreground"
                 aria-label={`Remove ${a.fio_handle}`}
@@ -445,7 +512,7 @@ function IdentityBody() {
       <PageHeader
         eyebrow="Identity"
         title={handle ? `@${handle.handle}` : "Claim your founder identity"}
-        description="One handle, three wallets, one public record. FIO-ready so your handle travels with you."
+        description="In-app @handle for Aura. FIO crypto handle for receiving — our main handle rail across web3."
         actions={
           <Chip tone={verified > 0 ? "primary" : "gold"}>
             <ShieldCheck className="h-3 w-3" /> {verified}/3 verified
@@ -488,6 +555,13 @@ function IdentityBody() {
             </div>
           </Panel>
 
+          <FioPanel
+            handleId={handle.id}
+            auraHandle={handle.handle}
+            wallets={wallets}
+            onAttested={() => celebrate("FIO handle attested", 175, "identity:fio")}
+          />
+
           <SmartWalletPanel
             handleId={handle.id}
             onProvisioned={() => celebrate("Smart wallet live", 200, "identity:smart")}
@@ -514,12 +588,6 @@ function IdentityBody() {
           <SessionKeysPanel walletId={wallets.find((w) => w.slot === 1)?.id ?? null} />
 
           <OkxRailsPanel />
-
-          <FioPanel
-            handleId={handle.id}
-            wallets={wallets}
-            onAttested={() => celebrate("FIO handle attested", 175, "identity:fio")}
-          />
         </>
       )}
     </div>

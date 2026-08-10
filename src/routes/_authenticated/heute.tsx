@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Star, Users, Megaphone, Sparkle } from "lucide-react";
 
 import { Chip, Panel, Pulse } from "@/components/aura/primitives";
+import { useLocale } from "@/hooks/use-locale";
 import { getLokalHub } from "@/lib/local-seat.functions";
 import { compact } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/heute")({
 });
 
 function HeutePage() {
+  const { t } = useLocale();
   const hub = useQuery({
     queryKey: ["lokal-hub"],
     queryFn: () => getLokalHub(),
@@ -26,46 +28,47 @@ function HeutePage() {
   const nextCopy =
     next === "seat"
       ? {
-          title: "Local Seat freischalten",
-          body: "99 € einmalig — Code von der Theke einlösen oder mit Karte zahlen.",
+          title: t("heute.seatTitle"),
+          body: t("heute.seatBody"),
           to: "/boost" as const,
-          cta: "Seat öffnen",
+          cta: t("heute.seatCta"),
         }
       : next === "social"
         ? {
-            title: "Social verbinden",
-            body: "Instagram, Facebook oder andere Kanäle einmal verbinden.",
+            title: t("heute.socialTitle"),
+            body: t("heute.socialBody"),
             to: "/social" as const,
-            cta: "Zu Social",
+            cta: t("heute.socialCta"),
           }
         : next === "reviews" || next === "reviews_start"
           ? {
-              title: "Google-Bewertungen",
-              body: "Review-Link einfügen und echte Kunden einladen.",
+              title: t("heute.reviewsTitle"),
+              body: t("heute.reviewsBody"),
               to: "/bewertungen" as const,
-              cta: "Zu Bewertungen",
+              cta: t("heute.reviewsCta"),
             }
           : {
-              title: "Boost nutzen",
-              body: "Sichtbarkeit, Bewertungen oder Neukunden — ein Paket wählen.",
+              title: t("heute.boostTitle"),
+              body: t("heute.boostBody"),
               to: "/boost" as const,
-              cta: "Boost öffnen",
+              cta: t("heute.boostCta"),
             };
 
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Heute</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+          {t("nav.heute")}
+        </p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-          {data?.company.name || "Dein Betrieb"}
+          {data?.company.name || "—"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {[data?.company.city, data?.company.niche].filter(Boolean).join(" · ") ||
-            "Lokales Service-Geschäft"}
+          {[data?.company.city, data?.company.niche].filter(Boolean).join(" · ") || "·"}
         </p>
       </div>
 
-      <Panel label="Nächster Schritt" glow>
+      <Panel label={t("heute.next")} glow>
         <p className="font-display text-xl font-semibold">{nextCopy.title}</p>
         <p className="mt-2 text-sm text-muted-foreground">{nextCopy.body}</p>
         <Link
@@ -78,21 +81,25 @@ function HeutePage() {
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-3xl border border-border/40 bg-card/30 p-4">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Boost</p>
+          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            {t("common.boost")}
+          </p>
           <p className="mt-2 flex items-center gap-1.5 font-display text-2xl font-semibold tabular-nums">
             <Sparkle className="h-4 w-4 text-gold" />
             {compact(data?.boostBalance ?? 0)}
           </p>
         </div>
         <div className="rounded-3xl border border-border/40 bg-card/30 p-4">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Seat</p>
+          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            {t("common.seat")}
+          </p>
           <p className="mt-2 text-sm font-semibold">
             {data?.seatPaid ? (
               <span className="inline-flex items-center gap-1.5">
-                <Pulse tone="gold" /> Aktiv
+                <Pulse tone="gold" /> {t("heute.seatActive")}
               </span>
             ) : (
-              "Offen"
+              t("heute.seatOpen")
             )}
           </p>
         </div>
@@ -101,28 +108,33 @@ function HeutePage() {
       <div className="grid gap-2">
         {(
           [
-            { to: "/social", label: "Social", icon: Megaphone },
-            { to: "/kunden", label: "Kunden", icon: Users },
-            { to: "/bewertungen", label: "Bewertungen", icon: Star },
+            ["/social", Megaphone, t("nav.social")],
+            ["/kunden", Users, t("nav.kunden")],
+            ["/bewertungen", Star, t("nav.bewertungen")],
           ] as const
-        ).map((item) => (
+        ).map(([to, Icon, label]) => (
           <Link
-            key={item.to}
-            to={item.to}
+            key={to}
+            to={to}
             className={cn(
               "flex items-center gap-3 rounded-2xl border border-border/40 bg-card/20 px-4 py-3 text-sm font-semibold",
             )}
           >
-            <item.icon className="h-4 w-4 text-primary" />
-            {item.label}
+            <Icon className="h-4 w-4 text-primary" />
+            {label}
             <ArrowRight className="ml-auto h-3.5 w-3.5 text-muted-foreground" />
           </Link>
         ))}
+        <Link
+          to="/akquise"
+          search={{ autostart: true }}
+          className="flex items-center gap-3 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3 text-sm font-semibold"
+        >
+          <Users className="h-4 w-4 text-primary" />
+          {t("heute.huntCta")}
+          <Chip className="ml-auto text-[10px]">Run</Chip>
+        </Link>
       </div>
-
-      {data?.company.local_cohort_number ? (
-        <Chip tone="gold">Review Boost #{data.company.local_cohort_number}</Chip>
-      ) : null}
     </div>
   );
 }

@@ -28,7 +28,7 @@ import { trackAppEvent } from "@/lib/app-track";
 import { supabase } from "@/integrations/supabase/client";
 import { Pulse } from "./primitives";
 import { CeoChat } from "./ceo-chat";
-import { isLocalDeCompany, LocalDeShell } from "./local-de-shell";
+import { isLocalFunnelCompany, LocalDeShell } from "./local-de-shell";
 import {
   CommandDialog,
   CommandEmpty,
@@ -45,7 +45,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     return <div className="min-h-svh bg-background">{children}</div>;
   }
 
-  if (isLocalDeCompany(company)) {
+  if (isLocalFunnelCompany(company)) {
     return <LocalDeShell>{children}</LocalDeShell>;
   }
 

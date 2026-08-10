@@ -253,7 +253,7 @@ export async function applyBoostPackKickoff(
       company_id: companyId,
       title: "Neukunden · Lead Hunter",
       summary:
-        "Öffne /akquise?autostart=1 um die Recherche jetzt zu starten. Keine Fake-Leads — nur Web-Quellen.",
+        "Open /akquise?autostart=1 to run research now. Real web sources only — no fake leads.",
       cluster: "Lokal",
       source: "Boost",
     });

@@ -47,6 +47,7 @@ import {
   updateTradingRisk,
 } from "@/lib/trading.functions";
 import { currency, timeAgo } from "@/lib/format";
+import { clampFounderRiskPct, effectiveSpotRiskPct } from "@/lib/trading/risk-policy";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/trading")({
@@ -230,7 +231,7 @@ function TradingPage() {
 
   useEffect(() => {
     if (company?.max_notional_usdc_day != null) setRiskDay(Number(company.max_notional_usdc_day));
-    if (company?.max_risk_pct != null) setRiskPct(Number(company.max_risk_pct));
+    if (company?.max_risk_pct != null) setRiskPct(clampFounderRiskPct(Number(company.max_risk_pct)));
   }, [company?.max_notional_usdc_day, company?.max_risk_pct]);
 
   const pop = (label: string, amount: number, quest: string) => {
@@ -420,11 +421,13 @@ function TradingPage() {
   const onSaveRisk = async () => {
     if (!company) return;
     try {
+      const capped = clampFounderRiskPct(riskPct);
+      setRiskPct(capped);
       await updateTradingRisk({
         data: {
           companyId: company.id,
           max_notional_usdc_day: riskDay,
-          max_risk_pct: riskPct,
+          max_risk_pct: capped,
         },
       });
       toast.success("Risk caps saved.");
@@ -494,7 +497,7 @@ function TradingPage() {
         dailyLimit={Number(company?.max_notional_usdc_day ?? riskDay)}
         dailyUsed={dailyUsed}
         usdcBalance={Number(treasury?.usdc ?? readiness?.usdc ?? 0)}
-        maxRiskPct={Number(company?.max_risk_pct ?? riskPct)}
+        maxRiskPct={effectiveSpotRiskPct(Number(company?.max_risk_pct ?? riskPct))}
         openTrades={open}
         closedTrades={closed}
         activeStrategy={activeStrategy}
@@ -561,6 +564,8 @@ function TradingPage() {
               <input
                 type="number"
                 step="0.1"
+                min={0.1}
+                max={3}
                 value={riskPct}
                 onChange={(e) => setRiskPct(Number(e.target.value))}
                 className="mt-1 w-full rounded-xl bg-foreground/6 px-3 py-2 text-sm outline-none"
@@ -576,7 +581,11 @@ function TradingPage() {
           </div>
           <div className="mt-3 flex items-start gap-2 text-[12px] text-muted-foreground">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-            Caps and Disarm are the kill switch. Quant cannot exceed daily notional.
+            <span>
+              Base hard USDC cap: <span className="text-foreground">2% of wallet equity per idea</span>{" "}
+              (industry spot band 1–3%). Founder setting max 3%. Caps and Disarm are the kill switch —
+              Quant cannot exceed daily notional or the hard equity ceiling.
+            </span>
           </div>
         </Panel>
       ) : null}

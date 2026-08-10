@@ -111,7 +111,20 @@ export function captureAttribution(): Attribution {
     }
   }
 
-  if (pathLang) rememberLocale(pathLang);
+  if (pathLang) {
+    rememberLocale(pathLang);
+  } else {
+    // First visit: prefer browser language when nothing explicit is set.
+    try {
+      const existing = window.localStorage.getItem(LANG_KEY);
+      if (existing !== "de" && existing !== "en") {
+        const nav = (navigator.language || "").toLowerCase();
+        rememberLocale(nav.startsWith("de") ? "de" : "en");
+      }
+    } catch {
+      /* private mode */
+    }
+  }
 
   const stored = read();
   const merged: Attribution = { ...EMPTY };
@@ -179,6 +192,12 @@ export function peekLocale(): UiLocale {
   }
   const attr = read();
   if (attr.lang === "de" || attr.lang === "en") return attr.lang;
+  try {
+    const nav = (navigator.language || "").toLowerCase();
+    if (nav.startsWith("de")) return "de";
+  } catch {
+    /* ignore */
+  }
   return "en";
 }
 
@@ -192,8 +211,12 @@ export function takeLocale(): UiLocale {
   return locale;
 }
 
-export function authHrefForLokal(mode: "signin" | "signup" = "signup"): string {
-  return `/auth?funnel=local&lang=de&mode=${mode}`;
+export function authHrefForLokal(
+  mode: "signin" | "signup" = "signup",
+  locale?: UiLocale,
+): string {
+  const lang = locale ?? peekLocale();
+  return `/auth?funnel=local&lang=${lang}&mode=${mode}`;
 }
 
 function read(): Attribution {

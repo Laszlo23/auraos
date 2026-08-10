@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { SITE_URL } from "@/lib/site";
+import { assertStripeChargesEnabled } from "@/lib/stripe-account";
+import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
 
 const FOUNDING_SEAT_PRICE_CENTS = 9900;
 
@@ -35,6 +37,15 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
         if (!secret || !priceId) {
           return Response.json(
             { error: "Founding seat checkout is not configured" },
+            { status: 503 },
+          );
+        }
+
+        try {
+          await assertStripeChargesEnabled(secret);
+        } catch (e) {
+          return Response.json(
+            { error: e instanceof Error ? e.message : "Stripe charges are not enabled yet." },
             { status: 503 },
           );
         }
@@ -113,33 +124,20 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
         params.set("line_items[0][price]", priceId);
         params.set("line_items[0][quantity]", "1");
         if (user.email) params.set("customer_email", user.email);
-        params.set("payment_method_types[0]", "card");
 
-        const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${secret}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: params,
-        });
-        const session = (await stripeRes.json()) as {
-          id?: string;
-          url?: string;
-          error?: { message?: string };
-        };
-        if (!stripeRes.ok || !session.url) {
+        try {
+          const session = await createStripeCheckoutSession(secret, params);
+          return Response.json({
+            url: session.url,
+            id: session.id,
+            amount_cents: FOUNDING_SEAT_PRICE_CENTS,
+          });
+        } catch (e) {
           return Response.json(
-            { error: session.error?.message || "Could not create checkout session" },
+            { error: e instanceof Error ? e.message : "Could not create checkout session" },
             { status: 502 },
           );
         }
-
-        return Response.json({
-          url: session.url,
-          id: session.id,
-          amount_cents: FOUNDING_SEAT_PRICE_CENTS,
-        });
       },
     },
   },

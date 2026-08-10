@@ -9,6 +9,7 @@ import { FoundingCohort } from "@/components/aura/scarcity";
 import { VideoBackdrop } from "@/components/aura/video-bg";
 import { Chip, Meter, Pulse } from "@/components/aura/primitives";
 import { useCompany } from "@/hooks/use-aura";
+import { useLocale } from "@/hooks/use-locale";
 import { useConnectChannel, type SocialProvider } from "@/hooks/use-connections";
 import { useAwardXp, useCompleteOnboarding, useProgress } from "@/hooks/use-progress";
 import { useAdvanceReferral, useProvisionSmartWallet } from "@/hooks/use-earn";
@@ -78,7 +79,8 @@ function Onboarding() {
   const entryFunnel: FunnelId =
     company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
   const funnelDef = funnelById(entryFunnel);
-  const isLokalDe = entryFunnel === "local" && company?.ui_locale === "de";
+  const isLokal = entryFunnel === "local";
+  const { t, locale } = useLocale();
   const skipProductPicker = funnelDef.bootstrap.skipProductPicker;
   const { data: progress } = useProgress();
   const award = useAwardXp();
@@ -117,9 +119,9 @@ function Onboarding() {
           name: name.trim(),
           city: city.trim() || null,
           niche: niche.trim() || null,
-          is_local_business: isLocal || isLokalDe,
-          network_backlink: isLocal || isLokalDe,
-          ...(isLokalDe ? { ui_locale: "de" } : {}),
+          is_local_business: isLocal || isLokal,
+          network_backlink: isLocal || isLokal,
+          ...(isLokal ? { ui_locale: locale } : {}),
         })
         .eq("id", company.id);
       await qc.invalidateQueries({ queryKey: ["company"] });
@@ -217,16 +219,13 @@ function Onboarding() {
       /* no referrer, or already credited */
     }
 
-    const dest =
-      isLokalDe || (entryFunnel === "local" && company?.ui_locale === "de")
-        ? "/heute"
-        : entryFunnel === "local"
-          ? "/business"
-          : entryFunnel !== "os"
-            ? "/missions"
-            : product === "trading"
-              ? "/trading"
-              : "/console";
+    const dest = isLokal
+      ? "/boost"
+      : entryFunnel !== "os"
+        ? "/missions"
+        : product === "trading"
+          ? "/trading"
+          : "/console";
     setTimeout(() => navigate({ to: dest }), 1200);
   };
 
@@ -271,14 +270,14 @@ function Onboarding() {
             {step === 0 && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
-                  {isLokalDe ? "Schritt 1" : "Step one"}
+                  {isLokal ? t("onboarding.lokalStep") : "Step one"}
                 </p>
                 <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  {isLokalDe ? "Wie heißt dein Betrieb?" : "Name the online business."}
+                  {isLokal ? t("onboarding.lokalAsk") : "Name the online business."}
                 </h1>
                 <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  {isLokalDe
-                    ? "Friseur, Beauty, Gastro, Immobilien oder Handwerk — kurz und klar."
+                  {isLokal
+                    ? t("onboarding.lokalHint")
                     : "Prefer local / niche businesses — published landings can join the founding backlink network. Token launch is separate from this seat."}
                 </p>
                 <input
@@ -287,8 +286,10 @@ function Onboarding() {
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && saveName()}
                   placeholder={
-                    isLokalDe
-                      ? "z. B. Salon Mira"
+                    isLokal
+                      ? locale === "de"
+                        ? "z. B. Salon Mira"
+                        : "e.g. Salon Mira"
                       : company?.name && company.name !== "Untitled company"
                         ? company.name
                         : "e.g. Northwind Labs"
@@ -299,10 +300,10 @@ function Onboarding() {
                   <input
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder={isLokalDe ? "Stadt" : "City (optional)"}
+                    placeholder={isLokal ? t("onboarding.city") : "City (optional)"}
                     className="glass w-full rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/40"
                   />
-                  {!isLokalDe ? (
+                  {!isLokal ? (
                     <input
                       value={niche}
                       onChange={(e) => setNiche(e.target.value)}
@@ -311,7 +312,7 @@ function Onboarding() {
                     />
                   ) : null}
                 </div>
-                {isLokalDe ? (
+                {isLokal ? (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {LOCAL_DE_NICHES.map((n) => (
                       <button
@@ -345,7 +346,7 @@ function Onboarding() {
                 )}
                 <StepAction
                   onClick={saveName}
-                  label={isLokalDe ? "Weiter" : "Wake the company"}
+                  label={isLokal ? t("common.continue") : "Wake the company"}
                 />
               </section>
             )}
@@ -507,6 +508,21 @@ function Onboarding() {
                       tone="gold"
                     />
                   </>
+                ) : isLokal ? (
+                  <>
+                    <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
+                      {t("onboarding.lokalTitle")}
+                    </h1>
+                    <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                      {t("onboarding.lokalBlurb")}
+                    </p>
+                    <StepAction
+                      onClick={finish}
+                      label={finishing ? t("onboarding.opening") : t("onboarding.finishLokal")}
+                      busy={finishing}
+                      tone="gold"
+                    />
+                  </>
                 ) : (
                   <>
                     <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
@@ -539,11 +555,11 @@ function Onboarding() {
         <button
           onClick={() => {
             void complete.mutateAsync();
-            navigate({ to: "/console" });
+            navigate({ to: isLokal ? "/boost" : "/console" });
           }}
           className="mt-10 text-[12px] text-muted-foreground/60 transition-colors hover:text-foreground"
         >
-          Skip — I'll explore first
+          Skip — I&apos;ll explore first
         </button>
       </div>
     </div>

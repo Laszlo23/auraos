@@ -207,17 +207,26 @@ export async function bootstrapFunnelCompany(
       .select("ui_locale")
       .eq("id", companyId)
       .maybeSingle();
-    if (companyRow?.ui_locale === "de") {
+    if (companyRow) {
       await supabase.from("knowledge_items").insert({
         company_id: companyId,
-        title: "Aura Lokal · Spielregeln",
-        summary: [
-          "Nur echte Kunden um Google-Bewertungen bitten — keine Fake-Reviews.",
-          "Social: Entwürfe freigeben, nichts ungeprüft posten.",
-          "Boost-Pakete: Sichtbarkeit, Bewertungen, Neukunden.",
-          "Local Seat 99 € — Code (Bar) oder Karte auf /boost.",
-          "App-Tabs: Heute, Social, Kunden, Bewertungen, Boost.",
-        ].join("\n"),
+        title: companyRow.ui_locale === "de" ? "Aura Lokal · Spielregeln" : "Aura Lokal · playbook",
+        summary:
+          companyRow.ui_locale === "de"
+            ? [
+                "Nur echte Kunden um Google-Bewertungen bitten — keine Fake-Reviews.",
+                "Social: Entwürfe freigeben, nichts ungeprüft posten.",
+                "Boost-Pakete: Sichtbarkeit, Bewertungen, Neukunden.",
+                "Local Seat 99 € — Code (Bar) oder Karte auf /boost.",
+                "App-Tabs: Heute, Social, Kunden, Bewertungen, Boost.",
+              ].join("\n")
+            : [
+                "Ask real customers for Google reviews only — no fake reviews.",
+                "Social: approve drafts; nothing posts unchecked.",
+                "Boost packs: Visibility, Reviews, New customers.",
+                "Local Seat €99 — cash code or card on /boost.",
+                "Tabs: Today, Social, Customers, Reviews, Boost.",
+              ].join("\n"),
         cluster: "Lokal",
         source: "Funnel",
       });

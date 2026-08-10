@@ -63,6 +63,27 @@ function ProfilePage() {
     },
   });
 
+  const { data: fioHandles = [] } = useQuery({
+    queryKey: ["public-fio", (profile as { id?: string } | null)?.id],
+    enabled: Boolean((profile as { id?: string } | null)?.id),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fio_attestations")
+        .select("fio_handle, chain_code, token_code, status, verified")
+        .eq("handle_id", (profile as { id: string }).id)
+        .eq("verified", true)
+        .eq("status", "valid");
+      if (error) throw error;
+      return (data ?? []) as {
+        fio_handle: string;
+        chain_code: string;
+        token_code: string;
+        status: string;
+        verified: boolean;
+      }[];
+    },
+  });
+
   if (!isLoading && !profile) {
     return (
       <main className="mx-auto max-w-[720px] px-6 py-24 text-center">
@@ -101,6 +122,11 @@ function ProfilePage() {
             {p?.display_name ?? handle}
           </h1>
           <p className="text-[13px] text-muted-foreground">@{handle}</p>
+          {fioHandles[0] ? (
+            <p className="mt-1 text-[13px] font-semibold text-primary">
+              FIO · {fioHandles[0].fio_handle}
+            </p>
+          ) : null}
           <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
             {p?.bio ?? p?.companies?.tagline ?? "Building an autonomous company in public."}
           </p>
@@ -209,6 +235,26 @@ function ProfilePage() {
             ))
           )}
         </Panel>
+
+        {fioHandles.length > 0 ? (
+          <Panel label="FIO crypto handles" bodyClassName="p-0" delay={0.04}>
+            {fioHandles.map((f) => (
+              <div
+                key={`${f.fio_handle}-${f.chain_code}-${f.token_code}`}
+                className="flex items-center gap-3 border-b border-border/40 px-5 py-3.5 last:border-0"
+              >
+                <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold">{f.fio_handle}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {f.chain_code}/{f.token_code}
+                  </p>
+                </div>
+                <Chip tone="primary">FIO</Chip>
+              </div>
+            ))}
+          </Panel>
+        ) : null}
 
         <Panel label="Milestones" bodyClassName="p-0" delay={0.05}>
           {milestones.length === 0 ? (

@@ -183,7 +183,7 @@ function BewertungenPage() {
               onClick={() => addInvite.mutate()}
               className="rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-60"
             >
-              Entwurf anlegen
+              Entwurf anlegen · Link kopieren
             </button>
           </div>
           <ul className="mt-4 max-h-64 space-y-2 overflow-y-auto">
@@ -224,7 +224,7 @@ function BewertungenPage() {
                         )
                       }
                     >
-                      Gesendet
+                      Als gesendet markieren
                     </button>
                   ) : null}
                   {inv.status !== "completed" ? (

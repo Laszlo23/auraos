@@ -15,6 +15,8 @@ import {
   stripePriceForFunnelPlan,
 } from "@/lib/funnel-plans";
 import { SITE_URL } from "@/lib/site";
+import { assertStripeChargesEnabled } from "@/lib/stripe-account";
+import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
 
 function priceForAuraPlan(plan: string): string | undefined {
   const map: Record<string, string | undefined> = {
@@ -53,6 +55,15 @@ export const Route = createFileRoute("/api/billing/checkout")({
         const secret = process.env["STRIPE_SECRET_KEY"];
         if (!secret) {
           return Response.json({ error: "Stripe is not configured" }, { status: 503 });
+        }
+
+        try {
+          await assertStripeChargesEnabled(secret);
+        } catch (e) {
+          return Response.json(
+            { error: e instanceof Error ? e.message : "Stripe charges are not enabled yet." },
+            { status: 503 },
+          );
         }
 
         const token = accessTokenFromRequest(request);
@@ -107,8 +118,6 @@ export const Route = createFileRoute("/api/billing/checkout")({
           params.set("metadata[entry_funnel]", company.entry_funnel);
         }
         if (user.email) params.set("customer_email", user.email);
-        // Explicit card PM — account may not have automatic PMs enabled for EUR yet.
-        params.append("payment_method_types[0]", "card");
 
         if (plan === LOCAL_SEAT_PLAN_ID) {
           const price = process.env["STRIPE_PRICE_LOCAL_SEAT"]?.trim();
@@ -184,27 +193,15 @@ export const Route = createFileRoute("/api/billing/checkout")({
           params.set("line_items[0][quantity]", "1");
         }
 
-        const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${secret}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: params,
-        });
-        const session = (await stripeRes.json()) as {
-          id?: string;
-          url?: string;
-          error?: { message?: string };
-        };
-        if (!stripeRes.ok || !session.url) {
+        try {
+          const session = await createStripeCheckoutSession(secret, params);
+          return Response.json({ url: session.url, id: session.id });
+        } catch (e) {
           return Response.json(
-            { error: session.error?.message || "Could not create checkout session" },
+            { error: e instanceof Error ? e.message : "Could not create checkout session" },
             { status: 502 },
           );
         }
-
-        return Response.json({ url: session.url, id: session.id });
       },
     },
   },

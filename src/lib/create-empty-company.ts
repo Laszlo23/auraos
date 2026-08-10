@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { peekFunnel, peekLocale, takeFunnel, takeLocale } from "@/lib/attribution";
+import { peekFunnel, peekLocale, rememberLocale, takeFunnel } from "@/lib/attribution";
 import { isFunnelId, type FunnelId } from "@/lib/funnels";
 
 const ATLAS_MEMORY =
@@ -24,8 +24,8 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
 
   const funnelRaw = entryFunnel ?? peekFunnel();
   const funnel: FunnelId = isFunnelId(funnelRaw) ? funnelRaw : "os";
-  const uiLocale = peekLocale();
-  const stampDe = funnel === "local" && uiLocale === "de";
+  const uiLocale = peekLocale() === "de" ? "de" : "en";
+  const lokalDefaultName = uiLocale === "de" ? "Mein Betrieb" : "My shop";
 
   // Funnel free-door: never invent a second company for the same owner.
   const { data: existing } = await supabase
@@ -41,7 +41,7 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
     .from("companies")
     .insert({
       owner_id: ownerId,
-      name: stampDe ? "Mein Betrieb" : "Untitled company",
+      name: funnel === "local" ? lokalDefaultName : "Untitled company",
       tagline: null,
       emoji: "◎",
       credits: 0,
@@ -50,7 +50,7 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
       strategy: null,
       autonomy: 0,
       entry_funnel: funnel,
-      ui_locale: stampDe ? "de" : uiLocale === "de" ? "de" : "en",
+      ui_locale: uiLocale,
       ...(funnel === "local"
         ? { is_local_business: true, network_backlink: true }
         : {}),
@@ -125,6 +125,6 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
   ]);
 
   takeFunnel();
-  takeLocale();
+  rememberLocale(uiLocale);
   return company;
 }

@@ -1,16 +1,18 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Home, LogOut, Megaphone, Sparkle, Star, Users, Zap } from "lucide-react";
 
-import { LOCAL_DE_TABS } from "@/lib/boost-packs";
-import { compact } from "@/lib/format";
+import { LanguageToggle } from "@/components/aura/language-toggle";
+import { Pulse } from "@/components/aura/primitives";
+import { useLocale } from "@/hooks/use-locale";
 import { useCompany } from "@/hooks/use-aura";
 import { useSubscription } from "@/hooks/use-tokens";
 import { useProgress } from "@/hooks/use-progress";
+import { LOCAL_DE_TABS } from "@/lib/boost-packs";
+import { compact } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { Pulse } from "@/components/aura/primitives";
 
 const TAB_ICONS: Record<(typeof LOCAL_DE_TABS)[number]["to"], LucideIcon> = {
   "/heute": Home,
@@ -20,12 +22,30 @@ const TAB_ICONS: Record<(typeof LOCAL_DE_TABS)[number]["to"], LucideIcon> = {
   "/boost": Zap,
 };
 
+const TAB_KEYS: Record<(typeof LOCAL_DE_TABS)[number]["to"], string> = {
+  "/heute": "nav.heute",
+  "/social": "nav.social",
+  "/kunden": "nav.kunden",
+  "/bewertungen": "nav.bewertungen",
+  "/boost": "nav.boost",
+};
+
+/** Lokal product shell — driven by entry funnel, not UI language. */
+export function isLocalFunnelCompany(company: {
+  entry_funnel?: string | null;
+} | null | undefined): boolean {
+  return company?.entry_funnel === "local";
+}
+
+/** @deprecated use isLocalFunnelCompany */
 export function isLocalDeCompany(company: {
   entry_funnel?: string | null;
   ui_locale?: string | null;
 } | null | undefined): boolean {
-  return company?.entry_funnel === "local" && company?.ui_locale === "de";
+  return isLocalFunnelCompany(company);
 }
+
+const SEAT_GATED = new Set(["/heute", "/social", "/kunden", "/bewertungen", "/akquise"]);
 
 export function LocalDeShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -33,21 +53,64 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
   const { data: company } = useCompany();
   const { data: sub } = useSubscription();
   const { data: progress } = useProgress();
+  const { t, locale, setLocale } = useLocale();
 
   const needsOnboarding = Boolean(progress && !progress.onboarded);
   const immersive = pathname === "/onboarding";
   const seatPaid = Boolean(company?.local_seat_paid_at);
 
   useEffect(() => {
+    if (company?.ui_locale === "de" || company?.ui_locale === "en") {
+      if (company.ui_locale !== locale) {
+        // Prefer persisted company locale when opening Lokal shell the first time.
+        try {
+          const raw = window.localStorage.getItem("aura.ui_locale");
+          if (raw !== "de" && raw !== "en") setLocale(company.ui_locale);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  }, [company?.ui_locale, locale, setLocale]);
+
+  useEffect(() => {
     if (needsOnboarding && pathname !== "/onboarding") {
       navigate({ to: "/onboarding" });
+      return;
     }
-  }, [needsOnboarding, pathname, navigate]);
-
-  const tabs = useMemo(() => [...LOCAL_DE_TABS], []);
+    if (
+      !needsOnboarding &&
+      !seatPaid &&
+      SEAT_GATED.has(pathname) &&
+      pathname !== "/boost"
+    ) {
+      navigate({ to: "/boost" });
+    }
+  }, [needsOnboarding, pathname, navigate, seatPaid]);
 
   if (immersive) {
     return <div className="min-h-svh bg-background">{children}</div>;
+  }
+
+  if (!needsOnboarding && !seatPaid && pathname !== "/boost") {
+    return (
+      <div className="relative flex min-h-svh flex-col items-center justify-center bg-background px-6 text-center">
+        <LanguageToggle className="absolute right-4 top-4" />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+          Aura Lokal
+        </p>
+        <h1 className="mt-4 max-w-md font-display text-3xl font-semibold tracking-tight">
+          {t("paywall.title")}
+        </h1>
+        <p className="mt-3 max-w-sm text-sm text-muted-foreground">{t("paywall.body")}</p>
+        <Link
+          to="/boost"
+          className="mt-8 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
+        >
+          {t("paywall.cta")}
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -67,23 +130,24 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
             Aura <span className="text-muted-foreground">Lokal</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
+            <LanguageToggle />
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/40 px-2.5 py-1 text-[11px] font-semibold tabular-nums">
               <Sparkle className="h-3 w-3 text-gold" />
-              {compact(sub?.tokens_remaining ?? 0)} Boost
+              {compact(sub?.tokens_remaining ?? 0)} {t("common.boost")}
             </span>
             {!seatPaid ? (
               <Link
                 to="/boost"
                 className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground"
               >
-                Seat
+                {t("common.seat")}
               </Link>
             ) : (
               <Pulse tone="gold" />
             )}
             <button
               type="button"
-              aria-label="Abmelden"
+              aria-label={t("common.signOut")}
               className="rounded-full p-1.5 text-muted-foreground hover:text-foreground"
               onClick={async () => {
                 await supabase.auth.signOut();
@@ -100,23 +164,25 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
         <ul className="mx-auto grid max-w-lg grid-cols-5 gap-0 px-1 py-1.5">
-          {tabs.map((tab) => {
+          {LOCAL_DE_TABS.map((tab) => {
             const active = pathname === tab.to || pathname.startsWith(`${tab.to}/`);
             const Icon = TAB_ICONS[tab.to];
+            const locked = !seatPaid && tab.to !== "/boost";
             return (
               <li key={tab.to}>
                 <Link
-                  to={tab.to}
+                  to={locked ? "/boost" : tab.to}
                   className={cn(
                     "flex flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] transition-colors",
                     active ? "text-primary" : "text-muted-foreground",
+                    locked && "opacity-50",
                   )}
                 >
                   <Icon
                     className={cn("h-5 w-5", active ? "stroke-[2.25]" : "stroke-[1.75]")}
                     aria-hidden
                   />
-                  <span>{tab.label}</span>
+                  <span>{t(TAB_KEYS[tab.to])}</span>
                 </Link>
               </li>
             );

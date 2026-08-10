@@ -62,12 +62,18 @@ export function useFioAttestations(handleId?: string) {
 /** Looks up what a FIO handle currently maps to, without writing anything. */
 export function useResolveFio() {
   return useMutation({
-    mutationFn: (input: { fioHandle: string; chainCode?: string; tokenCode?: string }) =>
+    mutationFn: (input: {
+      fioHandle: string;
+      chainCode?: string;
+      tokenCode?: string;
+      tryAlternates?: boolean;
+    }) =>
       resolveFio({
         data: {
           fioHandle: input.fioHandle,
           chainCode: input.chainCode ?? "ETH",
           tokenCode: input.tokenCode ?? "ETH",
+          tryAlternates: input.tryAlternates ?? true,
         },
       }),
   });
@@ -82,6 +88,7 @@ export function useAttestFio() {
       walletId: string;
       chainCode?: string;
       tokenCode?: string;
+      tryAlternates?: boolean;
     }) =>
       attestFio({
         data: {
@@ -89,6 +96,7 @@ export function useAttestFio() {
           walletId: input.walletId,
           chainCode: input.chainCode ?? "ETH",
           tokenCode: input.tokenCode ?? "ETH",
+          tryAlternates: input.tryAlternates ?? true,
         },
       }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["fio"] }),

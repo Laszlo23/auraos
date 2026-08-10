@@ -6,6 +6,7 @@ import {
   type SiteContent,
 } from "@/lib/sites/templates";
 import { SITE_URL } from "@/lib/site";
+import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
 
 function parseContent(raw: unknown): SiteContent {
   const c = (raw && typeof raw === "object" ? raw : {}) as Partial<SiteContent>;
@@ -179,19 +180,7 @@ export const createSiteCheckout = createServerFn({ method: "POST" })
     params.set("metadata[product_id]", product.id);
     params.set("metadata[customer_email]", data.email);
     params.set("client_reference_id", site.id);
-    params.set("payment_method_types[0]", "card");
 
-    const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${secret}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params.toString(),
-    });
-    const json = (await res.json()) as { id?: string; url?: string; error?: { message?: string } };
-    if (!res.ok || !json.url) {
-      throw new Error(json.error?.message ?? "Could not start checkout");
-    }
-    return { url: json.url, sessionId: json.id ?? null };
+    const session = await createStripeCheckoutSession(secret, params);
+    return { url: session.url, sessionId: session.id };
   });

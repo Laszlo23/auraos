@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, KeyRound } from "lucide-react";
 
+import { LanguageToggle } from "@/components/aura/language-toggle";
 import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
 import { Chip, Panel, Pulse } from "@/components/aura/primitives";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -131,7 +132,8 @@ function AccessPage() {
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Home
           </Link>
-          <Chip className="ml-auto">Invite-only · paid seats</Chip>
+          <LanguageToggle className="ml-auto" />
+          <Chip>Invite-only · paid seats</Chip>
         </div>
       </header>
 

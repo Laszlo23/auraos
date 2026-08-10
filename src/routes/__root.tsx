@@ -16,6 +16,7 @@ import { BetaBadge } from "@/components/aura/beta-badge";
 import { InstallApp } from "@/components/aura/install-app";
 import { AppBootLoader, PageProgress } from "@/components/aura/page-loader";
 import { Toaster } from "@/components/ui/sonner";
+import { LocaleProvider, useLocale } from "@/hooks/use-locale";
 import { usePwa } from "@/hooks/use-pwa";
 import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 
@@ -226,11 +227,23 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <LocaleProvider>
+        <RootChrome />
+      </LocaleProvider>
+    </QueryClientProvider>
+  );
+}
+
+function RootChrome() {
+  const { t } = useLocale();
+
+  return (
+    <>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
       >
-        Skip to content
+        {t("common.skip")}
       </a>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AuroraField />
@@ -243,6 +256,6 @@ function RootComponent() {
       <BetaBadge />
       <InstallApp />
       <DeferredAnalytics />
-    </QueryClientProvider>
+    </>
   );
 }

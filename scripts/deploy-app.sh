@@ -37,6 +37,8 @@ cd /opt/auraos
 npm install --include=dev
 set -a; . ./.env; set +a
 export NITRO_PRESET=node-server
+# .env must never force a development JSX runtime into the Nitro build.
+export NODE_ENV=production
 npm run build
 '
 # Build overwrites .output/public — re-copy MP4s from public if present
