@@ -1,10 +1,13 @@
 # Aura OS
 
-**Own a company. The staff just happen to be AI.**
+**Own a company. The staff just happen to be AI.**  
+**Aura Lokal** — phone-first OS for local service businesses (DE/AT).
 
-Live at [aibusiness.fun](https://aibusiness.fun) · invite-only founding cohort.
+Live at [aibusiness.fun](https://aibusiness.fun) · founding OS cohort + [Lokal landing](https://aibusiness.fun/lokal).
 
 Aura OS is the company operating system for founders who want agents to ship real work — posts, outreach drafts, missions, and weekly proof — without fake busy meters or invented revenue.
+
+Aura Lokal is the same organism, tailored for shops: social, customers, Review Boost invites, and Boost packs under a German phone shell. Go-to-market for the first **1000 local seats** is documented in [docs/GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md). The patron (customer) earn app vision is in [docs/CUSTOMER_APP.md](docs/CUSTOMER_APP.md).
 
 ## What it is
 
@@ -21,6 +24,10 @@ Honest by default: workforce **Active** means a real queued/running task; quiet 
 | Surface | Path | Purpose |
 |---|---|---|
 | Command center | `/console` | Missions, workforce, approvals, live activity |
+| Aura Lokal (DE) | `/lokal` | German local-business landing |
+| Local funnel (EN) | `/for/local` | English local / Review Boost funnel |
+| Public shop card | `/b/$slug` | Homepage + socials + review CTA |
+| Review invite redirect | `/r/review/$token` | Tracks click → Google (optional, unpaid) |
 | Connect | `/connect` | Socials, mailbox, wallet |
 | Channels | `/channels` | Publish, drip, reply modes |
 | Akquise | `/akquise` | Lead research + founder-approved send |
@@ -37,13 +44,20 @@ Needs **Node.js**, **npm** (`package-lock.json` is the source of truth), and Doc
 git clone git@github.com:Laszlo23/auraos.git
 cd auraos
 npm i
-cp .env.example .env   # fill secrets
+cp .env.example .env   # fill secrets locally — never commit .env
 npm run db:start       # optional local Supabase — docs/supabase.md
 bash scripts/fetch-media.sh
 npm run dev            # often http://localhost:4000
 ```
 
 Architecture overview: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Secrets
+
+- **Never commit** `.env`, private keys, Stripe live secrets, or service-role JWTs.
+- Variable **names** and empty placeholders live only in [.env.example](.env.example).
+- Production secrets stay on the VPS (`/opt/auraos/.env`); deploy rsync never overwrites that file.
+- Docs may name env vars; they must never contain real values.
 
 ## Social channels
 
@@ -53,23 +67,7 @@ One-click connect (OAuth popup, or Warpcast approve for Farcaster):
 - **TikTok** (video publish — needs TikTok Developer approval)
 - **Farcaster** (Neynar managed signer)
 
-Full setup: [docs/social-channels.md](docs/social-channels.md).
-
-Key env (see [.env.example](.env.example)):
-
-```
-X_CLIENT_ID / X_CLIENT_SECRET
-META_APP_ID / META_APP_SECRET
-LINKEDIN_CLIENT_ID / LINKEDIN_CLIENT_SECRET
-TIKTOK_CLIENT_KEY / TIKTOK_CLIENT_SECRET
-NEYNAR_API_KEY / NEYNAR_FARCASTER_FID / NEYNAR_CUSTODY_PRIVATE_KEY
-OAUTH_REDIRECT_BASE              # https://aibusiness.fun or http://localhost:4000
-APP_USER_CONNECTION_KEY_SECRET
-GOOGLE_MAIL_APP_USER_CONNECTOR_CLIENT_API_KEY
-MICROSOFT_OUTLOOK_APP_USER_CONNECTOR_CLIENT_API_KEY
-LOVABLE_API_KEY
-WORKER_SECRET
-```
+Full setup: [docs/social-channels.md](docs/social-channels.md). OAuth and connector env names: [.env.example](.env.example).
 
 OAuth callback for social providers:
 
@@ -93,13 +91,7 @@ bash scripts/deploy-app.sh
 
 Keeps `/opt/auraos/.env` on the VPS (never overwritten by rsync). Add new secrets on the VPS, then restart `auraos`.
 
-Worker tick (scheduled posts / engagement):
-
-```sh
-curl -H "Authorization: Bearer $WORKER_SECRET" https://aibusiness.fun/api/workers/tick
-```
-
-More: [docs/x-launch-drip.md](docs/x-launch-drip.md).
+Worker tick (scheduled posts / engagement) uses a bearer secret from the server env — see [.env.example](.env.example) and [docs/x-launch-drip.md](docs/x-launch-drip.md).
 
 ## Stack
 
@@ -112,6 +104,8 @@ More: [docs/x-launch-drip.md](docs/x-launch-drip.md).
 | Doc | Topic |
 |---|---|
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, auth vs public, mailbox, honesty rules |
+| [GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md) | First 1000 local businesses, referral flywheel |
+| [CUSTOMER_APP.md](docs/CUSTOMER_APP.md) | Patron app (Aura Nachbar): earn, onboard, UI |
 | [social-channels.md](docs/social-channels.md) | OAuth scopes, TikTok, Farcaster |
 | [supabase.md](docs/supabase.md) | Local vs cloud DB |
 | [x-launch-drip.md](docs/x-launch-drip.md) | Scheduled posts / drip |
