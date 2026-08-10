@@ -179,6 +179,7 @@ export const createSiteCheckout = createServerFn({ method: "POST" })
     params.set("metadata[product_id]", product.id);
     params.set("metadata[customer_email]", data.email);
     params.set("client_reference_id", site.id);
+    params.set("payment_method_types[0]", "card");
 
     const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",

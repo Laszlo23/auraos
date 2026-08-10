@@ -167,6 +167,7 @@ export const createGenesisCheckout = createServerFn({ method: "POST" })
     params.set("line_items[0][price]", priceId);
     params.set("line_items[0][quantity]", "1");
     if (user?.email) params.set("customer_email", user.email);
+    params.set("payment_method_types[0]", "card");
 
     const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",

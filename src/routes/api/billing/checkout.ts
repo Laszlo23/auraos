@@ -107,6 +107,8 @@ export const Route = createFileRoute("/api/billing/checkout")({
           params.set("metadata[entry_funnel]", company.entry_funnel);
         }
         if (user.email) params.set("customer_email", user.email);
+        // Explicit card PM — account may not have automatic PMs enabled for EUR yet.
+        params.append("payment_method_types[0]", "card");
 
         if (plan === LOCAL_SEAT_PLAN_ID) {
           const price = process.env["STRIPE_PRICE_LOCAL_SEAT"]?.trim();
