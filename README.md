@@ -27,7 +27,8 @@ Honest by default: workforce **Active** means a real queued/running task; quiet 
 | Aura Lokal (DE) | `/lokal` | German local-business landing |
 | Local funnel (EN) | `/for/local` | English local / Review Boost funnel |
 | Public shop card | `/b/$slug` | Homepage + socials + review CTA |
-| Review invite redirect | `/r/review/$token` | Tracks click → Google (optional, unpaid) |
+| Aura Nachbar | `/nachbar` | Patron app — check-in, earn, friends |
+| Review invite bridge | `/r/review/$token` | Nachbar CTA + optional unpaid Google |
 | Connect | `/connect` | Socials, mailbox, wallet |
 | Channels | `/channels` | Publish, drip, reply modes |
 | Akquise | `/akquise` | Lead research + founder-approved send |

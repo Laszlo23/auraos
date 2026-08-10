@@ -99,6 +99,13 @@ function LocalBusinessCardPage() {
               Visit website <ExternalLink className="h-4 w-4" />
             </a>
           ) : null}
+          <Link
+            to="/auth"
+            search={{ mode: "signup", next: "/nachbar/heute", lang: "de" }}
+            className="inline-flex items-center gap-2 rounded-2xl border border-primary/40 bg-primary/10 px-5 py-3 text-sm font-semibold"
+          >
+            Aura Nachbar werden
+          </Link>
           {data.google_review_url ? (
             <a
               href={data.google_review_url}
@@ -106,7 +113,7 @@ function LocalBusinessCardPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-sm font-semibold text-foreground"
             >
-              <Star className="h-4 w-4 text-gold" /> Leave a Google review
+              <Star className="h-4 w-4 text-gold" /> Optional Google review
             </a>
           ) : null}
         </div>

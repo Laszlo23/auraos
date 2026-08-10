@@ -19,6 +19,7 @@ import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as LokalRouteImport } from './routes/lokal'
+import { Route as NachbarRouteRouteImport } from './routes/nachbar/route'
 import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProofRouteImport } from './routes/proof'
@@ -68,6 +69,12 @@ import { Route as CompanySlugRouteImport } from './routes/company.$slug'
 import { Route as EmbedPostIdRouteImport } from './routes/embed.$postId'
 import { Route as ForFunnelRouteImport } from './routes/for.$funnel'
 import { Route as MShareSlugRouteImport } from './routes/m.$shareSlug'
+import { Route as NachbarIndexRouteImport } from './routes/nachbar/index'
+import { Route as NachbarEntdeckenRouteImport } from './routes/nachbar/entdecken'
+import { Route as NachbarFreundeRouteImport } from './routes/nachbar/freunde'
+import { Route as NachbarHeuteRouteImport } from './routes/nachbar/heute'
+import { Route as NachbarIchRouteImport } from './routes/nachbar/ich'
+import { Route as NachbarVerdienenRouteImport } from './routes/nachbar/verdienen'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
@@ -81,6 +88,8 @@ import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
+import { Route as NachbarCCodeRouteImport } from './routes/nachbar/c.$code'
+import { Route as NachbarRefCodeRouteImport } from './routes/nachbar/ref.$code'
 import { Route as OauthMailboxReturnRouteImport } from './routes/oauth/mailbox.return'
 import { Route as OauthSocialReturnRouteImport } from './routes/oauth/social.return'
 import { Route as RReviewTokenRouteImport } from './routes/r.review.$token'
@@ -145,6 +154,11 @@ const LiveRoute = LiveRouteImport.update({
 const LokalRoute = LokalRouteImport.update({
   id: '/lokal',
   path: '/lokal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NachbarRouteRoute = NachbarRouteRouteImport.update({
+  id: '/nachbar',
+  path: '/nachbar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PitchRoute = PitchRouteImport.update({
@@ -394,6 +408,36 @@ const MShareSlugRoute = MShareSlugRouteImport.update({
   path: '/m/$shareSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NachbarIndexRoute = NachbarIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => NachbarRouteRoute,
+} as any)
+const NachbarEntdeckenRoute = NachbarEntdeckenRouteImport.update({
+  id: '/entdecken',
+  path: '/entdecken',
+  getParentRoute: () => NachbarRouteRoute,
+} as any)
+const NachbarFreundeRoute = NachbarFreundeRouteImport.update({
+  id: '/freunde',
+  path: '/freunde',
+  getParentRoute: () => NachbarRouteRoute,
+} as any)
+const NachbarHeuteRoute = NachbarHeuteRouteImport.update({
+  id: '/heute',
+  path: '/heute',
+  getParentRoute: () => NachbarRouteRoute,
+} as any)
+const NachbarIchRoute = NachbarIchRouteImport.update({
+  id: '/ich',
+  path: '/ich',
+  getParentRoute: () => NachbarRouteRoute,
+} as any)
+const NachbarVerdienenRoute = NachbarVerdienenRouteImport.update({
+  id: '/verdienen',
+  path: '/verdienen',
+  getParentRoute: () => NachbarRouteRoute,
+} as any)
 const OauthConsentRoute = OauthConsentRouteImport.update({
   id: '/oauth/consent',
   path: '/oauth/consent',
@@ -458,6 +502,16 @@ const ApiWorkersTickRoute = ApiWorkersTickRouteImport.update({
   id: '/api/workers/tick',
   path: '/api/workers/tick',
   getParentRoute: () => rootRouteImport,
+} as any)
+const NachbarCCodeRoute = NachbarCCodeRouteImport.update({
+  id: '/c/$code',
+  path: '/c/$code',
+  getParentRoute: () => NachbarRouteRoute,
+} as any)
+const NachbarRefCodeRoute = NachbarRefCodeRouteImport.update({
+  id: '/ref/$code',
+  path: '/ref/$code',
+  getParentRoute: () => NachbarRouteRoute,
 } as any)
 const OauthMailboxReturnRoute = OauthMailboxReturnRouteImport.update({
   id: '/oauth/mailbox/return',
@@ -551,6 +605,7 @@ const ApiPublicX402WebsiteCopyRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/nachbar': typeof NachbarRouteRouteWithChildren
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/cookies': typeof CookiesRoute
@@ -607,6 +662,11 @@ export interface FileRoutesByFullPath {
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
   '/m/$shareSlug': typeof MShareSlugRoute
+  '/nachbar/entdecken': typeof NachbarEntdeckenRoute
+  '/nachbar/freunde': typeof NachbarFreundeRoute
+  '/nachbar/heute': typeof NachbarHeuteRoute
+  '/nachbar/ich': typeof NachbarIchRoute
+  '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
@@ -615,12 +675,15 @@ export interface FileRoutesByFullPath {
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
   '/blog/': typeof BlogIndexRoute
+  '/nachbar/': typeof NachbarIndexRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/nachbar/c/$code': typeof NachbarCCodeRoute
+  '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
@@ -696,6 +759,11 @@ export interface FileRoutesByTo {
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
   '/m/$shareSlug': typeof MShareSlugRoute
+  '/nachbar/entdecken': typeof NachbarEntdeckenRoute
+  '/nachbar/freunde': typeof NachbarFreundeRoute
+  '/nachbar/heute': typeof NachbarHeuteRoute
+  '/nachbar/ich': typeof NachbarIchRoute
+  '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
@@ -704,12 +772,15 @@ export interface FileRoutesByTo {
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
   '/blog': typeof BlogIndexRoute
+  '/nachbar': typeof NachbarIndexRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/nachbar/c/$code': typeof NachbarCCodeRoute
+  '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
@@ -731,6 +802,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/nachbar': typeof NachbarRouteRouteWithChildren
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/cookies': typeof CookiesRoute
@@ -787,6 +859,11 @@ export interface FileRoutesById {
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
   '/m/$shareSlug': typeof MShareSlugRoute
+  '/nachbar/entdecken': typeof NachbarEntdeckenRoute
+  '/nachbar/freunde': typeof NachbarFreundeRoute
+  '/nachbar/heute': typeof NachbarHeuteRoute
+  '/nachbar/ich': typeof NachbarIchRoute
+  '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
@@ -795,12 +872,15 @@ export interface FileRoutesById {
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
   '/blog/': typeof BlogIndexRoute
+  '/nachbar/': typeof NachbarIndexRoute
   '/_authenticated/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/nachbar/c/$code': typeof NachbarCCodeRoute
+  '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
@@ -822,6 +902,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/nachbar'
     | '/access'
     | '/auth'
     | '/cookies'
@@ -878,6 +959,11 @@ export interface FileRouteTypes {
     | '/embed/$postId'
     | '/for/$funnel'
     | '/m/$shareSlug'
+    | '/nachbar/entdecken'
+    | '/nachbar/freunde'
+    | '/nachbar/heute'
+    | '/nachbar/ich'
+    | '/nachbar/verdienen'
     | '/oauth/consent'
     | '/r/$runId'
     | '/s/$slug'
@@ -886,12 +972,15 @@ export interface FileRouteTypes {
     | '/v/$postId'
     | '/w/$shareSlug'
     | '/blog/'
+    | '/nachbar/'
     | '/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/greeter'
     | '/api/workers/tick'
+    | '/nachbar/c/$code'
+    | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
@@ -967,6 +1056,11 @@ export interface FileRouteTypes {
     | '/embed/$postId'
     | '/for/$funnel'
     | '/m/$shareSlug'
+    | '/nachbar/entdecken'
+    | '/nachbar/freunde'
+    | '/nachbar/heute'
+    | '/nachbar/ich'
+    | '/nachbar/verdienen'
     | '/oauth/consent'
     | '/r/$runId'
     | '/s/$slug'
@@ -975,12 +1069,15 @@ export interface FileRouteTypes {
     | '/v/$postId'
     | '/w/$shareSlug'
     | '/blog'
+    | '/nachbar'
     | '/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/greeter'
     | '/api/workers/tick'
+    | '/nachbar/c/$code'
+    | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
@@ -1001,6 +1098,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/nachbar'
     | '/access'
     | '/auth'
     | '/cookies'
@@ -1057,6 +1155,11 @@ export interface FileRouteTypes {
     | '/embed/$postId'
     | '/for/$funnel'
     | '/m/$shareSlug'
+    | '/nachbar/entdecken'
+    | '/nachbar/freunde'
+    | '/nachbar/heute'
+    | '/nachbar/ich'
+    | '/nachbar/verdienen'
     | '/oauth/consent'
     | '/r/$runId'
     | '/s/$slug'
@@ -1065,12 +1168,15 @@ export interface FileRouteTypes {
     | '/v/$postId'
     | '/w/$shareSlug'
     | '/blog/'
+    | '/nachbar/'
     | '/_authenticated/missions/$id'
     | '/api/billing/checkout'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/greeter'
     | '/api/workers/tick'
+    | '/nachbar/c/$code'
+    | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
@@ -1092,6 +1198,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  NachbarRouteRoute: typeof NachbarRouteRouteWithChildren
   AccessRoute: typeof AccessRoute
   AuthRoute: typeof AuthRoute
   CookiesRoute: typeof CookiesRoute
@@ -1213,6 +1320,13 @@ declare module '@tanstack/react-router' {
       path: '/lokal'
       fullPath: '/lokal'
       preLoaderRoute: typeof LokalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nachbar': {
+      id: '/nachbar'
+      path: '/nachbar'
+      fullPath: '/nachbar'
+      preLoaderRoute: typeof NachbarRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pitch': {
@@ -1558,6 +1672,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MShareSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nachbar/': {
+      id: '/nachbar/'
+      path: '/'
+      fullPath: '/nachbar/'
+      preLoaderRoute: typeof NachbarIndexRouteImport
+      parentRoute: typeof NachbarRouteRoute
+    }
+    '/nachbar/entdecken': {
+      id: '/nachbar/entdecken'
+      path: '/entdecken'
+      fullPath: '/nachbar/entdecken'
+      preLoaderRoute: typeof NachbarEntdeckenRouteImport
+      parentRoute: typeof NachbarRouteRoute
+    }
+    '/nachbar/freunde': {
+      id: '/nachbar/freunde'
+      path: '/freunde'
+      fullPath: '/nachbar/freunde'
+      preLoaderRoute: typeof NachbarFreundeRouteImport
+      parentRoute: typeof NachbarRouteRoute
+    }
+    '/nachbar/heute': {
+      id: '/nachbar/heute'
+      path: '/heute'
+      fullPath: '/nachbar/heute'
+      preLoaderRoute: typeof NachbarHeuteRouteImport
+      parentRoute: typeof NachbarRouteRoute
+    }
+    '/nachbar/ich': {
+      id: '/nachbar/ich'
+      path: '/ich'
+      fullPath: '/nachbar/ich'
+      preLoaderRoute: typeof NachbarIchRouteImport
+      parentRoute: typeof NachbarRouteRoute
+    }
+    '/nachbar/verdienen': {
+      id: '/nachbar/verdienen'
+      path: '/verdienen'
+      fullPath: '/nachbar/verdienen'
+      preLoaderRoute: typeof NachbarVerdienenRouteImport
+      parentRoute: typeof NachbarRouteRoute
+    }
     '/oauth/consent': {
       id: '/oauth/consent'
       path: '/oauth/consent'
@@ -1648,6 +1804,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/workers/tick'
       preLoaderRoute: typeof ApiWorkersTickRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/nachbar/c/$code': {
+      id: '/nachbar/c/$code'
+      path: '/c/$code'
+      fullPath: '/nachbar/c/$code'
+      preLoaderRoute: typeof NachbarCCodeRouteImport
+      parentRoute: typeof NachbarRouteRoute
+    }
+    '/nachbar/ref/$code': {
+      id: '/nachbar/ref/$code'
+      path: '/ref/$code'
+      fullPath: '/nachbar/ref/$code'
+      preLoaderRoute: typeof NachbarRefCodeRouteImport
+      parentRoute: typeof NachbarRouteRoute
     }
     '/oauth/mailbox/return': {
       id: '/oauth/mailbox/return'
@@ -1858,9 +2028,36 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface NachbarRouteRouteChildren {
+  NachbarEntdeckenRoute: typeof NachbarEntdeckenRoute
+  NachbarFreundeRoute: typeof NachbarFreundeRoute
+  NachbarHeuteRoute: typeof NachbarHeuteRoute
+  NachbarIchRoute: typeof NachbarIchRoute
+  NachbarVerdienenRoute: typeof NachbarVerdienenRoute
+  NachbarIndexRoute: typeof NachbarIndexRoute
+  NachbarCCodeRoute: typeof NachbarCCodeRoute
+  NachbarRefCodeRoute: typeof NachbarRefCodeRoute
+}
+
+const NachbarRouteRouteChildren: NachbarRouteRouteChildren = {
+  NachbarEntdeckenRoute: NachbarEntdeckenRoute,
+  NachbarFreundeRoute: NachbarFreundeRoute,
+  NachbarHeuteRoute: NachbarHeuteRoute,
+  NachbarIchRoute: NachbarIchRoute,
+  NachbarVerdienenRoute: NachbarVerdienenRoute,
+  NachbarIndexRoute: NachbarIndexRoute,
+  NachbarCCodeRoute: NachbarCCodeRoute,
+  NachbarRefCodeRoute: NachbarRefCodeRoute,
+}
+
+const NachbarRouteRouteWithChildren = NachbarRouteRoute._addFileChildren(
+  NachbarRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  NachbarRouteRoute: NachbarRouteRouteWithChildren,
   AccessRoute: AccessRoute,
   AuthRoute: AuthRoute,
   CookiesRoute: CookiesRoute,

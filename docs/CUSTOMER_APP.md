@@ -3,7 +3,7 @@
 Working name: **Aura Nachbar**.  
 Audience: people who are **not** running a business — guests, regulars, neighbors who visit cohort shops, check in, refer friends, and earn a balance they can later spend or (phased) cash out toward USDC.
 
-This is a **product design doc**. Routes and ledgers are not fully built yet. Business shell today: [Local DE shell](../src/components/aura/local-de-shell.tsx). GTM context: [GO_TO_MARKET_LOKAL.md](GO_TO_MARKET_LOKAL.md).
+This is a **product design doc**. An MVP is live at `/nachbar` (tabs, check-in, ledger, friend refs). USDC cash-out and full KYC remain phased. Business shell: [Local DE shell](../src/components/aura/local-de-shell.tsx). GTM context: [GO_TO_MARKET_LOKAL.md](GO_TO_MARKET_LOKAL.md).
 
 ## Why this app exists
 

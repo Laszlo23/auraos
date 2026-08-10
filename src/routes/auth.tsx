@@ -27,7 +27,12 @@ type PostAuthDest =
   | "/akquise"
   | "/trading"
   | "/onboarding"
+  | `/nachbar${string}`
   | `/oauth/consent?${string}`;
+
+function isNachbarNext(next?: string): next is `/nachbar${string}` {
+  return Boolean(next && /^\/nachbar(\/[\w\-./]*)?$/.test(next));
+}
 
 /** Same-origin return to Supabase OAuth Server consent UI. */
 function oauthConsentReturn(next?: string): PostAuthDest | null {
@@ -46,6 +51,7 @@ function oauthConsentReturn(next?: string): PostAuthDest | null {
 function safeNextPath(next?: string): PostAuthDest {
   const consent = oauthConsentReturn(next);
   if (consent) return consent;
+  if (isNachbarNext(next)) return next;
   if (next && SAFE_NEXT.has(next)) {
     return next as PostAuthDest;
   }
@@ -200,6 +206,9 @@ function authRedirectUrl(mode?: AuthMode, next?: string) {
 async function resolvePostAuthPath(explicitNext?: string): Promise<PostAuthDest> {
   const consent = oauthConsentReturn(explicitNext);
   if (consent) return consent;
+
+  // Patron app: never force company onboarding.
+  if (isNachbarNext(explicitNext)) return explicitNext;
 
   if (explicitNext && explicitNext !== "/console" && SAFE_NEXT.has(explicitNext)) {
     return explicitNext as PostAuthDest;

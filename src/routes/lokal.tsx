@@ -119,6 +119,12 @@ function LokalLandingPage() {
           >
             Präsentation laden
           </a>
+          <Link
+            to="/nachbar"
+            className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
+          >
+            Aura Nachbar (Gäste)
+          </Link>
         </div>
         <p className="mt-5 text-[12px] text-muted-foreground">
           Friseur · Beauty · Gastro · Immobilien · Handwerk
