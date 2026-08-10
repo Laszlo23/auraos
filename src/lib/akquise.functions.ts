@@ -84,6 +84,12 @@ async function runAkquiseGoalCore(supabase: LooseDb, companyId: string, data: Ru
   const template = getTemplate(templateId);
   const targetCount = data.targetCount ?? template.defaultTarget;
 
+  // Fail closed before spending LLM/Firecrawl — estimate uses default page budget.
+  const { requireAuraBalance } = await import("@/lib/aura-spend.server");
+  const { TASK_COST } = await import("@/lib/task-cost");
+  const minCost = TASK_COST + 2;
+  await requireAuraBalance(supabase, companyId, minCost);
+
   let campaignId = data.campaignId;
   let previousBrief = data.goal;
   if (campaignId) {

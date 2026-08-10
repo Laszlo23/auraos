@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { aiChatStream, aiConfigured, aiConfigHint } from "@/lib/ai.server";
+import { clientIpFromRequest, rateLimitConsume } from "@/lib/rate-limit.server";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -19,6 +20,18 @@ export const Route = createFileRoute("/api/public/greeter")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const ip = clientIpFromRequest(request);
+        const limited = rateLimitConsume(`greeter:${ip}`, {
+          limit: 12,
+          windowMs: 60 * 60 * 1000,
+        });
+        if (!limited.ok) {
+          return new Response("Too many greeter requests — try again later.", {
+            status: 429,
+            headers: { "Retry-After": String(limited.retryAfterSec) },
+          });
+        }
+
         if (!aiConfigured()) {
           return new Response(`Missing AI key. ${aiConfigHint()}`, { status: 500 });
         }
@@ -39,7 +52,7 @@ export const Route = createFileRoute("/api/public/greeter")({
 
         if (messages.length === 0) return new Response("Messages are required", { status: 400 });
 
-        return aiChatStream({ system: SYSTEM, messages });
+        return aiChatStream({ system: SYSTEM, messages, maxTokens: 220 });
       },
     },
   },

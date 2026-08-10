@@ -191,13 +191,20 @@ export async function syncSocialEngagement(limitCompanies = 20, companyId?: stri
       }
       if (!engagementId) continue;
 
-      const reply = await draftSocialReply({
-        companyName: company?.name ?? "the company",
-        instruction: note?.summary ?? null,
-        author: c.authorHandle ?? c.authorName,
-        comment: c.body,
-        provider,
-      });
+      let reply: string;
+      try {
+        reply = await draftSocialReply({
+          companyId: conn.company_id,
+          companyName: company?.name ?? "the company",
+          instruction: note?.summary ?? null,
+          author: c.authorHandle ?? c.authorName,
+          comment: c.body,
+          provider,
+        });
+      } catch {
+        // Skip when underfunded or draft failed hard
+        continue;
+      }
 
       const replySourceKey = `social-reply:${provider}:${c.externalId}`;
 

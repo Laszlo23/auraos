@@ -403,26 +403,78 @@ export async function evaluateStrategies(limit = 20) {
   return { signals };
 }
 
-/** Best-effort: age submitted orders to confirmed so the book feels live. */
+/** Confirm submitted orders only when the bundler reports a UserOp receipt. */
 export async function reconcileOrders(limit = 40) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
-  const cutoff = new Date(Date.now() - 90_000).toISOString();
+  const { alchemyRpcUrl } = await import("@/lib/chain-config");
+
   const { data: rows } = await db
     .from("trading_orders")
-    .select("id")
+    .select("id, user_op_hash, tx_hash, created_at")
     .eq("status", "submitted")
-    .lte("created_at", cutoff)
+    .order("created_at", { ascending: true })
     .limit(limit);
+
   let confirmed = 0;
-  for (const row of (rows ?? []) as { id: string }[]) {
-    await db
-      .from("trading_orders")
-      .update({ status: "confirmed", confirmed_at: new Date().toISOString() })
-      .eq("id", row.id);
-    confirmed += 1;
+  let failed = 0;
+  const rpc = alchemyRpcUrl();
+
+  for (const row of (rows ?? []) as {
+    id: string;
+    user_op_hash: string | null;
+    tx_hash: string | null;
+    created_at: string;
+  }[]) {
+    const hash = (row.user_op_hash || row.tx_hash || "").trim();
+    if (!hash || !rpc) continue;
+
+    try {
+      const res = await fetch(rpc, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_getUserOperationReceipt",
+          params: [hash],
+        }),
+        signal: AbortSignal.timeout(8_000),
+      });
+      const json = (await res.json()) as {
+        result?: { success?: boolean; receipt?: { status?: string } } | null;
+      };
+      if (json.result == null) {
+        // Still pending — never age into confirmed on a timer alone.
+        const ageMs = Date.now() - new Date(row.created_at).getTime();
+        if (ageMs > 45 * 60_000) {
+          await db
+            .from("trading_orders")
+            .update({ status: "failed" })
+            .eq("id", row.id);
+          failed += 1;
+        }
+        continue;
+      }
+      const ok =
+        json.result.success === true ||
+        json.result.receipt?.status === "0x1" ||
+        json.result.receipt?.status === "1";
+      if (ok) {
+        await db
+          .from("trading_orders")
+          .update({ status: "confirmed", confirmed_at: new Date().toISOString() })
+          .eq("id", row.id);
+        confirmed += 1;
+      } else {
+        await db.from("trading_orders").update({ status: "failed" }).eq("id", row.id);
+        failed += 1;
+      }
+    } catch {
+      /* leave submitted for next tick */
+    }
   }
-  return { confirmed };
+  return { confirmed, failed };
 }
 
 type OpenTrade = {
@@ -436,10 +488,33 @@ type OpenTrade = {
   amount_in: number | null;
   opened_at: string;
   rationale: string | null;
-  confidence: number;
+  confidence: number | null;
+  paper?: boolean | null;
 };
 
-/** Mark open trades and close via OKX when stop / take-profit / time stop hits. */
+async function paperCloseTrade(
+  db: Admin,
+  trade: OpenTrade,
+  markPrice: number,
+  ret: number,
+  reason: string,
+) {
+  const pnl = Number((Number(trade.size) * ret).toFixed(4));
+  await db
+    .from("trades")
+    .update({
+      status: "closed",
+      exit: markPrice,
+      pnl,
+      mark_price: markPrice,
+      closed_at: new Date().toISOString(),
+      rationale: `${trade.rationale ?? ""} · closed (${reason}) mark-only`.trim(),
+    })
+    .eq("id", trade.id);
+}
+
+/** Mark open trades and close via OKX when stop / take-profit / time stop hits.
+ *  Paper trades and paper desks never touch live swaps. */
 export async function manageOpenPositions(limit = 20) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
@@ -453,7 +528,7 @@ export async function manageOpenPositions(limit = 20) {
   const { data: opens } = await db
     .from("trades")
     .select(
-      "id, company_id, strategy_id, symbol, size, entry, amount_out, amount_in, opened_at, rationale, confidence",
+      "id, company_id, strategy_id, symbol, size, entry, amount_out, amount_in, opened_at, rationale, confidence, paper",
     )
     .eq("status", "open")
     .order("opened_at", { ascending: true })
@@ -500,29 +575,25 @@ export async function manageOpenPositions(limit = 20) {
       const hitTime = heldMs >= maxHoldH * 3600_000;
       if (!hitStop && !hitTake && !hitTime) continue;
 
-      if (!okxConfigured()) {
-        // Paper-close so competition / book stay honest offline
-        const pnl = Number((Number(trade.size) * ret).toFixed(4));
-        await db
-          .from("trades")
-          .update({
-            status: "closed",
-            exit: mark.price,
-            pnl,
-            mark_price: mark.price,
-            closed_at: new Date().toISOString(),
-            rationale: `${trade.rationale ?? ""} · closed (${hitStop ? "stop" : hitTake ? "take" : "time"}) mark-only`.trim(),
-          })
-          .eq("id", trade.id);
+      const exitReason = hitStop ? "stop" : hitTake ? "take" : "time";
+
+      const { data: company } = await db
+        .from("companies")
+        .select("id, owner_id, max_slippage_bps, trading_armed, trading_paper")
+        .eq("id", trade.company_id)
+        .maybeSingle();
+
+      const isPaper =
+        Boolean(trade.paper) ||
+        Boolean((company as { trading_paper?: boolean } | null)?.trading_paper);
+
+      // Paper path: mark-only close — never decrypt keys or call OKX.
+      if (isPaper || !okxConfigured() || !company?.trading_armed) {
+        await paperCloseTrade(db, trade, mark.price, ret, exitReason);
         closed += 1;
         continue;
       }
 
-      const { data: company } = await db
-        .from("companies")
-        .select("id, owner_id, max_slippage_bps, trading_armed")
-        .eq("id", trade.company_id)
-        .maybeSingle();
       if (!company?.owner_id) continue;
 
       const { data: wallet } = await db

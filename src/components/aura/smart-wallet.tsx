@@ -46,7 +46,8 @@ export function SmartWalletPanel({
   const usdc = treasury.data?.usdc ?? null;
   const eth = treasury.data?.eth ?? null;
   const sponsored = Boolean(treasury.data?.sponsored);
-  const networkLabel = chain === "base" ? "Base" : "Base Sepolia";
+  const networkLabel = chain === "base" ? "Base mainnet" : "Base Sepolia";
+  const mainnetLive = chain === "base";
 
   const create = async () => {
     try {
@@ -82,6 +83,14 @@ export function SmartWalletPanel({
       <p className="mb-4 text-[13px] leading-relaxed text-muted-foreground">
         Your treasury is an Alchemy Light Account on {networkLabel}. Copy the full deposit address
         below — send only USDC on this network. For balances, QR, and activity, open Wallet.
+        {mainnetLive ? (
+          <>
+            {" "}
+            <span className="text-foreground/80">
+              Live Base mainnet — Quant stays paper until you explicitly arm live trading.
+            </span>
+          </>
+        ) : null}
       </p>
 
       {isLoading ? (

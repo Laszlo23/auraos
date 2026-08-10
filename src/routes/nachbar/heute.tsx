@@ -48,7 +48,11 @@ function NachbarHeutePage() {
     onSuccess: (res) => {
       sessionStorage.removeItem(NACHBAR_CHECKIN_STORAGE_KEY);
       setLastGoogle(res.google_review_url);
-      toast.success(`Check-in bei ${res.company_name}`);
+      toast.success(
+        res.pending
+          ? `Warte auf Bestätigung bei ${res.company_name}`
+          : `Check-in bei ${res.company_name}`,
+      );
       void qc.invalidateQueries({ queryKey: ["nachbar-hub"] });
     },
     onError: (e: Error) => toast.error(e.message || "Check-in fehlgeschlagen"),

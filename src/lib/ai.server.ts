@@ -194,10 +194,13 @@ function isSoftFail(status: number, detail: string): boolean {
   );
 }
 
+const DEFAULT_MAX_TOKENS = 1024;
+
 export async function aiChat(opts: {
   system?: string;
   messages: { role: "user" | "assistant"; content: string }[];
   model?: string;
+  maxTokens?: number;
 }): Promise<string> {
   const chain = providers();
   if (chain.length === 0) throw new Error(`AI is not configured. ${aiConfigHint()}`);
@@ -206,6 +209,7 @@ export async function aiChat(opts: {
     ...(opts.system ? [{ role: "system" as const, content: opts.system }] : []),
     ...opts.messages,
   ];
+  const maxTokens = Math.min(4096, Math.max(64, opts.maxTokens ?? DEFAULT_MAX_TOKENS));
 
   let lastError = "AI unavailable";
   for (const p of chain) {
@@ -218,6 +222,7 @@ export async function aiChat(opts: {
         body: JSON.stringify({
           model: opts.model ?? p.model,
           messages,
+          max_tokens: maxTokens,
         }),
       });
     } catch {
@@ -247,6 +252,7 @@ export async function aiChatStream(opts: {
   system?: string;
   messages: { role: "user" | "assistant"; content: string }[];
   model?: string;
+  maxTokens?: number;
 }): Promise<Response> {
   const chain = providers();
   if (chain.length === 0) {
@@ -257,6 +263,7 @@ export async function aiChatStream(opts: {
     ...(opts.system ? [{ role: "system" as const, content: opts.system }] : []),
     ...opts.messages,
   ];
+  const maxTokens = Math.min(2048, Math.max(64, opts.maxTokens ?? 512));
 
   let lastStatus = 500;
   let lastDetail = "AI unavailable";
@@ -272,6 +279,7 @@ export async function aiChatStream(opts: {
           model: opts.model ?? p.model,
           stream: true,
           messages,
+          max_tokens: maxTokens,
         }),
       });
     } catch {

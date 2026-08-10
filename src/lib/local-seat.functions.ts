@@ -261,3 +261,45 @@ export async function applyBoostPackKickoff(
 }
 
 export { LOCAL_SEAT_PLAN_ID, isBoostPackId, stripePriceForBoostPack };
+
+export const createLocalPeerInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await asDb(context.supabase).rpc("create_local_peer_invite");
+    if (error) {
+      const msg = error.message || "";
+      if (/seat_required/i.test(msg)) throw new Error("Local Seat nötig für Peer-Einladungen.");
+      throw error;
+    }
+    return data as {
+      ok: boolean;
+      code: string;
+      invite_id: string;
+      boost_grant: number;
+      path: string;
+    };
+  });
+
+export const acceptLocalPeerInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { code: string }) => ({
+    code: String(input.code || "")
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "")
+      .slice(0, 16),
+  }))
+  .handler(async ({ data, context }) => {
+    if (data.code.length < 6) throw new Error("Code ungültig.");
+    const { data: result, error } = await asDb(context.supabase).rpc("accept_local_peer_invite", {
+      _code: data.code,
+    });
+    if (error) {
+      const msg = error.message || "";
+      if (/invite_not_found/i.test(msg)) throw new Error("Einladung nicht gefunden.");
+      if (/self_invite/i.test(msg)) throw new Error("Eigene Einladung.");
+      throw error;
+    }
+    return result as { ok: boolean; inviter_company_id: string };
+  });
+

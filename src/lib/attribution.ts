@@ -3,6 +3,7 @@ import { funnelFromPathOrQuery, isFunnelId, type FunnelId } from "@/lib/funnels"
 const KEY = "aura.attribution";
 const FUNNEL_KEY = "aura.entry_funnel";
 const LANG_KEY = "aura.ui_locale";
+const PEER_KEY = "aura.peer_invite";
 
 export type UiLocale = "en" | "de";
 
@@ -93,7 +94,9 @@ export function captureAttribution(): Attribution {
     utm_campaign: trim(p.get("utm_campaign")),
     utm_content: trim(p.get("utm_content")),
     utm_term: trim(p.get("utm_term")),
-    ref_code: trim(p.get("ref") ?? p.get("code") ?? p.get("invite"))?.toUpperCase() ?? null,
+    ref_code:
+      trim(p.get("ref") ?? p.get("code") ?? p.get("invite") ?? p.get("peer"))?.toUpperCase() ??
+      null,
     landing_path: `${window.location.pathname}${window.location.search}`.slice(0, 200),
     funnel: pathFunnel === "os" && !p.get("funnel") && path !== "/lokal" ? null : pathFunnel,
     lang: pathLang,
@@ -124,6 +127,11 @@ export function captureAttribution(): Attribution {
     } catch {
       /* private mode */
     }
+  }
+
+  const peer = trim(p.get("peer"))?.toUpperCase().replace(/[^A-Z0-9]/g, "") ?? null;
+  if (peer && peer.length >= 6) {
+    rememberPeerInvite(peer);
   }
 
   const stored = read();
@@ -217,6 +225,37 @@ export function authHrefForLokal(
 ): string {
   const lang = locale ?? peekLocale();
   return `/auth?funnel=local&lang=${lang}&mode=${mode}`;
+}
+
+export function rememberPeerInvite(code: string): void {
+  if (typeof window === "undefined") return;
+  const norm = code.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 16);
+  if (norm.length < 6) return;
+  try {
+    window.localStorage.setItem(PEER_KEY, norm);
+  } catch {
+    /* private mode */
+  }
+}
+
+export function peekPeerInvite(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = window.localStorage.getItem(PEER_KEY);
+    return v && v.length >= 6 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function takePeerInvite(): string | null {
+  const code = peekPeerInvite();
+  try {
+    window.localStorage.removeItem(PEER_KEY);
+  } catch {
+    /* ignore */
+  }
+  return code;
 }
 
 function read(): Attribution {

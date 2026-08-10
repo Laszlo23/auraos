@@ -537,6 +537,7 @@ export async function replyToEngagement(
 
 /** Draft a short on-brand reply with the company's standing instruction. */
 export async function draftSocialReply(opts: {
+  companyId?: string;
   companyName: string;
   instruction?: string | null;
   author: string | null;
@@ -544,22 +545,38 @@ export async function draftSocialReply(opts: {
   provider: string;
 }): Promise<string> {
   try {
+    if (opts.companyId) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { burnAuraHard } = await import("@/lib/aura-spend.server");
+      await burnAuraHard(
+        supabaseAdmin as never,
+        opts.companyId,
+        2,
+        `Social reply draft · ${opts.provider}`,
+      );
+    }
     const { detectAiLang, languageStyleBlock, sanitizeBrandNames } =
       await import("@/lib/ai-language");
+    const { delimitUntrusted } = await import("@/lib/ai-untrusted");
     const lang = detectAiLang(opts.comment);
     const json = (await agentJson(
       `You are ${opts.provider === "linkedin" ? "Orin" : "Vela"}, the growth agent for ${opts.companyName}. Write one short public reply.
 ${languageStyleBlock(lang)}
 Calm, helpful, on-brand. No hashtag spam. Under 220 characters for X when needed. Match the commenter's language.
 Return JSON {"reply":"..."}.`,
-      `Standing instruction: ${opts.instruction ?? "Match the brand's calm voice."}\nAuthor: ${opts.author ?? "someone"}\nComment: ${opts.comment}`,
+      [
+        delimitUntrusted("standing_instruction", opts.instruction ?? "Match the brand's calm voice.", 800),
+        delimitUntrusted("author", opts.author ?? "someone", 120),
+        delimitUntrusted("comment", opts.comment, 1200),
+      ].join("\n"),
       "reply",
     )) as { reply?: string };
     const reply = sanitizeBrandNames(
       (json.reply ?? (lang === "de" ? "Danke fürs Teilen — wir schauen uns das an." : "Thanks for sharing that — we'll take a look.")).trim(),
     );
     return reply;
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.name === "InsufficientAuraError") throw e;
     return "Thanks for the note — appreciated.";
   }
 }

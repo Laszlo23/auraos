@@ -15,8 +15,9 @@ import {
   LOCAL_SEAT_PLAN_ID,
   type BoostPackId,
 } from "@/lib/boost-packs";
-import { getLokalHub, redeemLocalSeatCode } from "@/lib/local-seat.functions";
+import { getLokalHub, redeemLocalSeatCode, createLocalPeerInvite } from "@/lib/local-seat.functions";
 import { compact } from "@/lib/format";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/boost")({
   head: () => ({
@@ -83,6 +84,16 @@ function BoostPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const peerInvite = useMutation({
+    mutationFn: () => createLocalPeerInvite(),
+    onSuccess: (res) => {
+      const url = `${SITE_URL}${res.path}`;
+      void navigator.clipboard.writeText(url);
+      toast.success(`Peer-Link kopiert · +${compact(res.boost_grant)} Boost bei Seat`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-5">
       <div>
@@ -141,7 +152,23 @@ function BoostPage() {
           </div>
         </Panel>
       ) : (
-        <p className="text-sm font-semibold text-gold">{t("boost.seatActive")}</p>
+        <>
+          <p className="text-sm font-semibold text-gold">{t("boost.seatActive")}</p>
+          <Panel label="Peer-Shop einladen">
+            <p className="text-sm text-muted-foreground">
+              Teile einen Link mit einem Betrieb in deiner Stadt. Wenn der Peer den Local Seat
+              zahlt, erhältst du Boost.
+            </p>
+            <button
+              type="button"
+              disabled={peerInvite.isPending}
+              onClick={() => peerInvite.mutate()}
+              className="mt-4 w-full rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            >
+              {peerInvite.isPending ? "…" : "Einladungslink erzeugen"}
+            </button>
+          </Panel>
+        </>
       )}
 
       <div className="space-y-3">

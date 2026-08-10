@@ -44,16 +44,31 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       deploySmartAccount,
       deriveLegacyOwner,
     } = await import("./wallet.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const network = activeNetwork();
     const apiKey = process.env["ALCHEMY_API_KEY"];
 
-    const { data: existing } = await context.supabase
+    // Ownership check via user session, key material via service role only.
+    const { data: owned } = await context.supabase
+      .from("wallet_bindings")
+      .select("id")
+      .eq("handle_id", data.handleId)
+      .eq("kind", "smart")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    const { data: existing } = await supabaseAdmin
       .from("wallet_bindings")
       .select("id, address, owner_key_enc, legacy, deployed, owner_address")
       .eq("handle_id", data.handleId)
       .eq("kind", "smart")
+      .eq("user_id", context.userId)
       .maybeSingle();
+
+    if (owned && !existing) {
+      throw new Error("Wallet row not readable via admin — check service role.");
+    }
 
     // Re-use encrypted key material when present.
     if (existing?.owner_key_enc) {
@@ -69,7 +84,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
         userOpHash = result.userOpHash;
       }
 
-      await context.supabase
+      await supabaseAdmin
         .from("wallet_bindings")
         .update({
           address,
@@ -79,14 +94,11 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
           custody: "account_kit",
           legacy: false,
           provider: "alchemy",
-          // Embedded AA ownership is platform-attested via encrypted key custody —
-          // not a browser signature. External wallets still require EIP-191 verify.
           verified: true,
           verified_at: new Date().toISOString(),
         })
         .eq("id", existing.id);
 
-      // Mirror treasury address onto subscription for settlement wiring.
       await mirrorTreasuryAddress(context.supabase, data.handleId, address);
 
       return {
@@ -108,15 +120,13 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       if (secret && apiKey) {
         const owner = deriveLegacyOwner(secret, context.userId);
         const address = predictAddress(owner.address, network);
-        // Mint a NEW random key going forward — do not keep using shared secret.
-        // Mark old address legacy; create replacement if addresses differ.
         const pk = mintOwnerPrivateKey();
         const newOwner = ownerFromPrivateKey(pk);
         const newAddress = predictAddress(newOwner.address, network);
         const enc = encryptOwnerKey(pk);
         const deployed = await isDeployed(newAddress, network);
 
-        await context.supabase
+        await supabaseAdmin
           .from("wallet_bindings")
           .update({
             address: newAddress,
@@ -151,7 +161,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
         };
       }
 
-      await context.supabase
+      await supabaseAdmin
         .from("wallet_bindings")
         .update({ legacy: true, verified: false })
         .eq("id", existing.id);
@@ -172,13 +182,12 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       throw new Error("APP_USER_CONNECTION_KEY_SECRET is required to provision smart wallets.");
     }
     if (!apiKey) {
-      // Still allow offline counterfactual from a random key so onboarding works.
       const pk = mintOwnerPrivateKey();
       const owner = ownerFromPrivateKey(pk);
       const address = predictAddress(owner.address, network);
       const enc = encryptOwnerKey(pk);
 
-      const { error } = await context.supabase.from("wallet_bindings").insert({
+      const { error } = await supabaseAdmin.from("wallet_bindings").insert({
         user_id: context.userId,
         handle_id: data.handleId,
         slot: 1,
@@ -225,7 +234,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       userOpHash = result.userOpHash;
     }
 
-    const { error } = await context.supabase.from("wallet_bindings").insert({
+    const { error } = await supabaseAdmin.from("wallet_bindings").insert({
       user_id: context.userId,
       handle_id: data.handleId,
       slot: 1,

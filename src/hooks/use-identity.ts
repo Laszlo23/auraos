@@ -217,7 +217,9 @@ export function useWallets(handleId?: string) {
     queryFn: async (): Promise<WalletBinding[]> => {
       const { data, error } = await supabase
         .from("wallet_bindings")
-        .select("*")
+        .select(
+          "id, address, kind, chain, deployed, legacy, custody, label, provider, verified, owner_address, handle_id, role, slot, created_at, user_id",
+        )
         .eq("handle_id", handleId!)
         .order("slot");
       if (error) throw error;

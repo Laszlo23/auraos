@@ -206,7 +206,9 @@ export function useSmartWallet(handleId?: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("wallet_bindings")
-        .select("*")
+        .select(
+          "id, address, kind, chain, deployed, legacy, custody, label, provider, verified, owner_address, handle_id, role, slot, created_at",
+        )
         .eq("handle_id", handleId!)
         .eq("kind", "smart")
         .maybeSingle();

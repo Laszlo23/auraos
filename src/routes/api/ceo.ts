@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { aiChatStream, aiConfigured, aiConfigHint } from "@/lib/ai.server";
+import { delimitUntrusted } from "@/lib/ai-untrusted";
+import { requireUserFromRequest } from "@/lib/request-auth.server";
+import { rateLimitConsume } from "@/lib/rate-limit.server";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -8,6 +11,20 @@ export const Route = createFileRoute("/api/ceo")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const auth = await requireUserFromRequest(request);
+        if (!auth.ok) return auth.response;
+
+        const limited = rateLimitConsume(`ceo:${auth.userId}`, {
+          limit: 30,
+          windowMs: 60 * 60 * 1000,
+        });
+        if (!limited.ok) {
+          return new Response("CEO chat rate limit — try again later.", {
+            status: 429,
+            headers: { "Retry-After": String(limited.retryAfterSec) },
+          });
+        }
+
         if (!aiConfigured()) {
           return new Response(`Missing AI key. ${aiConfigHint()}`, { status: 500 });
         }
@@ -16,6 +33,12 @@ export const Route = createFileRoute("/api/ceo")({
         const messages = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
         if (messages.length === 0) return new Response("Messages are required", { status: 400 });
 
+        const contextBlock = delimitUntrusted(
+          "company_context",
+          body.context ?? "No live context available.",
+          8000,
+        );
+
         const system = `You are Atlas, the autonomous AI Chief Executive of the user's company inside Aura OS.
 You run the company: you set strategy, direct the other agents (Vela growth, Orin sales, Iris design, Cass engineering, Juno support, Ledger finance, Sable legal), and report decisions.
 Voice: calm, precise, confident, unhurried. Short paragraphs. No corporate filler, no exclamation marks, no emoji.
@@ -23,12 +46,12 @@ Behaviour: answer with a decision and its reasoning, not options. Cite only numb
 Language: match the founder's language (German or English). German must be clear and easy — short sentences, natural wording, no stiff translationese.
 Never translate product names: Discord, Telegram, LinkedIn, Farcaster, Aura OS, AURA, X, USDC. Never turn Discord into "Zwietracht".
 
-Company context:
-${body.context ?? "No live context available."}`;
+${contextBlock}`;
 
         return aiChatStream({
           system,
-          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          messages: messages.map((m) => ({ role: m.role, content: m.content.slice(0, 4000) })),
+          maxTokens: 500,
         });
       },
     },

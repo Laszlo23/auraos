@@ -331,6 +331,14 @@ export const generateMarketingImage = createServerFn({ method: "POST" })
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const company = await ownedCompany(supabaseAdmin as unknown as LooseDb, context.userId);
+    const { burnAuraHard } = await import("@/lib/aura-spend.server");
+    const { TASK_COST } = await import("@/lib/task-cost");
+    await burnAuraHard(
+      supabaseAdmin as unknown as LooseDb,
+      company.id,
+      TASK_COST,
+      "Marketing · image",
+    );
     const { bytes, mime } = await generateOpenAiImageBytes(data.prompt);
     const ext = mime.includes("jpeg") || mime.includes("jpg") ? "jpg" : "png";
     const path = `${company.id}/${crypto.randomUUID()}.${ext}`;
@@ -372,16 +380,26 @@ export const brainstormCampaignIdeas = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const company = await ownedCompany(supabaseAdmin as unknown as LooseDb, context.userId);
+    const { burnAuraHard } = await import("@/lib/aura-spend.server");
+    const { TASK_COST } = await import("@/lib/task-cost");
+    await burnAuraHard(
+      supabaseAdmin as unknown as LooseDb,
+      company.id,
+      TASK_COST,
+      "Marketing · brainstorm",
+    );
+
     const focus =
       data.prompt ||
       `Grow waitlist and founding seats for ${company.name}${company.niche ? ` (${company.niche})` : ""}`;
 
+    const { delimitUntrusted } = await import("@/lib/ai-untrusted");
     const raw = await aiJson(
       `You are Vela, marketing lead at Aura OS. Invent concrete social campaign ideas.
 Return JSON: {"ideas":[{"name":"string","channel":"X|LinkedIn|Meta|TikTok|Email|Organic","angle":"string","posts":["short post copy", "..."],"funnelFocus":"awareness|waitlist|seat|activated"}]}
 Keep posts under 280 chars when channel is X. Be funny, clear, not investment advice. No markdown.`,
-      `Company: ${company.name}. Tagline: ${company.tagline ?? "AI company OS"}.
-Brief: ${focus}
+      `${delimitUntrusted("brief", focus, 800)}
+Company: ${company.name}. Tagline: ${company.tagline ?? "AI company OS"}.
 Return exactly ${data.count} ideas.`,
       "ideas",
     );

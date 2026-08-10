@@ -103,6 +103,24 @@ export async function executeTask(
     return { ok: true };
   }
 
+  const { requireAuraBalance, burnAuraHard, InsufficientAuraError } =
+    await import("@/lib/aura-spend.server");
+  try {
+    await requireAuraBalance(db, task.company_id, TASK_COST);
+  } catch (e) {
+    if (e instanceof InsufficientAuraError) {
+      await db
+        .from("tasks")
+        .update({
+          status: "pending_approval",
+          result: e.message,
+        })
+        .eq("id", task.id);
+      return { ok: false, error: e.message };
+    }
+    throw e;
+  }
+
   const { data: company } = await db
     .from("companies")
     .select("name, tagline, strategy, autonomy, daily_aura_budget")
@@ -463,22 +481,26 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
   steps = markStep(steps, "file", "running", "Recording ledger + memory…");
   await persistSteps(db, task.id, steps, 92);
 
-  const { data: sub } = await db
-    .from("subscriptions")
-    .select("id, tokens_remaining")
-    .eq("company_id", task.company_id)
-    .maybeSingle();
-  if (sub && (sub.tokens_remaining ?? 0) >= TASK_COST) {
-    await db
-      .from("subscriptions")
-      .update({ tokens_remaining: sub.tokens_remaining - TASK_COST })
-      .eq("id", sub.id);
-    await db.from("token_ledger").insert({
-      company_id: task.company_id,
-      kind: "spend",
-      amount: -TASK_COST,
-      reason: `Task · ${task.title.slice(0, 80)}`,
-    });
+  try {
+    await burnAuraHard(
+      db,
+      task.company_id,
+      TASK_COST,
+      `Task · ${task.title.slice(0, 80)}`,
+    );
+  } catch (e) {
+    if (e instanceof InsufficientAuraError) {
+      await db
+        .from("tasks")
+        .update({
+          status: "failed",
+          result: e.message,
+          completed_at: nowIso(),
+        })
+        .eq("id", task.id);
+      return { ok: false, error: e.message };
+    }
+    throw e;
   }
 
   await db.from("company_ledger_entries").insert({

@@ -107,15 +107,20 @@ export const requestNachbarCheckin = createServerFn({ method: "POST" })
       const msg = error.message || "";
       if (/shop_not_found/i.test(msg)) throw new Error("Laden nicht gefunden.");
       if (/invalid_code/i.test(msg)) throw new Error("Code ungültig.");
+      if (/checkin_limit_day/i.test(msg)) {
+        throw new Error("Heute schon eingecheckt — bitte morgen erneut oder Bestätigung abwarten.");
+      }
       throw error;
     }
     return result as {
       ok: boolean;
+      pending?: boolean;
       checkin_id: string;
       company_id: string;
       company_name: string;
       google_review_url: string | null;
       slug: string | null;
+      message?: string;
     };
   });
 
@@ -140,6 +145,40 @@ export const getOwnerNachbarCheckinCode = createServerFn({ method: "GET" })
     const { data, error } = await asDb(context.supabase).rpc("owner_nachbar_checkin_code");
     if (error) throw error;
     return { code: String(data || "") };
+  });
+
+export const listOwnerNachbarPendingCheckins = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await asDb(context.supabase).rpc("owner_nachbar_pending_checkins");
+    if (error) throw error;
+    return (data ?? []) as {
+      id: string;
+      user_id: string;
+      status: string;
+      source: string;
+      created_at: string;
+      display_name: string | null;
+    }[];
+  });
+
+export const confirmNachbarCheckin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { checkinId: string }) => ({
+    checkinId: String(input.checkinId || "").trim(),
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.checkinId) throw new Error("Check-in fehlt.");
+    const { data: result, error } = await asDb(context.supabase).rpc("nachbar_confirm_checkin", {
+      _checkin_id: data.checkinId,
+    });
+    if (error) {
+      const msg = error.message || "";
+      if (/not_authorized/i.test(msg)) throw new Error("Nicht erlaubt.");
+      if (/checkin_not_pending/i.test(msg)) throw new Error("Bereits bestätigt.");
+      throw error;
+    }
+    return result as { ok: boolean; checkin_id: string };
   });
 
 export const resolveNachbarShopBySlug = createServerFn({ method: "GET" })

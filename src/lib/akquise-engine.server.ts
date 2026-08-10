@@ -396,24 +396,8 @@ export async function burnAkquiseAura(
   reason: string,
   sourceId: string,
 ) {
-  const cost = Math.max(1, Math.floor(amount));
-  const { data: sub } = await supabase
-    .from("subscriptions")
-    .select("id, tokens_remaining")
-    .eq("company_id", companyId)
-    .maybeSingle();
-  if (sub && (sub.tokens_remaining ?? 0) >= cost) {
-    await supabase
-      .from("subscriptions")
-      .update({ tokens_remaining: sub.tokens_remaining - cost })
-      .eq("id", sub.id);
-    await supabase.from("token_ledger").insert({
-      company_id: companyId,
-      kind: "spend",
-      amount: -cost,
-      reason: reason.slice(0, 120),
-    });
-  }
+  const { burnAuraHard } = await import("@/lib/aura-spend.server");
+  const cost = await burnAuraHard(supabase, companyId, amount, reason.slice(0, 120));
   await supabase.from("company_ledger_entries").insert({
     company_id: companyId,
     kind: "compute",

@@ -225,6 +225,21 @@ export const Route = createFileRoute("/api/billing/webhook")({
           const planLabel = funnelPlan?.name ?? auraPlan?.name ?? planId;
           const storedPlan = funnelPlan?.id ?? auraPlan?.id ?? planId;
 
+          const sessionId = session?.id;
+          if (!sessionId) {
+            return Response.json({ error: "Missing session id" }, { status: 400 });
+          }
+          const grantReason = `Stripe checkout · ${planLabel} · ${sessionId}`;
+          const { data: priorGrant } = await supabaseAdmin
+            .from("token_ledger")
+            .select("id")
+            .eq("company_id", companyId)
+            .eq("reason", grantReason)
+            .maybeSingle();
+          if (priorGrant?.id) {
+            return Response.json({ received: true, duplicate: true });
+          }
+
           const { data: existing } = await supabaseAdmin
             .from("subscriptions")
             .select("id")
@@ -256,7 +271,7 @@ export const Route = createFileRoute("/api/billing/webhook")({
             company_id: companyId,
             kind: "grant",
             amount: tokens,
-            reason: `Stripe checkout · ${planLabel}`,
+            reason: grantReason,
           });
         }
 
