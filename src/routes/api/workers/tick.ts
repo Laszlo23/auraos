@@ -5,6 +5,10 @@ import {
   syncSocialEngagement,
 } from "@/lib/task-worker.server";
 import { runTradingTick } from "@/lib/trading-worker.server";
+import {
+  runSiteLeadsDraftTick,
+  runSubscriptionContentTick,
+} from "@/lib/sites-worker.server";
 
 function authorizeWorker(request: Request): Response | null {
   const secret = process.env["WORKER_SECRET"];
@@ -19,27 +23,29 @@ function authorizeWorker(request: Request): Response | null {
   return null;
 }
 
+async function runTick(taskLimit: number) {
+  const tasks = await processTaskQueue(taskLimit);
+  const channels = await publishDueChannelPosts(20);
+  const engagement = await syncSocialEngagement(20);
+  const trading = await runTradingTick();
+  const subscriptions = await runSubscriptionContentTick(20);
+  const siteLeads = await runSiteLeadsDraftTick(25);
+  return { ok: true, tasks, channels, engagement, trading, subscriptions, siteLeads };
+}
+
 export const Route = createFileRoute("/api/workers/tick")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const denied = authorizeWorker(request);
         if (denied) return denied;
-        const tasks = await processTaskQueue(8);
-        const channels = await publishDueChannelPosts(20);
-        const engagement = await syncSocialEngagement(20);
-        const trading = await runTradingTick();
-        return Response.json({ ok: true, tasks, channels, engagement, trading });
+        return Response.json(await runTick(8));
       },
       // Cron-friendly GET still requires Bearer header (never ?secret= — leaks in logs).
       GET: async ({ request }) => {
         const denied = authorizeWorker(request);
         if (denied) return denied;
-        const tasks = await processTaskQueue(5);
-        const channels = await publishDueChannelPosts(20);
-        const engagement = await syncSocialEngagement(20);
-        const trading = await runTradingTick();
-        return Response.json({ ok: true, tasks, channels, engagement, trading });
+        return Response.json(await runTick(5));
       },
     },
   },

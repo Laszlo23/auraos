@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   Command as CommandIcon,
@@ -14,18 +14,21 @@ import {
   X,
 } from "lucide-react";
 
-import { NAV, NAV_GROUPS, navLabel } from "@/lib/nav";
+import { NAV, NAV_GROUPS, navForFunnel, navLabel } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
+import { useSwipeAxis } from "@/hooks/use-swipe-axis";
 import { compact } from "@/lib/format";
 import { useCompany } from "@/hooks/use-aura";
 import { useSubscription } from "@/hooks/use-tokens";
 import { levelFromXp, useProgress } from "@/hooks/use-progress";
 import { TOKEN_SYMBOL } from "@/lib/plans";
+import { funnelById, isFunnelId } from "@/lib/funnels";
 import { trackAppEvent } from "@/lib/app-track";
 import { supabase } from "@/integrations/supabase/client";
 import { Pulse } from "./primitives";
 import { CeoChat } from "./ceo-chat";
+import { isLocalDeCompany, LocalDeShell } from "./local-de-shell";
 import {
   CommandDialog,
   CommandEmpty,
@@ -36,6 +39,20 @@ import {
 } from "@/components/ui/command";
 
 export function Shell({ children }: { children: React.ReactNode }) {
+  const { data: company, isLoading } = useCompany();
+
+  if (isLoading) {
+    return <div className="min-h-svh bg-background">{children}</div>;
+  }
+
+  if (isLocalDeCompany(company)) {
+    return <LocalDeShell>{children}</LocalDeShell>;
+  }
+
+  return <AuraOsShell>{children}</AuraOsShell>;
+}
+
+function AuraOsShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [railOpen, setRailOpen] = useState(true);
@@ -48,12 +65,37 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const { data: progress } = useProgress();
   const { simple, toggle: toggleSimple } = useSimpleMode();
 
-  // Simple mode keeps a small core set; everything else stays one toggle away.
-  const visibleNav = useMemo(() => (simple ? NAV.filter((n) => n.core) : NAV), [simple]);
+  const entryFunnel =
+    company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
+  const funnelNav = funnelById(entryFunnel);
+
+  const visibleNav = useMemo(
+    () => navForFunnel(funnelNav.navCore, simple),
+    [funnelNav.navCore, simple],
+  );
   const visibleGroups = useMemo(
     () => NAV_GROUPS.filter((g) => visibleNav.some((n) => n.group === g)),
     [visibleNav],
   );
+
+  /** Bottom tabs: funnel preferred order, then fill from visibleNav. */
+  const mobileTabs = useMemo(() => {
+    const preferred =
+      funnelNav.mobileTabs.length > 0
+        ? funnelNav.mobileTabs
+        : (["/console", "/trading", "/missions", "/ceo"] as const);
+    const byTo = new Map(visibleNav.map((n) => [n.to, n]));
+    const tabs: typeof visibleNav = [];
+    for (const to of preferred) {
+      const item = byTo.get(to);
+      if (item) tabs.push(item);
+    }
+    for (const n of visibleNav) {
+      if (tabs.length >= 4) break;
+      if (!tabs.some((t) => t.to === n.to)) tabs.push(n);
+    }
+    return tabs.slice(0, 4);
+  }, [visibleNav, funnelNav.mobileTabs]);
 
   const lvl = levelFromXp(progress?.xp ?? 0);
   const needsOnboarding = Boolean(progress && !progress.onboarded);
@@ -70,12 +112,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
     [visibleNav, pathname],
   );
 
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const slideBy = (step: number) => {
     if (navIndex < 0) return;
     const next = visibleNav[navIndex + step];
     if (next) navigate({ to: next.to });
   };
+
+  const routeSwipe = useSwipeAxis({
+    axis: "x",
+    enabled: navIndex >= 0,
+    onSwipe: (dir) => slideBy(dir),
+  });
 
   useEffect(() => {
     setSheetOpen(false);
@@ -237,8 +284,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
               onClick={() => setPaletteOpen(true)}
               className="glass-soft flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
-              <Sparkle className="h-4 w-4 shrink-0 text-primary" />
-              <span className="truncate">Ask the company anything…</span>
+              <Sparkle className="h-[18px] w-[18px] shrink-0 text-primary md:h-4 md:w-4" strokeWidth={1.9} />
+              <span className="truncate font-display text-[13px] font-medium tracking-[-0.01em] md:text-sm md:font-normal md:tracking-normal">
+                Ask the company anything…
+              </span>
               <kbd className="ml-auto hidden items-center gap-1 rounded-lg bg-foreground/8 px-1.5 py-0.5 font-mono text-[10px] sm:flex">
                 <CommandIcon className="h-3 w-3" />K
               </kbd>
@@ -322,23 +371,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           )}
         </header>
 
-        <div
-          className="flex min-h-0 flex-1"
-          onTouchStart={(e) => {
-            const t = e.touches[0];
-            touchStart.current = t ? { x: t.clientX, y: t.clientY } : null;
-          }}
-          onTouchEnd={(e) => {
-            const start = touchStart.current;
-            const t = e.changedTouches[0];
-            touchStart.current = null;
-            if (!start || !t) return;
-            const dx = t.clientX - start.x;
-            const dy = t.clientY - start.y;
-            if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
-            slideBy(dx < 0 ? 1 : -1);
-          }}
-        >
+        <div className="flex min-h-0 flex-1" {...routeSwipe}>
           {/*
             Do NOT wrap Outlet in AnimatePresence mode="wait".
             TanStack Router updates the match immediately; Presence keeps a stale
@@ -349,7 +382,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto w-full min-w-0 max-w-[1440px] px-5 pb-28 pt-8 md:px-8 md:pb-10 md:pt-10"
+            className="mx-auto w-full min-w-0 max-w-[1440px] px-5 pb-32 pt-8 md:px-8 md:pb-10 md:pt-10"
           >
             {children}
           </motion.main>
@@ -396,11 +429,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
               >
                 <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-foreground/20" />
                 {visibleGroups.map((group) => (
-                  <div key={group} className="mb-4">
-                    <p className="mb-2 px-1 text-[10px] uppercase tracking-[0.24em] text-muted-foreground/70">
+                  <div key={group} className="mb-5">
+                    <p className="mb-2.5 px-1 font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-muted-foreground/80">
                       {simple ? "Your company" : group}
                     </p>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-4 gap-2.5">
                       {visibleNav
                         .filter((n) => n.group === group)
                         .map((item) => {
@@ -411,14 +444,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
                               key={item.to}
                               to={item.to}
                               className={cn(
-                                "glass-soft flex flex-col items-center gap-1.5 rounded-2xl px-1 py-3 text-[10px]",
+                                "glass-soft flex flex-col items-center gap-2 rounded-2xl px-1.5 py-3.5 transition-colors",
                                 active
-                                  ? "text-primary ring-1 ring-primary/25"
+                                  ? "text-primary ring-1 ring-primary/30"
                                   : "text-muted-foreground",
                               )}
                             >
-                              <Icon className="h-[18px] w-[18px]" />
-                              <span className="w-full truncate text-center">
+                              <Icon
+                                className="h-[22px] w-[22px]"
+                                strokeWidth={active ? 2.15 : 1.85}
+                              />
+                              <span className="w-full truncate text-center font-display text-[11px] font-semibold leading-tight tracking-[-0.01em]">
                                 {navLabel(item, simple)}
                               </span>
                             </Link>
@@ -429,9 +465,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 ))}
                 <button
                   onClick={toggleSimple}
-                  className="glass-soft flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-xs text-muted-foreground"
+                  className="glass-soft flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-display text-[12px] font-semibold tracking-wide text-muted-foreground"
                 >
-                  <Layers3 className="h-4 w-4" />
+                  <Layers3 className="h-[18px] w-[18px]" strokeWidth={1.85} />
                   {simple ? "Show everything" : "Back to simple mode"}
                 </button>
               </motion.div>
@@ -439,8 +475,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
           )}
         </AnimatePresence>
 
-        <nav className="glass fixed inset-x-3 bottom-3 z-30 flex items-center justify-around rounded-3xl px-2 py-2 md:hidden">
-          {visibleNav.slice(0, 4).map((item) => {
+        <nav className="glass fixed inset-x-3 bottom-3 z-30 flex items-end justify-around gap-0.5 rounded-[1.75rem] px-2 pb-2 pt-2 md:hidden">
+          {mobileTabs.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.to;
             return (
@@ -448,7 +484,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "relative grid h-11 w-11 place-items-center rounded-2xl transition-colors",
+                  "relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-1.5 transition-colors",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
@@ -456,21 +492,35 @@ export function Shell({ children }: { children: React.ReactNode }) {
                   <motion.span
                     layoutId="tab-active"
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    className="absolute inset-0 rounded-2xl bg-primary/15 ring-1 ring-primary/25"
+                    className="absolute inset-0 rounded-2xl bg-primary/15 ring-1 ring-primary/30"
                   />
                 )}
-                <Icon className="relative h-[18px] w-[18px]" />
+                <Icon
+                  className="relative h-[22px] w-[22px]"
+                  strokeWidth={active ? 2.2 : 1.9}
+                />
+                <span
+                  className={cn(
+                    "relative max-w-full truncate font-display text-[9px] font-semibold uppercase leading-none tracking-[0.12em]",
+                    active ? "text-primary" : "text-muted-foreground/85",
+                  )}
+                >
+                  {navLabel(item, simple)}
+                </span>
               </Link>
             );
           })}
           <button
             onClick={() => setSheetOpen(true)}
             className={cn(
-              "grid h-11 w-11 place-items-center rounded-2xl transition-colors",
+              "relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-1.5 transition-colors",
               sheetOpen ? "text-primary" : "text-muted-foreground",
             )}
           >
-            <Grip className="h-[18px] w-[18px]" />
+            <Grip className="h-[22px] w-[22px]" strokeWidth={sheetOpen ? 2.2 : 1.9} />
+            <span className="relative font-display text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-muted-foreground/85">
+              More
+            </span>
           </button>
         </nav>
       </div>

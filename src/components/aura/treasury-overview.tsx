@@ -146,10 +146,18 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={cn("space-y-5", compact && "space-y-4")}>
-      <Panel label="Deposit address" glow>
-        <div className="flex flex-wrap items-start gap-5">
+      <Panel label="Deposit address" glow motif={false}>
+        <div className="mx-auto flex max-w-md flex-col items-center text-center">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Chip tone="gold">{networkLabel}</Chip>
+            <Chip tone={deployed ? "primary" : "neutral"}>
+              {deployed ? "Deployed onchain" : "Ready to receive"}
+            </Chip>
+            {treasury.data?.sponsored ? <Chip tone="primary">Gas sponsored</Chip> : null}
+          </div>
+
           {qrUrl && !compact ? (
-            <div className="shrink-0 rounded-2xl bg-white p-2">
+            <div className="mt-5 rounded-2xl bg-white p-2.5 shadow-[inset_0_0_0_1px_oklch(0_0_0/0.06)]">
               <img
                 src={qrUrl}
                 alt="QR code for deposit address"
@@ -159,45 +167,42 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
               />
             </div>
           ) : null}
-          <div className="min-w-0 flex-1 space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Chip tone="gold">{networkLabel}</Chip>
-              <Chip tone={deployed ? "primary" : "neutral"}>
-                {deployed ? "Deployed onchain" : "Ready to receive"}
-              </Chip>
-              {treasury.data?.sponsored ? <Chip tone="primary">Gas sponsored</Chip> : null}
-            </div>
-            <p className="break-all font-mono text-[13px] leading-relaxed tracking-wide text-foreground">
+
+          <div className="mt-4 flex w-full items-start gap-2 rounded-2xl bg-foreground/[0.04] px-3 py-2.5 text-left">
+            <p className="min-w-0 flex-1 break-all font-mono text-[12px] leading-relaxed tracking-wide text-foreground sm:text-[13px]">
               {address}
             </p>
-            <p className="text-[12px] leading-relaxed text-muted-foreground">
-              {treasury.data?.depositHint}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void copy(address, "addr")}
-                className="inline-flex items-center gap-2 rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
-              >
-                {copied === "addr" ? (
-                  <Check className="h-3.5 w-3.5" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )}
-                Copy deposit address
-              </button>
-              {treasury.data?.explorerAddressUrl ? (
-                <a
-                  href={treasury.data.explorerAddressUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-                >
-                  View on explorer <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              ) : null}
-            </div>
+            <button
+              type="button"
+              onClick={() => void copy(address, "addr")}
+              aria-label={copied === "addr" ? "Copied" : "Copy deposit address"}
+              title="Copy"
+              className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-foreground/8 text-muted-foreground transition-colors hover:bg-primary/14 hover:text-primary"
+            >
+              {copied === "addr" ? (
+                <Check className="h-3.5 w-3.5" strokeWidth={2.25} />
+              ) : (
+                <Copy className="h-3.5 w-3.5" strokeWidth={2} />
+              )}
+            </button>
           </div>
+
+          {treasury.data?.depositHint ? (
+            <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">
+              {treasury.data.depositHint}
+            </p>
+          ) : null}
+
+          {treasury.data?.explorerAddressUrl ? (
+            <a
+              href={treasury.data.explorerAddressUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+            >
+              View on explorer <ExternalLink className="h-3 w-3" />
+            </a>
+          ) : null}
         </div>
 
         <div className="mt-5 grid gap-3 rounded-2xl bg-foreground/4 p-4 sm:grid-cols-3">

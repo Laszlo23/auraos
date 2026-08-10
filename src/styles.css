@@ -244,6 +244,18 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes page-loader-slide {
+  0% {
+    transform: translateX(-100%) scaleX(0.35);
+  }
+  50% {
+    transform: translateX(20%) scaleX(0.55);
+  }
+  100% {
+    transform: translateX(100%) scaleX(0.35);
+  }
+}
+
 @utility animate-aurora {
   animation: aurora-drift 26s ease-in-out infinite;
 }
@@ -279,6 +291,87 @@
   box-shadow: var(--shadow-glow);
 }
 
+@keyframes aura-motif-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-4px, -5px, 0);
+  }
+}
+
+@keyframes aura-motif-spin {
+  from {
+    transform: rotate(18deg);
+  }
+  to {
+    transform: rotate(378deg);
+  }
+}
+
+@keyframes aura-motif-spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes aura-motif-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes aura-motif-bloom {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes aura-motif-dash {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+.aura-motif-drift {
+  animation: aura-motif-drift 14s ease-in-out infinite;
+}
+
+.aura-motif-spin {
+  animation: aura-motif-spin 48s linear infinite;
+}
+
+.aura-motif-spin-slow {
+  animation: aura-motif-spin-slow 72s linear infinite;
+}
+
+.aura-motif-pulse {
+  animation: aura-motif-pulse 5.5s ease-in-out infinite;
+}
+
+.aura-motif-bloom {
+  animation: aura-motif-bloom 9s ease-in-out infinite;
+}
+
+.aura-motif-dash {
+  stroke-dasharray: 4 8;
+  animation: aura-motif-dash 2.4s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -291,6 +384,15 @@
 
   .hover-lift:hover {
     transform: none;
+  }
+
+  .aura-motif-drift,
+  .aura-motif-spin,
+  .aura-motif-spin-slow,
+  .aura-motif-pulse,
+  .aura-motif-bloom,
+  .aura-motif-dash {
+    animation: none !important;
   }
 }
 

@@ -132,7 +132,7 @@ export function TeaserLightbox({
             trackTeaser("cta_click", { placement, positionPct: pct });
             onClose();
             if (onClaim) onClaim();
-            else void navigate({ to: "/access" });
+            else void navigate({ to: "/access", search: {} });
           }}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
         >

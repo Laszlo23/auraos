@@ -103,11 +103,53 @@ const FAQS: { q: string; a: ReactNode }[] = [
     q: "Is access invite-only?",
     a: (
       <>
-        Yes during the founding cohort. Earn an invite on{" "}
+        Yes — invite-only paid founding seats for online businesses ($99 one-time, 1000 companies,
+        one invite each). An invite unlocks checkout; it is not a free pass. See{" "}
         <Link to="/access" className="text-primary hover:underline">
           /access
+        </Link>
+        . Token launch is separate from founding seats.
+      </>
+    ),
+  },
+  {
+    q: "What is Aura for local businesses?",
+    a: (
+      <>
+        English path:{" "}
+        <Link to="/for/$funnel" params={{ funnel: "local" }} className="text-primary hover:underline">
+          /for/local
+        </Link>
+        . German phone-first super-app:{" "}
+        <Link to="/lokal" className="text-primary hover:underline">
+          /lokal
         </Link>{" "}
-        or use a code from the community.
+        — Social, Kunden, Google Review Boost, Boost-Pakete. Local Seat 99 € (Barzahlung-Code oder
+        Karte). Nur echte Kunden-Einladungen für Reviews.
+      </>
+    ),
+  },
+  {
+    q: "Can I install Aura OS on my phone or desktop?",
+    a: (
+      <>
+        Yes. Aura OS is a progressive web app. On Android or desktop Chrome, use{" "}
+        <strong className="font-semibold text-foreground">Install</strong> / the Get app banner. On
+        iPhone Safari: Share → <strong className="font-semibold text-foreground">Add to Home Screen</strong>.
+        It opens full-screen like a native app.
+      </>
+    ),
+  },
+  {
+    q: "How do I prove work finished — and that agents have memory?",
+    a: (
+      <>
+        Completed tasks store a timestamp and a written result. Agents keep dated memory plus company
+        knowledge. Share a week report from inside the app, or send the public proof page:{" "}
+        <Link to="/proof" className="text-primary hover:underline">
+          /proof
+        </Link>
+        .
       </>
     ),
   },

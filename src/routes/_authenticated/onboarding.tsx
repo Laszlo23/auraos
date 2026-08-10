@@ -14,7 +14,9 @@ import { useAwardXp, useCompleteOnboarding, useProgress } from "@/hooks/use-prog
 import { useAdvanceReferral, useProvisionSmartWallet } from "@/hooks/use-earn";
 import { useMyHandle } from "@/hooks/use-identity";
 import { supabase } from "@/integrations/supabase/client";
-import { bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
+import { bootstrapFunnelCompany, bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
+import { LOCAL_DE_NICHES } from "@/lib/boost-packs";
+import { funnelById, isFunnelId, type FunnelId } from "@/lib/funnels";
 import { cn } from "@/lib/utils";
 import { toast as notify } from "sonner";
 
@@ -73,6 +75,11 @@ function Onboarding() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: company } = useCompany();
+  const entryFunnel: FunnelId =
+    company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
+  const funnelDef = funnelById(entryFunnel);
+  const isLokalDe = entryFunnel === "local" && company?.ui_locale === "de";
+  const skipProductPicker = funnelDef.bootstrap.skipProductPicker;
   const { data: progress } = useProgress();
   const award = useAwardXp();
   const complete = useCompleteOnboarding();
@@ -83,6 +90,9 @@ function Onboarding() {
 
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  const [niche, setNiche] = useState("");
+  const [isLocal, setIsLocal] = useState(true);
   const [product, setProduct] = useState("trading");
   const [picked, setPicked] = useState<string[]>(["x", "linkedin"]);
   const [connecting, setConnecting] = useState(false);
@@ -101,7 +111,17 @@ function Onboarding() {
 
   const saveName = async () => {
     if (company && name.trim().length > 1) {
-      await supabase.from("companies").update({ name: name.trim() }).eq("id", company.id);
+      await supabase
+        .from("companies")
+        .update({
+          name: name.trim(),
+          city: city.trim() || null,
+          niche: niche.trim() || null,
+          is_local_business: isLocal || isLokalDe,
+          network_backlink: isLocal || isLokalDe,
+          ...(isLokalDe ? { ui_locale: "de" } : {}),
+        })
+        .eq("id", company.id);
       await qc.invalidateQueries({ queryKey: ["company"] });
     }
     pop("Company named", 100, "onboard:name");
@@ -114,6 +134,26 @@ function Onboarding() {
       return;
     }
     try {
+      if (skipProductPicker) {
+        const res = await bootstrapFunnelCompany(
+          company.id,
+          entryFunnel,
+          name.trim() || company.name,
+          { city: city.trim() || null, niche: niche.trim() || null },
+        );
+        await qc.invalidateQueries({ queryKey: ["company"] });
+        await qc.invalidateQueries({ queryKey: ["table", "agents"] });
+        await qc.invalidateQueries({ queryKey: ["table", "products"] });
+        await qc.invalidateQueries({ queryKey: ["table", "tasks"] });
+        await qc.invalidateQueries({ queryKey: ["table", "knowledge_items"] });
+        await qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
+        await qc.invalidateQueries({ queryKey: ["table", "akquise_campaigns"] });
+        await qc.invalidateQueries({ queryKey: ["revenue-missions"] });
+        pop(`${res.lead} hired`, 150, "onboard:product");
+        notify.success("Sales department seeded — review Missions and Lead hunter next.");
+        next();
+        return;
+      }
       const res = await bootstrapOnboardingProduct(
         company.id,
         product,
@@ -159,7 +199,7 @@ function Onboarding() {
 
   const finish = async () => {
     setFinishing(true);
-    pop("Founding seat claimed", 300, "onboard:seat");
+    pop(entryFunnel === "os" ? "Founding seat claimed" : "Company ready", 300, "onboard:seat");
     await complete.mutateAsync();
 
     // Give the founder a working wallet and pay whoever invited them. Neither
@@ -177,11 +217,22 @@ function Onboarding() {
       /* no referrer, or already credited */
     }
 
-    const dest = product === "trading" ? "/trading" : "/console";
+    const dest =
+      isLokalDe || (entryFunnel === "local" && company?.ui_locale === "de")
+        ? "/heute"
+        : entryFunnel === "local"
+          ? "/business"
+          : entryFunnel !== "os"
+            ? "/missions"
+            : product === "trading"
+              ? "/trading"
+              : "/console";
     setTimeout(() => navigate({ to: dest }), 1200);
   };
 
-  const steps = ["Identity", "First product", "Voice", "Seat"];
+  const steps = skipProductPicker
+    ? ["Identity", "Department", "Voice", "Go"]
+    : ["Identity", "First product", "Voice", "Seat"];
 
   return (
     <div className="relative -mx-1 min-h-[76vh]">
@@ -220,28 +271,112 @@ function Onboarding() {
             {step === 0 && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
-                  Step one
+                  {isLokalDe ? "Schritt 1" : "Step one"}
                 </p>
                 <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  Give the company a name.
+                  {isLokalDe ? "Wie heißt dein Betrieb?" : "Name the online business."}
                 </h1>
                 <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  It will introduce itself with this. Your agents wake the moment you press
-                  continue.
+                  {isLokalDe
+                    ? "Friseur, Beauty, Gastro, Immobilien oder Handwerk — kurz und klar."
+                    : "Prefer local / niche businesses — published landings can join the founding backlink network. Token launch is separate from this seat."}
                 </p>
                 <input
                   autoFocus
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && saveName()}
-                  placeholder={company?.name && company.name !== "Untitled company" ? company.name : "e.g. Northwind Labs"}
+                  placeholder={
+                    isLokalDe
+                      ? "z. B. Salon Mira"
+                      : company?.name && company.name !== "Untitled company"
+                        ? company.name
+                        : "e.g. Northwind Labs"
+                  }
                   className="glass mt-8 w-full rounded-3xl px-6 py-5 text-2xl outline-none placeholder:text-muted-foreground/40 focus:ring-1 focus:ring-primary/40"
                 />
-                <StepAction onClick={saveName} label="Wake the company" />
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <input
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder={isLokalDe ? "Stadt" : "City (optional)"}
+                    className="glass w-full rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/40"
+                  />
+                  {!isLokalDe ? (
+                    <input
+                      value={niche}
+                      onChange={(e) => setNiche(e.target.value)}
+                      placeholder="Niche (e.g. dental, café)"
+                      className="glass w-full rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/40"
+                    />
+                  ) : null}
+                </div>
+                {isLokalDe ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {LOCAL_DE_NICHES.map((n) => (
+                      <button
+                        key={n.id}
+                        type="button"
+                        onClick={() => {
+                          setNiche(n.label);
+                          setIsLocal(true);
+                        }}
+                        className={cn(
+                          "rounded-2xl border px-3 py-2 text-xs font-semibold transition-colors",
+                          niche === n.label
+                            ? "border-primary bg-primary/15 text-foreground"
+                            : "border-border/50 text-muted-foreground",
+                        )}
+                      >
+                        {n.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <label className="mt-4 flex cursor-pointer items-center gap-3 text-[13px] text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={isLocal}
+                      onChange={(e) => setIsLocal(e.target.checked)}
+                      className="h-4 w-4 rounded border-border"
+                    />
+                    Local / niche online business — opt into founding network backlinks after publish
+                  </label>
+                )}
+                <StepAction
+                  onClick={saveName}
+                  label={isLokalDe ? "Weiter" : "Wake the company"}
+                />
               </section>
             )}
 
-            {step === 1 && (
+            {step === 1 && skipProductPicker && (
+              <section>
+                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
+                  Step two
+                </p>
+                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
+                  Hire your AI department.
+                </h1>
+                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                  {funnelDef.subhead}
+                </p>
+                <div className="glass mt-8 rounded-3xl p-5">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                    First mission
+                  </p>
+                  <p className="mt-2 text-[15px] font-medium leading-relaxed">
+                    {funnelDef.bootstrap.missionGoal}
+                  </p>
+                  <p className="mt-4 text-[12px] text-muted-foreground">
+                    Agents: {funnelDef.bootstrap.agents.join(" · ")}
+                  </p>
+                </div>
+                <StepAction onClick={() => void saveProduct()} label="Hire the team" />
+              </section>
+            )}
+
+            {step === 1 && !skipProductPicker && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
                   Step two
@@ -349,26 +484,53 @@ function Onboarding() {
             {step === 3 && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-gold">Final step</p>
-                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  Claim seat #{progress?.seat_number ?? "—"}.
-                </h1>
-                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  Founding companies keep their token rate for life, and their agents get priority
-                  compute during peak hours.
-                </p>
-                <div className="glass mt-8 rounded-3xl p-6">
-                  <FoundingCohort seat={progress?.seat_number} />
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-[13px] text-muted-foreground">
-                  <Sparkles className="h-4 w-4 text-gold" />
-                  Your seat number is your place in the founding cohort — no inflated counters.
-                </div>
-                <StepAction
-                  onClick={finish}
-                  label={finishing ? "Opening your company…" : "Claim my seat"}
-                  busy={finishing}
-                  tone="gold"
-                />
+                {entryFunnel === "os" ? (
+                  <>
+                    <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
+                      Claim seat #{progress?.seat_number ?? "—"}.
+                    </h1>
+                    <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                      Founding companies keep their token rate for life, and their agents get priority
+                      compute during peak hours.
+                    </p>
+                    <div className="glass mt-8 rounded-3xl p-6">
+                      <FoundingCohort seat={progress?.seat_number} />
+                    </div>
+                    <div className="mt-6 flex items-center gap-2 text-[13px] text-muted-foreground">
+                      <Sparkles className="h-4 w-4 text-gold" />
+                      Your seat number is your place in the founding cohort — no inflated counters.
+                    </div>
+                    <StepAction
+                      onClick={finish}
+                      label={finishing ? "Opening your company…" : "Claim my seat"}
+                      busy={finishing}
+                      tone="gold"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
+                      Open your company.
+                    </h1>
+                    <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                      {funnelDef.headline} Pick an outcome plan on Billing when you&apos;re ready —
+                      no founding-seat invite required for this funnel.
+                    </p>
+                    <div className="glass mt-8 rounded-3xl p-6">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                        Funnel
+                      </p>
+                      <p className="mt-2 text-[15px] font-medium">{funnelDef.audience}</p>
+                      <p className="mt-2 text-[13px] text-muted-foreground">{funnelDef.subhead}</p>
+                    </div>
+                    <StepAction
+                      onClick={finish}
+                      label={finishing ? "Opening…" : "Enter Aura OS"}
+                      busy={finishing}
+                      tone="gold"
+                    />
+                  </>
+                )}
               </section>
             )}
           </motion.div>

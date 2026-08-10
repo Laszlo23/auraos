@@ -9,6 +9,8 @@ export type AppEvent =
   | "settings_saved"
   | "deal_advanced"
   | "campaign_toggled"
+  | "campaign_created"
+  | "marketing_post"
   | "file_uploaded"
   | "marketplace_hire"
   | "checkout_started"

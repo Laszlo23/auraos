@@ -1,4 +1,10 @@
+import { funnelFromPathOrQuery, isFunnelId, type FunnelId } from "@/lib/funnels";
+
 const KEY = "aura.attribution";
+const FUNNEL_KEY = "aura.entry_funnel";
+const LANG_KEY = "aura.ui_locale";
+
+export type UiLocale = "en" | "de";
 
 export type Attribution = {
   utm_source: string | null;
@@ -8,6 +14,10 @@ export type Attribution = {
   utm_term: string | null;
   ref_code: string | null;
   landing_path: string | null;
+  /** First-touch entry funnel (os | agencies | sales | start | realty | local). */
+  funnel: string | null;
+  /** Preferred UI locale from /lokal or ?lang=de. */
+  lang: string | null;
 };
 
 const EMPTY: Attribution = {
@@ -18,6 +28,8 @@ const EMPTY: Attribution = {
   utm_term: null,
   ref_code: null,
   landing_path: null,
+  funnel: null,
+  lang: null,
 };
 
 const trim = (v: string | null) => {
@@ -60,6 +72,19 @@ export function captureAttribution(): Attribution {
   if (typeof window === "undefined") return EMPTY;
 
   const p = new URLSearchParams(window.location.search);
+  const path = window.location.pathname;
+  const pathFunnel =
+    path === "/lokal" || path.startsWith("/lokal/")
+      ? ("local" as const)
+      : funnelFromPathOrQuery(path, p.get("funnel"));
+  const langParam = (p.get("lang") || "").toLowerCase();
+  const pathLang: UiLocale | null =
+    path === "/lokal" || path.startsWith("/lokal/") || langParam === "de"
+      ? "de"
+      : langParam === "en"
+        ? "en"
+        : null;
+
   const fresh: Attribution = {
     utm_source: trim(p.get("utm_source")) ?? (p.get("ref") ? "referral" : referrerSource()),
     utm_medium:
@@ -70,7 +95,23 @@ export function captureAttribution(): Attribution {
     utm_term: trim(p.get("utm_term")),
     ref_code: trim(p.get("ref") ?? p.get("code") ?? p.get("invite"))?.toUpperCase() ?? null,
     landing_path: `${window.location.pathname}${window.location.search}`.slice(0, 200),
+    funnel: pathFunnel === "os" && !p.get("funnel") && path !== "/lokal" ? null : pathFunnel,
+    lang: pathLang,
   };
+
+  // Explicit ?funnel= wins; /for/* and /lokal only fill the key if empty (first-touch).
+  if ((p.get("funnel") || path === "/lokal") && pathFunnel !== "os") {
+    rememberFunnel(pathFunnel);
+  } else if (pathFunnel !== "os") {
+    try {
+      const existing = window.localStorage.getItem(FUNNEL_KEY);
+      if (!existing) rememberFunnel(pathFunnel);
+    } catch {
+      rememberFunnel(pathFunnel);
+    }
+  }
+
+  if (pathLang) rememberLocale(pathLang);
 
   const stored = read();
   const merged: Attribution = { ...EMPTY };
@@ -84,6 +125,75 @@ export function captureAttribution(): Attribution {
     /* private mode — attribution stays per-page-load */
   }
   return merged;
+}
+
+/** Persist the entry funnel until company creation stamps it. */
+export function rememberFunnel(id: FunnelId): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(FUNNEL_KEY, id);
+  } catch {
+    /* private mode */
+  }
+}
+
+export function peekFunnel(): FunnelId {
+  if (typeof window === "undefined") return "os";
+  try {
+    const fromKey = window.localStorage.getItem(FUNNEL_KEY);
+    if (fromKey && isFunnelId(fromKey)) return fromKey;
+  } catch {
+    /* ignore */
+  }
+  const attr = read();
+  if (attr.funnel && isFunnelId(attr.funnel)) return attr.funnel;
+  return "os";
+}
+
+export function takeFunnel(): FunnelId {
+  const id = peekFunnel();
+  try {
+    window.localStorage.removeItem(FUNNEL_KEY);
+  } catch {
+    /* ignore */
+  }
+  return id;
+}
+
+export function rememberLocale(locale: UiLocale): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LANG_KEY, locale);
+  } catch {
+    /* private mode */
+  }
+}
+
+export function peekLocale(): UiLocale {
+  if (typeof window === "undefined") return "en";
+  try {
+    const fromKey = window.localStorage.getItem(LANG_KEY);
+    if (fromKey === "de" || fromKey === "en") return fromKey;
+  } catch {
+    /* ignore */
+  }
+  const attr = read();
+  if (attr.lang === "de" || attr.lang === "en") return attr.lang;
+  return "en";
+}
+
+export function takeLocale(): UiLocale {
+  const locale = peekLocale();
+  try {
+    window.localStorage.removeItem(LANG_KEY);
+  } catch {
+    /* ignore */
+  }
+  return locale;
+}
+
+export function authHrefForLokal(mode: "signin" | "signup" = "signup"): string {
+  return `/auth?funnel=local&lang=de&mode=${mode}`;
 }
 
 function read(): Attribution {

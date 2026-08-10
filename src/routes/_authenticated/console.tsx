@@ -17,6 +17,9 @@ import {
 import { ProofOfWorkStrip } from "@/components/aura/command/proof-strip";
 import { WorkforceBoard } from "@/components/aura/command/workforce-board";
 import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
+import { ExpandableCopy } from "@/components/aura/expandable-copy";
+import { FocusCard } from "@/components/aura/focus-card";
+import { FocusDeck } from "@/components/aura/focus-deck";
 import { Chip, Panel, Pulse, Shimmer } from "@/components/aura/primitives";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
@@ -36,6 +39,7 @@ import { useApproveTask, useProposeNextActions, useRejectTask } from "@/lib/acti
 import { autonomyLabel } from "@/lib/company-economy";
 import { getCompanyEconomy } from "@/lib/economy.functions";
 import { listRevenueMissions } from "@/lib/revenue-mission.functions";
+import { getSiteGrowthStats } from "@/lib/sites.functions";
 import { TOKEN_SYMBOL } from "@/lib/plans";
 import { compact } from "@/lib/format";
 
@@ -208,8 +212,143 @@ function Home() {
     company?.tagline?.trim() ||
     "Find and contact 20 qualified prospects for our offer.";
 
+  const showApprovals = socialAwaiting.length > 0 || otherAwaiting.length > 0;
+  const showMilestone = lifetime <= 0 || customers <= 0;
+  const mobileLabels = [
+    "Now",
+    ...(showMilestone ? ["Milestone"] : []),
+    "Mission",
+    ...(showApprovals ? ["Approvals"] : []),
+    "People",
+    "Proof",
+  ];
+
   return (
-    <div className="space-y-6">
+    <>
+      {/* Mobile: snap focus deck — one job per viewport */}
+      <FocusDeck labels={mobileLabels}>
+        <FocusCard
+          eyebrow={`Command · ${autonomyLabel(autonomy)}`}
+          title={company?.name ?? "Your company"}
+          footer={
+            <Link
+              to="/ceo"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+            >
+              Ask Atlas <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          }
+        >
+          <p className="mb-4 text-[13px] text-muted-foreground">
+            You own the company. Level {level}.
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <Snap label="Revenue" value={compactMoney(totals?.revenue ?? 0)} />
+            <Snap label="Customers" value={String(customers)} />
+            <Snap label="Profit" value={compactMoney(totals?.profit ?? 0)} gold />
+            <Snap label="Level" value={String(level)} />
+          </div>
+          <div className="mt-3">
+            <SiteGrowthStrip />
+          </div>
+        </FocusCard>
+
+        {showMilestone ? (
+          <FocusCard eyebrow="Next" title="Get energy on the right win">
+            <ActivationChallenge
+              revenue={lifetime}
+              customers={customers}
+              tasksCompleted={economy?.tasksCompleted ?? done}
+              agents={economy?.agentsActive ?? agents.length}
+              actions24hApprox={events.length}
+              productHint={productHint}
+            />
+            {needsMailbox ? (
+              <div className="mt-4 rounded-2xl border border-border/50 bg-foreground/[0.03] p-4">
+                <p className="text-[13px] text-muted-foreground">
+                  Connect mailbox before outreach sends.
+                </p>
+                <Link
+                  to="/connect"
+                  className="mt-3 inline-flex text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+                >
+                  Wire mailbox
+                </Link>
+              </div>
+            ) : null}
+          </FocusCard>
+        ) : null}
+
+        <FocusCard
+          eyebrow="Mission"
+          title="Plan → execute → proof"
+          footer={
+            <a
+              href="#primary-mission"
+              className="inline-flex rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
+            >
+              Open mission band
+            </a>
+          }
+        >
+          <MissionPipeline stages={pipeline} />
+          {lifetime === 0 && done === 0 && awaiting.length === 0 && missions.length === 0 ? (
+            <button
+              type="button"
+              onClick={() => propose.mutate()}
+              disabled={propose.isPending}
+              className="mt-4 w-full rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary disabled:opacity-50"
+            >
+              {propose.isPending ? "Proposing…" : "Propose next actions"}
+            </button>
+          ) : null}
+        </FocusCard>
+
+        {showApprovals ? (
+          <FocusCard eyebrow="Gate" title="Needs your approval">
+            <ApprovalsBody
+              socialAwaiting={socialAwaiting}
+              otherAwaiting={otherAwaiting}
+              approve={approve}
+              reject={reject}
+            />
+          </FocusCard>
+        ) : null}
+
+        <FocusCard eyebrow="People" title="Your AI employees">
+          <WorkforceBoard agents={agents} tasks={tasks} />
+        </FocusCard>
+
+        <FocusCard
+          eyebrow="Proof"
+          title={briefing?.title ?? "Live company"}
+          footer={
+            <Link
+              to="/ceo"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+            >
+              Talk to Atlas <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          }
+        >
+          <ExpandableCopy
+            text={
+              briefing?.body ??
+              (lifetime === 0
+                ? "Launch a mission or approve a proposal. I will not invent revenue."
+                : "No new briefing filed yet — check Live activity for what the team completed.")
+            }
+            title={briefing?.title ?? "Atlas note"}
+            maxLines={4}
+          />
+          <div className="mt-4">
+            <LiveCompanyActivity events={events} limit={6} />
+          </div>
+        </FocusCard>
+      </FocusDeck>
+
+      {/* Desktop / tablet: full stacked command surface */}
+      <div className="hidden space-y-6 md:block">
       {/* 1. Company header */}
       <section className="flex flex-wrap items-end justify-between gap-6">
         <div className="min-w-0">
@@ -262,6 +401,8 @@ function Home() {
         <Snap label="Level" value={String(level)} />
       </div>
 
+      <SiteGrowthStrip />
+
       <ActivationChallenge
         revenue={lifetime}
         customers={customers}
@@ -274,7 +415,7 @@ function Home() {
       {needsMailbox ? (
         <Panel label="Mailbox needed" glow delay={0.01}>
           <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Outreach is ready, but agents have no company email yet. Connect Gmail or Outlook —
+            Outreach is ready, but agents have no company email yet. Connect Gmail, Outlook, or SMTP —
             drafts stay AI, every send stays your click.
           </p>
           <Link
@@ -295,118 +436,14 @@ function Home() {
       </Panel>
 
       {/* Approvals — sticky priority */}
-      {(socialAwaiting.length > 0 || otherAwaiting.length > 0) && (
+      {showApprovals && (
         <Panel label="Needs your approval" glow delay={0.01}>
-          {socialAwaiting.length > 0 ? (
-            <div className="mb-5 space-y-3">
-              <p className="text-[12px] leading-relaxed text-muted-foreground">
-                Comment replies — send one-by-one, or clear the queue.{" "}
-                <span className="text-foreground/80">
-                  Free comments (auto)
-                </span>{" "}
-                lets Vela reply without asking next time.
-              </p>
-              <SocialReplyBulkBar count={socialAwaiting.length} showFreeAuto />
-              <div className="space-y-3">
-                {socialAwaiting.slice(0, socialAwaiting.length > 5 ? 5 : 12).map((t) => {
-                  const draftPreview = t.description
-                    ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
-                    : null;
-                  return (
-                    <div
-                      key={t.id}
-                      className="rounded-2xl border border-gold/30 bg-gold/5 px-3.5 py-3"
-                    >
-                      <div className="flex flex-wrap items-start gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-medium leading-snug">{t.title}</p>
-                          {draftPreview ? (
-                            <p className="mt-1.5 line-clamp-3 text-[12px] leading-relaxed text-muted-foreground">
-                              {draftPreview}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="flex shrink-0 gap-1.5">
-                          <button
-                            type="button"
-                            disabled={approve.isPending || reject.isPending}
-                            onClick={() => approve.mutate(t.id)}
-                            className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
-                          >
-                            {approve.isPending ? "…" : "Send reply"}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={approve.isPending || reject.isPending}
-                            onClick={() => reject.mutate(t.id)}
-                            className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground disabled:opacity-50"
-                          >
-                            Ignore
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {socialAwaiting.length > 5 ? (
-                <p className="text-[11px] text-muted-foreground">
-                  Showing 5 of {socialAwaiting.length}. Use Send all / Free comments above for the
-                  rest.
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-
-          {otherAwaiting.length > 0 ? (
-            <>
-              <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
-                Founder gate for company work — approve here and agents execute.
-              </p>
-              <div className="space-y-3">
-                {otherAwaiting.slice(0, 8).map((t) => {
-                  const draftPreview = t.description
-                    ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
-                    : null;
-                  return (
-                    <div
-                      key={t.id}
-                      className="rounded-2xl border border-border/50 bg-foreground/[0.03] px-3.5 py-3"
-                    >
-                      <div className="flex flex-wrap items-start gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-medium leading-snug">{t.title}</p>
-                          {draftPreview ? (
-                            <p className="mt-1.5 line-clamp-3 text-[12px] leading-relaxed text-muted-foreground">
-                              {draftPreview}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="flex shrink-0 gap-1.5">
-                          <button
-                            type="button"
-                            disabled={approve.isPending || reject.isPending}
-                            onClick={() => approve.mutate(t.id)}
-                            className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
-                          >
-                            {approve.isPending ? "…" : "Approve & run"}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={approve.isPending || reject.isPending}
-                            onClick={() => reject.mutate(t.id)}
-                            className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground disabled:opacity-50"
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          ) : null}
+          <ApprovalsBody
+            socialAwaiting={socialAwaiting}
+            otherAwaiting={otherAwaiting}
+            approve={approve}
+            reject={reject}
+          />
         </Panel>
       )}
 
@@ -461,7 +498,7 @@ function Home() {
             {briefing?.title ??
               (lifetime === 0 ? "Waiting for your first mission" : "Latest note")}
           </h3>
-          <p className="mt-3 text-[14px] leading-relaxed text-foreground/85">
+          <div className="mt-3 text-[14px] leading-relaxed text-foreground/85">
             <StreamText
               text={
                 briefing?.body ??
@@ -471,7 +508,7 @@ function Home() {
               }
               speed={14}
             />
-          </p>
+          </div>
         </Panel>
       </div>
 
@@ -526,6 +563,12 @@ function Home() {
           </div>
         </div>
       </Panel>
+      </div>
+
+      {/* Mobile mission band below deck (deep work, not a focus card) */}
+      <div id="primary-mission" className="mt-6 md:hidden">
+        <RevenueMissionsBand />
+      </div>
 
       <MissionDetailSheet
         missionId={historyMissionId}
@@ -534,7 +577,137 @@ function Home() {
           if (!next) setHistoryMissionId(null);
         }}
       />
-    </div>
+    </>
+  );
+}
+
+function ApprovalsBody({
+  socialAwaiting,
+  otherAwaiting,
+  approve,
+  reject,
+}: {
+  socialAwaiting: Task[];
+  otherAwaiting: Task[];
+  approve: { isPending: boolean; mutate: (id: string) => void };
+  reject: { isPending: boolean; mutate: (id: string) => void };
+}) {
+  return (
+    <>
+      {socialAwaiting.length > 0 ? (
+        <div className="mb-5 space-y-3">
+          <p className="text-[12px] leading-relaxed text-muted-foreground">
+            Comment replies — send one-by-one, or clear the queue.{" "}
+            <span className="text-foreground/80">Free comments (auto)</span> lets Vela reply without
+            asking next time.
+          </p>
+          <SocialReplyBulkBar count={socialAwaiting.length} showFreeAuto />
+          <div className="space-y-3">
+            {socialAwaiting.slice(0, socialAwaiting.length > 5 ? 5 : 12).map((t) => {
+              const draftPreview = t.description
+                ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
+                : null;
+              return (
+                <div
+                  key={t.id}
+                  className="rounded-2xl border border-gold/30 bg-gold/5 px-3.5 py-3"
+                >
+                  <div className="flex flex-wrap items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-medium leading-snug">{t.title}</p>
+                      {draftPreview ? (
+                        <ExpandableCopy
+                          text={draftPreview}
+                          title={t.title}
+                          maxLines={3}
+                          className="mt-1.5"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="flex shrink-0 gap-1.5">
+                      <button
+                        type="button"
+                        disabled={approve.isPending || reject.isPending}
+                        onClick={() => approve.mutate(t.id)}
+                        className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
+                      >
+                        {approve.isPending ? "…" : "Send reply"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={approve.isPending || reject.isPending}
+                        onClick={() => reject.mutate(t.id)}
+                        className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground disabled:opacity-50"
+                      >
+                        Ignore
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {socialAwaiting.length > 5 ? (
+            <p className="text-[11px] text-muted-foreground">
+              Showing 5 of {socialAwaiting.length}. Use Send all / Free comments above for the rest.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {otherAwaiting.length > 0 ? (
+        <>
+          <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
+            Founder gate for company work — approve here and agents execute.
+          </p>
+          <div className="space-y-3">
+            {otherAwaiting.slice(0, 8).map((t) => {
+              const draftPreview = t.description
+                ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
+                : null;
+              return (
+                <div
+                  key={t.id}
+                  className="rounded-2xl border border-border/50 bg-foreground/[0.03] px-3.5 py-3"
+                >
+                  <div className="flex flex-wrap items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-medium leading-snug">{t.title}</p>
+                      {draftPreview ? (
+                        <ExpandableCopy
+                          text={draftPreview}
+                          title={t.title}
+                          maxLines={3}
+                          className="mt-1.5"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="flex shrink-0 gap-1.5">
+                      <button
+                        type="button"
+                        disabled={approve.isPending || reject.isPending}
+                        onClick={() => approve.mutate(t.id)}
+                        className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
+                      >
+                        {approve.isPending ? "…" : "Approve & run"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={approve.isPending || reject.isPending}
+                        onClick={() => reject.mutate(t.id)}
+                        className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -551,6 +724,22 @@ function Snap({
     <div className="glass-soft rounded-2xl p-4">
       <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
       <p className={`num mt-1 text-2xl font-semibold ${gold ? "text-gold" : ""}`}>{value}</p>
+    </div>
+  );
+}
+
+function SiteGrowthStrip() {
+  const { data } = useQuery({
+    queryKey: ["site-growth-stats"],
+    queryFn: () => getSiteGrowthStats(),
+    staleTime: 30_000,
+  });
+  if (!data) return null;
+  return (
+    <div className="grid gap-3 sm:grid-cols-3">
+      <Snap label="Site live" value={String(data.liveSites)} />
+      <Snap label="Subscribers" value={String(data.subscribers)} />
+      <Snap label="Leads waiting for send" value={String(data.leadsWaiting)} />
     </div>
   );
 }

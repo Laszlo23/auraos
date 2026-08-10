@@ -53,27 +53,62 @@ export type SessionKey = {
   created_at: string;
 };
 
-/** Reward schedule — kept here so the UI and the copy never drift apart. */
+/** Reward schedule — paid founding-seat conversions only (in-app AURA, not cash / not token launch). */
 export const REFERRAL_TIERS = [
-  { stage: "joined", label: "Founder joins", aura: 500, xp: 60 },
-  { stage: "activated", label: "They launch a company", aura: 2000, xp: 150 },
-  { stage: "subscribed", label: "They subscribe", aura: 5000, xp: 400 },
+  { stage: "joined", label: "They pay the founding seat", aura: 2500, xp: 200 },
+  { stage: "activated", label: "They launch + publish a site", aura: 1500, xp: 150 },
+  { stage: "subscribed", label: "They start AURA compute", aura: 3500, xp: 400 },
 ] as const;
 
 export const REFERRAL_MAX = REFERRAL_TIERS.reduce((n, t) => n + t.aura, 0);
 
+export type FoundingInvite = {
+  code: string;
+  uses: number;
+  max_uses: number;
+  active: boolean;
+  used: boolean;
+  paid_at: string | null;
+};
+
 /* -------------------------------------------------------------- referrals */
 
-/** Mints the founder's code on first read, then keeps returning the same one. */
+/** Single founding invite after paid seat (synced to referral_codes for share links). */
 export function useReferralCode() {
   const { data: userId } = useUserId();
   return useQuery({
     queryKey: ["referral-code", userId],
     enabled: Boolean(userId),
     queryFn: async (): Promise<ReferralCode | null> => {
+      const { data: invite } = await supabase.rpc("get_my_founding_invite");
+      const founding = invite as FoundingInvite | null;
+      if (founding?.code) {
+        return {
+          id: founding.code,
+          code: founding.code,
+          uses: founding.uses,
+          active: founding.active && !founding.used,
+        };
+      }
       const { data, error } = await supabase.rpc("ensure_referral_code");
-      if (error) throw error;
+      if (error) {
+        if (/founding_seat_required/i.test(error.message)) return null;
+        throw error;
+      }
       return (data as unknown as ReferralCode) ?? null;
+    },
+  });
+}
+
+export function useFoundingInvite() {
+  const { data: userId } = useUserId();
+  return useQuery({
+    queryKey: ["founding-invite", userId],
+    enabled: Boolean(userId),
+    queryFn: async (): Promise<FoundingInvite | null> => {
+      const { data, error } = await supabase.rpc("get_my_founding_invite");
+      if (error) throw error;
+      return (data as FoundingInvite | null) ?? null;
     },
   });
 }

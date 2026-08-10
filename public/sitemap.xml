@@ -2,8 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aibusiness.fun/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
   <url><loc>https://aibusiness.fun/share</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aibusiness.fun/proof</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aibusiness.fun/pitch</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/blog/nfts-as-keys</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://aibusiness.fun/access</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
   <url><loc>https://aibusiness.fun/faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://aibusiness.fun/for/local</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aibusiness.fun/lokal</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://aibusiness.fun/for/agencies</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/for/sales</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/for/start</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/for/realty</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://aibusiness.fun/live</loc><changefreq>hourly</changefreq><priority>0.9</priority></url>
   <url><loc>https://aibusiness.fun/leaderboard</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
   <url><loc>https://aibusiness.fun/grants</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>

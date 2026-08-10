@@ -1,3 +1,4 @@
+import { ExpandableCopy } from "@/components/aura/expandable-copy";
 import { cn } from "@/lib/utils";
 
 export type PipelineStageState = "locked" | "waiting" | "active" | "completed" | "failed";
@@ -52,9 +53,12 @@ export function MissionPipeline({ stages, className }: Props) {
                 {stage.state}
               </p>
               {stage.detail ? (
-                <p className="mt-1 line-clamp-2 text-[11px] leading-snug opacity-90">
-                  {stage.detail}
-                </p>
+                <ExpandableCopy
+                  text={stage.detail}
+                  title={stage.label}
+                  maxLines={2}
+                  className="mt-1 text-[11px] opacity-90"
+                />
               ) : null}
             </div>
             {i < stages.length - 1 ? (

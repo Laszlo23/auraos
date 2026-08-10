@@ -1,6 +1,17 @@
-import { Chip, Panel } from "@/components/aura/primitives";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ExternalLink, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
-/** Honest stub — Genesis = Founding Company Passport when contracts exist. */
+import { Chip, Panel } from "@/components/aura/primitives";
+import {
+  claimGenesisNft,
+  createGenesisCheckout,
+  getGenesisStatus,
+  markGenesisPaidFromX402,
+} from "@/lib/genesis.functions";
+
+/** Genesis = Founding Company Passport — utility NFT, not an investment / not token launch. */
 export function GenesisPassport({
   companyName,
   slug,
@@ -10,11 +21,71 @@ export function GenesisPassport({
   slug?: string | null | undefined;
   seat?: number | null | undefined;
 }) {
+  const qc = useQueryClient();
+  const { data: status, isLoading } = useQuery({
+    queryKey: ["genesis-status"],
+    queryFn: () => getGenesisStatus(),
+    staleTime: 15_000,
+  });
+
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("genesis") === "success") {
+      toast.success("Payment received — claim your passport mint when ready.");
+      void qc.invalidateQueries({ queryKey: ["genesis-status"] });
+    }
+    if (params.get("genesis") === "cancel") {
+      toast.message("Genesis checkout canceled");
+    }
+  }, [qc]);
+
+  const checkout = useMutation({
+    mutationFn: () => createGenesisCheckout(),
+    onSuccess: (res) => {
+      window.location.href = res.url;
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const confirmX402 = useMutation({
+    mutationFn: () => markGenesisPaidFromX402({ data: {} }),
+    onSuccess: async () => {
+      toast.success("x402 payment confirmed");
+      await qc.invalidateQueries({ queryKey: ["genesis-status"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const claim = useMutation({
+    mutationFn: () => claimGenesisNft(),
+    onSuccess: async (res) => {
+      toast.success(res.already ? "Already minted onchain" : "Genesis Passport minted");
+      await qc.invalidateQueries({ queryKey: ["genesis-status"] });
+      await qc.invalidateQueries({ queryKey: ["holder-perks"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const onBuy = async () => {
+    setBusy(true);
+    try {
+      await checkout.mutateAsync();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const st = status?.status ?? "none";
+  const minted = st === "minted" || Boolean(status?.ownsOnchain);
+
   return (
     <Panel label="Genesis · Founding Company Passport" delay={0.06}>
       <p className="text-[13px] leading-relaxed text-muted-foreground">
-        Membership utility for founding companies — not an investment product and not a promise of
-        returns. Mint opens when the passport contract ships.
+        Membership utility for founding companies — not an investment product and not part of the
+        token launch. Pay first, then claim a server-gated mint to your smart wallet.
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="glass-soft rounded-2xl p-4">
@@ -25,14 +96,99 @@ export function GenesisPassport({
         <div className="glass-soft rounded-2xl p-4">
           <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Status</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <Chip tone="gold">Roadmap</Chip>
+            {minted ? (
+              <Chip tone="gold">Minted</Chip>
+            ) : st === "paid" ? (
+              <Chip tone="primary">Paid — claim mint</Chip>
+            ) : st === "pending" ? (
+              <Chip>Checkout pending</Chip>
+            ) : (
+              <Chip>Available</Chip>
+            )}
             {seat != null && <Chip tone="primary">Seat #{seat}</Chip>}
           </div>
-          <p className="mt-2 text-[12px] text-muted-foreground">
-            Visual passport NFT will match graphite / cyan brand when live.
-          </p>
+          {isLoading ? (
+            <p className="mt-2 text-[12px] text-muted-foreground">Loading…</p>
+          ) : (
+            <p className="mt-2 text-[12px] text-muted-foreground">
+              {status?.priceUsdc ?? 99} USDC · cap {status?.maxSupply ?? 1000}
+              {status?.contract ? ` · ${status.contract.slice(0, 8)}…` : " · contract pending deploy"}
+            </p>
+          )}
         </div>
       </div>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {!minted && status?.canCheckout && status.stripeConfigured ? (
+          <button
+            type="button"
+            disabled={busy || checkout.isPending}
+            onClick={() => void onBuy()}
+            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-[12px] font-semibold text-primary-foreground disabled:opacity-40"
+          >
+            {(busy || checkout.isPending) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Buy with card (${status.priceUsdc}) — Stripe
+          </button>
+        ) : null}
+
+        {!minted && status?.canCheckout && !status.stripeConfigured ? (
+          <p className="text-[12px] text-muted-foreground">
+            Fiat checkout needs <span className="font-mono">STRIPE_PRICE_GENESIS_NFT</span>. You can
+            still pay via x402 (genesis-passport) then confirm below.
+          </p>
+        ) : null}
+
+        {!minted && st !== "paid" ? (
+          <button
+            type="button"
+            disabled={confirmX402.isPending}
+            onClick={() => confirmX402.mutate()}
+            className="inline-flex items-center gap-2 rounded-2xl border border-border/60 px-4 py-2.5 text-[12px] font-semibold disabled:opacity-40"
+          >
+            {confirmX402.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Confirm x402 payment
+          </button>
+        ) : null}
+
+        {status?.canClaim ? (
+          <button
+            type="button"
+            disabled={claim.isPending}
+            onClick={() => claim.mutate()}
+            className="inline-flex items-center gap-2 rounded-2xl bg-gold/90 px-4 py-2.5 text-[12px] font-semibold text-background disabled:opacity-40"
+          >
+            {claim.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Claim mint to wallet
+          </button>
+        ) : null}
+
+        {st === "paid" && !status?.mintConfigured ? (
+          <p className="w-full text-[12px] text-muted-foreground">
+            Payment recorded. Mint unlocks when <span className="font-mono">GENESIS_NFT_CONTRACT</span>{" "}
+            + <span className="font-mono">GENESIS_MINTER_KEY</span> are set (Sepolia first).
+          </p>
+        ) : null}
+
+        {status?.explorerTx ? (
+          <a
+            href={status.explorerTx}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary"
+          >
+            View mint tx <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        ) : null}
+      </div>
+
+      {status?.error ? (
+        <p className="mt-3 text-[12px] text-destructive">{status.error}</p>
+      ) : null}
+      {!status?.wallet && !isLoading ? (
+        <p className="mt-3 text-[12px] text-muted-foreground">
+          Create your smart wallet above before claiming the mint.
+        </p>
+      ) : null}
     </Panel>
   );
 }

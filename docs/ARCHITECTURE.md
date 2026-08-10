@@ -15,10 +15,24 @@ Aura OS is a TanStack Start (Vite + React) app with Supabase auth/data and serve
 
 Package manager is **npm** (`package-lock.json`). Deploy uses `scripts/deploy-app.sh` → VPS `/opt/auraos`.
 
+## Founding seats vs compute vs sites vs token launch
+
+- **Founding seat** — one-time $99 Stripe payment (`STRIPE_PRICE_FOUNDING_SEAT`, `kind=founding_seat`). Hard cap **1000**. Grants `founding_seats` + **exactly one** outbound invite (`invite_codes.kind=founding_invite`). Invitee still pays; invite is the right to buy. Free multi-use AURORA/ATLAS/QUANT and whitelist free mints are frozen.
+- **AURA compute billing** — recurring founder plans on `/billing` (`STRIPE_PRICE_*` starter/company/scale). Separate from the seat.
+- **Site products** — end-customer checkout on `/s/$slug` (`kind=site_product`).
+- **Growth rewards** — in-app AURA on paid invite conversions (ledger → company reserve). Not cash, not token-launch proceeds.
+- **Token launch** — marketing/countdown only; not the door into company seats.
+
+**x402 payTo:** production requires a live USDC receiver. Set `X402_PAY_TO` to the platform treasury (same as `OKX_PAYOUT_ADDRESS` is fine). If `X402_PAY_TO` is empty, the runtime falls back to `OKX_PAYOUT_ADDRESS` and logs a warning. Simulated settlement is never allowed in production. `scripts/deploy-app.sh` does **not** sync `.env` — set both on the VPS.
+
+**Genesis Passport NFT:** optional ERC-721 utility for seated founders (not an investment, not token launch). Pay via Stripe (`kind=genesis_nft`) or mark paid after verified settlement → server-gated mint/claim. Env: `GENESIS_NFT_CONTRACT`, `GENESIS_MINTER_KEY` (server-only), `GENESIS_NFT_PRICE_USDC`.
+
+One-invite Earn UI: `/earn`. Local/niche fields + opt-in `network_backlink` strip on published landings. Concierge: `founder_reviews` queue after first publish.
+
 ## Auth vs public vs API
 
 - **`/_authenticated/*`** — logged-in company OS (console, connect, channels, report, soft CRUD pages). Guarded by the authenticated layout.
-- **Public marketing / share** — `/`, `/share`, `/live`, `/leaderboard`, `/faq`, `/company/$slug`, `/c/$passportSlug`, `/w/$shareSlug`, video `/v/*`, legal pages.
+- **Public marketing / share** — `/`, `/share`, `/live`, `/leaderboard`, `/faq`, `/company/$slug`, `/c/$passportSlug`, `/s/$slug` (landing sites), `/w/$shareSlug`, video `/v/*`, legal pages.
 - **OAuth / consent** — `/auth`, `/oauth/consent`, `/api/oauth/social/*` (connect callbacks).
 - **API / workers** — `src/routes/api/**` (e.g. worker tick, social callbacks). Not meant as nav destinations.
 
@@ -41,9 +55,31 @@ Guide: [social-channels.md](social-channels.md).
 
 ## Mailbox (BYO)
 
-- Founders connect **Gmail / Outlook** via Lovable app-user connectors (`mailbox.functions.ts`).
-- Agents **draft** outreach; founders **send** via `sendLeadEmail` (never silent).
+- Founders connect **Gmail / Outlook** (Lovable app-user connectors) or **SMTP** (host/port/username/password, AES-GCM encrypted via `APP_USER_CONNECTION_KEY_SECRET`) in `mailbox.functions.ts`.
+- Agents **draft** outreach; founders **send** via `sendLeadEmail` (never silent). SMTP uses Nodemailer.
 - Connect + console gate when outreach exists without a mailbox.
+- Gmail/Microsoft often need app passwords; custom-domain SMTP (Zoho, Migadu, Namecheap, etc.) is the happy path.
+
+## Company landings vs passport
+
+- **Passport** — `/company/$slug` (and `/c/$passportSlug`): live company receipts.
+- **Marketing site** — `/s/$slug` from `company_sites` + in-repo Aura landing templates (`lead_magnet`, `service_offer`, `ebook_product`, `subscription_daily`). Founder edits/publishes on `/website`.
+- End-customer Stripe Checkout is per-site (`site_products`) and separate from founder AURA billing on `/billing`.
+- Worker tick runs `runSubscriptionContentTick` (daily drops) and `runSiteLeadsDraftTick` (draft outreach only — no auto-send).
+- **Open Design** is an optional offline founder tool for inventing templates — not installed on the VPS.
+
+## Mobile chrome (focus deck)
+
+Authenticated shell (`shell.tsx`):
+
+- **Horizontal swipe** between core nav routes via `useSwipeAxis` (ignores `[data-no-swipe]` and form fields).
+- **Bottom tabs** + Grip sheet on small screens; content uses `pb-28` clearance.
+
+**Command Center** (`/console`) on mobile uses a **FocusDeck** (vertical snap cards: Now → Milestone → Mission → Approvals → People → Proof). Desktop (`md+`) keeps the stacked dashboard.
+
+Long copy uses **ExpandableCopy** → **ReadSurface** (full-screen reader). Truncation without a read path is not allowed (Apple HIG / Material guidance).
+
+Primitives: `focus-deck.tsx`, `focus-card.tsx`, `read-surface.tsx`, `expandable-copy.tsx`.
 
 ## Honesty rules
 
@@ -62,8 +98,8 @@ Guide: [social-channels.md](social-channels.md).
 
 Not implemented yet:
 
-1. Wildcard DNS `*.aibusiness.fun` → app; host header serves the same passport as `/company/{slug}`.
-2. Optional forward-only vanity address (e.g. Cloudflare Email Routing) → founder’s connected inbox; **send** still uses BYO OAuth.
+1. Wildcard DNS `*.aibusiness.fun` → app; host header serves the same landing/passport as `/s/{slug}` or `/company/{slug}`.
+2. Optional forward-only vanity address (e.g. Cloudflare Email Routing) → founder’s connected inbox; **send** still uses BYO OAuth or SMTP.
 
 ## Related docs
 

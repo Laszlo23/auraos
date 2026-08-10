@@ -52,7 +52,7 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
   const now = new Date().toISOString();
   let q = supabaseAdmin
     .from("channel_posts")
-    .select("id, company_id, provider, body, agent_name, reply_to_external_id")
+    .select("id, company_id, provider, body, agent_name, reply_to_external_id, share_post_id")
     .eq("status", "scheduled")
     .lte("scheduled_at", now)
     .limit(limit);
@@ -79,8 +79,14 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
       }
 
       const { sharePostIdFromBody } = await import("@/lib/share-media.server");
+      const fromCol =
+        typeof post.share_post_id === "string" && post.share_post_id.trim()
+          ? post.share_post_id.trim()
+          : null;
       const sharePostId =
-        provider === "x" ? sharePostIdFromBody(String(post.body ?? "")) : null;
+        provider === "x"
+          ? fromCol || sharePostIdFromBody(String(post.body ?? ""))
+          : null;
 
       const result = await publishToProvider(provider, post.company_id, post.body, {
         replyToExternalId: post.reply_to_external_id,

@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { AssignAgentTask } from "@/components/aura/assign-agent-task";
+import { ExpandableCopy } from "@/components/aura/expandable-copy";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { agentStatusLine, agentVoice } from "@/lib/agent-personality";
 import { currency } from "@/lib/format";
@@ -97,9 +98,12 @@ export function WorkforceBoard({ agents, tasks }: Props) {
               <p className="mt-3 text-[12px] italic leading-snug text-muted-foreground">
                 {voice.tagline}
               </p>
-              <p className="mt-2 line-clamp-2 text-[13px] leading-snug text-foreground/85">
-                {busy && a.current_task?.trim() ? a.current_task : line}
-              </p>
+              <ExpandableCopy
+                text={busy && a.current_task?.trim() ? a.current_task : line}
+                title={`${a.name} · status`}
+                maxLines={2}
+                className="mt-2"
+              />
               <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
                 <span>Done · {a.tasks_completed ?? 0}</span>
                 <span>Failed · {fails}</span>

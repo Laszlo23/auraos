@@ -57,3 +57,5 @@ Thumbs.db
 *.pem
 *.key
 secrets/
+.venv-deck/
+

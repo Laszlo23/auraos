@@ -16,8 +16,16 @@ aibusiness.fun, www.aibusiness.fun {
   }
 
   # Hashed/static assets only (not mp4 — errors must not be cached immutable).
-  @static path *.js *.css *.woff2 *.jpg *.jpeg *.png *.webp *.svg *.ico
+  # Exclude service worker so updates are not stuck behind a week-long cache.
+  @static {
+    path *.js *.css *.woff2 *.jpg *.jpeg *.png *.webp *.svg *.ico
+    not path /sw.js
+  }
   header @static Cache-Control "public, max-age=604800, immutable"
+
+  @pwa path /sw.js /manifest.webmanifest /offline.html
+  header @pwa Cache-Control "public, max-age=0, must-revalidate"
+  header @pwa Service-Worker-Allowed "/"
 
   # Kit videos + posters live on disk (too large for Nitro build / git).
   @media path *.mp4 /share/*

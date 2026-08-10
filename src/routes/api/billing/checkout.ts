@@ -2,9 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import {
+  LOCAL_SEAT_BOOST_GRANT,
+  LOCAL_SEAT_PLAN_ID,
+  boostPackById,
+  isBoostPackId,
+  stripePriceForBoostPack,
+} from "@/lib/boost-packs";
+import {
+  funnelPlanById,
+  isFunnelPlanId,
+  stripePriceForFunnelPlan,
+} from "@/lib/funnel-plans";
 import { SITE_URL } from "@/lib/site";
 
-function priceForPlan(plan: string): string | undefined {
+function priceForAuraPlan(plan: string): string | undefined {
   const map: Record<string, string | undefined> = {
     starter: process.env["STRIPE_PRICE_STARTER"],
     company: process.env["STRIPE_PRICE_COMPANY"],
@@ -79,31 +91,96 @@ export const Route = createFileRoute("/api/billing/checkout")({
 
         const { data: company } = await supabase
           .from("companies")
-          .select("id, owner_id")
+          .select("id, owner_id, entry_funnel, local_seat_paid_at, ui_locale")
           .eq("id", companyId)
           .maybeSingle();
         if (!company || company.owner_id !== user.id) {
           return Response.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const price = priceForPlan(plan);
-        if (!price) {
-          return Response.json({ error: `No Stripe price for plan ${plan}` }, { status: 400 });
-        }
-
         const site = process.env["SITE_URL"] || SITE_URL;
         const params = new URLSearchParams();
-        params.set("mode", "subscription");
-        params.set("success_url", `${site}/billing?checkout=success`);
-        params.set("cancel_url", `${site}/billing?checkout=cancel`);
         params.set("client_reference_id", companyId);
         params.set("metadata[company_id]", companyId);
         params.set("metadata[plan]", plan);
-        params.set("subscription_data[metadata][company_id]", companyId);
-        params.set("subscription_data[metadata][plan]", plan);
-        params.set("line_items[0][price]", price);
-        params.set("line_items[0][quantity]", "1");
+        if (company.entry_funnel) {
+          params.set("metadata[entry_funnel]", company.entry_funnel);
+        }
         if (user.email) params.set("customer_email", user.email);
+
+        if (plan === LOCAL_SEAT_PLAN_ID) {
+          const price = process.env["STRIPE_PRICE_LOCAL_SEAT"]?.trim();
+          if (!price) {
+            return Response.json({ error: "Local Seat price not configured" }, { status: 503 });
+          }
+          params.set("mode", "payment");
+          params.set("success_url", `${site}/boost?checkout=success`);
+          params.set("cancel_url", `${site}/boost?checkout=cancel`);
+          params.set("metadata[kind]", "local_seat");
+          params.set("metadata[boost_grant]", String(LOCAL_SEAT_BOOST_GRANT));
+          params.set("line_items[0][price]", price);
+          params.set("line_items[0][quantity]", "1");
+        } else if (isBoostPackId(plan)) {
+          if (!company.local_seat_paid_at) {
+            return Response.json(
+              { error: "Local Seat required before buying Boost packs." },
+              { status: 400 },
+            );
+          }
+          const pack = boostPackById(plan);
+          const price = pack ? stripePriceForBoostPack(pack) : undefined;
+          if (!pack || !price) {
+            return Response.json({ error: `No Stripe price for pack ${plan}` }, { status: 400 });
+          }
+          params.set("mode", "payment");
+          params.set("success_url", `${site}/boost?checkout=success`);
+          params.set("cancel_url", `${site}/boost?checkout=cancel`);
+          params.set("metadata[kind]", "boost_pack");
+          params.set("metadata[boost_grant]", String(pack.boostGrant));
+          params.set("metadata[kickoff]", pack.kickoff);
+          params.set("line_items[0][price]", price);
+          params.set("line_items[0][quantity]", "1");
+        } else {
+          const funnelPlan = isFunnelPlanId(plan) ? funnelPlanById(plan) : undefined;
+          const entryFunnel = company.entry_funnel ?? "os";
+          if (entryFunnel === "os" && funnelPlan) {
+            return Response.json(
+              { error: "Outcome plans are only for funnel companies. Use an AURA compute plan." },
+              { status: 400 },
+            );
+          }
+          if (entryFunnel !== "os" && !funnelPlan) {
+            return Response.json(
+              {
+                error:
+                  "This company uses outcome pricing. Choose a Starter / Growth / Performance plan.",
+              },
+              { status: 400 },
+            );
+          }
+
+          const price = funnelPlan
+            ? stripePriceForFunnelPlan(funnelPlan)
+            : priceForAuraPlan(plan);
+          if (!price) {
+            return Response.json({ error: `No Stripe price for plan ${plan}` }, { status: 400 });
+          }
+
+          const mode = funnelPlan?.mode ?? "subscription";
+          params.set("mode", mode);
+          params.set("success_url", `${site}/billing?checkout=success`);
+          params.set("cancel_url", `${site}/billing?checkout=cancel`);
+          params.set("metadata[kind]", funnelPlan ? "funnel_plan" : "aura_plan");
+          if (mode === "subscription") {
+            params.set("subscription_data[metadata][company_id]", companyId);
+            params.set("subscription_data[metadata][plan]", plan);
+            if (funnelPlan) {
+              params.set("subscription_data[metadata][kind]", "funnel_plan");
+            }
+          }
+          params.set("line_items[0][price]", price);
+          params.set("line_items[0][quantity]", "1");
+        }
 
         const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
           method: "POST",

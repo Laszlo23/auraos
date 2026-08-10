@@ -283,7 +283,7 @@ export function Greeter() {
                 )}
               </div>
               <button
-                onClick={() => navigate({ to: "/access" })}
+                onClick={() => navigate({ to: "/access", search: {} })}
                 className="mt-2 text-[10px] uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:text-primary"
               >
                 Earn your invite →

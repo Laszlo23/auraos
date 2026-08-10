@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { funnelPlanById, isFunnelPlanId } from "@/lib/funnel-plans";
 import { planById } from "@/lib/plans";
 import { cycleWindow } from "@/lib/subscription";
 
@@ -51,9 +52,23 @@ export const Route = createFileRoute("/api/billing/webhook")({
             object?: {
               id?: string;
               customer?: string | null;
+              customer_email?: string | null;
               subscription?: string | null;
-              metadata?: { company_id?: string; plan?: string };
+              metadata?: {
+                company_id?: string;
+                plan?: string;
+                kind?: string;
+                site_id?: string;
+                customer_email?: string;
+                product_id?: string;
+                user_id?: string;
+                invite_code?: string;
+                boost_grant?: string;
+                kickoff?: string;
+              };
               client_reference_id?: string | null;
+              payment_intent?: string | null;
+              amount_total?: number | null;
             };
           };
         };
@@ -65,14 +80,150 @@ export const Route = createFileRoute("/api/billing/webhook")({
 
         if (event.type === "checkout.session.completed") {
           const session = event.data?.object;
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+          if (session?.metadata?.kind === "site_product") {
+            const siteId = session.metadata.site_id || session.client_reference_id;
+            const email = (
+              session.metadata.customer_email ||
+              session.customer_email ||
+              ""
+            )
+              .trim()
+              .toLowerCase();
+            if (!siteId || !email) {
+              return Response.json({ error: "Missing site_id or email" }, { status: 400 });
+            }
+            await supabaseAdmin.from("site_subscribers").upsert(
+              {
+                site_id: siteId,
+                email,
+                status: "active",
+                stripe_customer_id:
+                  typeof session.customer === "string" ? session.customer : null,
+                stripe_subscription_id:
+                  typeof session.subscription === "string" ? session.subscription : null,
+              },
+              { onConflict: "site_id,email" },
+            );
+            return Response.json({ received: true });
+          }
+
+          if (session?.metadata?.kind === "founding_seat") {
+            const userId = session.metadata.user_id || session.client_reference_id;
+            if (!userId || !session.id) {
+              return Response.json({ error: "Missing user_id or session id" }, { status: 400 });
+            }
+            const inviteCode = session.metadata.invite_code?.trim() || undefined;
+            const { error: grantError } = await supabaseAdmin.rpc("grant_founding_seat", {
+              _user_id: userId,
+              _stripe_session_id: session.id,
+              ...(inviteCode ? { _invite_code: inviteCode } : {}),
+              _amount_cents: session.amount_total ?? 9900,
+              ...(typeof session.payment_intent === "string"
+                ? { _payment_intent: session.payment_intent }
+                : {}),
+            });
+            if (grantError) {
+              console.error("[billing/webhook] grant_founding_seat", grantError.message);
+              return Response.json({ error: grantError.message }, { status: 500 });
+            }
+            return Response.json({ received: true });
+          }
+
+          if (session?.metadata?.kind === "genesis_nft") {
+            const userId = session.metadata.user_id || session.client_reference_id;
+            if (!userId || !session.id) {
+              return Response.json({ error: "Missing user_id or session id" }, { status: 400 });
+            }
+            const { markGenesisPaidFromStripe } = await import("@/lib/genesis.functions");
+            await markGenesisPaidFromStripe({
+              userId,
+              sessionId: session.id,
+              amountCents: session.amount_total ?? undefined,
+            });
+            return Response.json({ received: true });
+          }
+
+          if (session?.metadata?.kind === "local_seat") {
+            const companyId = session.metadata.company_id || session.client_reference_id;
+            if (!companyId) {
+              return Response.json({ error: "Missing company_id" }, { status: 400 });
+            }
+            const { LOCAL_SEAT_BOOST_GRANT } = await import("@/lib/boost-packs");
+            const grant = LOCAL_SEAT_BOOST_GRANT;
+            const { error } = await supabaseAdmin.rpc("mark_local_seat_paid_stripe", {
+              _company_id: companyId,
+              _boost_grant: grant,
+            });
+            if (error) {
+              console.error("[billing/webhook] mark_local_seat_paid_stripe", error.message);
+              return Response.json({ error: error.message }, { status: 500 });
+            }
+            return Response.json({ received: true });
+          }
+
+          if (session?.metadata?.kind === "boost_pack") {
+            const companyId = session.metadata.company_id || session.client_reference_id;
+            const planId = session.metadata.plan || "";
+            if (!companyId || !session.id) {
+              return Response.json({ error: "Missing company_id or session id" }, { status: 400 });
+            }
+            const { boostPackById, isBoostPackId } = await import("@/lib/boost-packs");
+            const { applyBoostPackKickoff } = await import("@/lib/local-seat.functions");
+            const pack = isBoostPackId(planId) ? boostPackById(planId) : undefined;
+            // Trust catalog amount over client-supplied Stripe metadata.
+            const grant = pack?.boostGrant || Number(session.metadata.boost_grant) || 0;
+            const reason = `Boost-Paket · ${pack?.name ?? planId} · ${session.id}`;
+            const { data: priorGrant } = await supabaseAdmin
+              .from("token_ledger")
+              .select("id")
+              .eq("company_id", companyId)
+              .eq("reason", reason)
+              .maybeSingle();
+            if (priorGrant?.id) {
+              return Response.json({ received: true, duplicate: true });
+            }
+            if (grant > 0) {
+              const { error } = await supabaseAdmin.rpc("grant_local_boost", {
+                _company_id: companyId,
+                _amount: grant,
+                _reason: reason,
+              });
+              if (error) {
+                console.error("[billing/webhook] grant_local_boost", error.message);
+                return Response.json({ error: error.message }, { status: 500 });
+              }
+            }
+            if (pack && isBoostPackId(pack.id)) {
+              const { data: company } = await supabaseAdmin
+                .from("companies")
+                .select("name")
+                .eq("id", companyId)
+                .maybeSingle();
+              await applyBoostPackKickoff(
+                supabaseAdmin as never,
+                companyId,
+                pack.id,
+                (company?.name as string) || "Betrieb",
+              );
+            }
+            return Response.json({ received: true });
+          }
+
           const companyId = session?.metadata?.company_id || session?.client_reference_id;
           const planId = session?.metadata?.plan || "company";
           if (!companyId) {
             return Response.json({ error: "Missing company_id" }, { status: 400 });
           }
 
-          const plan = planById(planId === "scale" ? "enterprise" : planId);
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const funnelPlan = isFunnelPlanId(planId) ? funnelPlanById(planId) : undefined;
+          const auraPlan = funnelPlan
+            ? null
+            : planById(planId === "scale" ? "enterprise" : planId);
+          const tokens = funnelPlan?.tokenGrant ?? auraPlan?.tokens ?? 0;
+          const planLabel = funnelPlan?.name ?? auraPlan?.name ?? planId;
+          const storedPlan = funnelPlan?.id ?? auraPlan?.id ?? planId;
 
           const { data: existing } = await supabaseAdmin
             .from("subscriptions")
@@ -81,10 +232,10 @@ export const Route = createFileRoute("/api/billing/webhook")({
             .maybeSingle();
 
           const patch = {
-            plan: plan.id,
+            plan: storedPlan,
             status: "active",
-            tokens_per_cycle: plan.tokens,
-            tokens_remaining: plan.tokens,
+            tokens_per_cycle: tokens,
+            tokens_remaining: tokens,
             payment_mode: "stripe",
             stripe_customer_id: typeof session?.customer === "string" ? session.customer : null,
             stripe_subscription_id:
@@ -104,8 +255,8 @@ export const Route = createFileRoute("/api/billing/webhook")({
           await supabaseAdmin.from("token_ledger").insert({
             company_id: companyId,
             kind: "grant",
-            amount: plan.tokens,
-            reason: `Stripe checkout · ${plan.name}`,
+            amount: tokens,
+            reason: `Stripe checkout · ${planLabel}`,
           });
         }
 

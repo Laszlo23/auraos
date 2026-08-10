@@ -13,7 +13,13 @@ import {
   useSocialStatus,
   SOCIALS,
 } from "@/hooks/use-connections";
-import { useConnectMailbox, useDisconnectMailbox, useMailboxes } from "@/hooks/use-mailbox";
+import {
+  useConnectMailbox,
+  useConnectSmtp,
+  useDisconnectMailbox,
+  useMailboxes,
+  useSendSmtpTest,
+} from "@/hooks/use-mailbox";
 import { useMyHandle, useBindWallet, useVerifyWallet } from "@/hooks/use-identity";
 import { useSubscription, useUpdateSubscription } from "@/hooks/use-tokens";
 import type { MailboxProvider } from "@/lib/mailbox.functions";
@@ -42,7 +48,11 @@ export const Route = createFileRoute("/_authenticated/connect")({
   component: ConnectPage,
 });
 
-const MAILBOXES: { id: MailboxProvider; name: string; blurb: string }[] = [
+const OAUTH_MAILBOXES: {
+  id: Exclude<MailboxProvider, "smtp">;
+  name: string;
+  blurb: string;
+}[] = [
   {
     id: "google_mail",
     name: "Gmail",
@@ -129,6 +139,8 @@ function ConnectPage() {
   const disconnectChannel = useDisconnectChannel();
   const { data: mailboxes = [] } = useMailboxes();
   const connectMailbox = useConnectMailbox();
+  const connectSmtp = useConnectSmtp();
+  const sendSmtpTest = useSendSmtpTest();
   const disconnectMailbox = useDisconnectMailbox();
   const { data: sub } = useSubscription();
   const updateSub = useUpdateSubscription();
@@ -140,6 +152,16 @@ function ConnectPage() {
   const [pending, setPending] = useState<string | null>(null);
   const [burst, setBurst] = useState(0);
   const [xp, setXp] = useState<{ label: string; amount: number } | null>(null);
+  const [smtpOpen, setSmtpOpen] = useState(false);
+  const [smtpForm, setSmtpForm] = useState({
+    host: "",
+    port: "587",
+    secure: false,
+    username: "",
+    password: "",
+    from_name: "",
+    from_email: "",
+  });
 
   const celebrate = (label: string, amount: number, quest?: string) => {
     setBurst((n) => n + 1);
@@ -168,7 +190,7 @@ function ConnectPage() {
     }
   }
 
-  async function onConnectMailbox(id: MailboxProvider, name: string) {
+  async function onConnectMailbox(id: Exclude<MailboxProvider, "smtp">, name: string) {
     setPending(id);
     try {
       await connectMailbox.mutateAsync(id);
@@ -177,6 +199,36 @@ function ConnectPage() {
       toast.error(error instanceof Error ? error.message : "Mailbox connection failed.");
     } finally {
       setPending(null);
+    }
+  }
+
+  async function onSaveSmtp() {
+    setPending("smtp");
+    try {
+      await connectSmtp.mutateAsync({
+        host: smtpForm.host,
+        port: Number(smtpForm.port),
+        secure: smtpForm.secure,
+        username: smtpForm.username,
+        password: smtpForm.password,
+        from_name: smtpForm.from_name,
+        from_email: smtpForm.from_email,
+      });
+      setSmtpOpen(false);
+      celebrate("SMTP connected", 200, "mailbox:smtp");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "SMTP connection failed.");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function onSmtpTest() {
+    try {
+      const res = await sendSmtpTest.mutateAsync();
+      toast.success(`Test sent to ${res.to}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "SMTP test failed.");
     }
   }
 
@@ -322,7 +374,7 @@ function ConnectPage() {
       </Panel>
 
       <Panel label="Mailbox" bodyClassName="p-0" delay={0.1}>
-        {MAILBOXES.map((m) => {
+        {OAUTH_MAILBOXES.map((m) => {
           const state = mailboxes.find((x) => x.provider === m.id);
           const status = state?.connected ? "connected" : state?.available ? "idle" : "soon";
           return (
@@ -356,6 +408,85 @@ function ConnectPage() {
             </Row>
           );
         })}
+        {(() => {
+          const state = mailboxes.find((x) => x.provider === "smtp");
+          const status = state?.connected ? "connected" : "idle";
+          return (
+            <div className="border-b border-border/40 last:border-0">
+              <Row
+                glyph={<Mail className="h-4 w-4" />}
+                title="SMTP"
+                blurb={
+                  state?.connected
+                    ? (state.account ?? "Connected")
+                    : "Any mailbox via host, port, username, and password. Prefer custom-domain SMTP (Zoho, Migadu, Namecheap). Gmail/Microsoft usually need an app password."
+                }
+                status={status}
+              >
+                {state?.connected ? (
+                  <>
+                    <Action
+                      tone="ghost"
+                      loading={sendSmtpTest.isPending}
+                      onClick={() => void onSmtpTest()}
+                    >
+                      Test send
+                    </Action>
+                    <Action tone="ghost" onClick={() => disconnectMailbox.mutate("smtp")}>
+                      Disconnect
+                    </Action>
+                  </>
+                ) : (
+                  <Action onClick={() => setSmtpOpen((o) => !o)}>
+                    <Link2 className="h-3.5 w-3.5" /> {smtpOpen ? "Close" : "Connect"}
+                  </Action>
+                )}
+              </Row>
+              {smtpOpen && !state?.connected ? (
+                <div className="grid gap-3 border-t border-border/40 px-5 py-4 sm:grid-cols-2">
+                  {(
+                    [
+                      ["host", "Host", "smtp.example.com"],
+                      ["port", "Port", "587"],
+                      ["username", "Username", "you@example.com"],
+                      ["password", "Password", "••••••••"],
+                      ["from_email", "From email", "you@example.com"],
+                      ["from_name", "From name", "Your Company"],
+                    ] as const
+                  ).map(([key, label, placeholder]) => (
+                    <label key={key} className="block text-[11px] text-muted-foreground">
+                      {label}
+                      <input
+                        type={key === "password" ? "password" : "text"}
+                        value={smtpForm[key]}
+                        placeholder={placeholder}
+                        onChange={(e) =>
+                          setSmtpForm((f) => ({ ...f, [key]: e.target.value }))
+                        }
+                        className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
+                      />
+                    </label>
+                  ))}
+                  <label className="flex items-center gap-2 text-[12px] text-muted-foreground sm:col-span-2">
+                    <input
+                      type="checkbox"
+                      checked={smtpForm.secure}
+                      onChange={(e) =>
+                        setSmtpForm((f) => ({ ...f, secure: e.target.checked }))
+                      }
+                    />
+                    Use TLS (secure) — usually on for port 465
+                  </label>
+                  <div className="sm:col-span-2">
+                    <Action loading={pending === "smtp"} onClick={() => void onSaveSmtp()}>
+                      Save SMTP
+                    </Action>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          );
+        })()}
       </Panel>
 
       <Panel label="Token wallet" delay={0.15}>

@@ -11,6 +11,7 @@ import type { Address, Hex } from "viem";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { X402_CATALOG } from "@/lib/x402-catalog";
 import { activeNetwork, resolveNetwork } from "@/lib/chain-config";
+import { isProdRuntime, resolveX402PayTo } from "@/lib/x402-config";
 import { SITE_URL } from "@/lib/site";
 
 export type AgentPurchase = {
@@ -22,13 +23,10 @@ export type AgentPurchase = {
   simulated: boolean;
 };
 
-const isProd = () =>
-  process.env["NODE_ENV"] === "production" || process.env["VITE_APP_ENV"] === "production";
-
 function x402Mode(): { live: boolean; allowDev: boolean; payTo: string | null } {
-  const payTo = process.env["X402_PAY_TO"] || null;
+  const payTo = resolveX402PayTo();
   // Never allow unpaid/dev settlement in production.
-  const allowDev = !isProd();
+  const allowDev = !isProdRuntime();
   return { live: Boolean(payTo), allowDev, payTo };
 }
 
@@ -120,7 +118,9 @@ export const agentBuy = createServerFn({ method: "POST" })
 
     const { live, allowDev, payTo } = x402Mode();
     if (!live && !allowDev) {
-      throw new Error("x402 is misconfigured: set X402_PAY_TO for production.");
+      throw new Error(
+        "x402 is misconfigured: set X402_PAY_TO (or OKX_PAYOUT_ADDRESS) for production.",
+      );
     }
 
     const { data: sk, error: skErr } = await context.supabase

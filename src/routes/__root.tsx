@@ -13,7 +13,10 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuroraField } from "@/components/aura/aurora";
 import { BetaBadge } from "@/components/aura/beta-badge";
+import { InstallApp } from "@/components/aura/install-app";
+import { AppBootLoader, PageProgress } from "@/components/aura/page-loader";
 import { Toaster } from "@/components/ui/sonner";
+import { usePwa } from "@/hooks/use-pwa";
 import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 
 function NotFoundComponent() {
@@ -132,6 +135,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "Aura OS" },
       { name: "theme-color", content: "#07090e" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Aura OS" },
+      { name: "application-name", content: "Aura OS" },
       { name: "robots", content: "index,follow,max-image-preview:large" },
       { property: "og:title", content: "Aura OS — The AI Company Operating System" },
       {
@@ -187,7 +195,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
-      { rel: "apple-touch-icon", href: "/favicon.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
     ],
   }),
@@ -213,6 +222,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  usePwa();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -224,11 +234,14 @@ function RootComponent() {
       </a>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AuroraField />
+      <PageProgress />
+      <AppBootLoader />
       <div id="main">
         <Outlet />
       </div>
       <Toaster position="top-center" />
       <BetaBadge />
+      <InstallApp />
       <DeferredAnalytics />
     </QueryClientProvider>
   );

@@ -394,10 +394,15 @@ Research:\n${context_md.slice(0, 4000)}`,
 /** Send a drafted email — always explicit founder action. */
 export const sendLeadEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { leadId: string; provider: string }) => ({
-    leadId: String(input.leadId),
-    provider: input.provider === "microsoft_outlook" ? "microsoft_outlook" : "google_mail",
-  }))
+  .inputValidator((input: { leadId: string; provider: string }) => {
+    const provider =
+      input.provider === "microsoft_outlook"
+        ? "microsoft_outlook"
+        : input.provider === "smtp"
+          ? "smtp"
+          : "google_mail";
+    return { leadId: String(input.leadId), provider };
+  })
   .handler(async ({ data, context }) => {
     const supabase = asDb(context.supabase);
     const { data: lead, error } = await supabase
@@ -410,63 +415,82 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
     if (!lead.email) throw new Error("This lead has no email address yet.");
     if (!lead.draft_subject || !lead.draft_body) throw new Error("Write the email first.");
 
-    const { getConnectionKeyForUser } = await import("@/server/appUserConnections.server");
-    const key = await getConnectionKeyForUser(context.userId, data.provider);
-    if (!key) throw new Error("Connect your mailbox first.");
-
-    const { callAsAppUser, GATEWAY_BASE_URL } =
-      await import("@/integrations/lovable/appUserConnector");
-
-    let res: Response;
-    if (data.provider === "google_mail") {
-      const mime = [
-        `To: ${lead.email}`,
-        `Subject: ${lead.draft_subject}`,
-        'Content-Type: text/plain; charset="UTF-8"',
-        "",
-        lead.draft_body,
-      ].join("\r\n");
-      const raw = Buffer.from(mime, "utf8")
-        .toString("base64")
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-      res = await callAsAppUser({
-        gatewayBaseUrl: GATEWAY_BASE_URL,
-        connectionAPIKey: key,
-        connectorId: "google_mail",
-        path: "/gmail/v1/users/me/messages/send",
-        init: {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ raw }),
-        },
-      });
+    if (data.provider === "smtp") {
+      const { loadSmtpConfigForUser, sendViaSmtp } = await import("@/lib/smtp.server");
+      const config = await loadSmtpConfigForUser(context.userId);
+      if (!config) throw new Error("Connect your SMTP mailbox first.");
+      try {
+        await sendViaSmtp({
+          config,
+          to: lead.email,
+          subject: lead.draft_subject,
+          text: lead.draft_body,
+        });
+      } catch (err) {
+        console.error("SMTP send failed:", err);
+        throw new Error(
+          err instanceof Error ? `SMTP send failed: ${err.message}` : "SMTP send failed.",
+        );
+      }
     } else {
-      res = await callAsAppUser({
-        gatewayBaseUrl: GATEWAY_BASE_URL,
-        connectionAPIKey: key,
-        connectorId: "microsoft_outlook",
-        path: "/me/sendMail",
-        init: {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: {
-              subject: lead.draft_subject,
-              body: { contentType: "Text", content: lead.draft_body },
-              toRecipients: [{ emailAddress: { address: lead.email } }],
-            },
-            saveToSentItems: true,
-          }),
-        },
-      });
-    }
+      const { getConnectionKeyForUser } = await import("@/server/appUserConnections.server");
+      const key = await getConnectionKeyForUser(context.userId, data.provider);
+      if (!key) throw new Error("Connect your mailbox first.");
 
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.error(`Mailbox send failed [${res.status}]: ${detail}`);
-      throw new Error(`Your mailbox rejected the send (${res.status}).`);
+      const { callAsAppUser, GATEWAY_BASE_URL } =
+        await import("@/integrations/lovable/appUserConnector");
+
+      let res: Response;
+      if (data.provider === "google_mail") {
+        const mime = [
+          `To: ${lead.email}`,
+          `Subject: ${lead.draft_subject}`,
+          'Content-Type: text/plain; charset="UTF-8"',
+          "",
+          lead.draft_body,
+        ].join("\r\n");
+        const raw = Buffer.from(mime, "utf8")
+          .toString("base64")
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=+$/, "");
+        res = await callAsAppUser({
+          gatewayBaseUrl: GATEWAY_BASE_URL,
+          connectionAPIKey: key,
+          connectorId: "google_mail",
+          path: "/gmail/v1/users/me/messages/send",
+          init: {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ raw }),
+          },
+        });
+      } else {
+        res = await callAsAppUser({
+          gatewayBaseUrl: GATEWAY_BASE_URL,
+          connectionAPIKey: key,
+          connectorId: "microsoft_outlook",
+          path: "/me/sendMail",
+          init: {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: {
+                subject: lead.draft_subject,
+                body: { contentType: "Text", content: lead.draft_body },
+                toRecipients: [{ emailAddress: { address: lead.email } }],
+              },
+              saveToSentItems: true,
+            }),
+          },
+        });
+      }
+
+      if (!res.ok) {
+        const detail = await res.text().catch(() => "");
+        console.error(`Mailbox send failed [${res.status}]: ${detail}`);
+        throw new Error(`Your mailbox rejected the send (${res.status}).`);
+      }
     }
 
     await supabase
@@ -476,7 +500,6 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
-
 /** Publish a completed run for the viral result page. */
 export const publishAkquiseResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

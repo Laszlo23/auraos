@@ -12,6 +12,7 @@ import {
   REFERRAL_TIERS,
   useClaimEarnings,
   useEarnings,
+  useFoundingInvite,
   useReferralCode,
   useReferrals,
   type Referral,
@@ -22,17 +23,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/earn")({
   head: () => ({
     meta: [
-      { title: "Earn — grow the network, earn AURA | Aura OS" },
+      { title: "Earn — your one invite | Aura OS" },
       {
         name: "description",
         content:
-          "Share your founder code, bring builders into Aura and earn up to 7,500 AURA per founder as they join, launch and subscribe.",
+          "Share your single founding invite. Earn in-app AURA when they pay the seat, publish, and start compute — not cash, not token launch.",
       },
-      { property: "og:title", content: "Earn — grow the network, earn AURA" },
+      { property: "og:title", content: "Earn — your one invite" },
       {
         property: "og:description",
-        content:
-          "Every founder you bring in pays out across three milestones. Claim straight into your reserve.",
+        content: "One invite per founder. Rewards are in-app AURA for your company reserve.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -73,7 +73,7 @@ function ReferralRow({ referral }: { referral: Referral }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-medium">
-          {referral.referred_email ?? "Founder joined via your code"}
+          {referral.referred_email ?? "Founder joined via your invite"}
         </p>
         <div className="mt-1.5">
           <StageTrail stage={referral.stage} />
@@ -88,6 +88,7 @@ function ReferralRow({ referral }: { referral: Referral }) {
 
 function EarnPage() {
   const { data: code, isLoading: codeLoading } = useReferralCode();
+  const { data: foundingInvite } = useFoundingInvite();
   const { data: referrals = [] } = useReferrals();
   const { data: earnings = [] } = useEarnings();
   const claim = useClaimEarnings();
@@ -96,9 +97,10 @@ function EarnPage() {
   const [burst, setBurst] = useState(0);
   const [xp, setXp] = useState<{ label: string; amount: number } | null>(null);
 
+  const inviteUsed = Boolean(foundingInvite?.used) || (code != null && code.uses >= 1);
   const link = useMemo(() => {
     if (!code?.code) return "";
-    return `${SITE_URL}/auth?ref=${code.code}`;
+    return `${SITE_URL}/auth?invite=${code.code}`;
   }, [code?.code]);
 
   const claimable = earnings
@@ -124,12 +126,12 @@ function EarnPage() {
       try {
         await nav.share({
           title: "Aura OS",
-          text: "I'm running an AI company on Aura. Come build one.",
+          text: "I'm running an online business on Aura. Here's my one invite to buy a founding seat.",
           url: link,
         });
         return;
       } catch {
-        /* user dismissed the sheet — fall through to copy */
+        /* dismissed */
       }
     }
     void copy(link, "Invite link");
@@ -144,7 +146,7 @@ function EarnPage() {
         window.setTimeout(() => setXp(null), 2600);
         toast.success(`${amount.toLocaleString()} AURA moved into your reserve.`);
       } else {
-        toast.info("Nothing to claim yet — share your code to get started.");
+        toast.info("Nothing to claim yet — share your invite when someone pays.");
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Claim failed.");
@@ -158,8 +160,8 @@ function EarnPage() {
 
       <PageHeader
         eyebrow="Growth engine"
-        title="Every founder you bring in pays you three times."
-        description="Aura grows through builders, not ads. Share your code — you earn when they join, when they launch their company, and when they subscribe. Up to 7,500 AURA per founder."
+        title="Your only invite."
+        description="Each seated founder gets one invite — the right for a friend to buy a $99 founding seat. You earn in-app AURA (company compute reserve) on paid conversions — not cash, and not part of the token launch."
         actions={
           <button
             onClick={() => void onClaim()}
@@ -178,18 +180,32 @@ function EarnPage() {
 
       <div className="grid gap-5 lg:grid-cols-[1.15fr_1fr]">
         <div className="space-y-5">
-          <Panel label="Your founder code" glow>
+          <Panel label={inviteUsed ? "Invite used" : "Your only invite"} glow>
             {codeLoading ? (
               <Shimmer className="h-24" />
+            ) : !code?.code ? (
+              <p className="text-[13px] text-muted-foreground">
+                Your single invite appears after you hold a paid founding seat.
+              </p>
             ) : (
               <>
+                {inviteUsed ? (
+                  <p className="mb-3 text-[13px] text-muted-foreground">
+                    This invite has been used. No second invite in v1 — rewards still track below.
+                  </p>
+                ) : (
+                  <p className="mb-3 text-[13px] text-muted-foreground">
+                    Share once. They still pay $99 — your invite only unlocks checkout.
+                  </p>
+                )}
                 <div className="flex flex-wrap items-center gap-3">
                   <button
-                    onClick={() => void copy(code?.code ?? "", "Code")}
-                    className="glass-soft hover-lift group flex items-center gap-3 rounded-2xl px-5 py-4"
+                    onClick={() => void copy(code.code, "Invite")}
+                    disabled={inviteUsed}
+                    className="glass-soft hover-lift group flex items-center gap-3 rounded-2xl px-5 py-4 disabled:opacity-50"
                   >
                     <span className="num text-2xl font-semibold tracking-[0.14em] text-primary">
-                      {code?.code ?? "——————"}
+                      {code.code}
                     </span>
                     {copied ? (
                       <Check className="h-4 w-4 text-primary" />
@@ -197,37 +213,37 @@ function EarnPage() {
                       <Copy className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
                     )}
                   </button>
-                  <button
-                    onClick={() => void share()}
-                    className="glass-soft hover-lift inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-medium"
-                  >
-                    <Share2 className="h-4 w-4 text-primary" />
-                    Share invite
-                  </button>
+                  {!inviteUsed ? (
+                    <button
+                      onClick={() => void share()}
+                      className="glass-soft hover-lift inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-medium"
+                    >
+                      <Share2 className="h-4 w-4 text-primary" />
+                      Share invite
+                    </button>
+                  ) : (
+                    <Chip tone="gold">Used</Chip>
+                  )}
                 </div>
-                {link ? (
+                {link && !inviteUsed ? (
                   <div className="mt-4 space-y-3">
                     <ShareLink url={link} />
                     <ShareBar
                       url={link}
-                      text="I'm running an AI company on Aura. Come build one."
+                      text="I'm running an online business on Aura. Here's my invite to buy a founding seat."
                       placement="earn"
                       compact
                     />
                   </div>
-                ) : (
-                  <p className="mt-4 text-[12px] text-muted-foreground">
-                    Claim your @handle to personalise this link.
-                  </p>
-                )}
+                ) : null}
               </>
             )}
           </Panel>
 
           <Panel label="Reward schedule">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Rewards unlock as your invited founder goes deeper. Nothing is capped by time — the
-              third payout lands whenever they subscribe.
+              Paid conversions only. Claimed AURA lands in your company reserve for compute — separate
+              from any token launch.
             </p>
             <div className="mt-5 space-y-3">
               {REFERRAL_TIERS.map((tier, i) => (
@@ -251,7 +267,8 @@ function EarnPage() {
               ))}
             </div>
             <p className="mt-4 text-[12px] text-muted-foreground">
-              Maximum {REFERRAL_MAX.toLocaleString()} AURA per founder.
+              Maximum {REFERRAL_MAX.toLocaleString()} AURA per founder · invitee welcome 1,000 AURA on
+              paid seat.
             </p>
           </Panel>
 
@@ -260,7 +277,7 @@ function EarnPage() {
               <div className="py-10 text-center">
                 <Users className="mx-auto h-6 w-6 text-muted-foreground/50" />
                 <p className="mt-3 text-[13px] text-muted-foreground">
-                  No one yet. Your code is live — send it to one builder today.
+                  No paid conversions yet. Send your one invite to another online business.
                 </p>
               </div>
             ) : (
@@ -283,7 +300,7 @@ function EarnPage() {
               <DataRow label="Lifetime earned" value={lifetime.toLocaleString()} tone="gold" />
               <DataRow label="Founders invited" value={referrals.length} />
               <DataRow label="Reached launch" value={activated} tone="primary" />
-              <DataRow label="Code uses" value={code?.uses ?? 0} />
+              <DataRow label="Invite status" value={inviteUsed ? "Used" : code ? "Open" : "—"} />
             </div>
           </Panel>
 
@@ -325,8 +342,8 @@ function EarnPage() {
             <div className="flex gap-3">
               <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <p className="text-[13px] leading-relaxed text-muted-foreground">
-                AURA is the fuel your agents burn. Growing the network directly extends your
-                company's runway — every founder you bring in is compute you didn't have to buy.
+                AURA here is compute fuel for online businesses on Aura OS — not a token sale payout.
+                Growing the cohort extends runway without ads.
               </p>
             </div>
           </Panel>

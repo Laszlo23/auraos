@@ -20,6 +20,16 @@ export type Company = {
   max_notional_usdc_day?: number;
   max_slippage_bps?: number;
   allowed_symbols?: string[];
+  city?: string | null;
+  niche?: string | null;
+  is_local_business?: boolean;
+  network_backlink?: boolean;
+  entry_funnel?: string | null;
+  homepage_url?: string | null;
+  google_review_url?: string | null;
+  local_cohort_number?: number | null;
+  ui_locale?: string | null;
+  local_seat_paid_at?: string | null;
 };
 
 export function useCompany() {

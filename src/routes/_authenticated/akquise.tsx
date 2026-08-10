@@ -108,6 +108,11 @@ type Step = { id: string; label: string; status: string; detail?: string };
 const MAILBOX_META: Record<MailboxProvider, { name: string; glyph: string; blurb: string }> = {
   google_mail: { name: "Gmail", glyph: "M", blurb: "Send from your Google Workspace address." },
   microsoft_outlook: { name: "Outlook", glyph: "O", blurb: "Send from Microsoft 365 or Outlook." },
+  smtp: {
+    name: "SMTP",
+    glyph: "S",
+    blurb: "Custom-domain SMTP — wire host and password on Connect.",
+  },
 };
 
 function leadsToCsv(rows: Lead[]) {
@@ -437,7 +442,7 @@ function AkquisePage() {
               </p>
             ) : (
               <p className="mt-2 text-[12px] text-gold">
-                Connect Gmail or Outlook before Send —{" "}
+                Connect Gmail, Outlook, or SMTP before Send —{" "}
                 <Link to="/connect" className="underline hover:text-foreground">
                   open Connect
                 </Link>
@@ -474,12 +479,20 @@ function AkquisePage() {
                         >
                           <Unplug className="h-3.5 w-3.5" />
                         </button>
+                      ) : box.provider === "smtp" ? (
+                        <Link
+                          to="/connect"
+                          className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-medium text-primary"
+                        >
+                          Wire SMTP
+                        </Link>
                       ) : (
                         <button
                           type="button"
                           onClick={() => {
                             setError(null);
-                            connectMailbox.mutate(box.provider, {
+                            const provider = box.provider as Exclude<MailboxProvider, "smtp">;
+                            connectMailbox.mutate(provider, {
                               onError: (e: Error) => setError(e.message),
                               onSuccess: () =>
                                 celebrate("Mailbox connected", 200, "akquise:mailbox"),

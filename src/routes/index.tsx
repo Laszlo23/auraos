@@ -10,24 +10,18 @@ import {
   ChevronDown,
   CircleDollarSign,
   Disc3,
-  Heart,
   KeyRound,
-  MessageSquare,
   Play,
-  Quote,
   Rocket,
-  Share2,
   Sparkles,
   Timer,
   Trophy,
-  UserPlus,
-  Users,
   Workflow,
   type LucideIcon,
 } from "lucide-react";
 
 import { Chip, Panel } from "@/components/aura/primitives";
-import { FoundingCohort } from "@/components/aura/scarcity";
+import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
 import { HeroFilm } from "@/components/aura/hero-film";
 import { ActFilm } from "@/components/aura/act-film";
 import { BootCurtain } from "@/components/aura/boot";
@@ -48,12 +42,10 @@ import {
   SITE_URL,
   TOKEN_LAUNCH_DISPLAY,
   TOKEN_LAUNCH_LABEL,
-  WHITELIST_REQUIRED_COUNT,
-  WHITELIST_TASKS,
   mediaPath,
-  type WhitelistTaskId,
 } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { requestInstallPrompt } from "@/components/aura/install-app";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
@@ -134,21 +126,8 @@ const LOOP: { step: string; body: string; icon: LucideIcon }[] = [
   },
 ];
 
-const TASK_ICONS: Record<WhitelistTaskId, LucideIcon> = {
-  follow_x: UserPlus,
-  follow_farcaster: Users,
-  like_post: Heart,
-  comment_post: MessageSquare,
-  share_post: Quote,
-  discord: MessageSquare,
-  telegram: Share2,
-};
-
-/** Read-only preview of whitelist tasks — progress lives on /access. */
+/** How founding seats work — separate from token launch. */
 function UnlockAccessBand() {
-  const required = WHITELIST_TASKS.filter((t) => t.group === "required");
-  const chat = WHITELIST_TASKS.filter((t) => t.group === "chat_or");
-
   return (
     <section
       id="unlock"
@@ -160,51 +139,27 @@ function UnlockAccessBand() {
             How to get in
           </p>
           <h2 className="mt-3 font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
-            Do these once.
-            <span className="block text-primary">Get your invite. Enter the app.</span>
+            Invite-only paid seats.
+            <span className="block text-primary">$99 · 1000 companies · one invite each.</span>
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            {WHITELIST_REQUIRED_COUNT} community tasks — follow, engage, join a chat. That unlocks
-            Aura OS and grows the room before fair launch.
+            For online businesses running on Aura OS. An invite unlocks checkout — not a free pass.
+            Token fair launch is a separate event; founding seats are the product door.
           </p>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {required.map((t, i) => {
-            const Icon = TASK_ICONS[t.id];
-            return (
-              <div key={t.id} className="glass flex items-start gap-3 rounded-2xl px-4 py-3.5">
-                <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/12 text-primary">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="num text-[10px] font-semibold tracking-[0.2em] text-primary/70">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="text-[13px] font-semibold">{t.label}</p>
-                  </div>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">{t.hint}</p>
-                </div>
-              </div>
-            );
-          })}
-          <div className="glass flex items-start gap-3 rounded-2xl px-4 py-3.5 sm:col-span-2 lg:col-span-1">
-            <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold">
-              <Users className="h-4 w-4" />
-            </span>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="num text-[10px] font-semibold tracking-[0.2em] text-gold/80">
-                  {String(required.length + 1).padStart(2, "0")}
-                </span>
-                <p className="text-[13px] font-semibold">Join Discord or Telegram</p>
-              </div>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Pick one: {chat.map((c) => c.label).join(" · ")}
-              </p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {[
+            { n: "01", t: "Get an invite", d: "From a seated founder (one each)." },
+            { n: "02", t: "Pay $99", d: "One-time founding seat via Stripe." },
+            { n: "03", t: "Wake the company", d: "Publish, earn in-app AURA on paid referrals." },
+          ].map((s) => (
+            <div key={s.n} className="glass rounded-2xl px-4 py-4">
+              <p className="num text-[10px] font-semibold tracking-[0.2em] text-primary/70">{s.n}</p>
+              <p className="mt-2 text-[13px] font-semibold">{s.t}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">{s.d}</p>
             </div>
-          </div>
+          ))}
         </div>
 
         <Link
@@ -212,7 +167,7 @@ function UnlockAccessBand() {
           onClick={() => trackTeaser("cta_click", { placement: "landing_unlock_start" })}
           className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
         >
-          Start tasks <ArrowRight className="h-4 w-4" />
+          Founding seats <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </section>
@@ -433,11 +388,29 @@ function Landing() {
             <LaunchCountdown variant="compact" showSocials={false} placement="header" />
           </Chip>
           <Link
+            to="/"
+            hash="community"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_header_waitlist" })}
+            className="shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Join waitlist
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              trackTeaser("cta_click", { placement: "landing_header_install" });
+              requestInstallPrompt();
+            }}
+            className="hidden shrink-0 rounded-2xl border border-border/50 bg-foreground/4 px-4 py-2 text-xs font-semibold transition-colors hover:border-primary/40 hover:text-primary sm:inline-flex"
+          >
+            Get app
+          </button>
+          <Link
             to="/access"
             onClick={() => trackTeaser("cta_click", { placement: "landing_header_earn" })}
-            className="shrink-0 rounded-2xl bg-primary/14 px-4 py-2 text-xs font-semibold text-primary transition-opacity hover:opacity-80"
+            className="hidden shrink-0 rounded-2xl bg-primary/14 px-4 py-2 text-xs font-semibold text-primary transition-opacity hover:opacity-80 sm:inline-flex"
           >
-            Earn access
+            Founding seats
           </Link>
           <button
             onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
@@ -503,7 +476,8 @@ function Landing() {
             transition={{ duration: 0.7, delay: 0.32 }}
             className="mt-3 max-w-lg text-[13px] text-muted-foreground"
           >
-            No invite yet? Finish a few community tasks and unlock yours.
+            Building community first — join the waitlist, then buy a founding seat when your wave
+            opens. Genesis Passport (NFT key) is a separate private-sale utility.
           </motion.p>
 
           <motion.div
@@ -512,25 +486,65 @@ function Landing() {
             transition={{ duration: 0.85, delay: 0.38 }}
             className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
+            <a
+              href="#community"
+              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_waitlist" })}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-all hover:opacity-90 hover:shadow-[0_0_60px_-12px_var(--glow)]"
+            >
+              Join the waitlist <ArrowRight className="h-4 w-4" />
+            </a>
             <Link
               to="/access"
               onClick={() => trackTeaser("cta_click", { placement: "landing_hero_earn" })}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-all hover:opacity-90 hover:shadow-[0_0_60px_-12px_var(--glow)]"
-            >
-              Earn your invite <ArrowRight className="h-4 w-4" />
-            </Link>
-            <a
-              href="#how"
               className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-background/30 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-colors hover:border-primary/30 hover:bg-foreground/8"
             >
-              How it works
-            </a>
+              Have an invite?
+            </Link>
           </motion.div>
+
+          <motion.form
+            id="community"
+            onSubmit={join}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.48 }}
+            className="glass mt-6 flex max-w-lg scroll-mt-28 flex-col gap-2 rounded-3xl p-3 sm:flex-row sm:items-center"
+          >
+            {joined ? (
+              <p className="px-2 py-2 text-[13px] text-muted-foreground">
+                You&apos;re on the list — we&apos;ll email{" "}
+                <span className="text-foreground">{email.trim().toLowerCase()}</span> when a wave
+                opens.
+              </p>
+            ) : (
+              <>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  maxLength={255}
+                  required
+                  placeholder="you@company.com"
+                  aria-label="Email for waitlist"
+                  autoComplete="email"
+                  className="min-w-0 flex-1 rounded-2xl bg-foreground/6 px-4 py-3 text-[13px] outline-none placeholder:text-muted-foreground/60"
+                />
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="shrink-0 rounded-2xl bg-primary px-5 py-3 text-xs font-semibold text-primary-foreground disabled:opacity-40"
+                >
+                  {busy ? "Saving…" : "Get on the list"}
+                </button>
+              </>
+            )}
+          </motion.form>
+
           <motion.button
             type="button"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
             onClick={() => {
               trackTeaser("open", { placement: "hero" });
               setTeaserOpen(true);
@@ -674,18 +688,45 @@ function Landing() {
             onClick={() => trackTeaser("cta_click", { placement: "landing_how_earn" })}
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Earn your invite <ArrowRight className="h-4 w-4" />
+            Founding seats <ArrowRight className="h-4 w-4" />
           </Link>
           <a
             href="#unlock"
             className="text-[13px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
-            See the {WHITELIST_REQUIRED_COUNT} tasks
+            How founding seats work
           </a>
         </div>
       </section>
 
       <LiveProof />
+
+      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-6">
+        <div className="flex flex-col gap-6 rounded-3xl border border-border/40 bg-foreground/[0.03] p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+          <div className="max-w-xl flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+              Proof &amp; memory
+            </p>
+            <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+              Finished work leaves evidence
+            </h2>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              Timestamps, written results, dated agent memory — plus Wave 1 scarcity for marketing.
+              Steal the shareable proof card.
+            </p>
+            <div className="mt-5 max-w-sm">
+              <MarketingWaveScarcity />
+            </div>
+          </div>
+          <Link
+            to="/proof"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_proof" })}
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
+          >
+            Open proof page <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </section>
 
       <UnlockAccessBand />
 
@@ -745,7 +786,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* Finale — earn first, code second, waitlist last */}
+      {/* Finale — community first, then invite / seat */}
       <section
         id="claim"
         data-tour="claim"
@@ -753,37 +794,75 @@ function Landing() {
       >
         <div className="flex flex-col justify-center">
           <h2 className="font-display text-[clamp(2rem,7vw,3.4rem)] leading-[0.98] tracking-tight">
-            Earn your invite.
+            Join the room first.
             <br />
-            <span className="text-gold">Then own the upside.</span>
+            <span className="text-gold">Then unlock the door.</span>
           </h2>
           <p className="mt-5 max-w-md text-[14px] leading-relaxed text-muted-foreground">
-            Founding company seats open before the fair launch ({TOKEN_LAUNCH_DISPLAY}). Complete
-            the community tasks, unlock your invite, and wake a company that works while you sleep.
+            We&apos;re building community before the private sale. Waitlist now · paid founding seats
+            (1000) when invited · Genesis Passport NFT as a wallet key (Stripe or USDC) — separate from
+            token launch.
           </p>
           <div className="mt-8">
             <FoundingCohort />
           </div>
+          <div className="mt-6 flex flex-wrap gap-3 text-[12px]">
+            <Link to="/pitch" className="text-primary underline-offset-2 hover:underline">
+              Read the pitch
+            </Link>
+            <span className="text-muted-foreground/40">·</span>
+            <Link
+              to="/blog/$slug"
+              params={{ slug: "nfts-as-keys" }}
+              className="text-primary underline-offset-2 hover:underline"
+            >
+              Why NFTs as keys (funny edition)
+            </Link>
+          </div>
         </div>
 
         <div className="space-y-4">
-          <Panel label="Earn your invite" glow>
-            <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Follow, engage, join Discord or Telegram — {WHITELIST_REQUIRED_COUNT} steps, then
-              claim a personal invite and enter Aura OS.
-            </p>
-            <Link
-              to="/access"
-              onClick={() => trackTeaser("cta_click", { placement: "landing_claim_earn" })}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Start the task board <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+          <Panel label="Community waitlist" glow>
+            {joined ? (
+              <div className="flex items-start gap-3">
+                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                <p className="text-[13px] leading-relaxed text-muted-foreground">
+                  You&apos;re on the waitlist — we&apos;ll email{" "}
+                  <span className="text-foreground">{email.trim().toLowerCase()}</span> when a wave
+                  opens.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={join} className="space-y-3">
+                <p className="text-[12px] leading-relaxed text-muted-foreground">
+                  No spam theater. One email when seats or the private sale open.
+                </p>
+                <input
+                  id="landing-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  maxLength={255}
+                  required
+                  placeholder="you@company.com"
+                  aria-label="Email"
+                  autoComplete="email"
+                  className="w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] outline-none placeholder:text-muted-foreground/60"
+                />
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="w-full rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+                >
+                  {busy ? "Saving…" : "Join the waitlist"}
+                </button>
+              </form>
+            )}
           </Panel>
 
           <Panel label="Already have a code?" delay={0.08}>
             <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Paste an invite from a founder or from completing the board.
+              Paste a founder invite — then pay the seat to wake your company.
             </p>
             <div className="mt-4 flex gap-2">
               <div className="flex flex-1 items-center gap-2 rounded-2xl bg-foreground/6 px-3.5 py-2.5">
@@ -808,50 +887,18 @@ function Landing() {
             </div>
           </Panel>
 
-          <Panel label="Prefer to wait for a wave" delay={0.16}>
-            {joined ? (
-              <div className="flex items-start gap-3">
-                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                <p className="text-[13px] leading-relaxed text-muted-foreground">
-                  You&apos;re on the waitlist — we&apos;ll email{" "}
-                  <span className="text-foreground">{email.trim().toLowerCase()}</span> if seats
-                  open in waves. Or{" "}
-                  <Link
-                    to="/access"
-                    className="text-primary underline-offset-2 hover:underline"
-                  >
-                    earn an invite now
-                  </Link>
-                  .
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={join} className="space-y-3">
-                <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  Leave your email and we&apos;ll send a code as founding seats open — or skip the
-                  wait and earn access above.
-                </p>
-                <input
-                  id="landing-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  maxLength={255}
-                  required
-                  placeholder="you@company.com"
-                  aria-label="Email"
-                  autoComplete="email"
-                  className="w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] outline-none placeholder:text-muted-foreground/60"
-                />
-                <button
-                  type="submit"
-                  disabled={busy}
-                  className="w-full rounded-2xl bg-foreground/10 px-4 py-2.5 text-xs font-semibold transition-colors hover:bg-foreground/16 disabled:opacity-40"
-                >
-                  {busy ? "Saving…" : "Join the waitlist"}
-                </button>
-              </form>
-            )}
+          <Panel label="Founding seat / Genesis key" delay={0.16}>
+            <p className="text-[12px] leading-relaxed text-muted-foreground">
+              Invite unlocks $99 seat checkout. Genesis Passport (NFT key) buys with Stripe after
+              you&apos;re seated — utility for your wallet, not a speculative drop.
+            </p>
+            <Link
+              to="/access"
+              onClick={() => trackTeaser("cta_click", { placement: "landing_claim_earn" })}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-xs font-semibold transition-colors hover:border-primary/40"
+            >
+              Continue with invite <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </Panel>
         </div>
       </section>

@@ -15,6 +15,8 @@ import {
 } from "@/hooks/use-tokens";
 import { supabase } from "@/integrations/supabase/client";
 import { trackAppEvent } from "@/lib/app-track";
+import { FUNNEL_PLANS, funnelPlanById, isFunnelPlanId } from "@/lib/funnel-plans";
+import { funnelById, isFunnelId } from "@/lib/funnels";
 import { PLANS, TOKEN_SYMBOL, planById } from "@/lib/plans";
 import {
   CHAIN_PHASE,
@@ -81,6 +83,13 @@ function BillingPage() {
 
   const spent = agents.reduce((a, x) => a + x.credits_used, 0);
   const max = agents[0]?.credits_used ?? 1;
+  const entryFunnel =
+    company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
+  const funnelDef = funnelById(entryFunnel);
+  const isOutcomeBilling = funnelDef.billingKind !== "aura_tokens";
+  const funnelCatalog = FUNNEL_PLANS.filter((p) => funnelDef.planIds.includes(p.id));
+  const activeFunnelPlan =
+    sub?.plan && isFunnelPlanId(sub.plan) ? funnelPlanById(sub.plan) : undefined;
   const plan = planById(sub?.plan ?? "company");
   const pct = sub ? (sub.tokens_remaining / sub.tokens_per_cycle) * 100 : 0;
   const left = daysLeft(sub?.cycle_end);
@@ -161,6 +170,24 @@ function BillingPage() {
       await startCheckout(id);
       return;
     }
+    if (isFunnelPlanId(id)) {
+      const fp = funnelPlanById(id);
+      if (!fp) return;
+      await update.mutateAsync({
+        plan: fp.id,
+        tokens_per_cycle: fp.tokenGrant,
+        tokens_remaining: fp.tokenGrant,
+        status: "active",
+        ...cycleWindow(),
+      });
+      await log.mutateAsync({
+        kind: "grant",
+        amount: fp.tokenGrant,
+        reason: `Cycle allowance · ${fp.name}`,
+      });
+      toast.success(`Now on ${fp.name}.`);
+      return;
+    }
     const p = planById(id);
     await update.mutateAsync({
       plan: p.id,
@@ -181,11 +208,15 @@ function BillingPage() {
     <div className="space-y-5">
       <PageHeader
         eyebrow="Capital"
-        title="Tokenized monthly subscription"
-        description="One monthly allowance of AURA. Agents burn it as they work. Ledger is source of truth today — smart-wallet settlement migrates 1:1 later."
+        title={isOutcomeBilling ? "Outcome plans" : "Tokenized monthly subscription"}
+        description={
+          isOutcomeBilling
+            ? `${funnelDef.audience}: pay for outcomes. Compute is metered underneath — success fees for Performance are billed manually after verified wins.`
+            : "One monthly allowance of AURA. Agents burn it as they work. Ledger is source of truth today — smart-wallet settlement migrates 1:1 later."
+        }
         actions={
           <Chip tone="gold">
-            <Pulse tone="gold" /> {CHAIN_PHASE.label}
+            <Pulse tone="gold" /> {isOutcomeBilling ? funnelDef.id : CHAIN_PHASE.label}
           </Chip>
         }
       />
@@ -193,7 +224,11 @@ function BillingPage() {
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
           <Panel
-            label={`${plan.name} · monthly cycle`}
+            label={
+              isOutcomeBilling
+                ? `${activeFunnelPlan?.name ?? "No plan"} · ${activeFunnelPlan ? `€${activeFunnelPlan.eur}` : "pick a tier"}`
+                : `${plan.name} · monthly cycle`
+            }
             glow
             action={
               <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-primary">
@@ -211,15 +246,17 @@ function BillingPage() {
                 </p>
               </div>
               <div className="ml-auto flex gap-2">
-                {[2500, 10000].map((a) => (
-                  <button
-                    key={a}
-                    onClick={() => void topUp(a)}
-                    className="rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors hover:bg-foreground/12"
-                  >
-                    +{compact(a)}
-                  </button>
-                ))}
+                {!isOutcomeBilling
+                  ? [2500, 10000].map((a) => (
+                      <button
+                        key={a}
+                        onClick={() => void topUp(a)}
+                        className="rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors hover:bg-foreground/12"
+                      >
+                        +{compact(a)}
+                      </button>
+                    ))
+                  : null}
                 {sub ? (
                   <button
                     onClick={() =>
@@ -243,7 +280,11 @@ function BillingPage() {
             <div className="mt-5 grid gap-x-8 sm:grid-cols-2">
               <DataRow
                 label="Price"
-                value={`${plan.aura.toLocaleString()} ${TOKEN_SYMBOL} · ${currency(plan.fiat)}`}
+                value={
+                  isOutcomeBilling && activeFunnelPlan
+                    ? `€${activeFunnelPlan.eur}${activeFunnelPlan.mode === "subscription" ? "/mo" : " once"}`
+                    : `${plan.aura.toLocaleString()} ${TOKEN_SYMBOL} · ${currency(plan.fiat)}`
+                }
                 tone="gold"
               />
               <DataRow label="Burn this cycle" value={`${compact(spent)} ${TOKEN_SYMBOL}`} />
@@ -267,6 +308,57 @@ function BillingPage() {
             </div>
           </Panel>
 
+          {isOutcomeBilling ? (
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {funnelCatalog.map((p, i) => {
+                const active = p.id === sub?.plan;
+                return (
+                  <Panel key={p.id} label={p.name} glow={active} delay={0.05 * i}>
+                    <p className="num text-2xl font-semibold text-gold">
+                      €{p.eur}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        {p.mode === "subscription" ? "/mo" : " once"}
+                      </span>
+                    </p>
+                    <p className="mt-3 text-[12.5px] leading-relaxed text-muted-foreground">
+                      {p.blurb}
+                    </p>
+                    <ul className="mt-4 space-y-1.5">
+                      {p.perks.map((perk) => (
+                        <li
+                          key={perk}
+                          className="flex items-center gap-2 text-[12px] text-foreground/85"
+                        >
+                          <Check className="h-3 w-3 shrink-0 text-primary" /> {perk}
+                        </li>
+                      ))}
+                    </ul>
+                    {p.successFeeNote ? (
+                      <p className="mt-3 text-[11px] text-muted-foreground">{p.successFeeNote}</p>
+                    ) : null}
+                    <button
+                      disabled={active || checkoutBusy === p.id}
+                      onClick={() => void switchPlan(p.id)}
+                      className={cn(
+                        "mt-5 w-full rounded-2xl py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition-opacity hover:opacity-90",
+                        active ? "bg-primary/15 text-primary" : "bg-foreground/8",
+                      )}
+                    >
+                      {active ? "Current plan" : STRIPE_ENABLED ? "Checkout" : "Select"}
+                    </button>
+                    <button
+                      disabled={checkoutBusy === p.id}
+                      onClick={() => void startCheckout(p.id)}
+                      className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors hover:bg-foreground/6 disabled:opacity-50"
+                    >
+                      <CreditCard className="h-3.5 w-3.5" />
+                      {checkoutBusy === p.id ? "Redirecting…" : "Pay with card"}
+                    </button>
+                  </Panel>
+                );
+              })}
+            </div>
+          ) : (
           <div className="grid gap-5 md:grid-cols-3">
             {PLANS.map((p, i) => {
               const active = p.id === plan.id;
@@ -316,7 +408,9 @@ function BillingPage() {
               );
             })}
           </div>
+          )}
 
+          {!isOutcomeBilling ? (
           <Panel label="Token roadmap" delay={0.1}>
             <div className="grid gap-4 sm:grid-cols-2">
               {ROADMAP.map((r) => (
@@ -341,6 +435,7 @@ function BillingPage() {
               ))}
             </div>
           </Panel>
+          ) : null}
 
           <Panel label="Burn by agent" delay={0.14}>
             <div className="space-y-4">

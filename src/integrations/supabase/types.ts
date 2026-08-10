@@ -651,6 +651,7 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          brief: string | null
           channel: string
           company_id: string
           created_at: string
@@ -663,6 +664,7 @@ export type Database = {
           value: number
         }
         Insert: {
+          brief?: string | null
           channel?: string
           company_id: string
           created_at?: string
@@ -675,6 +677,7 @@ export type Database = {
           value?: number
         }
         Update: {
+          brief?: string | null
           channel?: string
           company_id?: string
           created_at?: string
@@ -901,11 +904,14 @@ export type Database = {
           id: string
           impressions: number
           likes: number
+          media_kind: string | null
+          media_url: string | null
           provider: string
           published_at: string | null
           reply_to_external_id: string | null
           reposts: number
           scheduled_at: string | null
+          share_post_id: string | null
           status: string
         }
         Insert: {
@@ -920,11 +926,14 @@ export type Database = {
           id?: string
           impressions?: number
           likes?: number
+          media_kind?: string | null
+          media_url?: string | null
           provider: string
           published_at?: string | null
           reply_to_external_id?: string | null
           reposts?: number
           scheduled_at?: string | null
+          share_post_id?: string | null
           status?: string
         }
         Update: {
@@ -939,11 +948,14 @@ export type Database = {
           id?: string
           impressions?: number
           likes?: number
+          media_kind?: string | null
+          media_url?: string | null
           provider?: string
           published_at?: string | null
           reply_to_external_id?: string | null
           reposts?: number
           scheduled_at?: string | null
+          share_post_id?: string | null
           status?: string
         }
         Relationships: [
@@ -1010,16 +1022,25 @@ export type Database = {
         Row: {
           allowed_symbols: string[]
           autonomy: number
+          city: string | null
           created_at: string
           credits: number
           daily_aura_budget: number
           emoji: string
+          entry_funnel: string
+          google_review_url: string | null
+          homepage_url: string | null
           id: string
+          is_local_business: boolean
+          local_cohort_number: number | null
+          local_seat_paid_at: string | null
           max_notional_usdc_day: number
           max_risk_pct: number
           max_slippage_bps: number
           mrr: number
           name: string
+          network_backlink: boolean
+          niche: string | null
           owner_id: string
           quant_boost_pct: number
           quant_boost_until: string | null
@@ -1031,20 +1052,30 @@ export type Database = {
           theme: string
           trading_armed: boolean
           trading_paper: boolean
+          ui_locale: string
         }
         Insert: {
           allowed_symbols?: string[]
           autonomy?: number
+          city?: string | null
           created_at?: string
           credits?: number
           daily_aura_budget?: number
           emoji?: string
+          entry_funnel?: string
+          google_review_url?: string | null
+          homepage_url?: string | null
           id?: string
+          is_local_business?: boolean
+          local_cohort_number?: number | null
+          local_seat_paid_at?: string | null
           max_notional_usdc_day?: number
           max_risk_pct?: number
           max_slippage_bps?: number
           mrr?: number
           name: string
+          network_backlink?: boolean
+          niche?: string | null
           owner_id: string
           quant_boost_pct?: number
           quant_boost_until?: string | null
@@ -1056,20 +1087,30 @@ export type Database = {
           theme?: string
           trading_armed?: boolean
           trading_paper?: boolean
+          ui_locale?: string
         }
         Update: {
           allowed_symbols?: string[]
           autonomy?: number
+          city?: string | null
           created_at?: string
           credits?: number
           daily_aura_budget?: number
           emoji?: string
+          entry_funnel?: string
+          google_review_url?: string | null
+          homepage_url?: string | null
           id?: string
+          is_local_business?: boolean
+          local_cohort_number?: number | null
+          local_seat_paid_at?: string | null
           max_notional_usdc_day?: number
           max_risk_pct?: number
           max_slippage_bps?: number
           mrr?: number
           name?: string
+          network_backlink?: boolean
+          niche?: string | null
           owner_id?: string
           quant_boost_pct?: number
           quant_boost_until?: string | null
@@ -1081,8 +1122,104 @@ export type Database = {
           theme?: string
           trading_armed?: boolean
           trading_paper?: boolean
+          ui_locale?: string
         }
         Relationships: []
+      }
+      review_campaigns: {
+        Row: {
+          id: string
+          company_id: string
+          goal_invites: number
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          goal_invites?: number
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          goal_invites?: number
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_campaigns_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_invites: {
+        Row: {
+          id: string
+          campaign_id: string
+          company_id: string
+          recipient_name: string | null
+          recipient_email: string | null
+          status: string
+          tracking_token: string
+          invite_body: string | null
+          sent_at: string | null
+          clicked_at: string | null
+          completed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          campaign_id: string
+          company_id: string
+          recipient_name?: string | null
+          recipient_email?: string | null
+          status?: string
+          tracking_token?: string
+          invite_body?: string | null
+          sent_at?: string | null
+          clicked_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          campaign_id?: string
+          company_id?: string
+          recipient_name?: string | null
+          recipient_email?: string | null
+          status?: string
+          tracking_token?: string
+          invite_body?: string | null
+          sent_at?: string | null
+          clicked_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_invites_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "review_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_invites_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       company_ledger_entries: {
         Row: {
@@ -1147,6 +1284,50 @@ export type Database = {
           },
           {
             foreignKeyName: "company_ledger_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_sites: {
+        Row: {
+          company_id: string
+          content: Json
+          created_at: string
+          id: string
+          published_at: string | null
+          slug: string
+          status: string
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          content?: Json
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_sites_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -1705,6 +1886,176 @@ export type Database = {
           },
         ]
       }
+      founder_reviews: {
+        Row: {
+          company_id: string
+          created_at: string
+          founder_visible_note: string | null
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          site_id: string | null
+          status: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          founder_visible_note?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          site_id?: string | null
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          founder_visible_note?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          site_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_reviews_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_reviews_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "company_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founding_seats: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          invited_by_code: string | null
+          invited_by_user_id: string | null
+          outbound_invite_code: string | null
+          paid_at: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          invited_by_code?: string | null
+          invited_by_user_id?: string | null
+          outbound_invite_code?: string | null
+          paid_at?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          invited_by_code?: string | null
+          invited_by_user_id?: string | null
+          outbound_invite_code?: string | null
+          paid_at?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founding_seats_invited_by_code_fkey"
+            columns: ["invited_by_code"]
+            isOneToOne: false
+            referencedRelation: "invite_codes"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "founding_seats_outbound_invite_code_fkey"
+            columns: ["outbound_invite_code"]
+            isOneToOne: false
+            referencedRelation: "invite_codes"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      genesis_purchases: {
+        Row: {
+          amount_cents: number
+          amount_usdc: number | null
+          company_id: string | null
+          created_at: string
+          error: string | null
+          id: string
+          minted_at: string | null
+          paid_at: string | null
+          status: string
+          stripe_session_id: string | null
+          token_id: number | null
+          tx_hash: string | null
+          updated_at: string
+          user_id: string
+          voucher_nonce: string | null
+          wallet: string | null
+          x402_payment_id: string | null
+        }
+        Insert: {
+          amount_cents?: number
+          amount_usdc?: number | null
+          company_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          minted_at?: string | null
+          paid_at?: string | null
+          status?: string
+          stripe_session_id?: string | null
+          token_id?: number | null
+          tx_hash?: string | null
+          updated_at?: string
+          user_id: string
+          voucher_nonce?: string | null
+          wallet?: string | null
+          x402_payment_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          amount_usdc?: number | null
+          company_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          minted_at?: string | null
+          paid_at?: string | null
+          status?: string
+          stripe_session_id?: string | null
+          token_id?: number | null
+          tx_hash?: string | null
+          updated_at?: string
+          user_id?: string
+          voucher_nonce?: string | null
+          wallet?: string | null
+          x402_payment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "genesis_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       handles: {
         Row: {
           avatar: string
@@ -1795,24 +2146,30 @@ export type Database = {
           active: boolean
           code: string
           created_at: string
+          kind: string
           label: string | null
           max_uses: number
+          owner_id: string | null
           uses: number
         }
         Insert: {
           active?: boolean
           code: string
           created_at?: string
+          kind?: string
           label?: string | null
           max_uses?: number
+          owner_id?: string | null
           uses?: number
         }
         Update: {
           active?: boolean
           code?: string
           created_at?: string
+          kind?: string
           label?: string | null
           max_uses?: number
+          owner_id?: string | null
           uses?: number
         }
         Relationships: []
@@ -1938,6 +2295,41 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_funnels: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+          stages: Json
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          name?: string
+          stages?: Json
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          stages?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_funnels_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -2361,6 +2753,186 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_content_drops: {
+        Row: {
+          body: string
+          created_at: string
+          drop_date: string
+          id: string
+          sent_at: string | null
+          site_id: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          drop_date: string
+          id?: string
+          sent_at?: string | null
+          site_id: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          drop_date?: string
+          id?: string
+          sent_at?: string | null
+          site_id?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_content_drops_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "company_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_leads: {
+        Row: {
+          company_id: string
+          created_at: string
+          draft_body: string | null
+          draft_subject: string | null
+          email: string
+          id: string
+          name: string | null
+          site_id: string
+          source: string
+          status: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          draft_body?: string | null
+          draft_subject?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          site_id: string
+          source?: string
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          draft_body?: string | null
+          draft_subject?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          site_id?: string
+          source?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_leads_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "company_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_products: {
+        Row: {
+          active: boolean
+          amount_cents: number | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          interval: string
+          name: string
+          site_id: string
+          stripe_price_id: string
+        }
+        Insert: {
+          active?: boolean
+          amount_cents?: number | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          interval?: string
+          name: string
+          site_id: string
+          stripe_price_id: string
+        }
+        Update: {
+          active?: boolean
+          amount_cents?: number | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          interval?: string
+          name?: string
+          site_id?: string
+          stripe_price_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_products_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "company_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          site_id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          site_id: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          site_id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_subscribers_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "company_sites"
             referencedColumns: ["id"]
           },
         ]
@@ -3865,6 +4437,10 @@ export type Database = {
         Args: { _email: string; _visitor_id: string }
         Returns: Json
       }
+      enqueue_founder_review: {
+        Args: { _company_id: string; _site_id?: string }
+        Returns: string
+      }
       ensure_referral_code: {
         Args: never
         Returns: {
@@ -3883,8 +4459,37 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      founding_network_peers: { Args: { _limit?: number }; Returns: Json }
+      founding_seat_cap: { Args: never; Returns: number }
+      founding_seats_remaining: { Args: never; Returns: number }
+      founding_seats_taken: { Args: never; Returns: number }
+      local_cohort_cap: { Args: never; Returns: number }
+      local_cohort_remaining: { Args: never; Returns: number }
+      local_cohort_taken: { Args: never; Returns: number }
+      assign_local_cohort: { Args: { _company_id: string }; Returns: number }
+      mark_review_invite_clicked: { Args: { _token: string }; Returns: string | null }
+      redeem_local_seat_code: { Args: { _code: string }; Returns: Json }
+      mark_local_seat_paid_stripe: {
+        Args: { _company_id: string; _boost_grant?: number }
+        Returns: boolean
+      }
+      grant_local_boost: {
+        Args: { _company_id: string; _amount: number; _reason: string }
+        Returns: undefined
+      }
+      get_my_founding_invite: { Args: never; Returns: Json }
       get_whitelist_progress: {
         Args: { _email: string; _visitor_id: string }
+        Returns: Json
+      }
+      grant_founding_seat: {
+        Args: {
+          _amount_cents?: number
+          _invite_code?: string
+          _payment_intent?: string
+          _stripe_session_id: string
+          _user_id: string
+        }
         Returns: Json
       }
       mark_whitelist_visit: {

@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  connectSmtp,
   disconnectMailbox,
   getMailboxStatus,
+  sendSmtpTest,
   startMailboxConnect,
   type MailboxProvider,
+  type SmtpConnectInput,
 } from "@/lib/mailbox.functions";
 
 export type MailboxState = {
@@ -51,7 +54,7 @@ function waitForPopup(popup: Window) {
 export function useConnectMailbox() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (provider: MailboxProvider) => {
+    mutationFn: async (provider: Exclude<MailboxProvider, "smtp">) => {
       const popup = window.open("", "aura-mailbox", "width=620,height=760");
       if (!popup) throw new Error("Allow popups to connect your mailbox.");
       try {
@@ -65,6 +68,20 @@ export function useConnectMailbox() {
       }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["mailboxes"] }),
+  });
+}
+
+export function useConnectSmtp() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: SmtpConnectInput) => connectSmtp({ data: input }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["mailboxes"] }),
+  });
+}
+
+export function useSendSmtpTest() {
+  return useMutation({
+    mutationFn: () => sendSmtpTest(),
   });
 }
 

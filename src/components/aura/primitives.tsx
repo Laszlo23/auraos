@@ -2,10 +2,13 @@ import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
+import { AuraMotif } from "@/components/aura/aura-motif";
+
 export function Panel({
   className,
   children,
   glow = false,
+  motif,
   delay = 0,
   label,
   action,
@@ -15,36 +18,50 @@ export function Panel({
   className?: string;
   children: ReactNode;
   glow?: boolean;
+  /** Geometric accent (defaults on when glow is true). */
+  motif?: boolean;
   delay?: number;
   label?: string;
   action?: ReactNode;
   bodyClassName?: string;
 } & Omit<React.ComponentProps<typeof motion.div>, "children">) {
+  const showMotif = motif ?? glow;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "glass hover-lift rounded-3xl",
+        "glass hover-lift relative rounded-3xl",
+        showMotif && "overflow-hidden",
         glow && "shadow-[var(--shadow-glow)]",
         className,
       )}
       {...rest}
     >
+      {showMotif ? <AuraMotif /> : null}
       {label ? (
         <>
-          <div className="flex items-center gap-2.5 border-b border-border/60 px-5 py-3">
+          <div className="relative z-10 flex items-center gap-2.5 border-b border-border/60 px-5 py-3">
             <span className="h-1.5 w-1.5 rotate-45 bg-primary/70" aria-hidden />
             <h2 className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
               {label}
             </h2>
             {action ? <div className="ml-auto flex items-center gap-2">{action}</div> : null}
           </div>
-          <div className={cn("p-5", bodyClassName)}>{children}</div>
+          <div
+            className={cn(
+              "relative z-10 p-5",
+              showMotif && "pb-10 pr-16 sm:pr-20",
+              bodyClassName,
+            )}
+          >
+            {children}
+          </div>
         </>
       ) : (
-        children
+        <div className={cn("relative z-10", showMotif && "pb-8 pr-14")}>{children}</div>
       )}
     </motion.div>
   );

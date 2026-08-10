@@ -3,14 +3,24 @@ import { getRequest } from "@tanstack/react-start/server";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type MailboxProvider = "google_mail" | "microsoft_outlook";
+export type MailboxProvider = "google_mail" | "microsoft_outlook" | "smtp";
 
-const CLIENT_ENV: Record<MailboxProvider, string> = {
+export type SmtpConnectInput = {
+  host: string;
+  port: number;
+  secure: boolean;
+  username: string;
+  password: string;
+  from_name: string;
+  from_email: string;
+};
+
+const CLIENT_ENV: Record<"google_mail" | "microsoft_outlook", string> = {
   google_mail: "GOOGLE_MAIL_APP_USER_CONNECTOR_CLIENT_API_KEY",
   microsoft_outlook: "MICROSOFT_OUTLOOK_APP_USER_CONNECTOR_CLIENT_API_KEY",
 };
 
-const SCOPES: Record<MailboxProvider, string[]> = {
+const SCOPES: Record<"google_mail" | "microsoft_outlook", string[]> = {
   google_mail: [
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
@@ -19,8 +29,34 @@ const SCOPES: Record<MailboxProvider, string[]> = {
   microsoft_outlook: ["openid", "profile", "email", "offline_access", "Mail.Send", "User.Read"],
 };
 
-const isProvider = (v: unknown): v is MailboxProvider =>
+const isOAuthProvider = (v: unknown): v is "google_mail" | "microsoft_outlook" =>
   v === "google_mail" || v === "microsoft_outlook";
+
+const isProvider = (v: unknown): v is MailboxProvider =>
+  isOAuthProvider(v) || v === "smtp";
+
+function normalizeSmtpInput(input: SmtpConnectInput): SmtpConnectInput {
+  const host = String(input.host ?? "").trim();
+  const port = Number(input.port);
+  const username = String(input.username ?? "").trim();
+  const password = String(input.password ?? "");
+  const from_email = String(input.from_email ?? "").trim().toLowerCase();
+  const from_name = String(input.from_name ?? "").trim();
+  if (!host) throw new Error("SMTP host is required.");
+  if (!Number.isFinite(port) || port < 1 || port > 65535) throw new Error("SMTP port is invalid.");
+  if (!username) throw new Error("SMTP username is required.");
+  if (!password) throw new Error("SMTP password is required.");
+  if (!from_email || !from_email.includes("@")) throw new Error("From email is required.");
+  return {
+    host,
+    port,
+    secure: Boolean(input.secure),
+    username,
+    password,
+    from_name,
+    from_email,
+  };
+}
 
 /** Which mailbox providers are configured for this app, and what the user has connected. */
 export const getMailboxStatus = createServerFn({ method: "GET" })
@@ -28,9 +64,17 @@ export const getMailboxStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { listConnectorsForUser } = await import("@/server/appUserConnections.server");
     const rows = await listConnectorsForUser(context.userId);
-    const providers: MailboxProvider[] = ["google_mail", "microsoft_outlook"];
+    const providers: MailboxProvider[] = ["google_mail", "microsoft_outlook", "smtp"];
     return providers.map((id) => {
       const row = rows.find((r) => r.connector_id === id);
+      if (id === "smtp") {
+        return {
+          provider: id,
+          available: true,
+          connected: Boolean(row),
+          account: row?.account_label ?? null,
+        };
+      }
       return {
         provider: id,
         available: Boolean(process.env[CLIENT_ENV[id]]),
@@ -43,7 +87,9 @@ export const getMailboxStatus = createServerFn({ method: "GET" })
 export const startMailboxConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { provider: string }) => {
-    if (!isProvider(input.provider)) throw new Error("Unknown mailbox provider");
+    if (!isOAuthProvider(input.provider)) {
+      throw new Error("Use connectSmtp for username/password SMTP.");
+    }
     return { provider: input.provider };
   })
   .handler(async ({ data, context }) => {
@@ -69,6 +115,43 @@ export const startMailboxConnect = createServerFn({ method: "POST" })
     return { authorizationUrl };
   });
 
+export const connectSmtp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: SmtpConnectInput) => normalizeSmtpInput(input))
+  .handler(async ({ data, context }) => {
+    const { encodeSmtpSecrets } = await import("@/lib/smtp.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ciphertext = encodeSmtpSecrets(data);
+    const label = data.from_email;
+    const { error } = await supabaseAdmin.from("app_user_connections").upsert(
+      {
+        user_id: context.userId,
+        connector_id: "smtp",
+        connection_key_ciphertext: ciphertext,
+        account_label: label,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id,connector_id" },
+    );
+    if (error) throw error;
+    return { ok: true as const, account: label };
+  });
+
+export const sendSmtpTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { loadSmtpConfigForUser, sendViaSmtp } = await import("@/lib/smtp.server");
+    const config = await loadSmtpConfigForUser(context.userId);
+    if (!config) throw new Error("Connect SMTP first.");
+    await sendViaSmtp({
+      config,
+      to: config.from_email,
+      subject: "Aura OS — SMTP test",
+      text: "Your SMTP mailbox is connected. Agents still draft; you approve sends.",
+    });
+    return { ok: true as const, to: config.from_email };
+  });
+
 export const completeMailboxConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { code: string }) => ({ code: String(input.code) }))
@@ -80,7 +163,7 @@ export const completeMailboxConnect = createServerFn({ method: "POST" })
       GATEWAY_BASE_URL,
       data.code,
     );
-    if (!isProvider(connectorId)) throw new Error("Unexpected connector");
+    if (!isOAuthProvider(connectorId)) throw new Error("Unexpected connector");
 
     let label: string | undefined;
     try {
@@ -116,10 +199,14 @@ export const disconnectMailbox = createServerFn({ method: "POST" })
     return { provider: input.provider };
   })
   .handler(async ({ data, context }) => {
+    const { deleteConnectionForUser, getConnectionKeyForUser } =
+      await import("@/server/appUserConnections.server");
+    if (data.provider === "smtp") {
+      await deleteConnectionForUser(context.userId, "smtp");
+      return { ok: true };
+    }
     const { disconnectAppUser, GATEWAY_BASE_URL } =
       await import("@/integrations/lovable/appUserConnector");
-    const { getConnectionKeyForUser, deleteConnectionForUser } =
-      await import("@/server/appUserConnections.server");
     const key = await getConnectionKeyForUser(context.userId, data.provider);
     if (key) {
       await disconnectAppUser({

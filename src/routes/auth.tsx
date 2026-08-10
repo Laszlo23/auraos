@@ -5,12 +5,14 @@ import { toast } from "sonner";
 import type { AuthChangeEvent, User } from "@supabase/supabase-js";
 
 import { supabase } from "@/integrations/supabase/client";
-import { captureAttribution } from "@/lib/attribution";
+import { captureAttribution, peekFunnel, rememberFunnel, rememberLocale } from "@/lib/attribution";
 import { trackTeaser } from "@/lib/teaser-track";
 import { trackAppEvent } from "@/lib/app-track";
 import { Pulse } from "@/components/aura/primitives";
 import { StreamText } from "@/components/aura/stream-text";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { startFoundingSeatCheckout } from "@/lib/founding-seat";
+import { isFunnelId, type FunnelId } from "@/lib/funnels";
 import { OG_IMAGE, SITE_URL } from "@/lib/site";
 
 type AuthMode = "signin" | "signup" | "forgot" | "reset" | "magic";
@@ -74,13 +76,24 @@ function defaultAuthMode(opts: {
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { invite?: string; code?: string; ref?: string; mode?: AuthMode; next?: string } => {
+  ): {
+    invite?: string;
+    code?: string;
+    ref?: string;
+    mode?: AuthMode;
+    next?: string;
+    seat?: "success" | "cancel";
+    funnel?: FunnelId;
+    lang?: "de" | "en";
+  } => {
     const inviteRaw =
       typeof search["invite"] === "string"
         ? search["invite"]
         : typeof search["code"] === "string" && looksLikeInviteCode(search["code"])
           ? search["code"]
           : undefined;
+    const funnelRaw = typeof search["funnel"] === "string" ? search["funnel"] : undefined;
+    const langRaw = typeof search["lang"] === "string" ? search["lang"].toLowerCase() : undefined;
     return {
       ...(inviteRaw ? { invite: inviteRaw } : {}),
       // Keep raw `code` when it is a PKCE auth code (not an invite) for session exchange.
@@ -93,6 +106,11 @@ export const Route = createFileRoute("/auth")({
         ? { mode: search["mode"] as AuthMode }
         : {}),
       ...(typeof search["next"] === "string" ? { next: search["next"] as string } : {}),
+      ...(search["seat"] === "success" || search["seat"] === "cancel"
+        ? { seat: search["seat"] as "success" | "cancel" }
+        : {}),
+      ...(funnelRaw && isFunnelId(funnelRaw) ? { funnel: funnelRaw } : {}),
+      ...(langRaw === "de" || langRaw === "en" ? { lang: langRaw } : {}),
     };
   },
   head: () => ({
@@ -219,11 +237,22 @@ function AuthPage() {
     ref: refFromLink,
     mode: modeFromLink,
     next: nextFromLink,
+    seat: seatFromLink,
+    funnel: funnelFromLink,
+    lang: langFromLink,
   } = Route.useSearch();
+  const entryFunnel: FunnelId =
+    funnelFromLink && isFunnelId(funnelFromLink) ? funnelFromLink : peekFunnel();
+  /** Explicit ?funnel= from a /for/* CTA — skips founding-seat gate. Browsing alone does not. */
+  const isFunnelEntry = Boolean(funnelFromLink && funnelFromLink !== "os");
   const [invite, setInvite] = useState(inviteFromLink ?? "");
   const [mode, setMode] = useState<AuthMode>(() =>
     defaultAuthMode({
-      ...(modeFromLink ? { mode: modeFromLink } : {}),
+      ...(modeFromLink
+        ? { mode: modeFromLink }
+        : isFunnelEntry
+          ? { mode: "signup" }
+          : {}),
       ...(inviteFromLink ? { invite: inviteFromLink } : {}),
       ...(refFromLink ? { ref: refFromLink } : {}),
     }),
@@ -257,8 +286,14 @@ function AuthPage() {
       setInvite(inviteFromLink);
       rememberInvite(inviteFromLink);
     }
+    if (funnelFromLink && isFunnelId(funnelFromLink)) {
+      rememberFunnel(funnelFromLink);
+    }
+    if (langFromLink === "de" || langFromLink === "en") {
+      rememberLocale(langFromLink);
+    }
     captureAttribution();
-    trackTeaser("signup_view", { placement: "auth" });
+    trackTeaser("signup_view", { placement: isFunnelEntry ? `auth:${entryFunnel}` : "auth" });
 
     cancelledRef.current = false;
 
@@ -317,17 +352,21 @@ function AuthPage() {
     }
   }
 
-  /** Validate invite/referral without burning invite uses. */
+  /** Validate invite / founder link without consuming uses (checkout burns on pay). */
   async function passGate(): Promise<boolean> {
+    if (isFunnelEntry) return true;
     const referral = (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase();
     if (referral) {
       rememberRef(referral);
       const { data } = await supabase.rpc("referral_code_valid", { _code: referral });
-      if (data) return true;
+      if (data) {
+        rememberInvite(referral);
+        return true;
+      }
     }
     const code = invite.trim().toUpperCase();
     if (!code) {
-      toast.error("Enter a valid invite code — or use a founder referral link.");
+      toast.error("Enter a valid invite — it unlocks the $99 founding seat checkout.");
       return false;
     }
     const { data: ok, error } = await supabase.rpc("check_invite_code", { _code: code });
@@ -337,7 +376,7 @@ function AuthPage() {
       return false;
     }
     if (!ok) {
-      toast.error("That invite code isn't valid — join the waitlist for a seat.");
+      toast.error("That invite isn't valid — request a seat on /access.");
       return false;
     }
     rememberInvite(code);
@@ -345,18 +384,23 @@ function AuthPage() {
   }
 
   /**
-   * Ensure the signed-in user has a company seat (invite redemption or referral)
-   * before leaving /auth. Server RLS also enforces this on companies INSERT.
+   * Seat gate: paid founding seat (or legacy invite/referral grandfather).
+   * Non-os funnels skip founding-seat scarcity and open the company directly.
+   * New accounts with a valid invite are sent to $99 Stripe checkout — invite is not a free pass.
    */
-  async function burnInviteIfNeeded(user: User): Promise<boolean> {
-    const { data: prior } = await supabase
-      .from("invite_redemptions")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (prior) {
+  async function ensureSeatOrCheckout(user: User): Promise<"ok" | "need_invite" | "checkout"> {
+    if (isFunnelEntry) {
+      rememberFunnel(funnelFromLink!);
       takeStoredInvite();
-      return true;
+      takeStoredRef();
+      return "ok";
+    }
+
+    const { data: hasSeat } = await supabase.rpc("user_has_company_seat", { _uid: user.id });
+    if (hasSeat) {
+      takeStoredInvite();
+      takeStoredRef();
+      return "ok";
     }
 
     const { data: existingCompany } = await supabase
@@ -367,54 +411,34 @@ function AuthPage() {
       .maybeSingle();
     if (existingCompany) {
       takeStoredInvite();
-      return true;
+      return "ok";
     }
 
-    const { data: referralRow } = await supabase
-      .from("referrals")
-      .select("id")
-      .eq("referred_id", user.id)
-      .maybeSingle();
-    if (referralRow) {
-      takeStoredInvite();
-      return true;
-    }
+    const code =
+      (invite.trim().toUpperCase() ||
+        peekStoredInvite() ||
+        (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase() ||
+        "") || null;
+    if (!code) return "need_invite";
 
-    const referral = (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase();
-    if (referral) {
-      const { data: valid } = await supabase.rpc("referral_code_valid", { _code: referral });
-      if (valid) {
-        const { data: attributed } = await supabase.rpc("attribute_referral", { _code: referral });
-        if (attributed) {
-          takeStoredInvite();
-          takeStoredRef();
-          return true;
-        }
-      }
-    }
-
-    const code = takeStoredInvite() || invite.trim().toUpperCase() || null;
-    if (!code) return false;
-
-    const { data, error } = await supabase.rpc("redeem_invite_code", { _code: code });
-    if (error) {
-      console.warn("invite redeem after signup", error.message);
+    const { data: inviteOk } = await supabase.rpc("check_invite_code", { _code: code });
+    const { data: refOk } = inviteOk
+      ? { data: true }
+      : await supabase.rpc("referral_code_valid", { _code: code });
+    if (!inviteOk && !refOk) {
       rememberInvite(code);
-      return false;
+      return "need_invite";
     }
-    if (!data) {
-      rememberInvite(code);
-      return false;
-    }
-    return true;
-  }
 
-  async function claimReferral() {
-    const referral =
-      takeStoredRef() || (refFromLinkRef.current ?? "").trim().toUpperCase() || null;
-    if (!referral) return;
-    const { data } = await supabase.rpc("attribute_referral", { _code: referral });
-    if (data) toast.success("Invite applied — 1,000 AURA welcome bonus added.");
+    rememberInvite(code);
+    try {
+      const url = await startFoundingSeatCheckout(code);
+      window.location.href = url;
+      return "checkout";
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not start founding seat checkout");
+      return "need_invite";
+    }
   }
 
   async function finishPostAuth(reason: "mount" | "signed_in" | "submit") {
@@ -431,17 +455,29 @@ function AuthPage() {
         return true;
       }
 
-      const inviteOk = await burnInviteIfNeeded(user);
-      if (!inviteOk) {
+      if (seatFromLink === "success") {
+        // Webhook may lag a moment — poll seat briefly before gating again.
+        for (let i = 0; i < 8; i++) {
+          const { data: hasSeat } = await supabase.rpc("user_has_company_seat", {
+            _uid: user.id,
+          });
+          if (hasSeat) break;
+          await new Promise((r) => setTimeout(r, 500));
+        }
+        toast.success("Founding seat unlocked — welcome.");
+      }
+
+      const gate = await ensureSeatOrCheckout(user);
+      if (gate === "checkout") return true;
+      if (gate === "need_invite") {
         setNeedsInviteToContinue(true);
         setMode("signup");
         setMagicCreatesUser(true);
-        toast.error("Enter a valid invite code to finish creating your company.");
+        toast.error("Enter a valid invite, then pay the $99 founding seat to open your company.");
         return false;
       }
 
       setNeedsInviteToContinue(false);
-      await claimReferral();
       if (isNewUser(user)) {
         trackAppEvent("signup_complete", { method: reason });
       }
@@ -661,7 +697,7 @@ function AuthPage() {
   const subtitle =
     mode === "signup"
       ? needsInviteToContinue
-        ? "Your account is ready — enter a valid invite to open Aura OS."
+        ? "Your account is ready — enter an invite, then pay the $99 founding seat."
         : "Your agents will be hired and briefed the moment you arrive."
       : mode === "forgot"
         ? "We'll email you a link to set a new password."
@@ -798,7 +834,7 @@ function AuthPage() {
                 }}
                 className="space-y-3"
               >
-                {magicCreatesUser ? (
+                {magicCreatesUser && !isFunnelEntry ? (
                   refFromLink ? (
                     <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm">
                       <Pulse />
@@ -865,13 +901,13 @@ function AuthPage() {
                 className="space-y-3"
               >
                 <p className="rounded-2xl border border-gold/25 bg-gold/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                  You&apos;re signed in — enter your invite to open your company. Don&apos;t have one
-                  yet?{" "}
+                  You&apos;re signed in — enter your invite to unlock $99 founding-seat checkout.
+                  Don&apos;t have one yet?{" "}
                   <Link
                     to="/access"
                     className="font-semibold text-primary underline-offset-2 hover:underline"
                   >
-                    Earn one on the whitelist
+                    Request a seat
                   </Link>
                   .
                 </p>
@@ -891,12 +927,12 @@ function AuthPage() {
                   disabled={busy}
                   className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
                 >
-                  {busy ? "Checking…" : "Enter Aura OS"}
+                  {busy ? "Opening checkout…" : "Continue to founding seat"}
                 </button>
               </form>
             ) : (
               <form onSubmit={(e) => void submitPassword(e)} className="space-y-3">
-                {mode === "signup" && refFromLink ? (
+                {mode === "signup" && refFromLink && !isFunnelEntry ? (
                   <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm">
                     <Pulse />
                     <span className="text-muted-foreground">
@@ -904,10 +940,10 @@ function AuthPage() {
                       <span className="font-semibold uppercase tracking-[0.14em] text-primary">
                         {refFromLink}
                       </span>{" "}
-                      — your seat is held.
+                      — unlocks $99 founding-seat checkout (not a free pass).
                     </span>
                   </div>
-                ) : mode === "signup" ? (
+                ) : mode === "signup" && !isFunnelEntry ? (
                   <input
                     id="auth-invite"
                     required
@@ -919,6 +955,11 @@ function AuthPage() {
                     autoComplete="one-time-code"
                     className="w-full rounded-2xl border border-gold/30 bg-gold/8 px-4 py-3 text-sm uppercase tracking-[0.16em] outline-none transition-colors placeholder:tracking-[0.16em] placeholder:text-muted-foreground/70 focus:border-gold/60"
                   />
+                ) : mode === "signup" && isFunnelEntry ? (
+                  <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
+                    Funnel signup — no founding seat invite required. Pick a plan after you wake the
+                    company.
+                  </p>
                 ) : null}
 
                 {mode !== "reset" ? (

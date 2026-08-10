@@ -693,9 +693,41 @@ export const getHolderPerks = createServerFn({ method: "GET" })
       .maybeSingle();
     const { buildHolderPerks } = await import("@/lib/trading/holder-perks");
     const nftContract = process.env["VITE_GENESIS_NFT_CONTRACT"] ?? process.env["GENESIS_NFT_CONTRACT"] ?? null;
+    let hasGenesisNft = false;
+    try {
+      const { data: handle } = await context.supabase
+        .from("handles")
+        .select("id")
+        .eq("user_id", context.userId)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (handle?.id) {
+        const { data: wallet } = await context.supabase
+          .from("wallet_bindings")
+          .select("address")
+          .eq("handle_id", handle.id)
+          .eq("kind", "smart")
+          .maybeSingle();
+        if (wallet?.address) {
+          const { walletOwnsGenesis } = await import("@/lib/genesis.server");
+          hasGenesisNft = await walletOwnsGenesis(wallet.address);
+        }
+      }
+      if (!hasGenesisNft) {
+        const { data: purchase } = await context.supabase
+          .from("genesis_purchases")
+          .select("status")
+          .eq("user_id", context.userId)
+          .maybeSingle();
+        if (purchase?.status === "minted") hasGenesisNft = true;
+      }
+    } catch (err) {
+      console.warn("[holder-perks] genesis check", err);
+    }
     return buildHolderPerks({
       auraBalance: Number(sub?.tokens_remaining ?? 0),
-      hasGenesisNft: false,
+      hasGenesisNft,
       genesisNftContract: nftContract,
     });
   });

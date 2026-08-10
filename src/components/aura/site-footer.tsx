@@ -8,12 +8,17 @@ import {
   SOCIAL_LINKS,
 } from "@/lib/site";
 import { ShareBar } from "@/components/aura/share";
+import { requestInstallPrompt } from "@/components/aura/install-app";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
 const SITE_LINKS = [
   { to: "/share", label: "Share kit" },
-  { to: "/access", label: "Earn invite" },
+  { to: "/", label: "Waitlist", hash: "community" },
+  { to: "/proof", label: "Proof" },
+  { to: "/pitch", label: "Pitch" },
+  { to: "/blog", label: "Blog" },
+  { to: "/access", label: "Founding seats" },
   { to: "/faq", label: "FAQ" },
 ] as const;
 
@@ -87,13 +92,24 @@ export function SiteFooter({
           <nav aria-label="Site" className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {SITE_LINKS.map((l) => (
               <Link
-                key={l.to}
+                key={l.label}
                 to={l.to}
+                {...("hash" in l && l.hash ? { hash: l.hash } : {})}
                 className="transition-colors hover:text-foreground"
               >
                 {l.label}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                trackTeaser("cta_click", { placement: "footer_install" });
+                requestInstallPrompt();
+              }}
+              className="transition-colors hover:text-foreground"
+            >
+              Get app
+            </button>
             {LEGAL_LINKS.map((l) => (
               <Link
                 key={l.to}

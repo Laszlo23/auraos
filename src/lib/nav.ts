@@ -135,6 +135,7 @@ export const NAV: NavItem[] = [
     icon: CandlestickChart,
     group: "Revenue",
     live: true,
+    core: true,
   },
   {
     to: "/wallet",
@@ -192,6 +193,16 @@ export const NAV: NavItem[] = [
     hint: "Your public site, written by agents",
     icon: Globe,
     group: "Surface",
+  },
+  {
+    to: "/business",
+    label: "Business site",
+    plain: "My business",
+    hint: "Homepage, Google reviews, and social automation for local businesses",
+    icon: Store,
+    group: "Surface",
+    live: true,
+    core: true,
   },
   {
     to: "/channels",
@@ -294,3 +305,26 @@ export const navLabel = (item: NavItem, simple: boolean) =>
 
 /** The short list a first-time user should see. */
 export const CORE_NAV = NAV.filter((n) => n.core);
+
+/** Filter nav by funnel preset paths. Empty preset = default CORE_NAV when simple. */
+export function navForFunnel(
+  corePaths: string[],
+  simple: boolean,
+): NavItem[] {
+  if (!corePaths.length) {
+    return simple ? CORE_NAV : NAV;
+  }
+  const allowed = new Set(corePaths);
+  const filtered = NAV.filter((n) => allowed.has(n.to));
+  // Always keep Settings reachable.
+  if (!filtered.some((n) => n.to === "/settings")) {
+    const settings = NAV.find((n) => n.to === "/settings");
+    if (settings) filtered.push(settings);
+  }
+  if (!simple) {
+    // Full mode: show funnel core first, then remaining items.
+    const rest = NAV.filter((n) => !allowed.has(n.to));
+    return [...filtered, ...rest];
+  }
+  return filtered;
+}

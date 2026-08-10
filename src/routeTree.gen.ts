@@ -18,7 +18,10 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LiveRouteImport } from './routes/live'
+import { Route as LokalRouteImport } from './routes/lokal'
+import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProofRouteImport } from './routes/proof'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
@@ -26,7 +29,10 @@ import { Route as AuthenticatedAkquiseRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedArenaRouteImport } from './routes/_authenticated/arena'
 import { Route as AuthenticatedAutomationRouteImport } from './routes/_authenticated/automation'
+import { Route as AuthenticatedBewertungenRouteImport } from './routes/_authenticated/bewertungen'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
+import { Route as AuthenticatedBoostRouteImport } from './routes/_authenticated/boost'
+import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
 import { Route as AuthenticatedCeoRouteImport } from './routes/_authenticated/ceo'
 import { Route as AuthenticatedChannelsRouteImport } from './routes/_authenticated/channels'
 import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated/community'
@@ -35,9 +41,11 @@ import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedEarnRouteImport } from './routes/_authenticated/earn'
 import { Route as AuthenticatedFilesRouteImport } from './routes/_authenticated/files'
+import { Route as AuthenticatedHeuteRouteImport } from './routes/_authenticated/heute'
 import { Route as AuthenticatedIdentityRouteImport } from './routes/_authenticated/identity'
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedKnowledgeRouteImport } from './routes/_authenticated/knowledge'
+import { Route as AuthenticatedKundenRouteImport } from './routes/_authenticated/kunden'
 import { Route as AuthenticatedMarketingRouteImport } from './routes/_authenticated/marketing'
 import { Route as AuthenticatedMarketplaceRouteImport } from './routes/_authenticated/marketplace'
 import { Route as AuthenticatedMissionsRouteImport } from './routes/_authenticated/missions'
@@ -46,33 +54,42 @@ import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedReportRouteImport } from './routes/_authenticated/report'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSocialRouteImport } from './routes/_authenticated/social'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AuthenticatedTradingRouteImport } from './routes/_authenticated/trading'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticated/website'
 import { Route as AuthenticatedX402RouteImport } from './routes/_authenticated/x402'
 import { Route as ApiCeoRouteImport } from './routes/api/ceo'
+import { Route as BSlugRouteImport } from './routes/b.$slug'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CompanySlugRouteImport } from './routes/company.$slug'
 import { Route as EmbedPostIdRouteImport } from './routes/embed.$postId'
+import { Route as ForFunnelRouteImport } from './routes/for.$funnel'
 import { Route as MShareSlugRouteImport } from './routes/m.$shareSlug'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
+import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as TbShareSlugRouteImport } from './routes/tb.$shareSlug'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as VPostIdRouteImport } from './routes/v.$postId'
 import { Route as WShareSlugRouteImport } from './routes/w.$shareSlug'
 import { Route as AuthenticatedMissionsIdRouteImport } from './routes/_authenticated/missions.$id'
 import { Route as ApiBillingCheckoutRouteImport } from './routes/api/billing/checkout'
+import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing/founding-seat'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
 import { Route as OauthMailboxReturnRouteImport } from './routes/oauth/mailbox.return'
 import { Route as OauthSocialReturnRouteImport } from './routes/oauth/social.return'
+import { Route as RReviewTokenRouteImport } from './routes/r.review.$token'
 import { Route as ApiOauthSocialCallbackRouteImport } from './routes/api/oauth/social/callback'
 import { Route as ApiOauthSocialStartRouteImport } from './routes/api/oauth/social/start'
 import { Route as ApiPublicX402IndexRouteImport } from './routes/api/public/x402/index'
 import { Route as ApiPublicX402AstroReadingRouteImport } from './routes/api/public/x402/astro-reading'
 import { Route as ApiPublicX402CompanyBriefRouteImport } from './routes/api/public/x402/company-brief'
+import { Route as ApiPublicX402GenesisPassportRouteImport } from './routes/api/public/x402/genesis-passport'
 import { Route as ApiPublicX402ImagebookPageRouteImport } from './routes/api/public/x402/imagebook-page'
 import { Route as ApiPublicX402LeadEnrichRouteImport } from './routes/api/public/x402/lead-enrich'
 import { Route as ApiPublicX402MarketSnapshotRouteImport } from './routes/api/public/x402/market-snapshot'
@@ -125,9 +142,24 @@ const LiveRoute = LiveRouteImport.update({
   path: '/live',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LokalRoute = LokalRouteImport.update({
+  id: '/lokal',
+  path: '/lokal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PitchRoute = PitchRouteImport.update({
+  id: '/pitch',
+  path: '/pitch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProofRoute = ProofRouteImport.update({
+  id: '/proof',
+  path: '/proof',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShareRoute = ShareRouteImport.update({
@@ -165,9 +197,25 @@ const AuthenticatedAutomationRoute = AuthenticatedAutomationRouteImport.update({
   path: '/automation',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBewertungenRoute =
+  AuthenticatedBewertungenRouteImport.update({
+    id: '/bewertungen',
+    path: '/bewertungen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBoostRoute = AuthenticatedBoostRouteImport.update({
+  id: '/boost',
+  path: '/boost',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBusinessRoute = AuthenticatedBusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCeoRoute = AuthenticatedCeoRouteImport.update({
@@ -210,6 +258,11 @@ const AuthenticatedFilesRoute = AuthenticatedFilesRouteImport.update({
   path: '/files',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHeuteRoute = AuthenticatedHeuteRouteImport.update({
+  id: '/heute',
+  path: '/heute',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIdentityRoute = AuthenticatedIdentityRouteImport.update({
   id: '/identity',
   path: '/identity',
@@ -223,6 +276,11 @@ const AuthenticatedJobsRoute = AuthenticatedJobsRouteImport.update({
 const AuthenticatedKnowledgeRoute = AuthenticatedKnowledgeRouteImport.update({
   id: '/knowledge',
   path: '/knowledge',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedKundenRoute = AuthenticatedKundenRouteImport.update({
+  id: '/kunden',
+  path: '/kunden',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMarketingRoute = AuthenticatedMarketingRouteImport.update({
@@ -266,6 +324,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSocialRoute = AuthenticatedSocialRouteImport.update({
+  id: '/social',
+  path: '/social',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -296,6 +359,21 @@ const ApiCeoRoute = ApiCeoRouteImport.update({
   path: '/api/ceo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BSlugRoute = BSlugRouteImport.update({
+  id: '/b/$slug',
+  path: '/b/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompanySlugRoute = CompanySlugRouteImport.update({
   id: '/company/$slug',
   path: '/company/$slug',
@@ -304,6 +382,11 @@ const CompanySlugRoute = CompanySlugRouteImport.update({
 const EmbedPostIdRoute = EmbedPostIdRouteImport.update({
   id: '/embed/$postId',
   path: '/embed/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForFunnelRoute = ForFunnelRouteImport.update({
+  id: '/for/$funnel',
+  path: '/for/$funnel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MShareSlugRoute = MShareSlugRouteImport.update({
@@ -319,6 +402,11 @@ const OauthConsentRoute = OauthConsentRouteImport.update({
 const RRunIdRoute = RRunIdRouteImport.update({
   id: '/r/$runId',
   path: '/r/$runId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SSlugRoute = SSlugRouteImport.update({
+  id: '/s/$slug',
+  path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TbShareSlugRoute = TbShareSlugRouteImport.update({
@@ -351,6 +439,11 @@ const ApiBillingCheckoutRoute = ApiBillingCheckoutRouteImport.update({
   path: '/api/billing/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBillingFoundingSeatRoute = ApiBillingFoundingSeatRouteImport.update({
+  id: '/api/billing/founding-seat',
+  path: '/api/billing/founding-seat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBillingWebhookRoute = ApiBillingWebhookRouteImport.update({
   id: '/api/billing/webhook',
   path: '/api/billing/webhook',
@@ -374,6 +467,11 @@ const OauthMailboxReturnRoute = OauthMailboxReturnRouteImport.update({
 const OauthSocialReturnRoute = OauthSocialReturnRouteImport.update({
   id: '/oauth/social/return',
   path: '/oauth/social/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RReviewTokenRoute = RReviewTokenRouteImport.update({
+  id: '/r/review/$token',
+  path: '/r/review/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiOauthSocialCallbackRoute = ApiOauthSocialCallbackRouteImport.update({
@@ -401,6 +499,12 @@ const ApiPublicX402CompanyBriefRoute =
   ApiPublicX402CompanyBriefRouteImport.update({
     id: '/api/public/x402/company-brief',
     path: '/api/public/x402/company-brief',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicX402GenesisPassportRoute =
+  ApiPublicX402GenesisPassportRouteImport.update({
+    id: '/api/public/x402/genesis-passport',
+    path: '/api/public/x402/genesis-passport',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicX402ImagebookPageRoute =
@@ -454,7 +558,10 @@ export interface FileRoutesByFullPath {
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRoute
+  '/lokal': typeof LokalRoute
+  '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
+  '/proof': typeof ProofRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
   '/agents': typeof AuthenticatedAgentsRoute
@@ -462,7 +569,10 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/arena': typeof AuthenticatedArenaRoute
   '/automation': typeof AuthenticatedAutomationRoute
+  '/bewertungen': typeof AuthenticatedBewertungenRoute
   '/billing': typeof AuthenticatedBillingRoute
+  '/boost': typeof AuthenticatedBoostRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/ceo': typeof AuthenticatedCeoRoute
   '/channels': typeof AuthenticatedChannelsRoute
   '/community': typeof AuthenticatedCommunityRoute
@@ -471,9 +581,11 @@ export interface FileRoutesByFullPath {
   '/customers': typeof AuthenticatedCustomersRoute
   '/earn': typeof AuthenticatedEarnRoute
   '/files': typeof AuthenticatedFilesRoute
+  '/heute': typeof AuthenticatedHeuteRoute
   '/identity': typeof AuthenticatedIdentityRoute
   '/jobs': typeof AuthenticatedJobsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/kunden': typeof AuthenticatedKundenRoute
   '/marketing': typeof AuthenticatedMarketingRoute
   '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/missions': typeof AuthenticatedMissionsRouteWithChildren
@@ -482,32 +594,41 @@ export interface FileRoutesByFullPath {
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/social': typeof AuthenticatedSocialRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/trading': typeof AuthenticatedTradingRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/website': typeof AuthenticatedWebsiteRoute
   '/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
+  '/b/$slug': typeof BSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
+  '/for/$funnel': typeof ForFunnelRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
+  '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
+  '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
+  '/r/review/$token': typeof RReviewTokenRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
   '/api/public/x402/astro-reading': typeof ApiPublicX402AstroReadingRoute
   '/api/public/x402/company-brief': typeof ApiPublicX402CompanyBriefRoute
+  '/api/public/x402/genesis-passport': typeof ApiPublicX402GenesisPassportRoute
   '/api/public/x402/imagebook-page': typeof ApiPublicX402ImagebookPageRoute
   '/api/public/x402/lead-enrich': typeof ApiPublicX402LeadEnrichRoute
   '/api/public/x402/market-snapshot': typeof ApiPublicX402MarketSnapshotRoute
@@ -526,7 +647,10 @@ export interface FileRoutesByTo {
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRoute
+  '/lokal': typeof LokalRoute
+  '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
+  '/proof': typeof ProofRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
   '/agents': typeof AuthenticatedAgentsRoute
@@ -534,7 +658,10 @@ export interface FileRoutesByTo {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/arena': typeof AuthenticatedArenaRoute
   '/automation': typeof AuthenticatedAutomationRoute
+  '/bewertungen': typeof AuthenticatedBewertungenRoute
   '/billing': typeof AuthenticatedBillingRoute
+  '/boost': typeof AuthenticatedBoostRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/ceo': typeof AuthenticatedCeoRoute
   '/channels': typeof AuthenticatedChannelsRoute
   '/community': typeof AuthenticatedCommunityRoute
@@ -543,9 +670,11 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersRoute
   '/earn': typeof AuthenticatedEarnRoute
   '/files': typeof AuthenticatedFilesRoute
+  '/heute': typeof AuthenticatedHeuteRoute
   '/identity': typeof AuthenticatedIdentityRoute
   '/jobs': typeof AuthenticatedJobsRoute
   '/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/kunden': typeof AuthenticatedKundenRoute
   '/marketing': typeof AuthenticatedMarketingRoute
   '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/missions': typeof AuthenticatedMissionsRouteWithChildren
@@ -554,32 +683,41 @@ export interface FileRoutesByTo {
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/social': typeof AuthenticatedSocialRoute
   '/tasks': typeof AuthenticatedTasksRoute
   '/trading': typeof AuthenticatedTradingRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/website': typeof AuthenticatedWebsiteRoute
   '/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
+  '/b/$slug': typeof BSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
+  '/for/$funnel': typeof ForFunnelRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
+  '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
+  '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
+  '/r/review/$token': typeof RReviewTokenRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
   '/api/public/x402/astro-reading': typeof ApiPublicX402AstroReadingRoute
   '/api/public/x402/company-brief': typeof ApiPublicX402CompanyBriefRoute
+  '/api/public/x402/genesis-passport': typeof ApiPublicX402GenesisPassportRoute
   '/api/public/x402/imagebook-page': typeof ApiPublicX402ImagebookPageRoute
   '/api/public/x402/lead-enrich': typeof ApiPublicX402LeadEnrichRoute
   '/api/public/x402/market-snapshot': typeof ApiPublicX402MarketSnapshotRoute
@@ -600,7 +738,10 @@ export interface FileRoutesById {
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRoute
+  '/lokal': typeof LokalRoute
+  '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
+  '/proof': typeof ProofRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
@@ -608,7 +749,10 @@ export interface FileRoutesById {
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/arena': typeof AuthenticatedArenaRoute
   '/_authenticated/automation': typeof AuthenticatedAutomationRoute
+  '/_authenticated/bewertungen': typeof AuthenticatedBewertungenRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
+  '/_authenticated/boost': typeof AuthenticatedBoostRoute
+  '/_authenticated/business': typeof AuthenticatedBusinessRoute
   '/_authenticated/ceo': typeof AuthenticatedCeoRoute
   '/_authenticated/channels': typeof AuthenticatedChannelsRoute
   '/_authenticated/community': typeof AuthenticatedCommunityRoute
@@ -617,9 +761,11 @@ export interface FileRoutesById {
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
   '/_authenticated/earn': typeof AuthenticatedEarnRoute
   '/_authenticated/files': typeof AuthenticatedFilesRoute
+  '/_authenticated/heute': typeof AuthenticatedHeuteRoute
   '/_authenticated/identity': typeof AuthenticatedIdentityRoute
   '/_authenticated/jobs': typeof AuthenticatedJobsRoute
   '/_authenticated/knowledge': typeof AuthenticatedKnowledgeRoute
+  '/_authenticated/kunden': typeof AuthenticatedKundenRoute
   '/_authenticated/marketing': typeof AuthenticatedMarketingRoute
   '/_authenticated/marketplace': typeof AuthenticatedMarketplaceRoute
   '/_authenticated/missions': typeof AuthenticatedMissionsRouteWithChildren
@@ -628,32 +774,41 @@ export interface FileRoutesById {
   '/_authenticated/report': typeof AuthenticatedReportRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/social': typeof AuthenticatedSocialRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
   '/_authenticated/trading': typeof AuthenticatedTradingRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/website': typeof AuthenticatedWebsiteRoute
   '/_authenticated/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
+  '/b/$slug': typeof BSlugRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
+  '/for/$funnel': typeof ForFunnelRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/r/$runId': typeof RRunIdRoute
+  '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/_authenticated/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
+  '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
+  '/r/review/$token': typeof RReviewTokenRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
   '/api/public/x402/astro-reading': typeof ApiPublicX402AstroReadingRoute
   '/api/public/x402/company-brief': typeof ApiPublicX402CompanyBriefRoute
+  '/api/public/x402/genesis-passport': typeof ApiPublicX402GenesisPassportRoute
   '/api/public/x402/imagebook-page': typeof ApiPublicX402ImagebookPageRoute
   '/api/public/x402/lead-enrich': typeof ApiPublicX402LeadEnrichRoute
   '/api/public/x402/market-snapshot': typeof ApiPublicX402MarketSnapshotRoute
@@ -674,7 +829,10 @@ export interface FileRouteTypes {
     | '/grants'
     | '/leaderboard'
     | '/live'
+    | '/lokal'
+    | '/pitch'
     | '/privacy'
+    | '/proof'
     | '/share'
     | '/terms'
     | '/agents'
@@ -682,7 +840,10 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/arena'
     | '/automation'
+    | '/bewertungen'
     | '/billing'
+    | '/boost'
+    | '/business'
     | '/ceo'
     | '/channels'
     | '/community'
@@ -691,9 +852,11 @@ export interface FileRouteTypes {
     | '/customers'
     | '/earn'
     | '/files'
+    | '/heute'
     | '/identity'
     | '/jobs'
     | '/knowledge'
+    | '/kunden'
     | '/marketing'
     | '/marketplace'
     | '/missions'
@@ -702,32 +865,41 @@ export interface FileRouteTypes {
     | '/report'
     | '/sales'
     | '/settings'
+    | '/social'
     | '/tasks'
     | '/trading'
     | '/wallet'
     | '/website'
     | '/x402'
     | '/api/ceo'
+    | '/b/$slug'
+    | '/blog/$slug'
     | '/company/$slug'
     | '/embed/$postId'
+    | '/for/$funnel'
     | '/m/$shareSlug'
     | '/oauth/consent'
     | '/r/$runId'
+    | '/s/$slug'
     | '/tb/$shareSlug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
+    | '/blog/'
     | '/missions/$id'
     | '/api/billing/checkout'
+    | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/greeter'
     | '/api/workers/tick'
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
+    | '/r/review/$token'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
     | '/api/public/x402/astro-reading'
     | '/api/public/x402/company-brief'
+    | '/api/public/x402/genesis-passport'
     | '/api/public/x402/imagebook-page'
     | '/api/public/x402/lead-enrich'
     | '/api/public/x402/market-snapshot'
@@ -746,7 +918,10 @@ export interface FileRouteTypes {
     | '/grants'
     | '/leaderboard'
     | '/live'
+    | '/lokal'
+    | '/pitch'
     | '/privacy'
+    | '/proof'
     | '/share'
     | '/terms'
     | '/agents'
@@ -754,7 +929,10 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/arena'
     | '/automation'
+    | '/bewertungen'
     | '/billing'
+    | '/boost'
+    | '/business'
     | '/ceo'
     | '/channels'
     | '/community'
@@ -763,9 +941,11 @@ export interface FileRouteTypes {
     | '/customers'
     | '/earn'
     | '/files'
+    | '/heute'
     | '/identity'
     | '/jobs'
     | '/knowledge'
+    | '/kunden'
     | '/marketing'
     | '/marketplace'
     | '/missions'
@@ -774,32 +954,41 @@ export interface FileRouteTypes {
     | '/report'
     | '/sales'
     | '/settings'
+    | '/social'
     | '/tasks'
     | '/trading'
     | '/wallet'
     | '/website'
     | '/x402'
     | '/api/ceo'
+    | '/b/$slug'
+    | '/blog/$slug'
     | '/company/$slug'
     | '/embed/$postId'
+    | '/for/$funnel'
     | '/m/$shareSlug'
     | '/oauth/consent'
     | '/r/$runId'
+    | '/s/$slug'
     | '/tb/$shareSlug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
+    | '/blog'
     | '/missions/$id'
     | '/api/billing/checkout'
+    | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/greeter'
     | '/api/workers/tick'
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
+    | '/r/review/$token'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
     | '/api/public/x402/astro-reading'
     | '/api/public/x402/company-brief'
+    | '/api/public/x402/genesis-passport'
     | '/api/public/x402/imagebook-page'
     | '/api/public/x402/lead-enrich'
     | '/api/public/x402/market-snapshot'
@@ -819,7 +1008,10 @@ export interface FileRouteTypes {
     | '/grants'
     | '/leaderboard'
     | '/live'
+    | '/lokal'
+    | '/pitch'
     | '/privacy'
+    | '/proof'
     | '/share'
     | '/terms'
     | '/_authenticated/agents'
@@ -827,7 +1019,10 @@ export interface FileRouteTypes {
     | '/_authenticated/analytics'
     | '/_authenticated/arena'
     | '/_authenticated/automation'
+    | '/_authenticated/bewertungen'
     | '/_authenticated/billing'
+    | '/_authenticated/boost'
+    | '/_authenticated/business'
     | '/_authenticated/ceo'
     | '/_authenticated/channels'
     | '/_authenticated/community'
@@ -836,9 +1031,11 @@ export interface FileRouteTypes {
     | '/_authenticated/customers'
     | '/_authenticated/earn'
     | '/_authenticated/files'
+    | '/_authenticated/heute'
     | '/_authenticated/identity'
     | '/_authenticated/jobs'
     | '/_authenticated/knowledge'
+    | '/_authenticated/kunden'
     | '/_authenticated/marketing'
     | '/_authenticated/marketplace'
     | '/_authenticated/missions'
@@ -847,32 +1044,41 @@ export interface FileRouteTypes {
     | '/_authenticated/report'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
+    | '/_authenticated/social'
     | '/_authenticated/tasks'
     | '/_authenticated/trading'
     | '/_authenticated/wallet'
     | '/_authenticated/website'
     | '/_authenticated/x402'
     | '/api/ceo'
+    | '/b/$slug'
+    | '/blog/$slug'
     | '/company/$slug'
     | '/embed/$postId'
+    | '/for/$funnel'
     | '/m/$shareSlug'
     | '/oauth/consent'
     | '/r/$runId'
+    | '/s/$slug'
     | '/tb/$shareSlug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
+    | '/blog/'
     | '/_authenticated/missions/$id'
     | '/api/billing/checkout'
+    | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/greeter'
     | '/api/workers/tick'
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
+    | '/r/review/$token'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
     | '/api/public/x402/astro-reading'
     | '/api/public/x402/company-brief'
+    | '/api/public/x402/genesis-passport'
     | '/api/public/x402/imagebook-page'
     | '/api/public/x402/lead-enrich'
     | '/api/public/x402/market-snapshot'
@@ -893,29 +1099,40 @@ export interface RootRouteChildren {
   GrantsRoute: typeof GrantsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveRoute: typeof LiveRoute
+  LokalRoute: typeof LokalRoute
+  PitchRoute: typeof PitchRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProofRoute: typeof ProofRoute
   ShareRoute: typeof ShareRoute
   TermsRoute: typeof TermsRoute
   ApiCeoRoute: typeof ApiCeoRoute
+  BSlugRoute: typeof BSlugRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CompanySlugRoute: typeof CompanySlugRoute
   EmbedPostIdRoute: typeof EmbedPostIdRoute
+  ForFunnelRoute: typeof ForFunnelRoute
   MShareSlugRoute: typeof MShareSlugRoute
   OauthConsentRoute: typeof OauthConsentRoute
   RRunIdRoute: typeof RRunIdRoute
+  SSlugRoute: typeof SSlugRoute
   TbShareSlugRoute: typeof TbShareSlugRoute
   UHandleRoute: typeof UHandleRoute
   VPostIdRoute: typeof VPostIdRoute
   WShareSlugRoute: typeof WShareSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ApiBillingCheckoutRoute: typeof ApiBillingCheckoutRoute
+  ApiBillingFoundingSeatRoute: typeof ApiBillingFoundingSeatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
   OauthSocialReturnRoute: typeof OauthSocialReturnRoute
+  RReviewTokenRoute: typeof RReviewTokenRoute
   ApiOauthSocialCallbackRoute: typeof ApiOauthSocialCallbackRoute
   ApiOauthSocialStartRoute: typeof ApiOauthSocialStartRoute
   ApiPublicX402AstroReadingRoute: typeof ApiPublicX402AstroReadingRoute
   ApiPublicX402CompanyBriefRoute: typeof ApiPublicX402CompanyBriefRoute
+  ApiPublicX402GenesisPassportRoute: typeof ApiPublicX402GenesisPassportRoute
   ApiPublicX402ImagebookPageRoute: typeof ApiPublicX402ImagebookPageRoute
   ApiPublicX402LeadEnrichRoute: typeof ApiPublicX402LeadEnrichRoute
   ApiPublicX402MarketSnapshotRoute: typeof ApiPublicX402MarketSnapshotRoute
@@ -991,11 +1208,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lokal': {
+      id: '/lokal'
+      path: '/lokal'
+      fullPath: '/lokal'
+      preLoaderRoute: typeof LokalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pitch': {
+      id: '/pitch'
+      path: '/pitch'
+      fullPath: '/pitch'
+      preLoaderRoute: typeof PitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proof': {
+      id: '/proof'
+      path: '/proof'
+      fullPath: '/proof'
+      preLoaderRoute: typeof ProofRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/share': {
@@ -1047,11 +1285,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAutomationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bewertungen': {
+      id: '/_authenticated/bewertungen'
+      path: '/bewertungen'
+      fullPath: '/bewertungen'
+      preLoaderRoute: typeof AuthenticatedBewertungenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/billing': {
       id: '/_authenticated/billing'
       path: '/billing'
       fullPath: '/billing'
       preLoaderRoute: typeof AuthenticatedBillingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/boost': {
+      id: '/_authenticated/boost'
+      path: '/boost'
+      fullPath: '/boost'
+      preLoaderRoute: typeof AuthenticatedBoostRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/business': {
+      id: '/_authenticated/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof AuthenticatedBusinessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ceo': {
@@ -1110,6 +1369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFilesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/heute': {
+      id: '/_authenticated/heute'
+      path: '/heute'
+      fullPath: '/heute'
+      preLoaderRoute: typeof AuthenticatedHeuteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/identity': {
       id: '/_authenticated/identity'
       path: '/identity'
@@ -1129,6 +1395,13 @@ declare module '@tanstack/react-router' {
       path: '/knowledge'
       fullPath: '/knowledge'
       preLoaderRoute: typeof AuthenticatedKnowledgeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/kunden': {
+      id: '/_authenticated/kunden'
+      path: '/kunden'
+      fullPath: '/kunden'
+      preLoaderRoute: typeof AuthenticatedKundenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/marketing': {
@@ -1187,6 +1460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/social': {
+      id: '/_authenticated/social'
+      path: '/social'
+      fullPath: '/social'
+      preLoaderRoute: typeof AuthenticatedSocialRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tasks': {
       id: '/_authenticated/tasks'
       path: '/tasks'
@@ -1229,6 +1509,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCeoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/b/$slug': {
+      id: '/b/$slug'
+      path: '/b/$slug'
+      fullPath: '/b/$slug'
+      preLoaderRoute: typeof BSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/company/$slug': {
       id: '/company/$slug'
       path: '/company/$slug'
@@ -1241,6 +1542,13 @@ declare module '@tanstack/react-router' {
       path: '/embed/$postId'
       fullPath: '/embed/$postId'
       preLoaderRoute: typeof EmbedPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/$funnel': {
+      id: '/for/$funnel'
+      path: '/for/$funnel'
+      fullPath: '/for/$funnel'
+      preLoaderRoute: typeof ForFunnelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/m/$shareSlug': {
@@ -1262,6 +1570,13 @@ declare module '@tanstack/react-router' {
       path: '/r/$runId'
       fullPath: '/r/$runId'
       preLoaderRoute: typeof RRunIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/s/$slug': {
+      id: '/s/$slug'
+      path: '/s/$slug'
+      fullPath: '/s/$slug'
+      preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tb/$shareSlug': {
@@ -1306,6 +1621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBillingCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/billing/founding-seat': {
+      id: '/api/billing/founding-seat'
+      path: '/api/billing/founding-seat'
+      fullPath: '/api/billing/founding-seat'
+      preLoaderRoute: typeof ApiBillingFoundingSeatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/billing/webhook': {
       id: '/api/billing/webhook'
       path: '/api/billing/webhook'
@@ -1341,6 +1663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthSocialReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/r/review/$token': {
+      id: '/r/review/$token'
+      path: '/r/review/$token'
+      fullPath: '/r/review/$token'
+      preLoaderRoute: typeof RReviewTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/oauth/social/callback': {
       id: '/api/oauth/social/callback'
       path: '/api/oauth/social/callback'
@@ -1374,6 +1703,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/x402/company-brief'
       fullPath: '/api/public/x402/company-brief'
       preLoaderRoute: typeof ApiPublicX402CompanyBriefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/x402/genesis-passport': {
+      id: '/api/public/x402/genesis-passport'
+      path: '/api/public/x402/genesis-passport'
+      fullPath: '/api/public/x402/genesis-passport'
+      preLoaderRoute: typeof ApiPublicX402GenesisPassportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/x402/imagebook-page': {
@@ -1447,7 +1783,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedArenaRoute: typeof AuthenticatedArenaRoute
   AuthenticatedAutomationRoute: typeof AuthenticatedAutomationRoute
+  AuthenticatedBewertungenRoute: typeof AuthenticatedBewertungenRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
+  AuthenticatedBoostRoute: typeof AuthenticatedBoostRoute
+  AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
   AuthenticatedCeoRoute: typeof AuthenticatedCeoRoute
   AuthenticatedChannelsRoute: typeof AuthenticatedChannelsRoute
   AuthenticatedCommunityRoute: typeof AuthenticatedCommunityRoute
@@ -1456,9 +1795,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
   AuthenticatedEarnRoute: typeof AuthenticatedEarnRoute
   AuthenticatedFilesRoute: typeof AuthenticatedFilesRoute
+  AuthenticatedHeuteRoute: typeof AuthenticatedHeuteRoute
   AuthenticatedIdentityRoute: typeof AuthenticatedIdentityRoute
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRoute
   AuthenticatedKnowledgeRoute: typeof AuthenticatedKnowledgeRoute
+  AuthenticatedKundenRoute: typeof AuthenticatedKundenRoute
   AuthenticatedMarketingRoute: typeof AuthenticatedMarketingRoute
   AuthenticatedMarketplaceRoute: typeof AuthenticatedMarketplaceRoute
   AuthenticatedMissionsRoute: typeof AuthenticatedMissionsRouteWithChildren
@@ -1467,6 +1808,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReportRoute: typeof AuthenticatedReportRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSocialRoute: typeof AuthenticatedSocialRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
   AuthenticatedTradingRoute: typeof AuthenticatedTradingRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
@@ -1480,7 +1822,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedArenaRoute: AuthenticatedArenaRoute,
   AuthenticatedAutomationRoute: AuthenticatedAutomationRoute,
+  AuthenticatedBewertungenRoute: AuthenticatedBewertungenRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
+  AuthenticatedBoostRoute: AuthenticatedBoostRoute,
+  AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
   AuthenticatedCeoRoute: AuthenticatedCeoRoute,
   AuthenticatedChannelsRoute: AuthenticatedChannelsRoute,
   AuthenticatedCommunityRoute: AuthenticatedCommunityRoute,
@@ -1489,9 +1834,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
   AuthenticatedEarnRoute: AuthenticatedEarnRoute,
   AuthenticatedFilesRoute: AuthenticatedFilesRoute,
+  AuthenticatedHeuteRoute: AuthenticatedHeuteRoute,
   AuthenticatedIdentityRoute: AuthenticatedIdentityRoute,
   AuthenticatedJobsRoute: AuthenticatedJobsRoute,
   AuthenticatedKnowledgeRoute: AuthenticatedKnowledgeRoute,
+  AuthenticatedKundenRoute: AuthenticatedKundenRoute,
   AuthenticatedMarketingRoute: AuthenticatedMarketingRoute,
   AuthenticatedMarketplaceRoute: AuthenticatedMarketplaceRoute,
   AuthenticatedMissionsRoute: AuthenticatedMissionsRouteWithChildren,
@@ -1500,6 +1847,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReportRoute: AuthenticatedReportRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSocialRoute: AuthenticatedSocialRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
   AuthenticatedTradingRoute: AuthenticatedTradingRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
@@ -1520,29 +1868,40 @@ const rootRouteChildren: RootRouteChildren = {
   GrantsRoute: GrantsRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveRoute: LiveRoute,
+  LokalRoute: LokalRoute,
+  PitchRoute: PitchRoute,
   PrivacyRoute: PrivacyRoute,
+  ProofRoute: ProofRoute,
   ShareRoute: ShareRoute,
   TermsRoute: TermsRoute,
   ApiCeoRoute: ApiCeoRoute,
+  BSlugRoute: BSlugRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CompanySlugRoute: CompanySlugRoute,
   EmbedPostIdRoute: EmbedPostIdRoute,
+  ForFunnelRoute: ForFunnelRoute,
   MShareSlugRoute: MShareSlugRoute,
   OauthConsentRoute: OauthConsentRoute,
   RRunIdRoute: RRunIdRoute,
+  SSlugRoute: SSlugRoute,
   TbShareSlugRoute: TbShareSlugRoute,
   UHandleRoute: UHandleRoute,
   VPostIdRoute: VPostIdRoute,
   WShareSlugRoute: WShareSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ApiBillingCheckoutRoute: ApiBillingCheckoutRoute,
+  ApiBillingFoundingSeatRoute: ApiBillingFoundingSeatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,
   OauthSocialReturnRoute: OauthSocialReturnRoute,
+  RReviewTokenRoute: RReviewTokenRoute,
   ApiOauthSocialCallbackRoute: ApiOauthSocialCallbackRoute,
   ApiOauthSocialStartRoute: ApiOauthSocialStartRoute,
   ApiPublicX402AstroReadingRoute: ApiPublicX402AstroReadingRoute,
   ApiPublicX402CompanyBriefRoute: ApiPublicX402CompanyBriefRoute,
+  ApiPublicX402GenesisPassportRoute: ApiPublicX402GenesisPassportRoute,
   ApiPublicX402ImagebookPageRoute: ApiPublicX402ImagebookPageRoute,
   ApiPublicX402LeadEnrichRoute: ApiPublicX402LeadEnrichRoute,
   ApiPublicX402MarketSnapshotRoute: ApiPublicX402MarketSnapshotRoute,

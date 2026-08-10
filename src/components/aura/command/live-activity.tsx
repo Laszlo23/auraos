@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
+import { ExpandableCopy } from "@/components/aura/expandable-copy";
 import { Panel, Pulse } from "@/components/aura/primitives";
 import { currency, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -94,7 +95,12 @@ export function LiveCompanyActivity({ events, limit = 16 }: Props) {
                   <p className="text-[12px] font-semibold tracking-wide text-foreground/90">
                     {who}
                   </p>
-                  <p className="mt-0.5 text-[13px] leading-snug text-foreground/80">{e.message}</p>
+                  <ExpandableCopy
+                    text={e.message}
+                    title={who}
+                    maxLines={3}
+                    className="mt-0.5"
+                  />
                   <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                     {tone === "fail"
                       ? "failed"

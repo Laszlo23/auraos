@@ -12,23 +12,29 @@
  */
 import { X402_CATALOG, splitRevenue, type X402Endpoint } from "./x402-catalog";
 import { activeNetwork, USDC_ADDRESSES, USDC_META, type AuraNetwork } from "./chain-config";
+import { isProdRuntime, resolveX402PayTo } from "./x402-config";
+import { genesisPriceUsdc } from "./genesis.server";
 
-const DEV_PAY_TO = "0x000000000000000000000000000000000000dEaD";
+const DEV_PAY_TO = "0x000000000000000000000000000000000000dEaD" as const;
 
-export const getEndpoint = (slug: string) => X402_CATALOG.find((e) => e.slug === slug);
-
-const isProd = () =>
-  process.env["NODE_ENV"] === "production" || process.env["VITE_APP_ENV"] === "production";
+export const getEndpoint = (slug: string) => {
+  const ep = X402_CATALOG.find((e) => e.slug === slug);
+  if (!ep) return undefined;
+  if (ep.slug === "genesis-passport") {
+    return { ...ep, price_usdc: genesisPriceUsdc() };
+  }
+  return ep;
+};
 
 const config = () => {
-  const payTo = process.env["X402_PAY_TO"];
+  const payTo = resolveX402PayTo();
   // Prefer shared chain config so Alchemy / x402 / Vite stay aligned.
   const network = (process.env["X402_NETWORK"]
     ? (process.env["X402_NETWORK"] as string)
     : activeNetwork()) as AuraNetwork;
   const facilitator = process.env["X402_FACILITATOR_URL"] || "https://x402.org/facilitator";
   // Never allow unpaid settlement in production (ignore X402_ALLOW_DEV there).
-  const allowDev = !isProd();
+  const allowDev = !isProdRuntime();
   return {
     payTo: payTo || DEV_PAY_TO,
     live: Boolean(payTo),
@@ -245,7 +251,8 @@ export async function withPayment(
     return json(
       {
         error: "x402_misconfigured",
-        message: "X402_PAY_TO must be set in production. Simulated settlement is disabled.",
+        message:
+          "X402_PAY_TO (or OKX_PAYOUT_ADDRESS fallback) must be set in production. Simulated settlement is disabled.",
       },
       { status: 503 },
     );

@@ -38,6 +38,16 @@ export const X402_CATALOG: X402Endpoint[] = [
     input: `{ "subject": "onchain payments in 2026" }`,
   },
   {
+    slug: "genesis-passport",
+    name: "Genesis Passport",
+    description:
+      "Founding-company utility NFT entitlement (pay USDC via x402). Claim mint on Wallet after settle. Not an investment; not token launch.",
+    path: "/api/public/x402/genesis-passport",
+    price_usdc: 99,
+    network: "base-sepolia",
+    input: `{ "company_id": "<uuid>" }`,
+  },
+  {
     slug: "market-snapshot",
     name: "Market Snapshot",
     description: "Cross-asset snapshot with regime read, volatility bands and correlation notes.",
