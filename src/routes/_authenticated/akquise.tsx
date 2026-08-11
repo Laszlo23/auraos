@@ -308,9 +308,19 @@ function AkquisePage() {
     mutationFn: (campaignId: string) => researchLeads({ data: { campaignId } }),
     onSuccess: async (res) => {
       await refresh();
-      celebrate(`${res.added} prospects found`, 200, "akquise:research");
+      if (res.added > 0) {
+        celebrate(`${res.added} prospects found`, 200, "akquise:research");
+        toast.success(`Got it. Found ${res.added} real prospects.`);
+      } else {
+        toast.error(
+          "Re-research finished with 0 prospects. Sharpen the goal/region or add FIRECRAWL_API_KEY.",
+        );
+      }
     },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error) => {
+      setError(e.message);
+      toast.error(e.message);
+    },
   });
 
   const draft = useMutation({

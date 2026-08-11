@@ -1,8 +1,10 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useMemo } from "react";
 
 import {
   BUILDING_CULTURE,
   LEGAL_EMAIL,
+  PRODUCT_SURFACES,
   SITE_NAME,
   SITE_URL,
   SOCIAL_LINKS,
@@ -27,6 +29,70 @@ const LEGAL_LINKS = [
   { to: "/terms", label: "Terms / AGB" },
   { to: "/cookies", label: "Cookies" },
 ] as const;
+
+function ProductSwitcher() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const current = useMemo(() => {
+    const exact = PRODUCT_SURFACES.find((p) => p.href === pathname);
+    if (exact) return exact.id;
+    if (pathname.startsWith("/nachbar")) return "nachbar";
+    if (pathname.startsWith("/for/")) {
+      const slug = pathname.split("/")[2];
+      const match = PRODUCT_SURFACES.find((p) => p.href === `/for/${slug}`);
+      if (match) return match.id;
+    }
+    if (
+      pathname.startsWith("/console") ||
+      pathname.startsWith("/wallet") ||
+      pathname.startsWith("/akquise") ||
+      pathname.startsWith("/billing")
+    ) {
+      return "app";
+    }
+    return "os";
+  }, [pathname]);
+
+  return (
+    <label className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+        Switch project
+      </span>
+      <select
+        value={current}
+        aria-label="Switch between Aura products and funnels"
+        onChange={(e) => {
+          const next = PRODUCT_SURFACES.find((p) => p.id === e.target.value);
+          if (!next) return;
+          trackTeaser("cta_click", { placement: `footer_switch:${next.id}`.slice(0, 40) });
+          window.location.assign(next.href);
+        }}
+        className="max-w-full rounded-xl border border-border/60 bg-foreground/[0.04] px-3 py-2 text-[12px] font-medium text-foreground outline-none focus:border-primary/50 sm:min-w-[16rem]"
+      >
+        <optgroup label="Products">
+          {PRODUCT_SURFACES.filter((p) => p.group === "product").map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.label} — {p.blurb}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="Funnels">
+          {PRODUCT_SURFACES.filter((p) => p.group === "funnel").map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.label}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="App">
+          {PRODUCT_SURFACES.filter((p) => p.group === "app").map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.label}
+            </option>
+          ))}
+        </optgroup>
+      </select>
+    </label>
+  );
+}
 
 /**
  * Public-site footer. Legal links live here only — not in nav or marketing chrome.
@@ -61,6 +127,10 @@ export function SiteFooter({
               </a>
             ))}
           </nav>
+        </div>
+
+        <div className="border-t border-border/40 pt-5">
+          <ProductSwitcher />
         </div>
 
         {share ? (

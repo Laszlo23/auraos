@@ -143,12 +143,15 @@ async function fallbackSearch(query: string, limit: number): Promise<ScrapedPage
   }
 
   const links: { href: string; title: string }[] = [];
+  // DuckDuckGo HTML may put class before or after href.
   const re =
-    /<a[^>]+class="[^"]*result__a[^"]*"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+    /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>|<a[^>]*href="([^"]+)"[^>]*class="[^"]*result__a[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
   let match: RegExpExecArray | null;
   while ((match = re.exec(html)) && links.length < limit * 2) {
-    const rawHref = decodeHtmlEntities(match[1] || "");
-    const title = decodeHtmlEntities(match[2].replace(/<[^>]+>/g, "").trim());
+    const rawHref = decodeHtmlEntities(match[1] || match[3] || "");
+    const title = decodeHtmlEntities(
+      (match[2] || match[4] || "").replace(/<[^>]+>/g, "").trim(),
+    );
     let href = rawHref;
     try {
       const u = new URL(rawHref, "https://duckduckgo.com");
@@ -248,11 +251,17 @@ export async function firecrawlScrape(url: string): Promise<ScrapedPage | null> 
   return fallbackScrape(url);
 }
 
-export async function askAi(system: string, user: string): Promise<string> {
+export async function askAi(
+  system: string,
+  user: string,
+  opts?: { maxTokens?: number; timeoutMs?: number },
+): Promise<string> {
   try {
     return await aiChat({
       system,
       messages: [{ role: "user", content: user }],
+      ...(opts?.maxTokens != null ? { maxTokens: opts.maxTokens } : {}),
+      ...(opts?.timeoutMs != null ? { timeoutMs: opts.timeoutMs } : {}),
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "The AI agent is not configured.";
@@ -263,17 +272,27 @@ export async function askAi(system: string, user: string): Promise<string> {
   }
 }
 
+/** Prefer a JSON array/object; repair truncated trailing commas when possible. */
 export function parseJsonBlock<T>(raw: string, fallback: T): T {
   const cleaned = raw
     .replace(/^```(?:json)?/i, "")
-    .replace(/```$/, "")
+    .replace(/```$/i, "")
     .trim();
   const start = cleaned.search(/[[{]/);
   if (start === -1) return fallback;
-  const end = Math.max(cleaned.lastIndexOf("]"), cleaned.lastIndexOf("}"));
-  try {
-    return JSON.parse(cleaned.slice(start, end + 1)) as T;
-  } catch {
-    return fallback;
+  let slice = cleaned.slice(start);
+  const endArr = slice.lastIndexOf("]");
+  const endObj = slice.lastIndexOf("}");
+  const end = Math.max(endArr, endObj);
+  if (end !== -1) slice = slice.slice(0, end + 1);
+  // Truncated arrays often end mid-string — try closing open structures lightly.
+  const attempts = [slice, slice.replace(/,\s*$/, "")];
+  for (const attempt of attempts) {
+    try {
+      return JSON.parse(attempt) as T;
+    } catch {
+      /* try next */
+    }
   }
+  return fallback;
 }

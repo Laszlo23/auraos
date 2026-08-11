@@ -114,19 +114,30 @@ async function planRun(opts: {
     [opts.brief || opts.goal, opts.region, h].filter(Boolean).join(" "),
   );
 
-  const raw = await askAi(
-    `You plan cold-outreach / research runs for Aura OS. Return ONLY JSON:
+  let queries = baseQueries;
+  try {
+    const raw = await askAi(
+      `You plan cold-outreach / research runs for Aura OS. Return ONLY JSON:
 {"queries":string[]}.
 queries: 3-6 concrete web search queries to find prospects matching the goal. No invented facts. Language mix DE/EN ok for EU.
 Never translate product names in queries (Discord, Telegram, LinkedIn stay English).`,
-    `Template: ${opts.template.id}
+      `Template: ${opts.template.id}
 Goal: ${opts.goal}
 Brief: ${opts.brief}
 Region: ${opts.region ?? "any"}
 Hints: ${opts.template.searchHints.join(" | ")}`,
-  );
-  const planned = parseJsonBlock<{ queries?: string[] }>(raw, {});
-  const queries = (planned.queries?.length ? planned.queries : baseQueries)
+      { maxTokens: 800, timeoutMs: 25_000 },
+    );
+    const planned = parseJsonBlock<{ queries?: string[] }>(raw, {});
+    if (planned.queries?.length) {
+      queries = planned.queries;
+    }
+  } catch (e) {
+    // Planning AI is optional — search hints alone still run Lead Hunter.
+    console.warn("[akquise] plan AI failed, using template search hints:", e);
+  }
+
+  const normalized = queries
     .map((q) => q.trim())
     .filter(Boolean)
     .slice(0, 8);
@@ -136,7 +147,7 @@ Hints: ${opts.template.searchHints.join(" | ")}`,
     template: opts.template.id,
     targetCount: opts.targetCount,
     region: opts.region,
-    queries: queries.length ? queries : baseQueries.slice(0, 4),
+    queries: normalized.length ? normalized : baseQueries.slice(0, 4),
     scoringRubric: opts.template.scoringRubric,
     agents: opts.template.agents,
   };
@@ -158,21 +169,33 @@ async function extractBatch(
   const corpus = withSignals
     .map(
       (p, i) =>
-        `--- SOURCE ${i + 1}: ${p.url}\nTITLE: ${p.title}\nSIGNALS: ${p.signals.join(", ") || "none"}\n${p.markdown.slice(0, 3500)}`,
+        `--- SOURCE ${i + 1}: ${p.url}\nTITLE: ${p.title}\nSIGNALS: ${p.signals.join(", ") || "none"}\n${p.markdown.slice(0, 2800)}`,
     )
     .join("\n\n");
 
-  const raw = await askAi(
-    template.extractSystem,
-    `Goal: ${goal}
+  const user = `Goal: ${goal}
 Brief: ${brief}
 Region: ${region ?? "any"}
 Objective: ${objective}
 Scoring: ${template.scoringRubric}
 
-${corpus}`,
-  );
-  return parseJsonBlock<ProspectDraft[]>(raw, []).slice(0, 15);
+${corpus}`;
+
+  const runOnce = async (systemExtra: string) => {
+    const raw = await askAi(`${template.extractSystem}\n${systemExtra}`, user, {
+      maxTokens: 4096,
+      timeoutMs: 35_000,
+    });
+    return parseJsonBlock<ProspectDraft[]>(raw, []);
+  };
+
+  let list = await runOnce("Return a JSON array only. No markdown fences.");
+  if (!list.length) {
+    list = await runOnce(
+      "STRICT: Output starts with [ and ends with ]. Empty array only if ZERO businesses appear in the sources. Prefer org+source_url even when email/phone are null.",
+    );
+  }
+  return list.slice(0, 15);
 }
 
 function dedupeProspects(list: ProspectDraft[]): ProspectDraft[] {
@@ -340,6 +363,12 @@ export async function executeAkquiseRun(opts: {
     );
     prospects = dedupeProspects([...prospects, ...more]);
     step(steps, "retry", "Retry with alternate queries", "done", `now ${prospects.length} leads`);
+  }
+
+  if (prospects.length === 0 && pages.length > 0) {
+    throw new Error(
+      `Searched ${pages.length} pages but could not extract prospects. Sharpen the goal/region, or retry when AI providers have capacity.`,
+    );
   }
 
   prospects = prospects.sort((a, b) => b.score - a.score).slice(0, target);

@@ -166,3 +166,82 @@ export const WHITELIST_TASKS: WhitelistTask[] = [
 ];
 
 export const WHITELIST_REQUIRED_COUNT = 6; // 5 required + 1 of chat_or
+
+/**
+ * Public product / funnel surfaces for footer switcher + sitemap.
+ * Paths are relative to SITE_URL.
+ */
+export type ProductSurface = {
+  id: string;
+  label: string;
+  href: string;
+  group: "product" | "funnel" | "app";
+  blurb: string;
+};
+
+export const PRODUCT_SURFACES: ProductSurface[] = [
+  {
+    id: "os",
+    label: "Aura OS",
+    href: "/",
+    group: "product",
+    blurb: "AI company operating system",
+  },
+  {
+    id: "lokal",
+    label: "Aura Lokal",
+    href: "/lokal",
+    group: "product",
+    blurb: "Local business growth (DE)",
+  },
+  {
+    id: "nachbar",
+    label: "Aura Nachbar",
+    href: "/nachbar",
+    group: "product",
+    blurb: "Neighborhood check-in & rewards",
+  },
+  {
+    id: "for-local",
+    label: "For local shops",
+    href: "/for/local",
+    group: "funnel",
+    blurb: "Review Boost funnel (EN)",
+  },
+  {
+    id: "for-agencies",
+    label: "For agencies",
+    href: "/for/agencies",
+    group: "funnel",
+    blurb: "Agency partner funnel",
+  },
+  {
+    id: "for-sales",
+    label: "For sales teams",
+    href: "/for/sales",
+    group: "funnel",
+    blurb: "SMB sales funnel",
+  },
+  {
+    id: "for-start",
+    label: "Business in a box",
+    href: "/for/start",
+    group: "funnel",
+    blurb: "Start a company funnel",
+  },
+  {
+    id: "for-realty",
+    label: "For realty",
+    href: "/for/realty",
+    group: "funnel",
+    blurb: "Real-estate funnel",
+  },
+  {
+    id: "app",
+    label: "OS app (console)",
+    href: "/console",
+    group: "app",
+    blurb: "Sign in to the founder desk",
+  },
+];
+

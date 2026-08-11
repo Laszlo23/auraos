@@ -67,7 +67,7 @@ function buildProviders(): Record<AiProviderName, Provider | null> {
             "Content-Type": "application/json",
             Authorization: `Bearer ${geminiKey}`,
           },
-          model: env("GEMINI_MODEL", "AI_CHAT_MODEL") ?? "gemini-2.0-flash",
+          model: env("GEMINI_MODEL", "AI_CHAT_MODEL") ?? "gemini-flash-latest",
         }
       : null,
     groq: groqKey
@@ -89,7 +89,7 @@ function buildProviders(): Record<AiProviderName, Provider | null> {
             "Content-Type": "application/json",
             Authorization: `Bearer ${moonshotKey}`,
           },
-          model: env("MOONSHOT_MODEL", "AI_CHAT_MODEL") ?? "kimi-k2-turbo-preview",
+          model: env("MOONSHOT_MODEL", "AI_CHAT_MODEL") ?? "kimi-k3",
         }
       : null,
     xai: xaiKey
@@ -177,6 +177,7 @@ export function aiProviderNames(): AiProviderName[] {
 
 /** Per-provider request budget — prevents hung gateways from stalling the desk. */
 const AI_FETCH_MS = 12_000;
+const AI_FETCH_MS_LONG = 30_000;
 
 function fetchTimeoutSignal(ms = AI_FETCH_MS): AbortSignal {
   return AbortSignal.timeout(ms);
@@ -189,6 +190,18 @@ function isSoftFail(status: number, detail: string): boolean {
   // Wrong/retired model names should fall through the provider chain.
   if (status === 404) return true;
   const d = detail.toLowerCase();
+  // Grok / paid APIs often return 403 when credits are exhausted.
+  if (
+    status === 403 &&
+    (d.includes("credit") ||
+      d.includes("spending") ||
+      d.includes("quota") ||
+      d.includes("billing") ||
+      d.includes("permission-denied") ||
+      d.includes("permission denied"))
+  ) {
+    return true;
+  }
   return (
     d.includes("quota") ||
     d.includes("rate limit") ||
@@ -207,11 +220,29 @@ function isSoftFail(status: number, detail: string): boolean {
 
 const DEFAULT_MAX_TOKENS = 1024;
 
+function messageText(choice: {
+  message?: {
+    content?: string | null;
+    reasoning_content?: string | null;
+  };
+}): string | null {
+  const msg = choice.message;
+  if (!msg) return null;
+  const content = typeof msg.content === "string" ? msg.content.trim() : "";
+  if (content) return content;
+  // Kimi / reasoning models may put the answer only in reasoning_content.
+  const reasoning =
+    typeof msg.reasoning_content === "string" ? msg.reasoning_content.trim() : "";
+  return reasoning || null;
+}
+
 export async function aiChat(opts: {
   system?: string;
   messages: { role: "user" | "assistant"; content: string }[];
   model?: string;
   maxTokens?: number;
+  /** Override per-provider timeout (ms). */
+  timeoutMs?: number;
 }): Promise<string> {
   const chain = providers();
   if (chain.length === 0) throw new Error(`AI is not configured. ${aiConfigHint()}`);
@@ -220,7 +251,9 @@ export async function aiChat(opts: {
     ...(opts.system ? [{ role: "system" as const, content: opts.system }] : []),
     ...opts.messages,
   ];
-  const maxTokens = Math.min(4096, Math.max(64, opts.maxTokens ?? DEFAULT_MAX_TOKENS));
+  const maxTokens = Math.min(8192, Math.max(64, opts.maxTokens ?? DEFAULT_MAX_TOKENS));
+  const timeoutMs =
+    opts.timeoutMs ?? (maxTokens > 1500 ? AI_FETCH_MS_LONG : AI_FETCH_MS);
 
   let lastError = "AI unavailable";
   for (const p of chain) {
@@ -229,7 +262,7 @@ export async function aiChat(opts: {
       res = await fetch(p.chatUrl, {
         method: "POST",
         headers: p.headers,
-        signal: fetchTimeoutSignal(),
+        signal: fetchTimeoutSignal(timeoutMs),
         body: JSON.stringify({
           model: opts.model ?? p.model,
           messages,
@@ -249,8 +282,12 @@ export async function aiChat(opts: {
       lastError = `${p.name} ${res.status}`;
       continue;
     }
-    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    const text = data.choices?.[0]?.message?.content?.trim();
+    const data = (await res.json()) as {
+      choices?: {
+        message?: { content?: string | null; reasoning_content?: string | null };
+      }[];
+    };
+    const text = data.choices?.[0] ? messageText(data.choices[0]) : null;
     if (text) return text;
     lastError = `${p.name} empty`;
   }
