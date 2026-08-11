@@ -13,9 +13,14 @@ import {
 import { TRADING_PRESETS } from "@/lib/trading/presets";
 import { fetchWalletEthBalance, fetchWalletUsdcBalance } from "@/lib/trading/wallet-equity.server";
 import { SITE_URL } from "@/lib/site";
+import { activeNetwork, networkSpec } from "@/lib/chain-config";
 
 const QUANT_MEMORY =
-  "Trading desk Quant. Risk-first. Never invent fills. Respect founder caps. Prefer WETH/USDC on Base. Learn from every confirmed swap.";
+  "Trading desk Quant. Risk-first. Never invent fills. Respect founder caps. Prefer the active chain primary pair (WETH/USDC on Base, WBNB/USDC on BSC). Learn from every confirmed swap.";
+
+function deskPrimarySymbol(): string {
+  return networkSpec(activeNetwork()).primaryPair;
+}
 
 async function ensureQuant(supabase: {
   from: (t: string) => any;
@@ -136,7 +141,7 @@ export const createStrategyFromPrompt = createServerFn({ method: "POST" })
     const fallbackSpec = (): StrategySpec =>
       validateStrategySpec({
         timeframe: "1h",
-        symbols: ["WETH/USDC"],
+        symbols: [deskPrimarySymbol()],
         entry: { type: "ma_cross", params: { fast: 12, slow: 26 } },
         exit: { stop_pct: 2, take_profit_pct: 4 },
         sizing: { risk_pct_equity: 0.5, max_notional_usdc: 100 },
@@ -150,7 +155,8 @@ export const createStrategyFromPrompt = createServerFn({ method: "POST" })
     try {
       const draftAi = agentJson(
         `You are Quant, an on-chain spot trading strategist for Base USDC/WETH only.
-Return JSON {"name":"...","summary":"...","honesty_note":"...","spec":{"timeframe":"1h"|"4h"|"1d","symbols":["WETH/USDC"],"entry":{"type":"ma_cross"|"breakout"|"smart_money_follow","params":{}},"exit":{"stop_pct":number,"take_profit_pct":number},"sizing":{"risk_pct_equity":number,"max_notional_usdc":number}}}.
+Return JSON {"name":"...","summary":"...","honesty_note":"...","spec":{"timeframe":"1h"|"4h"|"1d","symbols":["WETH/USDC" or "WBNB/USDC"],"entry":{"type":"ma_cross"|"breakout"|"smart_money_follow","params":{}},"exit":{"stop_pct":number,"take_profit_pct":number},"sizing":{"risk_pct_equity":number,"max_notional_usdc":number}}}.
+Prefer symbols matching the active chain primary pair (${deskPrimarySymbol()}).
 Keep risk_pct_equity ≤ 1 and max_notional_usdc ≤ 500. No leverage. No shorts that need borrow.
 If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), honesty_note must say that is unlikely and summary must describe a capped learning strategy — never promise the target.`,
         data.prompt,
@@ -178,7 +184,7 @@ If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), ho
       usedFallback = false;
     } catch {
       spec = fallbackSpec();
-      summary = `Fallback MA-cross on WETH/USDC from: ${data.prompt.slice(0, 120)}`;
+      summary = `Fallback MA-cross on ${deskPrimarySymbol()} from: ${data.prompt.slice(0, 120)}`;
       usedFallback = true;
     }
 
@@ -237,7 +243,7 @@ export const runStrategyBacktest = createServerFn({ method: "POST" })
     const spec = validateStrategySpec(strategy.spec);
     const { fetchCandles } = await import("@/lib/trading/market-data.server");
     const { candles, source } = await fetchCandles({
-      symbol: spec.symbols[0] ?? "WETH/USDC",
+      symbol: spec.symbols[0] ?? deskPrimarySymbol(),
       timeframe: spec.timeframe,
       limit: 360,
     });
@@ -439,7 +445,7 @@ export const mirrorSmartMoneyEvent = createServerFn({ method: "POST" })
       .from("trading_signals")
       .insert({
         company_id: data.companyId,
-        symbol: "WETH/USDC",
+        symbol: deskPrimarySymbol(),
         side,
         confidence: 0.55,
         notional_usdc: notional,
@@ -549,7 +555,7 @@ export const applyTradingPreset = createServerFn({ method: "POST" })
 
     const { fetchCandles } = await import("@/lib/trading/market-data.server");
     const { candles, source } = await fetchCandles({
-      symbol: preset.spec.symbols[0] ?? "WETH/USDC",
+      symbol: preset.spec.symbols[0] ?? deskPrimarySymbol(),
       timeframe: preset.spec.timeframe,
       limit: 240,
     });
@@ -746,7 +752,7 @@ export const getHolderPerks = createServerFn({ method: "GET" })
 export const getMarketQuote = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input?: { symbol?: string }) => ({
-    symbol: String(input?.symbol ?? "WETH/USDC"),
+    symbol: String(input?.symbol ?? deskPrimarySymbol()),
   }))
   .handler(async ({ data }) => {
     const { fetchLiveMarketQuote } = await import("@/lib/trading/market-data.server");
@@ -763,7 +769,7 @@ export const getMarketCandles = createServerFn({ method: "GET" })
       throw new Error("Invalid chart interval");
     }
     return {
-      symbol: String(input?.symbol ?? "WETH/USDC"),
+      symbol: String(input?.symbol ?? deskPrimarySymbol()),
       interval: interval as "5m" | "15m" | "1h" | "4h" | "1d",
       limit: Math.min(200, Math.max(40, Number(input?.limit ?? 96))),
     };
@@ -902,13 +908,13 @@ export const runBacktestLab = createServerFn({ method: "POST" })
     const { candles, source } = await fetchCandles(
       useRange
         ? {
-            symbol: spec.symbols[0] ?? "WETH/USDC",
+            symbol: spec.symbols[0] ?? deskPrimarySymbol(),
             timeframe: spec.timeframe,
             startTime: data.fromMs!,
             endTime: data.toMs!,
           }
         : {
-            symbol: spec.symbols[0] ?? "WETH/USDC",
+            symbol: spec.symbols[0] ?? deskPrimarySymbol(),
             timeframe: spec.timeframe,
             limit: bars,
           },
@@ -974,7 +980,7 @@ export const comparePresetBacktests = createServerFn({ method: "POST" })
     const results = [];
     for (const preset of TRADING_PRESETS) {
       const { candles, source } = await fetchCandles({
-        symbol: preset.spec.symbols[0] ?? "WETH/USDC",
+        symbol: preset.spec.symbols[0] ?? deskPrimarySymbol(),
         timeframe: preset.spec.timeframe,
         limit: bars,
       });

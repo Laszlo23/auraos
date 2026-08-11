@@ -2,10 +2,14 @@
  * Unified AI gateway for Aura OS (post-Lovable).
  *
  * Cheap-first OpenAI-compatible chain:
- *   Gemini → Groq → Moonshot → xAI Grok → FreeLLM → OpenAI-compatible → Lovable (legacy)
+ *   FreeLLM (stacked free tiers) → Moonshot → Gemini → Groq → xAI → OpenAI → Lovable
  *
- * Set any of: GEMINI_API_KEY, GROQ_API_KEY, MOONSHOT_API_KEY, XAI_API_KEY,
- * FREELLM_*, OPENAI_API_KEY. Optional AI_PROVIDER_ORDER overrides try order.
+ * FreeLLMAPI (https://github.com/tashfeenahmed/freellmapi) aggregates free-tier
+ * providers behind one /v1 endpoint with model=auto routing. Keep paid keys as
+ * fallbacks when the free pool is rate-limited.
+ *
+ * Set FREELLM_API_KEY + FREELLM_BASE_URL (e.g. http://127.0.0.1:3001/v1).
+ * Optional AI_PROVIDER_ORDER overrides try order.
  */
 
 export type AiProviderName =
@@ -25,11 +29,11 @@ type Provider = {
 };
 
 const DEFAULT_ORDER: AiProviderName[] = [
+  "freellm",
+  "moonshot",
   "gemini",
   "groq",
-  "moonshot",
   "xai",
-  "freellm",
   "openai",
   "lovable",
 ];
@@ -85,7 +89,7 @@ function buildProviders(): Record<AiProviderName, Provider | null> {
             "Content-Type": "application/json",
             Authorization: `Bearer ${moonshotKey}`,
           },
-          model: env("MOONSHOT_MODEL", "AI_CHAT_MODEL") ?? "kimi-k2.5",
+          model: env("MOONSHOT_MODEL", "AI_CHAT_MODEL") ?? "kimi-k2-turbo-preview",
         }
       : null,
     xai: xaiKey
@@ -164,7 +168,7 @@ export function aiConfigured(): boolean {
 }
 
 export function aiConfigHint(): string {
-  return "Add a cheap provider key to .env / .env.local: GEMINI_API_KEY, GROQ_API_KEY, XAI_API_KEY (Grok), or MOONSHOT_API_KEY — then restart the dev server.";
+  return "Prefer FreeLLMAPI (FREELLM_API_KEY + FREELLM_BASE_URL=http://127.0.0.1:3001/v1, model=auto). Fallbacks: GEMINI_API_KEY, GROQ_API_KEY, MOONSHOT_API_KEY, XAI_API_KEY.";
 }
 
 export function aiProviderNames(): AiProviderName[] {
@@ -182,6 +186,8 @@ type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
 function isSoftFail(status: number, detail: string): boolean {
   if (status === 429 || status === 402 || status === 503) return true;
+  // Wrong/retired model names should fall through the provider chain.
+  if (status === 404) return true;
   const d = detail.toLowerCase();
   return (
     d.includes("quota") ||
@@ -190,7 +196,12 @@ function isSoftFail(status: number, detail: string): boolean {
     d.includes("suspended") ||
     d.includes("no_providers") ||
     d.includes("no candidate model") ||
-    d.includes("billing")
+    d.includes("billing") ||
+    d.includes("not found the model") ||
+    d.includes("model_not_found") ||
+    d.includes("does not exist") ||
+    d.includes("permission denied") ||
+    d.includes("invalid model")
   );
 }
 

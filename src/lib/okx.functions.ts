@@ -2,19 +2,26 @@ import { createServerFn } from "@tanstack/react-start";
 import type { Address, Hex } from "viem";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { alchemyRpcUrl, chainId, activeNetwork, USDC_ADDRESSES } from "@/lib/chain-config";
-import { NATIVE_ETH, WETH_ADDRESSES } from "@/lib/trading/tokens";
+import {
+  alchemyRpcUrl,
+  chainId,
+  activeNetwork,
+  chainLabel,
+  USDC_ADDRESSES,
+} from "@/lib/chain-config";
+import { NATIVE_ETH, WETH_ADDRESSES, explorerTxUrl as buildExplorerTxUrl } from "@/lib/trading/tokens";
 
 /** Public status of OKX rails (no secrets). */
 export const getOkxStatus = createServerFn({ method: "GET" }).handler(async () => {
   const { okxConfigured, okxBuilderCode, okxPayoutAddress } = await import("./okx.server");
+  const network = activeNetwork();
   return {
     configured: okxConfigured(),
     builderCode: Boolean(okxBuilderCode()),
     payoutConfigured: Boolean(okxPayoutAddress()),
-    network: activeNetwork(),
-    label: activeNetwork() === "base" ? "Base" : "Base Sepolia",
-    chainId: String(chainId(activeNetwork())),
+    network,
+    label: chainLabel(network),
+    chainId: String(chainId(network)),
   };
 });
 
@@ -288,9 +295,6 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       estimatedOut: parsed.toAmount ?? null,
       userOpHash: result.userOpHash,
       network,
-      explorerTxUrl:
-        network === "base"
-          ? `https://basescan.org/tx/${result.userOpHash}`
-          : `https://sepolia.basescan.org/tx/${result.userOpHash}`,
+      explorerTxUrl: buildExplorerTxUrl(network, result.userOpHash),
     };
   });

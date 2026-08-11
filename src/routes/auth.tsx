@@ -73,9 +73,10 @@ function defaultAuthMode(opts: {
   mode?: AuthMode;
   invite?: string;
   ref?: string;
+  buy?: string;
 }): AuthMode {
   if (opts.mode) return opts.mode;
-  if (opts.invite || opts.ref) return "signup";
+  if (opts.invite || opts.ref || opts.buy === "seat") return "signup";
   return "signin";
 }
 
@@ -91,6 +92,7 @@ export const Route = createFileRoute("/auth")({
     seat?: "success" | "cancel";
     funnel?: FunnelId;
     lang?: "de" | "en";
+    buy?: "seat";
   } => {
     const inviteRaw =
       typeof search["invite"] === "string"
@@ -117,6 +119,7 @@ export const Route = createFileRoute("/auth")({
         : {}),
       ...(funnelRaw && isFunnelId(funnelRaw) ? { funnel: funnelRaw } : {}),
       ...(langRaw === "de" || langRaw === "en" ? { lang: langRaw } : {}),
+      ...(search["buy"] === "seat" ? { buy: "seat" as const } : {}),
     };
   },
   head: () => ({
@@ -249,6 +252,7 @@ function AuthPage() {
     seat: seatFromLink,
     funnel: funnelFromLink,
     lang: langFromLink,
+    buy: buyFromLink,
   } = Route.useSearch();
   const entryFunnel: FunnelId =
     funnelFromLink && isFunnelId(funnelFromLink) ? funnelFromLink : peekFunnel();
@@ -264,6 +268,7 @@ function AuthPage() {
           : {}),
       ...(inviteFromLink ? { invite: inviteFromLink } : {}),
       ...(refFromLink ? { ref: refFromLink } : {}),
+      ...(buyFromLink ? { buy: buyFromLink } : {}),
     }),
   );
   const [email, setEmail] = useState("");
@@ -271,8 +276,10 @@ function AuthPage() {
   const [password2, setPassword2] = useState("");
   const [busy, setBusy] = useState(false);
   /** Magic link from signup creates users; from sign-in it must not. */
-  const [magicCreatesUser, setMagicCreatesUser] = useState(Boolean(inviteFromLink || refFromLink));
-  /** New OAuth user landed without a usable invite — stay on /auth until they enter one. */
+  const [magicCreatesUser, setMagicCreatesUser] = useState(
+    Boolean(inviteFromLink || refFromLink || buyFromLink === "seat"),
+  );
+  /** Signed in without a seat — show checkout CTA (invite optional). */
   const [needsInviteToContinue, setNeedsInviteToContinue] = useState(false);
 
   const finishingRef = useRef(false);
@@ -361,7 +368,7 @@ function AuthPage() {
     }
   }
 
-  /** Validate invite / founder link without consuming uses (checkout burns on pay). */
+  /** Optional invite / founder link (open sale — checkout does not require a code). */
   async function passGate(): Promise<boolean> {
     if (isFunnelEntry) return true;
     const referral = (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase();
@@ -374,18 +381,15 @@ function AuthPage() {
       }
     }
     const code = invite.trim().toUpperCase();
-    if (!code) {
-      toast.error("Enter a valid invite — it unlocks the $99 founding seat checkout.");
-      return false;
-    }
+    if (!code) return true;
     const { data: ok, error } = await supabase.rpc("check_invite_code", { _code: code });
     if (error) {
       console.warn("check_invite_code", error.message);
-      toast.error("Could not validate invite — try again in a moment.");
+      toast.error("Could not validate invite — try again, or continue without one.");
       return false;
     }
     if (!ok) {
-      toast.error("That invite isn't valid — request a seat on /access.");
+      toast.error("That invite isn't valid — clear it or buy without an invite.");
       return false;
     }
     rememberInvite(code);
@@ -393,9 +397,8 @@ function AuthPage() {
   }
 
   /**
-   * Seat gate: paid founding seat (or legacy invite/referral grandfather).
-   * Non-os funnels skip founding-seat scarcity and open the company directly.
-   * New accounts with a valid invite are sent to $99 Stripe checkout — invite is not a free pass.
+   * Seat gate: paid founding seat (or legacy company).
+   * Open sale — send new accounts to $99 Stripe checkout. Invite is optional attribution.
    */
   async function ensureSeatOrCheckout(user: User): Promise<"ok" | "need_invite" | "checkout"> {
     if (isFunnelEntry) {
@@ -428,18 +431,18 @@ function AuthPage() {
         peekStoredInvite() ||
         (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase() ||
         "") || null;
-    if (!code) return "need_invite";
 
-    const { data: inviteOk } = await supabase.rpc("check_invite_code", { _code: code });
-    const { data: refOk } = inviteOk
-      ? { data: true }
-      : await supabase.rpc("referral_code_valid", { _code: code });
-    if (!inviteOk && !refOk) {
-      rememberInvite(code);
-      return "need_invite";
+    if (code) {
+      const { data: inviteOk } = await supabase.rpc("check_invite_code", { _code: code });
+      const { data: refOk } = inviteOk
+        ? { data: true }
+        : await supabase.rpc("referral_code_valid", { _code: code });
+      if (inviteOk || refOk) {
+        rememberInvite(code);
+      }
+      // Invalid invite: still allow open checkout without burning a bad code.
     }
 
-    rememberInvite(code);
     try {
       const url = await startFoundingSeatCheckout(code);
       window.location.href = url;
@@ -482,7 +485,7 @@ function AuthPage() {
         setNeedsInviteToContinue(true);
         setMode("signup");
         setMagicCreatesUser(true);
-        toast.error("Enter a valid invite, then pay the $99 founding seat to open your company.");
+        toast.message("Complete $99 founding-seat checkout to open your company.");
         return false;
       }
 
@@ -645,13 +648,12 @@ function AuthPage() {
   }
 
   async function google() {
-    // Signup mode requires invite up front. Sign-in mode lets returning Google users through;
-    // finishPostAuth blocks brand-new Google accounts until they redeem an invite.
+    // Optional invite attribution; open sale does not require a code.
     if (mode === "signup") {
       try {
         if (!(await passGate())) return;
       } catch {
-        toast.error("Enter a valid invite code before continuing with Google.");
+        toast.error("Could not validate invite — clear it and continue.");
         return;
       }
     }
@@ -706,7 +708,7 @@ function AuthPage() {
   const subtitle =
     mode === "signup"
       ? needsInviteToContinue
-        ? "Your account is ready — enter an invite, then pay the $99 founding seat."
+        ? "Your account is ready — pay $99 to unlock your founding seat."
         : "Your agents will be hired and briefed the moment you arrive."
       : mode === "forgot"
         ? "We'll email you a link to set a new password."
@@ -719,42 +721,44 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="grid flex-1 lg:grid-cols-[1.1fr_1fr]">
-        <div className="relative hidden flex-col justify-between p-14 lg:flex">
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-2xl bg-primary/15 text-primary">
-              ◎
-            </span>
-            <span className="text-sm font-semibold tracking-tight">Aura OS</span>
-          </div>
-
-          <div className="max-w-xl">
-            <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.34em] text-primary">
-              The AI Company Operating System
-            </p>
-            <h1 className="text-gradient text-6xl font-semibold leading-[1.02]">
-              Don't manage software.
-              <br />
-              Manage a company.
-            </h1>
-            <p className="mt-7 max-w-md text-base leading-relaxed text-muted-foreground">
-              Eight autonomous employees. One shared memory. A business that keeps working while you
-              sleep — and tells you what it decided when you wake up.
-            </p>
-
-            <div className="glass mt-10 max-w-md rounded-3xl p-5">
-              <p className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                <Pulse /> Atlas · Chief Executive
-              </p>
-              <p className="text-sm leading-relaxed text-foreground/90">
-                <StreamText text="Got it. I'm on it — your company is ready when you are." />
-              </p>
+        <div className="relative hidden items-center justify-end px-10 py-14 lg:flex xl:px-14 2xl:px-20">
+          <div className="flex h-full w-full max-w-xl flex-col justify-between xl:mr-8">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-9 w-9 place-items-center rounded-2xl bg-primary/15 text-primary">
+                ◎
+              </span>
+              <span className="text-sm font-semibold tracking-tight">Aura OS</span>
             </div>
-          </div>
 
-          <p className="text-xs text-muted-foreground">Encrypted. Isolated. Yours alone.</p>
+            <div>
+              <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.34em] text-primary">
+                The AI Company Operating System
+              </p>
+              <h1 className="text-gradient text-6xl font-semibold leading-[1.02]">
+                Don't manage software.
+                <br />
+                Manage a company.
+              </h1>
+              <p className="mt-7 max-w-md text-base leading-relaxed text-muted-foreground">
+                Eight autonomous employees. One shared memory. A business that keeps working while
+                you sleep — and tells you what it decided when you wake up.
+              </p>
+
+              <div className="glass mt-10 max-w-md rounded-3xl p-5">
+                <p className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                  <Pulse /> Atlas · Chief Executive
+                </p>
+                <p className="text-sm leading-relaxed text-foreground/90">
+                  <StreamText text="Got it. I'm on it — your company is ready when you are." />
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">Encrypted. Isolated. Yours alone.</p>
+          </div>
         </div>
 
-        <div className="flex items-center justify-center p-6">
+        <div className="flex items-center justify-center p-6 sm:p-8 lg:justify-start lg:pl-4 xl:pl-8">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -843,29 +847,16 @@ function AuthPage() {
                 }}
                 className="space-y-3"
               >
-                {magicCreatesUser && !isFunnelEntry ? (
-                  refFromLink ? (
-                    <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm">
-                      <Pulse />
-                      <span className="text-muted-foreground">
-                        Invited by{" "}
-                        <span className="font-semibold uppercase tracking-[0.14em] text-primary">
-                          {refFromLink}
-                        </span>
+                {magicCreatesUser && !isFunnelEntry && (refFromLink || invite) ? (
+                  <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm">
+                    <Pulse />
+                    <span className="text-muted-foreground">
+                      Friend code attached ·{" "}
+                      <span className="font-semibold uppercase tracking-[0.14em] text-primary">
+                        {refFromLink || invite}
                       </span>
-                    </div>
-                  ) : (
-                    <input
-                      id="auth-invite-magic"
-                      required
-                      value={invite}
-                      onChange={(e) => setInvite(e.target.value.toUpperCase())}
-                      maxLength={32}
-                      placeholder="INVITE CODE"
-                      aria-label="Invite code"
-                      className="w-full rounded-2xl border border-gold/30 bg-gold/8 px-4 py-3 text-sm uppercase tracking-[0.16em] outline-none focus:border-gold/60"
-                    />
-                  )
+                    </span>
+                  </div>
                 ) : null}
                 <input
                   id="auth-email-magic"
@@ -909,34 +900,15 @@ function AuthPage() {
                 }}
                 className="space-y-3"
               >
-                <p className="rounded-2xl border border-gold/25 bg-gold/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                  You&apos;re signed in — enter your invite to unlock $99 founding-seat checkout.
-                  Don&apos;t have one yet?{" "}
-                  <Link
-                    to="/access"
-                    className="font-semibold text-primary underline-offset-2 hover:underline"
-                  >
-                    Request a seat
-                  </Link>
-                  .
+                <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
+                  You&apos;re signed in. Pay $99 once — seat unlocks after Stripe. No invite needed.
                 </p>
-                <input
-                  id="auth-invite-continue"
-                  required
-                  value={invite}
-                  onChange={(e) => setInvite(e.target.value.toUpperCase())}
-                  maxLength={32}
-                  placeholder="INVITE CODE"
-                  aria-label="Invite code"
-                  autoComplete="one-time-code"
-                  className="w-full rounded-2xl border border-gold/30 bg-gold/8 px-4 py-3 text-sm uppercase tracking-[0.16em] outline-none focus:border-gold/60"
-                />
                 <button
                   type="submit"
                   disabled={busy}
                   className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
                 >
-                  {busy ? "Opening checkout…" : "Continue to founding seat"}
+                  {busy ? "Opening Stripe…" : "Buy founding seat — $99"}
                 </button>
               </form>
             ) : (
@@ -945,29 +917,20 @@ function AuthPage() {
                   <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm">
                     <Pulse />
                     <span className="text-muted-foreground">
-                      Invited by{" "}
+                      Friend code ·{" "}
                       <span className="font-semibold uppercase tracking-[0.14em] text-primary">
                         {refFromLink}
                       </span>{" "}
-                      — unlocks $99 founding-seat checkout (not a free pass).
+                      — next step is $99 checkout.
                     </span>
                   </div>
-                ) : mode === "signup" && !isFunnelEntry ? (
-                  <input
-                    id="auth-invite"
-                    required
-                    value={invite}
-                    onChange={(e) => setInvite(e.target.value.toUpperCase())}
-                    maxLength={32}
-                    placeholder="INVITE CODE"
-                    aria-label="Invite code"
-                    autoComplete="one-time-code"
-                    className="w-full rounded-2xl border border-gold/30 bg-gold/8 px-4 py-3 text-sm uppercase tracking-[0.16em] outline-none transition-colors placeholder:tracking-[0.16em] placeholder:text-muted-foreground/70 focus:border-gold/60"
-                  />
                 ) : mode === "signup" && isFunnelEntry ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                    Funnel signup — no founding seat invite required. Pick a plan after you wake the
-                    company.
+                    Funnel signup — pick a plan after you wake the company.
+                  </p>
+                ) : mode === "signup" && buyFromLink === "seat" ? (
+                  <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
+                    After signup we open Stripe for your $99 founding seat.
                   </p>
                 ) : null}
 
@@ -1028,6 +991,23 @@ function AuthPage() {
                         ? "Save new password"
                         : "Sign in"}
                 </button>
+                {mode === "signup" ? (
+                  <p className="pt-1 text-center text-[11px] leading-relaxed text-muted-foreground">
+                    By continuing you agree to our{" "}
+                    <Link to="/terms" className="text-primary hover:underline">
+                      Terms / AGB
+                    </Link>
+                    ,{" "}
+                    <Link to="/privacy" className="text-primary hover:underline">
+                      Privacy
+                    </Link>
+                    , and{" "}
+                    <Link to="/cookies" className="text-primary hover:underline">
+                      Cookies
+                    </Link>
+                    . Founding seats are paid via Stripe Checkout ($99 one-time).
+                  </p>
+                ) : null}
               </form>
             )}
 

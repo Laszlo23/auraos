@@ -213,6 +213,49 @@ export const updateCompanySite = createServerFn({ method: "POST" })
     return { ...row, content: parseContent(row.content) } as CompanySiteRow;
   });
 
+/** Rewrite landing copy for conversion — hero, subhead, CTA, offer. */
+export const polishCompanySiteCopy = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => {
+    const raw = input as { siteId?: string; content?: SiteContent };
+    if (!raw?.siteId) throw new Error("siteId is required");
+    if (!raw.content?.brand || !raw.content.hero) throw new Error("content is required");
+    return { siteId: String(raw.siteId), content: raw.content };
+  })
+  .handler(async ({ data, context }) => {
+    const supabase = asDb(context.supabase);
+    await ownedCompany(supabase, context.userId);
+    const { aiJson } = await import("@/lib/ai.server");
+    const result = await aiJson(
+      `You polish landing-page copy for conversion.
+Return JSON keys only: hero, subhead, cta, offer, pricing (pricing may be empty string).
+Rules: keep brand voice clear and concrete; one job per line; no exclamation marks; no emoji; max 12 words for hero; max 28 for subhead; CTA is 2–5 words; never invent fake social proof numbers.`,
+      JSON.stringify({
+        brand: data.content.brand,
+        hero: data.content.hero,
+        subhead: data.content.subhead,
+        cta: data.content.cta,
+        offer: data.content.offer ?? "",
+        pricing: data.content.pricing ?? "",
+      }),
+      "hero",
+    );
+
+    const polished: SiteContent = {
+      ...data.content,
+      hero: String(result["hero"] ?? data.content.hero).slice(0, 120),
+      subhead: String(result["subhead"] ?? data.content.subhead).slice(0, 240),
+      cta: String(result["cta"] ?? data.content.cta).slice(0, 48),
+    };
+    const offer = String(result["offer"] ?? data.content.offer ?? "").slice(0, 160);
+    const pricing = String(result["pricing"] ?? data.content.pricing ?? "").slice(0, 80);
+    if (offer) polished.offer = offer;
+    else if (data.content.offer) polished.offer = data.content.offer;
+    if (pricing) polished.pricing = pricing;
+    else if (data.content.pricing) polished.pricing = data.content.pricing;
+    return polished;
+  });
+
 export const publishCompanySite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { siteId: string; publish?: boolean }) => ({

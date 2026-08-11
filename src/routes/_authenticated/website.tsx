@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Copy, ExternalLink, Monitor, Smartphone, Wand2 } from "lucide-react";
 import { toast } from "sonner";
@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { LandingSiteView } from "@/components/aura/landing-site-view";
 import { Chip, PageHeader, Panel } from "@/components/aura/primitives";
+import { StripeConnectPanel } from "@/components/aura/stripe-connect-panel";
 import { useCompany } from "@/hooks/use-aura";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,15 +15,27 @@ import {
   getCompanySite,
   listCompanySites,
   listSiteLeads,
+  polishCompanySiteCopy,
   publishCompanySite,
   updateCompanySite,
   type CompanySiteRow,
 } from "@/lib/sites.functions";
+import {
+  createConnectedSitePrice,
+  getStripeConnectStatus,
+} from "@/lib/stripe-connect.functions";
 import { LANDING_TEMPLATES, type SiteContent } from "@/lib/sites/templates";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/website")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const out: { connect?: "return" | "refresh" } = {};
+    if (search["connect"] === "return" || search["connect"] === "refresh") {
+      out.connect = search["connect"];
+    }
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Website — Aura OS" },
@@ -40,12 +53,32 @@ export const Route = createFileRoute("/_authenticated/website")({
 
 function WebsitePage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const connectFlag = Route.useSearch().connect;
   const { data: company } = useCompany();
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [slugEdit, setSlugEdit] = useState("");
   const [stripePriceId, setStripePriceId] = useState("");
+  const [priceAmount, setPriceAmount] = useState("9.99");
+  const [priceInterval, setPriceInterval] = useState<"one_time" | "month" | "year">("month");
+
+  const { data: connectStatus } = useQuery({
+    queryKey: ["stripe-connect"],
+    queryFn: () => getStripeConnectStatus(),
+  });
+
+  useEffect(() => {
+    if (!connectFlag) return;
+    void qc.invalidateQueries({ queryKey: ["stripe-connect"] });
+    toast.success(
+      connectFlag === "return"
+        ? "Welcome back — refresh Stripe status if charges are not ready yet."
+        : "Stripe onboarding link expired — tap Connect Stripe again.",
+    );
+    void navigate({ to: "/website", search: {}, replace: true });
+  }, [connectFlag, navigate, qc]);
 
   const { data: sites = [], isLoading } = useQuery({
     queryKey: ["company-sites"],
@@ -144,6 +177,47 @@ function WebsitePage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const polish = useMutation({
+    mutationFn: () => {
+      if (!site || !draft) throw new Error("No site draft");
+      return polishCompanySiteCopy({ data: { siteId: site.id, content: draft } });
+    },
+    onSuccess: (next) => {
+      setDraft(next);
+      toast.success("Copy polished for conversion — review and Save");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const createPrice = useMutation({
+    mutationFn: () => {
+      if (!site || !draft) throw new Error("No site");
+      const euros = Number(priceAmount.replace(",", "."));
+      if (!Number.isFinite(euros) || euros < 0.5) throw new Error("Enter a price of at least 0.50");
+      return createConnectedSitePrice({
+        data: {
+          siteId: site.id,
+          name: draft.productName || draft.brand || "Offer",
+          amountCents: Math.round(euros * 100),
+          currency: "eur",
+          interval:
+            site.template_id === "ebook_product"
+              ? "one_time"
+              : priceInterval === "one_time"
+                ? "one_time"
+                : priceInterval,
+        },
+      });
+    },
+    onSuccess: async (res) => {
+      setStripePriceId(res.priceId);
+      await qc.invalidateQueries({ queryKey: ["company-sites"] });
+      await qc.invalidateQueries({ queryKey: ["company-site", activeId] });
+      toast.success("Price created on your Stripe account");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const seedDemo = useMutation({
     mutationFn: () => ensureDemoSubscriptionSites(),
     onSuccess: async (res) => {
@@ -228,6 +302,13 @@ function WebsitePage() {
           ) : null}
         </Panel>
       ) : null}
+
+      <div className="mb-5">
+        <StripeConnectPanel
+          returnPath="/website?connect=return"
+          refreshPath="/website?connect=refresh"
+        />
+      </div>
 
       <div className="mb-5 flex flex-wrap gap-2">
         {sites.map((s) => (
@@ -343,18 +424,77 @@ function WebsitePage() {
                 </label>
               ))}
               {(site.template_id === "subscription_daily" ||
-                site.template_id === "ebook_product") && (
-                <label className="mt-3 block text-[11px] text-muted-foreground">
-                  Stripe price ID
-                  <input
-                    value={stripePriceId}
-                    onChange={(e) => setStripePriceId(e.target.value)}
-                    placeholder="price_…"
-                    className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
-                  />
-                </label>
+                site.template_id === "ebook_product" ||
+                site.template_id === "service_offer" ||
+                site.template_id === "lead_magnet") && (
+                <div className="mt-3 space-y-3 rounded-2xl border border-border/50 bg-foreground/[0.03] p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Sell on your Stripe
+                  </p>
+                  {!connectStatus?.chargesReady ? (
+                    <p className="text-[12px] text-muted-foreground">
+                      Connect Stripe above and finish onboarding before creating a live price.
+                    </p>
+                  ) : (
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <label className="block text-[11px] text-muted-foreground">
+                        Amount (EUR)
+                        <input
+                          value={priceAmount}
+                          onChange={(e) => setPriceAmount(e.target.value)}
+                          className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+                        />
+                      </label>
+                      <label className="block text-[11px] text-muted-foreground">
+                        Interval
+                        <select
+                          value={
+                            site.template_id === "ebook_product" ? "one_time" : priceInterval
+                          }
+                          disabled={site.template_id === "ebook_product"}
+                          onChange={(e) =>
+                            setPriceInterval(e.target.value as "one_time" | "month" | "year")
+                          }
+                          className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+                        >
+                          <option value="one_time">One-time</option>
+                          <option value="month">Monthly</option>
+                          <option value="year">Yearly</option>
+                        </select>
+                      </label>
+                      <div className="flex items-end">
+                        <button
+                          type="button"
+                          disabled={createPrice.isPending}
+                          onClick={() => createPrice.mutate()}
+                          className="w-full rounded-2xl bg-primary px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground disabled:opacity-50"
+                        >
+                          {createPrice.isPending ? "Creating…" : "Create price"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <label className="block text-[11px] text-muted-foreground">
+                    Stripe price ID
+                    <input
+                      value={stripePriceId}
+                      onChange={(e) => setStripePriceId(e.target.value)}
+                      placeholder="price_… (auto-filled after Create price)"
+                      className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+                    />
+                  </label>
+                </div>
               )}
               <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => polish.mutate()}
+                  disabled={polish.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-2xl bg-foreground/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider"
+                >
+                  <Wand2 className="h-3.5 w-3.5 text-primary" />
+                  {polish.isPending ? "Polishing…" : "Polish with Aura"}
+                </button>
                 <button
                   type="button"
                   onClick={() => save.mutate()}

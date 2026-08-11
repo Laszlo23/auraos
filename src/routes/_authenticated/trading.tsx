@@ -18,6 +18,7 @@ import { HolderAdvantages } from "@/components/aura/trading/holder-advantages";
 import { BacktestLab } from "@/components/aura/trading/backtest-lab";
 import type { BacktestSnapshot } from "@/components/aura/trading/backtest-results-dialog";
 import { QuantDeskCockpit } from "@/components/aura/trading/quant-desk-cockpit";
+import { YieldDeskPanel } from "@/components/aura/trading/yield-desk-panel";
 import {
   DeskDrawerShell,
   type DeskDrawerId,
@@ -53,16 +54,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/trading")({
   head: () => ({
     meta: [
-      { title: "Trading Desk — passive AI Quant | Aura OS" },
+      { title: "Quant + Yield Desk — money that works | Aura OS" },
       {
         name: "description",
         content:
-          "Set-and-forget AI trading on Base: presets, hard USDC caps, live PnL, and a weekly arena.",
+          "Dual desk: Quant spot/day-trade + Yield Autopilot for Aerodrome, Pancake, Venus, and prediction — founder-capped.",
       },
-      { property: "og:title", content: "Trading Desk — AI agent that trades for you" },
+      { property: "og:title", content: "Quant + Yield Desk — AI capital OS" },
       {
         property: "og:description",
-        content: "Fund, pick a preset, arm Quant. Caps and Disarm keep you in control.",
+        content: "Idle router, epoch hunter, IL thermostat — money working for money.",
       },
     ],
   }),
@@ -508,6 +509,8 @@ function TradingPage() {
         onArm={(next) => void onArm(next)}
         onOpenDrawer={setDrawer}
       />
+
+      {company?.id ? <YieldDeskPanel companyId={company.id} /> : null}
 
       {needsKeyBanner ? (
         <div

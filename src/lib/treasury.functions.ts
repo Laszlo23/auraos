@@ -6,12 +6,15 @@ import {
   alchemyRpcUrl,
   chainId,
   chainLabel,
+  explorerBaseUrl,
+  nativeSymbol,
   USDC_ADDRESSES,
+  USDC_DECIMALS,
 } from "@/lib/chain-config";
 import { WETH_ADDRESSES } from "@/lib/trading/tokens";
 
 function explorerBase(network: ReturnType<typeof activeNetwork>) {
-  return network === "base" ? "https://basescan.org" : "https://sepolia.basescan.org";
+  return explorerBaseUrl(network);
 }
 
 async function ethCall(url: string, to: string, data: string): Promise<bigint> {
@@ -61,6 +64,8 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
     const usdcAddress = USDC_ADDRESSES[network];
     const wethAddress = WETH_ADDRESSES[network];
     const explorer = explorerBase(network);
+    const native = nativeSymbol(network);
+    const usdcDecimals = USDC_DECIMALS[network];
     const base = {
       address: null as string | null,
       walletId: null as string | null,
@@ -70,20 +75,23 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       network,
       chainId: chainId(network),
       label: chainLabel(network),
+      nativeSymbol: native,
       deployed: false,
       legacy: false,
       verified: false,
       custody: null as string | null,
       provider: null as string | null,
-      sponsored: Boolean(process.env["ALCHEMY_GAS_POLICY_ID"]),
+      sponsored: Boolean(process.env["ALCHEMY_GAS_POLICY_ID"] || process.env["ALCHEMY_GAS_POLICY_ID_BSC"]),
       usdcToken: usdcAddress,
       wethToken: wethAddress,
       explorerAddressUrl: null as string | null,
       explorerTokenUrl: `${explorer}/token/${usdcAddress}`,
       depositHint:
-        network === "base"
-          ? "Send USDC or ETH on Base (chain ID 8453). Convert ETH → USDC in-app for the trading desk."
-          : "Send USDC or ETH on Base Sepolia (testnet). Convert ETH → USDC in-app for the desk.",
+        network === "bsc" || network === "opbnb"
+          ? `Send USDC or ${native} on ${chainLabel(network)} (chain ID ${chainId(network)}). Convert ${native} → USDC in-app for the trading desk.`
+          : network === "base"
+            ? "Send USDC or ETH on Base (chain ID 8453). Convert ETH → USDC in-app for the trading desk."
+            : "Send USDC or ETH on Base Sepolia (testnet). Convert ETH → USDC in-app for the desk.",
     };
 
     if (!wallet?.address) return base;
@@ -100,7 +108,7 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
           ethBalance(url, wallet.address),
           ethCall(url, wethAddress, balanceOf),
         ]);
-        usdc = Number(usdcRaw) / 1e6;
+        usdc = Number(usdcRaw) / 10 ** usdcDecimals;
         eth = Number(ethRaw) / 1e18;
         weth = Number(wethRaw) / 1e18;
       } catch {

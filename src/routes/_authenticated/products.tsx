@@ -1,13 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useRef, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ImagePlus, Plus, Sparkles, Video } from "lucide-react";
 import { toast } from "sonner";
 
 import { Chip, Meter, PageHeader, Panel } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
-import { useCompanyTable, useRowMutation } from "@/hooks/use-aura";
+import { useCompany, useCompanyTable, useRowMutation } from "@/hooks/use-aura";
 import { useCreateRow, useDispatchTask } from "@/lib/actions";
 import { currency, percent } from "@/lib/format";
+import {
+  generateProductImage,
+  getProductImageStatus,
+  setProductMedia,
+} from "@/lib/product.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/products")({
   head: () => ({
@@ -35,9 +42,13 @@ type Product = {
   subscriptions: number;
   inventory: number;
   emoji: string;
+  image_url?: string | null;
+  video_url?: string | null;
 };
 
 function ProductsPage() {
+  const qc = useQueryClient();
+  const { data: company } = useCompany();
   const { data: products = [] } = useCompanyTable<Product>("products", {
     orderBy: "revenue",
     ascending: false,
@@ -48,6 +59,55 @@ function ProductsPage() {
   const dispatch = useDispatchTask();
   const [draft, setDraft] = useState({ name: "", price: "", description: "" });
   const [open, setOpen] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const [mediaTarget, setMediaTarget] = useState<{ id: string; kind: "image" | "video" } | null>(
+    null,
+  );
+
+  const genImage = useMutation({
+    mutationFn: (productId: string) => generateProductImage({ data: { productId } }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["table", "products"] });
+      toast.success("Product image generated.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const uploadMedia = useMutation({
+    mutationFn: async (opts: { productId: string; kind: "image" | "video"; file: File }) => {
+      if (!company?.id) throw new Error("Company not ready.");
+      const maxMb = opts.kind === "video" ? 80 : 12;
+      if (opts.file.size > maxMb * 1024 * 1024) {
+        throw new Error(`File too large — keep ${opts.kind}s under ${maxMb}MB.`);
+      }
+      const ext =
+        opts.file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ||
+        (opts.kind === "video" ? "mp4" : "png");
+      const path = `${company.id}/products/${opts.productId}-${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("product-assets")
+        .upload(path, opts.file, {
+          contentType: opts.file.type || (opts.kind === "video" ? "video/mp4" : "image/png"),
+          upsert: false,
+        });
+      if (upErr) throw new Error(upErr.message);
+      const { data: pub } = supabase.storage.from("product-assets").getPublicUrl(path);
+      await setProductMedia({
+        data: {
+          productId: opts.productId,
+          ...(opts.kind === "image" ? { imageUrl: pub.publicUrl } : { videoUrl: pub.publicUrl }),
+        },
+      });
+      return pub.publicUrl;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["table", "products"] });
+      toast.success("Media attached.");
+      setMediaTarget(null);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const addProduct = () => {
     if (!draft.name.trim()) {
@@ -67,8 +127,9 @@ function ProductsPage() {
         inventory: 0,
       },
       {
-        onSuccess: () => {
+        onSuccess: (row) => {
           const productName = draft.name.trim();
+          const productId = row?.id;
           setDraft({ name: "", price: "", description: "" });
           setOpen(false);
           dispatch.mutate(
@@ -90,13 +151,53 @@ function ProductsPage() {
               onError: () => toast.success("Product saved."),
             },
           );
+          if (productId) {
+            void getProductImageStatus()
+              .then((s) => {
+                if (s.configured) {
+                  genImage.mutate(productId);
+                }
+              })
+              .catch(() => undefined);
+          }
         },
       },
     );
   };
 
+  const pickFile = (productId: string, kind: "image" | "video") => {
+    setMediaTarget({ id: productId, kind });
+    const ref = kind === "image" ? imageInputRef : videoInputRef;
+    ref.current?.click();
+  };
+
   return (
     <div>
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file || !mediaTarget || mediaTarget.kind !== "image") return;
+          uploadMedia.mutate({ productId: mediaTarget.id, kind: "image", file });
+        }}
+      />
+      <input
+        ref={videoInputRef}
+        type="file"
+        accept="video/mp4,video/webm,video/quicktime"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file || !mediaTarget || mediaTarget.kind !== "video") return;
+          uploadMedia.mutate({ productId: mediaTarget.id, kind: "video", file });
+        }}
+      />
+
       <PageHeader
         eyebrow="Catalogue"
         title={
@@ -104,7 +205,7 @@ function ProductsPage() {
             ? `${products.length} product${products.length === 1 ? "" : "s"}, priced and merchandised by agents`
             : "No products yet"
         }
-        description={`${currency(total)} recorded revenue from real product rows. Agents only work after you dispatch or approve a task.`}
+        description={`${currency(total)} recorded revenue from real product rows. Upload a photo/video or generate a hero image with Gemini.`}
         actions={
           <button
             onClick={() => setOpen((v) => !v)}
@@ -148,6 +249,11 @@ function ProductsPage() {
               {create.isPending ? "Adding…" : "Add"}
             </button>
           </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            After save, Aura can generate a Gemini product shot when{" "}
+            <code className="text-foreground/80">GEMINI_API_KEY</code> is set — or upload your own
+            media on the card.
+          </p>
         </Panel>
       )}
 
@@ -162,13 +268,31 @@ function ProductsPage() {
         {products.map((p, i) => (
           <Panel key={p.id} className="overflow-hidden p-0" delay={0.05 * i}>
             <div
-              className="flex h-40 items-center justify-center text-5xl"
+              className="relative flex h-44 items-center justify-center overflow-hidden text-5xl"
               style={{
                 background:
                   "radial-gradient(120% 100% at 50% 0%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%)",
               }}
             >
-              {p.emoji}
+              {p.image_url ? (
+                <img
+                  src={p.image_url}
+                  alt={p.name}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                p.emoji
+              )}
+              {p.video_url ? (
+                <a
+                  href={p.video_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="absolute bottom-2 right-2 rounded-full bg-background/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-foreground backdrop-blur"
+                >
+                  Video
+                </a>
+              ) : null}
             </div>
             <div className="p-6">
               <div className="flex items-start justify-between gap-3">
@@ -178,6 +302,36 @@ function ProductsPage() {
               <p className="mt-2.5 text-[13px] leading-relaxed text-muted-foreground">
                 {p.description}
               </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={uploadMedia.isPending}
+                  onClick={() => pickFile(p.id, "image")}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-foreground/6 px-2.5 py-1.5 text-[11px] transition-colors hover:bg-foreground/12 disabled:opacity-50"
+                >
+                  <ImagePlus className="h-3 w-3" />
+                  Upload image
+                </button>
+                <button
+                  type="button"
+                  disabled={uploadMedia.isPending}
+                  onClick={() => pickFile(p.id, "video")}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-foreground/6 px-2.5 py-1.5 text-[11px] transition-colors hover:bg-foreground/12 disabled:opacity-50"
+                >
+                  <Video className="h-3 w-3" />
+                  Upload video
+                </button>
+                <button
+                  type="button"
+                  disabled={genImage.isPending}
+                  onClick={() => genImage.mutate(p.id)}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-primary/14 px-2.5 py-1.5 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/22 disabled:opacity-50"
+                >
+                  <Sparkles className="h-3 w-3" />
+                  {genImage.isPending ? "Generating…" : "AI image"}
+                </button>
+              </div>
 
               <div className="mt-6 flex items-end justify-between">
                 <div>

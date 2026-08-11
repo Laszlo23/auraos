@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Chip, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
+import { CompanyTokenLaunchPanel } from "@/components/aura/company-token-launch";
 import { LOCAL_COHORT_CAP, REVIEW_BOOST_INVITE_GOAL } from "@/lib/funnels";
 import {
   addReviewInvite,
@@ -142,6 +143,8 @@ function BusinessHubPage() {
           )
         }
       />
+
+      <CompanyTokenLaunchPanel />
 
       {hubQ.isLoading ? (
         <p className="text-sm text-muted-foreground">Loading hub…</p>

@@ -27,8 +27,10 @@ type Db = {
 
 export const proposeNextActionsAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => ({
+  .inputValidator((input: { companyId: string; instruction?: string }) => ({
     companyId: String(input.companyId),
+    instruction:
+      typeof input.instruction === "string" ? input.instruction.trim().slice(0, 4000) : undefined,
   }))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
@@ -72,12 +74,17 @@ export const proposeNextActionsAi = createServerFn({ method: "POST" })
       ["pending_approval", "queued", "running"].includes(t.status),
     );
 
+    const instructionBlock = data.instruction
+      ? `\nFounder direction (turn into executable tasks — do not invent facts beyond this):\n${data.instruction}`
+      : "";
+
     const raw = await aiJson(
       `You are Atlas, CEO of an Aura OS company. Propose exactly 3 concrete next tasks for the founder to approve.
 Rules:
 - Use only facts from company context. Never invent MRR, customers, revenue, or followers.
 - Each task must be executable by one agent and produce a real deliverable (brief, research with sources when possible, outreach list, offer definition).
 - Prefer research / offer clarity / first customers when the company is empty.
+- If founder direction is provided, ground every proposal in that direction.
 - agent must be one of: ${roster}
 - priority: low|medium|high|critical
 Return JSON: {"proposals":[{"title":"...","description":"...","agent":"Cass","priority":"high"}]}`,
@@ -108,7 +115,10 @@ Return JSON: {"proposals":[{"title":"...","description":"...","agent":"Cass","pr
             .map((m) => `${m.status}:${m.title}`)
             .join("; ") || "none"
         }`,
-      ].join("\n"),
+        instructionBlock,
+      ]
+        .filter(Boolean)
+        .join("\n"),
       "proposals",
     );
 

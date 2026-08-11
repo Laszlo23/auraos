@@ -16,7 +16,7 @@ const SITE_LINKS = [
   { to: "/share", label: "Share kit" },
   { to: "/", label: "Waitlist", hash: "community" },
   { to: "/proof", label: "Proof" },
-  { to: "/pitch", label: "Pitch" },
+  { to: "/pitch", label: "Pitch & decks" },
   { to: "/blog", label: "Blog" },
   { to: "/access", label: "Founding seats" },
   { to: "/faq", label: "FAQ" },
@@ -24,7 +24,7 @@ const SITE_LINKS = [
 
 const LEGAL_LINKS = [
   { to: "/privacy", label: "Privacy" },
-  { to: "/terms", label: "Terms" },
+  { to: "/terms", label: "Terms / AGB" },
   { to: "/cookies", label: "Cookies" },
 ] as const;
 

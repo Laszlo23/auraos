@@ -160,6 +160,9 @@ export const agentBuy = createServerFn({ method: "POST" })
     }
 
     const network = resolveNetwork(process.env["X402_NETWORK"]) || activeNetwork();
+    // Buyer must use an x402-capable settle network (Base family).
+    const settleNet =
+      network === "base" || network === "base-sepolia" ? network : ("base" as const);
     const useLive = live && Boolean(privateKey);
 
     if (live && !useLive && !allowDev) {
@@ -169,7 +172,7 @@ export const agentBuy = createServerFn({ method: "POST" })
     const { header, simulated } = await buildPaymentHeader({
       payer: row.payer,
       priceUsdc: ep.price_usdc,
-      network,
+      network: settleNet,
       privateKey,
       live: useLive,
       payTo,

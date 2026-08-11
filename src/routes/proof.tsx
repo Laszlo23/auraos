@@ -17,15 +17,15 @@ import { toast } from "sonner";
 import { LiveProof } from "@/components/aura/live-proof";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
-import { ShareBar } from "@/components/aura/share";
+import { ShareBar, ShareMoment } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useNetworkTotals, usePublicFeed } from "@/hooks/use-public";
 import { num } from "@/lib/format";
 import {
+  FOUNDING_SEATS_TOTAL,
   PROOF_PAGE_URL,
   PROOF_SHARE_TEXT,
   WAVE1_CLOSES_DISPLAY,
-  WAVE1_INVITE_CAP,
 } from "@/lib/marketing-scarcity";
 import { OG_IMAGE, SITE_URL, url } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/proof")({
       {
         name: "description",
         content:
-          "Finished tasks leave a timestamp and a written result. Agents keep dated memory. Wave 1 private access is capped — share this proof card.",
+          "Finished tasks leave a timestamp and a written result. Agents keep dated memory. Founding seats capped at 1000 — share this proof card.",
       },
       { property: "og:title", content: "Aura OS — Proof & memory" },
       {
@@ -109,7 +109,7 @@ function ProofShareCard() {
     <div className="rounded-3xl border border-border/50 bg-foreground/[0.03] p-6 sm:p-8">
       <div className="flex flex-wrap items-center gap-2">
         <Chip>Shareable proof card</Chip>
-        <Chip className="text-gold">Wave 1 · {num(WAVE1_INVITE_CAP)} invites</Chip>
+        <Chip className="text-gold">Founding seats · {num(FOUNDING_SEATS_TOTAL)}</Chip>
       </div>
       <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
         One card. Copy. Post.
@@ -209,7 +209,17 @@ function ProofShareCard() {
       </div>
 
       <div className="mt-6">
-        <ShareBar url={PROOF_PAGE_URL} text={PROOF_SHARE_TEXT} placement="proof_page" />
+        <ShareMoment
+          url={PROOF_PAGE_URL}
+          text={PROOF_SHARE_TEXT}
+          title="Aura OS · Proof"
+          placement="proof_page"
+          label="Share proof"
+          showKit={false}
+        />
+        <div className="mt-3">
+          <ShareBar url={PROOF_PAGE_URL} text={PROOF_SHARE_TEXT} placement="proof_page_bar" compact />
+        </div>
       </div>
     </div>
   );
@@ -236,12 +246,11 @@ function ProofPage() {
             ← Aura OS
           </Link>
           <Link
-            to="/"
-            hash="community"
-            onClick={() => trackTeaser("cta_click", { placement: "proof_header_waitlist" })}
+            to="/access"
+            onClick={() => trackTeaser("cta_click", { placement: "proof_header_buy" })}
             className="ml-auto rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
           >
-            Join waitlist
+            Buy seat — $99
           </Link>
         </div>
       </header>
@@ -369,12 +378,12 @@ function ProofPage() {
               Scarcity · honest
             </p>
             <h2 className="mt-3 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-              Wave 1 is small on purpose
+              Founding seats are capped on purpose
             </h2>
             <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-              {num(WAVE1_INVITE_CAP)} private-access invites before fair launch (
-              {WAVE1_CLOSES_DISPLAY}). Founding seats stay hard-capped at 1,000 companies. Waitlist
-              first — then buy when invited.
+              Hard cap: {num(FOUNDING_SEATS_TOTAL)} paid founding companies. Wave 1 closes at fair
+              launch ({WAVE1_CLOSES_DISPLAY}). Founding seats are open for purchase — numbers come
+              from the seats ledger, not a fake invite counter.
             </p>
             <div className="mt-6 max-w-sm">
               <FoundingCohort />
@@ -382,12 +391,11 @@ function ProofPage() {
           </div>
           <div className="flex flex-col gap-3 sm:items-end">
             <Link
-              to="/"
-              hash="community"
-              onClick={() => trackTeaser("cta_click", { placement: "proof_finale_waitlist" })}
+              to="/access"
+              onClick={() => trackTeaser("cta_click", { placement: "proof_finale_buy" })}
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-semibold text-primary-foreground"
             >
-              Join the waitlist <ArrowRight className="h-3.5 w-3.5" />
+              Buy founding seat — $99 <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <a
               href={`${SITE_URL}/proof`}

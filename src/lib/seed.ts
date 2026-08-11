@@ -420,32 +420,32 @@ const KNOWLEDGE = [
 
 const AUTOMATIONS = [
   [
-    "New order → delight",
-    "Every order triggers a personalised thank-you, a care guide, and a review request timed to delivery.",
+    "Agent task queue",
+    "Approved tasks run through plan → research → deliverable on the worker tick.",
     "active",
-    1842,
-    ["Order placed", "Enrich customer", "Write note", "Schedule review ask"],
+    0,
+    ["Approve", "Queue", "Execute", "File result"],
   ],
   [
-    "Inventory guardrail",
-    "When a SKU drops below 14 days of cover, Ledger drafts a purchase order and Orin pauses paid spend on it.",
+    "Channel publish",
+    "Autopublish and drip posts go out when due — no fake send counts.",
     "active",
-    96,
-    ["Stock check", "Forecast cover", "Draft PO", "Pause ads"],
+    0,
+    ["Due posts", "Provider send", "Mark published"],
   ],
   [
-    "Churn rescue",
-    "A cancellation intent opens a pause offer, then hands to Juno if the customer still leaves.",
+    "Trading desk",
+    "Approved strategies evaluate on tick; fills are paper or live Base when armed.",
     "active",
-    311,
-    ["Cancel intent", "Offer pause", "Escalate to Juno"],
+    0,
+    ["Signals", "Risk gates", "OKX / paper fill"],
   ],
   [
-    "Weekly board memo",
-    "Atlas writes a Monday memo covering revenue, runway, risks, and the single most important decision.",
+    "Site lead drafts",
+    "Inbound /s/$slug leads get draft follow-ups waiting for founder send.",
     "paused",
-    38,
-    ["Collect metrics", "Draft memo", "Send to founder"],
+    0,
+    ["New lead", "Draft", "Await send"],
   ],
 ] as const;
 

@@ -7,16 +7,18 @@ export type Candle = {
   v: number;
 };
 
-/** Strategy / backtest timeframes (unchanged). */
-export type Timeframe = "1h" | "4h" | "1d";
+/** Strategy / backtest timeframes (includes intraday for day-trade desk). */
+export type Timeframe = "5m" | "15m" | "1h" | "4h" | "1d";
 
 /** Chart-only intervals for the Quant Desk. */
 export type ChartInterval = "5m" | "15m" | "1h" | "4h" | "1d";
 
-/** Desk market keys — ETH is tradeable on Base; BTC/SOL are watch-only. */
-export type DeskMarket = "WETH/USDC" | "BTC/USDC" | "SOL/USDC";
+/** Desk market keys — native wrapped pair is tradeable; BTC/SOL watch-only. */
+export type DeskMarket = "WETH/USDC" | "WBNB/USDC" | "BTC/USDC" | "SOL/USDC";
 
 const TF_TO_BINANCE: Record<Timeframe, string> = {
+  "5m": "5m",
+  "15m": "15m",
   "1h": "1h",
   "4h": "4h",
   "1d": "1d",
@@ -31,6 +33,8 @@ const CHART_TO_BINANCE: Record<ChartInterval, string> = {
 };
 
 const TF_MS: Record<Timeframe, number> = {
+  "5m": 300_000,
+  "15m": 900_000,
   "1h": 3_600_000,
   "4h": 14_400_000,
   "1d": 86_400_000,
@@ -53,12 +57,20 @@ function resolvePair(symbol: string): BinancePair {
       sourceNote: "binance:ETHUSDT (proxy for Base WETH/USDC)",
     };
   }
+  if (s === "WBNB/USDC" || s === "BNB/USDC" || s === "BNB" || s === "BNB/USDT") {
+    return {
+      binance: "BNBUSDT",
+      display: "WBNB/USDC",
+      tradeable: true,
+      sourceNote: "binance:BNBUSDT (proxy for BSC WBNB/USDC)",
+    };
+  }
   if (s === "BTC/USDC" || s === "BTC" || s === "BTC/USDT") {
     return {
       binance: "BTCUSDT",
       display: "BTC/USDC",
       tradeable: false,
-      sourceNote: "binance:BTCUSDT (watch-only — Quant trades Base WETH/USDC)",
+      sourceNote: "binance:BTCUSDT (watch-only — desk trades wrapped native/USDC)",
     };
   }
   if (s === "SOL/USDC" || s === "SOL" || s === "SOL/USDT") {
@@ -66,7 +78,7 @@ function resolvePair(symbol: string): BinancePair {
       binance: "SOLUSDT",
       display: "SOL/USDC",
       tradeable: false,
-      sourceNote: "binance:SOLUSDT (watch-only — Quant trades Base WETH/USDC)",
+      sourceNote: "binance:SOLUSDT (watch-only — desk trades wrapped native/USDC)",
     };
   }
   throw new Error(`No candle source for ${symbol}`);

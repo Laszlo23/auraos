@@ -34,6 +34,8 @@ fi
 sudo -u aura bash -lc '
 set -euo pipefail
 cd /opt/auraos
+# Stale root server.ts shadows src/server.ts and breaks serverFns (ETH/trading).
+rm -f ./server.ts ./server.js ./server.mjs
 npm install --include=dev
 set -a; . ./.env; set +a
 export NITRO_PRESET=node-server
@@ -41,13 +43,16 @@ export NITRO_PRESET=node-server
 export NODE_ENV=production
 npm run build
 '
-# Build overwrites .output/public — re-copy MP4s from public if present
+# Build overwrites .output/public — re-copy media + decks from public if present
 if compgen -G "/opt/auraos/public/*.mp4" >/dev/null; then
   cp -an /opt/auraos/public/*.mp4 /opt/auraos/.output/public/ 2>/dev/null || true
   if [[ -d /opt/auraos/public/share ]]; then
     mkdir -p /opt/auraos/.output/public/share
     cp -an /opt/auraos/public/share/. /opt/auraos/.output/public/share/ 2>/dev/null || true
   fi
+fi
+if compgen -G "/opt/auraos/public/*.pptx" >/dev/null; then
+  cp -an /opt/auraos/public/*.pptx /opt/auraos/.output/public/ 2>/dev/null || true
 fi
 
 systemctl restart auraos

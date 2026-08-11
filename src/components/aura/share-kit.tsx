@@ -44,7 +44,7 @@ export function ShareKit({
   className?: string;
   placement?: string;
 }) {
-  const [activeId, setActiveId] = useState(SHARE_POSTS[0]?.id ?? "meanwhile");
+  const [activeId, setActiveId] = useState(SHARE_POSTS[0]?.id ?? "auraos-bedroom");
   const [captionIx, setCaptionIx] = useState(0);
   const [copied, setCopied] = useState<"caption" | "link" | null>(null);
   const [playing, setPlaying] = useState(false);

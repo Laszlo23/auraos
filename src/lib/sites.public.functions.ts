@@ -163,6 +163,18 @@ export const createSiteCheckout = createServerFn({ method: "POST" })
       throw new Error("This site has no active Stripe price yet.");
     }
 
+    const { data: connect } = await supabaseAdmin
+      .from("company_stripe_accounts")
+      .select("stripe_account_id, charges_ready")
+      .eq("company_id", site.company_id)
+      .maybeSingle();
+    if (!connect?.stripe_account_id) {
+      throw new Error("This company has not connected Stripe yet.");
+    }
+    if (!connect.charges_ready) {
+      throw new Error("This seller is still finishing Stripe onboarding.");
+    }
+
     const siteOrigin = process.env["SITE_URL"] || SITE_URL;
     const mode =
       site.template_id === "subscription_daily" ? "subscription" : "payment";
@@ -179,8 +191,11 @@ export const createSiteCheckout = createServerFn({ method: "POST" })
     params.set("metadata[company_id]", site.company_id);
     params.set("metadata[product_id]", product.id);
     params.set("metadata[customer_email]", data.email);
+    params.set("metadata[stripe_account]", connect.stripe_account_id);
     params.set("client_reference_id", site.id);
 
-    const session = await createStripeCheckoutSession(secret, params);
+    const session = await createStripeCheckoutSession(secret, params, {
+      stripeAccount: connect.stripe_account_id,
+    });
     return { url: session.url, sessionId: session.id };
   });

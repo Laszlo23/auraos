@@ -48,6 +48,7 @@ export const Route = createFileRoute("/api/billing/webhook")({
 
         let event: {
           type?: string;
+          account?: string;
           data?: {
             object?: {
               id?: string;
@@ -65,10 +66,24 @@ export const Route = createFileRoute("/api/billing/webhook")({
                 invite_code?: string;
                 boost_grant?: string;
                 kickoff?: string;
+                stripe_account?: string;
               };
               client_reference_id?: string | null;
               payment_intent?: string | null;
               amount_total?: number | null;
+              object?: string;
+              configuration?: {
+                merchant?: {
+                  capabilities?: {
+                    card_payments?: { status?: string };
+                    stripe_balance?: { payouts?: { status?: string } };
+                  };
+                };
+              };
+              requirements?: {
+                summary?: { minimum_deadline?: { status?: string } };
+                entries?: { await_reason?: string; description?: string }[];
+              };
             };
           };
         };
@@ -76,6 +91,40 @@ export const Route = createFileRoute("/api/billing/webhook")({
           event = JSON.parse(rawBody) as typeof event;
         } catch {
           return Response.json({ error: "Invalid JSON" }, { status: 400 });
+        }
+
+        // Connect Accounts v2 (and classic account.updated) — refresh readiness flags.
+        if (
+          event.type === "account.updated" ||
+          event.type === "v2.core.account.updated" ||
+          event.type?.startsWith("v2.core.account")
+        ) {
+          const accountId = event.data?.object?.id || event.account;
+          if (accountId) {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            const { mapAccountToFlags, retrieveConnectAccount } =
+              await import("@/lib/stripe-connect.server");
+            try {
+              const live = await retrieveConnectAccount(accountId);
+              const flags = mapAccountToFlags(live);
+              await supabaseAdmin
+                .from("company_stripe_accounts")
+                .update({
+                  charges_ready: flags.chargesReady,
+                  payouts_ready: flags.payoutsReady,
+                  details_submitted: flags.detailsSubmitted,
+                  requirements_due: flags.requirementsDue,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("stripe_account_id", accountId);
+            } catch (err) {
+              console.error(
+                "[billing/webhook] connect account refresh",
+                err instanceof Error ? err.message : err,
+              );
+            }
+          }
+          return Response.json({ received: true });
         }
 
         if (event.type === "checkout.session.completed") {
@@ -140,7 +189,7 @@ export const Route = createFileRoute("/api/billing/webhook")({
             await markGenesisPaidFromStripe({
               userId,
               sessionId: session.id,
-              amountCents: session.amount_total ?? undefined,
+              ...(session.amount_total != null ? { amountCents: session.amount_total } : {}),
             });
             return Response.json({ received: true });
           }

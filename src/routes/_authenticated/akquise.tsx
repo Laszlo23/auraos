@@ -42,7 +42,9 @@ import { timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/akquise")({
-  validateSearch: (search: Record<string, unknown>): { autostart?: boolean; region?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { autostart?: boolean; region?: string; template?: string } => ({
     ...(search["autostart"] === true ||
     search["autostart"] === "1" ||
     search["autostart"] === "true"
@@ -50,6 +52,9 @@ export const Route = createFileRoute("/_authenticated/akquise")({
       : {}),
     ...(typeof search["region"] === "string" && search["region"].trim()
       ? { region: search["region"].trim().slice(0, 80) }
+      : {}),
+    ...(typeof search["template"] === "string" && search["template"].trim()
+      ? { template: search["template"].trim().slice(0, 40) }
       : {}),
   }),
   head: () => ({
@@ -190,6 +195,21 @@ function AkquisePage() {
     if (search.region && !region) setRegion(search.region);
     else if (!region && company?.city) setRegion(String(company.city));
   }, [search.region, company?.city, region]);
+
+  useEffect(() => {
+    const t = search.template;
+    if (!t) return;
+    if (AKQUISE_TEMPLATES.some((x) => x.id === t)) {
+      setTemplate(t as AkquiseTemplateId);
+    }
+    if (t === "grant_hunter" && !goal) {
+      setGoal(
+        "Find open 2026 grants and credits for an AI agent operating system shipping on Base (x402, smart wallets) — Google Cloud, Microsoft Founders Hub, AWS Activate, Base Builder Grants, Arbitrum Trailblazer AI, Polygon Community Grants, Optimism Grants, Alchemy credits, Austrian aws Preseed / FFG.",
+      );
+      setLanguage("en");
+      setRegion("Global / Austria");
+    }
+  }, [search.template, goal]);
 
   const celebrate = (label: string, amount: number, quest?: string) => {
     setBurst((n) => n + 1);

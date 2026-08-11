@@ -3,7 +3,9 @@ export const SITE_URL = "https://aibusiness.fun";
 export const SITE_NAME = "Aura OS";
 export const OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 export const LEGAL_EMAIL = "founders@aibusiness.fun";
-export const LEGAL_UPDATED = "August 8, 2026";
+export const LEGAL_UPDATED = "August 11, 2026";
+/** Public support contact shown on Stripe Checkout / legal pages. */
+export const SUPPORT_EMAIL = LEGAL_EMAIL;
 
 /** Absolute URL for a path on the canonical domain. */
 export const url = (path = "/") => `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
@@ -26,6 +28,9 @@ export const BUILDING_CULTURE = {
   name: "Building Culture LLC",
   short: "Building Culture",
 } as const;
+
+/** Operator entity for invoices, terms, and Stripe public details. */
+export const LEGAL_ENTITY = BUILDING_CULTURE.name;
 
 /**
  * Fair token launch — 14 Aug 2026, 14:14 Central European Summer Time (UTC+2).

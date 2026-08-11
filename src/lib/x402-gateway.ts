@@ -11,7 +11,7 @@
  * access, but settlement is simulated and logged with status `dev`.
  */
 import { X402_CATALOG, splitRevenue, type X402Endpoint } from "./x402-catalog";
-import { activeNetwork, USDC_ADDRESSES, USDC_META, type AuraNetwork } from "./chain-config";
+import { USDC_ADDRESSES, USDC_META, x402SettleNetwork, type X402SettleNetwork } from "./chain-config";
 import { isProdRuntime, resolveX402PayTo } from "./x402-config";
 import { genesisPriceUsdc } from "./genesis.server";
 
@@ -28,18 +28,15 @@ export const getEndpoint = (slug: string) => {
 
 const config = () => {
   const payTo = resolveX402PayTo();
-  // Prefer shared chain config so Alchemy / x402 / Vite stay aligned.
-  const network = (process.env["X402_NETWORK"]
-    ? (process.env["X402_NETWORK"] as string)
-    : activeNetwork()) as AuraNetwork;
+  // x402 EIP-3009 settlement stays on Base family even when the desk runs on BSC.
+  const network = x402SettleNetwork();
   const facilitator = process.env["X402_FACILITATOR_URL"] || "https://x402.org/facilitator";
-  // Never allow unpaid settlement in production (ignore X402_ALLOW_DEV there).
   const allowDev = !isProdRuntime();
   return {
     payTo: payTo || DEV_PAY_TO,
     live: Boolean(payTo),
     allowDev,
-    network: network === "base" ? "base" : "base-sepolia",
+    network,
     facilitator,
   };
 };
@@ -48,7 +45,7 @@ const atomic = (usdc: number) => Math.round(usdc * 1_000_000).toString();
 
 export function paymentRequirements(ep: X402Endpoint, resource: string) {
   const { payTo, network } = config();
-  const net = (network === "base" ? "base" : "base-sepolia") as AuraNetwork;
+  const net = network as X402SettleNetwork;
   const assetAddr = USDC_ADDRESSES[net];
   const meta = USDC_META[net];
   return {

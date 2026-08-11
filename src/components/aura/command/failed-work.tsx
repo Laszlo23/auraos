@@ -1,8 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { Panel } from "@/components/aura/primitives";
 import { TASK_COST } from "@/lib/task-cost";
 import { timeAgo } from "@/lib/format";
+import { retryFailedAiTasks } from "@/lib/worker.functions";
 
 export type FailedTask = {
   id: string;
@@ -29,7 +32,23 @@ function reasonFrom(task: FailedTask): string {
 }
 
 export function FailedWorkPanel({ tasks, agents }: Props) {
+  const qc = useQueryClient();
   const failed = tasks.filter((t) => t.status === "failed").slice(0, 6);
+  const retry = useMutation({
+    mutationFn: (taskId?: string) =>
+      retryFailedAiTasks(taskId ? { data: { taskId } } : { data: {} }),
+    onSuccess: async (res) => {
+      await qc.invalidateQueries({ queryKey: ["tasks"] });
+      await qc.invalidateQueries({ queryKey: ["company-table", "tasks"] });
+      toast.success(
+        res.requeued === 0
+          ? "Nothing left to retry"
+          : `Retried ${res.requeued} · ${res.tasksProcessed} completed just now`,
+      );
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (failed.length === 0) return null;
 
   const nameFor = (id?: string | null) =>
@@ -37,9 +56,21 @@ export function FailedWorkPanel({ tasks, agents }: Props) {
 
   return (
     <Panel label="Failures · honest" glow delay={0.03}>
-      <p className="mb-4 text-[13px] text-muted-foreground">
-        Failed work stays visible. That&apos;s how the company learns — never dress it up as a win.
-      </p>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <p className="text-[13px] text-muted-foreground">
+          Failed work stays visible. Most of these were{" "}
+          <span className="text-foreground">freellm_unreachable</span> while FreeLLM was down —
+          retry once AI is healthy again.
+        </p>
+        <button
+          type="button"
+          disabled={retry.isPending}
+          onClick={() => retry.mutate(undefined)}
+          className="shrink-0 rounded-xl bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          {retry.isPending ? "Retrying…" : `Retry all (${failed.length})`}
+        </button>
+      </div>
       <div className="space-y-3">
         {failed.map((t) => (
           <div
@@ -64,13 +95,18 @@ export function FailedWorkPanel({ tasks, agents }: Props) {
               <span className="text-muted-foreground">What happened · </span>
               {reasonFrom(t)}
             </p>
-            <p className="mt-2 text-[12px] text-muted-foreground">
-              Recommended next step · Ask Atlas for a broader brief or retry with clearer criteria.
-            </p>
             <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={retry.isPending}
+                onClick={() => retry.mutate(t.id)}
+                className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary disabled:opacity-50"
+              >
+                Retry now
+              </button>
               <Link
                 to="/ceo"
-                className="rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold text-primary"
+                className="rounded-xl bg-foreground/8 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground"
               >
                 Ask Atlas
               </Link>
@@ -78,7 +114,7 @@ export function FailedWorkPanel({ tasks, agents }: Props) {
                 to="/tasks"
                 className="rounded-xl bg-foreground/8 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground"
               >
-                Retry on board
+                Open board
               </Link>
             </div>
           </div>

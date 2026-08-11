@@ -10,7 +10,6 @@ import {
   ChevronDown,
   CircleDollarSign,
   Disc3,
-  KeyRound,
   Play,
   Rocket,
   Sparkles,
@@ -33,6 +32,7 @@ import { LiveProof } from "@/components/aura/live-proof";
 import { OnboardingTour } from "@/components/aura/tour";
 import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import { ShareKitTeaser } from "@/components/aura/share-kit";
+import { ShareMoment } from "@/components/aura/share";
 import { CompanyOrg } from "@/components/aura/company-org";
 import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/")({
       { title: "Aura OS — Own a company. Let AI make money." },
       {
         name: "description",
-        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. AI executes the work. You control the company. Invite-only founding companies.`,
+        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. AI executes the work. You control the company. Founding seats open at $99.`,
       },
       { property: "og:title", content: "Aura OS — Own a company. Let AI make money." },
       {
@@ -126,7 +126,7 @@ const LOOP: { step: string; body: string; icon: LucideIcon }[] = [
   },
 ];
 
-/** How founding seats work — separate from token launch. */
+/** How founding seats work — buy first; invite is post-purchase share. */
 function UnlockAccessBand() {
   return (
     <section
@@ -139,20 +139,20 @@ function UnlockAccessBand() {
             How to get in
           </p>
           <h2 className="mt-3 font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
-            Invite-only paid seats.
-            <span className="block text-primary">$99 · 1000 companies · one invite each.</span>
+            Buy a founding seat.
+            <span className="block text-primary">$99 · 1000 companies · open now.</span>
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            For online businesses running on Aura OS. An invite unlocks checkout — not a free pass.
-            Token fair launch is a separate event; founding seats are the product door.
+            No invite required. Pay once, wake your AI company, then share one invite if you want —
+            friends still pay $99. Token fair launch is a separate event.
           </p>
         </div>
 
         <div className="grid gap-2 sm:grid-cols-3">
           {[
-            { n: "01", t: "Get an invite", d: "From a seated founder (one each)." },
-            { n: "02", t: "Pay $99", d: "One-time founding seat via Stripe." },
-            { n: "03", t: "Wake the company", d: "Publish, earn in-app AURA on paid referrals." },
+            { n: "01", t: "Pay $99", d: "One-time founding seat via Stripe." },
+            { n: "02", t: "Wake the company", d: "Atlas and your staff go live." },
+            { n: "03", t: "Share one invite", d: "Optional — earn in-app AURA on paid referrals." },
           ].map((s) => (
             <div key={s.n} className="glass rounded-2xl px-4 py-4">
               <p className="num text-[10px] font-semibold tracking-[0.2em] text-primary/70">{s.n}</p>
@@ -167,7 +167,7 @@ function UnlockAccessBand() {
           onClick={() => trackTeaser("cta_click", { placement: "landing_unlock_start" })}
           className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
         >
-          Founding seats <ArrowRight className="h-4 w-4" />
+          Buy founding seat — $99 <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </section>
@@ -332,15 +332,13 @@ function Act({ act, index }: { act: (typeof ACTS)[number]; index: number }) {
 function Landing() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
   const [teaserOpen, setTeaserOpen] = useState(false);
 
   // First-touch attribution: stamp the source before any event fires.
   useEffect(() => {
-    const attr = captureAttribution();
-    if (attr.ref_code) setCode(attr.ref_code);
+    captureAttribution();
     trackTeaser("landing_view", { placement: "landing" });
   }, []);
 
@@ -360,17 +358,7 @@ function Landing() {
     }
     trackTeaser("cta_click", { placement: "waitlist_join" });
     setJoined(true);
-    toast.success("You're on the list. We open seats in small waves.");
-  };
-
-  const enter = () => {
-    const value = code.trim().toUpperCase();
-    if (!value) {
-      toast.error("Enter your invite code to claim a seat.");
-      return;
-    }
-    trackTeaser("cta_click", { placement: "invite_code" });
-    navigate({ to: "/auth", search: { invite: value } });
+    toast.success("You're on the list — seats are open to buy anytime.");
   };
 
   return (
@@ -388,12 +376,11 @@ function Landing() {
             <LaunchCountdown variant="compact" showSocials={false} placement="header" />
           </Chip>
           <Link
-            to="/"
-            hash="community"
-            onClick={() => trackTeaser("cta_click", { placement: "landing_header_waitlist" })}
+            to="/access"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_header_buy" })}
             className="shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Join waitlist
+            Buy seat — $99
           </Link>
           <button
             type="button"
@@ -476,8 +463,8 @@ function Landing() {
             transition={{ duration: 0.7, delay: 0.32 }}
             className="mt-3 max-w-lg text-[13px] text-muted-foreground"
           >
-            Building community first — join the waitlist, then buy a founding seat when your wave
-            opens. Genesis Passport (NFT key) is a separate private-sale utility.
+            Founding seats are open — $99 one-time via Stripe. Own a company, wake your AI team,
+            and keep the upside.
           </motion.p>
 
           <motion.div
@@ -486,19 +473,20 @@ function Landing() {
             transition={{ duration: 0.85, delay: 0.38 }}
             className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
-            <a
-              href="#community"
-              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_waitlist" })}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-all hover:opacity-90 hover:shadow-[0_0_60px_-12px_var(--glow)]"
-            >
-              Join the waitlist <ArrowRight className="h-4 w-4" />
-            </a>
             <Link
               to="/access"
-              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_earn" })}
+              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-all hover:opacity-90 hover:shadow-[0_0_60px_-12px_var(--glow)]"
+            >
+              Buy founding seat — $99 <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/auth"
+              search={{ mode: "signin" }}
+              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_signin" })}
               className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-background/30 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-colors hover:border-primary/30 hover:bg-foreground/8"
             >
-              Have an invite?
+              Sign in
             </Link>
           </motion.div>
 
@@ -711,8 +699,8 @@ function Landing() {
               Finished work leaves evidence
             </h2>
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              Timestamps, written results, dated agent memory — plus Wave 1 scarcity for marketing.
-              Steal the shareable proof card.
+              Timestamps, written results, dated agent memory — and founding seats capped at 1000
+              (paid inventory only). Steal the shareable proof card.
             </p>
             <div className="mt-5 max-w-sm">
               <MarketingWaveScarcity />
@@ -786,7 +774,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* Finale — community first, then invite / seat */}
+      {/* Finale — buy seat first */}
       <section
         id="claim"
         data-tour="claim"
@@ -794,21 +782,30 @@ function Landing() {
       >
         <div className="flex flex-col justify-center">
           <h2 className="font-display text-[clamp(2rem,7vw,3.4rem)] leading-[0.98] tracking-tight">
-            Join the room first.
+            Buy the seat.
             <br />
-            <span className="text-gold">Then unlock the door.</span>
+            <span className="text-gold">Wake the company.</span>
           </h2>
           <p className="mt-5 max-w-md text-[14px] leading-relaxed text-muted-foreground">
-            We&apos;re building community before the private sale. Waitlist now · paid founding seats
-            (1000) when invited · Genesis Passport NFT as a wallet key (Stripe or USDC) — separate from
-            token launch.
+            $99 one-time · hard-capped at 1000. No invite required. After you&apos;re in, share one
+            invite if you want — friends still pay. Genesis Passport NFT is a separate wallet key.
           </p>
           <div className="mt-8">
             <FoundingCohort />
           </div>
+          <div className="mt-6">
+            <ShareMoment
+              url={`${SITE_URL}/access`}
+              text={LAUNCH_SHARE_TEXT}
+              title="Aura OS"
+              placement="landing_claim_share"
+              label="Share Aura OS"
+              showKit
+            />
+          </div>
           <div className="mt-6 flex flex-wrap gap-3 text-[12px]">
             <Link to="/pitch" className="text-primary underline-offset-2 hover:underline">
-              Read the pitch
+              Pitch &amp; roadmap decks
             </Link>
             <span className="text-muted-foreground/40">·</span>
             <Link
@@ -822,20 +819,33 @@ function Landing() {
         </div>
 
         <div className="space-y-4">
-          <Panel label="Community waitlist" glow>
+          <Panel label="Founding seat — $99" glow>
+            <p className="text-[12px] leading-relaxed text-muted-foreground">
+              Open Stripe checkout after a quick signup. Seat unlocks when payment clears.
+            </p>
+            <Link
+              to="/access"
+              onClick={() => trackTeaser("cta_click", { placement: "landing_claim_buy" })}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
+            >
+              Buy founding seat — $99 <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </Panel>
+
+          <Panel label="Just want updates" delay={0.08}>
             {joined ? (
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
                 <p className="text-[13px] leading-relaxed text-muted-foreground">
-                  You&apos;re on the waitlist — we&apos;ll email{" "}
-                  <span className="text-foreground">{email.trim().toLowerCase()}</span> when a wave
-                  opens.
+                  You&apos;re on the list — we&apos;ll email{" "}
+                  <span className="text-foreground">{email.trim().toLowerCase()}</span>. Seats are
+                  already open to buy above.
                 </p>
               </div>
             ) : (
               <form onSubmit={join} className="space-y-3">
                 <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  No spam theater. One email when seats or the private sale open.
+                  Optional email list. Buying does not require this.
                 </p>
                 <input
                   id="landing-email"
@@ -852,53 +862,12 @@ function Landing() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="w-full rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+                  className="w-full rounded-2xl border border-border/50 px-4 py-2.5 text-xs font-semibold transition-colors hover:border-primary/40 disabled:opacity-40"
                 >
                   {busy ? "Saving…" : "Join the waitlist"}
                 </button>
               </form>
             )}
-          </Panel>
-
-          <Panel label="Already have a code?" delay={0.08}>
-            <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Paste a founder invite — then pay the seat to wake your company.
-            </p>
-            <div className="mt-4 flex gap-2">
-              <div className="flex flex-1 items-center gap-2 rounded-2xl bg-foreground/6 px-3.5 py-2.5">
-                <KeyRound className="h-3.5 w-3.5 text-muted-foreground" />
-                <input
-                  id="landing-invite"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  maxLength={32}
-                  placeholder="INVITE CODE"
-                  aria-label="Invite code"
-                  autoComplete="one-time-code"
-                  className="w-full bg-transparent text-[13px] uppercase tracking-[0.16em] outline-none placeholder:tracking-[0.16em] placeholder:text-muted-foreground/60"
-                />
-              </div>
-              <button
-                onClick={enter}
-                className="flex items-center gap-2 rounded-2xl bg-foreground/10 px-4 py-2.5 text-xs font-semibold transition-colors hover:bg-foreground/16"
-              >
-                Enter <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </Panel>
-
-          <Panel label="Founding seat / Genesis key" delay={0.16}>
-            <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Invite unlocks $99 seat checkout. Genesis Passport (NFT key) buys with Stripe after
-              you&apos;re seated — utility for your wallet, not a speculative drop.
-            </p>
-            <Link
-              to="/access"
-              onClick={() => trackTeaser("cta_click", { placement: "landing_claim_earn" })}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-xs font-semibold transition-colors hover:border-primary/40"
-            >
-              Continue with invite <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
           </Panel>
         </div>
       </section>

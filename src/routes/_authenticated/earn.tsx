@@ -195,7 +195,7 @@ function EarnPage() {
                   </p>
                 ) : (
                   <p className="mb-3 text-[13px] text-muted-foreground">
-                    Share once. They still pay $99 — your invite only unlocks checkout.
+                    Share once. They still pay $99 — your invite is attribution, not a gate.
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-3">

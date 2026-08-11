@@ -4,10 +4,13 @@ import { ArrowUp, MessageCircle, Square, X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
 import { Pulse } from "@/components/aura/primitives";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
 type Message = { role: "user" | "assistant"; content: string };
+type NudgeReason = "hello" | "idle" | "scroll" | "exit";
 
 const OPENING =
   "I'm Aura — the intelligence at the front door. Ask me anything about running a company staffed entirely by AI, or I'll show you around in thirty seconds.";
@@ -19,19 +22,139 @@ const PROMPTS = [
   "How do I get a founding seat?",
 ];
 
+const NUDGE_COPY: Record<NudgeReason, string> = {
+  hello: "Your company could be running itself by tonight. Want the thirty-second version?",
+  idle: "Still looking? I can point you at the one move that matters — the founding seat.",
+  scroll:
+    "You scrolled past the story. The short path: claim a $99 seat and Atlas starts work.",
+  exit: "Before you go — founding seats are open at $99. I can walk you there in one step.",
+};
+
 const EMAIL_RE = /[\w.+-]+@[\w-]+\.[\w.-]+/;
 const SEEN_KEY = "aura:greeter-seen";
+const NUDGE_BUDGET_KEY = "aura:greeter-nudges";
+
+function nudgeBudgetLeft(): number {
+  try {
+    const n = Number(sessionStorage.getItem(NUDGE_BUDGET_KEY) ?? "0");
+    return Math.max(0, 3 - (Number.isFinite(n) ? n : 0));
+  } catch {
+    return 1;
+  }
+}
+
+function spendNudgeBudget() {
+  try {
+    const n = Number(sessionStorage.getItem(NUDGE_BUDGET_KEY) ?? "0");
+    sessionStorage.setItem(NUDGE_BUDGET_KEY, String((Number.isFinite(n) ? n : 0) + 1));
+  } catch {
+    /* ignore */
+  }
+}
 
 export function Greeter() {
   const navigate = useNavigate();
+  const reducedMotion = usePrefersReducedMotion();
   const [open, setOpen] = useState(false);
   const [nudge, setNudge] = useState(false);
+  const [nudgeReason, setNudgeReason] = useState<NudgeReason>("hello");
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: OPENING }]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
+  const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false });
+  const [aiOnline, setAiOnline] = useState<boolean | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const engagedRef = useRef(false);
+  const maxScrollRef = useRef(0);
+  const lastMoveRef = useRef(Date.now());
+
+  /** Soft cursor follower — presence without noise. Disabled for reduced motion / touch. */
+  useEffect(() => {
+    if (reducedMotion) return;
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    if (!fine) return;
+
+    let raf = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let curX = 0;
+    let curY = 0;
+    let visible = false;
+
+    const tick = () => {
+      curX += (targetX - curX) * 0.18;
+      curY += (targetY - curY) * 0.18;
+      setCursor({ x: curX, y: curY, visible });
+      raf = window.requestAnimationFrame(tick);
+    };
+    raf = window.requestAnimationFrame(tick);
+
+    const onMove = (e: PointerEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+      visible = true;
+      lastMoveRef.current = Date.now();
+    };
+    const onLeave = () => {
+      visible = false;
+    };
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onMove);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+    };
+  }, [reducedMotion]);
+
+  /** Attention drops → contextual nudge (budgeted, once-ish per signal). */
+  useEffect(() => {
+    if (open) return;
+
+    const show = (reason: NudgeReason, event: "idle_drop" | "exit_intent" | "scroll_drop") => {
+      if (nudgeBudgetLeft() <= 0) return;
+      spendNudgeBudget();
+      setNudgeReason(reason);
+      setNudge(true);
+      trackTeaser(event, { placement: "greeter" });
+      trackTeaser("attention_nudge", { placement: reason });
+    };
+
+    const idleTimer = window.setInterval(() => {
+      if (document.hidden || engagedRef.current) return;
+      if (Date.now() - lastMoveRef.current < 12_000) return;
+      if (nudge) return;
+      show("idle", "idle_drop");
+    }, 4_000);
+
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+      const pct = Math.round((window.scrollY / max) * 100);
+      maxScrollRef.current = Math.max(maxScrollRef.current, pct);
+      lastMoveRef.current = Date.now();
+      if (pct >= 55 && !engagedRef.current && !nudge && nudgeBudgetLeft() > 0) {
+        show("scroll", "scroll_drop");
+      }
+    };
+
+    const onExit = (e: MouseEvent) => {
+      if (e.clientY > 12) return;
+      if (engagedRef.current || nudge) return;
+      show("exit", "exit_intent");
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("mouseout", onExit);
+    return () => {
+      window.clearInterval(idleTimer);
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("mouseout", onExit);
+    };
+  }, [open, nudge]);
 
   /** Proactive greeting — once per browser, after the hero has had its moment. */
   useEffect(() => {
@@ -42,7 +165,11 @@ export function Greeter() {
       /* private mode */
     }
     if (seen) return;
-    const t = setTimeout(() => setNudge(true), 4200);
+    const t = setTimeout(() => {
+      if (nudgeBudgetLeft() <= 0) return;
+      setNudgeReason("hello");
+      setNudge(true);
+    }, 4200);
     return () => clearTimeout(t);
   }, []);
 
@@ -61,7 +188,23 @@ export function Greeter() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/public/ai-health")
+      .then((r) => r.json())
+      .then((body: { ok?: boolean }) => {
+        if (!cancelled) setAiOnline(Boolean(body.ok));
+      })
+      .catch(() => {
+        if (!cancelled) setAiOnline(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   function launch() {
+    engagedRef.current = true;
     setNudge(false);
     setOpen(true);
     try {
@@ -74,6 +217,7 @@ export function Greeter() {
   async function send(text: string) {
     const prompt = text.trim();
     if (!prompt || streaming) return;
+    engagedRef.current = true;
 
     // A visitor who types an email is claiming a seat — take it there and then.
     const email = prompt.match(EMAIL_RE)?.[0];
@@ -107,10 +251,11 @@ export function Greeter() {
             : res.status === 402
               ? "My reserve is empty for the moment — the team has been told."
               : detail.includes("not configured") ||
+                  detail.includes("FREELLM") ||
                   detail.includes("GEMINI_API_KEY") ||
                   detail.includes("XAI_API_KEY") ||
                   detail.includes("provider key")
-                ? "I'm offline until a provider key is set (GEMINI_API_KEY or XAI_API_KEY in .env.local)."
+                ? "I'm offline until FreeLLM or a fallback provider key is live on the server."
                 : detail || "I lost the connection. Try again?";
         setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: message }]);
         return;
@@ -146,6 +291,14 @@ export function Greeter() {
 
   return (
     <>
+      {!reducedMotion && cursor.visible ? (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed z-[45] hidden h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/35 bg-primary/10 mix-blend-screen md:block"
+          style={{ left: cursor.x, top: cursor.y }}
+        />
+      ) : null}
+
       {/* Launcher */}
       <div className="pointer-events-none fixed bottom-5 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
         <AnimatePresence>
@@ -160,9 +313,12 @@ export function Greeter() {
             >
               <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
                 <Pulse /> Aura
+                {aiOnline === false ? (
+                  <span className="normal-case tracking-normal text-gold">· reconnecting</span>
+                ) : null}
               </span>
               <span className="mt-1.5 block text-[13px] leading-relaxed text-foreground">
-                Your company could be running itself by tonight. Want the thirty-second version?
+                {NUDGE_COPY[nudgeReason]}
               </span>
             </motion.button>
           ) : null}
@@ -283,10 +439,13 @@ export function Greeter() {
                 )}
               </div>
               <button
-                onClick={() => navigate({ to: "/access", search: {} })}
+                onClick={() => {
+                  trackTeaser("cta_click", { placement: "greeter_seat" });
+                  void navigate({ to: "/access", search: {} });
+                }}
                 className="mt-2 text-[10px] uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:text-primary"
               >
-                Earn your invite →
+                Claim founding seat →
               </button>
             </div>
           </motion.div>

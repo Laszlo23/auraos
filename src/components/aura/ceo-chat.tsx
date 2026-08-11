@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowUp, Square } from "lucide-react";
+import { ArrowUp, ListChecks, Square } from "lucide-react";
 
 import { Pulse } from "@/components/aura/primitives";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import { supabase } from "@/integrations/supabase/client";
+import { useProposeNextActions } from "@/lib/actions";
 import { currency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +41,7 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
     ascending: false,
     limit: 12,
   });
+  const propose = useProposeNextActions();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -155,25 +158,38 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
 
     let assistantContent = "";
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error("Session expired — sign in again to talk to Atlas.");
+      }
+
       const res = await fetch("/api/ceo", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({ messages: next, context }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
         const detail = await res.text().catch(() => "");
         throw new Error(
-          res.status === 429
-            ? "Atlas is thinking too fast — rate limit reached. Try again shortly."
-            : res.status === 402
-              ? "Your AI credits are exhausted. Top up to keep Atlas working."
-              : detail.includes("not configured") ||
-                  detail.includes("GEMINI_API_KEY") ||
-                  detail.includes("XAI_API_KEY") ||
-                  detail.includes("provider key")
-                ? "Atlas is offline: add GEMINI_API_KEY or XAI_API_KEY (Grok credits) to .env.local, then restart the dev server."
-                : detail || "Atlas could not respond.",
+          res.status === 401
+            ? "Session expired — sign in again to talk to Atlas."
+            : res.status === 429
+              ? "Atlas is thinking too fast — rate limit reached. Try again shortly."
+              : res.status === 402
+                ? "Your AI credits are exhausted. Top up to keep Atlas working."
+                : detail.includes("not configured") ||
+                    detail.includes("FREELLM") ||
+                    detail.includes("GEMINI_API_KEY") ||
+                    detail.includes("XAI_API_KEY") ||
+                    detail.includes("MOONSHOT") ||
+                    detail.includes("provider key")
+                  ? "Atlas is offline: FreeLLM or a fallback provider key is missing on the server."
+                  : detail || "Atlas could not respond.",
         );
       }
       const reader = res.body.getReader();
@@ -220,7 +236,10 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Atlas</h1>
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Pulse /> {streaming ? "thinking" : "chief executive · always awake"}
+              <Pulse />{" "}
+              {streaming
+                ? "thinking"
+                : "chief executive · proposes work you approve"}
             </p>
           </div>
         </header>
@@ -249,8 +268,8 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
                 rail ? "mt-2 text-[12px]" : "mt-4 text-sm",
               )}
             >
-              Atlas sees your live company, agent memory, and knowledge. Give a direction — agents
-              propose work, you approve it.
+              Atlas sees your live company, agent memory, and knowledge. Give a direction — then
+              turn it into real tasks waiting for your approval.
             </p>
             <div className={cn("flex flex-wrap gap-2", rail ? "mt-4" : "mt-7")}>
               {(rail ? CEO_PROMPTS.slice(0, 3) : CEO_PROMPTS).map((p) => (
@@ -306,6 +325,37 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
       </div>
 
       <div className={cn("rounded-3xl p-2", rail ? "glass-soft" : "glass sticky bottom-4")}>
+        {!streaming && messages.some((m) => m.role === "assistant" && m.content.trim()) ? (
+          <div className={cn("mb-2 flex flex-wrap items-center gap-2", rail ? "px-1" : "px-2")}>
+            <button
+              type="button"
+              disabled={propose.isPending || !company}
+              onClick={() => {
+                const recent = messages
+                  .slice(-6)
+                  .map((m) => `${m.role === "user" ? "Founder" : "Atlas"}: ${m.content}`)
+                  .join("\n");
+                propose.mutate({ instruction: recent });
+              }}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-2xl bg-primary/15 text-primary transition-colors hover:bg-primary/25 disabled:opacity-40",
+                rail ? "px-3 py-1.5 text-[11px]" : "px-3.5 py-2 text-xs",
+              )}
+            >
+              <ListChecks className={rail ? "h-3 w-3" : "h-3.5 w-3.5"} />
+              {propose.isPending ? "Creating tasks…" : "Turn into tasks for approval"}
+            </button>
+            <Link
+              to="/tasks"
+              className={cn(
+                "text-muted-foreground underline-offset-2 hover:text-foreground hover:underline",
+                rail ? "text-[11px]" : "text-xs",
+              )}
+            >
+              Open Tasks
+            </Link>
+          </div>
+        ) : null}
         <div className="flex items-end gap-2">
           <textarea
             value={input}

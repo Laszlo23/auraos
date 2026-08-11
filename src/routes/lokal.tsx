@@ -131,6 +131,20 @@ function LokalLandingPage() {
           >
             {t("lokal.ctaDeck")}
           </a>
+          <a
+            href="/Aura_Lokal_Google_Review_Boost.pptx"
+            download
+            className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
+          >
+            Review Boost Deck
+          </a>
+          <Link
+            to="/pitch"
+            hash="decks"
+            className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
+          >
+            Alle Decks
+          </Link>
           <Link
             to="/nachbar"
             className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"

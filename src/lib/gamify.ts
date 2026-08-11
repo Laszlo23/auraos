@@ -104,6 +104,13 @@ export const TRADING_QUESTS: Quest[] = [
     glyph: "▲",
     xp: 120,
   },
+  {
+    key: "trading:yield",
+    label: "Arm Yield Autopilot",
+    hint: "Park residual capital — Epoch Hunter + Idle Router",
+    glyph: "◈",
+    xp: 140,
+  },
 ];
 
 export type PrizeKind = "tokens" | "xp" | "perk";

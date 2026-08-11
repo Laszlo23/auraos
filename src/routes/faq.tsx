@@ -100,11 +100,11 @@ const FAQS: { q: string; a: ReactNode }[] = [
     ),
   },
   {
-    q: "Is access invite-only?",
+    q: "How do I get in?",
     a: (
       <>
-        Yes — invite-only paid founding seats for online businesses ($99 one-time, 1000 companies,
-        one invite each). An invite unlocks checkout; it is not a free pass. See{" "}
+        Buy a founding seat for $99 (1000 seats). No invite required. After you&apos;re seated you
+        get one invite link to share — friends still pay $99. See{" "}
         <Link to="/access" className="text-primary hover:underline">
           /access
         </Link>

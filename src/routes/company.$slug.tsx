@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Activity, ArrowRight, Bot, ExternalLink, Radio } from "lucide-react";
 
 import { Chip, Panel, Pulse, Shimmer } from "@/components/aura/primitives";
-import { ShareBar } from "@/components/aura/share";
+import { ShareMoment } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { autonomyLabel } from "@/lib/company-economy";
 import { getPublicCompany } from "@/lib/economy.functions";
@@ -60,7 +60,15 @@ function PublicCompanyPage() {
   }
 
   const shareUrl = `${SITE_URL}/company/${data.slug}`;
-  const shareText = `${data.name} on Aura OS — ${data.actions24h} actions in 24h, ${data.agents} AI employees. Live receipts.`;
+  const seatBit = data.seat != null ? `Seat #${data.seat}` : null;
+  const shareBits = [
+    seatBit,
+    `${data.actions24h} actions · 24h`,
+    `${data.agents} AI employees`,
+    data.revenue > 0 ? `revenue ${currency(data.revenue)}` : "ledger zeros stay zeros",
+  ].filter(Boolean);
+  const shareText = `${data.name} on Aura OS — ${shareBits.join(" · ")}. Live receipts.`;
+  const statLine = shareBits.join(" · ");
 
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
@@ -112,8 +120,27 @@ function PublicCompanyPage() {
             <Chip tone="gold">Rep {data.reputation}</Chip>
             <Chip tone="primary">{autonomyLabel(data.autonomy)}</Chip>
             {data.seat != null ? <Chip tone="gold">Seat #{data.seat}</Chip> : null}
+            {data.token ? (
+              <Chip tone="gold">
+                ${data.token.symbol} · live
+              </Chip>
+            ) : null}
             <Chip>/company/{data.slug}</Chip>
           </div>
+          {data.token ? (
+            <p className="mt-3 text-[13px] text-muted-foreground">
+              Company token{" "}
+              <a
+                className="font-semibold text-primary underline-offset-2 hover:underline"
+                href={`https://basescan.org/token/${data.token.tokenAddress}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                ${data.token.symbol}
+              </a>{" "}
+              on Base — utility for this business, not platform AURA.
+            </p>
+          ) : null}
         </section>
 
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -258,7 +285,14 @@ function PublicCompanyPage() {
           <p className="mb-4 text-[13px] text-muted-foreground">
             Proof beats pitch decks. Share the live receipts page — ledger zeros stay zeros.
           </p>
-          <ShareBar url={shareUrl} text={shareText} placement="company_passport" />
+          <ShareMoment
+            url={shareUrl}
+            text={shareText}
+            title={`${data.name} · Aura OS`}
+            placement="company_passport"
+            label="Share passport"
+            statLine={statLine}
+          />
         </Panel>
 
         <div className="flex flex-wrap items-center gap-4">

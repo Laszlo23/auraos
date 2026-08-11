@@ -4,10 +4,12 @@ import {
   connectSmtp,
   disconnectMailbox,
   getMailboxStatus,
+  getSmtpSettings,
   sendSmtpTest,
   startMailboxConnect,
   type MailboxProvider,
   type SmtpConnectInput,
+  type SmtpSettingsPublic,
 } from "@/lib/mailbox.functions";
 
 export type MailboxState = {
@@ -21,6 +23,15 @@ export function useMailboxes() {
   return useQuery<MailboxState[]>({
     queryKey: ["mailboxes"],
     queryFn: () => getMailboxStatus() as Promise<MailboxState[]>,
+    staleTime: 30_000,
+  });
+}
+
+export function useSmtpSettings(enabled = true) {
+  return useQuery<SmtpSettingsPublic | null>({
+    queryKey: ["smtp-settings"],
+    queryFn: () => getSmtpSettings() as Promise<SmtpSettingsPublic | null>,
+    enabled,
     staleTime: 30_000,
   });
 }
@@ -75,7 +86,10 @@ export function useConnectSmtp() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: SmtpConnectInput) => connectSmtp({ data: input }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["mailboxes"] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["mailboxes"] });
+      void qc.invalidateQueries({ queryKey: ["smtp-settings"] });
+    },
   });
 }
 
@@ -89,6 +103,9 @@ export function useDisconnectMailbox() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (provider: MailboxProvider) => disconnectMailbox({ data: { provider } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["mailboxes"] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["mailboxes"] });
+      void qc.invalidateQueries({ queryKey: ["smtp-settings"] });
+    },
   });
 }

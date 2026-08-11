@@ -11,9 +11,10 @@ import {
   parseAbi,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { base, baseSepolia, bsc, opBNB } from "viem/chains";
 
-import { activeNetwork, alchemyRpcUrl, chainId } from "@/lib/chain-config";
-import { viemChain } from "@/lib/wallet.server";
+import { activeNetwork, alchemyRpcUrl, chainId, explorerBaseUrl, type AuraNetwork } from "@/lib/chain-config";
+import { explorerTxUrl as explorerTxUrlFor } from "@/lib/trading/tokens";
 
 export const GENESIS_ABI = parseAbi([
   "function mint(address to, uint256 tokenId)",
@@ -24,6 +25,23 @@ export const GENESIS_ABI = parseAbi([
   "function pause()",
   "function unpause()",
 ]);
+
+function genesisViemChain(network: AuraNetwork = activeNetwork()) {
+  switch (network) {
+    case "base":
+      return base;
+    case "base-sepolia":
+      return baseSepolia;
+    case "bsc":
+      return bsc;
+    case "opbnb":
+      return opBNB;
+    default: {
+      const _exhaustive: never = network;
+      return _exhaustive;
+    }
+  }
+}
 
 export function genesisContractAddress(): Address | null {
   const raw =
@@ -53,7 +71,7 @@ function rpcUrl(): string {
 export function publicGenesisClient() {
   const network = activeNetwork();
   return createPublicClient({
-    chain: viemChain(network),
+    chain: genesisViemChain(network),
     transport: http(rpcUrl()),
   });
 }
@@ -97,7 +115,7 @@ export async function mintGenesisToWallet(opts: {
   const account = privateKeyToAccount(key as Hex);
   const client = createWalletClient({
     account,
-    chain: viemChain(network),
+    chain: genesisViemChain(network),
     transport: http(rpcUrl()),
   });
   const publicClient = publicGenesisClient();
@@ -107,7 +125,7 @@ export async function mintGenesisToWallet(opts: {
     abi: GENESIS_ABI,
     functionName: "mint",
     args: [opts.to, BigInt(opts.tokenId)],
-    chain: viemChain(network),
+    chain: genesisViemChain(network),
     account,
   });
 
@@ -116,15 +134,12 @@ export async function mintGenesisToWallet(opts: {
 }
 
 export function explorerTxUrl(txHash: string): string {
-  const net = activeNetwork();
-  const base = net === "base" ? "https://basescan.org" : "https://sepolia.basescan.org";
-  return `${base}/tx/${txHash}`;
+  return explorerTxUrlFor(activeNetwork(), txHash);
 }
 
 export function explorerTokenUrl(tokenId: number): string {
   const contract = genesisContractAddress();
-  const net = activeNetwork();
-  const base = net === "base" ? "https://basescan.org" : "https://sepolia.basescan.org";
+  const base = explorerBaseUrl(activeNetwork());
   if (!contract) return base;
   return `${base}/token/${contract}?a=${tokenId}`;
 }

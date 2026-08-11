@@ -8,11 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   FOUNDING_SEATS_TOTAL,
   WAVE1_CLOSES_DISPLAY,
-  WAVE1_INVITE_CAP,
   WAVE1_LABEL,
   wave1Closed,
   wave1RemainingMs,
-  wave1TakenFromSeats,
 } from "@/lib/marketing-scarcity";
 import { Meter } from "./primitives";
 
@@ -20,10 +18,15 @@ function useFoundingSeatsTaken() {
   return useQuery({
     queryKey: ["founding-seats-taken"],
     refetchInterval: 30_000,
+    staleTime: 10_000,
     queryFn: async () => {
       const { data, error } = await supabase.rpc("founding_seats_taken");
-      if (error) throw error;
-      return (data as number) ?? 0;
+      if (error) {
+        console.warn("founding_seats_taken", error.message);
+        return 0;
+      }
+      const n = typeof data === "number" ? data : Number(data);
+      return Number.isFinite(n) ? n : 0;
     },
   });
 }
@@ -40,7 +43,8 @@ function formatCountdown(ms: number): string {
 }
 
 /**
- * Founding companies counter driven by paid founding seats (cap 1000).
+ * Founding seats counter — paid seats RPC only (cap 1000).
+ * Personal `seat` is shown as your number, never mixed into remaining.
  */
 export function FoundingCohort({
   seat,
@@ -49,19 +53,24 @@ export function FoundingCohort({
   seat?: number | undefined;
   compactMode?: boolean;
 }) {
-  const { data: totals } = useNetworkTotals();
-  const { data: seatsTaken } = useFoundingSeatsTaken();
-  const taken = Math.min(
-    FOUNDING_SEATS_TOTAL,
-    Math.max(seat ?? 0, seatsTaken ?? 0, totals?.companies ?? 0),
-  );
+  const { data: seatsTaken = 0, isFetched } = useFoundingSeatsTaken();
+  const taken = Math.min(FOUNDING_SEATS_TOTAL, Math.max(0, seatsTaken));
   const remaining = Math.max(0, FOUNDING_SEATS_TOTAL - taken);
   const pct = (taken / FOUNDING_SEATS_TOTAL) * 100;
+  const ready = isFetched;
 
   if (compactMode) {
     return (
       <span className="text-[11px] tracking-wide text-muted-foreground">
-        Founding companies · <span className="num text-gold">{num(remaining)}</span> seats remaining
+        Founding seats ·{" "}
+        <span className="num text-gold">{ready ? num(remaining) : "—"}</span> of{" "}
+        {num(FOUNDING_SEATS_TOTAL)} left
+        {seat != null ? (
+          <>
+            {" "}
+            · yours <span className="num text-foreground">#{seat}</span>
+          </>
+        ) : null}
       </span>
     );
   }
@@ -74,23 +83,33 @@ export function FoundingCohort({
       className="w-full max-w-sm"
     >
       <div className="mb-2 flex items-baseline justify-between gap-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-        <span>Founding companies</span>
-        <span className="num text-gold">{num(remaining)} seats remaining</span>
+        <span>Founding seats · of {num(FOUNDING_SEATS_TOTAL)}</span>
+        <span className="num text-gold">
+          {ready ? `${num(remaining)} left` : "—"}
+        </span>
       </div>
-      <Meter value={pct} tone="gold" />
+      <Meter value={ready ? pct : 0} tone="gold" />
       <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground/80">
-        Locked pricing. Founding badge. One invite each. When the cohort closes, it closes quietly.
+        Paid inventory only — {ready ? `${num(taken)} seated` : "counting…"}. Locked pricing.
+        Founding badge. One invite each after you seat.
+        {seat != null ? (
+          <>
+            {" "}
+            Your seat is <span className="num text-foreground">#{seat}</span>.
+          </>
+        ) : null}
       </p>
     </motion.div>
   );
 }
 
 /**
- * Marketing scarcity: Wave 1 invite pressure + countdown to private-access close.
- * Invite slots use founding seats taken (capped at WAVE1_INVITE_CAP) — not a fake inventory.
+ * Wave 1 pressure: real founding seats remaining + real fair-launch countdown.
+ * No remapped “invite slot” inventory.
  */
 export function MarketingWaveScarcity({ className }: { className?: string }) {
-  const { data: seatsTaken = 0 } = useFoundingSeatsTaken();
+  const { data: seatsTaken = 0, isFetched } = useFoundingSeatsTaken();
+  const { data: totals } = useNetworkTotals();
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -98,11 +117,12 @@ export function MarketingWaveScarcity({ className }: { className?: string }) {
     return () => window.clearInterval(t);
   }, []);
 
-  const taken = wave1TakenFromSeats(seatsTaken);
-  const remaining = Math.max(0, WAVE1_INVITE_CAP - taken);
-  const pct = (taken / WAVE1_INVITE_CAP) * 100;
+  const taken = Math.min(FOUNDING_SEATS_TOTAL, Math.max(0, seatsTaken));
+  const remaining = Math.max(0, FOUNDING_SEATS_TOTAL - taken);
+  const pct = (taken / FOUNDING_SEATS_TOTAL) * 100;
   const closed = wave1Closed(now);
   const clock = formatCountdown(wave1RemainingMs(now));
+  const companies = totals?.companies;
 
   return (
     <motion.div
@@ -115,14 +135,25 @@ export function MarketingWaveScarcity({ className }: { className?: string }) {
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
         <span>{WAVE1_LABEL}</span>
         <span className="num text-gold">
-          {closed ? "Wave closed" : `${num(remaining)} invite slots left`}
+          {closed
+            ? "Wave closed"
+            : isFetched
+              ? `${num(remaining)} of ${num(FOUNDING_SEATS_TOTAL)} seats left`
+              : "—"}
         </span>
       </div>
-      <Meter value={closed ? 100 : pct} tone="gold" />
+      <Meter value={closed ? 100 : isFetched ? pct : 0} tone="gold" />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[12px] text-muted-foreground/85">
         <p className="leading-relaxed">
-          First {num(WAVE1_INVITE_CAP)} private-access invites before fair launch. After that, the
-          door gets quieter.
+          Paid founding seats only
+          {companies != null ? (
+            <>
+              {" "}
+              · <span className="num text-foreground/80">{num(companies)}</span> companies live on
+              the network
+            </>
+          ) : null}
+          . Clock ends at fair launch.
         </p>
         <p className="num shrink-0 font-semibold tracking-wide text-foreground">
           {closed ? WAVE1_CLOSES_DISPLAY : clock}

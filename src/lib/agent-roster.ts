@@ -23,7 +23,15 @@ export const AGENT_ROSTER: Record<string, AgentDef> = {
     avatar: "▲",
     accent: "gold",
     memory:
-      "Trading desk Quant. Risk-first. Never invent fills. Respect founder caps. Prefer WETH/USDC on Base.",
+      "Trading desk Quant. Risk-first. Never invent fills. Respect founder caps. Prefer WETH/USDC on Base. Hand residual cash to Yield when flat.",
+  },
+  Yield: {
+    name: "Yield",
+    role: "Yield & Liquidity",
+    avatar: "◈",
+    accent: "emerald",
+    memory:
+      "Yield desk. Money works for money. Aerodrome epochs, Pancake/Venus/Lista on BNB, prediction extreme only. Autopilots: idle router, IL thermostat, compound cascade. Never invent live fills.",
   },
   Iris: {
     name: "Iris",
@@ -73,7 +81,7 @@ export const AGENT_ROSTER: Record<string, AgentDef> = {
 };
 
 export const PRODUCT_AGENT_MAP: Record<string, string[]> = {
-  trading: ["Quant", "Ledger"],
+  trading: ["Quant", "Yield", "Ledger"],
   commerce: ["Iris", "Vela", "Juno", "Ledger"],
   studio: ["Vela", "Orin", "Iris"],
 };

@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && node scripts/fix-start-manifest.mjs",
     "build:dev": "vite build --mode development",
+    "build:vps": "NITRO_PRESET=node-server vite build && node scripts/fix-start-manifest.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -17,8 +18,7 @@
     "db:status": "supabase status -o pretty",
     "db:reset": "supabase db reset",
     "db:env": "bash scripts/supabase-env.sh",
-    "db:cutover": "bash scripts/supabase-cutover.sh",
-    "build:vps": "NITRO_PRESET=node-server vite build"
+    "db:cutover": "bash scripts/supabase-cutover.sh"
   },
   "dependencies": {
     "@aa-sdk/core": "^4.88.4",
@@ -38,6 +38,7 @@
     "@tanstack/react-start": "^1.168.32",
     "@tanstack/router-plugin": "^1.168.23",
     "ai": "^7.0.48",
+    "clanker-sdk": "^4.2.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

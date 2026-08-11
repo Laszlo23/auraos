@@ -94,22 +94,11 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
           return Response.json({ error: "Founding seats are sold out" }, { status: 409 });
         }
 
-        const { data: taken } = await supabase.rpc("founding_seats_taken");
-        const seatsTaken = (taken as number) ?? 0;
-
+        // Open sale: invite is optional attribution only — never block checkout.
+        let inviteMeta: string | null = null;
         if (invite) {
           const { data: ok } = await supabase.rpc("check_invite_code", { _code: invite });
-          if (!ok) {
-            return Response.json(
-              { error: "That invite is invalid or already used" },
-              { status: 400 },
-            );
-          }
-        } else if (seatsTaken >= 50) {
-          return Response.json(
-            { error: "An invite is required to purchase a founding seat" },
-            { status: 400 },
-          );
+          if (ok) inviteMeta = invite;
         }
 
         const site = process.env["SITE_URL"] || SITE_URL;
@@ -120,13 +109,30 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
         params.set("client_reference_id", user.id);
         params.set("metadata[kind]", "founding_seat");
         params.set("metadata[user_id]", user.id);
-        if (invite) params.set("metadata[invite_code]", invite);
+        if (inviteMeta) params.set("metadata[invite_code]", inviteMeta);
         params.set("line_items[0][price]", priceId);
         params.set("line_items[0][quantity]", "1");
         if (user.email) params.set("customer_email", user.email);
 
         try {
-          const session = await createStripeCheckoutSession(secret, params);
+          // Prefer Checkout ToS checkbox when Dashboard public details include Terms URL.
+          const withConsent = new URLSearchParams(params);
+          withConsent.set("consent_collection[terms_of_service]", "required");
+          withConsent.set(
+            "custom_text[terms_of_service_acceptance][message]",
+            `I agree to the [Terms / AGB](${site}/terms) and [Privacy Policy](${site}/privacy)`,
+          );
+          let session: Awaited<ReturnType<typeof createStripeCheckoutSession>>;
+          try {
+            session = await createStripeCheckoutSession(secret, withConsent);
+          } catch (consentErr) {
+            const msg = consentErr instanceof Error ? consentErr.message : "";
+            if (/terms_of_service|consent_collection|public.?detail/i.test(msg)) {
+              session = await createStripeCheckoutSession(secret, params);
+            } else {
+              throw consentErr;
+            }
+          }
           return Response.json({
             url: session.url,
             id: session.id,

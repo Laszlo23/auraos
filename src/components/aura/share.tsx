@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Check, Copy, Link2, Share2 } from "lucide-react";
+import { Check, ChevronDown, Copy, Link2, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackTeaser } from "@/lib/teaser-track";
 
@@ -50,24 +51,16 @@ const NETWORKS: {
   },
 ];
 
-/**
- * Share bar with real network intents, copy-link and native share.
- * Every interaction is logged to the funnel so referred traffic stays attributable.
- */
-export function ShareBar({
+function useShareActions({
   url,
   text,
-  title = "Aura OS",
-  placement = "page",
-  className,
-  compact = false,
+  title,
+  placement,
 }: {
   url: string;
   text: string;
-  title?: string;
-  placement?: string;
-  className?: string;
-  compact?: boolean;
+  title: string;
+  placement: string;
 }) {
   const [copied, setCopied] = useState(false);
   const u = encodeURIComponent(url);
@@ -103,6 +96,132 @@ export function ShareBar({
       /* dismissed */
     }
   };
+
+  return { copied, copy, native, track, u, t };
+}
+
+/**
+ * Primary share moment — native share / copy, X intent, optional honest stat line.
+ * Use on passports, live proof, and landing claim bands.
+ */
+export function ShareMoment({
+  url,
+  text,
+  title = "Aura OS",
+  placement = "page",
+  className,
+  statLine,
+  label = "Share this",
+  showKit = true,
+}: {
+  url: string;
+  text: string;
+  title?: string;
+  placement?: string;
+  className?: string;
+  /** Honest numbers only — e.g. "Seat #12 · 14 actions · 24h" */
+  statLine?: string | null;
+  label?: string;
+  showKit?: boolean;
+}) {
+  const [more, setMore] = useState(false);
+  const { copied, copy, native, track, u, t } = useShareActions({
+    url,
+    text,
+    title,
+    placement,
+  });
+  const x = NETWORKS.find((n) => n.id === "x")!;
+
+  return (
+    <div className={cn("space-y-3", className)}>
+      {statLine ? (
+        <p className="text-[12px] leading-snug text-muted-foreground">
+          <span className="num text-foreground/90">{statLine}</span>
+          <span className="text-muted-foreground/50"> · </span>
+          live numbers, not pitch theater
+        </p>
+      ) : null}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => void native()}
+          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          <Share2 className="h-3.5 w-3.5" />
+          {label}
+        </button>
+        <a
+          href={x.href(u, t)}
+          target="_blank"
+          rel="noreferrer noopener"
+          onClick={() => track("x")}
+          className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-foreground/[0.03] px-3.5 py-2.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5" aria-hidden>
+            <path d={x.path} />
+          </svg>
+          Post on X
+        </a>
+        <button
+          type="button"
+          onClick={() => void copy()}
+          className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-foreground/[0.03] px-3.5 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? "Copied" : "Copy link"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMore((v) => !v)}
+          aria-expanded={more}
+          className="inline-flex items-center gap-1 rounded-2xl px-2.5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          More
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", more && "rotate-180")} />
+        </button>
+      </div>
+      {more ? (
+        <ShareBar url={url} text={text} title={title} placement={`${placement}_more`} />
+      ) : null}
+      {showKit ? (
+        <p className="text-[11px] text-muted-foreground">
+          Or steal a clip from the{" "}
+          <Link to="/share" className="font-semibold text-primary hover:underline">
+            share kit
+          </Link>
+          .
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Share bar with real network intents, copy-link and native share.
+ * Every interaction is logged to the funnel so referred traffic stays attributable.
+ */
+export function ShareBar({
+  url,
+  text,
+  title = "Aura OS",
+  placement = "page",
+  className,
+  compact = false,
+}: {
+  url: string;
+  text: string;
+  title?: string;
+  placement?: string;
+  className?: string;
+  compact?: boolean;
+}) {
+  const { copied, copy, native, track, u, t } = useShareActions({
+    url,
+    text,
+    title,
+    placement,
+  });
 
   const btn = cn(
     "group inline-flex items-center justify-center rounded-xl border border-border/60 bg-white/[0.03] text-muted-foreground transition-all",

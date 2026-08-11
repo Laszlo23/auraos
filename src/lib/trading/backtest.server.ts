@@ -304,7 +304,7 @@ export function validateStrategySpec(raw: unknown): StrategySpec {
     throw new Error("Invalid entry type");
   }
   const timeframe = String(o["timeframe"] ?? "1h") as Timeframe;
-  if (!["1h", "4h", "1d"].includes(timeframe)) throw new Error("Invalid timeframe");
+  if (!["5m", "15m", "1h", "4h", "1d"].includes(timeframe)) throw new Error("Invalid timeframe");
   const symbols = Array.isArray(o["symbols"])
     ? (o["symbols"] as unknown[]).map(String)
     : ["WETH/USDC"];

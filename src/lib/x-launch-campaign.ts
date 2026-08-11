@@ -12,8 +12,9 @@ export type LaunchDripSlot = {
   scheduledAt: string;
 };
 
-/** Clip rotation: new five first, then strongest existing kit posts. */
+/** Clip rotation: Quant desk lead, then strongest kit posts. */
 const ROTATION_IDS = [
+  "auraos-bedroom",
   "4am",
   "donotsleep",
   "hired",
@@ -57,6 +58,11 @@ const X_LINES: Record<string, string[]> = {
     "Meanwhile at your company: eight departments, zero you.",
     "You sleep. Growth acquires. Support answers. Repeat.",
     "Work-life balance: you do life, Aura does work.",
+  ],
+  "auraos-bedroom": [
+    "Not a bot. A desk. Quant scans. You approve. Sleep is allowed.",
+    "Risk meters before size. Founder approval before live fire. $99 seat.",
+    "Most people still trade alone. Aura founders hire Quant into a company they own.",
   ],
   aprove: [
     "They never sleep. Nothing spends without your approval.",

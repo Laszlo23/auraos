@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { PageHeader } from "@/components/aura/primitives";
 import { GenesisPassport } from "@/components/aura/genesis-passport";
+import { CompanyTokenLaunchPanel } from "@/components/aura/company-token-launch";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
 import { TreasuryOverview } from "@/components/aura/treasury-overview";
 import { SessionKeysPanel } from "@/components/aura/smart-wallet";
@@ -63,6 +64,7 @@ function WalletPage() {
         slug={economy?.slug}
         seat={progress?.seat_number}
       />
+      <CompanyTokenLaunchPanel />
       <div className="grid gap-5 lg:grid-cols-2">
         <SessionKeysPanel
           walletId={(wallet as { id?: string } | null)?.id ?? null}

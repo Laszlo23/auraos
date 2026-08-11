@@ -19,10 +19,13 @@ export type StripeCheckoutSession = {
 /**
  * Create a Checkout Session with Managed Payments when enabled.
  * Do not pass `payment_method_types` — Managed Payments forbids it (dynamic PMs).
+ * For Connect direct charges, pass `stripeAccount` and Managed Payments is skipped
+ * (connected account is merchant of record).
  */
 export async function createStripeCheckoutSession(
   secret: string,
   params: URLSearchParams,
+  opts?: { stripeAccount?: string },
 ): Promise<StripeCheckoutSession> {
   const body = new URLSearchParams(params);
 
@@ -33,17 +36,21 @@ export async function createStripeCheckoutSession(
     }
   }
 
-  if (stripeManagedPaymentsEnabled()) {
+  const connected = Boolean(opts?.stripeAccount);
+  if (!connected && stripeManagedPaymentsEnabled()) {
     body.set("managed_payments[enabled]", "true");
   }
 
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${secret}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Stripe-Version": STRIPE_API_VERSION,
+  };
+  if (opts?.stripeAccount) headers["Stripe-Account"] = opts.stripeAccount;
+
   const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${secret}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Stripe-Version": STRIPE_API_VERSION,
-    },
+    headers,
     body,
   });
 
@@ -61,8 +68,8 @@ export async function createStripeCheckoutSession(
   return {
     id: json.id,
     url: json.url,
-    amount_total: json.amount_total,
-    currency: json.currency,
-    mode: json.mode,
+    amount_total: json.amount_total ?? null,
+    currency: json.currency ?? null,
+    mode: json.mode ?? null,
   };
 }

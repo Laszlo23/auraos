@@ -2,17 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type { Address } from "viem";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import {
-  explorerTokenUrl,
-  explorerTxUrl,
-  genesisContractAddress,
-  genesisMaxSupply,
-  genesisPriceUsdc,
-  mintGenesisToWallet,
-  walletOwnsGenesis,
-} from "@/lib/genesis.server";
 import { SITE_URL } from "@/lib/site";
-import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
 
 export type GenesisPurchaseStatus = {
   status: "none" | "pending" | "paid" | "minted" | "failed";
@@ -31,6 +21,10 @@ export type GenesisPurchaseStatus = {
   stripeConfigured: boolean;
   error: string | null;
 };
+
+async function genesisServer() {
+  return import("@/lib/genesis.server");
+}
 
 async function ownedCompany(supabase: { from: (t: string) => any }, userId: string) {
   const { data } = await supabase
@@ -64,6 +58,15 @@ async function founderWallet(supabase: { from: (t: string) => any }, userId: str
 export const getGenesisStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<GenesisPurchaseStatus> => {
+    const {
+      walletOwnsGenesis,
+      genesisContractAddress,
+      explorerTxUrl,
+      explorerTokenUrl,
+      genesisPriceUsdc,
+      genesisMaxSupply,
+    } = await genesisServer();
+
     const supabase = context.supabase;
     const { data: hasSeat } = await supabase.rpc("user_has_company_seat", {
       _uid: context.userId,
@@ -113,6 +116,9 @@ export const getGenesisStatus = createServerFn({ method: "GET" })
 export const createGenesisCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { genesisPriceUsdc } = await genesisServer();
+    const { createStripeCheckoutSession } = await import("@/lib/stripe-checkout");
+
     const secret = process.env["STRIPE_SECRET_KEY"];
     const priceId = process.env["STRIPE_PRICE_GENESIS_NFT"]?.trim();
     if (!secret || !priceId) {
@@ -189,6 +195,7 @@ export const markGenesisPaidFromX402 = createServerFn({ method: "POST" })
     paymentId: input?.paymentId ? String(input.paymentId).slice(0, 128) : undefined,
   }))
   .handler(async ({ data, context }) => {
+    const { genesisPriceUsdc } = await genesisServer();
     const { data: hasSeat } = await context.supabase.rpc("user_has_company_seat", {
       _uid: context.userId,
     });
@@ -270,6 +277,12 @@ export const markGenesisPaidFromX402 = createServerFn({ method: "POST" })
 export const claimGenesisNft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const {
+      walletOwnsGenesis,
+      mintGenesisToWallet,
+      genesisMaxSupply,
+      explorerTxUrl,
+    } = await genesisServer();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("genesis_purchases")
@@ -358,6 +371,7 @@ export async function markGenesisPaidFromStripe(opts: {
   sessionId: string;
   amountCents?: number;
 }) {
+  const { genesisPriceUsdc } = await genesisServer();
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const priceUsdc = genesisPriceUsdc();
   await supabaseAdmin.from("genesis_purchases").upsert(

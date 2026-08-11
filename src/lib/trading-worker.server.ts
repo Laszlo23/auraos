@@ -1,13 +1,15 @@
 import type { Address, Hex } from "viem";
 
 import { mergeAgentMemory } from "@/lib/agent-memory";
-import { activeNetwork, alchemyRpcUrl, chainId, USDC_ADDRESSES } from "@/lib/chain-config";
+import { activeNetwork, alchemyRpcUrl, chainId, networkSpec, USDC_ADDRESSES } from "@/lib/chain-config";
 import { parseOkxSwapCalldata } from "@/lib/okx.server";
 import { recomputeTradingArena } from "@/lib/trading/arena.server";
 import { validateStrategySpec, type StrategySpec } from "@/lib/trading/backtest.server";
 import { fetchCandles, fetchMarkPrice } from "@/lib/trading/market-data.server";
 import { sizeTradeNotional, unrealizedPnl } from "@/lib/trading/sizing";
 import { resolvePairTokens, WETH_ADDRESSES } from "@/lib/trading/tokens";
+
+const deskPrimary = () => networkSpec(activeNetwork()).primaryPair;
 
 const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
 
@@ -237,7 +239,7 @@ export async function ingestSmartMoney(limitCompanies = 30) {
                 await db.from("trading_signals").insert({
                   company_id: company.id,
                   strategy_id: followStrat.id,
-                  symbol: "WETH/USDC",
+                  symbol: deskPrimary(),
                   side: "long",
                   confidence: 0.6,
                   notional_usdc: notional,
@@ -296,7 +298,7 @@ export async function evaluateStrategies(limit = 20) {
 
       try {
         const { candles } = await fetchCandles({
-          symbol: spec.symbols[0] ?? "WETH/USDC",
+          symbol: spec.symbols[0] ?? deskPrimary(),
           timeframe: spec.timeframe,
           limit: 80,
         });
@@ -349,7 +351,7 @@ export async function evaluateStrategies(limit = 20) {
         await db.from("trading_signals").insert({
           company_id: company.id,
           strategy_id: s.id,
-          symbol: spec.symbols[0] ?? "WETH/USDC",
+          symbol: spec.symbols[0] ?? deskPrimary(),
           side: "long",
           confidence: 0.62,
           notional_usdc: notional,
@@ -507,7 +509,7 @@ export async function manageOpenPositions(limit = 20) {
 
   for (const trade of (opens ?? []) as OpenTrade[]) {
     try {
-      const mark = await fetchMarkPrice(trade.symbol || "WETH/USDC");
+      const mark = await fetchMarkPrice(trade.symbol || deskPrimary());
       const upnl = unrealizedPnl(Number(trade.entry), mark.price, Number(trade.size));
       await db
         .from("trades")
@@ -585,7 +587,7 @@ export async function manageOpenPositions(limit = 20) {
         continue;
       }
 
-      const pair = resolvePairTokens(trade.symbol || "WETH/USDC", network);
+      const pair = resolvePairTokens(trade.symbol || deskPrimary(), network);
       let wethAmount = Number(trade.amount_out);
       if (!Number.isFinite(wethAmount) || wethAmount <= 0) {
         wethAmount = Number(trade.size) / Math.max(mark.price, 1);
@@ -783,7 +785,7 @@ export async function executeApprovedSignals(limit = 5) {
         continue;
       }
 
-      const mark = await fetchMarkPrice(signal.symbol || "WETH/USDC").catch(() => ({
+      const mark = await fetchMarkPrice(signal.symbol || deskPrimary()).catch(() => ({
         price: Number(signal.entry_price) || 0,
         source: "signal",
       }));
@@ -793,7 +795,7 @@ export async function executeApprovedSignals(limit = 5) {
           company_id: company.id,
           strategy_id: signal.strategy_id,
           signal_id: signal.id,
-          symbol: signal.symbol || "WETH/USDC",
+          symbol: signal.symbol || deskPrimary(),
           side: "long",
           size: notional,
           entry: mark.price,
@@ -843,7 +845,7 @@ export async function executeApprovedSignals(limit = 5) {
         continue;
       }
 
-      const pair = resolvePairTokens(signal.symbol || "WETH/USDC", network);
+      const pair = resolvePairTokens(signal.symbol || deskPrimary(), network);
       const amountIn = BigInt(Math.floor(notional * 1e6));
       const slippagePct = ((company.max_slippage_bps ?? 50) / 100).toFixed(2);
 
@@ -908,7 +910,7 @@ export async function executeApprovedSignals(limit = 5) {
         company_id: company.id,
         strategy_id: signal.strategy_id,
         signal_id: signal.id,
-        symbol: signal.symbol || "WETH/USDC",
+        symbol: signal.symbol || deskPrimary(),
         side: "long",
         size: notional,
         entry: mark.price,
@@ -989,5 +991,12 @@ export async function runTradingTick() {
   } catch {
     // seasons table may not be migrated yet
   }
-  return { smart, evald, exec, managed, reconciled, arena };
+  let yieldTick: { scanned?: number; updated?: number; automationRuns?: number } = {};
+  try {
+    const { runYieldTick } = await import("@/lib/defi/yield.functions");
+    yieldTick = await runYieldTick();
+  } catch {
+    // yield tables may not be migrated yet
+  }
+  return { smart, evald, exec, managed, reconciled, arena, yieldTick };
 }

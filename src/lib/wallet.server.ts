@@ -9,7 +9,7 @@
  *   of existing counterfactual addresses (marked legacy, no new verified claims).
  */
 import { LocalAccountSigner } from "@aa-sdk/core";
-import { alchemy, base, baseSepolia } from "@account-kit/infra";
+import { alchemy, base, baseSepolia, bsc, opbnbMainnet } from "@account-kit/infra";
 import {
   createLightAccountAlchemyClient,
   getDefaultLightAccountFactoryAddress,
@@ -33,7 +33,20 @@ export const LIGHT_ACCOUNT_VERSION = "v2.0.0" as const;
 export const LIGHT_ACCOUNT_FACTORY = "0x0000000000400CdFef5E2714E63d8040b700BC24" as Address;
 
 export function viemChain(network: AuraNetwork = activeNetwork()) {
-  return network === "base" ? base : baseSepolia;
+  switch (network) {
+    case "base":
+      return base;
+    case "base-sepolia":
+      return baseSepolia;
+    case "bsc":
+      return bsc;
+    case "opbnb":
+      return opbnbMainnet;
+    default: {
+      const _exhaustive: never = network;
+      return _exhaustive;
+    }
+  }
 }
 
 export function mintOwnerPrivateKey(): Hex {
@@ -112,7 +125,7 @@ export async function createSponsoredLightClient(privateKey: Hex) {
   if (!apiKey) throw new Error("ALCHEMY_API_KEY is not configured.");
   const network = activeNetwork();
   const chain = viemChain(network);
-  const policyId = gasPolicyId();
+  const policyId = gasPolicyId(network);
 
   return createLightAccountAlchemyClient({
     transport: alchemy({ apiKey }),
@@ -136,10 +149,10 @@ export async function deploySmartAccount(privateKey: Hex): Promise<{
   const address = client.account.address as Address;
   const network = activeNetwork();
   if (await isDeployed(address, network)) {
-    return { address, deployed: true, userOpHash: null, sponsored: gasSponsorshipEnabled() };
+    return { address, deployed: true, userOpHash: null, sponsored: gasSponsorshipEnabled(network) };
   }
 
-  const sponsored = gasSponsorshipEnabled();
+  const sponsored = gasSponsorshipEnabled(network);
   try {
     const result = await client.sendUserOperation({
       uo: {

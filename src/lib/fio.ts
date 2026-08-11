@@ -5,12 +5,14 @@
 
 export type FioChainPair = { chainCode: string; tokenCode: string; label: string };
 
-/** Resolution targets we care about for Aura (ETH + Base + USDC). */
+/** Resolution targets we care about for Aura (ETH + Base + BNB + USDC). */
 export const FIO_CHAIN_PAIRS: FioChainPair[] = [
   { chainCode: "ETH", tokenCode: "ETH", label: "ETH" },
   { chainCode: "ETH", tokenCode: "USDC", label: "USDC on ETH" },
   { chainCode: "BASE", tokenCode: "ETH", label: "Base ETH" },
   { chainCode: "BASE", tokenCode: "USDC", label: "USDC on Base" },
+  { chainCode: "BSC", tokenCode: "BNB", label: "BNB" },
+  { chainCode: "BSC", tokenCode: "USDC", label: "USDC on BSC" },
 ];
 
 const DEFAULT_DOMAIN = "aura";

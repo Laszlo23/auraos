@@ -441,9 +441,16 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
       typeof json.knowledge_fact.title === "string" &&
       json.knowledge_fact.title.trim()
     ) {
+      const summaryRaw = json.knowledge_fact.summary;
+      const summaryText =
+        typeof summaryRaw === "string"
+          ? summaryRaw
+          : summaryRaw == null
+            ? resultText
+            : String(summaryRaw);
       durableFact = {
         title: json.knowledge_fact.title.trim().slice(0, 120),
-        summary: (json.knowledge_fact.summary ?? resultText).trim().slice(0, 800),
+        summary: summaryText.trim().slice(0, 800),
       };
     }
     steps = markStep(steps, "synthesize", "done", "Deliverable drafted");

@@ -233,12 +233,17 @@ export function useProposeNextActions() {
   const findAgent = useAgentLookup();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (opts?: { instruction?: string }) => {
       if (!company) throw new Error("No company yet");
       let atlasId = findAgent("Atlas");
       if (!atlasId) atlasId = await hireAgentIfNeeded(company.id, "Atlas");
 
-      const proposals = await proposeNextActionsAi({ data: { companyId: company.id } });
+      const proposals = await proposeNextActionsAi({
+        data: {
+          companyId: company.id,
+          ...(opts?.instruction ? { instruction: opts.instruction } : {}),
+        },
+      });
 
       for (const p of proposals) {
         let agentId = findAgent(p.agent);
@@ -263,14 +268,22 @@ export function useProposeNextActions() {
         company_id: company.id,
         agent_id: atlasId,
         kind: "proposal",
-        message: "Atlas proposed next actions from live context — approve to let agents work.",
+        message: opts?.instruction
+          ? "Atlas turned founder direction into tasks — approve on Tasks to run them."
+          : "Atlas proposed next actions from live context — approve to let agents work.",
       });
+
+      return proposals.length;
     },
-    onSuccess: () => {
+    onSuccess: (count) => {
       void qc.invalidateQueries({ queryKey: ["table", "tasks"] });
       void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
       void qc.invalidateQueries({ queryKey: ["table", "agents"] });
-      toast.success("Atlas proposed next actions. Approve them on Tasks.");
+      toast.success(
+        count
+          ? `Atlas queued ${count} task${count === 1 ? "" : "s"} for approval.`
+          : "Atlas proposed next actions. Approve them on Tasks.",
+      );
     },
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : "Couldn't create proposals."),
@@ -456,11 +469,14 @@ export function useCreateRow(table: "products" | "knowledge_items" | "files" | "
   return useMutation({
     mutationFn: async (values: Record<string, unknown>) => {
       if (!company) throw new Error("No company yet");
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from(table)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .insert({ ...values, company_id: company.id } as any);
+        .insert({ ...values, company_id: company.id } as any)
+        .select("id")
+        .single();
       if (error) throw error;
+      return data as { id: string };
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["table", table] }),
     onError: () => toast.error("Couldn't save that."),

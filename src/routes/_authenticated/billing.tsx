@@ -2,9 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, Coins, CreditCard, RefreshCw, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Chip, DataRow, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
+import { StripeConnectPanel } from "@/components/aura/stripe-connect-panel";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import {
   useLogTokens,
@@ -32,6 +34,13 @@ import { cn } from "@/lib/utils";
 const STRIPE_ENABLED = Boolean(import.meta.env["VITE_STRIPE_PUBLISHABLE_KEY"]);
 
 export const Route = createFileRoute("/_authenticated/billing")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const out: { connect?: "return" | "refresh" } = {};
+    if (search["connect"] === "return" || search["connect"] === "refresh") {
+      out.connect = search["connect"];
+    }
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "Subscription — monthly AURA tokens | Aura OS" },
@@ -56,6 +65,7 @@ export const Route = createFileRoute("/_authenticated/billing")({
 type Agent = { id: string; name: string; avatar: string; credits_used: number };
 
 function BillingPage() {
+  const connectFlag = Route.useSearch().connect;
   const { data: company } = useCompany();
   const { data: sub } = useSubscription();
   const update = useUpdateSubscription();
@@ -69,6 +79,17 @@ function BillingPage() {
   const [connecting, setConnecting] = useState(false);
   const [checkoutBusy, setCheckoutBusy] = useState<string | null>(null);
   const rolled = useRef(false);
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    if (!connectFlag) return;
+    void qc.invalidateQueries({ queryKey: ["stripe-connect"] });
+    toast.success(
+      connectFlag === "return"
+        ? "Stripe onboarding returned — tap Refresh if needed."
+        : "Onboarding link expired — Connect Stripe again.",
+    );
+  }, [connectFlag, qc]);
 
   // Auto-renew actually rolls the cycle forward once it has elapsed.
   useEffect(() => {
@@ -220,6 +241,8 @@ function BillingPage() {
           </Chip>
         }
       />
+
+      <StripeConnectPanel returnPath="/billing?connect=return" refreshPath="/billing?connect=refresh" />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">

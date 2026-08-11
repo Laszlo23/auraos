@@ -14,7 +14,11 @@ export type TeaserEvent =
   | "signup_view"
   | "share"
   | "social_join"
-  | "launch_share";
+  | "launch_share"
+  | "idle_drop"
+  | "exit_intent"
+  | "scroll_drop"
+  | "attention_nudge";
 
 const KEY = "aura.visitor";
 
@@ -35,6 +39,7 @@ export function trackTeaser(
   opts: { placement?: string; positionPct?: number } = {},
 ): void {
   if (typeof window === "undefined") return;
+  const attr = getAttribution();
   void supabase
     .from("teaser_events")
     .insert({
@@ -46,7 +51,13 @@ export function trackTeaser(
           ? null
           : Math.max(0, Math.min(100, Math.round(opts.positionPct))),
       referrer: (document.referrer || window.location.href).slice(0, 500),
-      ...getAttribution(),
+      utm_source: attr.utm_source,
+      utm_medium: attr.utm_medium,
+      utm_campaign: attr.utm_campaign,
+      utm_content: attr.utm_content,
+      utm_term: attr.utm_term,
+      ref_code: attr.ref_code,
+      landing_path: attr.landing_path,
     })
     .then(
       () => undefined,

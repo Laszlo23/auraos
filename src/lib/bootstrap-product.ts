@@ -13,10 +13,10 @@ const PRODUCT_META: Record<
   { name: string; description: string; strategy: string; emoji: string; price: number }
 > = {
   trading: {
-    name: "Quant Trading Desk",
+    name: "Quant + Yield Desk",
     description:
-      "Risk-capped autonomous spot desk on Base (WETH/USDC). Strategies require backtest + founder arm.",
-    strategy: "Primary product: Quant Trading Desk on Base with hard USDC caps.",
+      "Dual desk: Quant for spot/day-trade velocity, Yield for Aerodrome/BNB LP + autopilot ROI — hard USDC caps.",
+    strategy: "Primary product: Quant velocity + Yield parking on Base/BNB.",
     emoji: "▲",
     price: 0,
   },

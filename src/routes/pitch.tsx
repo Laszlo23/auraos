@@ -1,21 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download } from "lucide-react";
+import { Download, Map } from "lucide-react";
 
 import { Chip } from "@/components/aura/primitives";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
+import { FEATURED_DECK_IDS, PITCH_DECKS } from "@/lib/pitch-decks";
 import { OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
+import { trackTeaser } from "@/lib/teaser-track";
 
 export const Route = createFileRoute("/pitch")({
   head: () => ({
     meta: [
-      { title: "Pitch — Aura OS pre-launch review" },
+      { title: "Pitch & roadmap decks — Aura OS" },
       {
         name: "description",
         content:
-          "Own a company. Let AI make money. Founding cohort, private-sale Genesis keys, and the road to fair launch.",
+          "Download the Aura decks: Wien→World vision, growth playbook, product & token strategy, unit economics, and Aura Lokal.",
       },
-      { property: "og:title", content: "Aura OS — Pre-Launch Pitch" },
+      { property: "og:title", content: "Aura OS — Pitch & roadmap decks" },
       { property: "og:url", content: `${SITE_URL}/pitch` },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:card", content: "summary_large_image" },
@@ -33,8 +35,8 @@ const SECTIONS = [
   },
   {
     kicker: "02 · Access",
-    title: "Community first, then the door",
-    body: "Waitlist builds the room. Paid founding seats (hard cap 1000) open in waves — invite unlocks $99 checkout. Free multi-use codes are closed. Token launch stays separate.",
+    title: "Founding seats open",
+    body: "Paid founding seats (hard cap 1000) at $99 — no invite required to buy. After purchase you get one invite to share. Token launch stays separate from company compute.",
   },
   {
     kicker: "03 · Genesis key",
@@ -47,6 +49,11 @@ const SECTIONS = [
     body: "Scale founding companies, settle real tasks with proof-of-work, keep founder approvals on spend, and ship reliability — including shared memory and public live metrics.",
   },
 ] as const;
+
+const featured = FEATURED_DECK_IDS.map((id) => PITCH_DECKS.find((d) => d.id === id)!).filter(
+  Boolean,
+);
+const archive = PITCH_DECKS.filter((d) => !(FEATURED_DECK_IDS as readonly string[]).includes(d.id));
 
 function PitchPage() {
   return (
@@ -73,32 +80,30 @@ function PitchPage() {
 
       <div className="relative mx-auto max-w-3xl px-6 py-14 sm:py-20">
         <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">
-          Aura OS · Confidential-friendly public cut
+          Aura OS · Where we are going
         </p>
         <h1 className="mt-4 font-display text-[clamp(2.4rem,8vw,4rem)] font-semibold leading-[0.98] tracking-tight">
           Own a company.
-          <span className="block text-primary">Let AI make money.</span>
+          <span className="block text-primary">Read the decks.</span>
         </h1>
         <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Pre-launch business review turned into a page you can share. Numbers below match the live
-          product (1000 founding seats, paid invite graph, Genesis as keys) — not the old free-code
-          deck slides.
+          Vision, growth, product, token, and unit economics — downloadable PowerPoints so anyone
+          can see the path from Vienna to world, without waiting for a call.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            to="/"
-            hash="community"
+            to="/access"
+            search={{}}
             className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
           >
-            Join waitlist
+            Buy founding seat — $99
           </Link>
           <a
-            href="/presentation.pptx"
-            download
+            href="#decks"
             className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
           >
-            <Download className="h-3.5 w-3.5" /> Download deck (.pptx)
+            <Map className="h-3.5 w-3.5" /> Jump to decks
           </a>
         </div>
 
@@ -107,9 +112,86 @@ function PitchPage() {
           <FoundingCohort />
         </div>
 
+        <section id="decks" className="mt-16 scroll-mt-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+            Deck library
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            Five slidesets. One direction.
+          </h2>
+          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+            Start with Wien → World, then product & token, then the numbers. Lokal sits beside the
+            OS for local businesses in DE/AT.
+          </p>
+
+          <ul className="mt-8 divide-y divide-border/40 border-y border-border/40">
+            {featured.map((deck) => (
+              <li
+                key={deck.id}
+                className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                      {deck.tag}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
+                      .{deck.lang === "both" ? "EN/DE" : deck.lang.toUpperCase()} · pptx
+                    </span>
+                  </div>
+                  <h3 className="mt-1.5 font-display text-lg font-semibold tracking-tight">
+                    {deck.title}
+                  </h3>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                    {deck.blurb}
+                  </p>
+                </div>
+                <a
+                  href={deck.href}
+                  download
+                  onClick={() =>
+                    trackTeaser("download", { placement: `pitch:${deck.id}`.slice(0, 40) })
+                  }
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-foreground/8 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:bg-foreground/12"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {archive.length > 0 ? (
+            <div className="mt-8">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                Also available
+              </p>
+              <ul className="mt-3 space-y-2">
+                {archive.map((deck) => (
+                  <li key={deck.id}>
+                    <a
+                      href={deck.href}
+                      download
+                      onClick={() =>
+                        trackTeaser("download", { placement: `pitch:${deck.id}`.slice(0, 40) })
+                      }
+                      className="inline-flex items-center gap-2 text-[13px] text-primary underline-offset-2 hover:underline"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      {deck.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </section>
+
         <div className="mt-14 space-y-8">
           {SECTIONS.map((s) => (
-            <section key={s.kicker} className="rounded-3xl border border-border/40 bg-foreground/[0.03] p-6">
+            <section
+              key={s.kicker}
+              className="rounded-3xl border border-border/40 bg-foreground/[0.03] p-6"
+            >
               <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
                 {s.kicker}
               </p>

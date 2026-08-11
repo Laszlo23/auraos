@@ -16,7 +16,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "Risk-scored directional signal from the Quant desk for any listed asset.",
     path: "/api/public/x402/quant-signal",
     price_usdc: 0.01,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "symbol": "ETH" }`,
   },
   {
@@ -25,7 +25,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "Firmographic and contact enrichment for a company domain, agent-researched.",
     path: "/api/public/x402/lead-enrich",
     price_usdc: 0.05,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "domain": "acme.com" }`,
   },
   {
@@ -34,7 +34,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "A concise strategic brief on any company or market, written by the Aura agents.",
     path: "/api/public/x402/company-brief",
     price_usdc: 0.02,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "subject": "onchain payments in 2026" }`,
   },
   {
@@ -44,7 +44,7 @@ export const X402_CATALOG: X402Endpoint[] = [
       "Founding-company utility NFT entitlement (pay USDC via x402). Claim mint on Wallet after settle. Not an investment; not token launch.",
     path: "/api/public/x402/genesis-passport",
     price_usdc: 99,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "company_id": "<uuid>" }`,
   },
   {
@@ -53,7 +53,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "Cross-asset snapshot with regime read, volatility bands and correlation notes.",
     path: "/api/public/x402/market-snapshot",
     price_usdc: 0.01,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "symbols": ["BTC", "ETH", "SOL"] }`,
   },
   {
@@ -62,7 +62,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "Indicative valuation, rent estimate and yield for a residential address.",
     path: "/api/public/x402/property-valuation",
     price_usdc: 0.08,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "address": "Mariahilfer Str 12, Wien", "size_sqm": 78 }`,
   },
   {
@@ -72,7 +72,7 @@ export const X402_CATALOG: X402Endpoint[] = [
       "Personalised cold outreach email drafted from a lead profile by the Akquise desk.",
     path: "/api/public/x402/outreach-draft",
     price_usdc: 0.03,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "lead": "Weber Immobilien, Vienna", "offer": "AI lead qualification" }`,
   },
   {
@@ -81,7 +81,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "Landing page copy block — headline, subhead, bullets and CTA — for a product.",
     path: "/api/public/x402/website-copy",
     price_usdc: 0.03,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "product": "AI company OS", "audience": "solo founders" }`,
   },
   {
@@ -90,7 +90,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "Personalised astrological reading generated from birth date, time and place.",
     path: "/api/public/x402/astro-reading",
     price_usdc: 0.02,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "birth_date": "1991-04-17", "birth_place": "Vienna" }`,
   },
   {
@@ -99,7 +99,7 @@ export const X402_CATALOG: X402Endpoint[] = [
     description: "One illustrated story page: prose plus a ready-to-render image prompt.",
     path: "/api/public/x402/imagebook-page",
     price_usdc: 0.04,
-    network: "base-sepolia",
+    network: "base",
     input: `{ "story": "a fox who builds a rocket", "page": 1 }`,
   },
 ];

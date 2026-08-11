@@ -28,6 +28,69 @@ const CTA = `Fair launch ${TOKEN_LAUNCH_DISPLAY} → ${SITE_URL}`;
  */
 export const SHARE_POSTS: SharePost[] = [
   {
+    id: "auraos-bedroom",
+    title: "Not a bot. A desk.",
+    vibe: "Quant scans. You approve. Sleep is allowed.",
+    file: "auraos",
+    aspect: "landscape",
+    duration: "15s",
+    bestFor: ["X", "Telegram", "LinkedIn"],
+    hook: "Not a trading bot. A Quant desk inside a company you own.",
+    captions: [
+      `A founder opened a Quant trading desk inside Aura OS.
+
+Not a script on an iPad.
+An AI employee named Quant — plus Atlas, Vela, Iris, Cass watching the rest of the company.
+
+Starting capital to wake the company: $99.
+
+Here's how it works:
+
+Quant watches live market pulses and candlesticks.
+Backtests before it arms.
+Risk meters before it sizes.
+Founder approval before live fire.
+
+The edge isn't “Claude vibes.”
+It's speed + rules + a leash.
+
+While people refresh one chart and second-guess entries,
+Quant is already evaluating signals against a risk policy that doesn't get tired, greedy, or revenge-trade.
+
+No emotions.
+No “one more candle.”
+No 3am FOMO.
+
+Paper first. Backtest first. Then arm — if you say so.
+
+Most people are still trading alone.
+Aura founders hire Quant into a company they own.
+
+${CTA}
+Desk → ${SITE_URL}/trading
+Seat → ${SITE_URL}/access`,
+      `Not a bot. A desk.
+
+Quant in Aura OS:
+→ live market pulse
+→ backtest before arm
+→ risk meter before size
+→ you approve before live
+
+Starting seat: $99.
+You own the company. Quant doesn't own your keys.
+
+${CTA}`,
+      `Why are people still trading manually?
+
+Quant doesn't stare at one chart hoping.
+It evaluates, sizes with policy, and waits for your approve.
+
+Own the desk. Own the company.
+${CTA}`,
+    ],
+  },
+  {
     id: "4am",
     title: "4am and still shipping",
     vibe: "You woke up early. The agents never went to bed.",
@@ -142,7 +205,7 @@ export const SHARE_POSTS: SharePost[] = [
     bestFor: ["X", "Telegram", "LinkedIn"],
     hook: "They never sleep. Nothing spends a dollar without your approval.",
     captions: [
-      `Quant at 3am: “+$4,280 overnight.”\nMe, one eye open, typing like a raccoon: “nice… wait approve?”\n\nAutonomy. With a leash.\n\n${CTA}`,
+      `Quant at 3am: “signal ready — approve?”\nMe, one eye open: “nice… wait, show risk.”\n\nAutonomy. With a leash.\n\n${CTA}`,
       `AI employees that hustle 24/7 — and still ask before touching the wallet.\nThat's not a chatbot. That's a company with manners.\n\n${CTA}`,
       `My agents never sleep.\nMy bank account sleeps great.\nBecause nothing spends without me.\n\n${CTA}`,
     ],
@@ -160,21 +223,6 @@ export const SHARE_POSTS: SharePost[] = [
       `We hired 8 AI employees.\nThey showed up synchronized.\nThey don't do small talk.\nThey do missions.\n\nMission: AI-native.\n\n${CTA}`,
       `This is what “automate everything” looks like when it stops being a LinkedIn carousel.\n\n${CTA}`,
       `Whiteboard says “8 AI EMPLOYEES.”\nThe vibe says they share one braincell.\nThe P&L says that braincell is crushing it.\n\n${CTA}`,
-    ],
-  },
-  {
-    id: "auraos-bedroom",
-    title: "Quant while you dream",
-    vibe: "Candlesticks in the bedroom. Soft life meets hard metrics.",
-    file: "auraos",
-    aspect: "landscape",
-    duration: "15s",
-    bestFor: ["X", "Instagram", "Telegram"],
-    hook: "12 actions. 4 leads. 3 campaigns. 0 alarms.",
-    captions: [
-      `12 actions completed.\n4 leads.\n3 campaigns launched.\nAlarms snoozed: infinite.\n\nMy Quant agent grinds charts. I grind sleep.\n\n${CTA}`,
-      `This is “set it and forget it” when it actually works — not when your SaaS just emails you a weekly digest.\n\n${CTA}`,
-      `Bedroom aesthetic. Boardroom output.\nAura OS doesn't care where you rest.\n\n${CTA}`,
     ],
   },
   {

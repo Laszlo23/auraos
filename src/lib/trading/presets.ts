@@ -1,17 +1,22 @@
 import type { StrategySpec } from "@/lib/trading/backtest.server";
 
-export type TradingPresetId = "steady_eth" | "dip_buyer" | "whale_follow";
+export type TradingPresetId =
+  | "steady_eth"
+  | "dip_buyer"
+  | "whale_follow"
+  | "scalp_15m"
+  | "breakout_5m";
 
 export type TradingPreset = {
   id: TradingPresetId;
   name: string;
   tagline: string;
-  riskLabel: "Low" | "Medium";
+  riskLabel: "Low" | "Medium" | "High";
   prompt: string;
   spec: StrategySpec;
 };
 
-/** One-tap set-and-forget strategies for founders who do not trade. */
+/** One-tap set-and-forget + intraday velocity strategies. */
 export const TRADING_PRESETS: TradingPreset[] = [
   {
     id: "steady_eth",
@@ -56,6 +61,36 @@ export const TRADING_PRESETS: TradingPreset[] = [
       entry: { type: "smart_money_follow", params: {} },
       exit: { stop_pct: 3, take_profit_pct: 6, trailing_pct: 2.5, max_hold_hours: 96 },
       sizing: { risk_pct_equity: 0.5, max_notional_usdc: 75 },
+    },
+  },
+  {
+    id: "scalp_15m",
+    name: "15m scalp",
+    tagline: "Intraday velocity — tight stops, capital turns, pairs with Yield parking.",
+    riskLabel: "High",
+    prompt:
+      "15m scalp: MA cross 8/21 on WETH/USDC, 0.35% risk, 1.2% stop, 2.2% take, max hold 6h. Day-trade book.",
+    spec: {
+      timeframe: "15m",
+      symbols: ["WETH/USDC"],
+      entry: { type: "ma_cross", params: { fast: 8, slow: 21 } },
+      exit: { stop_pct: 1.2, take_profit_pct: 2.2, trailing_pct: 0.8, max_hold_hours: 6 },
+      sizing: { risk_pct_equity: 0.35, max_notional_usdc: 60 },
+    },
+  },
+  {
+    id: "breakout_5m",
+    name: "5m breakout",
+    tagline: "High-frequency breakout — only with Yield Autopilot parking residual.",
+    riskLabel: "High",
+    prompt:
+      "5m breakout: 12-bar lookback on WETH/USDC, 0.3% risk, 0.9% stop, 1.6% take, max hold 3h.",
+    spec: {
+      timeframe: "5m",
+      symbols: ["WETH/USDC"],
+      entry: { type: "breakout", params: { lookback: 12 } },
+      exit: { stop_pct: 0.9, take_profit_pct: 1.6, trailing_pct: 0.5, max_hold_hours: 3 },
+      sizing: { risk_pct_equity: 0.3, max_notional_usdc: 50 },
     },
   },
 ];

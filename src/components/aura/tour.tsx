@@ -28,12 +28,12 @@ const STOPS: Stop[] = [
   {
     target: "[data-tour='faq']",
     title: "The honest answers",
-    body: "Open any question here — including why seats are invite only.",
+    body: "Open any question here — including how to buy a founding seat.",
   },
   {
     target: "[data-tour='claim']",
-    title: "Earn your invite",
-    body: "Complete a few community tasks to unlock access — or paste a code if you already have one.",
+    title: "Buy your seat",
+    body: "Founding seats are open at $99. Pay once, wake the company, then share one invite if you want.",
   },
 ];
 

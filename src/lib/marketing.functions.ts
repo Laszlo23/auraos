@@ -4,8 +4,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { aiJson } from "@/lib/ai.server";
 import {
   enrichBodyWithMedia,
-  generateOpenAiImageBytes,
-  openaiImagesConfigured,
+  generateCreativeImageBytes,
+  productImagesConfigured,
 } from "@/lib/marketing.server";
 import { getSharePost, SHARE_POSTS } from "@/lib/share-posts";
 
@@ -324,9 +324,9 @@ export const generateMarketingImage = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data, context }) => {
-    if (!openaiImagesConfigured()) {
+    if (!productImagesConfigured()) {
       throw new Error(
-        "Set OPENAI_API_KEY for image generation (Images API). Chat-only keys cannot draw.",
+        "Set GEMINI_API_KEY (preferred) or OPENAI_API_KEY for image generation.",
       );
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -339,7 +339,7 @@ export const generateMarketingImage = createServerFn({ method: "POST" })
       TASK_COST,
       "Marketing · image",
     );
-    const { bytes, mime } = await generateOpenAiImageBytes(data.prompt);
+    const { bytes, mime } = await generateCreativeImageBytes(data.prompt);
     const ext = mime.includes("jpeg") || mime.includes("jpg") ? "jpg" : "png";
     const path = `${company.id}/${crypto.randomUUID()}.${ext}`;
     const { error: upErr } = await supabaseAdmin.storage
@@ -510,4 +510,4 @@ export const updateMarketingFunnel = createServerFn({ method: "POST" })
 
 export const marketingImageStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => ({ configured: openaiImagesConfigured() }));
+  .handler(async () => ({ configured: productImagesConfigured() }));

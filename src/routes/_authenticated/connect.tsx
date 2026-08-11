@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Link2, Loader2, Mail, Plug, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,6 +19,7 @@ import {
   useDisconnectMailbox,
   useMailboxes,
   useSendSmtpTest,
+  useSmtpSettings,
 } from "@/hooks/use-mailbox";
 import { useMyHandle, useBindWallet, useVerifyWallet } from "@/hooks/use-identity";
 import { useSubscription, useUpdateSubscription } from "@/hooks/use-tokens";
@@ -142,6 +143,7 @@ function ConnectPage() {
   const connectSmtp = useConnectSmtp();
   const sendSmtpTest = useSendSmtpTest();
   const disconnectMailbox = useDisconnectMailbox();
+  const { data: smtpSaved } = useSmtpSettings();
   const { data: sub } = useSubscription();
   const updateSub = useUpdateSubscription();
   const { data: handle } = useMyHandle();
@@ -162,6 +164,46 @@ function ConnectPage() {
     from_name: "",
     from_email: "",
   });
+  const [aiHealth, setAiHealth] = useState<{
+    ok: boolean;
+    providers: string[];
+    primary: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!smtpSaved) return;
+    setSmtpForm((f) => ({
+      ...f,
+      host: smtpSaved.host,
+      port: String(smtpSaved.port),
+      secure: smtpSaved.secure,
+      username: smtpSaved.username,
+      from_name: smtpSaved.from_name,
+      from_email: smtpSaved.from_email,
+      // Never echo the stored password into the form.
+      password: "",
+    }));
+  }, [smtpSaved]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/public/ai-health")
+      .then((r) => r.json())
+      .then((body: { ok?: boolean; providers?: string[]; primary?: string | null }) => {
+        if (cancelled) return;
+        setAiHealth({
+          ok: Boolean(body.ok),
+          providers: Array.isArray(body.providers) ? body.providers : [],
+          primary: body.primary ?? null,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setAiHealth({ ok: false, providers: [], primary: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const celebrate = (label: string, amount: number, quest?: string) => {
     setBurst((n) => n + 1);
@@ -214,8 +256,10 @@ function ConnectPage() {
         from_name: smtpForm.from_name,
         from_email: smtpForm.from_email,
       });
+      setSmtpForm((f) => ({ ...f, password: "" }));
       setSmtpOpen(false);
-      celebrate("SMTP connected", 200, "mailbox:smtp");
+      celebrate("SMTP saved", 200, "mailbox:smtp");
+      toast.success(`Saved ${smtpForm.from_email.trim() || "SMTP"}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "SMTP connection failed.");
     } finally {
@@ -286,9 +330,19 @@ function ConnectPage() {
         title="Connect everything once"
         description="Three taps: socials, your mailbox (agents need it for outreach), and wallet. Sends stay founder-approved."
         actions={
-          <Chip tone={done === 3 ? "primary" : "gold"}>
-            <Plug className="h-3 w-3" /> {done}/3 wired
-          </Chip>
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip tone={aiHealth?.ok ? "primary" : "gold"}>
+              <Pulse />{" "}
+              {aiHealth == null
+                ? "AI…"
+                : aiHealth.ok
+                  ? `AI · ${aiHealth.primary ?? "ready"}`
+                  : "AI offline"}
+            </Chip>
+            <Chip tone={done === 3 ? "primary" : "gold"}>
+              <Plug className="h-3 w-3" /> {done}/3 wired
+            </Chip>
+          </div>
         }
       />
 
@@ -411,6 +465,8 @@ function ConnectPage() {
         {(() => {
           const state = mailboxes.find((x) => x.provider === "smtp");
           const status = state?.connected ? "connected" : "idle";
+          const savedLabel =
+            state?.account ?? smtpSaved?.from_email ?? null;
           return (
             <div className="border-b border-border/40 last:border-0">
               <Row
@@ -418,7 +474,7 @@ function ConnectPage() {
                 title="SMTP"
                 blurb={
                   state?.connected
-                    ? (state.account ?? "Connected")
+                    ? `Saved as ${savedLabel ?? "mailbox"} — host ${smtpSaved?.host ?? "stored"}. Edit anytime; leave password blank to keep it.`
                     : "Any mailbox via host, port, username, and password. Prefer custom-domain SMTP (Zoho, Migadu, Namecheap). Gmail/Microsoft usually need an app password."
                 }
                 status={status}
@@ -432,6 +488,9 @@ function ConnectPage() {
                     >
                       Test send
                     </Action>
+                    <Action tone="ghost" onClick={() => setSmtpOpen((o) => !o)}>
+                      {smtpOpen ? "Close" : "Edit"}
+                    </Action>
                     <Action tone="ghost" onClick={() => disconnectMailbox.mutate("smtp")}>
                       Disconnect
                     </Action>
@@ -442,14 +501,18 @@ function ConnectPage() {
                   </Action>
                 )}
               </Row>
-              {smtpOpen && !state?.connected ? (
+              {smtpOpen ? (
                 <div className="grid gap-3 border-t border-border/40 px-5 py-4 sm:grid-cols-2">
                   {(
                     [
                       ["host", "Host", "smtp.example.com"],
                       ["port", "Port", "587"],
                       ["username", "Username", "you@example.com"],
-                      ["password", "Password", "••••••••"],
+                      [
+                        "password",
+                        state?.connected ? "Password (blank = keep)" : "Password",
+                        "••••••••",
+                      ],
                       ["from_email", "From email", "you@example.com"],
                       ["from_name", "From name", "Your Company"],
                     ] as const
@@ -460,6 +523,7 @@ function ConnectPage() {
                         type={key === "password" ? "password" : "text"}
                         value={smtpForm[key]}
                         placeholder={placeholder}
+                        autoComplete={key === "password" ? "new-password" : "off"}
                         onChange={(e) =>
                           setSmtpForm((f) => ({ ...f, [key]: e.target.value }))
                         }

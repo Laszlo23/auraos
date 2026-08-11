@@ -3,13 +3,14 @@ import { useMemo, useState } from "react";
 import { Activity, Bot, Coins, Radio, Sparkles, Trophy } from "lucide-react";
 
 import { Chip, Panel, Pulse } from "@/components/aura/primitives";
-import { ShareBar } from "@/components/aura/share";
+import { ShareMoment } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { LaunchCountdown, SocialJoinRow } from "@/components/aura/launch-countdown";
 import { usePublicFeed, useNetworkTotals, type FeedRow } from "@/hooks/use-public";
 import { shortHash } from "@/lib/subscription";
-import { LAUNCH_SHARE_TEXT, SITE_URL, OG_IMAGE, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
+import { SITE_URL, OG_IMAGE, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { num } from "@/lib/format";
 
 export const Route = createFileRoute("/live")({
   head: () => ({
@@ -133,6 +134,11 @@ function LivePage() {
     { label: "Actions · 24h", value: fmt(t?.actions_24h) },
   ];
 
+  const companies = Number(t?.companies ?? 0);
+  const actions24h = Number(t?.actions_24h ?? 0);
+  const shareStat = `${num(companies)} companies · ${num(actions24h)} actions · 24h`;
+  const shareText = `Aura OS live network — ${shareStat}. Real ledger, not demo theater.`;
+
   return (
     <main className="mx-auto w-full max-w-[1040px] px-5 py-14 md:px-8 md:py-20">
       <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
@@ -157,14 +163,19 @@ function LivePage() {
           >
             Claim a seat
           </Link>
-          <ShareBar
-            url={`${SITE_URL}/live`}
-            text={LAUNCH_SHARE_TEXT}
-            placement="live_launch"
-            compact
-          />
         </div>
       </header>
+
+      <div className="mb-6">
+        <ShareMoment
+          url={`${SITE_URL}/live`}
+          text={shareText}
+          title="Aura OS · live network"
+          placement="live_launch"
+          label="Share the live feed"
+          statLine={shareStat}
+        />
+      </div>
 
       <div className="mb-6 flex flex-col gap-3 rounded-3xl border border-primary/15 bg-primary/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-muted-foreground">
@@ -214,7 +225,7 @@ function LivePage() {
         className="mt-12 px-0"
         share={{
           url: `${SITE_URL}/live`,
-          text: LAUNCH_SHARE_TEXT,
+          text: shareText,
           placement: "live_launch_footer",
         }}
       />

@@ -89,6 +89,10 @@ function BewertungenPage() {
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
           Google Review Boost
         </h1>
+        <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+          Invite real customers to leave an optional Google review. We never invent stars, pay for
+          ratings, or write reviews for you — only tracked invite links you approve.
+        </p>
         <p className="mt-2 text-sm text-muted-foreground">
           Nur echte Kunden. Du gibst jeden Versand frei. Keine Fake-Reviews.
         </p>

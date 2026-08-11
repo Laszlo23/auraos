@@ -69,12 +69,12 @@ const FAQ = [
     a: "No. If you can write a text message, you can run a company here. There is nothing to install and no code to write.",
   },
   {
-    q: "Why is it invite only?",
-    a: "Founding seats are paid ($99) and capped at 1000 online businesses. An invite is the scarce right to buy — not a free pass. Each seated founder gets one invite. Token launch is separate.",
+    q: "How do I get a seat?",
+    a: "Buy open — $99 one-time, capped at 1000 companies. No invite needed to purchase. After you're in, you get one invite link to share (friends still pay). Token launch is separate.",
   },
   {
     q: "What do I actually get as a founding member?",
-    a: "A paid company seat, a founding badge, exactly one invite to pass on, in-app AURA growth rewards on paid conversions, and a concierge page-review queue. Compute billing and token launch stay separate.",
+    a: "A paid company seat, a founding badge, one invite to pass on, in-app AURA growth rewards on paid conversions, and a concierge page-review queue. Compute billing and token launch stay separate.",
   },
 ];
 

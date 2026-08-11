@@ -1,12 +1,15 @@
 /**
- * Server-only OKX Web3 / DEX rails.
+ * Server-only OKX Web3 / DEX rails (Trade API v6).
  *
  * Members never install OKX Wallet. This module is for agent treasury actions:
  * quotes, swaps, builder-code attribution, and optional platform payouts.
+ *
+ * V5 aggregator endpoints return deprecation errors (upgrade to V6).
+ * Docs: https://web3.okx.com/onchainos/dev-docs/trade/dex-get-quote
  */
 import { createHmac } from "node:crypto";
 
-const OKX_BASE = "https://www.okx.com";
+const OKX_BASE = "https://web3.okx.com";
 
 export type OkxQuote = {
   chainId: string;
@@ -37,6 +40,10 @@ export function okxPayoutAddress(): string | null {
   return process.env["OKX_PAYOUT_ADDRESS"] || null;
 }
 
+function okxProjectId(): string | null {
+  return process.env["OKX_PROJECT_ID"]?.trim() || null;
+}
+
 function sign(secret: string, timestamp: string, method: string, path: string, body: string) {
   const prehash = `${timestamp}${method.toUpperCase()}${path}${body}`;
   return createHmac("sha256", secret).update(prehash).digest("base64");
@@ -50,6 +57,7 @@ async function okxFetch(pathWithQuery: string, init?: RequestInit) {
   const body = typeof init?.body === "string" ? init.body : "";
   const timestamp = new Date().toISOString();
   const signature = sign(creds.secret, timestamp, method, pathWithQuery, body);
+  const projectId = okxProjectId();
 
   const res = await fetch(`${OKX_BASE}${pathWithQuery}`, {
     ...init,
@@ -60,6 +68,7 @@ async function okxFetch(pathWithQuery: string, init?: RequestInit) {
       "OK-ACCESS-SIGN": signature,
       "OK-ACCESS-TIMESTAMP": timestamp,
       "OK-ACCESS-PASSPHRASE": creds.passphrase,
+      ...(projectId ? { "OK-ACCESS-PROJECT": projectId } : {}),
       ...(init?.headers ?? {}),
     },
   });
@@ -76,8 +85,8 @@ async function okxFetch(pathWithQuery: string, init?: RequestInit) {
 }
 
 /**
- * DEX aggregator quote (OKX Web3 DEX API).
- * Docs: GET /api/v5/dex/aggregator/quote
+ * DEX aggregator quote (OKX Trade API v6).
+ * Docs: GET /api/v6/dex/aggregator/quote
  */
 export async function okxDexQuote(input: {
   chainId: string;
@@ -87,16 +96,17 @@ export async function okxDexQuote(input: {
   slippage?: string;
 }): Promise<OkxQuote> {
   const params = new URLSearchParams({
-    chainId: input.chainId,
+    chainIndex: input.chainId,
     fromTokenAddress: input.fromTokenAddress,
     toTokenAddress: input.toTokenAddress,
     amount: input.amount,
-    slippage: input.slippage ?? "0.5",
+    swapMode: "exactIn",
+    slippagePercent: input.slippage ?? "0.5",
   });
   const builder = okxBuilderCode();
   if (builder) params.set("feePercent", "0");
 
-  const path = `/api/v5/dex/aggregator/quote?${params.toString()}`;
+  const path = `/api/v6/dex/aggregator/quote?${params.toString()}`;
   const data = await okxFetch(path);
   const row = Array.isArray(data) ? data[0] : data;
   const estimated =
@@ -117,6 +127,7 @@ export async function okxDexQuote(input: {
 /**
  * DEX swap instruction (calldata). Execution still goes through the smart wallet /
  * session key — this only fetches the route.
+ * Docs: GET /api/v6/dex/aggregator/swap
  */
 export async function okxDexSwap(input: {
   chainId: string;
@@ -127,18 +138,51 @@ export async function okxDexSwap(input: {
   slippage?: string;
 }): Promise<unknown> {
   const params = new URLSearchParams({
-    chainId: input.chainId,
+    chainIndex: input.chainId,
     fromTokenAddress: input.fromTokenAddress,
     toTokenAddress: input.toTokenAddress,
     amount: input.amount,
     userWalletAddress: input.userWalletAddress,
-    slippage: input.slippage ?? "0.5",
+    swapMode: "exactIn",
+    slippagePercent: input.slippage ?? "0.5",
   });
   const builder = okxBuilderCode();
   if (builder) params.set("feePercent", "0");
 
-  const path = `/api/v5/dex/aggregator/swap?${params.toString()}`;
+  const path = `/api/v6/dex/aggregator/swap?${params.toString()}`;
   return okxFetch(path);
+}
+
+function parseApproveTo(raw: unknown): `0x${string}` | undefined {
+  if (!raw) return undefined;
+
+  const tryObj = (o: Record<string, unknown>): `0x${string}` | undefined => {
+    const candidate =
+      (typeof o["to"] === "string" && o["to"]) ||
+      (typeof o["approveContract"] === "string" && o["approveContract"]) ||
+      (typeof o["dexContractAddress"] === "string" && o["dexContractAddress"]) ||
+      "";
+    if (/^0x[a-fA-F0-9]{40}$/.test(candidate)) return candidate as `0x${string}`;
+    return undefined;
+  };
+
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      return tryObj(parsed);
+    } catch {
+      return undefined;
+    }
+  }
+  if (Array.isArray(raw)) {
+    for (const item of raw) {
+      const hit = parseApproveTo(item);
+      if (hit) return hit;
+    }
+    return undefined;
+  }
+  if (typeof raw === "object") return tryObj(raw as Record<string, unknown>);
+  return undefined;
 }
 
 /** Normalize OKX aggregator swap response into calldata for Light Account UserOps. */
@@ -164,15 +208,12 @@ export function parseOkxSwapCalldata(raw: unknown): {
   const toAmount =
     router && typeof router["toTokenAmount"] === "string"
       ? router["toTokenAmount"]
-      : undefined;
-  const approveTx = obj["approveTransaction"] ?? obj["approveData"];
-  let approveTo: `0x${string}` | undefined;
-  if (approveTx && typeof approveTx === "object") {
-    const a = approveTx as Record<string, unknown>;
-    if (typeof a["to"] === "string" && /^0x[a-fA-F0-9]{40}$/.test(a["to"])) {
-      approveTo = a["to"] as `0x${string}`;
-    }
-  }
+      : typeof obj["toTokenAmount"] === "string"
+        ? obj["toTokenAmount"]
+        : undefined;
+  const approveTo = parseApproveTo(
+    obj["approveTransaction"] ?? obj["approveData"] ?? obj["approvalAddress"],
+  );
   return {
     to: to as `0x${string}`,
     data: data as `0x${string}`,
@@ -189,10 +230,11 @@ export async function okxTokenSecurity(input: {
 }): Promise<{ ok: boolean; raw: unknown }> {
   try {
     const params = new URLSearchParams({
-      chainId: input.chainId,
-      tokenAddress: input.tokenAddress,
+      chainIndex: input.chainId,
+      tokenContractAddress: input.tokenAddress,
     });
-    const path = `/api/v5/wallet/pre-transaction/token-security?${params.toString()}`;
+    // Prefer v6 path; fall back silently if unavailable.
+    const path = `/api/v6/dex/security/token?${params.toString()}`;
     const data = await okxFetch(path);
     return { ok: true, raw: data };
   } catch (e) {

@@ -6,7 +6,7 @@
  * Server env: ALCHEMY_API_KEY, ALCHEMY_NETWORK / ALCHEMY_BASE_URL (see chain-config).
  */
 import { anchorGrant } from "@/lib/chain.functions";
-import { resolveNetwork, chainLabel } from "@/lib/chain-config";
+import { resolveNetwork, chainLabel, explorerBaseUrl } from "@/lib/chain-config";
 
 const NETWORK = resolveNetwork(
   (import.meta.env["VITE_CHAIN_NETWORK"] as string | undefined) ?? "base-sepolia",
@@ -17,7 +17,7 @@ export const CHAIN = {
   label: chainLabel(NETWORK),
   /** Resolved per settlement by the server; this is the optimistic default. */
   mode: "live" as "dev" | "live",
-  explorer: NETWORK === "base" ? "https://basescan.org" : "https://sepolia.basescan.org",
+  explorer: explorerBaseUrl(NETWORK),
 } as const;
 
 export type Settlement = {

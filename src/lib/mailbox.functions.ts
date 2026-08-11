@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
+import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -11,6 +12,15 @@ export type SmtpConnectInput = {
   secure: boolean;
   username: string;
   password: string;
+  from_name: string;
+  from_email: string;
+};
+
+export type SmtpSettingsPublic = {
+  host: string;
+  port: number;
+  secure: boolean;
+  username: string;
   from_name: string;
   from_email: string;
 };
@@ -35,28 +45,20 @@ const isOAuthProvider = (v: unknown): v is "google_mail" | "microsoft_outlook" =
 const isProvider = (v: unknown): v is MailboxProvider =>
   isOAuthProvider(v) || v === "smtp";
 
-function normalizeSmtpInput(input: SmtpConnectInput): SmtpConnectInput {
-  const host = String(input.host ?? "").trim();
-  const port = Number(input.port);
-  const username = String(input.username ?? "").trim();
-  const password = String(input.password ?? "");
-  const from_email = String(input.from_email ?? "").trim().toLowerCase();
-  const from_name = String(input.from_name ?? "").trim();
-  if (!host) throw new Error("SMTP host is required.");
-  if (!Number.isFinite(port) || port < 1 || port > 65535) throw new Error("SMTP port is invalid.");
-  if (!username) throw new Error("SMTP username is required.");
-  if (!password) throw new Error("SMTP password is required.");
-  if (!from_email || !from_email.includes("@")) throw new Error("From email is required.");
-  return {
-    host,
-    port,
-    secure: Boolean(input.secure),
-    username,
-    password,
-    from_name,
-    from_email,
-  };
-}
+const smtpConnectSchema = z.object({
+  host: z.string().trim().min(1, "SMTP host is required."),
+  port: z.coerce.number().int().min(1).max(65535),
+  secure: z.boolean(),
+  username: z.string().trim().min(1, "SMTP username is required."),
+  /** Empty string keeps the previously stored password when updating. */
+  password: z.string(),
+  from_name: z.string().trim(),
+  from_email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("From email is required."),
+});
 
 /** Which mailbox providers are configured for this app, and what the user has connected. */
 export const getMailboxStatus = createServerFn({ method: "GET" })
@@ -84,13 +86,31 @@ export const getMailboxStatus = createServerFn({ method: "GET" })
     });
   });
 
+/** Non-secret SMTP fields for the Connect form (password never leaves the server). */
+export const getSmtpSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SmtpSettingsPublic | null> => {
+    const { loadSmtpConfigForUser } = await import("@/lib/smtp.server");
+    const config = await loadSmtpConfigForUser(context.userId);
+    if (!config) return null;
+    return {
+      host: config.host,
+      port: config.port,
+      secure: config.secure,
+      username: config.username,
+      from_name: config.from_name,
+      from_email: config.from_email,
+    };
+  });
+
 export const startMailboxConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { provider: string }) => {
-    if (!isOAuthProvider(input.provider)) {
+  .validator((input: unknown) => {
+    const provider = (input as { provider?: string })?.provider;
+    if (!isOAuthProvider(provider)) {
       throw new Error("Use connectSmtp for username/password SMTP.");
     }
-    return { provider: input.provider };
+    return { provider };
   })
   .handler(async ({ data, context }) => {
     const clientKey = process.env[CLIENT_ENV[data.provider]];
@@ -117,11 +137,19 @@ export const startMailboxConnect = createServerFn({ method: "POST" })
 
 export const connectSmtp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: SmtpConnectInput) => normalizeSmtpInput(input))
+  .validator((input: unknown) => smtpConnectSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { encodeSmtpSecrets } = await import("@/lib/smtp.server");
+    const { encodeSmtpSecrets, loadSmtpConfigForUser } = await import("@/lib/smtp.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const ciphertext = encodeSmtpSecrets(data);
+
+    let password = data.password;
+    if (!password) {
+      const existing = await loadSmtpConfigForUser(context.userId);
+      if (!existing?.password) throw new Error("SMTP password is required.");
+      password = existing.password;
+    }
+
+    const ciphertext = encodeSmtpSecrets({ ...data, password });
     const label = data.from_email;
     const { error } = await supabaseAdmin.from("app_user_connections").upsert(
       {
@@ -154,7 +182,7 @@ export const sendSmtpTest = createServerFn({ method: "POST" })
 
 export const completeMailboxConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { code: string }) => ({ code: String(input.code) }))
+  .validator((input: unknown) => z.object({ code: z.string().min(1) }).parse(input))
   .handler(async ({ data, context }) => {
     const { exchangeAppUserOAuthCode, callAsAppUser, GATEWAY_BASE_URL } =
       await import("@/integrations/lovable/appUserConnector");
@@ -194,9 +222,10 @@ export const completeMailboxConnect = createServerFn({ method: "POST" })
 
 export const disconnectMailbox = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { provider: string }) => {
-    if (!isProvider(input.provider)) throw new Error("Unknown mailbox provider");
-    return { provider: input.provider };
+  .validator((input: unknown) => {
+    const provider = (input as { provider?: string })?.provider;
+    if (!isProvider(provider)) throw new Error("Unknown mailbox provider");
+    return { provider };
   })
   .handler(async ({ data, context }) => {
     const { deleteConnectionForUser, getConnectionKeyForUser } =

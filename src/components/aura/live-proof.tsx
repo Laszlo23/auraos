@@ -10,7 +10,9 @@ import {
 } from "lucide-react";
 
 import { Pulse } from "@/components/aura/primitives";
+import { ShareMoment } from "@/components/aura/share";
 import { useNetworkTotals, usePublicFeed, type FeedRow } from "@/hooks/use-public";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * Permanent proof strip on the landing page. Every number is read from the
@@ -69,6 +71,16 @@ export function LiveProof() {
     .map(feedLine)
     .filter((line): line is { who: string; what: string } => line !== null)
     .slice(0, 4);
+
+  const companies = Number(data?.companies ?? 0);
+  const actions24h = Number(data?.actions_24h ?? 0);
+  const shareStat =
+    ready && !isError
+      ? `${companies.toLocaleString()} companies · ${actions24h.toLocaleString()} actions · 24h`
+      : null;
+  const shareText = shareStat
+    ? `Aura OS is live — ${shareStat}. Real ledger, not demo theater.`
+    : "Aura OS is live — autonomous companies with public receipts.";
 
   return (
     <section className="relative z-10 mx-auto max-w-6xl px-6 py-10">
@@ -140,6 +152,17 @@ export function LiveProof() {
             </ul>
           </div>
         ) : null}
+
+        <div className="mt-8 border-t border-border/40 pt-5">
+          <ShareMoment
+            url={`${SITE_URL}/live`}
+            text={shareText}
+            title="Aura OS · live network"
+            placement="landing_live_proof"
+            label="Share live proof"
+            statLine={shareStat}
+          />
+        </div>
       </motion.div>
     </section>
   );

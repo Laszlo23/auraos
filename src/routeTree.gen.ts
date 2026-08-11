@@ -86,6 +86,7 @@ import { Route as AuthenticatedMissionsIdRouteImport } from './routes/_authentic
 import { Route as ApiBillingCheckoutRouteImport } from './routes/api/billing/checkout'
 import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing/founding-seat'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
+import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
 import { Route as NachbarCCodeRouteImport } from './routes/nachbar/c.$code'
@@ -493,6 +494,11 @@ const ApiBillingWebhookRoute = ApiBillingWebhookRouteImport.update({
   path: '/api/billing/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAiHealthRoute = ApiPublicAiHealthRouteImport.update({
+  id: '/api/public/ai-health',
+  path: '/api/public/ai-health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGreeterRoute = ApiPublicGreeterRouteImport.update({
   id: '/api/public/greeter',
   path: '/api/public/greeter',
@@ -680,6 +686,7 @@ export interface FileRoutesByFullPath {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
@@ -777,6 +784,7 @@ export interface FileRoutesByTo {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
@@ -877,6 +885,7 @@ export interface FileRoutesById {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
@@ -977,6 +986,7 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
+    | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/workers/tick'
     | '/nachbar/c/$code'
@@ -1074,6 +1084,7 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
+    | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/workers/tick'
     | '/nachbar/c/$code'
@@ -1173,6 +1184,7 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
+    | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/workers/tick'
     | '/nachbar/c/$code'
@@ -1230,6 +1242,7 @@ export interface RootRouteChildren {
   ApiBillingCheckoutRoute: typeof ApiBillingCheckoutRoute
   ApiBillingFoundingSeatRoute: typeof ApiBillingFoundingSeatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
+  ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
@@ -1791,6 +1804,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBillingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ai-health': {
+      id: '/api/public/ai-health'
+      path: '/api/public/ai-health'
+      fullPath: '/api/public/ai-health'
+      preLoaderRoute: typeof ApiPublicAiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/greeter': {
       id: '/api/public/greeter'
       path: '/api/public/greeter'
@@ -2089,6 +2109,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBillingCheckoutRoute: ApiBillingCheckoutRoute,
   ApiBillingFoundingSeatRoute: ApiBillingFoundingSeatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
+  ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,

@@ -576,6 +576,10 @@ export const getPublicCompany = createServerFn({ method: "GET" })
           actualRevenue: Number(projected.revenue_usdc ?? 0),
         };
       }),
+      token: await (async () => {
+        const { getLiveCompanyToken } = await import("@/lib/company-token.functions");
+        return getLiveCompanyToken(admin, companyId);
+      })(),
     };
   });
 

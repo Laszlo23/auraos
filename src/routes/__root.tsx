@@ -12,7 +12,6 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuroraField } from "@/components/aura/aurora";
-import { BetaBadge } from "@/components/aura/beta-badge";
 import { InstallApp } from "@/components/aura/install-app";
 import { AppBootLoader, PageProgress } from "@/components/aura/page-loader";
 import { Toaster } from "@/components/ui/sonner";
@@ -253,7 +252,6 @@ function RootChrome() {
         <Outlet />
       </div>
       <Toaster position="top-center" />
-      <BetaBadge />
       <InstallApp />
       <DeferredAnalytics />
     </>

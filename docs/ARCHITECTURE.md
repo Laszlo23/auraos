@@ -21,7 +21,8 @@ Package manager is **npm** (`package-lock.json`). Deploy uses `scripts/deploy-ap
 - **AURA compute billing** — recurring founder plans on `/billing` (`STRIPE_PRICE_*` starter/company/scale). Separate from the seat.
 - **Site products** — end-customer checkout on `/s/$slug` (`kind=site_product`).
 - **Growth rewards** — in-app AURA on paid invite conversions (ledger → company reserve). Not cash, not token-launch proceeds.
-- **Token launch** — marketing/countdown only; not the door into company seats.
+- **Token launch (platform)** — marketing/countdown for Building Culture AURA (`TOKEN_LAUNCH_*`); not the door into company seats.
+- **Company token (optional)** — seat-gated Clanker ERC-20 + Uniswap V4 pool per company on Base. Separate from seats, Genesis, and compute AURA. See [company-token-launch.md](company-token-launch.md). Env: `CLANKER_ENABLED`, `CLANKER_PLATFORM_FEE_BPS`.
 
 **x402 payTo:** production requires a live USDC receiver. Set `X402_PAY_TO` to the platform treasury (same as `OKX_PAYOUT_ADDRESS` is fine). If `X402_PAY_TO` is empty, the runtime falls back to `OKX_PAYOUT_ADDRESS` and logs a warning. Simulated settlement is never allowed in production. `scripts/deploy-app.sh` does **not** sync `.env` — set both on the VPS.
 

@@ -47,7 +47,7 @@ export function PresetsPanel({
                 <p className="text-[14px] font-semibold">{p.name}</p>
                 <div className="flex items-center gap-1.5">
                   {recommended ? <Chip tone="gold">Start here</Chip> : null}
-                  <Chip tone={p.riskLabel === "Low" ? "gold" : "primary"}>{p.riskLabel}</Chip>
+                  <Chip tone={p.riskLabel === "Low" ? "gold" : p.riskLabel === "High" ? "danger" : "primary"}>{p.riskLabel}</Chip>
                 </div>
               </div>
               <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{p.tagline}</p>

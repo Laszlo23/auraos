@@ -1291,6 +1291,53 @@ export type Database = {
           },
         ]
       }
+      company_stripe_accounts: {
+        Row: {
+          charges_ready: boolean
+          company_id: string
+          country: string
+          created_at: string
+          dashboard: string
+          details_submitted: boolean
+          payouts_ready: boolean
+          requirements_due: Json
+          stripe_account_id: string
+          updated_at: string
+        }
+        Insert: {
+          charges_ready?: boolean
+          company_id: string
+          country?: string
+          created_at?: string
+          dashboard?: string
+          details_submitted?: boolean
+          payouts_ready?: boolean
+          requirements_due?: Json
+          stripe_account_id: string
+          updated_at?: string
+        }
+        Update: {
+          charges_ready?: boolean
+          company_id?: string
+          country?: string
+          created_at?: string
+          dashboard?: string
+          details_submitted?: boolean
+          payouts_ready?: boolean
+          requirements_due?: Json
+          stripe_account_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_stripe_accounts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_sites: {
         Row: {
           company_id: string
@@ -2470,11 +2517,13 @@ export type Database = {
           description: string | null
           emoji: string
           id: string
+          image_url: string | null
           inventory: number
           name: string
           price: number
           revenue: number
           subscriptions: number
+          video_url: string | null
         }
         Insert: {
           company_id: string
@@ -2483,11 +2532,13 @@ export type Database = {
           description?: string | null
           emoji?: string
           id?: string
+          image_url?: string | null
           inventory?: number
           name: string
           price?: number
           revenue?: number
           subscriptions?: number
+          video_url?: string | null
         }
         Update: {
           company_id?: string
@@ -2496,11 +2547,13 @@ export type Database = {
           description?: string | null
           emoji?: string
           id?: string
+          image_url?: string | null
           inventory?: number
           name?: string
           price?: number
           revenue?: number
           subscriptions?: number
+          video_url?: string | null
         }
         Relationships: [
           {
