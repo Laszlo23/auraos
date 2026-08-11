@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
+import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
 import { TOKEN_DISCLAIMER, TOKENOMICS } from "@/lib/tokenomics";
 
 const TITLE = "AURA tokenomics — ecosystem layer, product first";
@@ -78,6 +79,12 @@ function TokenomicsPage() {
         </p>
         <p className="mt-4 rounded-2xl border border-border/50 bg-foreground/[0.03] px-4 py-3 text-[12.5px] leading-relaxed text-muted-foreground">
           {TOKEN_DISCLAIMER}
+        </p>
+        <p className="mt-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[12.5px] leading-relaxed text-foreground">
+          {BCC_TOKEN_DISCLAIMER}{" "}
+          <Link to="/team" className="font-semibold text-primary hover:underline">
+            Team & trust →
+          </Link>
         </p>
 
         <section className="mt-12">

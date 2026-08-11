@@ -26,6 +26,7 @@ import {
   grantOutreachDrafts,
   priorityApplyOrder,
 } from "@/lib/grant-kit";
+import { FOUNDERS } from "@/lib/legal-entity";
 import { LEGAL_EMAIL, OG_IMAGE, SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -88,12 +89,11 @@ const STACK = [
   },
 ];
 
-const TEAM = [
-  { role: "Product & founder", note: "Vision, design direction, go-to-market." },
-  { role: "Agent systems", note: "Runtime, memory, budgets and spend enforcement." },
-  { role: "Protocol & payments", note: "x402 gateway, smart wallets, settlement." },
-  { role: "Growth & community", note: "Founding cohorts, contest seasons, build in public." },
-];
+const TEAM = FOUNDERS.map((f, i) => ({
+  role: f.name ? `${f.role} · ${f.name}` : `Founder ${i + 1} · TBA`,
+  note: f.blurb,
+  linkedin: f.linkedin,
+}));
 
 function StatusChip({ status }: { status: (typeof PROGRAMS)[number]["status"] }) {
   return (
@@ -410,10 +410,10 @@ function GrantsPage() {
         >
           The team
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {TEAM.map((m, i) => (
             <motion.div
-              key={m.role}
+              key={`${m.role}-${i}`}
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
@@ -423,9 +423,25 @@ function GrantsPage() {
               <Users className="h-4 w-4 text-primary" />
               <p className="mt-3 text-[13.5px] font-semibold">{m.role}</p>
               <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">{m.note}</p>
+              {m.linkedin ? (
+                <a
+                  href={m.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-block text-[11px] font-semibold text-primary hover:underline"
+                >
+                  LinkedIn →
+                </a>
+              ) : null}
             </motion.div>
           ))}
         </div>
+        <p className="mt-4 text-[12px] text-muted-foreground">
+          Full roster & company notice:{" "}
+          <a href={`${SITE_URL}/team`} className="text-primary hover:underline">
+            {SITE_URL.replace("https://", "")}/team
+          </a>
+        </p>
       </section>
 
       <footer className="glass rounded-3xl p-6 text-center">

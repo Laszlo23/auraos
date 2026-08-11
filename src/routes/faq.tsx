@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { SiteFooter } from "@/components/aura/site-footer";
 import { OG_IMAGE, SITE_URL, url } from "@/lib/site";
+import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
@@ -100,6 +101,26 @@ const FAQS: { q: string; a: ReactNode }[] = [
     ),
   },
   {
+    q: "Who operates Aura OS?",
+    a: (
+      <>
+        Building Culture LLC. Founder Laszlo Bihary is listed with LinkedIn on{" "}
+        <Link to="/team" className="text-primary hover:underline">
+          /team
+        </Link>
+        ; additional founders will be named as published. Legal notice:{" "}
+        <Link to="/impressum" className="text-primary hover:underline">
+          /impressum
+        </Link>
+        .
+      </>
+    ),
+  },
+  {
+    q: "Does Aura OS run on a BCC token?",
+    a: <>{BCC_TOKEN_DISCLAIMER}</>,
+  },
+  {
     q: "How do I get in?",
     a: (
       <>
@@ -108,7 +129,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
         <Link to="/access" className="text-primary hover:underline">
           /access
         </Link>
-        . Token launch is separate from founding seats.
+        . Token launch is separate from founding seats. Aura OS does not require BCC.
       </>
     ),
   },

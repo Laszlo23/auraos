@@ -7,11 +7,11 @@
 import { TOKEN_LAUNCH_DISPLAY, SITE_URL } from "@/lib/site";
 
 export const TOKEN_DISCLAIMER =
-  "Nothing here is an offer to sell securities. AURA (if and when launched) is an ecosystem utility/incentive layer. Subscriptions are the core business. Figures marked “target” or “illustrative” are not forecasts or guarantees.";
+  "Nothing here is an offer to sell securities. AURA (if and when launched) is an ecosystem utility/incentive layer. Subscriptions are the core business. Aura OS does not run on or require a BCC token. Figures marked “target” or “illustrative” are not forecasts or guarantees.";
 
 export const TOKENOMICS = {
   oneLine:
-    "Aura OS sells software subscriptions. The AURA token is the ecosystem layer for participation, rewards, and agent-economy utility — not the product’s primary revenue model.",
+    "Aura OS sells software subscriptions. The AURA token is an optional ecosystem layer for participation and incentives — not the product’s operating currency, and not BCC.",
   fairLaunch: {
     when: TOKEN_LAUNCH_DISPLAY,
     buy: "€3,000 strategic initial token acquisition at fair launch",
@@ -56,6 +56,7 @@ export const TOKENOMICS = {
     "Founding seats ($99 one-time unlock)",
     "Genesis Passport NFT (utility membership key — not equity)",
     "Company compute budgets (AURA ledger for work, separate from market token narrative)",
+    "BCC or any other community ticker (Aura OS does not run on BCC)",
   ],
   flywheel: [
     "Founders subscribe",

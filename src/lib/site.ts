@@ -23,7 +23,7 @@ export function mediaPath(path: string) {
   return `${p}${join}v=${MEDIA_CACHE_BUST}`;
 }
 
-/** Studio / brand entity behind the fair launch. */
+/** Studio / brand entity behind the fair launch and operator of Aura OS. */
 export const BUILDING_CULTURE = {
   name: "Building Culture LLC",
   short: "Building Culture",
@@ -31,6 +31,15 @@ export const BUILDING_CULTURE = {
 
 /** Operator entity for invoices, terms, and Stripe public details. */
 export const LEGAL_ENTITY = BUILDING_CULTURE.name;
+
+/** Re-export trust roster + BCC separation for convenience. */
+export {
+  BCC_TOKEN_DISCLAIMER,
+  FOUNDERS,
+  LEGAL_ADDRESS,
+  TOKEN_PRODUCT_SEPARATION,
+  legalAddressDisplay,
+} from "@/lib/legal-entity";
 
 /**
  * Fair token launch — 14 Aug 2026, 14:14 Central European Summer Time (UTC+2).

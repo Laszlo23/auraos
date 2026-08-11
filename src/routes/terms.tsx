@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { LegalPage, LegalSection } from "@/components/aura/legal-page";
 import {
+  BCC_TOKEN_DISCLAIMER,
   BUILDING_CULTURE,
   LEGAL_EMAIL,
   LEGAL_ENTITY,
@@ -9,6 +10,7 @@ import {
   SITE_NAME,
   SITE_URL,
   SUPPORT_EMAIL,
+  legalAddressDisplay,
   url,
 } from "@/lib/site";
 
@@ -47,13 +49,32 @@ function TermsPage() {
           </Link>
           . If you act for a company, you represent that you may bind that company.
         </p>
+        <div className="rounded-2xl border border-border/40 bg-foreground/[0.03] px-4 py-3 text-[13px] leading-relaxed">
+          {legalAddressDisplay().map((line) => (
+            <p key={line} className="mt-1 first:mt-0">
+              {line}
+            </p>
+          ))}
+        </div>
         <p>
-          Support and legal notices:{" "}
+          Team & Impressum:{" "}
+          <Link to="/team" className="text-primary hover:underline">
+            /team
+          </Link>
+          {" · "}
+          <Link to="/impressum" className="text-primary hover:underline">
+            /impressum
+          </Link>
+          . Support and legal notices:{" "}
           <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
           .
         </p>
+      </LegalSection>
+
+      <LegalSection title="1b. Tokens — Aura OS does not run on BCC">
+        <p>{BCC_TOKEN_DISCLAIMER}</p>
       </LegalSection>
 
       <LegalSection title="2. The product">

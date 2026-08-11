@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 const SITE_LINKS = [
   { to: "/share", label: "Share kit" },
   { to: "/", label: "Waitlist", hash: "community" },
+  { to: "/team", label: "Team" },
   { to: "/tokenomics", label: "Tokenomics" },
   { to: "/lightpaper", label: "Lightpaper" },
   { to: "/whitepaper", label: "Whitepaper" },
@@ -29,6 +30,7 @@ const SITE_LINKS = [
 ] as const;
 
 const LEGAL_LINKS = [
+  { to: "/impressum", label: "Impressum" },
   { to: "/privacy", label: "Privacy" },
   { to: "/terms", label: "Terms / AGB" },
   { to: "/cookies", label: "Cookies" },

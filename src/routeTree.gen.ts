@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
+import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LightpaperRouteImport } from './routes/lightpaper'
 import { Route as LiveRouteImport } from './routes/live'
@@ -26,6 +27,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ShareRouteImport } from './routes/share'
+import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
 import { Route as WhitepaperRouteImport } from './routes/whitepaper'
@@ -148,6 +150,11 @@ const GrantsRoute = GrantsRouteImport.update({
   path: '/grants',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -196,6 +203,11 @@ const RoadmapRoute = RoadmapRouteImport.update({
 const ShareRoute = ShareRouteImport.update({
   id: '/share',
   path: '/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -653,6 +665,7 @@ export interface FileRoutesByFullPath {
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
+  '/impressum': typeof ImpressumRoute
   '/leaderboard': typeof LeaderboardRoute
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
@@ -662,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
   '/whitepaper': typeof WhitepaperRoute
@@ -757,6 +771,7 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
+  '/impressum': typeof ImpressumRoute
   '/leaderboard': typeof LeaderboardRoute
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
@@ -766,6 +781,7 @@ export interface FileRoutesByTo {
   '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
   '/whitepaper': typeof WhitepaperRoute
@@ -864,6 +880,7 @@ export interface FileRoutesById {
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
+  '/impressum': typeof ImpressumRoute
   '/leaderboard': typeof LeaderboardRoute
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
@@ -873,6 +890,7 @@ export interface FileRoutesById {
   '/proof': typeof ProofRoute
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
   '/whitepaper': typeof WhitepaperRoute
@@ -971,6 +989,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/faq'
     | '/grants'
+    | '/impressum'
     | '/leaderboard'
     | '/lightpaper'
     | '/live'
@@ -980,6 +999,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/roadmap'
     | '/share'
+    | '/team'
     | '/terms'
     | '/tokenomics'
     | '/whitepaper'
@@ -1075,6 +1095,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/faq'
     | '/grants'
+    | '/impressum'
     | '/leaderboard'
     | '/lightpaper'
     | '/live'
@@ -1084,6 +1105,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/roadmap'
     | '/share'
+    | '/team'
     | '/terms'
     | '/tokenomics'
     | '/whitepaper'
@@ -1181,6 +1203,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/faq'
     | '/grants'
+    | '/impressum'
     | '/leaderboard'
     | '/lightpaper'
     | '/live'
@@ -1190,6 +1213,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/roadmap'
     | '/share'
+    | '/team'
     | '/terms'
     | '/tokenomics'
     | '/whitepaper'
@@ -1288,6 +1312,7 @@ export interface RootRouteChildren {
   CookiesRoute: typeof CookiesRoute
   FaqRoute: typeof FaqRoute
   GrantsRoute: typeof GrantsRoute
+  ImpressumRoute: typeof ImpressumRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LightpaperRoute: typeof LightpaperRoute
   LiveRoute: typeof LiveRoute
@@ -1297,6 +1322,7 @@ export interface RootRouteChildren {
   ProofRoute: typeof ProofRoute
   RoadmapRoute: typeof RoadmapRoute
   ShareRoute: typeof ShareRoute
+  TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TokenomicsRoute: typeof TokenomicsRoute
   WhitepaperRoute: typeof WhitepaperRoute
@@ -1391,6 +1417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GrantsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -1459,6 +1492,13 @@ declare module '@tanstack/react-router' {
       path: '/share'
       fullPath: '/share'
       preLoaderRoute: typeof ShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -2204,6 +2244,7 @@ const rootRouteChildren: RootRouteChildren = {
   CookiesRoute: CookiesRoute,
   FaqRoute: FaqRoute,
   GrantsRoute: GrantsRoute,
+  ImpressumRoute: ImpressumRoute,
   LeaderboardRoute: LeaderboardRoute,
   LightpaperRoute: LightpaperRoute,
   LiveRoute: LiveRoute,
@@ -2213,6 +2254,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProofRoute: ProofRoute,
   RoadmapRoute: RoadmapRoute,
   ShareRoute: ShareRoute,
+  TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TokenomicsRoute: TokenomicsRoute,
   WhitepaperRoute: WhitepaperRoute,

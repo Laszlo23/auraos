@@ -9,6 +9,7 @@ import {
   SITE_NAME,
   SITE_URL,
   SUPPORT_EMAIL,
+  legalAddressDisplay,
   url,
 } from "@/lib/site";
 
@@ -45,8 +46,23 @@ function PrivacyPage() {
           <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
+          . Team:{" "}
+          <Link to="/team" className="text-primary hover:underline">
+            /team
+          </Link>
+          . Impressum:{" "}
+          <Link to="/impressum" className="text-primary hover:underline">
+            /impressum
+          </Link>
           .
         </p>
+        <div className="rounded-2xl border border-border/40 bg-foreground/[0.03] px-4 py-3 text-[13px] leading-relaxed text-muted-foreground">
+          {legalAddressDisplay().map((line) => (
+            <p key={line} className="mt-1 first:mt-0">
+              {line}
+            </p>
+          ))}
+        </div>
       </LegalSection>
 
       <LegalSection title="2. What we collect">
