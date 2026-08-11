@@ -1,7 +1,15 @@
 import type { Address, Hex } from "viem";
 
 import { mergeAgentMemory } from "@/lib/agent-memory";
-import { activeNetwork, alchemyRpcUrl, chainId, networkSpec, USDC_ADDRESSES } from "@/lib/chain-config";
+import {
+  activeNetwork,
+  alchemyRpcUrl,
+  chainId,
+  networkSpec,
+  resolveNetwork,
+  USDC_ADDRESSES,
+  type AuraNetwork,
+} from "@/lib/chain-config";
 import { parseOkxSwapCalldata } from "@/lib/okx.server";
 import { recomputeTradingArena } from "@/lib/trading/arena.server";
 import { validateStrategySpec, type StrategySpec } from "@/lib/trading/backtest.server";
@@ -9,7 +17,8 @@ import { fetchCandles, fetchMarkPrice } from "@/lib/trading/market-data.server";
 import { sizeTradeNotional, unrealizedPnl } from "@/lib/trading/sizing";
 import { resolvePairTokens, WETH_ADDRESSES } from "@/lib/trading/tokens";
 
-const deskPrimary = () => networkSpec(activeNetwork()).primaryPair;
+const deskPrimary = (network: AuraNetwork = activeNetwork()) =>
+  networkSpec(network).primaryPair;
 
 const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
 
@@ -504,12 +513,20 @@ export async function manageOpenPositions(limit = 20) {
   let marked = 0;
   let closed = 0;
   const errors: string[] = [];
-  const network = activeNetwork();
-  const cid = chainId(network);
+  const fallbackNetwork = activeNetwork();
 
   for (const trade of (opens ?? []) as OpenTrade[]) {
     try {
-      const mark = await fetchMarkPrice(trade.symbol || deskPrimary());
+      const { data: tradeCompany } = await db
+        .from("companies")
+        .select("desk_network, trading_paper, trading_armed")
+        .eq("id", trade.company_id)
+        .maybeSingle();
+      const network = resolveNetwork(
+        (tradeCompany as { desk_network?: string } | null)?.desk_network ?? fallbackNetwork,
+      );
+      const cid = chainId(network);
+      const mark = await fetchMarkPrice(trade.symbol || deskPrimary(network));
       const upnl = unrealizedPnl(Number(trade.entry), mark.price, Number(trade.size));
       await db
         .from("trades")
@@ -587,7 +604,7 @@ export async function manageOpenPositions(limit = 20) {
         continue;
       }
 
-      const pair = resolvePairTokens(trade.symbol || deskPrimary(), network);
+      const pair = resolvePairTokens(trade.symbol || deskPrimary(network), network);
       let wethAmount = Number(trade.amount_out);
       if (!Number.isFinite(wethAmount) || wethAmount <= 0) {
         wethAmount = Number(trade.size) / Math.max(mark.price, 1);
@@ -633,8 +650,8 @@ export async function manageOpenPositions(limit = 20) {
       ];
       const result =
         calls.length > 1
-          ? await executeBatchUserOps(pk, calls)
-          : await executeContractUserOp(pk, calls[0]!);
+          ? await executeBatchUserOps(pk, calls, network)
+          : await executeContractUserOp(pk, calls[0]!, network);
 
       const usdcOut = parsed.toAmount ? Number(parsed.toAmount) / 1e6 : Number(trade.size) * (1 + ret);
       const pnl = Number((usdcOut - Number(trade.amount_in ?? trade.size)).toFixed(4));
@@ -691,8 +708,7 @@ export async function executeApprovedSignals(limit = 5) {
   } = await import("@/lib/wallet.server");
 
   const liveOkx = okxConfigured();
-  const network = activeNetwork();
-  const cid = chainId(network);
+  const fallbackNetwork = activeNetwork();
   const errors: string[] = [];
   let executed = 0;
 
@@ -719,7 +735,7 @@ export async function executeApprovedSignals(limit = 5) {
       const { data: company } = await db
         .from("companies")
         .select(
-          "id, trading_armed, trading_paper, max_notional_usdc_day, max_slippage_bps, owner_id, max_risk_pct",
+          "id, trading_armed, trading_paper, max_notional_usdc_day, max_slippage_bps, owner_id, max_risk_pct, desk_network",
         )
         .eq("id", signal.company_id)
         .maybeSingle();
@@ -727,6 +743,11 @@ export async function executeApprovedSignals(limit = 5) {
         await db.from("trading_signals").update({ status: "expired" }).eq("id", signal.id);
         continue;
       }
+
+      const network = resolveNetwork(
+        (company as { desk_network?: string }).desk_network ?? fallbackNetwork,
+      );
+      const cid = chainId(network);
 
       const paper = Boolean((company as { trading_paper?: boolean }).trading_paper);
       if (!paper && !liveOkx) {
@@ -785,7 +806,7 @@ export async function executeApprovedSignals(limit = 5) {
         continue;
       }
 
-      const mark = await fetchMarkPrice(signal.symbol || deskPrimary()).catch(() => ({
+      const mark = await fetchMarkPrice(signal.symbol || deskPrimary(network)).catch(() => ({
         price: Number(signal.entry_price) || 0,
         source: "signal",
       }));
@@ -795,7 +816,7 @@ export async function executeApprovedSignals(limit = 5) {
           company_id: company.id,
           strategy_id: signal.strategy_id,
           signal_id: signal.id,
-          symbol: signal.symbol || deskPrimary(),
+          symbol: signal.symbol || deskPrimary(network),
           side: "long",
           size: notional,
           entry: mark.price,
@@ -845,7 +866,7 @@ export async function executeApprovedSignals(limit = 5) {
         continue;
       }
 
-      const pair = resolvePairTokens(signal.symbol || deskPrimary(), network);
+      const pair = resolvePairTokens(signal.symbol || deskPrimary(network), network);
       const amountIn = BigInt(Math.floor(notional * 1e6));
       const slippagePct = ((company.max_slippage_bps ?? 50) / 100).toFixed(2);
 
@@ -894,8 +915,8 @@ export async function executeApprovedSignals(limit = 5) {
 
       const result =
         calls.length > 1
-          ? await executeBatchUserOps(pk, calls)
-          : await executeContractUserOp(pk, calls[0]!);
+          ? await executeBatchUserOps(pk, calls, network)
+          : await executeContractUserOp(pk, calls[0]!, network);
 
       await db
         .from("trading_orders")
@@ -910,7 +931,7 @@ export async function executeApprovedSignals(limit = 5) {
         company_id: company.id,
         strategy_id: signal.strategy_id,
         signal_id: signal.id,
-        symbol: signal.symbol || deskPrimary(),
+        symbol: signal.symbol || deskPrimary(network),
         side: "long",
         size: notional,
         entry: mark.price,

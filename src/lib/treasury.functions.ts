@@ -4,12 +4,12 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
-  activeNetwork,
   alchemyRpcUrl,
   chainId,
   chainLabel,
   explorerBaseUrl,
   nativeSymbol,
+  stableSymbol,
   USDC_ADDRESSES,
   USDC_DECIMALS,
 } from "@/lib/chain-config";
@@ -35,7 +35,7 @@ function encodeErc20Transfer(to: Address, amount: bigint): Hex {
   return `${ERC20_TRANSFER_SELECTOR}${toWord}${amountWord}` as Hex;
 }
 
-function explorerBase(network: ReturnType<typeof activeNetwork>) {
+function explorerBase(network: Parameters<typeof explorerBaseUrl>[0]) {
   return explorerBaseUrl(network);
 }
 
@@ -76,7 +76,10 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { gasSponsorshipEnabled } = await import("./wallet.server");
-    const network = activeNetwork();
+    const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+    const network = await resolveCompanyDeskNetwork(context.supabase, {
+      userId: context.userId,
+    });
     const { data: wallet } = await context.supabase
       .from("wallet_bindings")
       .select("id, address, deployed, chain, legacy, custody, provider, verified, created_at")
@@ -100,6 +103,7 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       chainId: chainId(network),
       label: chainLabel(network),
       nativeSymbol: native,
+      stableSymbol: stableSymbol(network),
       deployed: false,
       legacy: false,
       verified: false,
@@ -113,9 +117,11 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       depositHint:
         network === "bsc" || network === "opbnb"
           ? `Send USDC or ${native} on ${chainLabel(network)} (chain ID ${chainId(network)}). Convert ${native} → USDC in-app for the trading desk.`
-          : network === "base"
-            ? "Send USDC or ETH on Base (chain ID 8453). Convert ETH → USDC in-app for the trading desk."
-            : "Send USDC or ETH on Base Sepolia (testnet). Convert ETH → USDC in-app for the desk.",
+          : network === "robinhood" || network === "robinhood-testnet"
+            ? `Send USDG or ${native} on Robinhood Chain (chain ID ${chainId(network)}). Convert ${native} → USDG in-app for the desk.`
+            : network === "base"
+              ? "Send USDC or ETH on Base (chain ID 8453). Convert ETH → USDC in-app for the trading desk."
+              : "Send USDC or ETH on Base Sepolia (testnet). Convert ETH → USDC in-app for the desk.",
     };
 
     if (!wallet?.address) return base;
@@ -175,7 +181,10 @@ export type TreasuryActivityItem = {
 export const getTreasuryActivity = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const network = activeNetwork();
+    const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+    const network = await resolveCompanyDeskNetwork(context.supabase, {
+      userId: context.userId,
+    });
     const explorer = explorerBase(network);
     const items: TreasuryActivityItem[] = [];
 
@@ -372,11 +381,15 @@ export const sendTreasury = createServerFn({ method: "POST" })
       gasSponsorshipEnabled,
     } = await import("@/lib/wallet.server");
 
-    const network = activeNetwork();
+    const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+    const network = await resolveCompanyDeskNetwork(context.supabase, {
+      userId: context.userId,
+    });
     const usdc = USDC_ADDRESSES[network] as Address;
     const weth = WETH_ADDRESSES[network] as Address;
     const usdcDecimals = USDC_DECIMALS[network];
     const native = nativeSymbol(network);
+    const stable = stableSymbol(network);
 
     const { data: wallet } = await supabaseAdmin
       .from("wallet_bindings")
@@ -447,7 +460,7 @@ export const sendTreasury = createServerFn({ method: "POST" })
     } else {
       const token = data.asset === "usdc" ? usdc : weth;
       const decimals = data.asset === "usdc" ? usdcDecimals : 18;
-      assetLabel = data.asset === "usdc" ? "USDC" : "WETH";
+      assetLabel = data.asset === "usdc" ? stable : "WETH";
       if (!gasSponsorshipEnabled(network)) {
         const ethBal = await nativeBal();
         if (ethBal < 10n ** 15n) {
@@ -468,7 +481,7 @@ export const sendTreasury = createServerFn({ method: "POST" })
     }
 
     const pk = decryptOwnerKey(wallet.owner_key_enc) as Hex;
-    const result = await executeContractUserOp(pk, call);
+    const result = await executeContractUserOp(pk, call, network);
 
     const humanAmount =
       data.asset === "usdc"

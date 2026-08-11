@@ -14,7 +14,7 @@ export type Timeframe = "5m" | "15m" | "1h" | "4h" | "1d";
 export type ChartInterval = "5m" | "15m" | "1h" | "4h" | "1d";
 
 /** Desk market keys — native wrapped pair is tradeable; BTC/SOL watch-only. */
-export type DeskMarket = "WETH/USDC" | "WBNB/USDC" | "BTC/USDC" | "SOL/USDC";
+export type DeskMarket = "WETH/USDC" | "WBNB/USDC" | "WETH/USDG" | "BTC/USDC" | "SOL/USDC";
 
 const TF_TO_BINANCE: Record<Timeframe, string> = {
   "5m": "5m",
@@ -57,6 +57,14 @@ function resolvePair(symbol: string): BinancePair {
       sourceNote: "binance:ETHUSDT (proxy for Base WETH/USDC)",
     };
   }
+  if (s === "WETH/USDG" || s === "ETH/USDG") {
+    return {
+      binance: "ETHUSDT",
+      display: "WETH/USDG",
+      tradeable: true,
+      sourceNote: "binance:ETHUSDT (proxy for Robinhood WETH/USDG)",
+    };
+  }
   if (s === "WBNB/USDC" || s === "BNB/USDC" || s === "BNB" || s === "BNB/USDT") {
     return {
       binance: "BNBUSDT",
@@ -81,7 +89,12 @@ function resolvePair(symbol: string): BinancePair {
       sourceNote: "binance:SOLUSDT (watch-only — desk trades wrapped native/USDC)",
     };
   }
-  throw new Error(`No candle source for ${symbol}`);
+  return {
+    binance: "ETHUSDT",
+    display: "WETH/USDC",
+    tradeable: true,
+    sourceNote: "binance:ETHUSDT (fallback)",
+  };
 }
 
 function parseKlines(rows: unknown[]): Candle[] {

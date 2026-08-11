@@ -36,6 +36,10 @@ function genesisViemChain(network: AuraNetwork = activeNetwork()) {
       return bsc;
     case "opbnb":
       return opBNB;
+    case "robinhood":
+    case "robinhood-testnet":
+      // Genesis mint stays on Base until a Robinhood contract is deployed.
+      return base;
     default: {
       const _exhaustive: never = network;
       return _exhaustive;

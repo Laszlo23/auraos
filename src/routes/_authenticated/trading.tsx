@@ -19,6 +19,7 @@ import { BacktestLab } from "@/components/aura/trading/backtest-lab";
 import type { BacktestSnapshot } from "@/components/aura/trading/backtest-results-dialog";
 import { QuantDeskCockpit } from "@/components/aura/trading/quant-desk-cockpit";
 import { YieldDeskPanel } from "@/components/aura/trading/yield-desk-panel";
+import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
 import {
   DeskDrawerShell,
   type DeskDrawerId,
@@ -508,6 +509,11 @@ function TradingPage() {
         onPaperMode={(p) => void onPaperMode(p)}
         onArm={(next) => void onArm(next)}
         onOpenDrawer={setDrawer}
+      />
+
+      <DeskChainSwitcher
+        className="px-1"
+        invalidateKeys={[["trading-readiness"], ["trading-arena"]]}
       />
 
       {company?.id ? <YieldDeskPanel companyId={company.id} /> : null}

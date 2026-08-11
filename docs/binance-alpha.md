@@ -1,18 +1,16 @@
 # Binance Web3 Alpha / BNB Smart Chain readiness
 
-Aura OS is multichain-ready: **Base** (x402 + current prod) and **BNB Smart Chain** (chain id `56`) for Binance Wallet / Alpha trading rails. **opBNB** (`204`) is wired for wallets/RPC as a follow-on.
-
-Binance Alpha prioritizes projects that embrace the **BNB ecosystem**, show real product traction, audited contracts, clear tokenomics, and on-chain liquidity — not just a form submission.
+Aura OS is multichain: **Base** (x402 + default prod), **BNB Smart Chain** (Binance Alpha), and **Robinhood Chain** (`4663`). See [multichain.md](./multichain.md) for the desk switcher model.
 
 ## What is live in code
 
-| Layer | Base | BSC (BNB) |
-|-------|------|-----------|
-| Alchemy Light Account + OKX DEX | yes | yes (`ALCHEMY_NETWORK=bsc`) |
-| Trading desk primary pair | WETH/USDC | WBNB/USDC |
-| Treasury deposit / explorers | Basescan | BscScan |
-| x402 USDC settle (EIP-3009) | yes | **no** — settle stays on Base until a BSC facilitator + Permit2 path ships |
-| Genesis NFT mint | Base contract | redeploy required for BSC |
+| Layer | Base | BSC (BNB) | Robinhood |
+|-------|------|-----------|-----------|
+| Alchemy Light Account + OKX DEX | yes | yes | yes (`chainIndex=4663`) |
+| Trading desk primary pair | WETH/USDC | WBNB/USDC | WETH/USDG |
+| Per-company desk switcher | yes | yes | yes |
+| x402 USDC settle (EIP-3009) | yes | no | no |
+| Genesis NFT mint | Base contract | redeploy | redeploy |
 
 ## Flip the desk to BSC (staging / Alpha prep)
 

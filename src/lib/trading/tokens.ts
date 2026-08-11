@@ -11,12 +11,14 @@ export const NATIVE_ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as const;
 /** Alias — same OKX sentinel; prefer this in BNB-chain copy. */
 export const NATIVE_TOKEN = NATIVE_ETH;
 
-/** Wrapped native (WETH on Base, WBNB on BSC). */
+/** Wrapped native (WETH on Base/Robinhood, WBNB on BSC). */
 export const WETH_ADDRESSES: Record<AuraNetwork, `0x${string}`> = {
   base: "0x4200000000000000000000000000000000000006",
   "base-sepolia": "0x4200000000000000000000000000000000000006",
   bsc: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
   opbnb: "0x4200000000000000000000000000000000000006",
+  robinhood: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+  "robinhood-testnet": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
 };
 
 export const WBNB_ADDRESSES = {
@@ -24,16 +26,23 @@ export const WBNB_ADDRESSES = {
   opbnb: WETH_ADDRESSES.opbnb,
 } as const;
 
-export type TradableSymbol = "WETH/USDC" | "WBNB/USDC" | "ETH/USDC" | "BNB/USDC";
+export type TradableSymbol =
+  | "WETH/USDC"
+  | "WBNB/USDC"
+  | "ETH/USDC"
+  | "BNB/USDC"
+  | "WETH/USDG"
+  | "ETH/USDG";
 
 export function tradableSymbolsFor(network: AuraNetwork): TradableSymbol[] {
   const pair = networkSpec(network).primaryPair;
   if (pair === "WBNB/USDC") return ["WBNB/USDC", "BNB/USDC"];
+  if (pair === "WETH/USDG") return ["WETH/USDG", "ETH/USDG"];
   return ["WETH/USDC", "ETH/USDC"];
 }
 
-/** @deprecated Prefer tradableSymbolsFor(activeNetwork()) — Base default for older callers. */
-export const TRADABLE_SYMBOLS: TradableSymbol[] = ["WETH/USDC", "WBNB/USDC"];
+/** @deprecated Prefer tradableSymbolsFor(network). */
+export const TRADABLE_SYMBOLS: TradableSymbol[] = ["WETH/USDC", "WBNB/USDC", "WETH/USDG"];
 
 export function resolvePairTokens(
   symbol: string,
@@ -48,7 +57,9 @@ export function resolvePairTokens(
     normalized === "WETH/USDC" ||
     normalized === "ETH/USDC" ||
     normalized === "WBNB/USDC" ||
-    normalized === "BNB/USDC"
+    normalized === "BNB/USDC" ||
+    normalized === "WETH/USDG" ||
+    normalized === "ETH/USDG"
   ) {
     return { base: wrapped, quote: usdc, baseDecimals: 18, quoteDecimals };
   }

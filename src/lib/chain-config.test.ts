@@ -14,7 +14,7 @@ import { resolvePairTokens, tradableSymbolsFor } from "./trading/tokens";
 import { FOUNDER_AURA_PER_USDC, ledgerToOnchainAura, ROADMAP } from "./subscription";
 
 describe("chain-config", () => {
-  it("normalizes network aliases including BNB/BSC", () => {
+  it("normalizes network aliases including BNB/BSC and Robinhood", () => {
     expect(resolveNetwork("base")).toBe("base");
     expect(resolveNetwork("base-mainnet")).toBe("base");
     expect(resolveNetwork("base-sepolia")).toBe("base-sepolia");
@@ -22,6 +22,8 @@ describe("chain-config", () => {
     expect(resolveNetwork("bnb")).toBe("bsc");
     expect(resolveNetwork("bnb-mainnet")).toBe("bsc");
     expect(resolveNetwork("opbnb")).toBe("opbnb");
+    expect(resolveNetwork("robinhood")).toBe("robinhood");
+    expect(resolveNetwork("robinhood-mainnet")).toBe("robinhood");
     expect(resolveNetwork("unknown")).toBe("base-sepolia");
   });
 
@@ -30,24 +32,32 @@ describe("chain-config", () => {
     expect(chainId("base-sepolia")).toBe(84532);
     expect(chainId("bsc")).toBe(56);
     expect(chainId("opbnb")).toBe(204);
+    expect(chainId("robinhood")).toBe(4663);
     expect(alchemySubdomain("base")).toBe("base-mainnet");
     expect(alchemySubdomain("base-sepolia")).toBe("base-sepolia");
     expect(alchemySubdomain("bsc")).toBe("bnb-mainnet");
     expect(alchemySubdomain("opbnb")).toBe("opbnb-mainnet");
+    expect(alchemySubdomain("robinhood")).toBe("robinhood-mainnet");
     expect(chainLabel("bsc")).toBe("BNB Smart Chain");
+    expect(chainLabel("robinhood")).toBe("Robinhood Chain");
   });
 
-  it("has USDC addresses and decimals per network", () => {
+  it("has USDC/USDG addresses and decimals per network", () => {
     expect(USDC_ADDRESSES.base.startsWith("0x")).toBe(true);
     expect(USDC_ADDRESSES.bsc.startsWith("0x")).toBe(true);
+    expect(USDC_ADDRESSES.robinhood.toLowerCase()).toBe(
+      "0x5fc5360d0400a0fd4f2af552add042d716f1d168",
+    );
     expect(USDC_DECIMALS.base).toBe(6);
     expect(USDC_DECIMALS.bsc).toBe(18);
+    expect(USDC_DECIMALS.robinhood).toBe(6);
   });
 
   it("keeps x402 settlement on Base family", () => {
     expect(supportsX402Settle("base")).toBe(true);
     expect(supportsX402Settle("bsc")).toBe(false);
     expect(supportsX402Settle("opbnb")).toBe(false);
+    expect(supportsX402Settle("robinhood")).toBe(false);
   });
 });
 
@@ -57,6 +67,13 @@ describe("trading tokens", () => {
     expect(pair.base.toLowerCase()).toBe("0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c");
     expect(pair.quoteDecimals).toBe(18);
     expect(tradableSymbolsFor("bsc")[0]).toBe("WBNB/USDC");
+  });
+
+  it("resolves WETH/USDG on Robinhood", () => {
+    const pair = resolvePairTokens("WETH/USDG", "robinhood");
+    expect(pair.base.toLowerCase()).toBe("0x0bd7d308f8e1639fab988df18a8011f41eacad73");
+    expect(pair.quoteDecimals).toBe(6);
+    expect(tradableSymbolsFor("robinhood")[0]).toBe("WETH/USDG");
   });
 });
 

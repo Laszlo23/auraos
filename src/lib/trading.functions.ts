@@ -609,7 +609,7 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
     const { data: company } = await context.supabase
       .from("companies")
       .select(
-        "id, trading_armed, max_risk_pct, max_notional_usdc_day, quant_boost_until, quant_boost_pct, trading_paper",
+        "id, trading_armed, max_risk_pct, max_notional_usdc_day, quant_boost_until, quant_boost_pct, trading_paper, desk_network",
       )
       .eq("owner_id", context.userId)
       .order("created_at", { ascending: true })
@@ -629,6 +629,13 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
       };
     }
 
+    const { resolveNetwork, networkSpec, stableSymbol } = await import("@/lib/chain-config");
+    const deskNetwork = resolveNetwork(
+      (company as { desk_network?: string }).desk_network ?? "base",
+    );
+    const stable = stableSymbol(deskNetwork);
+    const pair = networkSpec(deskNetwork).primaryPair;
+
     const { data: wallet } = await context.supabase
       .from("wallet_bindings")
       .select("address")
@@ -639,8 +646,8 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
     let usdc = 0;
     let eth = 0;
     if (wallet?.address) {
-      usdc = await fetchWalletUsdcBalance(wallet.address);
-      if (usdc < 5) eth = await fetchWalletEthBalance(wallet.address);
+      usdc = await fetchWalletUsdcBalance(wallet.address, deskNetwork);
+      if (usdc < 5) eth = await fetchWalletEthBalance(wallet.address, deskNetwork);
     }
 
     const { data: keys } = await context.supabase
@@ -664,8 +671,8 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
     if (!reallyFunded) {
       blockReason =
         eth >= 0.002
-          ? "Convert ETH → USDC on /wallet (OKX), need at least $5 USDC"
-          : "Deposit at least $5 USDC on Base (or ETH and convert on /wallet)";
+          ? `Convert native → ${stable} on /wallet (OKX), need at least $5 ${stable} (${pair})`
+          : `Deposit at least $5 ${stable} on ${networkSpec(deskNetwork).label} (or native and convert on /wallet)`;
     } else if (!hasTradeKey) blockReason = "Issue a session key with Trade permission";
     else if (!hasApprovedStrategy) blockReason = "Approve a strategy (pick a preset)";
     const canArm = reallyFunded && hasTradeKey && hasApprovedStrategy;
@@ -683,6 +690,9 @@ export const getTradingDeskReadiness = createServerFn({ method: "GET" })
       paper: Boolean((company as { trading_paper?: boolean }).trading_paper),
       canArm,
       blockReason,
+      network: deskNetwork,
+      stableSymbol: stable,
+      primaryPair: pair,
       quantBoostUntil: (company as { quant_boost_until?: string | null }).quant_boost_until ?? null,
       quantBoostPct: Number((company as { quant_boost_pct?: number }).quant_boost_pct ?? 0),
     };

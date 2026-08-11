@@ -2,7 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import type { Hex } from "viem";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { activeNetwork, gasSponsorshipEnabled } from "@/lib/chain-config";
+import { gasSponsorshipEnabled, resolveNetwork } from "@/lib/chain-config";
+import { resolveCompanyDeskNetwork } from "@/lib/desk-network.server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -22,14 +23,28 @@ async function mirrorTreasuryAddress(
     .update({ wallet_address: address })
     .eq("company_id", handle.company_id);
 }
+
+function mergeDeployedChains(
+  existing: unknown,
+  network: string,
+  deployed: boolean,
+): Record<string, boolean> {
+  const base =
+    existing && typeof existing === "object" && !Array.isArray(existing)
+      ? { ...(existing as Record<string, boolean>) }
+      : {};
+  base[network] = deployed;
+  return base;
+}
+
 /**
- * Provisions (or refreshes) the founder's embedded Light Account.
+ * Provisions (or refreshes) the founder's embedded Light Account on the company desk network.
  * New accounts get a random owner key encrypted at rest — not re-derivable
- * from WALLET_DERIVATION_SECRET alone.
+ * from WALLET_DERIVATION_SECRET alone. Same CREATE2 address works across chains.
  */
 export const provisionSmartWallet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { handleId: string; redeploy?: boolean }) => {
+  .inputValidator((input: { handleId: string; redeploy?: boolean; network?: string }) => {
     if (!input.handleId) throw new Error("A handle is required.");
     return input;
   })
@@ -46,9 +61,10 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
     } = await import("./wallet.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const network = activeNetwork();
+    const network =
+      (data.network ? resolveNetwork(data.network) : null) ??
+      (await resolveCompanyDeskNetwork(context.supabase, { userId: context.userId }));
     const apiKey = process.env["ALCHEMY_API_KEY"];
-
     // Caller must own the handle — otherwise slot griefing via unique (handle_id, slot).
     const { data: ownedHandle } = await context.supabase
       .from("handles")
@@ -71,7 +87,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
 
     const { data: existing } = await supabaseAdmin
       .from("wallet_bindings")
-      .select("id, address, owner_key_enc, legacy, deployed, owner_address")
+      .select("id, address, owner_key_enc, legacy, deployed, owner_address, deployed_chains")
       .eq("handle_id", data.handleId)
       .eq("kind", "smart")
       .eq("user_id", context.userId)
@@ -89,17 +105,24 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       let deployed = await isDeployed(address, network);
       let userOpHash: string | null = null;
 
-      if ((!deployed && data.redeploy) || (!deployed && gasSponsorshipEnabled())) {
-        const result = await deploySmartAccount(pk);
+      if ((!deployed && data.redeploy) || (!deployed && gasSponsorshipEnabled(network))) {
+        const result = await deploySmartAccount(pk, network);
         deployed = result.deployed;
         userOpHash = result.userOpHash;
       }
+
+      const deployedChains = mergeDeployedChains(
+        (existing as { deployed_chains?: unknown }).deployed_chains,
+        network,
+        deployed,
+      );
 
       await supabaseAdmin
         .from("wallet_bindings")
         .update({
           address,
           deployed,
+          deployed_chains: deployedChains,
           owner_address: owner.address,
           chain: network,
           custody: "account_kit",
@@ -107,7 +130,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
           provider: "alchemy",
           verified: true,
           verified_at: new Date().toISOString(),
-        })
+        } as never)
         .eq("id", existing.id);
 
       await mirrorTreasuryAddress(context.supabase, data.handleId, address);
@@ -118,9 +141,10 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
         confirmed: true,
         network,
         created: false,
-        sponsored: gasSponsorshipEnabled(),
+        sponsored: gasSponsorshipEnabled(network),
         userOpHash,
         legacy: false,
+        deployedChains,
       };
     }
 
@@ -136,6 +160,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
         const newAddress = predictAddress(newOwner.address, network);
         const enc = encryptOwnerKey(pk);
         const deployed = await isDeployed(newAddress, network);
+        const deployedChains = mergeDeployedChains(null, network, deployed);
 
         await supabaseAdmin
           .from("wallet_bindings")
@@ -144,6 +169,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
             owner_address: newOwner.address,
             owner_key_enc: enc,
             deployed,
+            deployed_chains: deployedChains,
             chain: network,
             custody: "account_kit",
             legacy: address.toLowerCase() !== newAddress.toLowerCase(),
@@ -154,7 +180,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
             provider: "alchemy",
             verified: true,
             verified_at: new Date().toISOString(),
-          })
+          } as never)
           .eq("id", existing.id);
 
         await mirrorTreasuryAddress(context.supabase, data.handleId, newAddress);
@@ -165,10 +191,11 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
           confirmed: true,
           network,
           created: false,
-          sponsored: gasSponsorshipEnabled(),
+          sponsored: gasSponsorshipEnabled(network),
           userOpHash: null,
           legacy: address.toLowerCase() !== newAddress.toLowerCase(),
           previousAddress: address,
+          deployedChains,
         };
       }
 
@@ -198,6 +225,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       const address = predictAddress(owner.address, network);
       const enc = encryptOwnerKey(pk);
 
+      const deployedChains = mergeDeployedChains(null, network, false);
       const { error } = await supabaseAdmin.from("wallet_bindings").insert({
         user_id: context.userId,
         handle_id: data.handleId,
@@ -210,12 +238,13 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
         owner_address: owner.address,
         owner_key_enc: enc,
         deployed: false,
+        deployed_chains: deployedChains,
         custody: "account_kit",
         legacy: false,
         label: "Aura Smart Wallet",
         verified: true,
         verified_at: new Date().toISOString(),
-      });
+      } as never);
       if (error) throw error;
 
       await mirrorTreasuryAddress(context.supabase, data.handleId, address);
@@ -229,6 +258,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
         sponsored: false,
         userOpHash: null,
         legacy: false,
+        deployedChains,
       };
     }
 
@@ -239,12 +269,13 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
     let deployed = await isDeployed(address, network);
     let userOpHash: string | null = null;
 
-    if (!deployed && gasSponsorshipEnabled()) {
-      const result = await deploySmartAccount(pk);
+    if (!deployed && gasSponsorshipEnabled(network)) {
+      const result = await deploySmartAccount(pk, network);
       deployed = result.deployed;
       userOpHash = result.userOpHash;
     }
 
+    const deployedChains = mergeDeployedChains(null, network, deployed);
     const { error } = await supabaseAdmin.from("wallet_bindings").insert({
       user_id: context.userId,
       handle_id: data.handleId,
@@ -257,12 +288,13 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       owner_address: owner.address,
       owner_key_enc: enc,
       deployed,
+      deployed_chains: deployedChains,
       custody: "account_kit",
       legacy: false,
       label: "Aura Smart Wallet",
       verified: true,
       verified_at: new Date().toISOString(),
-    });
+    } as never);
     if (error) throw error;
 
     await mirrorTreasuryAddress(context.supabase, data.handleId, address);
@@ -273,9 +305,10 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
       confirmed: true,
       network,
       created: true,
-      sponsored: gasSponsorshipEnabled(),
+      sponsored: gasSponsorshipEnabled(network),
       userOpHash,
       legacy: false,
+      deployedChains,
     };
   });
 

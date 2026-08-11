@@ -5,7 +5,6 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   alchemyRpcUrl,
   chainId,
-  activeNetwork,
   chainLabel,
   USDC_ADDRESSES,
   USDC_DECIMALS,
@@ -14,10 +13,15 @@ import {
 import { NATIVE_ETH, WETH_ADDRESSES, explorerTxUrl as buildExplorerTxUrl } from "@/lib/trading/tokens";
 
 /** Public status of OKX rails (no secrets). */
-export const getOkxStatus = createServerFn({ method: "GET" }).handler(async () => {
+export const getOkxStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
   const { okxConfigured, okxBuilderCode, okxPayoutAddress } = await import("./okx.server");
   const { gasSponsorshipEnabled } = await import("./wallet.server");
-  const network = activeNetwork();
+  const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+  const network = await resolveCompanyDeskNetwork(context.supabase, {
+    userId: context.userId,
+  });
   return {
     configured: okxConfigured(),
     builderCode: Boolean(okxBuilderCode()),
@@ -101,11 +105,14 @@ export const quoteOkxSwap = createServerFn({ method: "POST" })
       return input;
     },
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { okxDexQuote, okxTokenSecurity, okxConfigured } = await import("./okx.server");
     if (!okxConfigured()) throw new Error("OKX DEX rails are not configured.");
 
-    const network = activeNetwork();
+    const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+    const network = await resolveCompanyDeskNetwork(context.supabase, {
+      userId: context.userId,
+    });
     const cid = String(chainId(network));
     const from = (data.fromTokenAddress || USDC_ADDRESSES[network]) as string;
 
@@ -147,11 +154,14 @@ export const prepareOkxSwap = createServerFn({ method: "POST" })
       return input;
     },
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { okxDexSwap, okxTokenSecurity, okxConfigured } = await import("./okx.server");
     if (!okxConfigured()) throw new Error("OKX DEX rails are not configured.");
 
-    const network = activeNetwork();
+    const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+    const network = await resolveCompanyDeskNetwork(context.supabase, {
+      userId: context.userId,
+    });
     const cid = String(chainId(network));
     const from = (data.fromTokenAddress || USDC_ADDRESSES[network]) as string;
 
@@ -205,7 +215,10 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       gasSponsorshipEnabled,
     } = await import("./wallet.server");
 
-    const network = activeNetwork();
+    const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+    const network = await resolveCompanyDeskNetwork(context.supabase, {
+      userId: context.userId,
+    });
     const cid = String(chainId(network));
     const usdc = USDC_ADDRESSES[network];
     const weth = WETH_ADDRESSES[network];
@@ -371,8 +384,8 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
     try {
       result =
         calls.length > 1
-          ? await executeBatchUserOps(pk, calls)
-          : await executeContractUserOp(pk, calls[0]!);
+          ? await executeBatchUserOps(pk, calls, network)
+          : await executeContractUserOp(pk, calls[0]!, network);
     } catch (err) {
       throw friendlyUserOpError(err, sponsored, native);
     }

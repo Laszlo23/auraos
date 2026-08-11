@@ -15,8 +15,9 @@ import {
   getDefaultLightAccountFactoryAddress,
   predictLightAccountAddress,
 } from "@account-kit/smart-contracts";
-import { type Address, type Hex, concatHex, keccak256, toHex } from "viem";
+import { type Address, type Chain, type Hex, concatHex, keccak256, toHex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import { robinhood as viemRobinhood, robinhoodTestnet as viemRobinhoodTestnet } from "viem/chains";
 
 import {
   activeNetwork,
@@ -32,6 +33,23 @@ export const LIGHT_ACCOUNT_VERSION = "v2.0.0" as const;
 /** Alchemy LightAccount v2.0.0 factory — same address on every supported chain. */
 export const LIGHT_ACCOUNT_FACTORY = "0x0000000000400CdFef5E2714E63d8040b700BC24" as Address;
 
+/** Robinhood is in viem but not yet a stock @account-kit/infra export — attach Alchemy RPC URLs. */
+const robinhoodMainnet: Chain = {
+  ...viemRobinhood,
+  rpcUrls: {
+    ...viemRobinhood.rpcUrls,
+    alchemy: { http: ["https://robinhood-mainnet.g.alchemy.com/v2"] },
+  },
+};
+
+const robinhoodTestnet: Chain = {
+  ...viemRobinhoodTestnet,
+  rpcUrls: {
+    ...viemRobinhoodTestnet.rpcUrls,
+    alchemy: { http: ["https://robinhood-testnet.g.alchemy.com/v2"] },
+  },
+};
+
 export function viemChain(network: AuraNetwork = activeNetwork()) {
   switch (network) {
     case "base":
@@ -42,6 +60,10 @@ export function viemChain(network: AuraNetwork = activeNetwork()) {
       return bsc;
     case "opbnb":
       return opbnbMainnet;
+    case "robinhood":
+      return robinhoodMainnet;
+    case "robinhood-testnet":
+      return robinhoodTestnet;
     default: {
       const _exhaustive: never = network;
       return _exhaustive;
@@ -119,11 +141,13 @@ export async function isDeployed(address: string, network: AuraNetwork = activeN
 
 export type LightClient = Awaited<ReturnType<typeof createLightAccountAlchemyClient>>;
 
-/** Builds a sponsored (when policy set) Light Account client for an owner key. */
-export async function createSponsoredLightClient(privateKey: Hex) {
+/** Builds a sponsored (when policy set) Light Account client for an owner key on a specific chain. */
+export async function createSponsoredLightClient(
+  privateKey: Hex,
+  network: AuraNetwork = activeNetwork(),
+) {
   const apiKey = process.env["ALCHEMY_API_KEY"];
   if (!apiKey) throw new Error("ALCHEMY_API_KEY is not configured.");
-  const network = activeNetwork();
   const chain = viemChain(network);
   const policyId = gasPolicyId(network);
 
@@ -139,17 +163,26 @@ export async function createSponsoredLightClient(privateKey: Hex) {
  * Deploys (or no-ops if already deployed) via a zero-value self-call UserOp.
  * Requires Alchemy + optional Gas Manager policy for true gasless UX.
  */
-export async function deploySmartAccount(privateKey: Hex): Promise<{
+export async function deploySmartAccount(
+  privateKey: Hex,
+  network: AuraNetwork = activeNetwork(),
+): Promise<{
   address: Address;
   deployed: boolean;
   userOpHash: string | null;
   sponsored: boolean;
+  network: AuraNetwork;
 }> {
-  const client = await createSponsoredLightClient(privateKey);
+  const client = await createSponsoredLightClient(privateKey, network);
   const address = client.account.address as Address;
-  const network = activeNetwork();
   if (await isDeployed(address, network)) {
-    return { address, deployed: true, userOpHash: null, sponsored: gasSponsorshipEnabled(network) };
+    return {
+      address,
+      deployed: true,
+      userOpHash: null,
+      sponsored: gasSponsorshipEnabled(network),
+      network,
+    };
   }
 
   const sponsored = gasSponsorshipEnabled(network);
@@ -165,11 +198,11 @@ export async function deploySmartAccount(privateKey: Hex): Promise<{
       typeof result === "string"
         ? result
         : ((result as { hash?: string }).hash ?? null);
-    return { address, deployed: true, userOpHash, sponsored };
+    return { address, deployed: true, userOpHash, sponsored, network };
   } catch (e) {
     // Without a paymaster and without ETH, deploy will fail — keep counterfactual.
     console.warn("smart account deploy deferred", e instanceof Error ? e.message : e);
-    return { address, deployed: false, userOpHash: null, sponsored };
+    return { address, deployed: false, userOpHash: null, sponsored, network };
   }
 }
 
@@ -179,8 +212,9 @@ export async function deploySmartAccount(privateKey: Hex): Promise<{
 export async function executeContractUserOp(
   privateKey: Hex,
   call: { target: Address; data: Hex; value?: bigint },
+  network: AuraNetwork = activeNetwork(),
 ): Promise<{ userOpHash: string; address: Address }> {
-  const client = await createSponsoredLightClient(privateKey);
+  const client = await createSponsoredLightClient(privateKey, network);
   const address = client.account.address as Address;
   const result = await client.sendUserOperation({
     uo: {
@@ -202,12 +236,13 @@ export async function executeContractUserOp(
 export async function executeBatchUserOps(
   privateKey: Hex,
   calls: { target: Address; data: Hex; value?: bigint }[],
+  network: AuraNetwork = activeNetwork(),
 ): Promise<{ userOpHash: string; address: Address }> {
-  const client = await createSponsoredLightClient(privateKey);
+  const client = await createSponsoredLightClient(privateKey, network);
   const address = client.account.address as Address;
   if (calls.length === 0) throw new Error("No calls to execute");
   if (calls.length === 1) {
-    return executeContractUserOp(privateKey, calls[0]!);
+    return executeContractUserOp(privateKey, calls[0]!, network);
   }
   // Account Kit Light Account supports batch via array uo when available
   try {
@@ -227,16 +262,20 @@ export async function executeBatchUserOps(
     // Fallback: sequential (approve then swap)
     let last = { userOpHash: "", address };
     for (const c of calls) {
-      last = await executeContractUserOp(privateKey, c);
+      last = await executeContractUserOp(privateKey, c, network);
     }
     return last;
   }
 }
 
 /** Sign an EIP-191 personal message with the Light Account (or owner fallback). */
-export async function signPersonalMessage(privateKey: Hex, message: string): Promise<Hex> {
+export async function signPersonalMessage(
+  privateKey: Hex,
+  message: string,
+  network: AuraNetwork = activeNetwork(),
+): Promise<Hex> {
   try {
-    const client = await createSponsoredLightClient(privateKey);
+    const client = await createSponsoredLightClient(privateKey, network);
     return (await client.signMessage({ message })) as Hex;
   } catch {
     const account = ownerFromPrivateKey(privateKey);

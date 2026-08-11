@@ -1,11 +1,16 @@
-/** Read USDC balance for a smart-wallet address via Alchemy RPC. */
+/** Read stable (USDC/USDG) balance for a smart-wallet address via Alchemy RPC. */
 
-export async function fetchWalletUsdcBalance(address: string): Promise<number> {
+import type { AuraNetwork } from "@/lib/chain-config";
+
+export async function fetchWalletUsdcBalance(
+  address: string,
+  networkArg?: AuraNetwork,
+): Promise<number> {
   try {
-    const { activeNetwork, alchemyRpcUrl, USDC_ADDRESSES } = await import(
+    const { activeNetwork, alchemyRpcUrl, USDC_ADDRESSES, USDC_DECIMALS } = await import(
       "@/lib/chain-config"
     );
-    const network = activeNetwork();
+    const network = networkArg ?? activeNetwork();
     const url = alchemyRpcUrl({ network });
     if (!url) return 0;
     const balanceOf = `0x70a08231000000000000000000000000${address.slice(2).toLowerCase()}`;
@@ -21,17 +26,21 @@ export async function fetchWalletUsdcBalance(address: string): Promise<number> {
     });
     const json = (await res.json()) as { result?: string };
     if (!json.result) return 0;
-    return Number(BigInt(json.result)) / 1e6;
+    return Number(BigInt(json.result)) / 10 ** USDC_DECIMALS[network];
   } catch {
     return 0;
   }
 }
 
-/** Native ETH balance (for gas + in-app convert prompts). */
-export async function fetchWalletEthBalance(address: string): Promise<number> {
+/** Native ETH/BNB balance (for gas + in-app convert prompts). */
+export async function fetchWalletEthBalance(
+  address: string,
+  networkArg?: AuraNetwork,
+): Promise<number> {
   try {
     const { activeNetwork, alchemyRpcUrl } = await import("@/lib/chain-config");
-    const url = alchemyRpcUrl({ network: activeNetwork() });
+    const network = networkArg ?? activeNetwork();
+    const url = alchemyRpcUrl({ network });
     if (!url) return 0;
     const res = await fetch(url, {
       method: "POST",

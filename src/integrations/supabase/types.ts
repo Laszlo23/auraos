@@ -1026,6 +1026,7 @@ export type Database = {
           created_at: string
           credits: number
           daily_aura_budget: number
+          desk_network: string
           emoji: string
           entry_funnel: string
           google_review_url: string | null
@@ -1061,6 +1062,7 @@ export type Database = {
           created_at?: string
           credits?: number
           daily_aura_budget?: number
+          desk_network?: string
           emoji?: string
           entry_funnel?: string
           google_review_url?: string | null
@@ -1096,6 +1098,7 @@ export type Database = {
           created_at?: string
           credits?: number
           daily_aura_budget?: number
+          desk_network?: string
           emoji?: string
           entry_funnel?: string
           google_review_url?: string | null
@@ -3873,6 +3876,7 @@ export type Database = {
           created_at: string
           custody: string
           deployed: boolean
+          deployed_chains: Json
           handle_id: string
           id: string
           kind: string
@@ -3894,6 +3898,7 @@ export type Database = {
           created_at?: string
           custody?: string
           deployed?: boolean
+          deployed_chains?: Json
           handle_id: string
           id?: string
           kind?: string
@@ -3915,6 +3920,7 @@ export type Database = {
           created_at?: string
           custody?: string
           deployed?: boolean
+          deployed_chains?: Json
           handle_id?: string
           id?: string
           kind?: string

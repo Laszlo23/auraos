@@ -26,6 +26,7 @@ import {
   quoteOkxSwap,
   type TreasurySwapDirection,
 } from "@/lib/okx.functions";
+import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
 import {
   getTreasuryActivity,
   getTreasuryBalance,
@@ -274,6 +275,8 @@ export function WalletDesk({
     treasury.data?.deployed ?? Boolean((wallet as { deployed?: boolean } | null)?.deployed);
   const networkLabel = treasury.data?.label ?? "Base";
   const nativeSym = treasury.data?.nativeSymbol ?? "ETH";
+  const stableSym =
+    (treasury.data as { stableSymbol?: string } | undefined)?.stableSymbol ?? "USDC";
   const usdc = treasury.data?.usdc ?? 0;
   const eth = treasury.data?.eth ?? 0;
   const weth = treasury.data?.weth ?? 0;
@@ -378,10 +381,11 @@ export function WalletDesk({
   const sendBalance =
     sendAsset === "usdc" ? usdc : sendAsset === "eth" ? eth : weth;
   const sendAssetLabel =
-    sendAsset === "usdc" ? "USDC" : sendAsset === "eth" ? nativeSym : "WETH";
+    sendAsset === "usdc" ? stableSym : sendAsset === "eth" ? nativeSym : "WETH";
 
   return (
     <div className="space-y-5">
+      <DeskChainSwitcher invalidateKeys={[["treasury-activity"], ["trading-readiness"]]} />
       {/* Hero */}
       <section className="relative overflow-hidden rounded-[1.75rem] border border-border/40 bg-gradient-to-br from-foreground/[0.06] via-background to-primary/[0.08] px-5 py-6 sm:px-7 sm:py-8">
         <div
@@ -403,7 +407,7 @@ export function WalletDesk({
               )}
             </div>
             <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              Cash (USDC)
+              Cash ({stableSym})
             </p>
             <p className="num mt-1 text-4xl font-semibold tracking-tight text-gold sm:text-5xl">
               <Counter
