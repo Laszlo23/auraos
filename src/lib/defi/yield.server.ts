@@ -98,6 +98,10 @@ export type OpenYieldArgs = {
     wallet: string;
     protocol: string;
     chain: string;
+    liquidity?: string;
+    pool?: string;
+    gauge?: string;
+    hashes?: string[];
   };
 };
 
@@ -197,6 +201,10 @@ export async function openYieldPosition(db: Db, args: OpenYieldArgs) {
               wallet: args.liveTx.wallet,
               protocol: args.liveTx.protocol,
               chain: args.liveTx.chain,
+              ...(args.liveTx.liquidity ? { liquidity: args.liveTx.liquidity } : {}),
+              ...(args.liveTx.pool ? { pool: args.liveTx.pool } : {}),
+              ...(args.liveTx.gauge ? { gauge: args.liveTx.gauge } : {}),
+              ...(args.liveTx.hashes ? { hashes: args.liveTx.hashes } : {}),
             }
           : {}),
       },

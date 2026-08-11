@@ -87,10 +87,10 @@ export const YIELD_CATALOG: YieldCatalogItem[] = [
       "ve(3,3) weekly epoch timing",
     ],
     standOut:
-      "Core Base flywheel: deepen liquidity → volume → votes → emissions. Aura agents rebalance ranges and claim on epoch.",
-    minUsdc: 50,
+      "Core Base flywheel: deepen liquidity → volume → votes → emissions. Live rail: OKX half-swap + Aerodrome LP + gauge.",
+    minUsdc: 10,
     maxBudgetPct: 40,
-    liveReady: false,
+    liveReady: true,
     docsUrl: "https://aerodrome.finance/docs",
   },
   {
