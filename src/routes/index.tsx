@@ -21,6 +21,7 @@ import {
 
 import { PulseOrbit } from "@/components/aura/pulse-orbit";
 import { AuraLens } from "@/components/aura/aura-lens";
+import { WordReveal } from "@/components/aura/word-reveal";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
 import { HeroFilm } from "@/components/aura/hero-film";
@@ -46,7 +47,6 @@ import {
   mediaPath,
 } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
-import { requestInstallPrompt } from "@/components/aura/install-app";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
@@ -366,8 +366,9 @@ function Landing() {
     <main className="relative min-h-screen snap-y snap-proximity overflow-x-hidden">
       <BootCurtain />
       <AuraLens />
-      <header className="fixed inset-x-0 top-0 z-30 border-b border-white/5 bg-background/40 backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:px-6">
+      <header className="fixed inset-x-0 top-0 z-30 bg-background/35 backdrop-blur-2xl">
+        <div className="vital-line" aria-hidden />
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3 sm:px-6">
           <PulseOrbit size="sm" className="min-w-0" />
           <Chip className="ml-auto hidden sm:flex">
             <LaunchCountdown variant="compact" showSocials={false} placement="header" />
@@ -375,34 +376,18 @@ function Landing() {
           <Link
             to="/access"
             onClick={() => trackTeaser("cta_click", { placement: "landing_header_buy" })}
-            className="cta-liquid shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="cta-liquid cta-magnetic shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
           >
             Buy seat — $99
           </Link>
           <button
-            type="button"
-            onClick={() => {
-              trackTeaser("cta_click", { placement: "landing_header_install" });
-              requestInstallPrompt();
-            }}
-            className="hidden shrink-0 rounded-2xl border border-border/50 bg-foreground/4 px-4 py-2 text-xs font-semibold transition-colors hover:border-primary/40 hover:text-primary sm:inline-flex"
-          >
-            Get app
-          </button>
-          <Link
-            to="/access"
-            onClick={() => trackTeaser("cta_click", { placement: "landing_header_earn" })}
-            className="hidden shrink-0 rounded-2xl bg-primary/14 px-4 py-2 text-xs font-semibold text-primary transition-opacity hover:opacity-80 sm:inline-flex"
-          >
-            Founding seats
-          </Link>
-          <button
             onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
-            className="shrink-0 rounded-2xl bg-foreground/8 px-4 py-2 text-xs font-semibold transition-colors hover:bg-foreground/14"
+            className="shrink-0 rounded-2xl border border-white/8 bg-foreground/[0.04] px-4 py-2 text-xs font-semibold transition-colors hover:border-primary/30 hover:bg-foreground/8"
           >
             Sign in
           </button>
         </div>
+        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" aria-hidden />
       </header>
 
       {/* ACT 00 — one composition: brand · headline · line · CTAs · film */}
@@ -416,27 +401,29 @@ function Landing() {
             initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-8"
+            className="mb-9"
           >
             <PulseOrbit size="hero" />
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 28, filter: "blur(12px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
-            className="max-w-4xl font-display text-[clamp(2.8rem,10.5vw,6.2rem)] leading-[0.92] tracking-tight"
-          >
-            Own a company.
+          <h1 className="display-hero max-w-4xl text-[clamp(3rem,11vw,6.6rem)]">
+            <WordReveal text="Own a company." delay={0.06} />
             <br />
-            <span className="text-money">Let AI make money.</span>
-          </motion.h1>
+            <motion.span
+              initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 1, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="text-money inline-block"
+            >
+              Let AI make money.
+            </motion.span>
+          </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25 }}
-            className="mt-6 max-w-md text-[16px] leading-relaxed text-foreground/78 sm:text-[17px]"
+            transition={{ duration: 0.9, delay: 0.55 }}
+            className="mt-7 max-w-md text-[16px] leading-relaxed text-foreground/78 sm:text-[17px]"
           >
             AI executes the work. You control the company — and keep the upside.
           </motion.p>
@@ -444,13 +431,13 @@ function Landing() {
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.38 }}
+            transition={{ duration: 0.85, delay: 0.68 }}
             className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
             <Link
               to="/access"
               onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
-              className="cta-liquid flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-all hover:opacity-90 hover:shadow-[0_0_60px_-12px_var(--glow)]"
+              className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
             >
               Buy founding seat — $99 <ArrowRight className="h-4 w-4" />
             </Link>
@@ -460,16 +447,19 @@ function Landing() {
                 trackTeaser("open", { placement: "hero" });
                 setTeaserOpen(true);
               }}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-background/30 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-colors hover:border-primary/30 hover:bg-foreground/8"
+              className="group flex items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-background/25 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/35 hover:bg-foreground/[0.07]"
             >
-              <Play className="h-3.5 w-3.5 fill-current text-primary" /> Watch 15s
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-primary transition-transform group-hover:scale-110">
+                <Play className="h-3 w-3 fill-current" />
+              </span>
+              Watch 15s
             </button>
           </motion.div>
 
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            className="mt-14 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground/80"
+            className="mt-16 flex items-center gap-2 text-[10px] uppercase tracking-[0.34em] text-muted-foreground/75"
           >
             <ChevronDown className="h-3.5 w-3.5" /> How it works
           </motion.div>
@@ -480,8 +470,14 @@ function Landing() {
       <section className="relative z-10 flex min-h-[70svh] snap-start items-center overflow-hidden border-y border-primary/10">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(34,211,238,0.08),transparent_50%),linear-gradient(180deg,transparent,rgba(0,0,0,0.35))]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,color-mix(in_oklab,var(--primary)_12%,transparent),transparent_55%),linear-gradient(180deg,transparent,rgba(0,0,0,0.4))]"
         />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-10 top-1/2 -translate-y-1/2 scale-[2.4] opacity-[0.12] sm:right-[8%] sm:scale-[2.8]"
+        >
+          <PulseOrbit size="hero" label={false} />
+        </div>
         <div className="relative mx-auto w-full max-w-6xl px-6 py-20 sm:py-28">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -497,7 +493,7 @@ function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.75, delay: 0.05 }}
-            className="mt-4 max-w-3xl font-display text-[clamp(2.2rem,7vw,4.2rem)] leading-[0.98] tracking-tight"
+            className="display-hero mt-4 max-w-3xl text-[clamp(2.4rem,7.5vw,4.6rem)]"
           >
             You sleep.
             <br />

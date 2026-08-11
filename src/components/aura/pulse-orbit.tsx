@@ -88,15 +88,15 @@ export function PulseOrbit({
       {label ? (
         <span
           className={cn(
-            "font-display font-semibold tracking-[0.14em]",
+            "font-display font-bold tracking-[0.16em]",
             size === "hero"
-              ? "text-[1.35rem] sm:text-[1.6rem]"
+              ? "text-[1.45rem] sm:text-[1.75rem]"
               : size === "lg"
                 ? "text-lg"
                 : "text-[15px]",
           )}
         >
-          AURA<span className="text-primary"> OS</span>
+          AURA<span className="text-money"> OS</span>
         </span>
       ) : null}
     </div>
