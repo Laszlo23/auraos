@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
+import { PulseOrbit } from "@/components/aura/pulse-orbit";
+
 const LINES = ["waking the eight", "loading the roster", "loading the reserve"];
 
 /**
@@ -44,16 +46,14 @@ export function BootCurtain() {
           transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
           className="fixed inset-0 z-[95] grid place-items-center bg-background"
         >
-          <div className="flex flex-col items-center gap-6">
-            <motion.span
-              initial={{ opacity: 0, scale: 0.85 }}
+          <div className="flex flex-col items-center gap-7">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.82 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="relative grid h-16 w-16 place-items-center"
             >
-              <span className="absolute inset-0 animate-[spin_2.6s_linear_infinite] rounded-full border border-primary/25 border-t-primary" />
-              <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-[var(--shadow-glow)]" />
-            </motion.span>
+              <PulseOrbit size="lg" label={false} />
+            </motion.div>
 
             <div className="h-4 overflow-hidden">
               <AnimatePresence mode="wait">
@@ -70,7 +70,7 @@ export function BootCurtain() {
               </AnimatePresence>
             </div>
 
-            <span className="relative h-px w-40 overflow-hidden bg-foreground/10">
+            <span className="relative h-px w-44 overflow-hidden bg-foreground/10">
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}

@@ -27,6 +27,7 @@ import { funnelById, isFunnelId } from "@/lib/funnels";
 import { trackAppEvent } from "@/lib/app-track";
 import { supabase } from "@/integrations/supabase/client";
 import { Pulse } from "./primitives";
+import { PulseOrbit } from "./pulse-orbit";
 import { CeoChat } from "./ceo-chat";
 import { isLocalFunnelCompany, LocalDeShell } from "./local-de-shell";
 import {
@@ -168,7 +169,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             )}
           >
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-primary/15 text-lg text-primary">
-              {company?.emoji ?? "◎"}
+              {company?.emoji ? company.emoji : <PulseOrbit size="sm" label={false} />}
             </span>
             {!collapsed && (
               <div className="min-w-0">
@@ -273,7 +274,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
               className="hidden min-w-0 items-center gap-2.5 rounded-2xl transition-opacity hover:opacity-80 lg:flex"
             >
               <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/15 text-sm text-primary">
-                {company?.emoji ?? "◎"}
+                {company?.emoji ? company.emoji : <PulseOrbit size="sm" label={false} />}
               </span>
               <div className="min-w-0">
                 <p className="truncate text-[13px] font-semibold leading-tight">

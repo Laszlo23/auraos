@@ -195,6 +195,33 @@
   backdrop-filter: blur(28px) saturate(150%);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-float);
+  position: relative;
+}
+
+/* Specular rim — the OS glass that reads expensive at a glance */
+.glass::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--primary) 34%, transparent) 0%,
+    transparent 38%,
+    transparent 62%,
+    color-mix(in oklab, var(--gold) 18%, transparent) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.55;
 }
 
 @utility glass-soft {
@@ -212,6 +239,40 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+@utility text-money {
+  background: linear-gradient(
+    105deg,
+    var(--primary) 0%,
+    color-mix(in oklab, var(--primary) 55%, var(--gold)) 48%,
+    var(--gold) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility cta-liquid {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.cta-liquid::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    color-mix(in oklab, white 42%, transparent) 48%,
+    transparent 62%
+  );
+  transform: translateX(-40%) rotate(8deg);
+  animation: cta-sheen 4.8s ease-in-out infinite;
+  opacity: 0.55;
 }
 
 @utility num {
@@ -347,6 +408,77 @@
   }
 }
 
+@keyframes cta-sheen {
+  0%,
+  55% {
+    transform: translateX(-55%) rotate(8deg);
+    opacity: 0;
+  }
+  65% {
+    opacity: 0.65;
+  }
+  78% {
+    transform: translateX(55%) rotate(8deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(55%) rotate(8deg);
+    opacity: 0;
+  }
+}
+
+@keyframes aura-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes aura-orbit-spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes aura-pulse-core {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px color-mix(in oklab, var(--primary) 70%, transparent));
+  }
+  50% {
+    transform: scale(1.22);
+    filter: drop-shadow(0 0 14px color-mix(in oklab, var(--primary) 90%, transparent));
+  }
+}
+
+@keyframes aura-pulse-halo {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.12);
+  }
+}
+
+.aura-orbit-spin {
+  animation: aura-orbit-spin 18s linear infinite;
+}
+
+.aura-orbit-spin-rev {
+  animation: aura-orbit-spin-rev 11s linear infinite;
+}
+
+.aura-pulse-core {
+  animation: aura-pulse-core 2.8s ease-in-out infinite;
+}
+
+.aura-pulse-halo {
+  animation: aura-pulse-halo 2.8s ease-in-out infinite;
+}
+
 .aura-motif-drift {
   animation: aura-motif-drift 14s ease-in-out infinite;
 }
@@ -386,12 +518,21 @@
     transform: none;
   }
 
+  .glass::before,
+  .cta-liquid::after {
+    animation: none !important;
+  }
+
   .aura-motif-drift,
   .aura-motif-spin,
   .aura-motif-spin-slow,
   .aura-motif-pulse,
   .aura-motif-bloom,
-  .aura-motif-dash {
+  .aura-motif-dash,
+  .aura-orbit-spin,
+  .aura-orbit-spin-rev,
+  .aura-pulse-core,
+  .aura-pulse-halo {
     animation: none !important;
   }
 }

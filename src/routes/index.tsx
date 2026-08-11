@@ -19,6 +19,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { PulseOrbit } from "@/components/aura/pulse-orbit";
+import { AuraLens } from "@/components/aura/aura-lens";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
 import { HeroFilm } from "@/components/aura/hero-film";
@@ -41,7 +43,6 @@ import {
   OG_IMAGE,
   SITE_URL,
   TOKEN_LAUNCH_DISPLAY,
-  TOKEN_LAUNCH_LABEL,
   mediaPath,
 } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -364,21 +365,17 @@ function Landing() {
   return (
     <main className="relative min-h-screen snap-y snap-proximity overflow-x-hidden">
       <BootCurtain />
+      <AuraLens />
       <header className="fixed inset-x-0 top-0 z-30 border-b border-white/5 bg-background/40 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:px-6">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/15 text-lg text-primary shadow-[0_0_28px_-6px_var(--glow)]">
-            ◎
-          </span>
-          <span className="truncate font-display text-[15px] font-semibold tracking-[0.08em]">
-            Aura OS
-          </span>
+          <PulseOrbit size="sm" className="min-w-0" />
           <Chip className="ml-auto hidden sm:flex">
             <LaunchCountdown variant="compact" showSocials={false} placement="header" />
           </Chip>
           <Link
             to="/access"
             onClick={() => trackTeaser("cta_click", { placement: "landing_header_buy" })}
-            className="shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="cta-liquid shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
             Buy seat — $99
           </Link>
@@ -408,63 +405,40 @@ function Landing() {
         </div>
       </header>
 
-      {/* ACT 00 — full-bleed title card (brand + one line + one CTA) */}
+      {/* ACT 00 — one composition: brand · headline · line · CTAs · film */}
       <section className="relative flex min-h-[100svh] snap-start items-end overflow-hidden sm:items-center">
         <HeroFilm />
         <div
           data-tour="hero"
           className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-28 sm:pb-24 sm:pt-24"
         >
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="mb-5 font-display text-[11px] font-semibold uppercase tracking-[0.42em] text-primary"
-          >
-            Aura OS
-          </motion.p>
-
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.05 }}
-            className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.34em] text-muted-foreground"
+            initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8"
           >
-            <LaunchCountdown variant="compact" showSocials={false} placement="hero" />
-            <span className="text-muted-foreground/50">·</span>
-            <span>
-              {TOKEN_LAUNCH_LABEL} · {TOKEN_LAUNCH_DISPLAY}
-            </span>
+            <PulseOrbit size="hero" />
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 28, filter: "blur(12px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
-            className="mt-5 max-w-4xl font-display text-[clamp(2.8rem,10.5vw,6.2rem)] leading-[0.92] tracking-tight"
+            className="max-w-4xl font-display text-[clamp(2.8rem,10.5vw,6.2rem)] leading-[0.92] tracking-tight"
           >
             Own a company.
             <br />
-            <span className="text-primary">Let AI make money.</span>
+            <span className="text-money">Let AI make money.</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.25 }}
-            className="mt-6 max-w-lg text-[16px] leading-relaxed text-foreground/75 sm:text-[17px]"
+            className="mt-6 max-w-md text-[16px] leading-relaxed text-foreground/78 sm:text-[17px]"
           >
-            AI executes the work. You control the company. Give one mission — employees handle
-            research, outreach, sales, product, and operations — while you own the upside.
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.32 }}
-            className="mt-3 max-w-lg text-[13px] text-muted-foreground"
-          >
-            Founding seats are open — $99 one-time via Stripe. Own a company, wake your AI team,
-            and keep the upside.
+            AI executes the work. You control the company — and keep the upside.
           </motion.p>
 
           <motion.div
@@ -476,76 +450,26 @@ function Landing() {
             <Link
               to="/access"
               onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-all hover:opacity-90 hover:shadow-[0_0_60px_-12px_var(--glow)]"
+              className="cta-liquid flex items-center justify-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-all hover:opacity-90 hover:shadow-[0_0_60px_-12px_var(--glow)]"
             >
               Buy founding seat — $99 <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              to="/auth"
-              search={{ mode: "signin" }}
-              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_signin" })}
+            <button
+              type="button"
+              onClick={() => {
+                trackTeaser("open", { placement: "hero" });
+                setTeaserOpen(true);
+              }}
               className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-background/30 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-colors hover:border-primary/30 hover:bg-foreground/8"
             >
-              Sign in
-            </Link>
+              <Play className="h-3.5 w-3.5 fill-current text-primary" /> Watch 15s
+            </button>
           </motion.div>
-
-          <motion.form
-            id="community"
-            onSubmit={join}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.48 }}
-            className="glass mt-6 flex max-w-lg scroll-mt-28 flex-col gap-2 rounded-3xl p-3 sm:flex-row sm:items-center"
-          >
-            {joined ? (
-              <p className="px-2 py-2 text-[13px] text-muted-foreground">
-                You&apos;re on the list — we&apos;ll email{" "}
-                <span className="text-foreground">{email.trim().toLowerCase()}</span> when a wave
-                opens.
-              </p>
-            ) : (
-              <>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  maxLength={255}
-                  required
-                  placeholder="you@company.com"
-                  aria-label="Work email for Aura OS waitlist"
-                  autoComplete="email"
-                  className="min-w-0 flex-1 rounded-2xl bg-foreground/6 px-4 py-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/80 focus-visible:ring-2 focus-visible:ring-primary/45"
-                />
-                <button
-                  type="submit"
-                  disabled={busy}
-                  className="shrink-0 rounded-2xl bg-primary px-5 py-3 text-xs font-semibold text-primary-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                >
-                  {busy ? "Saving…" : "Get on the list"}
-                </button>
-              </>
-            )}
-          </motion.form>
-
-          <motion.button
-            type="button"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.55 }}
-            onClick={() => {
-              trackTeaser("open", { placement: "hero" });
-              setTeaserOpen(true);
-            }}
-            className="mt-4 inline-flex items-center gap-2 text-[12px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <Play className="h-3 w-3 fill-current text-primary" /> Watch the 15s teaser
-          </motion.button>
 
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            className="mt-12 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground/80"
+            className="mt-14 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground/80"
           >
             <ChevronDown className="h-3.5 w-3.5" /> How it works
           </motion.div>
@@ -577,7 +501,7 @@ function Landing() {
           >
             You sleep.
             <br />
-            <span className="text-primary">Your company doesn&apos;t.</span>
+            <span className="text-money">Your company doesn&apos;t.</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -619,6 +543,46 @@ function Landing() {
             See how it works <ArrowRight className="h-3.5 w-3.5" />
           </motion.a>
         </div>
+      </section>
+
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-10 sm:py-12">
+        <form
+          id="community"
+          onSubmit={join}
+          className="glass flex max-w-xl scroll-mt-28 flex-col gap-2 rounded-3xl p-3 sm:flex-row sm:items-center"
+        >
+          {joined ? (
+            <p className="px-2 py-2 text-[13px] text-muted-foreground">
+              You&apos;re on the list — we&apos;ll email{" "}
+              <span className="text-foreground">{email.trim().toLowerCase()}</span> when a wave
+              opens.
+            </p>
+          ) : (
+            <>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                maxLength={255}
+                required
+                placeholder="you@company.com"
+                aria-label="Work email for Aura OS waitlist"
+                autoComplete="email"
+                className="min-w-0 flex-1 rounded-2xl bg-foreground/6 px-4 py-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/80 focus-visible:ring-2 focus-visible:ring-primary/45"
+              />
+              <button
+                type="submit"
+                disabled={busy}
+                className="cta-liquid shrink-0 rounded-2xl bg-primary px-5 py-3 text-xs font-semibold text-primary-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              >
+                {busy ? "Saving…" : "Get on the list"}
+              </button>
+            </>
+          )}
+        </form>
+        <p className="mt-3 max-w-xl text-[12px] text-muted-foreground">
+          Optional — seats are open now. Join the list for wave drops and launch notes.
+        </p>
       </section>
 
       {/* How it works — early, plain language */}

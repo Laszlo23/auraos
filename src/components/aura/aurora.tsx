@@ -30,6 +30,15 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
           animationDuration: "40s",
         }}
       />
+      {/* Fine scan veil — reads as living OS substrate */}
+      <div
+        className="absolute inset-0 opacity-[0.045]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, transparent, transparent 2px, color-mix(in oklab, var(--primary) 35%, transparent) 3px)",
+          maskImage: "radial-gradient(ellipse at 50% 30%, black 20%, transparent 75%)",
+        }}
+      />
       <div
         className="absolute inset-0 opacity-[0.16] mix-blend-soft-light"
         style={{
