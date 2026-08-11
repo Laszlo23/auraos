@@ -17,6 +17,7 @@ import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as LightpaperRouteImport } from './routes/lightpaper'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as LokalRouteImport } from './routes/lokal'
 import { Route as NachbarRouteRouteImport } from './routes/nachbar/route'
@@ -25,6 +26,8 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TokenomicsRouteImport } from './routes/tokenomics'
+import { Route as WhitepaperRouteImport } from './routes/whitepaper'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
 import { Route as AuthenticatedAkquiseRouteImport } from './routes/_authenticated/akquise'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
@@ -148,6 +151,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LightpaperRoute = LightpaperRouteImport.update({
+  id: '/lightpaper',
+  path: '/lightpaper',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LiveRoute = LiveRouteImport.update({
   id: '/live',
   path: '/live',
@@ -186,6 +194,16 @@ const ShareRoute = ShareRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TokenomicsRoute = TokenomicsRouteImport.update({
+  id: '/tokenomics',
+  path: '/tokenomics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WhitepaperRoute = WhitepaperRouteImport.update({
+  id: '/whitepaper',
+  path: '/whitepaper',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAgentsRoute = AuthenticatedAgentsRouteImport.update({
@@ -624,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
   '/pitch': typeof PitchRoute
@@ -631,6 +650,8 @@ export interface FileRoutesByFullPath {
   '/proof': typeof ProofRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
+  '/tokenomics': typeof TokenomicsRoute
+  '/whitepaper': typeof WhitepaperRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/akquise': typeof AuthenticatedAkquiseRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -723,6 +744,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
   '/pitch': typeof PitchRoute
@@ -730,6 +752,8 @@ export interface FileRoutesByTo {
   '/proof': typeof ProofRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
+  '/tokenomics': typeof TokenomicsRoute
+  '/whitepaper': typeof WhitepaperRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/akquise': typeof AuthenticatedAkquiseRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -825,6 +849,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
   '/pitch': typeof PitchRoute
@@ -832,6 +857,8 @@ export interface FileRoutesById {
   '/proof': typeof ProofRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
+  '/tokenomics': typeof TokenomicsRoute
+  '/whitepaper': typeof WhitepaperRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
   '/_authenticated/akquise': typeof AuthenticatedAkquiseRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
@@ -927,6 +954,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/grants'
     | '/leaderboard'
+    | '/lightpaper'
     | '/live'
     | '/lokal'
     | '/pitch'
@@ -934,6 +962,8 @@ export interface FileRouteTypes {
     | '/proof'
     | '/share'
     | '/terms'
+    | '/tokenomics'
+    | '/whitepaper'
     | '/agents'
     | '/akquise'
     | '/analytics'
@@ -1026,6 +1056,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/grants'
     | '/leaderboard'
+    | '/lightpaper'
     | '/live'
     | '/lokal'
     | '/pitch'
@@ -1033,6 +1064,8 @@ export interface FileRouteTypes {
     | '/proof'
     | '/share'
     | '/terms'
+    | '/tokenomics'
+    | '/whitepaper'
     | '/agents'
     | '/akquise'
     | '/analytics'
@@ -1127,6 +1160,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/grants'
     | '/leaderboard'
+    | '/lightpaper'
     | '/live'
     | '/lokal'
     | '/pitch'
@@ -1134,6 +1168,8 @@ export interface FileRouteTypes {
     | '/proof'
     | '/share'
     | '/terms'
+    | '/tokenomics'
+    | '/whitepaper'
     | '/_authenticated/agents'
     | '/_authenticated/akquise'
     | '/_authenticated/analytics'
@@ -1229,6 +1265,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   GrantsRoute: typeof GrantsRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  LightpaperRoute: typeof LightpaperRoute
   LiveRoute: typeof LiveRoute
   LokalRoute: typeof LokalRoute
   PitchRoute: typeof PitchRoute
@@ -1236,6 +1273,8 @@ export interface RootRouteChildren {
   ProofRoute: typeof ProofRoute
   ShareRoute: typeof ShareRoute
   TermsRoute: typeof TermsRoute
+  TokenomicsRoute: typeof TokenomicsRoute
+  WhitepaperRoute: typeof WhitepaperRoute
   ApiCeoRoute: typeof ApiCeoRoute
   BSlugRoute: typeof BSlugRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -1334,6 +1373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lightpaper': {
+      id: '/lightpaper'
+      path: '/lightpaper'
+      fullPath: '/lightpaper'
+      preLoaderRoute: typeof LightpaperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/live': {
       id: '/live'
       path: '/live'
@@ -1388,6 +1434,20 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tokenomics': {
+      id: '/tokenomics'
+      path: '/tokenomics'
+      fullPath: '/tokenomics'
+      preLoaderRoute: typeof TokenomicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/whitepaper': {
+      id: '/whitepaper'
+      path: '/whitepaper'
+      fullPath: '/whitepaper'
+      preLoaderRoute: typeof WhitepaperRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/agents': {
@@ -2104,6 +2164,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   GrantsRoute: GrantsRoute,
   LeaderboardRoute: LeaderboardRoute,
+  LightpaperRoute: LightpaperRoute,
   LiveRoute: LiveRoute,
   LokalRoute: LokalRoute,
   PitchRoute: PitchRoute,
@@ -2111,6 +2172,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProofRoute: ProofRoute,
   ShareRoute: ShareRoute,
   TermsRoute: TermsRoute,
+  TokenomicsRoute: TokenomicsRoute,
+  WhitepaperRoute: WhitepaperRoute,
   ApiCeoRoute: ApiCeoRoute,
   BSlugRoute: BSlugRoute,
   BlogSlugRoute: BlogSlugRoute,

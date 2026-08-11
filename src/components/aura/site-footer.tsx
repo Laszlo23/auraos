@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useMemo } from "react";
 
 import {
@@ -17,6 +17,9 @@ import { cn } from "@/lib/utils";
 const SITE_LINKS = [
   { to: "/share", label: "Share kit" },
   { to: "/", label: "Waitlist", hash: "community" },
+  { to: "/tokenomics", label: "Tokenomics" },
+  { to: "/lightpaper", label: "Lightpaper" },
+  { to: "/whitepaper", label: "Whitepaper" },
   { to: "/proof", label: "Proof" },
   { to: "/pitch", label: "Pitch & decks" },
   { to: "/blog", label: "Blog" },
@@ -31,6 +34,7 @@ const LEGAL_LINKS = [
 ] as const;
 
 function ProductSwitcher() {
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const current = useMemo(() => {
     const exact = PRODUCT_SURFACES.find((p) => p.href === pathname);
@@ -64,7 +68,7 @@ function ProductSwitcher() {
           const next = PRODUCT_SURFACES.find((p) => p.id === e.target.value);
           if (!next) return;
           trackTeaser("cta_click", { placement: `footer_switch:${next.id}`.slice(0, 40) });
-          window.location.assign(next.href);
+          void navigate({ to: next.href });
         }}
         className="max-w-full rounded-xl border border-border/60 bg-foreground/[0.04] px-3 py-2 text-[12px] font-medium text-foreground outline-none focus:border-primary/50 sm:min-w-[16rem]"
       >

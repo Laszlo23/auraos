@@ -15,7 +15,7 @@ export const Route = createFileRoute("/pitch")({
       {
         name: "description",
         content:
-          "Download the Aura decks: Wien→World vision, growth playbook, product & token strategy, unit economics, and Aura Lokal.",
+          "Download Aura decks including the new investor presentation, product & token strategy, unit economics, growth playbook, and Aura Lokal — plus lightpaper, whitepaper, and tokenomics.",
       },
       { property: "og:title", content: "Aura OS — Pitch & roadmap decks" },
       { property: "og:url", content: `${SITE_URL}/pitch` },
@@ -117,11 +117,23 @@ function PitchPage() {
             Deck library
           </p>
           <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Five slidesets. One direction.
+            Investor deck first. Then the library.
           </h2>
           <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-            Start with Wien → World, then product & token, then the numbers. Lokal sits beside the
-            OS for local businesses in DE/AT.
+            Start with the new investor presentation, then product &amp; token, then the numbers.
+            Lokal sits beside the OS for local businesses in DE/AT. Also read{" "}
+            <Link to="/lightpaper" className="text-foreground underline-offset-2 hover:underline">
+              lightpaper
+            </Link>
+            ,{" "}
+            <Link to="/whitepaper" className="text-foreground underline-offset-2 hover:underline">
+              whitepaper
+            </Link>
+            , and{" "}
+            <Link to="/tokenomics" className="text-foreground underline-offset-2 hover:underline">
+              tokenomics
+            </Link>
+            .
           </p>
 
           <ul className="mt-8 divide-y divide-border/40 border-y border-border/40">

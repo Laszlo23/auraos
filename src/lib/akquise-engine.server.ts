@@ -298,10 +298,12 @@ export async function executeAkquiseRun(opts: {
     if (pageMap.size >= target * 2) break;
   }
 
-  for (const url of opts.seedUrls.slice(0, 6)) {
-    const page = await firecrawlScrape(url);
-    if (page) pageMap.set(normalizeUrl(page.url), page);
-  }
+  await Promise.all(
+    opts.seedUrls.slice(0, 6).map(async (url) => {
+      const page = await firecrawlScrape(url);
+      if (page) pageMap.set(normalizeUrl(page.url), page);
+    }),
+  );
 
   step(
     steps,
@@ -324,10 +326,12 @@ export async function executeAkquiseRun(opts: {
     const toScrape = Array.from(pageMap.values())
       .filter((p) => !p.markdown || p.markdown.length < 200)
       .slice(0, 10);
-    for (const p of toScrape) {
-      const deep = await firecrawlScrape(p.url);
-      if (deep) pageMap.set(normalizeUrl(deep.url), deep);
-    }
+    await Promise.all(
+      toScrape.map(async (p) => {
+        const deep = await firecrawlScrape(p.url);
+        if (deep) pageMap.set(normalizeUrl(deep.url), deep);
+      }),
+    );
     step(steps, "scrape", "Inspecting websites", "done", `${pageMap.size} pages ready`);
   } else {
     step(steps, "scrape", "Inspecting websites", "skipped", "Using search snippets");

@@ -29,6 +29,8 @@ export function researchProviderLabel(): string {
   return "web fallback (DuckDuckGo)";
 }
 
+const FIRECRAWL_TIMEOUT_MS = 25_000;
+
 function firecrawlRequest(
   path: "search" | "scrape",
   body: Record<string, unknown>,
@@ -36,6 +38,7 @@ function firecrawlRequest(
   const mode = firecrawlMode();
   const key = firecrawlKey();
   if (!mode || !key) throw new Error("Firecrawl is not configured.");
+  const signal = AbortSignal.timeout(FIRECRAWL_TIMEOUT_MS);
 
   if (mode === "direct") {
     return fetch(`${FIRECRAWL_DIRECT}/${path}`, {
@@ -45,6 +48,7 @@ function firecrawlRequest(
         Authorization: `Bearer ${key}`,
       },
       body: JSON.stringify(body),
+      signal,
     });
   }
 
@@ -57,6 +61,7 @@ function firecrawlRequest(
       "X-Connection-Api-Key": key,
     },
     body: JSON.stringify(body),
+    signal,
   });
 }
 

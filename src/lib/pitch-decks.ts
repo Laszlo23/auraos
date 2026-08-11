@@ -16,6 +16,15 @@ export type PitchDeck = {
 
 export const PITCH_DECKS: PitchDeck[] = [
   {
+    id: "investor",
+    href: "/Aura_OS_Investor_Presentation.pptx",
+    title: "Investor presentation",
+    blurb:
+      "New: operating system for autonomous companies — workforce, subscriptions, token layer, fair launch ops.",
+    tag: "Investor",
+    lang: "en",
+  },
+  {
     id: "wien-world",
     href: "/Aura_Gewinner_Presentation_Wien_to_World.pptx",
     title: "Wien → World",
@@ -77,6 +86,7 @@ export const PITCH_DECKS: PitchDeck[] = [
 ];
 
 export const FEATURED_DECK_IDS = [
+  "investor",
   "wien-world",
   "product-token",
   "growth-playbook",
