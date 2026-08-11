@@ -75,6 +75,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CompanySlugRouteImport } from './routes/company.$slug'
 import { Route as EmbedPostIdRouteImport } from './routes/embed.$postId'
 import { Route as ForFunnelRouteImport } from './routes/for.$funnel'
+import { Route as LokalAuditRouteImport } from './routes/lokal_.audit'
 import { Route as MShareSlugRouteImport } from './routes/m.$shareSlug'
 import { Route as NachbarIndexRouteImport } from './routes/nachbar/index'
 import { Route as NachbarEntdeckenRouteImport } from './routes/nachbar/entdecken'
@@ -447,6 +448,11 @@ const ForFunnelRoute = ForFunnelRouteImport.update({
   path: '/for/$funnel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LokalAuditRoute = LokalAuditRouteImport.update({
+  id: '/lokal_/audit',
+  path: '/lokal/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MShareSlugRoute = MShareSlugRouteImport.update({
   id: '/m/$shareSlug',
   path: '/m/$shareSlug',
@@ -722,6 +728,7 @@ export interface FileRoutesByFullPath {
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
+  '/lokal/audit': typeof LokalAuditRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/nachbar/entdecken': typeof NachbarEntdeckenRoute
   '/nachbar/freunde': typeof NachbarFreundeRoute
@@ -828,6 +835,7 @@ export interface FileRoutesByTo {
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
+  '/lokal/audit': typeof LokalAuditRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/nachbar/entdecken': typeof NachbarEntdeckenRoute
   '/nachbar/freunde': typeof NachbarFreundeRoute
@@ -937,6 +945,7 @@ export interface FileRoutesById {
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
+  '/lokal_/audit': typeof LokalAuditRoute
   '/m/$shareSlug': typeof MShareSlugRoute
   '/nachbar/entdecken': typeof NachbarEntdeckenRoute
   '/nachbar/freunde': typeof NachbarFreundeRoute
@@ -1046,6 +1055,7 @@ export interface FileRouteTypes {
     | '/company/$slug'
     | '/embed/$postId'
     | '/for/$funnel'
+    | '/lokal/audit'
     | '/m/$shareSlug'
     | '/nachbar/entdecken'
     | '/nachbar/freunde'
@@ -1152,6 +1162,7 @@ export interface FileRouteTypes {
     | '/company/$slug'
     | '/embed/$postId'
     | '/for/$funnel'
+    | '/lokal/audit'
     | '/m/$shareSlug'
     | '/nachbar/entdecken'
     | '/nachbar/freunde'
@@ -1260,6 +1271,7 @@ export interface FileRouteTypes {
     | '/company/$slug'
     | '/embed/$postId'
     | '/for/$funnel'
+    | '/lokal_/audit'
     | '/m/$shareSlug'
     | '/nachbar/entdecken'
     | '/nachbar/freunde'
@@ -1332,6 +1344,7 @@ export interface RootRouteChildren {
   CompanySlugRoute: typeof CompanySlugRoute
   EmbedPostIdRoute: typeof EmbedPostIdRoute
   ForFunnelRoute: typeof ForFunnelRoute
+  LokalAuditRoute: typeof LokalAuditRoute
   MShareSlugRoute: typeof MShareSlugRoute
   OauthConsentRoute: typeof OauthConsentRoute
   RRunIdRoute: typeof RRunIdRoute
@@ -1830,6 +1843,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForFunnelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lokal_/audit': {
+      id: '/lokal_/audit'
+      path: '/lokal/audit'
+      fullPath: '/lokal/audit'
+      preLoaderRoute: typeof LokalAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/m/$shareSlug': {
       id: '/m/$shareSlug'
       path: '/m/$shareSlug'
@@ -2264,6 +2284,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompanySlugRoute: CompanySlugRoute,
   EmbedPostIdRoute: EmbedPostIdRoute,
   ForFunnelRoute: ForFunnelRoute,
+  LokalAuditRoute: LokalAuditRoute,
   MShareSlugRoute: MShareSlugRoute,
   OauthConsentRoute: OauthConsentRoute,
   RRunIdRoute: RRunIdRoute,

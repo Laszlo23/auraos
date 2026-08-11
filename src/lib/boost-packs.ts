@@ -1,8 +1,15 @@
-/** German local super-app: €99 seat + Boost packs (AURA under the hood). */
+/** German local super-app: Aura Reputation (€49/mo) + seat/cash + Boost packs. */
 
 export const LOCAL_SEAT_EUR = 99;
 export const LOCAL_SEAT_BOOST_GRANT = 15_000;
 export const LOCAL_SEAT_PLAN_ID = "local_seat" as const;
+
+/** Entry SaaS: Google reputation + customer follow-up */
+export const AURA_REPUTATION_EUR = 49;
+export const AURA_REPUTATION_PLAN_ID = "aura_reputation" as const;
+export const AURA_REPUTATION_BOOST_GRANT = 8_000;
+/** Cash prepaid: ~3 months of Aura Reputation */
+export const AURA_REPUTATION_CASH_EUR = 129;
 
 export type BoostPackId = "sichtbarkeit" | "bewertungen" | "neukunden";
 
@@ -65,6 +72,14 @@ export function isBoostPackId(id: unknown): id is BoostPackId {
 
 export function stripePriceForBoostPack(pack: BoostPack): string | undefined {
   return process.env[pack.stripeEnv]?.trim() || undefined;
+}
+
+export function isAuraReputationPlan(id: unknown): id is typeof AURA_REPUTATION_PLAN_ID {
+  return id === AURA_REPUTATION_PLAN_ID;
+}
+
+export function stripePriceForAuraReputation(): string | undefined {
+  return process.env["STRIPE_PRICE_AURA_REPUTATION"]?.trim() || undefined;
 }
 
 export const LOCAL_DE_NICHES = [

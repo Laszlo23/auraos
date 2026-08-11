@@ -52,6 +52,14 @@ async function resolveReviewInvite(token: string): Promise<{
       .eq("id", invite.campaign_id)
       .maybeSingle();
     if (campaign?.company_id) {
+      // Always mint a check-in code so the Nachbar CTA is primary, not optional.
+      const { data: ensured } = await supabase.rpc("ensure_nachbar_checkin_code", {
+        _company_id: campaign.company_id,
+      });
+      if (typeof ensured === "string" && ensured.length >= 4) {
+        checkinCode = ensured;
+      }
+
       const { data: company } = await supabase
         .from("companies")
         .select("name, slug, nachbar_checkin_code, google_review_url")
@@ -59,7 +67,9 @@ async function resolveReviewInvite(token: string): Promise<{
         .maybeSingle();
       companyName = (company?.name as string) || null;
       slug = (company?.slug as string) || null;
-      checkinCode = (company?.nachbar_checkin_code as string) || null;
+      if (!checkinCode) {
+        checkinCode = (company?.nachbar_checkin_code as string) || null;
+      }
     }
   }
 
@@ -69,10 +79,7 @@ async function resolveReviewInvite(token: string): Promise<{
 export const Route = createFileRoute("/r/review/$token")({
   loader: async ({ params }) => resolveReviewInvite(params.token),
   head: () => ({
-    meta: [
-      { title: "Einladung — Aura Nachbar" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Einladung — Aura Nachbar" }, { name: "robots", content: "noindex" }],
   }),
   component: ReviewInviteBridgePage,
 });
@@ -100,7 +107,9 @@ function ReviewInviteBridgePage() {
           Aura Nachbar
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight">
-          {data.companyName ? `Danke für deinen Besuch bei ${data.companyName}` : "Danke für deinen Besuch"}
+          {data.companyName
+            ? `Danke für deinen Besuch bei ${data.companyName}`
+            : "Danke für deinen Besuch"}
         </h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Checke in der Gäste-App ein und verdiene Punkte. Google bleibt optional —{" "}

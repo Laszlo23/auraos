@@ -3,10 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import {
+  AURA_REPUTATION_BOOST_GRANT,
+  AURA_REPUTATION_PLAN_ID,
   LOCAL_SEAT_BOOST_GRANT,
   LOCAL_SEAT_PLAN_ID,
   boostPackById,
+  isAuraReputationPlan,
   isBoostPackId,
+  stripePriceForAuraReputation,
   stripePriceForBoostPack,
 } from "@/lib/boost-packs";
 import {
@@ -129,6 +133,22 @@ export const Route = createFileRoute("/api/billing/checkout")({
           params.set("cancel_url", `${site}/boost?checkout=cancel`);
           params.set("metadata[kind]", "local_seat");
           params.set("metadata[boost_grant]", String(LOCAL_SEAT_BOOST_GRANT));
+          params.set("line_items[0][price]", price);
+          params.set("line_items[0][quantity]", "1");
+        } else if (isAuraReputationPlan(plan)) {
+          const price = stripePriceForAuraReputation();
+          if (!price) {
+            return Response.json(
+              { error: "Aura Reputation price not configured (STRIPE_PRICE_AURA_REPUTATION)" },
+              { status: 503 },
+            );
+          }
+          params.set("mode", "subscription");
+          params.set("success_url", `${site}/boost?checkout=success`);
+          params.set("cancel_url", `${site}/boost?checkout=cancel`);
+          params.set("metadata[kind]", "aura_reputation");
+          params.set("metadata[plan]", AURA_REPUTATION_PLAN_ID);
+          params.set("metadata[boost_grant]", String(AURA_REPUTATION_BOOST_GRANT));
           params.set("line_items[0][price]", price);
           params.set("line_items[0][quantity]", "1");
         } else if (isBoostPackId(plan)) {

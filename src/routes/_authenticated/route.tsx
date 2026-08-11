@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { PageLoader } from "@/components/aura/page-loader";
 import { Shell } from "@/components/aura/shell";
@@ -10,20 +10,26 @@ export const Route = createFileRoute("/_authenticated")({
     meta: [{ name: "robots", content: "noindex, nofollow" }],
   }),
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
+    // Prefer local session restore (fast) over network getUser() so first paint
+    // does not bounce to /auth and require a second load.
+    const { data: sessionData } = await supabase.auth.getSession();
+    const session = sessionData.session;
+    if (!session?.user) throw redirect({ to: "/auth" });
+    void supabase.auth.getUser().then(({ data, error }) => {
+      if (error || !data.user) {
+        void supabase.auth.signOut();
+      }
+    });
+    return { user: session.user };
   },
-  pendingComponent: () => <PageLoader label="Opening workspace" />,
+  pendingComponent: () => <PageLoader label="Einen Moment…" />,
   component: AuthenticatedLayout,
 });
 
 function AuthenticatedLayout() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <Shell>
-      {/* Remount on path change so stale client state cannot linger after nav. */}
-      <Outlet key={pathname} />
+      <Outlet />
     </Shell>
   );
 }

@@ -194,10 +194,7 @@ function authRedirectUrl(mode?: AuthMode, next?: string) {
   // Prefer canonical production origin so magic-link / OAuth emails always hit the allowlist.
   // Localhost keeps window origin so local Docker auth still works.
   const host = typeof window !== "undefined" ? window.location.hostname : "";
-  const origin =
-    host === "localhost" || host === "127.0.0.1"
-      ? window.location.origin
-      : SITE_URL;
+  const origin = host === "localhost" || host === "127.0.0.1" ? window.location.origin : SITE_URL;
   const params = new URLSearchParams();
   if (mode) params.set("mode", mode);
   const consent = oauthConsentReturn(next);
@@ -258,14 +255,11 @@ function AuthPage() {
     funnelFromLink && isFunnelId(funnelFromLink) ? funnelFromLink : peekFunnel();
   /** Explicit ?funnel= from a /for/* CTA — skips founding-seat gate. Browsing alone does not. */
   const isFunnelEntry = Boolean(funnelFromLink && funnelFromLink !== "os");
+  const isLokalEntry = entryFunnel === "local";
   const [invite, setInvite] = useState(inviteFromLink ?? "");
   const [mode, setMode] = useState<AuthMode>(() =>
     defaultAuthMode({
-      ...(modeFromLink
-        ? { mode: modeFromLink }
-        : isFunnelEntry
-          ? { mode: "signup" }
-          : {}),
+      ...(modeFromLink ? { mode: modeFromLink } : isFunnelEntry ? { mode: "signup" } : {}),
       ...(inviteFromLink ? { invite: inviteFromLink } : {}),
       ...(refFromLink ? { ref: refFromLink } : {}),
       ...(buyFromLink ? { buy: buyFromLink } : {}),
@@ -305,7 +299,9 @@ function AuthPage() {
     if (funnelFromLink && isFunnelId(funnelFromLink)) {
       rememberFunnel(funnelFromLink);
     }
-    if (langFromLink === "de" || langFromLink === "en") {
+    if (funnelFromLink === "local") {
+      rememberLocale(langFromLink === "en" ? "en" : "de");
+    } else if (langFromLink === "de" || langFromLink === "en") {
       rememberLocale(langFromLink);
     }
     captureAttribution();
@@ -427,10 +423,11 @@ function AuthPage() {
     }
 
     const code =
-      (invite.trim().toUpperCase() ||
-        peekStoredInvite() ||
-        (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase() ||
-        "") || null;
+      invite.trim().toUpperCase() ||
+      peekStoredInvite() ||
+      (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase() ||
+      "" ||
+      null;
 
     if (code) {
       const { data: inviteOk } = await supabase.rpc("check_invite_code", { _code: code });
@@ -696,27 +693,35 @@ function AuthPage() {
     mode === "signup"
       ? needsInviteToContinue
         ? "One more step"
-        : "Create your company"
+        : isLokalEntry
+          ? "Betrieb anlegen"
+          : "Create your company"
       : mode === "forgot"
         ? "Reset your password"
         : mode === "reset"
           ? "Choose a new password"
           : mode === "magic"
             ? "Magic link"
-            : "Welcome back";
+            : isLokalEntry
+              ? "Willkommen zurück"
+              : "Welcome back";
 
   const subtitle =
     mode === "signup"
       ? needsInviteToContinue
         ? "Your account is ready — pay $99 to unlock your founding seat."
-        : "Your agents will be hired and briefed the moment you arrive."
+        : isLokalEntry
+          ? "Danach: Betriebsname, Stadt, freischalten. Kein AI-OS-Pitch."
+          : "Your agents will be hired and briefed the moment you arrive."
       : mode === "forgot"
         ? "We'll email you a link to set a new password."
         : mode === "reset"
           ? "You're recovering your account. Pick a strong password."
           : mode === "magic"
             ? "We'll email a one-click sign-in link. No password needed."
-            : "Your agents kept working while you were away.";
+            : isLokalEntry
+              ? "Weiter zu Sterne, Gäste und Nachbetreuung."
+              : "Your agents kept working while you were away.";
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -727,34 +732,57 @@ function AuthPage() {
               <span className="grid h-9 w-9 place-items-center rounded-2xl bg-primary/15 text-primary">
                 ◎
               </span>
-              <span className="text-sm font-semibold tracking-tight">Aura OS</span>
+              <span className="text-sm font-semibold tracking-tight">
+                {isLokalEntry ? "Aura Lokal" : "Aura OS"}
+              </span>
             </div>
 
             <div>
               <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.34em] text-primary">
-                The AI Company Operating System
+                {isLokalEntry ? "Für lokale Betriebe" : "The AI Company Operating System"}
               </p>
               <h1 className="text-gradient text-6xl font-semibold leading-[1.02]">
-                Don't manage software.
-                <br />
-                Manage a company.
+                {isLokalEntry ? (
+                  <>
+                    Mehr echte Sterne.
+                    <br />
+                    Bessere Nachbetreuung.
+                  </>
+                ) : (
+                  <>
+                    Don't manage software.
+                    <br />
+                    Manage a company.
+                  </>
+                )}
               </h1>
               <p className="mt-7 max-w-md text-base leading-relaxed text-muted-foreground">
-                Eight autonomous employees. One shared memory. A business that keeps working while
-                you sleep — and tells you what it decided when you wake up.
+                {isLokalEntry
+                  ? "Konto anlegen → Betrieb benennen → Aura Reputation freischalten. Dann Google-Bewertungen von echten Kunden anfragen."
+                  : "Eight autonomous employees. One shared memory. A business that keeps working while you sleep — and tells you what it decided when you wake up."}
               </p>
 
               <div className="glass mt-10 max-w-md rounded-3xl p-5">
                 <p className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                  <Pulse /> Atlas · Chief Executive
+                  <Pulse /> {isLokalEntry ? "Aura Reputation" : "Atlas · Chief Executive"}
                 </p>
                 <p className="text-sm leading-relaxed text-foreground/90">
-                  <StreamText text="Got it. I'm on it — your company is ready when you are." />
+                  <StreamText
+                    text={
+                      isLokalEntry
+                        ? "49 €/Monat oder Barzahlungs-Code — dann Sterne und Gäste."
+                        : "Got it. I'm on it — your company is ready when you are."
+                    }
+                  />
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">Encrypted. Isolated. Yours alone.</p>
+            <p className="text-xs text-muted-foreground">
+              {isLokalEntry
+                ? "Einfach. Für den Laden. Keine Fake-Sterne."
+                : "Encrypted. Isolated. Yours alone."}
+            </p>
           </div>
         </div>
 
@@ -792,7 +820,7 @@ function AuthPage() {
                     d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84c.87-2.6 3.3-4.14 6.16-4.14Z"
                   />
                 </svg>
-                Continue with Google
+                {isLokalEntry ? "Weiter mit Google" : "Continue with Google"}
               </button>
             ) : null}
 
@@ -924,6 +952,10 @@ function AuthPage() {
                       — next step is $99 checkout.
                     </span>
                   </div>
+                ) : mode === "signup" && isLokalEntry ? (
+                  <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
+                    Aura Lokal · Anmeldung — danach Betrieb benennen und freischalten.
+                  </p>
                 ) : mode === "signup" && isFunnelEntry ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
                     Funnel signup — pick a plan after you wake the company.
@@ -941,7 +973,7 @@ function AuthPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@company.com"
+                    placeholder={isLokalEntry ? "du@betrieb.de" : "you@company.com"}
                     aria-label="Email"
                     autoComplete="email"
                     className="w-full rounded-2xl border border-border bg-foreground/5 px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/40"
@@ -955,9 +987,13 @@ function AuthPage() {
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === "reset" ? "New password" : "Password"}
+                  placeholder={
+                    mode === "reset" ? "New password" : isLokalEntry ? "Passwort" : "Password"
+                  }
                   aria-label={mode === "reset" ? "New password" : "Password"}
-                  autoComplete={mode === "signup" || mode === "reset" ? "new-password" : "current-password"}
+                  autoComplete={
+                    mode === "signup" || mode === "reset" ? "new-password" : "current-password"
+                  }
                   className="w-full rounded-2xl border border-border bg-foreground/5 px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/40"
                 />
 
@@ -984,28 +1020,54 @@ function AuthPage() {
                   {busy
                     ? mode === "reset"
                       ? "Updating…"
-                      : "Waking your agents…"
+                      : isLokalEntry
+                        ? "Einen Moment…"
+                        : "Waking your agents…"
                     : mode === "signup"
-                      ? "Start the company"
+                      ? isLokalEntry
+                        ? "Konto anlegen"
+                        : "Start the company"
                       : mode === "reset"
                         ? "Save new password"
-                        : "Sign in"}
+                        : isLokalEntry
+                          ? "Anmelden"
+                          : "Sign in"}
                 </button>
                 {mode === "signup" ? (
                   <p className="pt-1 text-center text-[11px] leading-relaxed text-muted-foreground">
-                    By continuing you agree to our{" "}
-                    <Link to="/terms" className="text-primary hover:underline">
-                      Terms / AGB
-                    </Link>
-                    ,{" "}
-                    <Link to="/privacy" className="text-primary hover:underline">
-                      Privacy
-                    </Link>
-                    , and{" "}
-                    <Link to="/cookies" className="text-primary hover:underline">
-                      Cookies
-                    </Link>
-                    . Founding seats are paid via Stripe Checkout ($99 one-time).
+                    {isLokalEntry ? (
+                      <>
+                        Mit dem Weiterkommen akzeptierst du{" "}
+                        <Link to="/terms" className="text-primary hover:underline">
+                          AGB
+                        </Link>
+                        ,{" "}
+                        <Link to="/privacy" className="text-primary hover:underline">
+                          Datenschutz
+                        </Link>{" "}
+                        und{" "}
+                        <Link to="/cookies" className="text-primary hover:underline">
+                          Cookies
+                        </Link>
+                        . Aura Reputation: 49 €/Monat oder Barzahlungs-Code.
+                      </>
+                    ) : (
+                      <>
+                        By continuing you agree to our{" "}
+                        <Link to="/terms" className="text-primary hover:underline">
+                          Terms / AGB
+                        </Link>
+                        ,{" "}
+                        <Link to="/privacy" className="text-primary hover:underline">
+                          Privacy
+                        </Link>
+                        , and{" "}
+                        <Link to="/cookies" className="text-primary hover:underline">
+                          Cookies
+                        </Link>
+                        . Founding seats are paid via Stripe Checkout ($99 one-time).
+                      </>
+                    )}
                   </p>
                 ) : null}
               </form>
@@ -1045,7 +1107,9 @@ function AuthPage() {
                 }}
                 className="mt-3 w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                Prefer a magic link? Continue without a password
+                {isLokalEntry
+                  ? "Lieber Magic Link? Ohne Passwort weiter"
+                  : "Prefer a magic link? Continue without a password"}
               </button>
             ) : null}
 
@@ -1056,8 +1120,12 @@ function AuthPage() {
                 className="mt-5 w-full text-center text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
                 {mode === "signup"
-                  ? "Already have a company? Sign in"
-                  : "New here? Create your company"}
+                  ? isLokalEntry
+                    ? "Schon Konto? Anmelden"
+                    : "Already have a company? Sign in"
+                  : isLokalEntry
+                    ? "Neu hier? Betrieb anlegen"
+                    : "New here? Create your company"}
               </button>
             ) : null}
 

@@ -212,6 +212,53 @@ export const Route = createFileRoute("/api/billing/webhook")({
             return Response.json({ received: true });
           }
 
+          if (session?.metadata?.kind === "aura_reputation") {
+            const companyId = session.metadata.company_id || session.client_reference_id;
+            if (!companyId || !session.id) {
+              return Response.json({ error: "Missing company_id or session id" }, { status: 400 });
+            }
+            const {
+              AURA_REPUTATION_BOOST_GRANT,
+              AURA_REPUTATION_PLAN_ID,
+            } = await import("@/lib/boost-packs");
+            const { cycleWindow } = await import("@/lib/subscription");
+            const grant = AURA_REPUTATION_BOOST_GRANT;
+            const { error: seatErr } = await supabaseAdmin.rpc("mark_local_seat_paid_stripe", {
+              _company_id: companyId,
+              _boost_grant: grant,
+            });
+            if (seatErr) {
+              console.error("[billing/webhook] aura_reputation seat", seatErr.message);
+              return Response.json({ error: seatErr.message }, { status: 500 });
+            }
+
+            const { data: existing } = await supabaseAdmin
+              .from("subscriptions")
+              .select("id")
+              .eq("company_id", companyId)
+              .maybeSingle();
+            const patch = {
+              plan: AURA_REPUTATION_PLAN_ID,
+              status: "active",
+              tokens_per_cycle: grant,
+              tokens_remaining: grant,
+              payment_mode: "stripe",
+              stripe_customer_id: typeof session.customer === "string" ? session.customer : null,
+              stripe_subscription_id:
+                typeof session.subscription === "string" ? session.subscription : null,
+              ...cycleWindow(),
+            };
+            if (existing) {
+              await supabaseAdmin.from("subscriptions").update(patch).eq("id", existing.id);
+            } else {
+              await supabaseAdmin.from("subscriptions").insert({
+                company_id: companyId,
+                ...patch,
+              });
+            }
+            return Response.json({ received: true });
+          }
+
           if (session?.metadata?.kind === "boost_pack") {
             const companyId = session.metadata.company_id || session.client_reference_id;
             const planId = session.metadata.plan || "";

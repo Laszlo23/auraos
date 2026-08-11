@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { Home, LogOut, Megaphone, Sparkle, Star, Users, Zap } from "lucide-react";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
-import { Pulse } from "@/components/aura/primitives";
+import { Pulse, Shimmer } from "@/components/aura/primitives";
 import { useLocale } from "@/hooks/use-locale";
 import { useCompany } from "@/hooks/use-aura";
 import { useSubscription } from "@/hooks/use-tokens";
@@ -31,17 +31,27 @@ const TAB_KEYS: Record<(typeof LOCAL_DE_TABS)[number]["to"], string> = {
 };
 
 /** Lokal product shell — driven by entry funnel, not UI language. */
-export function isLocalFunnelCompany(company: {
-  entry_funnel?: string | null;
-} | null | undefined): boolean {
+export function isLocalFunnelCompany(
+  company:
+    | {
+        entry_funnel?: string | null;
+      }
+    | null
+    | undefined,
+): boolean {
   return company?.entry_funnel === "local";
 }
 
 /** @deprecated use isLocalFunnelCompany */
-export function isLocalDeCompany(company: {
-  entry_funnel?: string | null;
-  ui_locale?: string | null;
-} | null | undefined): boolean {
+export function isLocalDeCompany(
+  company:
+    | {
+        entry_funnel?: string | null;
+        ui_locale?: string | null;
+      }
+    | null
+    | undefined,
+): boolean {
   return isLocalFunnelCompany(company);
 }
 
@@ -50,19 +60,25 @@ const SEAT_GATED = new Set(["/heute", "/social", "/kunden", "/bewertungen", "/ak
 export function LocalDeShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const { data: company } = useCompany();
+  const { data: company, isPending: companyPending, isError: companyError } = useCompany();
   const { data: sub } = useSubscription();
-  const { data: progress } = useProgress();
+  const { data: progress, isPending: progressPending, isFetched: progressFetched } = useProgress();
   const { t, locale, setLocale } = useLocale();
 
+  const shellReady = Boolean(company) && !companyPending && (progressFetched || !progressPending);
   const needsOnboarding = Boolean(progress && !progress.onboarded);
   const immersive = pathname === "/onboarding";
   const seatPaid = Boolean(company?.local_seat_paid_at);
 
   useEffect(() => {
+    if (company?.entry_funnel === "local") {
+      if (locale !== "de" && company.ui_locale !== "en") {
+        setLocale("de");
+      }
+      return;
+    }
     if (company?.ui_locale === "de" || company?.ui_locale === "en") {
       if (company.ui_locale !== locale) {
-        // Prefer persisted company locale when opening Lokal shell the first time.
         try {
           const raw = window.localStorage.getItem("aura.ui_locale");
           if (raw !== "de" && raw !== "en") setLocale(company.ui_locale);
@@ -71,28 +87,36 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [company?.ui_locale, locale, setLocale]);
+  }, [company?.entry_funnel, company?.ui_locale, locale, setLocale]);
 
   useEffect(() => {
+    if (!shellReady) return;
     if (needsOnboarding && pathname !== "/onboarding") {
       navigate({ to: "/onboarding" });
       return;
     }
-    if (
-      !needsOnboarding &&
-      !seatPaid &&
-      SEAT_GATED.has(pathname) &&
-      pathname !== "/boost"
-    ) {
+    if (!needsOnboarding && !seatPaid && SEAT_GATED.has(pathname) && pathname !== "/boost") {
       navigate({ to: "/boost" });
     }
-  }, [needsOnboarding, pathname, navigate, seatPaid]);
+  }, [shellReady, needsOnboarding, pathname, navigate, seatPaid]);
 
   if (immersive) {
     return <div className="min-h-svh bg-background">{children}</div>;
   }
 
-  if (!needsOnboarding && !seatPaid && pathname !== "/boost") {
+  if (!shellReady && !companyError) {
+    return (
+      <div className="flex min-h-svh flex-col items-center justify-center gap-4 bg-background px-6">
+        <Shimmer className="h-10 w-48" />
+        <Shimmer className="h-24 w-full max-w-sm" />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          Aura Lokal
+        </p>
+      </div>
+    );
+  }
+
+  if (shellReady && !needsOnboarding && !seatPaid && pathname !== "/boost") {
     return (
       <div className="relative flex min-h-svh flex-col items-center justify-center bg-background px-6 text-center">
         <LanguageToggle className="absolute right-4 top-4" />
@@ -111,6 +135,7 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
         >
           {t("paywall.cta")}
         </Link>
+        <p className="mt-4 text-[12px] text-muted-foreground">{t("boost.cashHint")}</p>
       </div>
     );
   }
@@ -162,7 +187,9 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-lg flex-1 px-4 pb-28 pt-4">{children}</main>
+      <main className="relative z-10 mx-auto w-full max-w-lg flex-1 px-4 pb-28 pt-4">
+        {children}
+      </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
         <ul className="mx-auto grid max-w-lg grid-cols-5 gap-0 px-1 py-1.5">

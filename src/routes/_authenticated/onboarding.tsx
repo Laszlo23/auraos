@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Check, Link2, Loader2, Sparkles } from "lucide-react";
 
@@ -15,6 +15,7 @@ import { useAwardXp, useCompleteOnboarding, useProgress } from "@/hooks/use-prog
 import { useAdvanceReferral, useProvisionSmartWallet } from "@/hooks/use-earn";
 import { useMyHandle } from "@/hooks/use-identity";
 import { supabase } from "@/integrations/supabase/client";
+import { peekFunnel } from "@/lib/attribution";
 import { bootstrapFunnelCompany, bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
 import { LOCAL_DE_NICHES } from "@/lib/boost-packs";
 import { funnelById, isFunnelId, type FunnelId } from "@/lib/funnels";
@@ -76,11 +77,13 @@ function Onboarding() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: company } = useCompany();
+  const { t, locale, setLocale } = useLocale();
   const entryFunnel: FunnelId =
-    company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
+    company?.entry_funnel && isFunnelId(company.entry_funnel)
+      ? company.entry_funnel
+      : peekFunnel();
   const funnelDef = funnelById(entryFunnel);
   const isLokal = entryFunnel === "local";
-  const { t, locale } = useLocale();
   const skipProductPicker = funnelDef.bootstrap.skipProductPicker;
   const { data: progress } = useProgress();
   const award = useAwardXp();
@@ -101,6 +104,12 @@ function Onboarding() {
   const [burst, setBurst] = useState(0);
   const [toast, setToast] = useState<{ label: string; amount: number } | null>(null);
   const [finishing, setFinishing] = useState(false);
+  const [lokalSaving, setLokalSaving] = useState(false);
+
+  useEffect(() => {
+    if (!isLokal) return;
+    setLocale("de");
+  }, [isLokal, setLocale]);
 
   const pop = (label: string, amount: number, quest?: string) => {
     setBurst((n) => n + 1);
@@ -112,7 +121,11 @@ function Onboarding() {
   const next = () => setStep((s) => Math.min(3, s + 1));
 
   const saveName = async () => {
-    if (company && name.trim().length > 1) {
+    if (name.trim().length < 2) {
+      notify.error(isLokal ? "Bitte Betriebsname eingeben." : "Please enter a company name.");
+      return;
+    }
+    if (company) {
       await supabase
         .from("companies")
         .update({
@@ -121,11 +134,38 @@ function Onboarding() {
           niche: niche.trim() || null,
           is_local_business: isLocal || isLokal,
           network_backlink: isLocal || isLokal,
-          ...(isLokal ? { ui_locale: locale } : {}),
+          ...(isLokal ? { ui_locale: "de", entry_funnel: "local" } : {}),
         })
         .eq("id", company.id);
       await qc.invalidateQueries({ queryKey: ["company"] });
     }
+
+    if (isLokal) {
+      if (!company) {
+        notify.error("Betrieb noch nicht bereit — kurz warten und nochmal tippen.");
+        return;
+      }
+      setLokalSaving(true);
+      try {
+        await bootstrapFunnelCompany(company.id, "local", name.trim() || company.name, {
+          city: city.trim() || null,
+          niche: niche.trim() || null,
+        });
+        await qc.invalidateQueries({ queryKey: ["company"] });
+        await qc.invalidateQueries({ queryKey: ["table", "agents"] });
+        await qc.invalidateQueries({ queryKey: ["table", "products"] });
+        await qc.invalidateQueries({ queryKey: ["table", "tasks"] });
+        await qc.invalidateQueries({ queryKey: ["table", "knowledge_items"] });
+        pop(locale === "de" ? "Betrieb gespeichert" : "Shop saved", 100, "onboard:name");
+        setStep(1);
+      } catch (e) {
+        notify.error(e instanceof Error ? e.message : "Einrichtung fehlgeschlagen.");
+      } finally {
+        setLokalSaving(false);
+      }
+      return;
+    }
+
     pop("Company named", 100, "onboard:name");
     next();
   };
@@ -229,9 +269,11 @@ function Onboarding() {
     setTimeout(() => navigate({ to: dest }), 1200);
   };
 
-  const steps = skipProductPicker
-    ? ["Identity", "Department", "Voice", "Go"]
-    : ["Identity", "First product", "Voice", "Seat"];
+  const steps = isLokal
+    ? [t("onboarding.lokalStepName"), t("onboarding.lokalStepGo")]
+    : skipProductPicker
+      ? ["Identity", "Department", "Voice", "Go"]
+      : ["Identity", "First product", "Voice", "Seat"];
 
   return (
     <div className="relative -mx-1 min-h-[76vh]">
@@ -345,13 +387,40 @@ function Onboarding() {
                   </label>
                 )}
                 <StepAction
-                  onClick={saveName}
-                  label={isLokal ? t("common.continue") : "Wake the company"}
+                  onClick={() => void saveName()}
+                  label={
+                    lokalSaving
+                      ? t("onboarding.lokalSaving")
+                      : isLokal
+                        ? t("common.continue")
+                        : "Wake the company"
+                  }
+                  busy={lokalSaving}
                 />
               </section>
             )}
 
-            {step === 1 && skipProductPicker && (
+            {step === 1 && isLokal && (
+              <section>
+                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-gold">
+                  {t("onboarding.lokalStepGo")}
+                </p>
+                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
+                  {t("onboarding.lokalTitle")}
+                </h1>
+                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                  {t("onboarding.lokalBlurb")}
+                </p>
+                <StepAction
+                  onClick={finish}
+                  label={finishing ? t("onboarding.opening") : t("onboarding.finishLokal")}
+                  busy={finishing}
+                  tone="gold"
+                />
+              </section>
+            )}
+
+            {step === 1 && !isLokal && skipProductPicker && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
                   Step two
@@ -377,7 +446,7 @@ function Onboarding() {
               </section>
             )}
 
-            {step === 1 && !skipProductPicker && (
+            {step === 1 && !isLokal && !skipProductPicker && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
                   Step two
@@ -422,7 +491,7 @@ function Onboarding() {
               </section>
             )}
 
-            {step === 2 && (
+            {step === 2 && !isLokal && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
                   Step three
@@ -482,7 +551,7 @@ function Onboarding() {
               </section>
             )}
 
-            {step === 3 && (
+            {step === 3 && !isLokal && (
               <section>
                 <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-gold">Final step</p>
                 {entryFunnel === "os" ? (
@@ -504,21 +573,6 @@ function Onboarding() {
                     <StepAction
                       onClick={finish}
                       label={finishing ? "Opening your company…" : "Claim my seat"}
-                      busy={finishing}
-                      tone="gold"
-                    />
-                  </>
-                ) : isLokal ? (
-                  <>
-                    <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                      {t("onboarding.lokalTitle")}
-                    </h1>
-                    <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                      {t("onboarding.lokalBlurb")}
-                    </p>
-                    <StepAction
-                      onClick={finish}
-                      label={finishing ? t("onboarding.opening") : t("onboarding.finishLokal")}
                       busy={finishing}
                       tone="gold"
                     />
@@ -559,7 +613,7 @@ function Onboarding() {
           }}
           className="mt-10 text-[12px] text-muted-foreground/60 transition-colors hover:text-foreground"
         >
-          Skip — I&apos;ll explore first
+          {isLokal ? t("onboarding.lokalSkip") : "Skip — I'll explore first"}
         </button>
       </div>
     </div>

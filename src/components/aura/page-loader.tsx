@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -10,7 +10,10 @@ import { cn } from "@/lib/utils";
  */
 export function PageProgress() {
   const busy = useRouterState({
-    select: (s) => s.isLoading || s.isTransitioning || s.status === "pending",
+    select: (s) =>
+      s.isLoading ||
+      Boolean((s as { isTransitioning?: boolean }).isTransitioning) ||
+      s.status === "pending",
   });
   const [visible, setVisible] = useState(false);
 
@@ -64,30 +67,33 @@ export function PageLoader({ label = "Loading" }: { label?: string }) {
 }
 
 /**
- * Covers first paint / hard reload until the router is idle.
+ * Cold-boot curtain only when the router stays pending long enough.
+ * Avoids forcing a full "Opening Aura" flash on every soft navigation.
  */
 export function AppBootLoader() {
   const busy = useRouterState({
     select: (s) => s.isLoading || s.status === "pending",
   });
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
+  const timer = useRef<number | null>(null);
+  const booted = useRef(false);
 
   useEffect(() => {
     if (busy) {
-      setShow(true);
-      return;
+      if (timer.current) window.clearTimeout(timer.current);
+      // First paint cold boot: show sooner; later navs only if stuck.
+      const delay = booted.current ? 450 : 80;
+      timer.current = window.setTimeout(() => setShow(true), delay);
+      return () => {
+        if (timer.current) window.clearTimeout(timer.current);
+      };
     }
-    const t = window.setTimeout(() => setShow(false), 180);
-    return () => window.clearTimeout(t);
-  }, [busy]);
-
-  useEffect(() => {
-    const hide = () => {
-      if (!busy) setShow(false);
+    booted.current = true;
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setShow(false), 120);
+    return () => {
+      if (timer.current) window.clearTimeout(timer.current);
     };
-    if (document.readyState === "complete") hide();
-    else window.addEventListener("load", hide, { once: true });
-    return () => window.removeEventListener("load", hide);
   }, [busy]);
 
   return (
@@ -100,7 +106,7 @@ export function AppBootLoader() {
           aria-busy="true"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.28 }}
+          transition={{ duration: 0.22 }}
           className="fixed inset-0 z-[94] grid place-items-center bg-background"
         >
           <div className="flex flex-col items-center gap-5">

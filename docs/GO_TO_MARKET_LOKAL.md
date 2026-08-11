@@ -2,9 +2,43 @@
 
 Aura Lokal is the German phone-first surface of Aura OS for service shops — Friseur, Beauty, Gastro, Handwerk, Immobilien — that already have a homepage and real customers, but no honest system to turn visits into reputation and repeat traffic.
 
-Live landing: [aibusiness.fun/lokal](https://aibusiness.fun/lokal) · English funnel: [/for/local](https://aibusiness.fun/for/local).
+Live landing: [aibusiness.fun/lokal](https://aibusiness.fun/lokal) · Free audit: [/lokal/audit](https://aibusiness.fun/lokal/audit) · English funnel: [/for/local](https://aibusiness.fun/for/local).
 
-This document is the public GTM and flywheel narrative. Implementation of the patron app is separate — see [CUSTOMER_APP.md](CUSTOMER_APP.md).
+## Aura Reputation funnel (first 10 paying shops)
+
+**Do not sell “AI OS.” Sell outcomes.**
+
+```text
+LOCAL BUSINESS
+      ↓
+FREE REPUTATION AUDIT  (/lokal/audit)
+      ↓
+AURA REPUTATION        (€49 / month · Stripe)
+      ↓
+STERNE + GÄSTE         (invite real customers)
+      ↓
+later: Customer Engine / Full Aura
+```
+
+| SKU | Price | Unlock |
+|---|---|---|
+| Aura Reputation | **€49/mo** (`STRIPE_PRICE_AURA_REPUTATION`, plan `aura_reputation`) | `local_seat_paid_at` + subscription row |
+| Startpaket / Bar | €99 one-time Local Seat **or** cash codes | same entitlement |
+| Boost packs | one-time top-ups | only after unlock |
+
+### Sales script (10 shops)
+
+1. Open `/lokal/audit` with the owner (or send link).
+2. Screenshot score + 3 recommendations.
+3. WhatsApp/visit: “Kunden-Nachbetreuung + echte Sterne — 49 €/Monat, keine Fake-Reviews.”
+4. Signup `funnel=local` → paywall → subscribe or redeem cash code.
+5. Onboard: paste Google link → first invite.
+
+### Success metric
+
+Active Stripe `aura_reputation` subscriptions + redeemed seat codes with `local_seat_paid_at` set — **not** feature count.
+
+---
 
 ## The problem we solve
 

@@ -159,9 +159,12 @@ async function fallbackSearch(query: string, limit: number): Promise<ScrapedPage
     );
     let href = rawHref;
     try {
+      // Protocol-relative //duckduckgo.com/l/?uddg=… must resolve against https.
       const u = new URL(rawHref, "https://duckduckgo.com");
-      if (u.pathname === "/l/" && u.searchParams.get("uddg")) {
+      if ((u.pathname === "/l/" || u.pathname === "/l") && u.searchParams.get("uddg")) {
         href = decodeURIComponent(u.searchParams.get("uddg")!);
+      } else {
+        href = u.href;
       }
     } catch {
       continue;

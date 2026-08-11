@@ -55,7 +55,11 @@ async function persistSteps(
     .eq("id", taskId);
   // If steps column missing (migration not applied), still update progress/status
   if (error && /steps|artifact|schema cache|42703|PGRST204/i.test(error.message || "")) {
-    const { steps: _s, artifact: _a, ...rest } = extra as Record<string, unknown> & {
+    const {
+      steps: _s,
+      artifact: _a,
+      ...rest
+    } = extra as Record<string, unknown> & {
       steps?: unknown;
       artifact?: unknown;
     };
@@ -92,7 +96,7 @@ export async function executeTask(
 ): Promise<{ ok: boolean; error?: string }> {
   const { data: task, error } = await db
     .from("tasks")
-    .select("id, company_id, agent_id, title, description, status, progress, mission_id")
+    .select("id, company_id, agent_id, title, description, status, progress, mission_id, result")
     .eq("id", taskId)
     .maybeSingle();
   if (error || !task) return { ok: false, error: error?.message || "Task not found" };
@@ -103,19 +107,26 @@ export async function executeTask(
     return { ok: true };
   }
 
+  // Social-reply idempotency key lives in `result` — never overwrite it on holds.
+  const preserveResult = typeof task.result === "string" && task.result.startsWith("social-reply:");
+
+  const holdForApproval = async (reason: string) => {
+    await db
+      .from("tasks")
+      .update({
+        status: "pending_approval",
+        ...(preserveResult ? {} : { result: reason }),
+      })
+      .eq("id", task.id);
+  };
+
   const { requireAuraBalance, burnAuraHard, InsufficientAuraError } =
     await import("@/lib/aura-spend.server");
   try {
     await requireAuraBalance(db, task.company_id, TASK_COST);
   } catch (e) {
     if (e instanceof InsufficientAuraError) {
-      await db
-        .from("tasks")
-        .update({
-          status: "pending_approval",
-          result: e.message,
-        })
-        .eq("id", task.id);
+      await holdForApproval(e.message);
       return { ok: false, error: e.message };
     }
     throw e;
@@ -144,13 +155,7 @@ export async function executeTask(
     );
     const budget = Number(company?.daily_aura_budget ?? 120);
     if (spent + TASK_COST > budget) {
-      await db
-        .from("tasks")
-        .update({
-          status: "pending_approval",
-          result: "Held — daily AURA budget would be exceeded. Approve to override.",
-        })
-        .eq("id", task.id);
+      await holdForApproval("Held — daily AURA budget would be exceeded. Approve to override.");
       return { ok: false, error: "Over daily AURA budget" };
     }
   }
@@ -169,13 +174,7 @@ export async function executeTask(
       .eq("id", task.agent_id)
       .maybeSingle();
     if (agent?.paused) {
-      await db
-        .from("tasks")
-        .update({
-          status: "pending_approval",
-          result: "Agent paused by founder — re-approve when ready.",
-        })
-        .eq("id", task.id);
+      await holdForApproval("Agent paused by founder — re-approve when ready.");
       return { ok: false, error: "Agent paused" };
     }
     if (agent) {
@@ -302,16 +301,17 @@ Honesty: do not invent facts or revenue. needs_web=true when research, competito
     };
 
     artifact.plan = Array.isArray(planJson.plan)
-      ? planJson.plan.map((p) => String(p).slice(0, 160)).filter(Boolean).slice(0, 8)
+      ? planJson.plan
+          .map((p) => String(p).slice(0, 160))
+          .filter(Boolean)
+          .slice(0, 8)
       : [`Clarify "${task.title}"`, "Gather evidence", "Deliver concrete next action"];
     if (planJson.search_query) searchQuery = String(planJson.search_query).slice(0, 160);
     if (planJson.needs_web === false && !doSearch) {
       // keep skip
     } else if (planJson.needs_web === true) {
       steps = steps.map((s) =>
-        s.id === "search"
-          ? { ...s, label: "Web research", status: s.status }
-          : s,
+        s.id === "search" ? { ...s, label: "Web research", status: s.status } : s,
       );
     }
 
@@ -337,8 +337,7 @@ Honesty: do not invent facts or revenue. needs_web=true when research, competito
   }
 
   // ——— Step 2: Web research ———
-  const shouldSearch =
-    doSearch || steps.find((s) => s.id === "search")?.label === "Web research";
+  const shouldSearch = doSearch || steps.find((s) => s.id === "search")?.label === "Web research";
 
   if (shouldSearch) {
     steps = markStep(steps, "search", "running", `Searching: ${searchQuery}`);
@@ -441,8 +440,7 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
       knowledge_fact?: { title?: string; summary?: string } | null;
     };
 
-    resultText =
-      [json.summary, json.outcome, json.next].filter(Boolean).join(" · ") || "Done.";
+    resultText = [json.summary, json.outcome, json.next].filter(Boolean).join(" · ") || "Done.";
     if (artifact.sources.length) {
       const cites = artifact.sources
         .slice(0, 3)
@@ -504,12 +502,7 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
   await persistSteps(db, task.id, steps, 92);
 
   try {
-    await burnAuraHard(
-      db,
-      task.company_id,
-      TASK_COST,
-      `Task · ${task.title.slice(0, 80)}`,
-    );
+    await burnAuraHard(db, task.company_id, TASK_COST, `Task · ${task.title.slice(0, 80)}`);
   } catch (e) {
     if (e instanceof InsufficientAuraError) {
       await db

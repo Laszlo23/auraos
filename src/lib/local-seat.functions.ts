@@ -17,7 +17,10 @@ import { SITE_URL } from "@/lib/site";
 
 type LooseDb = {
   from: (table: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
+  rpc: (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: Error | null }>;
 };
 
 function asDb(client: unknown): LooseDb {
@@ -77,26 +80,50 @@ export const getLokalHub = createServerFn({ method: "GET" })
       .maybeSingle();
 
     let inviteTotal = 0;
+    let invitesSent = 0;
     if (campaign?.id) {
       const { count } = await supabase
         .from("review_invites")
         .select("id", { count: "exact", head: true })
         .eq("campaign_id", campaign.id);
       inviteTotal = count ?? 0;
+      const { count: sentCount } = await supabase
+        .from("review_invites")
+        .select("id", { count: "exact", head: true })
+        .eq("campaign_id", campaign.id)
+        .in("status", ["sent", "clicked", "completed"]);
+      invitesSent = sentCount ?? 0;
     }
 
+    const { count: guestsConfirmed } = await supabase
+      .from("nachbar_checkins")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", company.id)
+      .eq("status", "confirmed");
+
     const paid = Boolean(company.local_seat_paid_at);
+    if (paid) {
+      // Ensure guest QR / review→Nachbar deep links always resolve.
+      await supabase.rpc("owner_nachbar_checkin_code");
+    }
+
+    const hasGoogle = Boolean(company.google_review_url);
+    const hasInvite = inviteTotal > 0;
+    const hasGuest = (guestsConfirmed ?? 0) > 0;
+
     const nextStep = !paid
       ? ("seat" as const)
-      : !(channels ?? []).some(
-            (c: { status: string }) => c.status === "connected" || c.status === "active",
-          )
-        ? ("social" as const)
-        : !company.google_review_url
-          ? ("reviews" as const)
-          : !campaign
-            ? ("reviews_start" as const)
-            : ("boost" as const);
+      : !hasGoogle
+        ? ("reviews" as const)
+        : !campaign || !hasInvite
+          ? ("reviews_start" as const)
+          : !hasGuest
+            ? ("guests" as const)
+            : !(channels ?? []).some(
+                  (c: { status: string }) => c.status === "connected" || c.status === "active",
+                )
+              ? ("social" as const)
+              : ("boost" as const);
 
     return {
       company,
@@ -105,7 +132,15 @@ export const getLokalHub = createServerFn({ method: "GET" })
       channels: (channels ?? []) as { provider: string; status: string }[],
       reviewCampaign: campaign as { id: string; goal_invites: number; status: string } | null,
       inviteTotal,
+      invitesSent,
+      guestsConfirmed: guestsConfirmed ?? 0,
       nextStep,
+      activation: {
+        seat: paid,
+        google: hasGoogle,
+        invite: hasInvite,
+        guest: hasGuest,
+      },
     };
   });
 
@@ -138,7 +173,10 @@ export const generateLocalSeatCodes = createServerFn({ method: "POST" })
   .inputValidator((input: { opsKey: string; count?: number; soldNote?: string }) => ({
     opsKey: String(input.opsKey || ""),
     count: Math.min(Math.max(Number(input.count) || 1, 1), 50),
-    soldNote: String(input.soldNote || "").trim().slice(0, 200) || null,
+    soldNote:
+      String(input.soldNote || "")
+        .trim()
+        .slice(0, 200) || null,
   }))
   .handler(async ({ data }) => {
     const expected = process.env["LOCAL_SEAT_OPS_KEY"]?.trim();
@@ -302,4 +340,3 @@ export const acceptLocalPeerInvite = createServerFn({ method: "POST" })
     }
     return result as { ok: boolean; inviter_company_id: string };
   });
-

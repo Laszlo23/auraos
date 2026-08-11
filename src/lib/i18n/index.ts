@@ -27,12 +27,39 @@ export function resolveUiLocale(opts?: { acceptLanguage?: string | null }): UiLo
 /** Ensure a locale is persisted on first visit (browser or explicit). */
 export function ensureUiLocale(explicit?: UiLocale | null): UiLocale {
   if (typeof window === "undefined") return explicit || "en";
+
+  // Public Lokal / Nachbar surfaces: path wins over a leftover "en" from OS browsing.
+  try {
+    const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+    const lokalSurface =
+      path === "/lokal" ||
+      path.startsWith("/lokal/") ||
+      path.startsWith("/nachbar") ||
+      path === "/heute" ||
+      path === "/bewertungen" ||
+      path === "/kunden" ||
+      path === "/social" ||
+      path === "/boost";
+    if (lokalSurface) {
+      if (params.get("lang") === "en") {
+        rememberLocale("en");
+        return "en";
+      }
+      rememberLocale("de");
+      return "de";
+    }
+  } catch {
+    /* ignore */
+  }
+
   try {
     const raw = window.localStorage.getItem("aura.ui_locale");
     if (raw === "de" || raw === "en") return raw;
   } catch {
     /* ignore */
   }
+
   const next = explicit || localeFromBrowser(navigator.language);
   rememberLocale(next);
   return next;

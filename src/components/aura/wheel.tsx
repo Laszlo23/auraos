@@ -70,14 +70,14 @@ export function DailyWheel() {
       setAngle(final);
       setWon(drop);
       window.setTimeout(() => setBurst((n) => n + 1), 3200);
+      window.setTimeout(() => setSpinning(false), 3600);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Spin failed — try again.");
       // Ease back a little so a failed pull doesn't leave a wild angle.
       const reset = angleRef.current - (angleRef.current % 360);
       angleRef.current = reset;
       setAngle(reset);
-    } finally {
-      window.setTimeout(() => setSpinning(false), 3400);
+      setSpinning(false);
     }
   };
 
@@ -208,8 +208,9 @@ export function DailyWheel() {
             <p className="text-sm font-semibold text-foreground">{result.label}</p>
             <p className="mt-1 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
               <Link2 className="h-3 w-3" />
-              {result.chain_status === "anchored" ? result.chain_network : "dev chain"}
-              {result.tx_hash ? ` · ${shortTx(result.tx_hash)}` : " · settling"}
+              {result.tx_hash
+                ? `${result.chain_status === "anchored" ? result.chain_network : "dev chain"} · ${shortTx(result.tx_hash)}`
+                : "Prize credited · chain stamp pending"}
             </p>
           </>
         ) : (

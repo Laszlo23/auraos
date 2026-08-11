@@ -102,17 +102,14 @@ export function useSpinWheel() {
             _chain_status: status,
           });
           if (settleErr) {
-            // Fallback: direct update if RPC not migrated yet
-            const { error: updErr } = await supabase
-              .from("wheel_spins")
-              .update({
-                tx_hash: receipt.txHash,
-                chain_network: receipt.network,
-                chain_status: status,
-                settled_at: new Date().toISOString(),
-              })
-              .eq("id", spin.id);
-            if (updErr) throw updErr;
+            // Retry once — never fall back to a direct UPDATE (no privilege).
+            const { error: retryErr } = await callRpc("settle_wheel_spin", {
+              _spin_id: spin.id,
+              _tx_hash: receipt.txHash,
+              _chain_network: receipt.network,
+              _chain_status: status,
+            });
+            if (retryErr) throw retryErr;
           }
           void qc.invalidateQueries({ queryKey: ["wheel-spin"] });
           void qc.invalidateQueries({ queryKey: ["wheel-history"] });
@@ -132,6 +129,7 @@ export function useSpinWheel() {
       void qc.invalidateQueries({ queryKey: ["subscription"] });
       void qc.invalidateQueries({ queryKey: ["token-ledger"] });
       void qc.invalidateQueries({ queryKey: ["progress"] });
+      void qc.invalidateQueries({ queryKey: ["company"] });
     },
   });
 }

@@ -38,8 +38,8 @@ export function FailedWorkPanel({ tasks, agents }: Props) {
     mutationFn: (taskId?: string) =>
       retryFailedAiTasks(taskId ? { data: { taskId } } : { data: {} }),
     onSuccess: async (res) => {
+      await qc.invalidateQueries({ queryKey: ["table", "tasks"] });
       await qc.invalidateQueries({ queryKey: ["tasks"] });
-      await qc.invalidateQueries({ queryKey: ["company-table", "tasks"] });
       toast.success(
         res.requeued === 0
           ? "Nothing left to retry"
@@ -51,8 +51,7 @@ export function FailedWorkPanel({ tasks, agents }: Props) {
 
   if (failed.length === 0) return null;
 
-  const nameFor = (id?: string | null) =>
-    agents.find((a) => a.id === id)?.name ?? "Agent";
+  const nameFor = (id?: string | null) => agents.find((a) => a.id === id)?.name ?? "Agent";
 
   return (
     <Panel label="Failures · honest" glow delay={0.03}>

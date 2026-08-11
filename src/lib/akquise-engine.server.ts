@@ -189,11 +189,17 @@ ${corpus}`;
     return parseJsonBlock<ProspectDraft[]>(raw, []);
   };
 
-  let list = await runOnce("Return a JSON array only. No markdown fences.");
-  if (!list.length) {
-    list = await runOnce(
-      "STRICT: Output starts with [ and ends with ]. Empty array only if ZERO businesses appear in the sources. Prefer org+source_url even when email/phone are null.",
-    );
+  let list: ProspectDraft[] = [];
+  try {
+    list = await runOnce("Return a JSON array only. No markdown fences.");
+    if (!list.length) {
+      list = await runOnce(
+        "STRICT: Output starts with [ and ends with ]. Empty array only if ZERO businesses appear in the sources. Prefer org+source_url even when email/phone are null.",
+      );
+    }
+  } catch (e) {
+    console.warn("[akquise] extract AI failed, will use heuristic prospects:", e);
+    return [];
   }
   return list.slice(0, 15);
 }
@@ -202,7 +208,8 @@ function dedupeProspects(list: ProspectDraft[]): ProspectDraft[] {
   const seen = new Set<string>();
   const out: ProspectDraft[] = [];
   for (const p of list) {
-    const key = normalizeUrl(p.source_url || "") + "|" + (p.email || p.org || p.name || "");
+    if (!p.source_url || !/^https?:\/\//i.test(p.source_url)) continue;
+    const key = normalizeUrl(p.source_url) + "|" + (p.email || p.org || p.name || "");
     if (seen.has(key)) continue;
     seen.add(key);
     out.push({
@@ -210,9 +217,72 @@ function dedupeProspects(list: ProspectDraft[]): ProspectDraft[] {
       score: Math.max(0, Math.min(100, Math.round(Number(p.score) || 0))),
       email: p.email?.includes("@") ? p.email : null,
       phone: p.phone?.replace(/[^\d+\s()-]/g, "").trim() || null,
+      org: p.org?.trim() || p.name?.trim() || null,
+      name: p.name?.trim() || null,
+      snippet: p.snippet?.trim() || null,
     });
   }
   return out;
+}
+
+/** Last-resort leads from page titles/URLs — never invents emails/phones. */
+function heuristicProspectsFromPages(pages: ScrapedPage[], limit: number): ProspectDraft[] {
+  const out: ProspectDraft[] = [];
+  const skipHost =
+    /treatwell|facebook\.com|instagram\.com|linkedin\.com|yelp\.|tripadvisor|wikipedia\.|google\./i;
+  for (const page of pages) {
+    if (out.length >= limit) break;
+    let host = "";
+    try {
+      host = new URL(page.url).hostname.replace(/^www\./, "");
+    } catch {
+      continue;
+    }
+    if (!host || skipHost.test(host) || skipHost.test(page.url)) continue;
+    const title = (page.title || "").replace(/\s*[|\-–—].*$/, "").trim();
+    const org = title.length > 2 ? title.slice(0, 120) : host.split(".")[0] || host;
+    const signals = heuristicWebsiteSignals(page);
+    out.push({
+      name: null,
+      org,
+      email: null,
+      phone: null,
+      address: null,
+      snippet: `Found via web research · ${host}${signals.length ? ` · ${signals.slice(0, 2).join(", ")}` : ""}`,
+      score: Math.max(35, 70 - signals.length * 5),
+      source_url: page.url,
+      website_signals: signals,
+    });
+  }
+  return out;
+}
+
+function groundProspectsToSources(
+  prospects: ProspectDraft[],
+  pages: ScrapedPage[],
+): ProspectDraft[] {
+  const urls = new Set(pages.map((p) => normalizeUrl(p.url)));
+  const hosts = new Set(
+    pages
+      .map((p) => {
+        try {
+          return new URL(p.url).hostname.replace(/^www\./, "");
+        } catch {
+          return "";
+        }
+      })
+      .filter(Boolean),
+  );
+  return prospects.filter((p) => {
+    const n = normalizeUrl(p.source_url);
+    if (urls.has(n)) return true;
+    try {
+      const host = new URL(p.source_url).hostname.replace(/^www\./, "");
+      return hosts.has(host);
+    } catch {
+      return false;
+    }
+  });
 }
 
 function verifyProspects(
@@ -274,14 +344,19 @@ export async function executeAkquiseRun(opts: {
   step(steps, "plan", "Planning search strategy", "done", `${plan.queries.length} queries`);
 
   const pageMap = new Map<string, ScrapedPage>();
-  step(steps, "search", `Searching the web (${researchProviderLabel()})`, "running");
+  const provider = researchProviderLabel();
+  step(steps, "search", `Searching the web (${provider})`, "running");
 
-  const maxQueryRounds = Math.min(8, plan.queries.length);
+  // Without Firecrawl, keep the run inside typical server-fn budgets.
+  const maxQueryRounds =
+    provider.startsWith("Firecrawl")
+      ? Math.min(8, plan.queries.length)
+      : Math.min(4, plan.queries.length);
   const searchErrors: string[] = [];
   for (let i = 0; i < maxQueryRounds; i++) {
     const q = plan.queries[i]!;
     try {
-      const found = await firecrawlSearch(q, 5);
+      const found = await firecrawlSearch(q, provider.startsWith("Firecrawl") ? 5 : 6);
       for (const p of found) pageMap.set(normalizeUrl(p.url), p);
       step(
         steps,
@@ -340,7 +415,17 @@ export async function executeAkquiseRun(opts: {
   const pages = Array.from(pageMap.values());
   step(steps, "extract", "Extracting prospects", "running");
   let prospects = dedupeProspects(
-    await extractBatch(template, pages.slice(0, 12), opts.goal, opts.brief, opts.region, opts.objective),
+    groundProspectsToSources(
+      await extractBatch(
+        template,
+        pages.slice(0, 12),
+        opts.goal,
+        opts.brief,
+        opts.region,
+        opts.objective,
+      ),
+      pages,
+    ),
   );
 
   // One safe retry with alternate queries if short
@@ -357,16 +442,33 @@ export async function executeAkquiseRun(opts: {
         /* continue */
       }
     }
+    const refreshed = Array.from(pageMap.values());
     const more = await extractBatch(
       template,
-      Array.from(pageMap.values()).slice(0, 14),
+      refreshed.slice(0, 14),
       opts.goal,
       opts.brief,
       opts.region,
       opts.objective,
     );
-    prospects = dedupeProspects([...prospects, ...more]);
+    prospects = dedupeProspects([
+      ...prospects,
+      ...groundProspectsToSources(more, refreshed),
+    ]);
     step(steps, "retry", "Retry with alternate queries", "done", `now ${prospects.length} leads`);
+  }
+
+  // Always prefer real orgs from page titles over failing the whole run.
+  if (prospects.length === 0 && pages.length > 0) {
+    step(steps, "heuristic", "Building leads from sources", "running");
+    prospects = dedupeProspects(heuristicProspectsFromPages(pages, target));
+    step(
+      steps,
+      "heuristic",
+      "Building leads from sources",
+      prospects.length ? "done" : "failed",
+      `${prospects.length} heuristic leads`,
+    );
   }
 
   if (prospects.length === 0 && pages.length > 0) {

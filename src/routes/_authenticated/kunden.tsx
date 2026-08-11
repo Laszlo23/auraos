@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Panel, Shimmer } from "@/components/aura/primitives";
 import { useLocale } from "@/hooks/use-locale";
 import { useCompany } from "@/hooks/use-aura";
+import { celebrateLokalWin } from "@/hooks/use-lokal-engagement";
 import {
   confirmNachbarCheckin,
   getOwnerNachbarCheckinCode,
@@ -35,7 +36,7 @@ function KundenPage() {
   const confirm = useMutation({
     mutationFn: (checkinId: string) => confirmNachbarCheckin({ data: { checkinId } }),
     onSuccess: async () => {
-      toast.success(t("kunden.confirm"));
+      celebrateLokalWin("Gast bestätigt — stark für Stammkunden.");
       await qc.invalidateQueries({ queryKey: ["owner-nachbar-pending"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -43,6 +44,9 @@ function KundenPage() {
 
   const code = data?.code || "";
   const deepLink = code ? `${SITE_URL}/nachbar/c/${code}` : "";
+  const qrUrl = deepLink
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(deepLink)}`
+    : "";
   const region = company?.city || undefined;
 
   return (
@@ -61,13 +65,24 @@ function KundenPage() {
         {isLoading ? <Shimmer className="h-16" /> : null}
         {!isLoading && code ? (
           <>
-            <p className="font-mono text-4xl font-semibold tracking-[0.22em]">{code}</p>
-            <p className="mt-3 text-sm text-muted-foreground">{t("kunden.qrHint")}</p>
+            {qrUrl ? (
+              <img
+                src={qrUrl}
+                alt="Check-in QR"
+                width={220}
+                height={220}
+                className="mx-auto rounded-2xl bg-white p-3"
+              />
+            ) : null}
+            <p className="mt-4 text-center font-mono text-4xl font-semibold tracking-[0.22em]">
+              {code}
+            </p>
+            <p className="mt-3 text-center text-sm text-muted-foreground">{t("kunden.qrHint")}</p>
             <a
               href={deepLink}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground"
             >
-              <QrCode className="h-4 w-4" /> Check-in öffnen
+              <QrCode className="h-4 w-4" /> {t("kunden.openLink")}
             </a>
           </>
         ) : null}

@@ -9,19 +9,25 @@ import { useLocale } from "@/hooks/use-locale";
 import { useCompany } from "@/hooks/use-aura";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  AURA_REPUTATION_EUR,
+  AURA_REPUTATION_PLAN_ID,
   BOOST_PACKS,
   LOCAL_SEAT_BOOST_GRANT,
   LOCAL_SEAT_EUR,
   LOCAL_SEAT_PLAN_ID,
   type BoostPackId,
 } from "@/lib/boost-packs";
-import { getLokalHub, redeemLocalSeatCode, createLocalPeerInvite } from "@/lib/local-seat.functions";
+import {
+  getLokalHub,
+  redeemLocalSeatCode,
+  createLocalPeerInvite,
+} from "@/lib/local-seat.functions";
 import { compact } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/boost")({
   head: () => ({
-    meta: [{ title: "Guthaben — Aura Lokal" }],
+    meta: [{ title: "Aura Reputation — Aura Lokal" }],
   }),
   component: BoostPage,
 });
@@ -67,7 +73,15 @@ function BoostPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const paySeat = useMutation({
+  const payReputation = useMutation({
+    mutationFn: async () => {
+      if (!company?.id) throw new Error("No company.");
+      await startCheckout(AURA_REPUTATION_PLAN_ID, company.id);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const paySeatCash = useMutation({
     mutationFn: async () => {
       if (!company?.id) throw new Error("No company.");
       await startCheckout(LOCAL_SEAT_PLAN_ID, company.id);
@@ -120,74 +134,87 @@ function BoostPage() {
       ) : null}
 
       {!seatPaid ? (
-        <Panel label={`${t("boost.unlockSeat")} · ${LOCAL_SEAT_EUR} €`} glow>
-          <p className="text-[15px] leading-relaxed text-muted-foreground">{t("boost.seatBlurb")}</p>
+        <Panel label={t("boost.unlockSeat")} glow>
+          <p className="text-[15px] leading-relaxed text-muted-foreground">
+            {t("boost.seatBlurb")}
+          </p>
           <button
             type="button"
-            disabled={paySeat.isPending}
-            onClick={() => paySeat.mutate()}
+            disabled={payReputation.isPending}
+            onClick={() => payReputation.mutate()}
             className="mt-5 w-full rounded-2xl bg-primary px-4 py-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
-            {paySeat.isPending ? (
+            {payReputation.isPending ? (
               <Loader2 className="mx-auto h-4 w-4 animate-spin" />
             ) : (
-              t("boost.payCard", { eur: LOCAL_SEAT_EUR })
+              t("boost.payCard", { eur: AURA_REPUTATION_EUR })
             )}
           </button>
-          <label className="mt-5 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-            {t("boost.cashCode")}
+
+          <div className="mt-6 rounded-2xl border border-border/50 bg-foreground/[0.03] p-4">
+            <p className="text-sm font-semibold">{t("boost.cashCode")}</p>
+            <p className="mt-1 text-[12px] text-muted-foreground">{t("boost.cashHint")}</p>
             <input
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               placeholder="ABCD-EFGH"
-              className="mt-2 w-full rounded-2xl border border-border bg-foreground/5 px-4 py-3 font-mono text-sm outline-none"
+              aria-label={t("boost.cashCode")}
+              className="mt-3 w-full rounded-2xl border border-border bg-background px-4 py-3 font-mono text-sm outline-none"
             />
-          </label>
+            <button
+              type="button"
+              disabled={redeem.isPending || code.trim().length < 6}
+              onClick={() => redeem.mutate()}
+              className="mt-3 w-full rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            >
+              {redeem.isPending ? (
+                <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+              ) : (
+                t("boost.redeem")
+              )}
+            </button>
+          </div>
+
           <button
             type="button"
-            disabled={redeem.isPending || code.trim().length < 6}
-            onClick={() => redeem.mutate()}
-            className="mt-3 w-full rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            disabled={paySeatCash.isPending}
+            onClick={() => paySeatCash.mutate()}
+            className="mt-4 w-full rounded-2xl border border-dashed border-border/40 px-4 py-3 text-sm font-medium text-muted-foreground disabled:opacity-60"
           >
-            {redeem.isPending ? (
-              <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-            ) : (
-              t("boost.redeem")
-            )}
+            {paySeatCash.isPending ? "…" : t("boost.payCashAlt", { eur: LOCAL_SEAT_EUR })}
           </button>
         </Panel>
       ) : (
         <>
-          <div className="space-y-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              {t("boost.packs")}
-            </p>
-            {BOOST_PACKS.map((pack) => (
-              <div key={pack.id} className="rounded-3xl border border-border/50 bg-card/30 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-display text-xl font-semibold">{pack.name}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{pack.blurb}</p>
-                  </div>
-                  <p className="font-display text-xl font-semibold tabular-nums">€{pack.eur}</p>
-                </div>
-                <button
-                  type="button"
-                  disabled={buyPack.isPending}
-                  onClick={() => buyPack.mutate(pack.id)}
-                  className="mt-4 w-full rounded-2xl bg-primary/90 px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-                >
-                  {buyPack.isPending ? "…" : t("boost.buy")}
-                </button>
-              </div>
-            ))}
-          </div>
-
           <details className="rounded-3xl border border-border/40 px-4 py-3">
             <summary className="cursor-pointer text-sm font-semibold text-muted-foreground">
-              {t("boost.peerTitle")}
+              {t("boost.packs")}
             </summary>
-            <p className="mt-2 text-sm text-muted-foreground">{t("boost.peerBlurb")}</p>
+            <div className="mt-3 space-y-3">
+              {BOOST_PACKS.map((pack) => (
+                <div key={pack.id} className="rounded-3xl border border-border/50 bg-card/30 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-display text-xl font-semibold">{pack.name}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{pack.blurb}</p>
+                    </div>
+                    <p className="font-display text-xl font-semibold tabular-nums">€{pack.eur}</p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={buyPack.isPending}
+                    onClick={() => buyPack.mutate(pack.id)}
+                    className="mt-4 w-full rounded-2xl bg-primary/90 px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  >
+                    {buyPack.isPending ? "…" : t("boost.buy")}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </details>
+
+          <Panel label={t("boost.peerTitle")} glow>
+            <p className="text-sm text-muted-foreground">{t("boost.peerBlurb")}</p>
             <button
               type="button"
               disabled={peerInvite.isPending}
@@ -196,7 +223,7 @@ function BoostPage() {
             >
               {peerInvite.isPending ? "…" : t("boost.peerCta")}
             </button>
-          </details>
+          </Panel>
         </>
       )}
     </div>

@@ -4,8 +4,13 @@ import { useMemo, useState } from "react";
 
 import { Chip, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
 import { ProofOfWork, type PowStep } from "@/components/aura/proof-of-work";
-import { useCompanyTable, useRowMutation } from "@/hooks/use-aura";
-import { useApproveTask, useProposeNextActions, useRejectTask } from "@/lib/actions";
+import { useCompanyTable } from "@/hooks/use-aura";
+import {
+  useApproveTask,
+  useMoveTaskStatus,
+  useProposeNextActions,
+  useRejectTask,
+} from "@/lib/actions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/tasks")({
@@ -14,8 +19,7 @@ export const Route = createFileRoute("/_authenticated/tasks")({
       { title: "Tasks — Aura OS" },
       {
         name: "description",
-        content:
-          "Approve agent proposals, then watch them plan, research, and file proof of work.",
+        content: "Approve agent proposals, then watch them plan, research, and file proof of work.",
       },
       { property: "og:title", content: "Tasks — Aura OS" },
       { property: "og:description", content: "Approve work. Agents execute for real." },
@@ -49,7 +53,7 @@ type Agent = { id: string; name: string; avatar: string };
 function boardStatus(status: string): string {
   if (status === "queue" || status === "pending") return "queued";
   if (status === "done") return "completed";
-  if (status === "blocked") return "failed";
+  if (status === "blocked" || status === "cancelled" || status === "ignored") return "failed";
   return status;
 }
 
@@ -90,7 +94,7 @@ function TasksPage() {
     refetchInterval: 3000,
   });
   const { data: agents = [] } = useCompanyTable<Agent>("agents");
-  const mutate = useRowMutation("tasks");
+  const moveStatus = useMoveTaskStatus();
   const approve = useApproveTask();
   const reject = useRejectTask();
   const propose = useProposeNextActions();
@@ -125,7 +129,7 @@ function TasksPage() {
         actions={
           <button
             type="button"
-            onClick={() => propose.mutate()}
+            onClick={() => propose.mutate({})}
             disabled={propose.isPending}
             className="rounded-2xl bg-primary/14 px-3.5 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/22 disabled:opacity-50"
           >
@@ -185,9 +189,7 @@ function TasksPage() {
                             <p className="min-w-0 flex-1 text-[13px] font-medium leading-snug">
                               {t.title}
                             </p>
-                            <Chip
-                              tone={PRIORITY[t.priority as keyof typeof PRIORITY] ?? "neutral"}
-                            >
+                            <Chip tone={PRIORITY[t.priority as keyof typeof PRIORITY] ?? "neutral"}>
                               {t.priority}
                             </Chip>
                           </div>
@@ -228,8 +230,7 @@ function TasksPage() {
 
                           {(status === "completed" || status === "failed") && (
                             <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
-                              {t.result?.trim() ||
-                                (status === "failed" ? "Failed" : "Completed")}
+                              {t.result?.trim() || (status === "failed" ? "Failed" : "Completed")}
                             </p>
                           )}
 
@@ -352,19 +353,10 @@ function TasksPage() {
                     <span className="text-[10px] tabular-nums text-muted-foreground">
                       {idx + 1}
                     </span>
-                    <span
-                      className={cn(
-                        "font-medium",
-                        s.status === "running" && "text-primary",
-                      )}
-                    >
+                    <span className={cn("font-medium", s.status === "running" && "text-primary")}>
                       {s.label}
                     </span>
-                    <Chip
-                      tone={
-                        s.status === "done" || s.status === "running" ? "primary" : "gold"
-                      }
-                    >
+                    <Chip tone={s.status === "done" || s.status === "running" ? "primary" : "gold"}>
                       {s.status}
                     </Chip>
                   </div>
@@ -395,12 +387,11 @@ function TasksPage() {
             </div>
           )}
 
-          {(selectedStatus === "running" || selectedStatus === "queued") &&
-            selected.result && (
-              <p className="mt-4 max-w-3xl text-[13px] leading-relaxed text-muted-foreground">
-                {selected.result}
-              </p>
-            )}
+          {(selectedStatus === "running" || selectedStatus === "queued") && selected.result && (
+            <p className="mt-4 max-w-3xl text-[13px] leading-relaxed text-muted-foreground">
+              {selected.result}
+            </p>
+          )}
 
           {selected.artifact?.sources && selected.artifact.sources.length > 0 && (
             <div className="mt-4">
@@ -429,27 +420,20 @@ function TasksPage() {
             selectedStatus !== "failed" && (
               <div className="mt-5 flex flex-wrap gap-1.5">
                 {COLUMNS.filter(
-                  (c) =>
-                    c.key !== selectedStatus &&
-                    c.key !== "completed" &&
-                    c.key !== "failed",
+                  (c) => c.key !== selectedStatus && c.key !== "completed" && c.key !== "failed",
                 ).map((c) => (
                   <button
                     key={c.key}
                     type="button"
+                    disabled={moveStatus.isPending}
                     onClick={() =>
-                      mutate.mutate({
-                        id: selected.id,
-                        values: {
-                          status: c.key,
-                          progress:
-                            c.key === "queued" || c.key === "pending_approval"
-                              ? 0
-                              : selected.progress,
-                        },
+                      moveStatus.mutate({
+                        taskId: selected.id,
+                        to: c.key,
+                        progress: selected.progress,
                       })
                     }
-                    className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground transition-colors hover:bg-primary/14 hover:text-primary"
+                    className="rounded-xl bg-foreground/6 px-3 py-1.5 text-[11px] text-muted-foreground transition-colors hover:bg-primary/14 hover:text-primary disabled:opacity-50"
                   >
                     Move to {c.label}
                   </button>

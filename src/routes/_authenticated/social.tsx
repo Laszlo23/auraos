@@ -60,6 +60,7 @@ function SocialPage() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">{t("social.none")}</p>
+            <p className="mt-2 text-[12px] text-muted-foreground">{t("social.connectNote")}</p>
             <Link
               to="/connect"
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground"

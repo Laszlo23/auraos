@@ -186,22 +186,14 @@ function fetchTimeoutSignal(ms = AI_FETCH_MS): AbortSignal {
 type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
 function isSoftFail(status: number, detail: string): boolean {
-  if (status === 429 || status === 402 || status === 503) return true;
+  // Auth / credit / rate issues should never hard-stop the whole chain —
+  // fall through to the next configured provider.
+  if (status === 401 || status === 403 || status === 429 || status === 402 || status === 503) {
+    return true;
+  }
   // Wrong/retired model names should fall through the provider chain.
   if (status === 404) return true;
   const d = detail.toLowerCase();
-  // Grok / paid APIs often return 403 when credits are exhausted.
-  if (
-    status === 403 &&
-    (d.includes("credit") ||
-      d.includes("spending") ||
-      d.includes("quota") ||
-      d.includes("billing") ||
-      d.includes("permission-denied") ||
-      d.includes("permission denied"))
-  ) {
-    return true;
-  }
   return (
     d.includes("quota") ||
     d.includes("rate limit") ||
@@ -210,6 +202,8 @@ function isSoftFail(status: number, detail: string): boolean {
     d.includes("no_providers") ||
     d.includes("no candidate model") ||
     d.includes("billing") ||
+    d.includes("credit") ||
+    d.includes("spending") ||
     d.includes("not found the model") ||
     d.includes("model_not_found") ||
     d.includes("does not exist") ||

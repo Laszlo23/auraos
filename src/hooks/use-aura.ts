@@ -37,8 +37,9 @@ export function useCompany() {
     queryKey: ["company"],
     staleTime: 60_000,
     queryFn: async (): Promise<Company> => {
-      const { data: auth } = await supabase.auth.getUser();
-      const user = auth.user;
+      // getSession is local/fast; avoid getUser() network race on cold start.
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData.session?.user;
       if (!user) throw new Error("Not signed in");
       const { data, error } = await supabase
         .from("companies")
@@ -123,5 +124,36 @@ export function useRowMutation(table: TableName) {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["table", table] }),
+  });
+}
+
+/** Patch the founder's primary company (Lokal Betrieb name/city/niche, etc.). */
+export function useUpdateCompany() {
+  const qc = useQueryClient();
+  const { data: company } = useCompany();
+  return useMutation({
+    mutationFn: async (
+      values: Partial<
+        Pick<
+          Company,
+          | "name"
+          | "tagline"
+          | "emoji"
+          | "city"
+          | "niche"
+          | "homepage_url"
+          | "google_review_url"
+          | "strategy"
+        >
+      >,
+    ) => {
+      if (!company?.id) throw new Error("No company yet");
+      const { error } = await supabase.from("companies").update(values).eq("id", company.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["company"] });
+      void qc.invalidateQueries({ queryKey: ["lokal-hub"] });
+    },
   });
 }

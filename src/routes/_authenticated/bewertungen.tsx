@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Chip, Panel } from "@/components/aura/primitives";
 import { useLocale } from "@/hooks/use-locale";
+import { celebrateLokalWin } from "@/hooks/use-lokal-engagement";
 import {
   addReviewInvite,
   ensureLocalCohort,
@@ -71,7 +72,7 @@ function BewertungenPage() {
       return addReviewInvite({ data: { name: inviteName, email: inviteEmail } });
     },
     onSuccess: async () => {
-      toast.success(t("bewertungen.step2Add"));
+      celebrateLokalWin("Einladung bereit — jetzt an den Kunden schicken.");
       setInviteEmail("");
       setInviteName("");
       await qc.invalidateQueries({ queryKey: ["review-invites"] });
@@ -209,7 +210,7 @@ function BewertungenPage() {
                           onClick={() =>
                             void markReviewInviteCompleted({ data: { inviteId: inv.id } }).then(
                               () => {
-                                toast.success(t("bewertungen.markDone"));
+                                celebrateLokalWin("Sterne-Einladung als erledigt markiert.");
                                 void qc.invalidateQueries({ queryKey: ["review-invites"] });
                               },
                             )

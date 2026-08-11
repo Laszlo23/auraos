@@ -23,10 +23,7 @@ export function useAgentLookup() {
 }
 
 /** Hire a named agent into the company if missing (client-side). */
-export async function hireAgentIfNeeded(
-  companyId: string,
-  name: string,
-): Promise<string> {
+export async function hireAgentIfNeeded(companyId: string, name: string): Promise<string> {
   const def = AGENT_ROSTER[name];
   if (!def) throw new Error(`Unknown agent: ${name}`);
 
@@ -104,9 +101,7 @@ function initialStatus(
 
 async function kickWorker(taskId?: string) {
   try {
-    const res = await triggerWorkerTick(
-      taskId ? { data: { taskId } } : { data: {} },
-    );
+    const res = await triggerWorkerTick(taskId ? { data: { taskId } } : { data: {} });
     return res;
   } catch (e) {
     console.error("Worker tick failed", e);
@@ -209,7 +204,7 @@ export function useDispatchTask() {
       if (res.status === "pending_approval") {
         toast.success(
           res.agentName
-            ? `Assigned to ${res.agentName} — approve on Command Center to run`
+            ? `Assigned to ${res.agentName} — approve on Tasks to run`
             : "Task awaiting your approval",
         );
       } else if (res.workerRan) {
@@ -496,6 +491,69 @@ export function useDeleteRow(table: "knowledge_items" | "products" | "files") {
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["table", table] }),
     onError: () => toast.error("Couldn't remove that."),
+  });
+}
+
+/**
+ * Board drag-status moves. "Running" always becomes queued + worker kick —
+ * setting status=running without the worker leaves tasks stuck.
+ */
+export function useMoveTaskStatus() {
+  const qc = useQueryClient();
+  const { data: company } = useCompany();
+
+  return useMutation({
+    mutationFn: async (opts: { taskId: string; to: string; progress?: number }) => {
+      if (!company) throw new Error("No company yet");
+
+      const { data: task } = await supabase
+        .from("tasks")
+        .select("id, result, status, progress")
+        .eq("id", opts.taskId)
+        .eq("company_id", company.id)
+        .maybeSingle();
+      if (!task) throw new Error("Task not found");
+
+      const sourceKey = typeof task.result === "string" ? task.result : "";
+      if (sourceKey.startsWith("social-reply:")) {
+        throw new Error("Social replies need Approve — not a status move.");
+      }
+
+      const to =
+        opts.to === "running" || opts.to === "queued" || opts.to === "queue" ? "queued" : opts.to;
+
+      const { error } = await supabase
+        .from("tasks")
+        .update({
+          status: to,
+          progress:
+            to === "queued" || to === "pending_approval"
+              ? 0
+              : (opts.progress ?? task.progress ?? 0),
+        })
+        .eq("id", opts.taskId)
+        .eq("company_id", company.id);
+      if (error) throw error;
+
+      if (to === "queued") {
+        const tick = await kickWorker(opts.taskId);
+        return { to, workerRan: Boolean(tick?.ok) };
+      }
+      return { to, workerRan: false };
+    },
+    onSuccess: (res) => {
+      void qc.invalidateQueries({ queryKey: ["table", "tasks"] });
+      void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
+      void qc.invalidateQueries({ queryKey: ["table", "agents"] });
+      if (res.to === "queued") {
+        toast.success(
+          res.workerRan
+            ? "Queued — agent is running now."
+            : "Queued — worker will pick it up shortly.",
+        );
+      }
+    },
+    onError: (e: Error) => toast.error(e.message || "Couldn't move that task."),
   });
 }
 
