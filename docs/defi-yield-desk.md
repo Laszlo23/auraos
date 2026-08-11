@@ -59,6 +59,7 @@ Treat as **extreme**: binary loss, oracle risk. Size ≤10% of yield budget.
 ## Day trading + arb
 
 - **Intraday ETH scalp** — 5m/15m presets on Quant desk (live-ready path).
+- **Multi-position Quant** — up to **3** concurrent open trades so inventory can ladder entries (still capped by daily notional + risk %).
 - **Stable/basis arb scout** — OKX DEX + CEX proxy; only when edge > gas + slippage.
 
 ## Risk tiers (product)
@@ -92,6 +93,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 - **Live rail #3:** Compound Cascade can **claim gauge AERO → OKX → USDC → Aave** when `autoCompoundLive` is on.
 - **Live rail #4:** `bsc_venus_usdc` mints/redeems Venus Core vUSDC on BNB (`src/lib/defi/venus-bsc.server.ts`).
 - **Live rail #5:** `bsc_pancake_stable_lp` — OKX half-swap USDC→USDT → Pancake V2 LP → MasterChef v2 stake (`src/lib/defi/pancake-bsc.server.ts`).
+- **Live rail #6:** `base_limitless_pred` — GuessMarket create/seed USDC LP on Base (`src/lib/defi/guessmarket-base.server.ts`); Limitless CLOB scout via public API.
 - Other books stay `liveReady: false` until protocol calldata is wired.
 - Day-trade live = Quant desk, not fake yield marks.
 - Never invent fills or overnight P&L for marketing.
@@ -105,6 +107,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 | Aerodrome WETH/USDC | `src/lib/defi/aerodrome-base.server.ts` |
 | Venus USDC (BSC) | `src/lib/defi/venus-bsc.server.ts` |
 | Pancake USDT/USDC LP | `src/lib/defi/pancake-bsc.server.ts` |
+| GuessMarket pred LP | `src/lib/defi/guessmarket-base.server.ts` |
 | Autopilot engines | `src/lib/defi/automations.ts` |
 | Accrual / open-close | `src/lib/defi/yield.server.ts` |
 | Server fns | `src/lib/defi/yield.functions.ts` |
@@ -115,7 +118,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 
 ## Next live rails (ordered)
 
-1. Prediction adapter (Limitless or GuessMarket tx builders).
-2. Multi-position Quant for true intraday inventory.
-3. Aerodrome Slipstream CL + veAERO voter automation.
-4. CAKE harvest → swap → optional veCAKE / Venus park.
+1. Limitless CLOB fills (API key + EIP-712 order path).
+2. Aerodrome Slipstream CL + veAERO voter automation.
+3. CAKE harvest → swap → optional veCAKE / Venus park.
+4. BNB prediction (Predict Fun / OPINION).

@@ -4,6 +4,7 @@
  */
 
 import { yieldCatalogById, type YieldRiskTier, YIELD_RISK_ORDER } from "@/lib/defi/catalog";
+import { listLimitlessActiveMarkets } from "@/lib/defi/guessmarket-base.server";
 import { openYieldPosition, closeYieldPosition, paperAccrualUsdc } from "@/lib/defi/yield.server";
 
 type Db = { from: (t: string) => any };
@@ -296,6 +297,25 @@ export async function runYieldAutomations(
         catalogId: edge.predictiveEdgePct > 4 ? "base_aero_volatile_lp" : "base_aero_usdc_weth_lp",
         meta: edge,
       });
+    }
+
+    try {
+      const lim = await listLimitlessActiveMarkets(4);
+      for (const m of lim.slice(0, 3)) {
+        const yes = m.prices[0];
+        const skew = Math.abs(yes - 0.5);
+        insights.push({
+          id: `limitless-${m.slug}`,
+          engine: "Predictive Edge Scout",
+          title: `Limitless: ${m.title}`,
+          detail: `YES ${Math.round(yes * 100)}% / NO ${Math.round(m.prices[1] * 100)}% · vol ${m.volumeFormatted ?? "—"} · CLOB scout only (fills need API key).`,
+          severity: skew > 0.2 ? "action" : "info",
+          catalogId: "base_limitless_pred",
+          meta: m,
+        });
+      }
+    } catch {
+      /* public scout best-effort */
     }
 
     if (epoch.voteWindowOpen && epoch.hoursToVoteDeadline < 36) {

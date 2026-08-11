@@ -69,7 +69,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
   const paperMut = useMutation({
     mutationFn: (paper: boolean) => setYieldPaperMode({ data: { companyId, paper } }),
     onSuccess: (_data, paper) => {
-      toast.success(paper ? "Paper mode on" : "Live mode — Aave + Aero + Venus + Pancake ready");
+      toast.success(paper ? "Paper mode on" : "Live mode — Aave+Aero+Venus+Pancake+GuessMarket");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -160,14 +160,14 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
               Dual-desk OS: Quant turns inventory. Yield parks the rest.
             </p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              Live rails: Aave USDC (Base), Aerodrome WETH/USDC + compound, Venus USDC,
-              Pancake USDT/USDC LP (BNB)
+              Live rails: Aave, Aerodrome+compound, Venus, Pancake, GuessMarket pred LP
+              (Base)
               (BNB). Other books stay paper until wired — founder-capped either way.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Chip tone={state?.yieldPaper ? "gold" : "danger"}>
-              {state?.yieldPaper ? "Paper" : "Live (Aave+Aero+Venus+Pancake)"}
+              {state?.yieldPaper ? "Paper" : "Live (5 rails)"}
             </Chip>
             <Chip tone={state?.yieldArmed ? "primary" : "neutral"}>
               {state?.yieldArmed ? "Armed" : "Disarmed"}

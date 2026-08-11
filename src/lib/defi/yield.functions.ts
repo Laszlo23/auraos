@@ -30,6 +30,10 @@ import {
   supplyUsdcToPancakeUsdtUsdcLp,
   withdrawUsdcFromPancakeUsdtUsdcLp,
 } from "@/lib/defi/pancake-bsc.server";
+import {
+  supplyUsdcToGuessMarketLp,
+  withdrawUsdcFromGuessMarketLp,
+} from "@/lib/defi/guessmarket-base.server";
 import { decryptOwnerKey } from "@/lib/wallet.server";
 import type { Address, Hex } from "viem";
 
@@ -408,7 +412,7 @@ export const allocateYield = createServerFn({ method: "POST" })
     const paper = company.yield_paper;
     if (!paper && !item.liveReady) {
       throw new Error(
-        "Live rails for this book are not armed yet — use Paper, Aave USDC, Aerodrome WETH/USDC, Venus USDC, Pancake USDT/USDC, or Day scalp via Quant",
+        "Live rails for this book are not armed yet — use Paper, Aave, Aerodrome, Venus, Pancake, GuessMarket pred LP, or Day scalp via Quant",
       );
     }
     if (item.kind === "day_trade" && !paper) {
@@ -437,6 +441,8 @@ export const allocateYield = createServerFn({ method: "POST" })
           gauge?: string;
           farm?: string;
           pid?: number;
+          market?: string;
+          lpTokens?: string;
           hashes?: string[];
         }
       | undefined;
@@ -500,6 +506,23 @@ export const allocateYield = createServerFn({ method: "POST" })
         pool: fill.pool,
         farm: fill.farm,
         pid: fill.pid,
+        hashes: fill.hashes,
+      };
+    } else if (!paper && item.id === "base_limitless_pred") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const fill = await supplyUsdcToGuessMarketLp({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        amountUsdc: data.amountUsdc,
+      });
+      liveTx = {
+        userOpHash: fill.userOpHash,
+        wallet: fill.wallet,
+        protocol: "guessmarket",
+        chain: "base",
+        market: fill.market,
+        lpTokens: fill.lpTokens,
+        liquidity: fill.lpTokens,
         hashes: fill.hashes,
       };
     } else if (!paper && item.liveReady && item.kind !== "day_trade") {
@@ -617,6 +640,34 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
         liquidity: BigInt(liquidityRaw),
+      });
+      liveWithdraw = {
+        userOpHash: fill.userOpHash,
+        withdrawnUsdc:
+          fill.withdrawnUsdc > 0 ? fill.withdrawnUsdc : Number(row.principal_usdc) || 0,
+      };
+    } else if (!pos.paper && pos.catalog_id === "base_limitless_pred" && pos.status === "open") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const row = pos as {
+        metadata?: Record<string, unknown> | null;
+        principal_usdc?: number;
+      };
+      const meta = row.metadata && typeof row.metadata === "object" ? row.metadata : {};
+      const marketRaw = typeof meta["market"] === "string" ? meta["market"] : "";
+      const lpRaw =
+        typeof meta["lpTokens"] === "string"
+          ? meta["lpTokens"]
+          : typeof meta["liquidity"] === "string"
+            ? meta["liquidity"]
+            : "";
+      if (!/^0x[a-fA-F0-9]{40}$/.test(marketRaw) || !/^\d+$/.test(lpRaw)) {
+        throw new Error("GuessMarket position missing market/LP — cannot exit safely");
+      }
+      const fill = await withdrawUsdcFromGuessMarketLp({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        market: marketRaw as Address,
+        lpTokens: BigInt(lpRaw),
       });
       liveWithdraw = {
         userOpHash: fill.userOpHash,

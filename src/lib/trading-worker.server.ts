@@ -804,17 +804,22 @@ export async function executeApprovedSignals(limit = 5, companyId?: string) {
         continue;
       }
 
-      // One open position per company for v1 risk clarity
+      // Multi-position Quant: allow concurrent opens for intraday inventory (capped).
+      const MAX_OPEN_TRADES = 3;
       const { data: openPos } = await db
         .from("trades")
-        .select("id")
+        .select("id, size")
         .eq("company_id", company.id)
         .eq("status", "open")
-        .limit(1);
-      if (openPos?.length) {
+        .limit(MAX_OPEN_TRADES + 1);
+      const openCount = (openPos ?? []).length;
+      if (openCount >= MAX_OPEN_TRADES) {
         await db
           .from("trading_signals")
-          .update({ status: "expired", rationale: "Open position already — waiting for exit" })
+          .update({
+            status: "expired",
+            rationale: `Max ${MAX_OPEN_TRADES} open Quant positions — waiting for exit`,
+          })
           .eq("id", signal.id);
         continue;
       }

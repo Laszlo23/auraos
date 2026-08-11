@@ -213,20 +213,50 @@ export function QuantDeskCockpit({
         <QuantViewCard view={quant} onPrimaryAction={onPrimary} />
       </div>
 
-      <PositionCard
-        trade={open}
-        mark={mark}
-        stop={levels?.stop ?? null}
-        target={levels?.target ?? null}
-        riskDollars={riskDollars}
-        onManage={() => setManageOpen(true)}
-        onCloseHint={() => {
-          toast.message("Stop / target manage exits", {
-            description: "Disarm to halt new entries. Forced close is not available yet.",
-          });
-          setManageOpen(true);
-        }}
-      />
+      {openTrades.length === 0 ? (
+        <PositionCard
+          trade={null}
+          mark={null}
+          stop={null}
+          target={null}
+          riskDollars={null}
+          onManage={() => setManageOpen(true)}
+        />
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-1">
+          {openTrades.length > 1 ? (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Open inventory · {openTrades.length}/3
+            </p>
+          ) : null}
+          {openTrades.slice(0, 3).map((t) => {
+            const long = t.side.toLowerCase() !== "short";
+            const tStop = long
+              ? t.entry * (1 - stopPct / 100)
+              : t.entry * (1 + stopPct / 100);
+            const tTarget = long
+              ? t.entry * (1 + takePct / 100)
+              : t.entry * (1 - takePct / 100);
+            return (
+              <PositionCard
+                key={t.id}
+                trade={t}
+                mark={t.mark_price ?? mark}
+                stop={tStop}
+                target={tTarget}
+                riskDollars={(t.size * stopPct) / 100}
+                onManage={() => setManageOpen(true)}
+                onCloseHint={() => {
+                  toast.message("Stop / target manage exits", {
+                    description: "Disarm to halt new entries. Forced close is not available yet.",
+                  });
+                  setManageOpen(true);
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <RiskMeter

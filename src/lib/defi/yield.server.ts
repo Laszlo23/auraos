@@ -103,6 +103,8 @@ export type OpenYieldArgs = {
     gauge?: string;
     farm?: string;
     pid?: number;
+    market?: string;
+    lpTokens?: string;
     hashes?: string[];
   };
 };
@@ -208,6 +210,8 @@ export async function openYieldPosition(db: Db, args: OpenYieldArgs) {
               ...(args.liveTx.gauge ? { gauge: args.liveTx.gauge } : {}),
               ...(args.liveTx.farm ? { farm: args.liveTx.farm } : {}),
               ...(args.liveTx.pid != null ? { pid: args.liveTx.pid } : {}),
+              ...(args.liveTx.market ? { market: args.liveTx.market } : {}),
+              ...(args.liveTx.lpTokens ? { lpTokens: args.liveTx.lpTokens } : {}),
               ...(args.liveTx.hashes ? { hashes: args.liveTx.hashes } : {}),
             }
           : {}),
