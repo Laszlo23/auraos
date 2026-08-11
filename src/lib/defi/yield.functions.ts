@@ -21,9 +21,11 @@ import {
 } from "@/lib/defi/yield.server";
 import { supplyUsdcToAaveBase, withdrawUsdcFromAaveBase } from "@/lib/defi/aave-base.server";
 import {
+  claimAndCompoundAeroRewards,
   supplyUsdcToAerodromeWethLp,
   withdrawUsdcFromAerodromeWethLp,
 } from "@/lib/defi/aerodrome-base.server";
+import { supplyUsdcToVenusBsc, withdrawUsdcFromVenusBsc } from "@/lib/defi/venus-bsc.server";
 import { decryptOwnerKey } from "@/lib/wallet.server";
 import type { Address, Hex } from "viem";
 
@@ -337,9 +339,17 @@ export const runYieldAutopilotNow = createServerFn({ method: "POST" })
       dryRun: data.dryRun,
       ...(!company.yield_paper && !data.dryRun
         ? {
-            livePark: async (amountUsdc: number) => {
+            livePark: async (amountUsdc: number, catalogId: string) => {
               try {
                 const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+                if (catalogId === "bsc_venus_usdc") {
+                  const fill = await supplyUsdcToVenusBsc({
+                    privateKey: wallet.privateKey,
+                    walletAddress: wallet.address,
+                    amountUsdc,
+                  });
+                  return { userOpHash: fill.userOpHash, wallet: fill.wallet };
+                }
                 const fill = await supplyUsdcToAaveBase({
                   privateKey: wallet.privateKey,
                   walletAddress: wallet.address,
@@ -348,6 +358,26 @@ export const runYieldAutopilotNow = createServerFn({ method: "POST" })
                 return { userOpHash: fill.userOpHash, wallet: fill.wallet };
               } catch (e) {
                 console.warn("[yield] livePark failed", e instanceof Error ? e.message : e);
+                return null;
+              }
+            },
+            liveCompound: async () => {
+              try {
+                const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+                const fill = await claimAndCompoundAeroRewards({
+                  privateKey: wallet.privateKey,
+                  walletAddress: wallet.address,
+                  parkToAave: true,
+                });
+                return {
+                  userOpHash: fill.userOpHash,
+                  usdcOut: fill.usdcOut,
+                  parkedToAave: fill.parkedToAave,
+                  hashes: fill.hashes,
+                  ...(fill.skipped ? { skipped: fill.skipped } : {}),
+                };
+              } catch (e) {
+                console.warn("[yield] liveCompound failed", e instanceof Error ? e.message : e);
                 return null;
               }
             },
@@ -374,7 +404,7 @@ export const allocateYield = createServerFn({ method: "POST" })
     const paper = company.yield_paper;
     if (!paper && !item.liveReady) {
       throw new Error(
-        "Live rails for this book are not armed yet — use Paper, Aave USDC, Aerodrome WETH/USDC, or Day scalp via Quant",
+        "Live rails for this book are not armed yet — use Paper, Aave USDC, Aerodrome WETH/USDC, Venus USDC, or Day scalp via Quant",
       );
     }
     if (item.kind === "day_trade" && !paper) {
@@ -417,6 +447,19 @@ export const allocateYield = createServerFn({ method: "POST" })
         wallet: fill.wallet,
         protocol: "aave-v3",
         chain: "base",
+      };
+    } else if (!paper && item.id === "bsc_venus_usdc") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const fill = await supplyUsdcToVenusBsc({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        amountUsdc: data.amountUsdc,
+      });
+      liveTx = {
+        userOpHash: fill.userOpHash,
+        wallet: fill.wallet,
+        protocol: "venus",
+        chain: "bsc",
       };
     } else if (!paper && item.id === "base_aero_usdc_weth_lp") {
       const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
@@ -484,6 +527,28 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
         (siblings ?? []).find((s: { id: string }) => s.id === data.positionId)?.principal_usdc ?? 0,
       );
       const fill = await withdrawUsdcFromAaveBase({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        ...(multi && thisPrincipal > 0 ? { amountUsdc: thisPrincipal } : {}),
+      });
+      liveWithdraw = {
+        userOpHash: fill.userOpHash,
+        withdrawnUsdc: fill.withdrawnUsdc,
+      };
+    } else if (!pos.paper && pos.catalog_id === "bsc_venus_usdc" && pos.status === "open") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const { data: siblings } = await context.supabase
+        .from("defi_positions")
+        .select("id, principal_usdc")
+        .eq("company_id", data.companyId)
+        .eq("catalog_id", "bsc_venus_usdc")
+        .eq("paper", false)
+        .eq("status", "open");
+      const multi = (siblings ?? []).length > 1;
+      const thisPrincipal = Number(
+        (siblings ?? []).find((s: { id: string }) => s.id === data.positionId)?.principal_usdc ?? 0,
+      );
+      const fill = await withdrawUsdcFromVenusBsc({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
         ...(multi && thisPrincipal > 0 ? { amountUsdc: thisPrincipal } : {}),
@@ -560,9 +625,17 @@ export async function runYieldTick() {
         dryRun: false,
         ...(!c.yield_paper && ownerId
           ? {
-              livePark: async (amountUsdc: number) => {
+              livePark: async (amountUsdc: number, catalogId: string) => {
                 try {
                   const wallet = await loadLiveYieldWallet(db, ownerId);
+                  if (catalogId === "bsc_venus_usdc") {
+                    const fill = await supplyUsdcToVenusBsc({
+                      privateKey: wallet.privateKey,
+                      walletAddress: wallet.address,
+                      amountUsdc,
+                    });
+                    return { userOpHash: fill.userOpHash, wallet: fill.wallet };
+                  }
                   const fill = await supplyUsdcToAaveBase({
                     privateKey: wallet.privateKey,
                     walletAddress: wallet.address,
@@ -571,6 +644,26 @@ export async function runYieldTick() {
                   return { userOpHash: fill.userOpHash, wallet: fill.wallet };
                 } catch (e) {
                   console.warn("[yield-tick] livePark failed", e instanceof Error ? e.message : e);
+                  return null;
+                }
+              },
+              liveCompound: async () => {
+                try {
+                  const wallet = await loadLiveYieldWallet(db, ownerId);
+                  const fill = await claimAndCompoundAeroRewards({
+                    privateKey: wallet.privateKey,
+                    walletAddress: wallet.address,
+                    parkToAave: true,
+                  });
+                  return {
+                    userOpHash: fill.userOpHash,
+                    usdcOut: fill.usdcOut,
+                    parkedToAave: fill.parkedToAave,
+                    hashes: fill.hashes,
+                    ...(fill.skipped ? { skipped: fill.skipped } : {}),
+                  };
+                } catch (e) {
+                  console.warn("[yield-tick] liveCompound failed", e instanceof Error ? e.message : e);
                   return null;
                 }
               },

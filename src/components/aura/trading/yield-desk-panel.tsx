@@ -69,7 +69,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
   const paperMut = useMutation({
     mutationFn: (paper: boolean) => setYieldPaperMode({ data: { companyId, paper } }),
     onSuccess: (_data, paper) => {
-      toast.success(paper ? "Paper mode on" : "Live mode — Aave + Aerodrome ready");
+      toast.success(paper ? "Paper mode on" : "Live mode — Aave + Aerodrome + Venus ready");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -160,13 +160,13 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
               Dual-desk OS: Quant turns inventory. Yield parks the rest.
             </p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              Live rails: Aave USDC lending and Aerodrome WETH/USDC LP (+ gauge). Other books stay
-              paper until wired — founder-capped either way.
+              Live rails: Aave USDC (Base), Aerodrome WETH/USDC LP + AERO compound, Venus USDC
+              (BNB). Other books stay paper until wired — founder-capped either way.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Chip tone={state?.yieldPaper ? "gold" : "danger"}>
-              {state?.yieldPaper ? "Paper" : "Live (Aave+Aero)"}
+              {state?.yieldPaper ? "Paper" : "Live (Aave+Aero+Venus)"}
             </Chip>
             <Chip tone={state?.yieldArmed ? "primary" : "neutral"}>
               {state?.yieldArmed ? "Armed" : "Disarmed"}
@@ -239,8 +239,9 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
               ["ilThermostat", "IL Thermostat", Thermometer],
               ["epochHunter", "Epoch Hunter", Timer],
               ["compoundCascade", "Compound Cascade", Sparkles],
+              ["autoCompoundLive", "Auto-compound live AERO", Sparkles],
               ["riskAutopilot", "Risk Autopilot", Gauge],
-              ["autoParkIdle", "Auto-park idle (paper)", Zap],
+              ["autoParkIdle", "Auto-park idle (live/paper)", Zap],
             ] as const
           ).map(([key, label, Icon]) => (
             <button

@@ -155,12 +155,13 @@ export const YIELD_CATALOG: YieldCatalogItem[] = [
     targetApyPct: 3.8,
     apyBand: [1.5, 8],
     assets: ["USDC", "USDT"],
-    howItWorks: "Supply stables on Venus. Variable APY tracks utilization; large TVL, low gas.",
+    howItWorks:
+      "Supply Binance-Peg USDC into Venus Core Pool (vUSDC) on BNB Chain. Earn variable supply APY; redeem underlying when you need cash for farms or Quant.",
     risks: ["Smart-contract risk", "Stable depeg contagion", "Withdraw when utilization spikes"],
-    standOut: "Park BSC treasury that funds Pancake farms without sitting at 0%.",
-    minUsdc: 25,
+    standOut: "Park BSC treasury that funds Pancake farms without sitting at 0%. Live rail via Venus vUSDC.",
+    minUsdc: 5,
     maxBudgetPct: 50,
-    liveReady: false,
+    liveReady: true,
   },
   {
     id: "bsc_pancake_stable_lp",

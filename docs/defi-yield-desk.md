@@ -78,7 +78,7 @@ Treat as **extreme**: binary loss, oracle risk. Size ≤10% of yield budget.
 | **Predictive Edge Scout** | Vote share vs predicted fee demand (paper model → live Sugar later) |
 | **Idle Capital Router** | When Quant is flat, park residual in lending (optional auto-park) |
 | **IL Thermostat** | Stress IL on LP books; auto-close paper when past budget |
-| **Compound Cascade** | Harvest → swap → restake → optional ve-lock flywheel notes |
+| **Compound Cascade** | Harvest → swap → restake; **live:** claim AERO → USDC → Aave when opted in |
 | **Risk Autopilot** | Downgrade risk ceiling on stressed drawdown |
 | **Dual-Desk Choreography** | Reserve % of budget for Quant velocity vs Yield parking |
 
@@ -89,6 +89,8 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 - Paper accrues at **mid catalog APY** with simple interest — labeled paper, not withdrawable cash.
 - **Live rail #1:** `base_aave_usdc` supplies/withdraws USDC on Aave V3 Base via smart-wallet UserOps (`src/lib/defi/aave-base.server.ts`).
 - **Live rail #2:** `base_aero_usdc_weth_lp` — OKX half-swap → Aerodrome `addLiquidity` → gauge stake (`src/lib/defi/aerodrome-base.server.ts`).
+- **Live rail #3:** Compound Cascade can **claim gauge AERO → OKX → USDC → Aave** when `autoCompoundLive` is on.
+- **Live rail #4:** `bsc_venus_usdc` mints/redeems Venus Core vUSDC on BNB (`src/lib/defi/venus-bsc.server.ts`).
 - Other books stay `liveReady: false` until protocol calldata is wired.
 - Day-trade live = Quant desk, not fake yield marks.
 - Never invent fills or overnight P&L for marketing.
@@ -100,6 +102,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 | Catalog | `src/lib/defi/catalog.ts` |
 | Aave V3 Base | `src/lib/defi/aave-base.server.ts` |
 | Aerodrome WETH/USDC | `src/lib/defi/aerodrome-base.server.ts` |
+| Venus USDC (BSC) | `src/lib/defi/venus-bsc.server.ts` |
 | Autopilot engines | `src/lib/defi/automations.ts` |
 | Accrual / open-close | `src/lib/defi/yield.server.ts` |
 | Server fns | `src/lib/defi/yield.functions.ts` |
@@ -110,7 +113,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 
 ## Next live rails (ordered)
 
-1. Venus / Pancake on BNB.
+1. Pancake stable LP + farm on BNB.
 2. Prediction adapter (Limitless or GuessMarket tx builders).
 3. Multi-position Quant for true intraday inventory.
 4. Aerodrome Slipstream CL + veAERO voter automation.

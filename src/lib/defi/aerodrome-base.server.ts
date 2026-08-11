@@ -6,6 +6,7 @@
 import { encodeFunctionData, type Address, type Hex } from "viem";
 
 import { alchemyRpcUrl, USDC_ADDRESSES, USDC_DECIMALS } from "@/lib/chain-config";
+import { supplyUsdcToAaveBase } from "@/lib/defi/aave-base.server";
 import { okxConfigured, okxDexSwap, parseOkxSwapCalldata } from "@/lib/okx.server";
 import { executeBatchUserOps, executeContractUserOp } from "@/lib/wallet.server";
 
@@ -14,6 +15,7 @@ export const AERO_FACTORY = "0x420DD381b31aEf6683db6B902084cB0FFECe40Da" as Addr
 export const AERO_VOTER = "0x16613524e02ad97eDfeF371bC883F2F5d6C480A5" as Address;
 export const AERO_WETH_USDC_POOL = "0xcDAC0d6c6C59727a65F871236188350531885C43" as Address;
 export const AERO_WETH_USDC_GAUGE = "0x519BBD1Dd8C6A94C46080E24f316c14Ee758C025" as Address;
+export const AERO_TOKEN = "0x940181a94A35A4569E4529A3CDfB74e38FD98631" as Address;
 export const WETH_BASE = "0x4200000000000000000000000000000000000006" as Address;
 
 const BASE = "base" as const;
@@ -103,6 +105,20 @@ const GAUGE_ABI = [
     stateMutability: "view",
     inputs: [{ name: "account", type: "address" }],
     outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "earned",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "getReward",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [],
   },
 ] as const;
 
@@ -410,6 +426,152 @@ export async function withdrawUsdcFromAerodromeWethLp(args: {
     userOpHash: hashes[hashes.length - 1]!,
     wallet: args.walletAddress,
     withdrawnUsdc: Math.max(0, gained),
+    hashes,
+  };
+}
+
+/** Pending AERO emissions for a staker (0 if none / call fails). */
+export async function fetchAeroGaugeEarned(wallet: Address): Promise<bigint> {
+  try {
+    const data = encodeFunctionData({
+      abi: GAUGE_ABI,
+      functionName: "earned",
+      args: [wallet],
+    });
+    const raw = await ethCall(AERO_WETH_USDC_GAUGE, data);
+    if (!raw || raw === "0x") return 0n;
+    return BigInt(raw);
+  } catch {
+    return 0n;
+  }
+}
+
+export type AeroCompoundResult = {
+  userOpHash: string;
+  wallet: Address;
+  aeroClaimed: string;
+  usdcOut: number;
+  parkedToAave: boolean;
+  hashes: string[];
+  skipped?: string;
+};
+
+/**
+ * Claim gauge AERO → OKX swap to USDC → optional Aave park.
+ * No-ops (skipped) when earned dust is too small.
+ */
+export async function claimAndCompoundAeroRewards(args: {
+  privateKey: Hex;
+  walletAddress: Address;
+  /** When true, supply resulting USDC into Aave V3 Base. */
+  parkToAave?: boolean;
+  /** Min AERO (wei) before claiming — default ~0.01 AERO. */
+  minAeroWei?: bigint;
+}): Promise<AeroCompoundResult> {
+  if (!okxConfigured()) throw new Error("OKX DEX rails required to compound AERO → USDC");
+
+  const hashes: string[] = [];
+  const usdc = USDC_ADDRESSES[BASE] as Address;
+  const minAero = args.minAeroWei ?? 10n ** 16n; // 0.01 AERO
+  const earned = await fetchAeroGaugeEarned(args.walletAddress);
+  const walletAero = await fetchErc20Balance(AERO_TOKEN, args.walletAddress);
+  const claimable = earned > 0n ? earned : 0n;
+
+  if (claimable < minAero && walletAero < minAero) {
+    return {
+      userOpHash: "",
+      wallet: args.walletAddress,
+      aeroClaimed: "0",
+      usdcOut: 0,
+      parkedToAave: false,
+      hashes: [],
+      skipped: "AERO rewards below compound threshold",
+    };
+  }
+
+  if (claimable >= minAero) {
+    const claimOp = await executeContractUserOp(
+      args.privateKey,
+      {
+        target: AERO_WETH_USDC_GAUGE,
+        data: encodeFunctionData({
+          abi: GAUGE_ABI,
+          functionName: "getReward",
+          args: [args.walletAddress],
+        }),
+      },
+      BASE,
+    );
+    hashes.push(claimOp.userOpHash);
+    await new Promise((r) => setTimeout(r, 2500));
+  }
+
+  let aeroBal = await fetchErc20Balance(AERO_TOKEN, args.walletAddress);
+  if (aeroBal < minAero) {
+    await new Promise((r) => setTimeout(r, 4000));
+    aeroBal = await fetchErc20Balance(AERO_TOKEN, args.walletAddress);
+  }
+  if (aeroBal < minAero) {
+    return {
+      userOpHash: hashes[hashes.length - 1] ?? "",
+      wallet: args.walletAddress,
+      aeroClaimed: claimable.toString(),
+      usdcOut: 0,
+      parkedToAave: false,
+      hashes,
+      skipped: "AERO not yet in wallet after claim",
+    };
+  }
+
+  const usdcBefore = await fetchErc20Balance(usdc, args.walletAddress);
+  const swapRaw = await okxDexSwap({
+    chainId: CHAIN_ID,
+    fromTokenAddress: AERO_TOKEN,
+    toTokenAddress: usdc,
+    amount: aeroBal.toString(),
+    userWalletAddress: args.walletAddress,
+    slippage: "1.5",
+  });
+  const parsed = parseOkxSwapCalldata(swapRaw);
+  const swapOp = await executeBatchUserOps(
+    args.privateKey,
+    [
+      {
+        target: AERO_TOKEN,
+        data: encodeApprove((parsed.approveTo || parsed.to) as Address, aeroBal * 2n),
+      },
+      { target: parsed.to, data: parsed.data, value: parsed.value },
+    ],
+    BASE,
+  );
+  hashes.push(swapOp.userOpHash);
+  await new Promise((r) => setTimeout(r, 2500));
+
+  let usdcAfter = await fetchErc20Balance(usdc, args.walletAddress);
+  if (usdcAfter <= usdcBefore) {
+    await new Promise((r) => setTimeout(r, 4000));
+    usdcAfter = await fetchErc20Balance(usdc, args.walletAddress);
+  }
+  const gainedUnits = usdcAfter > usdcBefore ? usdcAfter - usdcBefore : 0n;
+  const usdcOut = unitsToUsdc(gainedUnits);
+
+  let parkedToAave = false;
+  if (args.parkToAave && usdcOut >= 1) {
+    const park = await supplyUsdcToAaveBase({
+      privateKey: args.privateKey,
+      walletAddress: args.walletAddress,
+      amountUsdc: Math.floor(usdcOut * 100) / 100,
+    });
+    hashes.push(park.userOpHash);
+    parkedToAave = true;
+  }
+
+  return {
+    userOpHash: hashes[hashes.length - 1]!,
+    wallet: args.walletAddress,
+    aeroClaimed: aeroBal.toString(),
+    usdcOut,
+    parkedToAave,
     hashes,
   };
 }

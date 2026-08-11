@@ -19,6 +19,8 @@ export type YieldAutopilotConfig = {
   epochHunter: boolean;
   /** Compound Cascade: log harvest→restake paper events. */
   compoundCascade: boolean;
+  /** Live: claim gauge AERO → USDC → optional Aave (founder opt-in). */
+  autoCompoundLive: boolean;
   /** Downgrade risk tier if unrealized paper PnL is deeply negative. */
   riskAutopilot: boolean;
   /** Target share of yield budget reserved for Quant velocity (0–50). */
@@ -35,6 +37,7 @@ export const DEFAULT_AUTOPILOT: YieldAutopilotConfig = {
   ilBudgetPct: 8,
   epochHunter: true,
   compoundCascade: true,
+  autoCompoundLive: false,
   riskAutopilot: true,
   quantReservePct: 25,
   autoParkIdle: false,
@@ -52,7 +55,7 @@ export type AutomationInsight = {
 };
 
 export type AutomationAction = {
-  kind: "park_idle" | "close_il" | "compound_note" | "tier_down";
+  kind: "park_idle" | "close_il" | "compound_note" | "compound_live" | "tier_down";
   message: string;
   catalogId?: string;
   positionId?: string;
@@ -236,10 +239,18 @@ export async function runYieldAutomations(
     openPositions: OpenPos[];
     quantHasOpenTrade: boolean;
     dryRun: boolean;
-    /** When set, auto-park can execute live Aave supply (owner wallet). */
+    /** When set, auto-park can execute live Aave/Venus supply (owner wallet). */
     livePark?: (amountUsdc: number, catalogId: string) => Promise<{
       userOpHash: string;
       wallet: string;
+    } | null>;
+    /** When set, live compound can claim AERO → USDC → optional Aave. */
+    liveCompound?: () => Promise<{
+      userOpHash: string;
+      usdcOut: number;
+      parkedToAave: boolean;
+      skipped?: string;
+      hashes: string[];
     } | null>;
   },
 ): Promise<YieldAutomationResult> {
@@ -324,7 +335,10 @@ export async function runYieldAutomations(
         YIELD_RISK_ORDER.indexOf(idleItem.riskTier) <= YIELD_RISK_ORDER.indexOf(args.maxRiskTier)
       ) {
         const canPaper = args.yieldPaper;
-        const canLive = !args.yieldPaper && idleItem.liveReady && idleItem.id === "base_aave_usdc";
+        const canLive =
+          !args.yieldPaper &&
+          idleItem.liveReady &&
+          (idleItem.id === "base_aave_usdc" || idleItem.id === "bsc_venus_usdc");
         if (canPaper || canLive) {
           let liveTx:
             | { userOpHash: string; wallet: string; protocol: string; chain: string }
@@ -346,7 +360,7 @@ export async function runYieldAutomations(
                   id: "idle-live-skipped",
                   engine: "Idle Capital Router",
                   title: "Live park skipped",
-                  detail: "Could not supply Aave this tick (balance or key).",
+                  detail: "Could not supply lending rail this tick (balance, network, or key).",
                   severity: "warn",
                   catalogId: idleItem.id,
                 });
@@ -354,8 +368,8 @@ export async function runYieldAutomations(
                 liveTx = {
                   userOpHash: fill.userOpHash,
                   wallet: fill.wallet,
-                  protocol: "aave-v3",
-                  chain: "base",
+                  protocol: idleItem.id === "bsc_venus_usdc" ? "venus" : "aave-v3",
+                  chain: idleItem.chain,
                 };
               }
             }
@@ -449,6 +463,9 @@ export async function runYieldAutomations(
     const farmLike = args.openPositions.filter((p) =>
       ["lp", "farm", "ve_lock"].includes(p.kind),
     );
+    const liveAero = args.openPositions.some(
+      (p) => p.catalog_id === "base_aero_usdc_weth_lp" && !p.paper,
+    );
     if (farmLike.length) {
       const harvest = farmLike.reduce((s, p) => {
         const last = new Date(p.last_accrual_at ?? p.opened_at).getTime();
@@ -461,17 +478,91 @@ export async function runYieldAutomations(
       insights.push({
         id: "compound-cascade",
         engine: "Compound Cascade",
-        title: "Harvest → swap → restake → optional lock",
-        detail: `Est. claimable paper rewards ~$${Math.max(0, harvest).toFixed(4)}. Cascade: claim AERO/CAKE → 70% back to LP, 30% toward ve-lock flywheel when risk tier allows.`,
-        severity: harvest > 0.5 ? "action" : "info",
-        catalogId: "base_veaero_voter",
+        title: liveAero
+          ? "Live AERO claim → USDC → Aave park"
+          : "Harvest → swap → restake → optional lock",
+        detail: liveAero
+          ? `Open live Aerodrome LP detected. Cascade claims gauge AERO, swaps to USDC via OKX, parks into Aave when auto-compound is on.`
+          : `Est. claimable paper rewards ~$${Math.max(0, harvest).toFixed(4)}. Cascade: claim AERO/CAKE → 70% back to LP, 30% toward ve-lock flywheel when risk tier allows.`,
+        severity: liveAero || harvest > 0.5 ? "action" : "info",
+        catalogId: liveAero ? "base_aero_usdc_weth_lp" : "base_veaero_voter",
       });
       actions.push({
-        kind: "compound_note",
-        message: "Run compound cascade on farm/LP books",
+        kind: liveAero ? "compound_live" : "compound_note",
+        message: liveAero
+          ? "Claim AERO rewards and compound to USDC/Aave"
+          : "Run compound cascade on farm/LP books",
         amountUsdc: harvest,
+        ...(liveAero ? { catalogId: "base_aero_usdc_weth_lp" } : {}),
       });
-      if (!args.dryRun && args.yieldArmed && harvest > 1) {
+
+      if (
+        !args.dryRun &&
+        args.yieldArmed &&
+        !args.yieldPaper &&
+        liveAero &&
+        args.autopilot.autoCompoundLive
+      ) {
+        if (!args.liveCompound) {
+          insights.push({
+            id: "compound-live-blocked",
+            engine: "Compound Cascade",
+            title: "Live compound needs wallet rails",
+            detail: "Auto-compound is on but wallet/session key unavailable this tick.",
+            severity: "warn",
+            catalogId: "base_aero_usdc_weth_lp",
+          });
+        } else {
+          const fill = await args.liveCompound();
+          if (!fill) {
+            insights.push({
+              id: "compound-live-skipped",
+              engine: "Compound Cascade",
+              title: "Live compound skipped",
+              detail: "No claimable AERO or swap failed this tick.",
+              severity: "warn",
+              catalogId: "base_aero_usdc_weth_lp",
+            });
+          } else if (fill.skipped) {
+            insights.push({
+              id: "compound-live-dust",
+              engine: "Compound Cascade",
+              title: "Rewards below threshold",
+              detail: fill.skipped,
+              severity: "info",
+              catalogId: "base_aero_usdc_weth_lp",
+            });
+            executed.push(`compound_skipped:${fill.skipped}`);
+          } else {
+            await db.from("defi_events").insert({
+              company_id: args.companyId,
+              kind: "compound_live",
+              message: fill.parkedToAave
+                ? `Live compound ~$${fill.usdcOut.toFixed(4)} USDC → Aave · ${fill.userOpHash.slice(0, 10)}…`
+                : `Live compound claimed → ~$${fill.usdcOut.toFixed(4)} USDC · ${fill.userOpHash.slice(0, 10)}…`,
+              amount_usdc: fill.usdcOut,
+              metadata: {
+                userOpHash: fill.userOpHash,
+                hashes: fill.hashes,
+                parkedToAave: fill.parkedToAave,
+              },
+            });
+            executed.push(
+              fill.parkedToAave
+                ? `compound_live_aave_$${fill.usdcOut.toFixed(2)}`
+                : `compound_live_$${fill.usdcOut.toFixed(2)}`,
+            );
+            await db
+              .from("agents")
+              .update({
+                current_task: "Compounding AERO → USDC (live)",
+                activity: 95,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", args.agentId);
+          }
+        }
+      } else if (!args.dryRun && args.yieldArmed && harvest > 1 && !liveAero) {
         await db.from("defi_events").insert({
           company_id: args.companyId,
           kind: "compound_cascade",
