@@ -20,6 +20,7 @@ const SITE_LINKS = [
   { to: "/tokenomics", label: "Tokenomics" },
   { to: "/lightpaper", label: "Lightpaper" },
   { to: "/whitepaper", label: "Whitepaper" },
+  { to: "/roadmap", label: "Roadmap" },
   { to: "/proof", label: "Proof" },
   { to: "/pitch", label: "Pitch & decks" },
   { to: "/blog", label: "Blog" },

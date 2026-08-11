@@ -52,6 +52,9 @@ function TokenomicsPage() {
             <Link to="/lightpaper" className="text-muted-foreground hover:text-foreground">
               Lightpaper
             </Link>
+            <Link to="/roadmap" className="text-muted-foreground hover:text-foreground">
+              Roadmap
+            </Link>
             <Link to="/whitepaper" className="text-muted-foreground hover:text-foreground">
               Whitepaper
             </Link>

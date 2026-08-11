@@ -50,6 +50,9 @@ function WhitepaperPage() {
             <Link to="/lightpaper" className="text-muted-foreground hover:text-foreground">
               Lightpaper
             </Link>
+            <Link to="/roadmap" className="text-muted-foreground hover:text-foreground">
+              Roadmap
+            </Link>
             <Link to="/tokenomics" className="text-muted-foreground hover:text-foreground">
               Tokenomics
             </Link>

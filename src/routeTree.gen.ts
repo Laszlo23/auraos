@@ -24,6 +24,7 @@ import { Route as NachbarRouteRouteImport } from './routes/nachbar/route'
 import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProofRouteImport } from './routes/proof'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
@@ -184,6 +185,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const ProofRoute = ProofRouteImport.update({
   id: '/proof',
   path: '/proof',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShareRoute = ShareRouteImport.update({
@@ -648,6 +654,7 @@ export interface FileRoutesByFullPath {
   '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
+  '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
@@ -750,6 +757,7 @@ export interface FileRoutesByTo {
   '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
+  '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
@@ -855,6 +863,7 @@ export interface FileRoutesById {
   '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
+  '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
@@ -960,6 +969,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/privacy'
     | '/proof'
+    | '/roadmap'
     | '/share'
     | '/terms'
     | '/tokenomics'
@@ -1062,6 +1072,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/privacy'
     | '/proof'
+    | '/roadmap'
     | '/share'
     | '/terms'
     | '/tokenomics'
@@ -1166,6 +1177,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/privacy'
     | '/proof'
+    | '/roadmap'
     | '/share'
     | '/terms'
     | '/tokenomics'
@@ -1271,6 +1283,7 @@ export interface RootRouteChildren {
   PitchRoute: typeof PitchRoute
   PrivacyRoute: typeof PrivacyRoute
   ProofRoute: typeof ProofRoute
+  RoadmapRoute: typeof RoadmapRoute
   ShareRoute: typeof ShareRoute
   TermsRoute: typeof TermsRoute
   TokenomicsRoute: typeof TokenomicsRoute
@@ -1420,6 +1433,13 @@ declare module '@tanstack/react-router' {
       path: '/proof'
       fullPath: '/proof'
       preLoaderRoute: typeof ProofRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/share': {
@@ -2170,6 +2190,7 @@ const rootRouteChildren: RootRouteChildren = {
   PitchRoute: PitchRoute,
   PrivacyRoute: PrivacyRoute,
   ProofRoute: ProofRoute,
+  RoadmapRoute: RoadmapRoute,
   ShareRoute: ShareRoute,
   TermsRoute: TermsRoute,
   TokenomicsRoute: TokenomicsRoute,
