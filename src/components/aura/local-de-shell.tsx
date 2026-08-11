@@ -102,10 +102,12 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
         <h1 className="mt-4 max-w-md font-display text-3xl font-semibold tracking-tight">
           {t("paywall.title")}
         </h1>
-        <p className="mt-3 max-w-sm text-sm text-muted-foreground">{t("paywall.body")}</p>
+        <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
+          {t("paywall.body")}
+        </p>
         <Link
           to="/boost"
-          className="mt-8 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
+          className="mt-8 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground"
         >
           {t("paywall.cta")}
         </Link>

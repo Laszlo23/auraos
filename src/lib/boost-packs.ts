@@ -79,8 +79,8 @@ export type LocalDeNicheId = (typeof LOCAL_DE_NICHES)[number]["id"];
 
 export const LOCAL_DE_TABS = [
   { to: "/heute", label: "Heute", plain: "Heute" },
-  { to: "/social", label: "Social", plain: "Social" },
-  { to: "/kunden", label: "Kunden", plain: "Kunden" },
-  { to: "/bewertungen", label: "Bewertungen", plain: "Reviews" },
-  { to: "/boost", label: "Boost", plain: "Boost" },
+  { to: "/social", label: "Posten", plain: "Post" },
+  { to: "/kunden", label: "Gäste", plain: "Guests" },
+  { to: "/bewertungen", label: "Sterne", plain: "Stars" },
+  { to: "/boost", label: "Guthaben", plain: "Credits" },
 ] as const;

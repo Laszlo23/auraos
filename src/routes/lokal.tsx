@@ -11,7 +11,6 @@ import {
   rememberLocale,
 } from "@/lib/attribution";
 import { LOCAL_SEAT_EUR } from "@/lib/boost-packs";
-import { LOCAL_COHORT_CAP, REVIEW_BOOST_INVITE_GOAL } from "@/lib/funnels";
 import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/lokal")({
@@ -23,7 +22,7 @@ export const Route = createFileRoute("/lokal")({
       {
         name: "description",
         content:
-          "Die einfache Super-App für Friseur, Beauty, Gastro und Immobilien: Social automatisieren, Kunden gewinnen, Google-Bewertungen anfragen. Local Seat 99 € — auch bar.",
+          "Die einfache App für Friseur, Beauty, Gastro und Immobilien: posten, Gäste einladen, Google-Bewertungen anfragen. App freischalten · 99 € — auch bar.",
       },
       {
         property: "og:title",
@@ -167,9 +166,7 @@ function LokalLandingPage() {
           </div>
           <div>
             <h2 className="font-display text-xl font-semibold">{t("nav.bewertungen")}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Review Boost: {REVIEW_BOOST_INVITE_GOAL} · {LOCAL_COHORT_CAP}
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("bewertungen.blurb")}</p>
           </div>
         </div>
       </section>
@@ -177,14 +174,14 @@ function LokalLandingPage() {
       <section id="barzahlung" className="relative border-t border-border/40 py-16">
         <div className="mx-auto max-w-5xl px-6">
           <h2 className="font-display text-3xl font-semibold tracking-tight">
-            {LOCAL_SEAT_EUR} € Local Seat
+            {t("boost.unlockSeat")} · {LOCAL_SEAT_EUR} €
           </h2>
           <p className="mt-3 max-w-xl text-sm text-muted-foreground">{t("boost.seatBlurb")}</p>
           <a
             href={href}
             className="mt-8 inline-flex rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
           >
-            {t("lokal.ctaStart")}
+            {t("paywall.cta")}
           </a>
         </div>
       </section>

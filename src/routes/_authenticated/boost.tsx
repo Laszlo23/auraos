@@ -21,7 +21,7 @@ import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/boost")({
   head: () => ({
-    meta: [{ title: "Boost — Aura Lokal" }],
+    meta: [{ title: "Guthaben — Aura Lokal" }],
   }),
   component: BoostPage,
 });
@@ -57,7 +57,7 @@ function BoostPage() {
       toast.success(
         res.already_paid
           ? t("boost.seatActive")
-          : `Seat · +${compact(res.boost_grant ?? LOCAL_SEAT_BOOST_GRANT)} Boost`,
+          : `${t("boost.seatActive")} · +${compact(res.boost_grant ?? LOCAL_SEAT_BOOST_GRANT)}`,
       );
       setCode("");
       await qc.invalidateQueries({ queryKey: ["lokal-hub"] });
@@ -89,7 +89,7 @@ function BoostPage() {
     onSuccess: (res) => {
       const url = `${SITE_URL}${res.path}`;
       void navigator.clipboard.writeText(url);
-      toast.success(`Peer-Link kopiert · +${compact(res.boost_grant)} Boost bei Seat`);
+      toast.success(t("boost.peerCta"));
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -98,7 +98,7 @@ function BoostPage() {
     <div className="space-y-5">
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-          {t("common.boost")}
+          {t("nav.boost")}
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
           {t("boost.title")}
@@ -106,20 +106,35 @@ function BoostPage() {
         <p className="mt-2 text-sm text-muted-foreground">{t("boost.subtitle")}</p>
       </div>
 
-      <div className="rounded-3xl border border-border/40 bg-card/30 p-5">
-        <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-          {t("boost.yourBoost")}
-        </p>
-        <p className="mt-2 flex items-center gap-2 font-display text-4xl font-semibold tabular-nums">
-          <Sparkle className="h-6 w-6 text-gold" />
-          {compact(hub.data?.boostBalance ?? 0)}
-        </p>
-      </div>
+      {seatPaid ? (
+        <div className="rounded-3xl border border-border/40 bg-card/30 p-5">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            {t("boost.yourBoost")}
+          </p>
+          <p className="mt-2 flex items-center gap-2 font-display text-4xl font-semibold tabular-nums">
+            <Sparkle className="h-6 w-6 text-gold" />
+            {compact(hub.data?.boostBalance ?? 0)}
+          </p>
+          <p className="mt-2 text-sm font-semibold text-gold">{t("boost.seatActive")}</p>
+        </div>
+      ) : null}
 
       {!seatPaid ? (
-        <Panel label={`Local Seat · ${LOCAL_SEAT_EUR} €`} glow>
-          <p className="text-sm text-muted-foreground">{t("boost.seatBlurb")}</p>
-          <label className="mt-4 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+        <Panel label={`${t("boost.unlockSeat")} · ${LOCAL_SEAT_EUR} €`} glow>
+          <p className="text-[15px] leading-relaxed text-muted-foreground">{t("boost.seatBlurb")}</p>
+          <button
+            type="button"
+            disabled={paySeat.isPending}
+            onClick={() => paySeat.mutate()}
+            className="mt-5 w-full rounded-2xl bg-primary px-4 py-4 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+          >
+            {paySeat.isPending ? (
+              <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+            ) : (
+              t("boost.payCard", { eur: LOCAL_SEAT_EUR })
+            )}
+          </button>
+          <label className="mt-5 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
             {t("boost.cashCode")}
             <input
               value={code}
@@ -128,85 +143,62 @@ function BoostPage() {
               className="mt-2 w-full rounded-2xl border border-border bg-foreground/5 px-4 py-3 font-mono text-sm outline-none"
             />
           </label>
-          <div className="mt-3 flex flex-col gap-2">
-            <button
-              type="button"
-              disabled={redeem.isPending || code.trim().length < 6}
-              onClick={() => redeem.mutate()}
-              className="rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-            >
-              {redeem.isPending ? (
-                <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-              ) : (
-                t("boost.redeem")
-              )}
-            </button>
-            <button
-              type="button"
-              disabled={paySeat.isPending}
-              onClick={() => paySeat.mutate()}
-              className="rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold disabled:opacity-60"
-            >
-              {paySeat.isPending ? "…" : t("boost.payCard", { eur: LOCAL_SEAT_EUR })}
-            </button>
-          </div>
+          <button
+            type="button"
+            disabled={redeem.isPending || code.trim().length < 6}
+            onClick={() => redeem.mutate()}
+            className="mt-3 w-full rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold disabled:opacity-60"
+          >
+            {redeem.isPending ? (
+              <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+            ) : (
+              t("boost.redeem")
+            )}
+          </button>
         </Panel>
       ) : (
         <>
-          <p className="text-sm font-semibold text-gold">{t("boost.seatActive")}</p>
-          <Panel label="Peer-Shop einladen">
-            <p className="text-sm text-muted-foreground">
-              Teile einen Link mit einem Betrieb in deiner Stadt. Wenn der Peer den Local Seat
-              zahlt, erhältst du Boost.
+          <div className="space-y-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              {t("boost.packs")}
             </p>
+            {BOOST_PACKS.map((pack) => (
+              <div key={pack.id} className="rounded-3xl border border-border/50 bg-card/30 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-display text-xl font-semibold">{pack.name}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{pack.blurb}</p>
+                  </div>
+                  <p className="font-display text-xl font-semibold tabular-nums">€{pack.eur}</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={buyPack.isPending}
+                  onClick={() => buyPack.mutate(pack.id)}
+                  className="mt-4 w-full rounded-2xl bg-primary/90 px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                >
+                  {buyPack.isPending ? "…" : t("boost.buy")}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <details className="rounded-3xl border border-border/40 px-4 py-3">
+            <summary className="cursor-pointer text-sm font-semibold text-muted-foreground">
+              {t("boost.peerTitle")}
+            </summary>
+            <p className="mt-2 text-sm text-muted-foreground">{t("boost.peerBlurb")}</p>
             <button
               type="button"
               disabled={peerInvite.isPending}
               onClick={() => peerInvite.mutate()}
-              className="mt-4 w-full rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold disabled:opacity-60"
+              className="mt-3 w-full rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold disabled:opacity-60"
             >
-              {peerInvite.isPending ? "…" : "Einladungslink erzeugen"}
+              {peerInvite.isPending ? "…" : t("boost.peerCta")}
             </button>
-          </Panel>
+          </details>
         </>
       )}
-
-      <div className="space-y-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {t("boost.packs")}
-        </p>
-        {BOOST_PACKS.map((pack) => (
-          <div key={pack.id} className="rounded-3xl border border-border/50 bg-card/30 p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-display text-xl font-semibold">{pack.name}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{pack.blurb}</p>
-              </div>
-              <p className="font-display text-xl font-semibold tabular-nums">€{pack.eur}</p>
-            </div>
-            <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
-              {pack.perks.map((p) => (
-                <li key={p}>· {p}</li>
-              ))}
-            </ul>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              +{compact(pack.boostGrant)} Boost
-            </p>
-            <button
-              type="button"
-              disabled={buyPack.isPending || !seatPaid}
-              onClick={() => buyPack.mutate(pack.id)}
-              className="mt-4 w-full rounded-2xl bg-primary/90 px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              {!seatPaid
-                ? t("boost.seatRequired")
-                : buyPack.isPending
-                  ? "…"
-                  : t("boost.buy")}
-            </button>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
