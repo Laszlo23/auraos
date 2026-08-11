@@ -90,7 +90,7 @@ export function deriveMissionPipeline(input: {
   const st = (input.missionStatus ?? "").toLowerCase();
   const planned = st === "planned";
   const active = st === "active";
-  const complete = st === "completed" || st === "done";
+  const complete = st === "completed" || st === "done" || st === "complete";
   const failedMission = st === "failed" || st === "cancelled";
 
   const mission: PipelineStageState = input.hasMission

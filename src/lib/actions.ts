@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
+import { useAwardXp } from "@/hooks/use-progress";
 import { AGENT_ROSTER } from "@/lib/agent-roster";
 import { taskStatusForAutonomy } from "@/lib/company-economy";
 import { proposeNextActionsAi } from "@/lib/propose-actions.functions";
@@ -147,7 +148,7 @@ export function useDispatchTask() {
 
       const status = initialStatus(company.autonomy, {
         founderApproved: task.founderApproved ?? true,
-        directAssign: task.directAssign,
+        ...(task.directAssign != null ? { directAssign: task.directAssign } : {}),
       });
       const title = task.title.trim();
       if (title.length < 4) throw new Error("Give a clearer one-line task.");
@@ -294,6 +295,7 @@ export function useProposeNextActions() {
 export function useApproveTask() {
   const qc = useQueryClient();
   const { data: company } = useCompany();
+  const award = useAwardXp();
 
   return useMutation({
     mutationFn: async (taskId: string) => {
@@ -384,11 +386,13 @@ export function useApproveTask() {
       };
     },
     onSuccess: (res) => {
+      void award.mutateAsync({ quest: "task:first_approve", amount: 50 });
       void qc.invalidateQueries({ queryKey: ["table", "tasks"] });
       void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
       void qc.invalidateQueries({ queryKey: ["table", "agents"] });
       void qc.invalidateQueries({ queryKey: ["table", "knowledge_items"] });
       void qc.invalidateQueries({ queryKey: ["table", "channel_engagements"] });
+      void qc.invalidateQueries({ queryKey: ["progress"] });
       if (res.kind === "social") {
         toast.success("Reply sent.");
         return;

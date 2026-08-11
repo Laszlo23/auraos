@@ -19,6 +19,43 @@ import {
   ensureYieldAgent,
   openYieldPosition,
 } from "@/lib/defi/yield.server";
+import { supplyUsdcToAaveBase, withdrawUsdcFromAaveBase } from "@/lib/defi/aave-base.server";
+import { decryptOwnerKey } from "@/lib/wallet.server";
+import type { Address, Hex } from "viem";
+
+async function loadLiveYieldWallet(
+  supabase: { from: (t: string) => any },
+  userId: string,
+): Promise<{ address: Address; privateKey: Hex }> {
+  const { data: wallet } = await supabase
+    .from("wallet_bindings")
+    .select("address, owner_key_enc")
+    .eq("user_id", userId)
+    .eq("kind", "smart")
+    .maybeSingle();
+  if (!wallet?.owner_key_enc || !wallet.address) {
+    throw new Error("Create a smart wallet first (/wallet)");
+  }
+
+  const { data: keys } = await supabase
+    .from("agent_session_keys")
+    .select("allowed_actions, status")
+    .eq("user_id", userId)
+    .neq("status", "revoked");
+  const canAct = ((keys ?? []) as { allowed_actions?: string[] }[]).some(
+    (k) =>
+      Array.isArray(k.allowed_actions) &&
+      (k.allowed_actions.includes("trade") || k.allowed_actions.includes("defi")),
+  );
+  if (!canAct) {
+    throw new Error("Mint a session key with trade (or defi) permission before live Yield");
+  }
+
+  return {
+    address: wallet.address as Address,
+    privateKey: decryptOwnerKey(wallet.owner_key_enc) as Hex,
+  };
+}
 
 async function ownedCompany(
   supabase: { from: (t: string) => any },
@@ -294,6 +331,24 @@ export const runYieldAutopilotNow = createServerFn({ method: "POST" })
       openPositions: positions ?? [],
       quantHasOpenTrade: (openTrades ?? []).length > 0,
       dryRun: data.dryRun,
+      ...(!company.yield_paper && !data.dryRun
+        ? {
+            livePark: async (amountUsdc: number) => {
+              try {
+                const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+                const fill = await supplyUsdcToAaveBase({
+                  privateKey: wallet.privateKey,
+                  walletAddress: wallet.address,
+                  amountUsdc,
+                });
+                return { userOpHash: fill.userOpHash, wallet: fill.wallet };
+              } catch (e) {
+                console.warn("[yield] livePark failed", e instanceof Error ? e.message : e);
+                return null;
+              }
+            },
+          }
+        : {}),
     });
   });
 
@@ -314,7 +369,9 @@ export const allocateYield = createServerFn({ method: "POST" })
 
     const paper = company.yield_paper;
     if (!paper && !item.liveReady) {
-      throw new Error("Live protocol rails coming next — switch to Paper or use Day scalp via Quant");
+      throw new Error(
+        "Live rails for this book are not armed yet — use Paper, Base USDC lending (Aave), or Day scalp via Quant",
+      );
     }
     if (item.kind === "day_trade" && !paper) {
       throw new Error("Day scalp runs on the Quant desk — arm Quant + apply an intraday preset");
@@ -331,6 +388,27 @@ export const allocateYield = createServerFn({ method: "POST" })
       0,
     );
 
+    let liveTx:
+      | { userOpHash: string; wallet: string; protocol: string; chain: string }
+      | undefined;
+
+    if (!paper && item.id === "base_aave_usdc") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const fill = await supplyUsdcToAaveBase({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        amountUsdc: data.amountUsdc,
+      });
+      liveTx = {
+        userOpHash: fill.userOpHash,
+        wallet: fill.wallet,
+        protocol: "aave-v3",
+        chain: "base",
+      };
+    } else if (!paper && item.liveReady && item.kind !== "day_trade") {
+      throw new Error(`Live path for ${item.name} is not wired yet — use Paper`);
+    }
+
     const position = await openYieldPosition(context.supabase, {
       companyId: data.companyId,
       catalogId: data.catalogId,
@@ -340,9 +418,10 @@ export const allocateYield = createServerFn({ method: "POST" })
       maxNotional: Number(company.max_yield_notional_usdc),
       openNotional,
       agentId: agent.id,
+      ...(liveTx ? { liveTx } : {}),
     });
 
-    return { position };
+    return { position, liveTx: liveTx ?? null };
   });
 
 export const closeYieldAllocation = createServerFn({ method: "POST" })
@@ -351,8 +430,47 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
-    const position = await closeYieldPosition(context.supabase, data.companyId, data.positionId);
-    return { position };
+
+    const { data: pos } = await context.supabase
+      .from("defi_positions")
+      .select("id, paper, catalog_id, status")
+      .eq("id", data.positionId)
+      .eq("company_id", data.companyId)
+      .maybeSingle();
+    if (!pos) throw new Error("Position not found");
+
+    let liveWithdraw: { userOpHash: string; withdrawnUsdc: number } | undefined;
+    if (!pos.paper && pos.catalog_id === "base_aave_usdc" && pos.status === "open") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const { data: siblings } = await context.supabase
+        .from("defi_positions")
+        .select("id, principal_usdc")
+        .eq("company_id", data.companyId)
+        .eq("catalog_id", "base_aave_usdc")
+        .eq("paper", false)
+        .eq("status", "open");
+      const multi = (siblings ?? []).length > 1;
+      const thisPrincipal = Number(
+        (siblings ?? []).find((s: { id: string }) => s.id === data.positionId)?.principal_usdc ?? 0,
+      );
+      const fill = await withdrawUsdcFromAaveBase({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        ...(multi && thisPrincipal > 0 ? { amountUsdc: thisPrincipal } : {}),
+      });
+      liveWithdraw = {
+        userOpHash: fill.userOpHash,
+        withdrawnUsdc: fill.withdrawnUsdc,
+      };
+    }
+
+    const position = await closeYieldPosition(
+      context.supabase,
+      data.companyId,
+      data.positionId,
+      liveWithdraw ? { liveWithdraw } : undefined,
+    );
+    return { position, liveWithdraw: liveWithdraw ?? null };
   });
 
 /** Internal: called from trading worker tick. */
@@ -364,7 +482,7 @@ export async function runYieldTick() {
   const { data: companies } = await db
     .from("companies")
     .select(
-      "id, yield_armed, yield_paper, max_yield_notional_usdc, max_yield_risk_tier, yield_autopilot",
+      "id, owner_id, yield_armed, yield_paper, max_yield_notional_usdc, max_yield_risk_tier, yield_autopilot",
     )
     .eq("yield_armed", true)
     .limit(25);
@@ -377,6 +495,7 @@ export async function runYieldTick() {
         db.from("defi_positions").select("*").eq("company_id", c.id).eq("status", "open"),
         db.from("trades").select("id").eq("company_id", c.id).eq("status", "open").limit(5),
       ]);
+      const ownerId = c.owner_id as string | undefined;
       await runYieldAutomations(db, {
         companyId: c.id as string,
         agentId: agent.id,
@@ -388,6 +507,24 @@ export async function runYieldTick() {
         openPositions: positions ?? [],
         quantHasOpenTrade: (openTrades ?? []).length > 0,
         dryRun: false,
+        ...(!c.yield_paper && ownerId
+          ? {
+              livePark: async (amountUsdc: number) => {
+                try {
+                  const wallet = await loadLiveYieldWallet(db, ownerId);
+                  const fill = await supplyUsdcToAaveBase({
+                    privateKey: wallet.privateKey,
+                    walletAddress: wallet.address,
+                    amountUsdc,
+                  });
+                  return { userOpHash: fill.userOpHash, wallet: fill.wallet };
+                } catch (e) {
+                  console.warn("[yield-tick] livePark failed", e instanceof Error ? e.message : e);
+                  return null;
+                }
+              },
+            }
+          : {}),
       });
       automationRuns += 1;
     } catch {

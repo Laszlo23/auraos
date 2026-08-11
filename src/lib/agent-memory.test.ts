@@ -20,4 +20,12 @@ describe("agent memory", () => {
     expect(text).toContain("Company knowledge");
     expect(text).toContain("Recent completed work");
   });
+
+  it("includes Mem0 long-term facts", () => {
+    const text = formatMemoryContext({
+      mem0Facts: ["Founder prefers German replies", "Never invent MRR"],
+    });
+    expect(text).toContain("Long-term memory (Mem0)");
+    expect(text).toContain("Founder prefers German replies");
+  });
 });

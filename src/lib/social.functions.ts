@@ -519,6 +519,14 @@ export const approveEngagementReply = createServerFn({ method: "POST" })
           current_task: `Replied on ${row.provider}`,
         })
         .eq("id", agent.id);
+      void import("@/lib/mem0.server")
+        .then(({ addMem0Lesson }) =>
+          addMem0Lesson(lesson, {
+            companyId: row.company_id,
+            agentId: agent.id,
+          }),
+        )
+        .catch(() => undefined);
     }
 
     await supabaseAdmin.from("activity_events").insert({

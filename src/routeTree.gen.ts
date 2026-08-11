@@ -55,6 +55,7 @@ import { Route as AuthenticatedMarketingRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMarketplaceRouteImport } from './routes/_authenticated/marketplace'
 import { Route as AuthenticatedMissionsRouteImport } from './routes/_authenticated/missions'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedOpsRouteImport } from './routes/_authenticated/ops'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedReportRouteImport } from './routes/_authenticated/report'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
@@ -342,6 +343,11 @@ const AuthenticatedMissionsRoute = AuthenticatedMissionsRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOpsRoute = AuthenticatedOpsRouteImport.update({
+  id: '/ops',
+  path: '/ops',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
@@ -685,6 +691,7 @@ export interface FileRoutesByFullPath {
   '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/missions': typeof AuthenticatedMissionsRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
@@ -788,6 +795,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/missions': typeof AuthenticatedMissionsRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
@@ -894,6 +902,7 @@ export interface FileRoutesById {
   '/_authenticated/marketplace': typeof AuthenticatedMarketplaceRoute
   '/_authenticated/missions': typeof AuthenticatedMissionsRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/ops': typeof AuthenticatedOpsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/report': typeof AuthenticatedReportRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
@@ -1000,6 +1009,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/missions'
     | '/onboarding'
+    | '/ops'
     | '/products'
     | '/report'
     | '/sales'
@@ -1103,6 +1113,7 @@ export interface FileRouteTypes {
     | '/marketplace'
     | '/missions'
     | '/onboarding'
+    | '/ops'
     | '/products'
     | '/report'
     | '/sales'
@@ -1208,6 +1219,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marketplace'
     | '/_authenticated/missions'
     | '/_authenticated/onboarding'
+    | '/_authenticated/ops'
     | '/_authenticated/products'
     | '/_authenticated/report'
     | '/_authenticated/sales'
@@ -1652,6 +1664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ops': {
+      id: '/_authenticated/ops'
+      path: '/ops'
+      fullPath: '/ops'
+      preLoaderRoute: typeof AuthenticatedOpsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/products': {
       id: '/_authenticated/products'
       path: '/products'
@@ -2094,6 +2113,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMarketplaceRoute: typeof AuthenticatedMarketplaceRoute
   AuthenticatedMissionsRoute: typeof AuthenticatedMissionsRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedOpsRoute: typeof AuthenticatedOpsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedReportRoute: typeof AuthenticatedReportRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
@@ -2133,6 +2153,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMarketplaceRoute: AuthenticatedMarketplaceRoute,
   AuthenticatedMissionsRoute: AuthenticatedMissionsRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedOpsRoute: AuthenticatedOpsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedReportRoute: AuthenticatedReportRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,

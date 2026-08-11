@@ -8,6 +8,7 @@ import {
   networkSpec,
   resolveNetwork,
   USDC_ADDRESSES,
+  USDC_DECIMALS,
   type AuraNetwork,
 } from "@/lib/chain-config";
 import { parseOkxSwapCalldata } from "@/lib/okx.server";
@@ -36,6 +37,10 @@ type Admin = {
   from: (table: string) => any;
 };
 
+function quoteScale(network: AuraNetwork): number {
+  return 10 ** USDC_DECIMALS[network];
+}
+
 async function companyNotionalBoost(db: Admin, companyId: string): Promise<number> {
   const { data: company } = await db
     .from("companies")
@@ -63,25 +68,31 @@ async function companyNotionalBoost(db: Admin, companyId: string): Promise<numbe
   return boost;
 }
 
-async function spentTodayUsdc(db: Admin, companyId: string): Promise<number> {
+async function spentTodayUsdc(
+  db: Admin,
+  companyId: string,
+  network: AuraNetwork,
+): Promise<number> {
   const dayStart = new Date();
   dayStart.setUTCHours(0, 0, 0, 0);
+  const scale = quoteScale(network);
   const { data: dayOrders } = await db
     .from("trading_orders")
     .select("amount_in, status, side")
     .eq("company_id", companyId)
     .gte("created_at", dayStart.toISOString())
     .in("status", ["submitted", "confirmed"]);
-  // Only count entry buys (USDC out) toward daily notional
+  // Only count entry buys (quote out) toward daily notional
   return ((dayOrders ?? []) as { amount_in?: string; side?: string }[]).reduce((a, o) => {
     if (o.side === "flat" || o.side === "sell" || o.side === "close") return a;
-    return a + Number(o.amount_in ?? 0) / 1e6;
+    return a + Number(o.amount_in ?? 0) / scale;
   }, 0);
 }
 
 async function deskEquityUsdc(
   db: Admin,
   company: { id: string; owner_id?: string; max_notional_usdc_day?: number },
+  network: AuraNetwork,
 ): Promise<number> {
   const dayCap = Number(company.max_notional_usdc_day ?? 250);
   if (!company.owner_id) return dayCap;
@@ -93,7 +104,7 @@ async function deskEquityUsdc(
     .maybeSingle();
   if (!wallet?.address) return dayCap;
   const { fetchWalletUsdcBalance } = await import("@/lib/trading/wallet-equity.server");
-  const usdc = await fetchWalletUsdcBalance(wallet.address);
+  const usdc = await fetchWalletUsdcBalance(wallet.address, network);
   return usdc > 0 ? usdc : dayCap;
 }
 
@@ -213,7 +224,7 @@ export async function ingestSmartMoney(limitCompanies = 30) {
           events += 1;
           const { data: company } = await db
             .from("companies")
-            .select("id, trading_armed, max_notional_usdc_day, max_risk_pct, owner_id")
+            .select("id, trading_armed, max_notional_usdc_day, max_risk_pct, owner_id, desk_network")
             .eq("id", w.company_id)
             .maybeSingle();
           if (company?.trading_armed && t._dir === "in" && asset !== "USDC") {
@@ -231,9 +242,12 @@ export async function ingestSmartMoney(limitCompanies = 30) {
               }
             });
             if (followStrat) {
+              const deskNet = resolveNetwork(
+                (company as { desk_network?: string }).desk_network ?? network,
+              );
               const boost = await companyNotionalBoost(db, company.id);
-              const spent = await spentTodayUsdc(db, company.id);
-              const equityUsdc = await deskEquityUsdc(db, company);
+              const spent = await spentTodayUsdc(db, company.id, deskNet);
+              const equityUsdc = await deskEquityUsdc(db, company, deskNet);
               const spec = validateStrategySpec(followStrat.spec);
               const notional = sizeTradeNotional({
                 requested: Number(company.max_notional_usdc_day ?? 250) * 0.15,
@@ -248,7 +262,7 @@ export async function ingestSmartMoney(limitCompanies = 30) {
                 await db.from("trading_signals").insert({
                   company_id: company.id,
                   strategy_id: followStrat.id,
-                  symbol: deskPrimary(),
+                  symbol: deskPrimary(deskNet),
                   side: "long",
                   confidence: 0.6,
                   notional_usdc: notional,
@@ -271,25 +285,31 @@ export async function ingestSmartMoney(limitCompanies = 30) {
 }
 
 /** Evaluate approved MA/breakout strategies → signals. */
-export async function evaluateStrategies(limit = 20) {
+export async function evaluateStrategies(limit = 20, companyId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
-  const { data: companies } = await db
+  let q = db
     .from("companies")
-    .select("id, trading_armed, max_risk_pct, max_notional_usdc_day, owner_id")
+    .select("id, trading_armed, max_risk_pct, max_notional_usdc_day, owner_id, desk_network")
     .eq("trading_armed", true)
     .limit(limit);
+  if (companyId) q = q.eq("id", companyId);
+  const { data: companies } = await q;
 
   let signals = 0;
+  let checked = 0;
+  const errors: string[] = [];
   for (const company of (companies ?? []) as {
     id: string;
     max_notional_usdc_day?: number;
     max_risk_pct?: number;
     owner_id?: string;
+    desk_network?: string;
   }[]) {
+    const network = resolveNetwork(company.desk_network ?? activeNetwork());
     const boost = await companyNotionalBoost(db, company.id);
-    const spent = await spentTodayUsdc(db, company.id);
-    const equityUsdc = await deskEquityUsdc(db, company);
+    const spent = await spentTodayUsdc(db, company.id, network);
+    const equityUsdc = await deskEquityUsdc(db, company, network);
     const { data: strategies } = await db
       .from("trading_strategies")
       .select("*")
@@ -306,8 +326,10 @@ export async function evaluateStrategies(limit = 20) {
       if (spec.entry.type === "smart_money_follow") continue;
 
       try {
+        checked += 1;
+        const symbol = spec.symbols[0] ?? deskPrimary(network);
         const { candles } = await fetchCandles({
-          symbol: spec.symbols[0] ?? deskPrimary(),
+          symbol,
           timeframe: spec.timeframe,
           limit: 80,
         });
@@ -360,7 +382,7 @@ export async function evaluateStrategies(limit = 20) {
         await db.from("trading_signals").insert({
           company_id: company.id,
           strategy_id: s.id,
-          symbol: spec.symbols[0] ?? deskPrimary(),
+          symbol,
           side: "long",
           confidence: 0.62,
           notional_usdc: notional,
@@ -371,12 +393,14 @@ export async function evaluateStrategies(limit = 20) {
           mark_price: price,
         });
         signals += 1;
-      } catch {
-        // skip
+      } catch (e) {
+        errors.push(
+          `${company.id}:${s.name}:${e instanceof Error ? e.message : String(e)}`.slice(0, 160),
+        );
       }
     }
   }
-  return { signals };
+  return { signals, checked, errors };
 }
 
 /** Confirm submitted orders only when the bundler reports a UserOp receipt. */
@@ -653,7 +677,9 @@ export async function manageOpenPositions(limit = 20) {
           ? await executeBatchUserOps(pk, calls, network)
           : await executeContractUserOp(pk, calls[0]!, network);
 
-      const usdcOut = parsed.toAmount ? Number(parsed.toAmount) / 1e6 : Number(trade.size) * (1 + ret);
+      const usdcOut = parsed.toAmount
+        ? Number(parsed.toAmount) / 10 ** pair.quoteDecimals
+        : Number(trade.size) * (1 + ret);
       const pnl = Number((usdcOut - Number(trade.amount_in ?? trade.size)).toFixed(4));
       const reason = hitStop ? "stop" : hitTake ? "take-profit" : "time-stop";
 
@@ -697,7 +723,7 @@ export async function manageOpenPositions(limit = 20) {
 
 /** Execute approved signals via OKX + Light Account when desk armed.
  *  Paper desks get mark fills tagged paper=true (never arena). */
-export async function executeApprovedSignals(limit = 5) {
+export async function executeApprovedSignals(limit = 5, companyId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
   const { okxConfigured, okxDexSwap } = await import("@/lib/okx.server");
@@ -712,13 +738,29 @@ export async function executeApprovedSignals(limit = 5) {
   const errors: string[] = [];
   let executed = 0;
 
-  const { data: signals } = await db
+  // Expire non-executable sides (legacy flat smart-money rows)
+  {
+    let flatQ = db
+      .from("trading_signals")
+      .update({
+        status: "expired",
+        rationale: "Expired — only long entries are executable in v1",
+      })
+      .eq("status", "approved")
+      .neq("side", "long");
+    if (companyId) flatQ = flatQ.eq("company_id", companyId);
+    await flatQ;
+  }
+
+  let sigQ = db
     .from("trading_signals")
     .select("*")
     .eq("status", "approved")
     .eq("side", "long")
     .order("created_at", { ascending: true })
     .limit(limit);
+  if (companyId) sigQ = sigQ.eq("company_id", companyId);
+  const { data: signals } = await sigQ;
 
   for (const signal of (signals ?? []) as {
     id: string;
@@ -752,6 +794,13 @@ export async function executeApprovedSignals(limit = 5) {
       const paper = Boolean((company as { trading_paper?: boolean }).trading_paper);
       if (!paper && !liveOkx) {
         errors.push("okx_not_configured");
+        await db
+          .from("trading_signals")
+          .update({
+            status: "expired",
+            rationale: "Live desk needs OKX API keys configured on the server",
+          })
+          .eq("id", signal.id);
         continue;
       }
 
@@ -770,9 +819,9 @@ export async function executeApprovedSignals(limit = 5) {
         continue;
       }
 
-      const spent = await spentTodayUsdc(db, company.id);
+      const spent = await spentTodayUsdc(db, company.id, network);
       const boost = await companyNotionalBoost(db, company.id);
-      const equityUsdc = await deskEquityUsdc(db, company);
+      const equityUsdc = await deskEquityUsdc(db, company, network);
       let specMax = Number(signal.notional_usdc) || 25;
       if (signal.strategy_id) {
         const { data: strat } = await db
@@ -850,6 +899,13 @@ export async function executeApprovedSignals(limit = 5) {
         .maybeSingle();
       if (!wallet?.owner_key_enc || !wallet.address) {
         errors.push(`no_wallet:${company.id}`);
+        await db
+          .from("trading_signals")
+          .update({
+            status: "expired",
+            rationale: "No smart wallet / owner key — open Wallet and provision",
+          })
+          .eq("id", signal.id);
         continue;
       }
 
@@ -863,11 +919,18 @@ export async function executeApprovedSignals(limit = 5) {
       );
       if (!canTrade) {
         errors.push(`no_trade_key:${company.id}`);
+        await db
+          .from("trading_signals")
+          .update({
+            status: "expired",
+            rationale: "Issue a Trade session key before live fills",
+          })
+          .eq("id", signal.id);
         continue;
       }
 
       const pair = resolvePairTokens(signal.symbol || deskPrimary(network), network);
-      const amountIn = BigInt(Math.floor(notional * 1e6));
+      const amountIn = BigInt(Math.floor(notional * 10 ** pair.quoteDecimals));
       const slippagePct = ((company.max_slippage_bps ?? 50) / 100).toFixed(2);
 
       const swapRaw = await okxDexSwap({
@@ -944,8 +1007,8 @@ export async function executeApprovedSignals(limit = 5) {
         tx_hash: result.userOpHash,
         token_in: pair.quote,
         token_out: pair.base,
-        amount_in: Number(amountIn) / 1e6,
-        amount_out: parsed.toAmount ? Number(parsed.toAmount) / 1e18 : null,
+        amount_in: Number(amountIn) / 10 ** pair.quoteDecimals,
+        amount_out: parsed.toAmount ? Number(parsed.toAmount) / 10 ** pair.baseDecimals : null,
         mark_price: mark.price,
         chain_id: cid,
         opened_at: new Date().toISOString(),
@@ -960,19 +1023,25 @@ export async function executeApprovedSignals(limit = 5) {
         .eq("name", "Quant")
         .maybeSingle();
       if (quant) {
+        const lesson = `Executed long ${signal.symbol} ~$${notional.toFixed(0)} via OKX/UserOp`;
         await db
           .from("agents")
           .update({
-            memory: mergeAgentMemory(
-              quant.memory,
-              `Executed long ${signal.symbol} ~$${notional.toFixed(0)} via OKX/UserOp`,
-            ),
+            memory: mergeAgentMemory(quant.memory, lesson),
             tasks_completed: (quant.tasks_completed ?? 0) + 1,
             lessons_count: (quant.lessons_count ?? 0) + 1,
             current_task: `Filled ${signal.symbol}`,
             activity: 0,
           })
           .eq("id", quant.id);
+        void import("@/lib/mem0.server")
+          .then(({ addMem0Lesson }) =>
+            addMem0Lesson(lesson, {
+              companyId: company.id,
+              agentId: quant.id,
+            }),
+          )
+          .catch(() => undefined);
       }
 
       await db.from("activity_events").insert({
@@ -999,10 +1068,11 @@ export async function executeApprovedSignals(limit = 5) {
   return { executed, errors };
 }
 
-export async function runTradingTick() {
+export async function runTradingTick(opts?: { companyId?: string }) {
+  const companyId = opts?.companyId;
   const smart = await ingestSmartMoney();
-  const evald = await evaluateStrategies();
-  const exec = await executeApprovedSignals();
+  const evald = await evaluateStrategies(20, companyId);
+  const exec = await executeApprovedSignals(8, companyId);
   const managed = await manageOpenPositions();
   const reconciled = await reconcileOrders();
   let arena = { seasonId: "", entries: 0 };
@@ -1019,5 +1089,19 @@ export async function runTradingTick() {
   } catch {
     // yield tables may not be migrated yet
   }
+
+  if (companyId && evald.checked > 0) {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await (supabaseAdmin as unknown as Admin).from("activity_events").insert({
+        company_id: companyId,
+        kind: "trade",
+        message: `Quant tick · checked ${evald.checked} strateg${evald.checked === 1 ? "y" : "ies"} · ${evald.signals} new signal${evald.signals === 1 ? "" : "s"} · ${exec.executed} fill${exec.executed === 1 ? "" : "s"}`,
+      });
+    } catch {
+      /* ignore */
+    }
+  }
+
   return { smart, evald, exec, managed, reconciled, arena, yieldTick };
 }

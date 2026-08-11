@@ -69,7 +69,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
   const paperMut = useMutation({
     mutationFn: (paper: boolean) => setYieldPaperMode({ data: { companyId, paper } }),
     onSuccess: (_data, paper) => {
-      toast.success(paper ? "Paper mode on" : "Live mode (protocol rails gated)");
+      toast.success(paper ? "Paper mode on" : "Live mode — Aave USDC ready");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -160,13 +160,13 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
               Dual-desk OS: Quant turns inventory. Yield parks the rest.
             </p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              Aerodrome epochs, Pancake farms, Venus parking, prediction edge, and autopilots that
-              hunt ROI while you sleep — paper-first, founder-capped.
+              Live Aave USDC on Base parks residual cash. Aerodrome / Pancake / prediction stay
+              paper until their rails ship — founder-capped either way.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Chip tone={state?.yieldPaper ? "gold" : "danger"}>
-              {state?.yieldPaper ? "Paper" : "Live gated"}
+              {state?.yieldPaper ? "Paper" : "Live (Aave)"}
             </Chip>
             <Chip tone={state?.yieldArmed ? "primary" : "neutral"}>
               {state?.yieldArmed ? "Armed" : "Disarmed"}
@@ -389,6 +389,9 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                   <Chip tone={TIER_TONES[c.riskTier]}>{riskTierLabel(c.riskTier)}</Chip>
                   <Chip tone="gold">
                     ~{c.targetApyPct}% mid
+                  </Chip>
+                  <Chip tone={c.liveReady ? "primary" : "neutral"}>
+                    {c.liveReady ? "Live ready" : "Paper"}
                   </Chip>
                 </div>
               </div>

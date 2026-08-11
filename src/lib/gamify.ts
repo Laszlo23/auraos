@@ -31,6 +31,13 @@ export const COMPANY_QUESTS: Quest[] = [
     xp: 80,
   },
   {
+    key: "task:first_approve",
+    label: "Approve work",
+    hint: "Let an agent run after your OK",
+    glyph: "✓",
+    xp: 50,
+  },
+  {
     key: "mission:created",
     label: "Plan a mission",
     hint: "Turn a revenue goal into a strategy",

@@ -170,7 +170,11 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ messages: next, context }),
+        body: JSON.stringify({
+          messages: next,
+          context,
+          companyId: company?.id ?? null,
+        }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {

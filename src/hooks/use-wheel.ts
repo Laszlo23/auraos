@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/hooks/use-aura";
@@ -93,19 +94,33 @@ export function useSpinWheel() {
             amount: spin.amount,
             reason: spin.label,
           });
-          await supabase
-            .from("wheel_spins")
-            .update({
-              tx_hash: receipt.txHash,
-              chain_network: receipt.network,
-              chain_status: receipt.status === "anchored" ? "anchored" : "dev-settled",
-              settled_at: new Date().toISOString(),
-            })
-            .eq("id", spin.id);
+          const status = receipt.status === "anchored" ? "anchored" : "dev-settled";
+          const { error: settleErr } = await callRpc("settle_wheel_spin", {
+            _spin_id: spin.id,
+            _tx_hash: receipt.txHash,
+            _chain_network: receipt.network,
+            _chain_status: status,
+          });
+          if (settleErr) {
+            // Fallback: direct update if RPC not migrated yet
+            const { error: updErr } = await supabase
+              .from("wheel_spins")
+              .update({
+                tx_hash: receipt.txHash,
+                chain_network: receipt.network,
+                chain_status: status,
+                settled_at: new Date().toISOString(),
+              })
+              .eq("id", spin.id);
+            if (updErr) throw updErr;
+          }
           void qc.invalidateQueries({ queryKey: ["wheel-spin"] });
           void qc.invalidateQueries({ queryKey: ["wheel-history"] });
-        } catch {
-          /* grant already credited in DB — chain stamp is best-effort */
+        } catch (e) {
+          console.warn("wheel settle failed", e);
+          toast.message("Prize credited — chain stamp pending", {
+            description: e instanceof Error ? e.message : "Settlement will retry next visit",
+          });
         }
       })();
 

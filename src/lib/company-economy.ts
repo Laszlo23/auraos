@@ -58,8 +58,8 @@ export function taskStatusForAutonomy(opts: {
   if (opts.overDailyBudget) return "pending_approval";
   if (a === 0) return "pending_approval"; // Manual: always gate
   if (a === 1) {
-    // Assisted: founder missions still need approval unless already approved flag means "I want it queued"
-    return opts.founderApproved ? "pending_approval" : "pending_approval";
+    // Assisted: founder-approved dispatches queue; ambient proposals wait
+    return opts.founderApproved ? "queued" : "pending_approval";
   }
   if (a === 2) {
     // Supervised: founder-approved dispatches queue; ambient proposals wait

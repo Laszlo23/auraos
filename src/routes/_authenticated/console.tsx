@@ -21,11 +21,11 @@ import { ExpandableCopy } from "@/components/aura/expandable-copy";
 import { FocusCard } from "@/components/aura/focus-card";
 import { FocusDeck } from "@/components/aura/focus-deck";
 import { Chip, Panel, Pulse, Shimmer } from "@/components/aura/primitives";
+import { DailyEngagementStrip } from "@/components/aura/daily-engagement-strip";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
 import { StartHere } from "@/components/aura/start-here";
 import { StreamText } from "@/components/aura/stream-text";
-import { DailyWheel } from "@/components/aura/wheel";
 import { QuestTrail } from "@/components/aura/quests";
 import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
 import { COMPANY_QUESTS } from "@/lib/gamify";
@@ -108,7 +108,11 @@ function Home() {
   const { data: missions = [] } = useQuery({
     queryKey: ["revenue-missions"],
     queryFn: () => listRevenueMissions(),
-    staleTime: 10_000,
+    staleTime: 5_000,
+    refetchInterval: (q) => {
+      const rows = q.state.data as { status?: string }[] | undefined;
+      return rows?.some((m) => m.status === "active") ? 10_000 : false;
+    },
   });
   const { data: sub } = useSubscription();
   const { data: progress } = useProgress();
@@ -401,6 +405,13 @@ function Home() {
         <Snap label="Level" value={String(level)} />
       </div>
 
+      <DailyEngagementStrip
+        streakDays={progress?.streak_days ?? 0}
+        mission={focusMission}
+        completedQuests={progress?.completed_quests ?? []}
+        awaitingApproval={awaiting.length}
+      />
+
       <SiteGrowthStrip />
 
       <ActivationChallenge
@@ -547,21 +558,12 @@ function Home() {
         customers={customers}
       />
 
-      {/* Gamification separated from economics */}
-      <Panel label="Daily reward · gamification" glow delay={0.02}>
-        <p className="mb-4 text-[12px] text-muted-foreground">
-          XP is progression. AURA from the wheel is a reserve drop — neither is settled company
-          revenue.
-        </p>
-        <div className="grid gap-6 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
-          <DailyWheel />
-          <div>
-            <QuestTrail
-              quests={COMPANY_QUESTS}
-              completed={new Set(progress?.completed_quests ?? [])}
-            />
-          </div>
-        </div>
+      {/* Quests — wheel lives in Daily Engagement above */}
+      <Panel label="Company quests" delay={0.02}>
+        <QuestTrail
+          quests={COMPANY_QUESTS}
+          completed={new Set(progress?.completed_quests ?? [])}
+        />
       </Panel>
       </div>
 

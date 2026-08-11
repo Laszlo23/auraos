@@ -63,7 +63,11 @@ export function RevenueMissionsBand() {
   const { data: missions = [], isLoading } = useQuery({
     queryKey: ["revenue-missions"],
     queryFn: () => listRevenueMissions(),
-    staleTime: 10_000,
+    staleTime: 5_000,
+    refetchInterval: (q) => {
+      const rows = q.state.data as { status?: string }[] | undefined;
+      return rows?.some((m) => m.status === "active") ? 10_000 : false;
+    },
   });
 
   const active = useMemo(

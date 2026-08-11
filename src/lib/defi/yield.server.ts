@@ -92,6 +92,13 @@ export type OpenYieldArgs = {
   maxNotional: number;
   openNotional: number;
   agentId: string;
+  /** On-chain fill metadata (live rails). */
+  liveTx?: {
+    userOpHash: string;
+    wallet: string;
+    protocol: string;
+    chain: string;
+  };
 };
 
 export function validateOpenYield(args: OpenYieldArgs, item: YieldCatalogItem): string | null {
@@ -184,6 +191,14 @@ export async function openYieldPosition(db: Db, args: OpenYieldArgs) {
         standOut: item.standOut,
         apyBand: item.apyBand,
         liveReady: item.liveReady,
+        ...(args.liveTx
+          ? {
+              userOpHash: args.liveTx.userOpHash,
+              wallet: args.liveTx.wallet,
+              protocol: args.liveTx.protocol,
+              chain: args.liveTx.chain,
+            }
+          : {}),
       },
       opened_at: now,
       last_accrual_at: now,
@@ -198,9 +213,15 @@ export async function openYieldPosition(db: Db, args: OpenYieldArgs) {
     position_id: position.id,
     strategy_id: strategyId,
     kind: "open",
-    message: `${args.paper ? "Paper" : "Live"} allocate $${args.amountUsdc} → ${item.name}`,
+    message: args.liveTx
+      ? `Live supply $${args.amountUsdc} → ${item.name} · ${args.liveTx.userOpHash.slice(0, 10)}…`
+      : `${args.paper ? "Paper" : "Live"} allocate $${args.amountUsdc} → ${item.name}`,
     amount_usdc: args.amountUsdc,
-    metadata: { catalogId: item.id, riskTier: item.riskTier },
+    metadata: {
+      catalogId: item.id,
+      riskTier: item.riskTier,
+      ...(args.liveTx ? { userOpHash: args.liveTx.userOpHash } : {}),
+    },
   });
 
   await db
@@ -215,7 +236,20 @@ export async function openYieldPosition(db: Db, args: OpenYieldArgs) {
   return position;
 }
 
-export async function closeYieldPosition(db: Db, companyId: string, positionId: string) {
+export type CloseYieldOpts = {
+  /** Live withdraw fill (skips paper accrual). */
+  liveWithdraw?: {
+    userOpHash: string;
+    withdrawnUsdc: number;
+  };
+};
+
+export async function closeYieldPosition(
+  db: Db,
+  companyId: string,
+  positionId: string,
+  opts?: CloseYieldOpts,
+) {
   const { data: pos, error } = await db
     .from("defi_positions")
     .select("*")
@@ -227,17 +261,30 @@ export async function closeYieldPosition(db: Db, companyId: string, positionId: 
   if (pos.status !== "open") throw new Error("Position is not open");
 
   const nowMs = Date.now();
-  const last = new Date(pos.last_accrual_at as string).getTime();
-  const extra = paperAccrualUsdc(
-    Number(pos.principal_usdc),
-    Number(pos.target_apy_pct),
-    last,
-    nowMs,
-  );
-  const accrued = Number(pos.accrued_usdc) + extra;
-  const mark = Number(pos.principal_usdc) + accrued;
-  const realized = accrued;
+  const principal = Number(pos.principal_usdc);
+  let accrued: number;
+  let mark: number;
+  let realized: number;
+  let closeMsg: string;
+
+  if (opts?.liveWithdraw) {
+    const withdrawn = opts.liveWithdraw.withdrawnUsdc;
+    realized = withdrawn - principal;
+    accrued = Math.max(0, realized);
+    mark = withdrawn;
+    closeMsg = `Live withdraw ${pos.catalog_id} · $${withdrawn.toFixed(4)} · ${opts.liveWithdraw.userOpHash.slice(0, 10)}…`;
+  } else {
+    const last = new Date(pos.last_accrual_at as string).getTime();
+    const extra = paperAccrualUsdc(principal, Number(pos.target_apy_pct), last, nowMs);
+    accrued = Number(pos.accrued_usdc) + extra;
+    mark = principal + accrued;
+    realized = accrued;
+    closeMsg = `Closed ${pos.catalog_id} — realized $${realized.toFixed(4)} (paper accrual)`;
+  }
+
   const now = new Date(nowMs).toISOString();
+  const prevMeta =
+    pos.metadata && typeof pos.metadata === "object" ? (pos.metadata as Record<string, unknown>) : {};
 
   const { data: updated, error: upErr } = await db
     .from("defi_positions")
@@ -249,6 +296,15 @@ export async function closeYieldPosition(db: Db, companyId: string, positionId: 
       closed_at: now,
       last_accrual_at: now,
       updated_at: now,
+      metadata: {
+        ...prevMeta,
+        ...(opts?.liveWithdraw
+          ? {
+              closeUserOpHash: opts.liveWithdraw.userOpHash,
+              withdrawnUsdc: opts.liveWithdraw.withdrawnUsdc,
+            }
+          : {}),
+      },
     })
     .eq("id", positionId)
     .select("*")
@@ -260,8 +316,11 @@ export async function closeYieldPosition(db: Db, companyId: string, positionId: 
     position_id: positionId,
     strategy_id: pos.strategy_id,
     kind: "close",
-    message: `Closed ${pos.catalog_id} — realized $${realized.toFixed(4)} (paper accrual)`,
+    message: closeMsg,
     amount_usdc: realized,
+    metadata: opts?.liveWithdraw
+      ? { userOpHash: opts.liveWithdraw.userOpHash, withdrawnUsdc: opts.liveWithdraw.withdrawnUsdc }
+      : {},
   });
 
   return updated;

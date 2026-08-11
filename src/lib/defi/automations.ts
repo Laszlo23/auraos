@@ -23,7 +23,7 @@ export type YieldAutopilotConfig = {
   riskAutopilot: boolean;
   /** Target share of yield budget reserved for Quant velocity (0–50). */
   quantReservePct: number;
-  /** Auto-allocate idle park when armed + paper. */
+  /** Auto-allocate idle park when armed (paper always; live only if catalog liveReady). */
   autoParkIdle: boolean;
   /** Preferred idle park catalog id. */
   idleCatalogId: string;
@@ -236,6 +236,11 @@ export async function runYieldAutomations(
     openPositions: OpenPos[];
     quantHasOpenTrade: boolean;
     dryRun: boolean;
+    /** When set, auto-park can execute live Aave supply (owner wallet). */
+    livePark?: (amountUsdc: number, catalogId: string) => Promise<{
+      userOpHash: string;
+      wallet: string;
+    } | null>;
   },
 ): Promise<YieldAutomationResult> {
   const now = Date.now();
@@ -316,20 +321,65 @@ export async function runYieldAutomations(
         !args.dryRun &&
         args.autopilot.autoParkIdle &&
         args.yieldArmed &&
-        args.yieldPaper &&
         YIELD_RISK_ORDER.indexOf(idleItem.riskTier) <= YIELD_RISK_ORDER.indexOf(args.maxRiskTier)
       ) {
-        await openYieldPosition(db, {
-          companyId: args.companyId,
-          catalogId: idleItem.id,
-          amountUsdc: parkAmt,
-          paper: true,
-          maxTier: args.maxRiskTier,
-          maxNotional: args.maxNotional,
-          openNotional: openYield,
-          agentId: args.agentId,
-        });
-        executed.push(`parked $${parkAmt.toFixed(0)} → ${idleItem.id}`);
+        const canPaper = args.yieldPaper;
+        const canLive = !args.yieldPaper && idleItem.liveReady && idleItem.id === "base_aave_usdc";
+        if (canPaper || canLive) {
+          let liveTx:
+            | { userOpHash: string; wallet: string; protocol: string; chain: string }
+            | undefined;
+          if (canLive) {
+            if (!args.livePark) {
+              insights.push({
+                id: "idle-live-blocked",
+                engine: "Idle Capital Router",
+                title: "Live park needs wallet rails",
+                detail: "Auto-park live is armed but wallet/session key is unavailable this tick.",
+                severity: "warn",
+                catalogId: idleItem.id,
+              });
+            } else {
+              const fill = await args.livePark(parkAmt, idleItem.id);
+              if (!fill) {
+                insights.push({
+                  id: "idle-live-skipped",
+                  engine: "Idle Capital Router",
+                  title: "Live park skipped",
+                  detail: "Could not supply Aave this tick (balance or key).",
+                  severity: "warn",
+                  catalogId: idleItem.id,
+                });
+              } else {
+                liveTx = {
+                  userOpHash: fill.userOpHash,
+                  wallet: fill.wallet,
+                  protocol: "aave-v3",
+                  chain: "base",
+                };
+              }
+            }
+          }
+
+          if (canPaper || liveTx) {
+            await openYieldPosition(db, {
+              companyId: args.companyId,
+              catalogId: idleItem.id,
+              amountUsdc: parkAmt,
+              paper: canPaper,
+              maxTier: args.maxRiskTier,
+              maxNotional: args.maxNotional,
+              openNotional: openYield,
+              agentId: args.agentId,
+              ...(liveTx ? { liveTx } : {}),
+            });
+            executed.push(
+              liveTx
+                ? `live-parked $${parkAmt.toFixed(0)} → ${idleItem.id}`
+                : `parked $${parkAmt.toFixed(0)} → ${idleItem.id}`,
+            );
+          }
+        }
       }
     }
   } else if (args.autopilot.idleRouter && args.quantHasOpenTrade) {

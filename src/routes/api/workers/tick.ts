@@ -30,7 +30,28 @@ async function runTick(taskLimit: number) {
   const trading = await runTradingTick();
   const subscriptions = await runSubscriptionContentTick(20);
   const siteLeads = await runSiteLeadsDraftTick(25);
-  return { ok: true, tasks, channels, engagement, trading, subscriptions, siteLeads };
+
+  let missions = { advanced: 0, dispatched: 0 };
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { advanceActiveMissions, writeWorkerHeartbeat } = await import(
+      "@/lib/mission-progress.server"
+    );
+    missions = await advanceActiveMissions(supabaseAdmin as never, 12);
+    await writeWorkerHeartbeat(supabaseAdmin as never, {
+      tasks,
+      channels,
+      engagement,
+      tradingOk: Boolean(trading),
+      subscriptions,
+      siteLeads,
+      missions,
+    });
+  } catch (e) {
+    console.warn("[workers/tick] mission advance failed", e instanceof Error ? e.message : e);
+  }
+
+  return { ok: true, tasks, channels, engagement, trading, subscriptions, siteLeads, missions };
 }
 
 export const Route = createFileRoute("/api/workers/tick")({

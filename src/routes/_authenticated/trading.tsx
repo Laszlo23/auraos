@@ -46,6 +46,7 @@ import {
   runStrategyBacktest,
   setTradingDeskArmed,
   setTradingPaperMode,
+  triggerTradingTick,
   updateTradingRisk,
 } from "@/lib/trading.functions";
 import { currency, timeAgo } from "@/lib/format";
@@ -388,15 +389,46 @@ function TradingPage() {
     if (!company) return;
     setBusy("arm");
     try {
-      await setTradingDeskArmed({ data: { companyId: company.id, armed: next } });
+      const res = await setTradingDeskArmed({ data: { companyId: company.id, armed: next } });
       if (next) {
         if (readiness?.funded) pop("Wallet funded", 80, "trading:fund");
         pop("Desk armed", 120, "trading:arm");
+        const tick = (res as { tick?: { evald?: { signals?: number; checked?: number }; exec?: { executed?: number } } })
+          ?.tick;
+        if (tick) {
+          toast.success(
+            `Desk armed · Quant checked ${tick.evald?.checked ?? 0} · ${tick.evald?.signals ?? 0} signal(s) · ${tick.exec?.executed ?? 0} fill(s)`,
+          );
+        } else {
+          toast.success("Desk armed — Quant can trade inside caps.");
+        }
+      } else {
+        toast.success("Desk disarmed.");
       }
-      toast.success(next ? "Desk armed — Quant can trade inside caps." : "Desk disarmed.");
       await invalidateTrading();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not update arm state");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const onRunQuant = async () => {
+    if (!company) return;
+    setBusy("quant-tick");
+    try {
+      const tick = await triggerTradingTick({ data: { companyId: company.id } });
+      const t = tick as {
+        evald?: { signals?: number; checked?: number; errors?: string[] };
+        exec?: { executed?: number; errors?: string[] };
+      };
+      const errN = (t.evald?.errors?.length ?? 0) + (t.exec?.errors?.length ?? 0);
+      toast.success(
+        `Quant ran · checked ${t.evald?.checked ?? 0} · ${t.evald?.signals ?? 0} signal(s) · ${t.exec?.executed ?? 0} fill(s)${errN ? ` · ${errN} note(s)` : ""}`,
+      );
+      await invalidateTrading();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Quant tick failed");
     } finally {
       setBusy(null);
     }
@@ -510,6 +542,22 @@ function TradingPage() {
         onArm={(next) => void onArm(next)}
         onOpenDrawer={setDrawer}
       />
+
+      {armed ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/50 bg-foreground/[0.03] px-5 py-3.5">
+          <p className="text-[13px] text-muted-foreground">
+            Quant evaluates MA/breakout entries on each tick. Cron runs every ~10m — or run now.
+          </p>
+          <button
+            type="button"
+            disabled={busy === "quant-tick"}
+            onClick={() => void onRunQuant()}
+            className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            {busy === "quant-tick" ? "Running Quant…" : "Run Quant now"}
+          </button>
+        </div>
+      ) : null}
 
       <DeskChainSwitcher
         className="px-1"

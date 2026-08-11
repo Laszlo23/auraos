@@ -364,7 +364,38 @@ export const setTradingDeskArmed = createServerFn({ method: "POST" })
       message: data.armed ? "Trading desk armed" : "Trading desk disarmed",
     });
 
-    return { armed: data.armed };
+    let tick: Awaited<ReturnType<typeof import("@/lib/trading-worker.server").runTradingTick>> | null =
+      null;
+    if (data.armed) {
+      try {
+        const { runTradingTick } = await import("@/lib/trading-worker.server");
+        tick = await runTradingTick({ companyId: data.companyId });
+      } catch (e) {
+        console.warn("trading tick after arm failed", e instanceof Error ? e.message : e);
+      }
+    }
+
+    return { armed: data.armed, tick };
+  });
+
+/** Founder-triggered Quant tick — evaluate strategies + execute for this company now. */
+export const triggerTradingTick = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { companyId: string }) => ({
+    companyId: String(input.companyId),
+  }))
+  .handler(async ({ data, context }) => {
+    await ownedCompany(context.supabase, context.userId, data.companyId);
+    const { data: company } = await context.supabase
+      .from("companies")
+      .select("trading_armed")
+      .eq("id", data.companyId)
+      .maybeSingle();
+    if (!company?.trading_armed) {
+      throw new Error("Arm the desk before running Quant.");
+    }
+    const { runTradingTick } = await import("@/lib/trading-worker.server");
+    return runTradingTick({ companyId: data.companyId });
   });
 
 export const updateTradingRisk = createServerFn({ method: "POST" })

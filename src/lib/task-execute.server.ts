@@ -245,10 +245,25 @@ export async function executeTask(
     recentResults = (recent ?? []) as { title: string; result: string | null }[];
   }
 
+  const mem0Query = `${task.title}\n${task.description ?? ""}`.slice(0, 400);
+  let mem0Facts: string[] = [];
+  try {
+    const { searchMem0 } = await import("@/lib/mem0.server");
+    const hits = await searchMem0(mem0Query, {
+      companyId: task.company_id,
+      agentId: task.agent_id,
+      runId: task.id,
+    });
+    mem0Facts = hits.map((h) => h.memory);
+  } catch {
+    mem0Facts = [];
+  }
+
   const memoryBlock = formatMemoryContext({
     memory: agentMemory,
     knowledge: (knowledge ?? []) as { title: string; summary: string | null }[],
     recentResults,
+    mem0Facts,
   });
 
   const artifact: TaskArtifact = {
@@ -554,6 +569,18 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
         status: "active",
       })
       .eq("id", task.agent_id);
+
+    if (learned && memoryUpdate) {
+      void import("@/lib/mem0.server")
+        .then(({ addMem0Lesson }) =>
+          addMem0Lesson(memoryUpdate, {
+            companyId: task.company_id,
+            agentId: task.agent_id,
+            runId: task.id,
+          }),
+        )
+        .catch(() => undefined);
+    }
   }
 
   if (durableFact) {
@@ -589,7 +616,7 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
     });
   }
 
-  // Mission learning when linked
+  // Mission learning + progress when linked
   if (task.mission_id) {
     await db.from("knowledge_items").insert({
       company_id: task.company_id,
@@ -603,6 +630,14 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
         verified: true,
       }).slice(0, 2000),
       source: "task_execution",
+    });
+    const { onMissionTaskCompleted } = await import("@/lib/mission-progress.server");
+    await onMissionTaskCompleted(db, {
+      companyId: task.company_id,
+      missionId: task.mission_id,
+      agentName,
+      taskTitle: task.title,
+      summary: typeof artifact.plan?.[0] === "string" ? artifact.plan[0] : undefined,
     });
   }
 
