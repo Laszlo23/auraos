@@ -94,6 +94,7 @@ import { Route as NachbarRefCodeRouteImport } from './routes/nachbar/ref.$code'
 import { Route as OauthMailboxReturnRouteImport } from './routes/oauth/mailbox.return'
 import { Route as OauthSocialReturnRouteImport } from './routes/oauth/social.return'
 import { Route as RReviewTokenRouteImport } from './routes/r.review.$token'
+import { Route as ApiGenesisMetaTokenIdRouteImport } from './routes/api/genesis/meta/$tokenId'
 import { Route as ApiOauthSocialCallbackRouteImport } from './routes/api/oauth/social/callback'
 import { Route as ApiOauthSocialStartRouteImport } from './routes/api/oauth/social/start'
 import { Route as ApiPublicX402IndexRouteImport } from './routes/api/public/x402/index'
@@ -534,6 +535,11 @@ const RReviewTokenRoute = RReviewTokenRouteImport.update({
   path: '/r/review/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenesisMetaTokenIdRoute = ApiGenesisMetaTokenIdRouteImport.update({
+  id: '/api/genesis/meta/$tokenId',
+  path: '/api/genesis/meta/$tokenId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiOauthSocialCallbackRoute = ApiOauthSocialCallbackRouteImport.update({
   id: '/api/oauth/social/callback',
   path: '/api/oauth/social/callback',
@@ -694,6 +700,7 @@ export interface FileRoutesByFullPath {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
   '/api/public/x402/astro-reading': typeof ApiPublicX402AstroReadingRoute
@@ -792,6 +799,7 @@ export interface FileRoutesByTo {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
   '/api/public/x402/astro-reading': typeof ApiPublicX402AstroReadingRoute
@@ -893,6 +901,7 @@ export interface FileRoutesById {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
   '/api/public/x402/astro-reading': typeof ApiPublicX402AstroReadingRoute
@@ -994,6 +1003,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
     | '/api/public/x402/astro-reading'
@@ -1092,6 +1102,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
     | '/api/public/x402/astro-reading'
@@ -1192,6 +1203,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
     | '/api/public/x402/astro-reading'
@@ -1248,6 +1260,7 @@ export interface RootRouteChildren {
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
   OauthSocialReturnRoute: typeof OauthSocialReturnRoute
   RReviewTokenRoute: typeof RReviewTokenRoute
+  ApiGenesisMetaTokenIdRoute: typeof ApiGenesisMetaTokenIdRoute
   ApiOauthSocialCallbackRoute: typeof ApiOauthSocialCallbackRoute
   ApiOauthSocialStartRoute: typeof ApiOauthSocialStartRoute
   ApiPublicX402AstroReadingRoute: typeof ApiPublicX402AstroReadingRoute
@@ -1860,6 +1873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RReviewTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/genesis/meta/$tokenId': {
+      id: '/api/genesis/meta/$tokenId'
+      path: '/api/genesis/meta/$tokenId'
+      fullPath: '/api/genesis/meta/$tokenId'
+      preLoaderRoute: typeof ApiGenesisMetaTokenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/oauth/social/callback': {
       id: '/api/oauth/social/callback'
       path: '/api/oauth/social/callback'
@@ -2115,6 +2135,7 @@ const rootRouteChildren: RootRouteChildren = {
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,
   OauthSocialReturnRoute: OauthSocialReturnRoute,
   RReviewTokenRoute: RReviewTokenRoute,
+  ApiGenesisMetaTokenIdRoute: ApiGenesisMetaTokenIdRoute,
   ApiOauthSocialCallbackRoute: ApiOauthSocialCallbackRoute,
   ApiOauthSocialStartRoute: ApiOauthSocialStartRoute,
   ApiPublicX402AstroReadingRoute: ApiPublicX402AstroReadingRoute,

@@ -8,24 +8,44 @@ import {
   activeNetwork,
   chainLabel,
   USDC_ADDRESSES,
+  USDC_DECIMALS,
+  nativeSymbol,
 } from "@/lib/chain-config";
 import { NATIVE_ETH, WETH_ADDRESSES, explorerTxUrl as buildExplorerTxUrl } from "@/lib/trading/tokens";
 
 /** Public status of OKX rails (no secrets). */
 export const getOkxStatus = createServerFn({ method: "GET" }).handler(async () => {
   const { okxConfigured, okxBuilderCode, okxPayoutAddress } = await import("./okx.server");
+  const { gasSponsorshipEnabled } = await import("./wallet.server");
   const network = activeNetwork();
   return {
     configured: okxConfigured(),
     builderCode: Boolean(okxBuilderCode()),
     payoutConfigured: Boolean(okxPayoutAddress()),
+    gasSponsored: gasSponsorshipEnabled(network),
     network,
     label: chainLabel(network),
     chainId: String(chainId(network)),
+    nativeSymbol: nativeSymbol(network),
   };
 });
 
-export type TreasurySwapDirection = "eth_to_usdc" | "eth_to_weth" | "weth_to_usdc";
+export type TreasurySwapDirection =
+  | "eth_to_usdc"
+  | "eth_to_weth"
+  | "weth_to_usdc"
+  | "weth_to_eth"
+  | "usdc_to_eth"
+  | "usdc_to_weth";
+
+const SWAP_DIRECTIONS = new Set<TreasurySwapDirection>([
+  "eth_to_usdc",
+  "eth_to_weth",
+  "weth_to_usdc",
+  "weth_to_eth",
+  "usdc_to_eth",
+  "usdc_to_weth",
+]);
 
 const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
 
@@ -41,6 +61,30 @@ function parseHumanAmount(raw: string, decimals: number): bigint {
   const [whole, frac = ""] = cleaned.split(".");
   const fracPadded = (frac + "0".repeat(decimals)).slice(0, decimals);
   return BigInt(whole || "0") * 10n ** BigInt(decimals) + BigInt(fracPadded || "0");
+}
+
+function clampSlippagePercent(raw: string | undefined): string {
+  const n = Number.parseFloat(String(raw ?? "0.5"));
+  if (!Number.isFinite(n)) return "0.5";
+  return String(Math.min(3, Math.max(0.1, n)));
+}
+
+function friendlyUserOpError(err: unknown, sponsored: boolean, native: string): Error {
+  const msg = err instanceof Error ? err.message : String(err);
+  const lower = msg.toLowerCase();
+  if (
+    !sponsored &&
+    (lower.includes("gas") ||
+      lower.includes("fund") ||
+      lower.includes("insufficient") ||
+      lower.includes("aa21") ||
+      lower.includes("aa31"))
+  ) {
+    return new Error(
+      `Need a little ${native} on this wallet for gas (sponsorship is off). Deposit ~0.001 ${native}, then retry.`,
+    );
+  }
+  return err instanceof Error ? err : new Error(msg || "Swap failed");
 }
 
 /** Quote a DEX route for the company's smart-wallet treasury. */
@@ -71,7 +115,7 @@ export const quoteOkxSwap = createServerFn({ method: "POST" })
       fromTokenAddress: from,
       toTokenAddress: data.toTokenAddress,
       amount: data.amount,
-      ...(data.slippage ? { slippage: data.slippage } : {}),
+      slippage: clampSlippagePercent(data.slippage),
     });
 
     return {
@@ -122,7 +166,7 @@ export const prepareOkxSwap = createServerFn({ method: "POST" })
       toTokenAddress: data.toTokenAddress,
       amount: data.amount,
       userWalletAddress: data.userWalletAddress,
-      ...(data.slippage ? { slippage: data.slippage } : {}),
+      slippage: clampSlippagePercent(data.slippage),
     });
 
     return {
@@ -133,20 +177,20 @@ export const prepareOkxSwap = createServerFn({ method: "POST" })
   });
 
 /**
- * In-app treasury convert via OKX DEX (ETH ↔ desk inventory).
+ * In-app treasury convert via OKX DEX.
  * Broadcasts from the founder's Light Account — leaves a small ETH gas buffer.
  */
 export const executeTreasurySwap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { direction: string; amount?: string; slippage?: string }) => {
     const direction = String(input.direction || "") as TreasurySwapDirection;
-    if (direction !== "eth_to_usdc" && direction !== "eth_to_weth" && direction !== "weth_to_usdc") {
-      throw new Error("Choose eth_to_usdc, eth_to_weth, or weth_to_usdc.");
+    if (!SWAP_DIRECTIONS.has(direction)) {
+      throw new Error("Choose eth↔usdc, eth↔weth, weth↔usdc, or usdc↔eth / usdc↔weth.");
     }
     return {
       direction,
       amount: input.amount ? String(input.amount).trim() : "max",
-      slippage: input.slippage ? String(input.slippage) : "0.5",
+      slippage: clampSlippagePercent(input.slippage),
     };
   })
   .handler(async ({ data, context }) => {
@@ -165,6 +209,9 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
     const cid = String(chainId(network));
     const usdc = USDC_ADDRESSES[network];
     const weth = WETH_ADDRESSES[network];
+    const usdcDecimals = USDC_DECIMALS[network];
+    const native = nativeSymbol(network);
+    const sponsored = gasSponsorshipEnabled(network);
 
     const { data: wallet } = await supabaseAdmin
       .from("wallet_bindings")
@@ -209,21 +256,69 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       return json.result ? BigInt(json.result) : 0n;
     };
 
-    let fromToken: string;
-    let toToken: string;
-    let amountWei: bigint;
-    let fromLabel: string;
-    let toLabel: string;
+    const route: Record<
+      TreasurySwapDirection,
+      { fromToken: string; toToken: string; fromLabel: string; toLabel: string; decimals: number }
+    > = {
+      eth_to_usdc: {
+        fromToken: NATIVE_ETH,
+        toToken: usdc,
+        fromLabel: native,
+        toLabel: "USDC",
+        decimals: 18,
+      },
+      eth_to_weth: {
+        fromToken: NATIVE_ETH,
+        toToken: weth,
+        fromLabel: native,
+        toLabel: "WETH",
+        decimals: 18,
+      },
+      weth_to_usdc: {
+        fromToken: weth,
+        toToken: usdc,
+        fromLabel: "WETH",
+        toLabel: "USDC",
+        decimals: 18,
+      },
+      weth_to_eth: {
+        fromToken: weth,
+        toToken: NATIVE_ETH,
+        fromLabel: "WETH",
+        toLabel: native,
+        decimals: 18,
+      },
+      usdc_to_eth: {
+        fromToken: usdc,
+        toToken: NATIVE_ETH,
+        fromLabel: "USDC",
+        toLabel: native,
+        decimals: usdcDecimals,
+      },
+      usdc_to_weth: {
+        fromToken: usdc,
+        toToken: weth,
+        fromLabel: "USDC",
+        toLabel: "WETH",
+        decimals: usdcDecimals,
+      },
+    };
 
-    if (data.direction === "eth_to_usdc" || data.direction === "eth_to_weth") {
-      fromToken = NATIVE_ETH;
-      toToken = data.direction === "eth_to_usdc" ? usdc : weth;
-      fromLabel = "ETH";
-      toLabel = data.direction === "eth_to_usdc" ? "USDC" : "WETH";
+    const spec = route[data.direction];
+    const { fromToken, toToken, fromLabel, toLabel, decimals } = spec;
+
+    let amountWei: bigint;
+    if (fromToken === NATIVE_ETH) {
       const bal = await nativeBal();
-      const buffer = gasSponsorshipEnabled() ? 2n * 10n ** 14n : 10n ** 15n;
+      const buffer = sponsored ? 2n * 10n ** 14n : 10n ** 15n;
       const spendable = bal > buffer ? bal - buffer : 0n;
-      if (spendable <= 0n) throw new Error("Not enough ETH after gas buffer.");
+      if (spendable <= 0n) {
+        throw new Error(
+          sponsored
+            ? `Not enough ${native} to convert.`
+            : `Not enough ${native} after gas buffer. Keep ~0.001 ${native} for fees.`,
+        );
+      }
       amountWei =
         data.amount === "max" || data.amount === ""
           ? spendable
@@ -231,16 +326,23 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       if (amountWei > spendable) amountWei = spendable;
       if (amountWei < 10n ** 12n) throw new Error("Amount too small.");
     } else {
-      fromToken = weth;
-      toToken = usdc;
-      fromLabel = "WETH";
-      toLabel = "USDC";
-      const bal = await balanceOf(weth);
-      if (bal <= 0n) throw new Error("No WETH balance to convert.");
+      const bal = await balanceOf(fromToken);
+      if (bal <= 0n) throw new Error(`No ${fromLabel} balance to convert.`);
       amountWei =
-        data.amount === "max" || data.amount === "" ? bal : parseHumanAmount(data.amount, 18);
+        data.amount === "max" || data.amount === ""
+          ? bal
+          : parseHumanAmount(data.amount, decimals);
       if (amountWei > bal) amountWei = bal;
-      if (amountWei < 10n ** 12n) throw new Error("Amount too small.");
+      const minAmt = decimals === 6 ? 10_000n : 10n ** 12n;
+      if (amountWei < minAmt) throw new Error("Amount too small.");
+      if (!sponsored) {
+        const eth = await nativeBal();
+        if (eth < 5n * 10n ** 14n) {
+          throw new Error(
+            `Deposit a little ${native} for gas before exchanging (sponsorship is off).`,
+          );
+        }
+      }
     }
 
     const swapRaw = await okxDexSwap({
@@ -265,10 +367,15 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       value: parsed.value > 0n ? parsed.value : fromToken === NATIVE_ETH ? amountWei : 0n,
     });
 
-    const result =
-      calls.length > 1
-        ? await executeBatchUserOps(pk, calls)
-        : await executeContractUserOp(pk, calls[0]!);
+    let result: { userOpHash: string; address: Address };
+    try {
+      result =
+        calls.length > 1
+          ? await executeBatchUserOps(pk, calls)
+          : await executeContractUserOp(pk, calls[0]!);
+    } catch (err) {
+      throw friendlyUserOpError(err, sponsored, native);
+    }
 
     const { data: company } = await context.supabase
       .from("companies")
@@ -278,11 +385,13 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
     if (company?.id) {
+      const human =
+        decimals === 6 ? Number(amountWei) / 10 ** usdcDecimals : Number(amountWei) / 1e18;
       await supabaseAdmin.from("activity_events").insert({
         company_id: company.id,
         kind: "trade",
         message: `Treasury swap ${fromLabel} → ${toLabel} via OKX`,
-        value: Number(amountWei) / 1e18,
+        value: human,
       });
     }
 

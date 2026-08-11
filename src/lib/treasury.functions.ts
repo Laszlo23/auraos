@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { Address, Hex } from "viem";
+import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
@@ -11,7 +13,27 @@ import {
   USDC_ADDRESSES,
   USDC_DECIMALS,
 } from "@/lib/chain-config";
-import { WETH_ADDRESSES } from "@/lib/trading/tokens";
+import { explorerTxUrl, WETH_ADDRESSES } from "@/lib/trading/tokens";
+
+const ERC20_TRANSFER_SELECTOR = "0xa9059cbb";
+
+function isEvmAddress(value: string): value is Address {
+  return /^0x[a-fA-F0-9]{40}$/.test(value);
+}
+
+function parseHumanAmount(raw: string, decimals: number): bigint {
+  const cleaned = String(raw).trim().replace(/,/g, "");
+  if (!/^\d+(\.\d+)?$/.test(cleaned)) throw new Error("Invalid amount.");
+  const [whole, frac = ""] = cleaned.split(".");
+  const fracPadded = (frac + "0".repeat(decimals)).slice(0, decimals);
+  return BigInt(whole || "0") * 10n ** BigInt(decimals) + BigInt(fracPadded || "0");
+}
+
+function encodeErc20Transfer(to: Address, amount: bigint): Hex {
+  const toWord = to.slice(2).toLowerCase().padStart(64, "0");
+  const amountWord = amount.toString(16).padStart(64, "0");
+  return `${ERC20_TRANSFER_SELECTOR}${toWord}${amountWord}` as Hex;
+}
 
 function explorerBase(network: ReturnType<typeof activeNetwork>) {
   return explorerBaseUrl(network);
@@ -53,6 +75,7 @@ async function ethBalance(url: string, address: string): Promise<bigint> {
 export const getTreasuryBalance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { gasSponsorshipEnabled } = await import("./wallet.server");
     const network = activeNetwork();
     const { data: wallet } = await context.supabase
       .from("wallet_bindings")
@@ -66,6 +89,7 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
     const explorer = explorerBase(network);
     const native = nativeSymbol(network);
     const usdcDecimals = USDC_DECIMALS[network];
+    const sponsored = gasSponsorshipEnabled(network);
     const base = {
       address: null as string | null,
       walletId: null as string | null,
@@ -81,7 +105,7 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       verified: false,
       custody: null as string | null,
       provider: null as string | null,
-      sponsored: Boolean(process.env["ALCHEMY_GAS_POLICY_ID"] || process.env["ALCHEMY_GAS_POLICY_ID_BSC"]),
+      sponsored,
       usdcToken: usdcAddress,
       wethToken: wethAddress,
       explorerAddressUrl: null as string | null,
@@ -130,6 +154,7 @@ export const getTreasuryBalance = createServerFn({ method: "GET" })
       verified: Boolean(wallet.verified),
       custody: (wallet.custody as string) ?? null,
       provider: (wallet.provider as string) ?? null,
+      sponsored,
       explorerAddressUrl: `${explorer}/address/${wallet.address}`,
     };
   });
@@ -219,9 +244,11 @@ export const getTreasuryActivity = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false })
         .limit(10);
       for (const e of events ?? []) {
+        const kind =
+          e.kind === "trade" || e.kind === "trading" ? ("trade" as const) : ("system" as const);
         items.push({
           id: `evt-${e.id}`,
-          kind: "system",
+          kind,
           title: e.message as string,
           detail: e.kind as string,
           amount: e.value != null ? Number(e.value) : null,
@@ -312,4 +339,167 @@ export const getTreasuryActivity = createServerFn({ method: "GET" })
 
     items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
     return { items: items.slice(0, 40), network, label: chainLabel(network) };
+  });
+
+export type TreasurySendAsset = "eth" | "usdc" | "weth";
+
+/**
+ * Send / withdraw native or ERC-20 from the founder's Light Account via UserOp.
+ * Leaves a small ETH gas buffer when sending native with amount=max.
+ */
+export const sendTreasury = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        asset: z.enum(["eth", "usdc", "weth"]),
+        to: z.string().min(1).max(128),
+        amount: z.string().min(1).max(64),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const toRaw = data.to.trim();
+    if (!isEvmAddress(toRaw)) {
+      throw new Error("Enter a valid 0x address (42 characters).");
+    }
+    const to = toRaw.toLowerCase() as Address;
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const {
+      decryptOwnerKey,
+      executeContractUserOp,
+      gasSponsorshipEnabled,
+    } = await import("@/lib/wallet.server");
+
+    const network = activeNetwork();
+    const usdc = USDC_ADDRESSES[network] as Address;
+    const weth = WETH_ADDRESSES[network] as Address;
+    const usdcDecimals = USDC_DECIMALS[network];
+    const native = nativeSymbol(network);
+
+    const { data: wallet } = await supabaseAdmin
+      .from("wallet_bindings")
+      .select("id, address, owner_key_enc, deployed")
+      .eq("user_id", context.userId)
+      .eq("kind", "smart")
+      .maybeSingle();
+    if (!wallet?.address || !wallet.owner_key_enc) {
+      throw new Error("Provision your smart wallet on /wallet first.");
+    }
+
+    const from = String(wallet.address).toLowerCase();
+    if (from === to) throw new Error("Cannot send to your own treasury address.");
+
+    const rpc = alchemyRpcUrl({ network });
+    if (!rpc) throw new Error("Alchemy RPC is not configured.");
+
+    const balanceOf = async (token: string): Promise<bigint> => {
+      const dataHex = `0x70a08231000000000000000000000000${from.slice(2)}`;
+      const res = await fetch(rpc, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: 1,
+          jsonrpc: "2.0",
+          method: "eth_call",
+          params: [{ to: token, data: dataHex }, "latest"],
+        }),
+      });
+      const json = (await res.json()) as { result?: string };
+      return json.result && json.result !== "0x" ? BigInt(json.result) : 0n;
+    };
+    const nativeBal = async (): Promise<bigint> => {
+      const res = await fetch(rpc, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: 1,
+          jsonrpc: "2.0",
+          method: "eth_getBalance",
+          params: [wallet.address, "latest"],
+        }),
+      });
+      const json = (await res.json()) as { result?: string };
+      return json.result ? BigInt(json.result) : 0n;
+    };
+
+    const amountRaw = data.amount.trim().toLowerCase();
+    let amountWei: bigint;
+    let assetLabel: string;
+    let call: { target: Address; data: Hex; value?: bigint };
+
+    if (data.asset === "eth") {
+      assetLabel = native;
+      const bal = await nativeBal();
+      const buffer = gasSponsorshipEnabled(network) ? 2n * 10n ** 14n : 10n ** 15n;
+      const spendable = bal > buffer ? bal - buffer : 0n;
+      if (spendable <= 0n) throw new Error(`Not enough ${native} after gas buffer.`);
+      amountWei =
+        amountRaw === "max" ? spendable : parseHumanAmount(amountRaw, 18);
+      if (amountWei > spendable) amountWei = spendable;
+      if (amountWei <= 0n) throw new Error("Amount too small.");
+      call = {
+        target: to,
+        data: "0x" as Hex,
+        value: amountWei,
+      };
+    } else {
+      const token = data.asset === "usdc" ? usdc : weth;
+      const decimals = data.asset === "usdc" ? usdcDecimals : 18;
+      assetLabel = data.asset === "usdc" ? "USDC" : "WETH";
+      if (!gasSponsorshipEnabled(network)) {
+        const ethBal = await nativeBal();
+        if (ethBal < 10n ** 15n) {
+          throw new Error(
+            `Keep ~0.001 ${native} for gas, or set Alchemy gas sponsorship on the server.`,
+          );
+        }
+      }
+      const bal = await balanceOf(token);
+      if (bal <= 0n) throw new Error(`No ${assetLabel} balance to send.`);
+      amountWei = amountRaw === "max" ? bal : parseHumanAmount(amountRaw, decimals);
+      if (amountWei > bal) amountWei = bal;
+      if (amountWei <= 0n) throw new Error("Amount too small.");
+      call = {
+        target: token,
+        data: encodeErc20Transfer(to, amountWei),
+      };
+    }
+
+    const pk = decryptOwnerKey(wallet.owner_key_enc) as Hex;
+    const result = await executeContractUserOp(pk, call);
+
+    const humanAmount =
+      data.asset === "usdc"
+        ? Number(amountWei) / 10 ** usdcDecimals
+        : Number(amountWei) / 1e18;
+
+    const { data: company } = await context.supabase
+      .from("companies")
+      .select("id")
+      .eq("owner_id", context.userId)
+      .order("created_at")
+      .limit(1)
+      .maybeSingle();
+    if (company?.id) {
+      await supabaseAdmin.from("activity_events").insert({
+        company_id: company.id,
+        kind: "system",
+        message: `Sent ${humanAmount.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${assetLabel} to ${to.slice(0, 8)}…`,
+        value: humanAmount,
+      });
+    }
+
+    return {
+      ok: true as const,
+      asset: data.asset,
+      assetLabel,
+      to,
+      amount: amountWei.toString(),
+      humanAmount,
+      userOpHash: result.userOpHash,
+      network,
+      explorerTxUrl: explorerTxUrl(network, result.userOpHash),
+    };
   });

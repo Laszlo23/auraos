@@ -204,7 +204,7 @@ function AkquisePage() {
     }
     if (t === "grant_hunter" && !goal) {
       setGoal(
-        "Find open 2026 grants and credits for an AI agent operating system shipping on Base (x402, smart wallets) — Google Cloud, Microsoft Founders Hub, AWS Activate, Base Builder Grants, Arbitrum Trailblazer AI, Polygon Community Grants, Optimism Grants, Alchemy credits, Austrian aws Preseed / FFG.",
+        "Find open 2026 grants and credits for an AI agent operating system shipping on Base (x402, smart wallets, OKX DEX exchange) — Alchemy Everyone Onchain Fund + Base Gas Manager credits, OKX Developer Collective, Google Cloud, Microsoft Founders Hub, AWS Activate, Base Builder Grants, Arbitrum Trailblazer AI, Polygon Community Grants, Optimism Grants, Austrian aws Preseed / FFG.",
       );
       setLanguage("en");
       setRegion("Global / Austria");

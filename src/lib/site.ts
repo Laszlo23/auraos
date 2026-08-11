@@ -14,7 +14,7 @@ export const url = (path = "/") => `${SITE_URL}${path.startsWith("/") ? path : `
  * Bump when public media must bypass stale CDN/browser caches
  * (e.g. after a mistaken immutable Cache-Control on 403 responses).
  */
-export const MEDIA_CACHE_BUST = "20260809b";
+export const MEDIA_CACHE_BUST = "20260811g";
 
 /** Public asset path with cache-bust query (videos, posters). */
 export function mediaPath(path: string) {

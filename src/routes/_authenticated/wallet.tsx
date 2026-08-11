@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/aura/primitives";
 import { GenesisPassport } from "@/components/aura/genesis-passport";
 import { CompanyTokenLaunchPanel } from "@/components/aura/company-token-launch";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
-import { TreasuryOverview } from "@/components/aura/treasury-overview";
+import { WalletDesk } from "@/components/aura/wallet-desk";
 import { SessionKeysPanel } from "@/components/aura/smart-wallet";
 import { HolderAdvantages } from "@/components/aura/trading/holder-advantages";
 import { useMyHandle } from "@/hooks/use-identity";
@@ -18,16 +18,16 @@ import { getHolderPerks } from "@/lib/trading.functions";
 export const Route = createFileRoute("/_authenticated/wallet")({
   head: () => ({
     meta: [
-      { title: "Wallet — deposit address & funds | Aura OS" },
+      { title: "Wallet — balance, send, exchange | Aura OS" },
       {
         name: "description",
         content:
-          "Your smart-wallet deposit address, live USDC balance, recent activity, and agent session keys — clear and onchain.",
+          "Your on-chain treasury: live balances, receive, send, exchange via OKX DEX, badges, and Genesis Passport.",
       },
-      { property: "og:title", content: "Wallet — Aura OS treasury" },
+      { property: "og:title", content: "Wallet — Aura OS" },
       {
         property: "og:description",
-        content: "Find your deposit address, see funds, and review every move.",
+        content: "See balances. Receive, send, and exchange from your company smart wallet.",
       },
     ],
   }),
@@ -53,24 +53,31 @@ function WalletPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Treasury"
-        title="Your wallet, in plain view"
-        description="Company revenue wallet (ledger) plus on-chain deposit address, balances, and session keys."
+        eyebrow="Wallet"
+        title="Your money, on-chain"
+        description="Balances, badges, receive, send, and exchange. Fund USDC on Base — keep a little ETH for gas until sponsorship is on."
       />
-      <RevenueWallet />
-      <TreasuryOverview />
+      <WalletDesk seat={progress?.seat_number} perks={perks} />
       <GenesisPassport
         companyName={company?.name}
         slug={economy?.slug}
         seat={progress?.seat_number}
       />
-      <CompanyTokenLaunchPanel />
+      <RevenueWallet compact />
       <div className="grid gap-5 lg:grid-cols-2">
         <SessionKeysPanel
           walletId={(wallet as { id?: string } | null)?.id ?? null}
         />
         <HolderAdvantages perks={perks} />
       </div>
+      <details className="group rounded-[1.5rem] border border-border/40 bg-foreground/[0.03] px-5 py-4">
+        <summary className="cursor-pointer list-none text-[12px] font-semibold uppercase tracking-[0.16em] text-muted-foreground marker:content-none [&::-webkit-details-marker]:hidden">
+          More · company token launch
+        </summary>
+        <div className="mt-5">
+          <CompanyTokenLaunchPanel />
+        </div>
+      </details>
     </div>
   );
 }

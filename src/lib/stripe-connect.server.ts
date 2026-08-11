@@ -307,14 +307,37 @@ export async function createConnectMerchantAccount(opts: {
   throw formatConnectError(msg, msg);
 }
 
+/**
+ * Only allow same-origin relative paths. Blocks `//evil`, `@evil.com`, schemes,
+ * and other open-redirect tricks when concatenated onto SITE_URL.
+ */
+export function sanitizeConnectReturnPath(
+  path: string | undefined,
+  fallback = "/billing?connect=return",
+): string {
+  const raw = (path ?? fallback).trim() || fallback;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return fallback;
+  if (raw.includes("://") || /[@\\]/.test(raw)) return fallback;
+  if (!/^\/[A-Za-z0-9/_\-?&=.#%]*$/.test(raw)) return fallback;
+  return raw;
+}
+
 export async function createConnectAccountLink(opts: {
   accountId: string;
   returnPath?: string;
   refreshPath?: string;
 }): Promise<string> {
   const origin = (process.env["SITE_URL"] || SITE_URL).replace(/\/+$/, "");
-  const returnUrl = `${origin}${opts.returnPath ?? "/billing?connect=return"}`;
-  const refreshUrl = `${origin}${opts.refreshPath ?? "/billing?connect=refresh"}`;
+  const returnPath = sanitizeConnectReturnPath(
+    opts.returnPath,
+    "/billing?connect=return",
+  );
+  const refreshPath = sanitizeConnectReturnPath(
+    opts.refreshPath,
+    "/billing?connect=refresh",
+  );
+  const returnUrl = `${origin}${returnPath}`;
+  const refreshUrl = `${origin}${refreshPath}`;
 
   const res = await stripeV2Json("/v2/core/account_links", {
     method: "POST",

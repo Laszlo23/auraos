@@ -81,7 +81,16 @@ export const startStripeConnectOnboarding = createServerFn({ method: "POST" })
       formatConnectError,
       mapAccountToFlags,
       retrieveConnectAccount,
+      sanitizeConnectReturnPath,
     } = await import("@/lib/stripe-connect.server");
+    const returnPath = sanitizeConnectReturnPath(
+      data.returnPath,
+      "/billing?connect=return",
+    );
+    const refreshPath = sanitizeConnectReturnPath(
+      data.refreshPath,
+      "/billing?connect=refresh",
+    );
 
     try {
       const { data: authUser } = await asDb(context.supabase).auth.getUser();
@@ -148,8 +157,8 @@ export const startStripeConnectOnboarding = createServerFn({ method: "POST" })
 
       const url = await createConnectAccountLink({
         accountId: row.stripe_account_id,
-        ...(data.returnPath ? { returnPath: data.returnPath } : {}),
-        ...(data.refreshPath ? { refreshPath: data.refreshPath } : {}),
+        returnPath,
+        refreshPath,
       });
       return { url };
     } catch (err) {

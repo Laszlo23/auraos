@@ -12,6 +12,7 @@ Utility membership NFT for seated Aura founders — **not** an investment produc
 
 1. Install OpenZeppelin contracts in a Foundry/Hardhat workspace (or Remix with OZ imports).
 2. Deploy `GenesisPassport(admin, 1000, "https://aibusiness.fun/api/genesis/meta/")`.
+   Metadata JSON is served per token; shared art at `/genesis-passport.png`.
 3. Keep `admin` / minter as a cold or server-held key; grant `MINTER_ROLE` to the hot minter if split.
 4. Set on the app:
 

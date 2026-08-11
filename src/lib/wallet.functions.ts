@@ -49,6 +49,17 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
     const network = activeNetwork();
     const apiKey = process.env["ALCHEMY_API_KEY"];
 
+    // Caller must own the handle — otherwise slot griefing via unique (handle_id, slot).
+    const { data: ownedHandle } = await context.supabase
+      .from("handles")
+      .select("id")
+      .eq("id", data.handleId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!ownedHandle) {
+      throw new Error("You do not own this handle.");
+    }
+
     // Ownership check via user session, key material via service role only.
     const { data: owned } = await context.supabase
       .from("wallet_bindings")
