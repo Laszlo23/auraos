@@ -68,3 +68,5 @@ Disallow: /wallet
 Disallow: /trading
 
 Sitemap: https://aibusiness.fun/sitemap.xml
+# For AI agents / LLM crawlers
+# https://aibusiness.fun/llms.txt

@@ -187,7 +187,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   {simple ? "Your company" : group}
                 </p>
               )}
-              <nav className="space-y-0.5">
+              <nav className="space-y-0.5" aria-label={simple ? "Company navigation" : `${group} navigation`}>
                 {visibleNav
                   .filter((n) => n.group === group)
                   .map((item) => {
@@ -236,22 +236,30 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <button
+          type="button"
           onClick={toggleSimple}
           title={simple ? "Show every surface" : "Show only the essentials"}
+          aria-label={simple ? "Show every surface" : "Show only the essentials"}
           className={cn(
             "glass-soft flex items-center justify-center gap-2 rounded-2xl py-2 text-xs transition-colors",
             simple ? "text-muted-foreground hover:text-foreground" : "text-primary",
           )}
         >
-          <Layers3 className="h-4 w-4" />
+          <Layers3 className="h-4 w-4" aria-hidden />
           {!collapsed && (simple ? "Show everything" : "Simple mode")}
         </button>
 
         <button
+          type="button"
           onClick={() => setCollapsed((v) => !v)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
           className="glass-soft flex items-center justify-center gap-2 rounded-2xl py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ChevronLeft className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")} />
+          <ChevronLeft
+            className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")}
+            aria-hidden
+          />
           {!collapsed && "Collapse"}
         </button>
       </aside>
@@ -281,8 +289,10 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             </Link>
 
             <button
+              type="button"
               onClick={() => setPaletteOpen(true)}
-              className="glass-soft flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Open command palette"
+              className="glass-soft flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               <Sparkle className="h-[18px] w-[18px] shrink-0 text-primary md:h-4 md:w-4" strokeWidth={1.9} />
               <span className="truncate font-display text-[13px] font-medium tracking-[-0.01em] md:text-sm md:font-normal md:tracking-normal">
@@ -325,27 +335,32 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             </Link>
 
             <button
+              type="button"
               onClick={() => setRailOpen((v) => !v)}
               title="Toggle CEO rail"
+              aria-label="Toggle CEO chat rail"
+              aria-pressed={railOpen}
               className={cn(
-                "hidden h-9 w-9 shrink-0 place-items-center rounded-2xl transition-colors xl:grid",
+                "hidden h-9 w-9 shrink-0 place-items-center rounded-2xl transition-colors xl:grid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                 railOpen
                   ? "bg-primary/12 text-primary"
                   : "text-muted-foreground hover:bg-foreground/6",
               )}
             >
-              <MessageSquare className="h-4 w-4" />
+              <MessageSquare className="h-4 w-4" aria-hidden />
             </button>
 
             <button
+              type="button"
               onClick={async () => {
                 await supabase.auth.signOut();
                 navigate({ to: "/auth" });
               }}
               title="Sign out"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl text-muted-foreground transition-colors hover:bg-foreground/6 hover:text-foreground"
+              aria-label="Sign out"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl text-muted-foreground transition-colors hover:bg-foreground/6 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4" aria-hidden />
             </button>
           </div>
 
@@ -362,10 +377,12 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                 Top up
               </Link>
               <button
+                type="button"
                 onClick={() => setBannerOpen(false)}
-                className="shrink-0 opacity-60 hover:opacity-100"
+                aria-label="Dismiss token reserve warning"
+                className="shrink-0 opacity-60 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" aria-hidden />
               </button>
             </div>
           )}

@@ -2,25 +2,43 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { SiteFooter } from "@/components/aura/site-footer";
-import { OG_IMAGE, SITE_URL, url } from "@/lib/site";
+import { faqPageJsonLd, pageHead } from "@/lib/seo";
+import { SITE_URL } from "@/lib/site";
 import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
 
+const FAQ_PLAIN: Array<{ q: string; a: string }> = [
+  {
+    q: "What is Aura OS?",
+    a: "An AI company operating system. You wake a company, agents take jobs (social, outreach, trading, support), and you stay in control of publishing and spend. Live at aibusiness.fun.",
+  },
+  {
+    q: "Which social channels can I connect?",
+    a: "X, Meta (Facebook Page + Instagram), LinkedIn, TikTok, and Farcaster via Connect or Channels.",
+  },
+  {
+    q: "Do agents publish without me?",
+    a: "Only when you turn on Autopublish / Free reply mode. Default paths keep drafts for founder approve.",
+  },
+  {
+    q: "Is Aura OS the same as BCC?",
+    a: BCC_TOKEN_DISCLAIMER,
+  },
+  {
+    q: "Can I install Aura OS on my phone or desktop?",
+    a: "Yes. Aura OS is a progressive web app. Install from Chrome or Add to Home Screen on iPhone Safari.",
+  },
+];
+
 export const Route = createFileRoute("/faq")({
-  head: () => ({
-    meta: [
-      { title: "FAQ — Aura OS" },
-      {
-        name: "description",
-        content:
-          "How Aura OS connects social channels, posts for you, and ships a week-in-review report for your boss.",
-      },
-      { property: "og:title", content: "FAQ — Aura OS" },
-      { property: "og:url", content: url("/faq") },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: url("/faq") }],
-  }),
+  head: () =>
+    pageHead({
+      title: "FAQ — Aura OS · AI company OS answers",
+      description:
+        "How Aura OS connects social channels, posts for you, runs trading and yield desks, and ships a week-in-review report — plus Aura OS vs BCC clarity.",
+      path: "/faq",
+      imageAlt: "Aura OS FAQ — answers about the AI company operating system",
+      jsonLd: faqPageJsonLd(FAQ_PLAIN),
+    }),
   component: FaqPage,
 });
 

@@ -201,7 +201,16 @@ export function FarcasterPulse() {
                 className="flex items-start gap-3 rounded-2xl border border-border/40 px-4 py-3 transition hover:border-primary/30"
               >
                 {u.pfpUrl ? (
-                  <img src={u.pfpUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+                  <img
+                    src={u.pfpUrl}
+                    alt={`${u.username ?? "Farcaster user"} profile photo`}
+                    title={u.username ?? "Farcaster profile"}
+                    width={40}
+                    height={40}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
                 ) : (
                   <span className="grid h-10 w-10 place-items-center rounded-full bg-foreground/8 text-[11px]">
                     FC

@@ -40,7 +40,8 @@ import { currency, timeAgo } from "@/lib/format";
 import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-const GENESIS_ART = mediaPath("/genesis-passport.png");
+const GENESIS_ART = mediaPath("/genesis-passport.webp");
+const GENESIS_ART_JPG = mediaPath("/genesis-passport.jpg");
 
 type DeskTab = "receive" | "send" | "exchange" | "activity" | null;
 
@@ -487,13 +488,18 @@ export function WalletDesk({
                 : "border-border/50 bg-foreground/5 text-muted-foreground",
             )}
           >
-            <img
-              src={GENESIS_ART}
-              alt=""
-              width={22}
-              height={22}
-              className="h-[22px] w-[22px] rounded-full object-cover"
-            />
+            <picture>
+              <source srcSet={GENESIS_ART} type="image/webp" />
+              <img
+                src={GENESIS_ART_JPG}
+                alt=""
+                title="Aura Genesis Passport"
+                width={22}
+                height={22}
+                decoding="async"
+                className="h-[22px] w-[22px] rounded-full object-cover"
+              />
+            </picture>
             {genesisMinted ? "Genesis Passport" : "Genesis available"}
           </span>
           {perks?.perks
@@ -578,7 +584,14 @@ export function WalletDesk({
           </p>
           {qrUrl ? (
             <div className="mx-auto mt-5 w-fit rounded-2xl bg-white p-2.5">
-              <img src={qrUrl} alt="Deposit QR" width={168} height={168} className="rounded-xl" />
+              <img
+                src={qrUrl}
+                alt="QR code to deposit crypto to your Aura smart wallet"
+                title="Deposit address QR code"
+                width={168}
+                height={168}
+                className="rounded-xl"
+              />
             </div>
           ) : null}
           <div className="mt-4 flex items-start gap-2 rounded-2xl bg-foreground/[0.04] px-3 py-2.5">

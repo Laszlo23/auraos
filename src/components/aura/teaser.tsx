@@ -171,8 +171,12 @@ export function TeaserCard({ className }: { className?: string }) {
         <span className="relative shrink-0 overflow-hidden rounded-2xl ring-1 ring-primary/25 shadow-[0_0_24px_-8px_hsl(var(--primary)/0.55)]">
           <img
             src={posterSrc}
-            alt="Aura OS teaser — dark OS screen with cyan mark"
+            alt="Aura OS 15-second teaser thumbnail — dark OS screen with cyan mark"
+            title="Watch the Aura OS teaser"
+            width={108}
+            height={192}
             loading="lazy"
+            decoding="async"
             className="h-24 w-[3.375rem] object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <span className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />

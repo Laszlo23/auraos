@@ -26,13 +26,14 @@ export const Route = createFileRoute("/api/genesis/meta/$tokenId")({
           {
             name: `Aura Genesis Passport #${tokenId}`,
             description:
-              "Founding Company Passport for Aura OS — utility membership for seated founders. Not an investment product and not part of any token launch.",
+              "Founding Company Passport for Aura OS — utility membership for seated founders. Official seal art. Not an investment product and not part of any token launch.",
             image,
             external_url: external,
             background_color: "07090e",
             attributes: [
               { trait_type: "Collection", value: "Aura Genesis" },
               { trait_type: "Edition", value: "Founding Passport" },
+              { trait_type: "Artwork", value: "Aura Genesis Passport seal" },
               { trait_type: "Token ID", value: tokenId, display_type: "number" },
               { trait_type: "Max Supply", value: max, display_type: "number" },
               { trait_type: "Price USDC", value: genesisPriceUsdc(), display_type: "number" },

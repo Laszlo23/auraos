@@ -182,7 +182,8 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
             <div className="mt-5 rounded-2xl bg-white p-2.5 shadow-[inset_0_0_0_1px_oklch(0_0_0/0.06)]">
               <img
                 src={qrUrl}
-                alt="QR code for deposit address"
+                alt="QR code for treasury deposit address"
+                title="Treasury deposit QR code"
                 width={168}
                 height={168}
                 className="rounded-xl"

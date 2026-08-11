@@ -277,7 +277,12 @@ function ProductsPage() {
               {p.image_url ? (
                 <img
                   src={p.image_url}
-                  alt={p.name}
+                  alt={`${p.name} product photo`}
+                  title={p.name}
+                  width={640}
+                  height={360}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (

@@ -657,7 +657,16 @@ function ComposeTab({
           </div>
           {mediaUrl ? (
             <div className="mt-3 flex items-start gap-3">
-              <img src={mediaUrl} alt="Generated" className="h-24 w-24 rounded-xl object-cover" />
+              <img
+                src={mediaUrl}
+                alt="AI-generated marketing creative for Aura campaigns"
+                title="Generated marketing image"
+                width={96}
+                height={96}
+                loading="lazy"
+                decoding="async"
+                className="h-24 w-24 rounded-xl object-cover"
+              />
               <button
                 type="button"
                 onClick={() => setMediaUrl(null)}

@@ -12,7 +12,8 @@ import {
 } from "@/lib/genesis.functions";
 import { mediaPath } from "@/lib/site";
 
-const GENESIS_ART = mediaPath("/genesis-passport.png");
+const GENESIS_ART = mediaPath("/genesis-passport.webp");
+const GENESIS_ART_FALLBACK = mediaPath("/genesis-passport.jpg");
 
 /** Genesis = Founding Company Passport — utility NFT, not an investment / not token launch. */
 export function GenesisPassport({
@@ -92,13 +93,19 @@ export function GenesisPassport({
       <div className="grid gap-5 lg:grid-cols-[minmax(0,220px)_1fr]">
         <div className="mx-auto w-full max-w-[220px]">
           <div className="overflow-hidden rounded-[1.35rem] border border-gold/25 bg-foreground/[0.04] shadow-[0_0_40px_-12px_oklch(0.75_0.12_85/0.45)]">
-            <img
-              src={GENESIS_ART}
-              alt="Aura Genesis Passport seal"
-              width={1024}
-              height={1024}
-              className="aspect-square w-full object-cover"
-            />
+            <picture>
+              <source srcSet={GENESIS_ART} type="image/webp" />
+              <img
+                src={GENESIS_ART_FALLBACK}
+                alt="Aura Genesis Passport official seal — founding company membership art"
+                title="Aura Genesis Passport seal"
+                width={800}
+                height={800}
+                loading="lazy"
+                decoding="async"
+                className="aspect-square w-full object-cover"
+              />
+            </picture>
           </div>
           <p className="mt-2 text-center text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             Official seal art

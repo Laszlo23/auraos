@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider, useLocale } from "@/hooks/use-locale";
 import { usePwa } from "@/hooks/use-pwa";
 import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { rootOrganizationGraph } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -150,8 +151,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: SITE_NAME },
       { property: "og:url", content: SITE_URL },
       { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "640" },
+      {
+        property: "og:image:alt",
+        content: "Aura OS — AI company operating system brand preview",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG_IMAGE },
+      {
+        name: "twitter:image:alt",
+        content: "Aura OS — AI company operating system brand preview",
+      },
       { name: "twitter:title", content: "Aura OS — The AI Company Operating System" },
       {
         name: "twitter:description",
@@ -161,31 +172,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     scripts: [
       {
         type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@graph": [
-            {
-              "@type": "WebSite",
-              name: SITE_NAME,
-              url: SITE_URL,
-              image: OG_IMAGE,
-              description:
-                "Aura OS runs your company as a living organism of autonomous AI employees — strategy, growth, sales, and operations, awake around the clock.",
-            },
-            {
-              "@type": "Organization",
-              name: SITE_NAME,
-              url: SITE_URL,
-              logo: `${SITE_URL}/favicon.png`,
-              sameAs: ["https://x.com/buildingcultu3"],
-            },
-          ],
-        }),
+        children: JSON.stringify(rootOrganizationGraph()),
       },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://www.googletagmanager.com" },
+      { rel: "dns-prefetch", href: "https://aibusiness.fun" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap",
@@ -198,6 +192,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "sitemap", type: "application/xml", href: "/sitemap.xml" },
+      { rel: "alternate", type: "text/plain", href: "/llms.txt", title: "llms.txt" },
     ],
   }),
   shellComponent: RootShell,
@@ -248,7 +243,7 @@ function RootChrome() {
       <AuroraField />
       <PageProgress />
       <AppBootLoader />
-      <div id="main">
+      <div id="main" role="main" tabIndex={-1} className="outline-none">
         <Outlet />
       </div>
       <Toaster position="top-center" />

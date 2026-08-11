@@ -157,7 +157,10 @@ function OAuthConsentPage() {
               {details.client.logo_uri ? (
                 <img
                   src={details.client.logo_uri}
-                  alt=""
+                  alt={`${details.client.name || "Application"} logo`}
+                  title={details.client.name || "Application logo"}
+                  width={48}
+                  height={48}
                   className="mx-auto h-12 w-12 object-contain"
                 />
               ) : null}

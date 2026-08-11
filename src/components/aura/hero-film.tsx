@@ -133,7 +133,10 @@ export function HeroFilm({ className }: { className?: string }) {
         ) : (
           <img
             src={mediaPath("/aura-teaser-poster.jpg")}
-            alt=""
+            alt="Aura OS cinematic hero still — dark operating system desk with cyan accent light"
+            title="Aura OS hero"
+            width={1920}
+            height={1080}
             className="absolute inset-0 h-full w-full object-cover"
             decoding="async"
             fetchPriority="high"

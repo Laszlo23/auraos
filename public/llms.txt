@@ -1,0 +1,29 @@
+# Aura OS
+
+> AI company operating system — autonomous employees for strategy, growth, sales, trading, and yield. Live at https://aibusiness.fun
+
+Aura OS is operated by Building Culture LLC. Aura OS is a separate product from any BCC token.
+
+## Product
+
+- Home: https://aibusiness.fun/
+- Aura Lokal (DE local growth): https://aibusiness.fun/lokal
+- Aura Nachbar: https://aibusiness.fun/nachbar
+- Trading + Yield desks (app, auth): https://aibusiness.fun/trading
+- Tokenomics: https://aibusiness.fun/tokenomics
+- Lightpaper: https://aibusiness.fun/lightpaper
+- Whitepaper: https://aibusiness.fun/whitepaper
+- Roadmap: https://aibusiness.fun/roadmap
+- FAQ: https://aibusiness.fun/faq
+- Team: https://aibusiness.fun/team
+- Impressum: https://aibusiness.fun/impressum
+- Privacy: https://aibusiness.fun/privacy
+- Terms: https://aibusiness.fun/terms
+- Proof / live network: https://aibusiness.fun/proof · https://aibusiness.fun/live
+- Share kit: https://aibusiness.fun/share
+- Access / founding: https://aibusiness.fun/access
+
+## Optional
+
+- Sitemap: https://aibusiness.fun/sitemap.xml
+- Manifest: https://aibusiness.fun/manifest.webmanifest

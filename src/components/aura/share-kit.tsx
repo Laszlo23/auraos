@@ -498,7 +498,10 @@ export function ShareKitTeaser({ className }: { className?: string }) {
               >
                 <img
                   src={sharePosterSrc(p.file)}
-                  alt=""
+                  alt={`${p.title} — Aura OS share clip poster (${p.vibe})`}
+                  title={p.title}
+                  width={480}
+                  height={600}
                   loading="lazy"
                   decoding="async"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
