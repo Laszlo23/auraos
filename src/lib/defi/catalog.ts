@@ -175,12 +175,12 @@ export const YIELD_CATALOG: YieldCatalogItem[] = [
     apyBand: [4, 30],
     assets: ["USDT", "USDC", "FDUSD", "CAKE"],
     howItWorks:
-      "Provide stableswap or V3 stable liquidity, stake LP in farms for CAKE + fee share (~68% of pool fees to LPs).",
+      "Half-swap USDC→USDT via OKX, add Pancake V2 USDT/USDC liquidity, stake LP in MasterChef v2 (pid 48). Earn swap fees; CAKE when farm allocPoint > 0.",
     risks: ["Stable depeg", "CAKE emission decay", "Farm multiplier changes", "veCAKE lock complexity"],
     standOut: "Low-fee BNB Chain compounding — agents harvest CAKE and optionally lock veCAKE for boost.",
-    minUsdc: 50,
+    minUsdc: 10,
     maxBudgetPct: 40,
-    liveReady: false,
+    liveReady: true,
     docsUrl: "https://docs.pancakeswap.finance/earn/yield-farming",
   },
   {

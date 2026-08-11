@@ -91,6 +91,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 - **Live rail #2:** `base_aero_usdc_weth_lp` — OKX half-swap → Aerodrome `addLiquidity` → gauge stake (`src/lib/defi/aerodrome-base.server.ts`).
 - **Live rail #3:** Compound Cascade can **claim gauge AERO → OKX → USDC → Aave** when `autoCompoundLive` is on.
 - **Live rail #4:** `bsc_venus_usdc` mints/redeems Venus Core vUSDC on BNB (`src/lib/defi/venus-bsc.server.ts`).
+- **Live rail #5:** `bsc_pancake_stable_lp` — OKX half-swap USDC→USDT → Pancake V2 LP → MasterChef v2 stake (`src/lib/defi/pancake-bsc.server.ts`).
 - Other books stay `liveReady: false` until protocol calldata is wired.
 - Day-trade live = Quant desk, not fake yield marks.
 - Never invent fills or overnight P&L for marketing.
@@ -103,6 +104,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 | Aave V3 Base | `src/lib/defi/aave-base.server.ts` |
 | Aerodrome WETH/USDC | `src/lib/defi/aerodrome-base.server.ts` |
 | Venus USDC (BSC) | `src/lib/defi/venus-bsc.server.ts` |
+| Pancake USDT/USDC LP | `src/lib/defi/pancake-bsc.server.ts` |
 | Autopilot engines | `src/lib/defi/automations.ts` |
 | Accrual / open-close | `src/lib/defi/yield.server.ts` |
 | Server fns | `src/lib/defi/yield.functions.ts` |
@@ -113,7 +115,7 @@ Toggle engines in the Yield Desk UI. Worker tick runs accrual + armed autopilots
 
 ## Next live rails (ordered)
 
-1. Pancake stable LP + farm on BNB.
-2. Prediction adapter (Limitless or GuessMarket tx builders).
-3. Multi-position Quant for true intraday inventory.
-4. Aerodrome Slipstream CL + veAERO voter automation.
+1. Prediction adapter (Limitless or GuessMarket tx builders).
+2. Multi-position Quant for true intraday inventory.
+3. Aerodrome Slipstream CL + veAERO voter automation.
+4. CAKE harvest → swap → optional veCAKE / Venus park.

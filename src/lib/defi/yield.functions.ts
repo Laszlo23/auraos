@@ -26,6 +26,10 @@ import {
   withdrawUsdcFromAerodromeWethLp,
 } from "@/lib/defi/aerodrome-base.server";
 import { supplyUsdcToVenusBsc, withdrawUsdcFromVenusBsc } from "@/lib/defi/venus-bsc.server";
+import {
+  supplyUsdcToPancakeUsdtUsdcLp,
+  withdrawUsdcFromPancakeUsdtUsdcLp,
+} from "@/lib/defi/pancake-bsc.server";
 import { decryptOwnerKey } from "@/lib/wallet.server";
 import type { Address, Hex } from "viem";
 
@@ -404,7 +408,7 @@ export const allocateYield = createServerFn({ method: "POST" })
     const paper = company.yield_paper;
     if (!paper && !item.liveReady) {
       throw new Error(
-        "Live rails for this book are not armed yet — use Paper, Aave USDC, Aerodrome WETH/USDC, Venus USDC, or Day scalp via Quant",
+        "Live rails for this book are not armed yet — use Paper, Aave USDC, Aerodrome WETH/USDC, Venus USDC, Pancake USDT/USDC, or Day scalp via Quant",
       );
     }
     if (item.kind === "day_trade" && !paper) {
@@ -431,6 +435,8 @@ export const allocateYield = createServerFn({ method: "POST" })
           liquidity?: string;
           pool?: string;
           gauge?: string;
+          farm?: string;
+          pid?: number;
           hashes?: string[];
         }
       | undefined;
@@ -476,6 +482,24 @@ export const allocateYield = createServerFn({ method: "POST" })
         liquidity: fill.liquidity,
         pool: fill.pool,
         gauge: fill.gauge,
+        hashes: fill.hashes,
+      };
+    } else if (!paper && item.id === "bsc_pancake_stable_lp") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const fill = await supplyUsdcToPancakeUsdtUsdcLp({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        amountUsdc: data.amountUsdc,
+      });
+      liveTx = {
+        userOpHash: fill.userOpHash,
+        wallet: fill.wallet,
+        protocol: "pancakeswap",
+        chain: "bsc",
+        liquidity: fill.liquidity,
+        pool: fill.pool,
+        farm: fill.farm,
+        pid: fill.pid,
         hashes: fill.hashes,
       };
     } else if (!paper && item.liveReady && item.kind !== "day_trade") {
@@ -569,6 +593,27 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
         throw new Error("Aerodrome position missing LP amount — cannot exit safely");
       }
       const fill = await withdrawUsdcFromAerodromeWethLp({
+        privateKey: wallet.privateKey,
+        walletAddress: wallet.address,
+        liquidity: BigInt(liquidityRaw),
+      });
+      liveWithdraw = {
+        userOpHash: fill.userOpHash,
+        withdrawnUsdc:
+          fill.withdrawnUsdc > 0 ? fill.withdrawnUsdc : Number(row.principal_usdc) || 0,
+      };
+    } else if (!pos.paper && pos.catalog_id === "bsc_pancake_stable_lp" && pos.status === "open") {
+      const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const row = pos as {
+        metadata?: Record<string, unknown> | null;
+        principal_usdc?: number;
+      };
+      const meta = row.metadata && typeof row.metadata === "object" ? row.metadata : {};
+      const liquidityRaw = typeof meta["liquidity"] === "string" ? meta["liquidity"] : "";
+      if (!/^\d+$/.test(liquidityRaw)) {
+        throw new Error("Pancake position missing LP amount — cannot exit safely");
+      }
+      const fill = await withdrawUsdcFromPancakeUsdtUsdcLp({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
         liquidity: BigInt(liquidityRaw),
