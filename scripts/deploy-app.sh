@@ -15,6 +15,14 @@ rsync -az --delete \
   -e "ssh -i $SSH_KEY -o IdentitiesOnly=yes -o BatchMode=yes" \
   "$ROOT/" "$HOST:/opt/auraos/"
 
+# MP4s are gitignored (large binaries) but must stay in sync for LCP/share kit.
+if compgen -G "$ROOT/public/*.mp4" > /dev/null; then
+  echo "==> rsync public/*.mp4 (lean encodes)"
+  rsync -az \
+    -e "ssh -i $SSH_KEY -o IdentitiesOnly=yes -o BatchMode=yes" \
+    "$ROOT"/public/*.mp4 "$HOST:/opt/auraos/public/"
+fi
+
 echo "==> build + restart + fix media perms"
 "${SSH[@]}" "$HOST" 'bash -s' <<'REMOTE'
 set -euo pipefail
