@@ -270,6 +270,10 @@ function EarnPage() {
               Maximum {REFERRAL_MAX.toLocaleString()} AURA per founder · invitee welcome 1,000 AURA
               on paid seat.
             </p>
+            <p className="mt-2 text-[12px] text-muted-foreground">
+              Activated / subscribed referrals can also unlock a USDC tip to your linked X via Quidli
+              (when funded) — separate from AURA.
+            </p>
           </Panel>
 
           <Panel label="Founders you brought in">

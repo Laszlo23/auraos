@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/hooks/use-aura";
 import { planById } from "@/lib/plans";
+import { tipReferrerForMilestoneFn } from "@/lib/quidli.functions";
 import { cycleWindow } from "@/lib/subscription";
 
 export type Subscription = {
@@ -92,7 +93,14 @@ export function useUpdateSubscription() {
 
       // A paid plan is the last referral milestone — credit the inviter once.
       if (values.status === "active" && values.plan) {
-        await supabase.rpc("advance_referral", { _stage: "subscribed" });
+        const { data: advanced } = await supabase.rpc("advance_referral", {
+          _stage: "subscribed",
+        });
+        if (advanced) {
+          void tipReferrerForMilestoneFn({ data: { stage: "subscribed" } }).catch(() => {
+            /* soft-fail Quidli tip */
+          });
+        }
       }
     },
     onSuccess: () => {

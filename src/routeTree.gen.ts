@@ -97,6 +97,7 @@ import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
+import { Route as ApiWebhooksQuidliRouteImport } from './routes/api/webhooks/quidli'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
 import { Route as NachbarCCodeRouteImport } from './routes/nachbar/c.$code'
 import { Route as NachbarRefCodeRouteImport } from './routes/nachbar/ref.$code'
@@ -559,6 +560,11 @@ const ApiPublicGreeterRoute = ApiPublicGreeterRouteImport.update({
   path: '/api/public/greeter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhooksQuidliRoute = ApiWebhooksQuidliRouteImport.update({
+  id: '/api/webhooks/quidli',
+  path: '/api/webhooks/quidli',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWorkersTickRoute = ApiWorkersTickRouteImport.update({
   id: '/api/workers/tick',
   path: '/api/workers/tick',
@@ -757,6 +763,7 @@ export interface FileRoutesByFullPath {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
@@ -865,6 +872,7 @@ export interface FileRoutesByTo {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
@@ -976,6 +984,7 @@ export interface FileRoutesById {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
@@ -1087,6 +1096,7 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
@@ -1195,6 +1205,7 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
@@ -1305,6 +1316,7 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
@@ -1372,6 +1384,7 @@ export interface RootRouteChildren {
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
+  ApiWebhooksQuidliRoute: typeof ApiWebhooksQuidliRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
   OauthSocialReturnRoute: typeof OauthSocialReturnRoute
@@ -2010,6 +2023,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGreeterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhooks/quidli': {
+      id: '/api/webhooks/quidli'
+      path: '/api/webhooks/quidli'
+      fullPath: '/api/webhooks/quidli'
+      preLoaderRoute: typeof ApiWebhooksQuidliRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/workers/tick': {
       id: '/api/workers/tick'
       path: '/api/workers/tick'
@@ -2320,6 +2340,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
+  ApiWebhooksQuidliRoute: ApiWebhooksQuidliRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,
   OauthSocialReturnRoute: OauthSocialReturnRoute,

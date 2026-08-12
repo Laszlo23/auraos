@@ -288,7 +288,23 @@ export const publishCompanySite = createServerFn({ method: "POST" })
         _site_id: row.id,
       });
       // Paid-conversion middle tier: company live + site published
-      await supabase.rpc("advance_referral", { _stage: "activated" });
+      const { data: advanced } = await supabase.rpc("advance_referral", { _stage: "activated" });
+      if (advanced) {
+        try {
+          const { tipReferrerForMilestone } = await import("@/lib/quidli/campaigns");
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          await tipReferrerForMilestone({
+            db: supabaseAdmin as never,
+            referredUserId: context.userId,
+            stage: "activated",
+          });
+        } catch (err) {
+          console.warn(
+            "[quidli] activated tip skipped",
+            err instanceof Error ? err.message : err,
+          );
+        }
+      }
     }
 
     return { ...row, content: parseContent(row.content) } as CompanySiteRow;
