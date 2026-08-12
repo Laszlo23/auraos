@@ -24,13 +24,14 @@ export function mediaPath(path: string) {
 }
 
 /** Studio / brand entity behind the fair launch and operator of Aura OS. */
-export const BUILDING_CULTURE = {
-  name: "Building Culture LLC",
-  short: "Building Culture",
+export const NINTY = {
+  name: "Ninty LLC",
+  short: "Ninty",
+  tagline: "Developed with love",
 } as const;
 
 /** Operator entity for invoices, terms, and Stripe public details. */
-export const LEGAL_ENTITY = BUILDING_CULTURE.name;
+export const LEGAL_ENTITY = NINTY.name;
 
 /** Re-export trust roster + BCC separation for convenience. */
 export {
@@ -160,14 +161,14 @@ export const WHITELIST_TASKS: WhitelistTask[] = [
   {
     id: "discord",
     label: "Join Discord",
-    hint: "Enter the Building Culture server",
+    hint: "Enter the Ninty Discord server",
     href: "https://discord.gg/geUpHt3eSb",
     group: "chat_or",
   },
   {
     id: "telegram",
     label: "Join Telegram",
-    hint: "Enter the Building Culture group",
+    hint: "Enter the Ninty Telegram group",
     href: "https://t.me/+4zFH7-2tyW0yOTBk",
     group: "chat_or",
   },

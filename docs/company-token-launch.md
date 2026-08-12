@@ -8,7 +8,7 @@ Seat-gated Clanker launches so each Aura company can mint its own Base ERC-20 + 
 |-------|---------|
 | Founding seat / Genesis | Membership / utility — not the company coin |
 | In-app AURA | Compute ledger — not on-chain |
-| Platform fair launch | Building Culture TGE (`TOKEN_LAUNCH_*`) |
+| Platform fair launch | Ninty TGE (`TOKEN_LAUNCH_*`) |
 | **Company token** | Clanker ERC-20 for **that** business only |
 
 Not an investment product. Not auto-minted on signup. One live token per company.

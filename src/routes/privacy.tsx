@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { LegalPage, LegalSection } from "@/components/aura/legal-page";
 import {
-  BUILDING_CULTURE,
+  NINTY,
   LEGAL_EMAIL,
   LEGAL_ENTITY,
   OG_IMAGE,
@@ -41,7 +41,7 @@ function PrivacyPage() {
     >
       <LegalSection title="1. Who we are">
         <p>
-          Controller: {LEGAL_ENTITY} ({BUILDING_CULTURE.short}), operating {SITE_NAME} at {SITE_URL}
+          Controller: {LEGAL_ENTITY} ({NINTY.short}), operating {SITE_NAME} at {SITE_URL}
           . Contact:{" "}
           <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}

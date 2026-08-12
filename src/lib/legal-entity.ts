@@ -1,5 +1,5 @@
 /**
- * Legal entity, founders, and trust copy for Aura OS / Building Culture LLC.
+ * Legal entity, founders, and trust copy for Aura OS / Ninty LLC.
  * Keep street address accurate — do not invent lines.
  */
 
@@ -53,18 +53,18 @@ export const FOUNDERS: FounderPublic[] = [
 ];
 
 /**
- * Statutory / Impressum address for Building Culture LLC.
+ * Statutory / Impressum address for Ninty LLC.
  * Replace `lines` with the registered office street address when confirmed.
  */
 export const LEGAL_ADDRESS = {
-  entity: "Building Culture LLC",
+  entity: "Ninty LLC",
   attention: "Laszlo Bihary",
   /** Registered office lines (street, city, postal, country). Empty until confirmed. */
   lines: [] as string[],
   email: "founders@aibusiness.fun",
   /** Public note while street address is being finalized for publication. */
   pendingNote:
-    "Registered office address is on file with Building Culture LLC. Email founders@aibusiness.fun for the current statutory address, or it will be published here once confirmed.",
+    "Registered office address is on file with Ninty LLC. Email founders@aibusiness.fun for the current statutory address, or it will be published here once confirmed.",
 } as const;
 
 /** Clear separation: Aura OS product ≠ BCC (or any community meme) token. */
@@ -75,7 +75,7 @@ export const TOKEN_PRODUCT_SEPARATION = [
   "Aura OS core revenue = software subscriptions and founding seats",
   "In-app AURA = company compute / rewards ledger inside the product (not a claim on BCC)",
   "Market / community tokens (including any BCC ticker) are not required to use Aura OS",
-  "Fair-launch ecosystem messaging for Building Culture is community/marketing — not the product runtime",
+  "Fair-launch ecosystem messaging for Ninty is community/marketing — not the product runtime",
 ] as const;
 
 export function legalAddressDisplay(): string[] {

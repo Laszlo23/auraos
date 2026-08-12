@@ -17,7 +17,7 @@ import {
 
 const TITLE = `Team & company — ${SITE_NAME}`;
 const DESCRIPTION =
-  "Founding team for Aura OS / Building Culture LLC, company address, and clear separation from any BCC token.";
+  "Founding team for Aura OS / Ninty LLC, company address, and clear separation from any BCC token.";
 
 export const Route = createFileRoute("/team")({
   head: () => ({

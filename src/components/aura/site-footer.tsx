@@ -2,8 +2,8 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useMemo } from "react";
 
 import {
-  BUILDING_CULTURE,
   LEGAL_EMAIL,
+  NINTY,
   PRODUCT_SURFACES,
   SITE_NAME,
   SITE_URL,
@@ -118,7 +118,7 @@ export function SiteFooter({
       <div className="mx-auto flex max-w-6xl flex-col gap-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            Join Building Culture
+            Join Ninty
           </span>
           <nav aria-label="Social" className="flex flex-wrap gap-2">
             {SOCIAL_LINKS.map((s) => (
@@ -159,7 +159,7 @@ export function SiteFooter({
           )}
         >
           <span>
-            ◎ {SITE_NAME} · {BUILDING_CULTURE.name} ·{" "}
+            ◎ {SITE_NAME} · {NINTY.short} · {NINTY.tagline} ·{" "}
             <a href={SITE_URL} className="transition-colors hover:text-foreground">
               aibusiness.fun
             </a>

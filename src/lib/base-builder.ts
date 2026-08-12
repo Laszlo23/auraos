@@ -10,8 +10,15 @@ import type { AuraNetwork } from "@/lib/chain-config";
 /** Registered Aura OS builder code on base.dev */
 export const DEFAULT_BASE_BUILDER_CODE = "bc_b5w4t6pt";
 
+/** Base Developer Portal app id — published as <meta name="base:app_id" /> for Base App discovery. */
+export const DEFAULT_BASE_APP_ID = "6a7c1d39dd7780b052ef42e6";
+
 export function baseBuilderCode(): string {
   return process.env["BASE_BUILDER_CODE"]?.trim() || DEFAULT_BASE_BUILDER_CODE;
+}
+
+export function baseAppId(): string {
+  return process.env["BASE_APP_ID"]?.trim() || process.env["VITE_BASE_APP_ID"]?.trim() || DEFAULT_BASE_APP_ID;
 }
 
 export function baseBuilderConfigured(): boolean {

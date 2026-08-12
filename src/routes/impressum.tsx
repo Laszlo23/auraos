@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPage, LegalSection } from "@/components/aura/legal-page";
 import {
   BCC_TOKEN_DISCLAIMER,
-  BUILDING_CULTURE,
+  NINTY,
   FOUNDERS,
   LEGAL_EMAIL,
   LEGAL_ENTITY,
@@ -41,7 +41,7 @@ function ImpressumPage() {
   return (
     <LegalPage
       title="Impressum"
-      description={`Legal notice for ${SITE_NAME} (${SITE_URL.replace("https://", "")}), operated by ${LEGAL_ENTITY} (${BUILDING_CULTURE.short}).`}
+      description={`Legal notice for ${SITE_NAME} (${SITE_URL.replace("https://", "")}), operated by ${LEGAL_ENTITY} (${NINTY.short}).`}
     >
       <LegalSection title="Operator">
         <p>

@@ -134,7 +134,7 @@ export function LaunchCountdown({
           className="font-display text-[clamp(1.8rem,5vw,2.8rem)] leading-[1.05] tracking-tight"
         >
           The fair launch window is open.
-          <span className="block text-primary">Follow Building Culture for the reveal.</span>
+          <span className="block text-primary">Follow Ninty for the reveal.</span>
         </motion.p>
       ) : (
         <div className="flex flex-wrap items-end gap-4 sm:gap-7">

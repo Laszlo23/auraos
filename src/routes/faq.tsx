@@ -122,7 +122,7 @@ const FAQS: { q: string; a: ReactNode }[] = [
     q: "Who operates Aura OS?",
     a: (
       <>
-        Building Culture LLC. Founder Laszlo Bihary is listed with LinkedIn on{" "}
+        Ninty LLC. Founder Laszlo Bihary is listed with LinkedIn on{" "}
         <Link to="/team" className="text-primary hover:underline">
           /team
         </Link>

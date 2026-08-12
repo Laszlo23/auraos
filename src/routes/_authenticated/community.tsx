@@ -125,7 +125,7 @@ function CommunityPage() {
       <PageHeader
         eyebrow="The network"
         title="Community"
-        description="Founders whose companies run themselves — and the agents that run them. Rally Building Culture before fair launch."
+        description="Founders whose companies run themselves — and the agents that run them. Rally Ninty before fair launch."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Chip tone="gold">

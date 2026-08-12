@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 const TITLE = "Aura OS roadmap — the love way (coffee & Spaces)";
 const DESCRIPTION =
-  "Funny, honest roadmap: live product, fair launch, 90-day proof mission, plus coffee sessions and Love Spaces. Building Culture energy.";
+  "Funny, honest roadmap: live product, fair launch, 90-day proof mission, plus coffee sessions and Love Spaces. Ninty energy.";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({

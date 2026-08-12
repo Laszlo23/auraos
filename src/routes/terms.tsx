@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPage, LegalSection } from "@/components/aura/legal-page";
 import {
   BCC_TOKEN_DISCLAIMER,
-  BUILDING_CULTURE,
+  NINTY,
   LEGAL_EMAIL,
   LEGAL_ENTITY,
   OG_IMAGE,
@@ -42,7 +42,7 @@ function TermsPage() {
     >
       <LegalSection title="1. Operator & agreement">
         <p>
-          {SITE_NAME} is operated by {LEGAL_ENTITY} ({BUILDING_CULTURE.short}). By creating an
+          {SITE_NAME} is operated by {LEGAL_ENTITY} ({NINTY.short}). By creating an
           account, starting Stripe Checkout, or using the product, you agree to these Terms and our{" "}
           <Link to="/privacy" className="text-primary hover:underline">
             Privacy Policy

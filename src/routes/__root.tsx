@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider, useLocale } from "@/hooks/use-locale";
 import { usePwa } from "@/hooks/use-pwa";
 import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { baseAppId } from "@/lib/base-builder";
 import { rootOrganizationGraph } from "@/lib/seo";
 
 function NotFoundComponent() {
@@ -142,6 +143,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Aura OS" },
       { name: "application-name", content: "Aura OS" },
       { name: "robots", content: "index,follow,max-image-preview:large" },
+      // Base Developer Portal — required for Base App / mini-app verification
+      { name: "base:app_id", content: baseAppId() },
       { property: "og:title", content: "Aura OS — The AI Company Operating System" },
       {
         property: "og:description",

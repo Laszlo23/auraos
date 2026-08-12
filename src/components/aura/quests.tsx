@@ -22,7 +22,7 @@ export const COMMUNITY_QUESTS: Quest[] = [
   {
     key: "community:join-discord",
     label: "Join Discord",
-    hint: "Enter the Building Culture server",
+    hint: "Enter the Ninty server",
     glyph: "◈",
     xp: 120,
   },

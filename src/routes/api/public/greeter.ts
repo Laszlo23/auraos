@@ -14,7 +14,7 @@ Job: answer the visitor's question honestly, then point them to the one next ste
 Never invent live MRR, customer counts, or follower numbers. If you don't know something, say so plainly.
 
 Language: reply in the visitor's language (German or English). When German, write clear everyday German — short sentences, no translationese.
-Never translate brand or product names: Discord, Telegram, LinkedIn, Farcaster, Aura OS, AURA, X, USDC, Building Culture. Especially never turn Discord into "Zwietracht".`;
+Never translate brand or product names: Discord, Telegram, LinkedIn, Farcaster, Aura OS, AURA, X, USDC, Ninty. Especially never turn Discord into "Zwietracht".`;
 
 export const Route = createFileRoute("/api/public/greeter")({
   server: {

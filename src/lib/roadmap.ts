@@ -1,5 +1,5 @@
 /**
- * Public roadmap — product truth + Building Culture community rituals.
+ * Public roadmap — product truth + Ninty community rituals.
  * Funny on purpose. Phases match the investor deck; vibes are extra.
  */
 

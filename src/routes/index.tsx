@@ -692,7 +692,7 @@ function Landing() {
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
             Fair launch. No team-dump narrative — the countdown ends {TOKEN_LAUNCH_DISPLAY}. Join
-            the Building Culture channels so you are in the room when it opens.
+            the Ninty channels so you are in the room when it opens.
           </p>
           <div className="mt-8">
             <LaunchCountdown variant="hero" placement="landing_launch" />

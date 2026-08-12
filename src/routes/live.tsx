@@ -178,7 +178,7 @@ function LivePage() {
 
       <div className="mb-6 flex flex-col gap-3 rounded-3xl border border-primary/15 bg-primary/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-muted-foreground">
-          Fair launch {TOKEN_LAUNCH_DISPLAY} — join Building Culture before T-0.
+          Fair launch {TOKEN_LAUNCH_DISPLAY} — join Ninty before T-0.
         </p>
         <SocialJoinRow placement="live" />
       </div>

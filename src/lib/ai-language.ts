@@ -30,7 +30,7 @@ export const NEVER_TRANSLATE_BRANDS = [
   "x402",
   "Base",
   "Alchemy",
-  "Building Culture",
+  "Ninty",
 ] as const;
 
 /** Common LLM mistranslations → correct brand spelling. */
