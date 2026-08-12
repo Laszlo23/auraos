@@ -246,7 +246,9 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
           <div>
             <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Custody</p>
             <p className="mt-1 text-[13px] font-medium">Alchemy Light Account</p>
-            <p className="text-[11px] text-muted-foreground">Encrypted owner key · session caps</p>
+            <p className="text-[11px] text-muted-foreground">
+              Encrypted owner key · export from Wallet
+            </p>
           </div>
         </div>
       </Panel>

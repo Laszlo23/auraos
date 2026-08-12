@@ -57,16 +57,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/trading")({
   head: () => ({
     meta: [
-      { title: "Grow your money — trade or provide liquidity | Aura OS" },
+      { title: "Grow your money — trade, liquidity, or Pulse | Aura OS" },
       {
         name: "description",
         content:
-          "Put USDC into an AI trading strategy, or earn by providing liquidity. Simple paths — advanced desk when you need it.",
+          "Put USDC into an AI trading strategy, earn from liquidity, or play a 3-minute ETH up/down Pulse.",
       },
       { property: "og:title", content: "Grow your money — Aura OS" },
       {
         property: "og:description",
-        content: "Trade with AI or provide liquidity — clear paths to put capital to work.",
+        content: "Trade with AI, provide liquidity, or call ETH up/down in 3-minute Pulse rounds.",
       },
     ],
   }),
@@ -215,6 +215,14 @@ function TradingPage() {
   const [drawer, setDrawer] = useState<DeskDrawerId>(null);
   const [growPath, setGrowPath] = useState<GrowPath>(null);
   const [advanced, setAdvanced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const q = new URLSearchParams(window.location.search).get("path");
+    if (q === "pulse" || q === "trade" || q === "liquidity") {
+      setGrowPath(q);
+    }
+  }, []);
 
   const yieldQ = useQuery({
     queryKey: ["yield-desk", company?.id],

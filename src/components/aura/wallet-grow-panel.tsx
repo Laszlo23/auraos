@@ -325,16 +325,24 @@ export function WalletGrowPanel({
       {working < 1 && cashUsdc >= 0 && !loading ? (
         <Panel label="Nothing earning yet">
           <p className="text-[13px] text-muted-foreground">
-            Park USDC in Aave interest or a liquidity pool — it will show here so you always know
-            where it went.
+            Park USDC in Aave, trade with AI, or play a quick 3-minute ETH Pulse — it will show here
+            so you always know where capital went.
           </p>
-          <Link
-            to="/trading"
-            className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Open Grow funds
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              to="/trading"
+              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Open Grow funds
+            </Link>
+            <a
+              href="/trading?path=pulse"
+              className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              Play Pulse
+            </a>
+          </div>
         </Panel>
       ) : (
         <div className="flex flex-wrap gap-2">

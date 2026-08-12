@@ -145,6 +145,12 @@ export function SmartWalletPanel({
             >
               Open Wallet
             </a>
+            <a
+              href="/wallet#export"
+              className="rounded-xl bg-foreground/8 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+            >
+              Export key
+            </a>
             {treasury.data?.explorerAddressUrl ? (
               <a
                 href={treasury.data.explorerAddressUrl}

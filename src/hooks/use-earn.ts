@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/hooks/use-aura";
 import { useMyHandle, useUserId } from "@/hooks/use-identity";
 import {
+  exportSmartWalletOwnerKey,
   issueAgentSessionKey,
   provisionSmartWallet,
   revokeAgentSessionKey,
@@ -287,5 +288,21 @@ export function useRevokeSessionKey() {
   return useMutation({
     mutationFn: (id: string) => revokeAgentSessionKey({ data: { id } }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["session-keys"] }),
+  });
+}
+
+export function useExportSmartWalletOwnerKey() {
+  const { data: handle } = useMyHandle();
+  return useMutation({
+    mutationFn: async (input?: { handleId?: string; confirmation?: string }) => {
+      const id = input?.handleId ?? handle?.id;
+      if (!id) throw new Error("Claim your @handle first.");
+      return exportSmartWalletOwnerKey({
+        data: {
+          handleId: id,
+          confirmation: input?.confirmation ?? "EXPORT",
+        },
+      });
+    },
   });
 }

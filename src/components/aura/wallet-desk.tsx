@@ -20,6 +20,7 @@ import { Chip, Panel } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
 import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
 import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
+import { WalletExportPanel } from "@/components/aura/wallet-export";
 import { WalletGrowPanel, WalletWorkingHint } from "@/components/aura/wallet-grow-panel";
 import { useCompany } from "@/hooks/use-aura";
 import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
@@ -1066,6 +1067,14 @@ export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: Hold
             </div>
           )}
         </Panel>
+      ) : null}
+
+      {handleId ? (
+        <WalletExportPanel
+          handleId={handleId}
+          smartWalletAddress={address}
+          ownerAddress={(wallet as { owner_address?: string | null } | null)?.owner_address}
+        />
       ) : null}
     </div>
   );

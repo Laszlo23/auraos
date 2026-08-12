@@ -405,3 +405,90 @@ export const deploySmartWallet = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     return provisionSmartWallet({ data: { handleId: data.handleId, redeploy: true } });
   });
+
+/**
+ * One-time reveal of the Light Account owner EOA private key for the authenticated founder.
+ * There is no mnemonic — only a random hex key. Anyone with this key can control the smart wallet.
+ */
+export const exportSmartWalletOwnerKey = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { handleId: string; confirmation: string }) => {
+    if (!input.handleId) throw new Error("A handle is required.");
+    return {
+      handleId: input.handleId,
+      confirmation: (input.confirmation ?? "").trim().toUpperCase(),
+    };
+  })
+  .handler(async ({ data, context }) => {
+    if (data.confirmation !== "EXPORT") {
+      throw new Error('Type EXPORT to confirm you understand this cannot be undone in the browser.');
+    }
+
+    const { rateLimitConsume } = await import("@/lib/rate-limit.server");
+    const limited = rateLimitConsume(`wallet-export:${context.userId}`, {
+      limit: 3,
+      windowMs: 60 * 60 * 1000,
+    });
+    if (!limited.ok) {
+      throw new Error(`Too many export attempts. Try again in ${limited.retryAfterSec}s.`);
+    }
+
+    const { data: ownedHandle } = await context.supabase
+      .from("handles")
+      .select("id")
+      .eq("id", data.handleId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!ownedHandle) {
+      throw new Error("You do not own this handle.");
+    }
+
+    const { decryptOwnerKey, ownerFromPrivateKey } = await import("./wallet.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: wallet } = await supabaseAdmin
+      .from("wallet_bindings")
+      .select("id, address, owner_address, owner_key_enc, legacy, kind")
+      .eq("handle_id", data.handleId)
+      .eq("kind", "smart")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (!wallet?.owner_key_enc) {
+      throw new Error("No exportable owner key on this wallet. Provision your smart wallet first.");
+    }
+    if (wallet.legacy) {
+      throw new Error(
+        "This legacy wallet cannot be exported safely. Contact support to rotate to a new Light Account.",
+      );
+    }
+
+    const privateKey = decryptOwnerKey(wallet.owner_key_enc) as Hex;
+    const owner = ownerFromPrivateKey(privateKey);
+    if (
+      wallet.owner_address &&
+      owner.address.toLowerCase() !== wallet.owner_address.toLowerCase()
+    ) {
+      throw new Error("Owner key failed integrity check. Export blocked.");
+    }
+
+    // Audit without logging plaintext key material.
+    await supabaseAdmin.from("app_events").insert({
+      user_id: context.userId,
+      event: "wallet_owner_key_exported",
+      props: {
+        handle_id: data.handleId,
+        wallet_id: wallet.id,
+        smart_wallet: wallet.address,
+        owner_address: owner.address,
+      },
+    });
+
+    return {
+      privateKey,
+      ownerAddress: owner.address,
+      smartWalletAddress: wallet.address as string,
+      format: "hex" as const,
+      note: "This is the Light Account owner EOA key (not a seed phrase). Import it into a compatible wallet to control your smart account.",
+    };
+  });

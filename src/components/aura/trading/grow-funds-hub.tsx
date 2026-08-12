@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowRight, Droplets, LineChart, Settings2, Sparkles, Wallet } from "lucide-react";
+import { ArrowRight, Droplets, LineChart, Settings2, Sparkles, Timer, Wallet } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Chip, PageHeader, Panel } from "@/components/aura/primitives";
@@ -9,11 +9,12 @@ import {
   SimpleTradePath,
   type SimpleTradePresetId,
 } from "@/components/aura/trading/simple-trade-path";
+import { PulseUpDownPanel } from "@/components/aura/trading/pulse-up-down-panel";
 import type { DeskReadiness } from "@/components/aura/trading/start-checklist";
 import { currency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-export type GrowPath = "trade" | "liquidity" | null;
+export type GrowPath = "trade" | "liquidity" | "pulse" | null;
 
 export function GrowFundsHub({
   path,
@@ -80,7 +81,7 @@ export function GrowFundsHub({
         body:
           tradeLive || liquidityLive
             ? "You already have capital working — open a path to manage it, or start the other one."
-            : "Trade for upside with AI, or earn steadier interest / fees from liquidity.",
+            : "Trade with AI, earn from liquidity, or call the next 3-minute ETH move on Pulse.",
         cta: null,
       };
     }
@@ -92,7 +93,7 @@ export function GrowFundsHub({
       <PageHeader
         eyebrow="Capital"
         title="Grow your money"
-        description="Two ways to put USDC to work. Pick one path — Aura handles the rest inside your caps."
+        description="Trade, earn liquidity, or play a quick 3-minute Pulse. Pick one path — Aura handles the rest."
         actions={
           <button
             type="button"
@@ -146,7 +147,7 @@ export function GrowFundsHub({
               <span className="font-mono font-semibold text-foreground">
                 {currency(availableUsdc, 2)} USDC
               </span>
-              . Put it into trading or liquidity below.
+              . Put it into trading, liquidity, or a quick Pulse below.
             </>
           )}
         </p>
@@ -223,7 +224,7 @@ export function GrowFundsHub({
 
       {!advanced ? (
         <>
-          <div className={cn("grid gap-4", path ? "md:grid-cols-1" : "md:grid-cols-2")}>
+          <div className={cn("grid gap-4", path ? "md:grid-cols-1" : "md:grid-cols-3")}>
             {(!path || path === "trade") && (
               <PathCard
                 active={path === "trade"}
@@ -246,6 +247,18 @@ export function GrowFundsHub({
                 cta="Start earning"
                 badge={liquidityLive ? "Working" : null}
                 compact={path === "liquidity"}
+              />
+            )}
+            {(!path || path === "pulse") && (
+              <PathCard
+                active={path === "pulse"}
+                onClick={() => onPath(path === "pulse" ? null : "pulse")}
+                icon={<Timer className="h-6 w-6" />}
+                title="Pulse · 3 min"
+                body="Call ETH up or down every 3 minutes. Fast rounds, clear payout — play with a demo bankroll."
+                cta="Play Pulse"
+                badge="New"
+                compact={path === "pulse"}
               />
             )}
           </div>
@@ -295,6 +308,24 @@ export function GrowFundsHub({
             <Panel label="Provide liquidity">
               <p className="text-[13px] text-muted-foreground">
                 Finish onboarding to unlock this path.
+              </p>
+            </Panel>
+          ) : null}
+
+          {path === "pulse" && companyId ? (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <PulseUpDownPanel companyId={companyId} />
+            </motion.div>
+          ) : null}
+
+          {path === "pulse" && !companyId ? (
+            <Panel label="Pulse">
+              <p className="text-[13px] text-muted-foreground">
+                Finish onboarding to unlock Pulse.
               </p>
             </Panel>
           ) : null}
