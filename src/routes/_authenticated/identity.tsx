@@ -18,6 +18,7 @@ import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { Chip, PageHeader, Panel } from "@/components/aura/primitives";
 import { SessionKeysPanel, SmartWalletPanel } from "@/components/aura/smart-wallet";
 import { useAwardXp } from "@/hooks/use-progress";
+import { DEFAULT_BASE_BUILDER_CODE } from "@/lib/base-builder";
 import { FIO_CHAIN_PAIRS, fioRegisterUrl, suggestFioFromAuraHandle } from "@/lib/fio";
 import { getOkxStatus } from "@/lib/okx.functions";
 import { useQuery } from "@tanstack/react-query";
@@ -747,15 +748,17 @@ function OkxRailsPanel() {
     <Panel label="DEX rails · OKX" delay={0.08}>
       <p className="mb-3 text-[13px] leading-relaxed text-muted-foreground">
         OKX powers agent swap quotes and builder attribution on the server. Members never install an
-        OKX wallet — your Alchemy Light Account remains the treasury.
+        OKX wallet — your Alchemy Light Account remains the treasury. Base UserOps also carry Aura’s
+        Base Builder Code (ERC-8021) for base.dev attribution.
       </p>
       <div className="flex flex-wrap gap-2">
         <Chip tone={s?.configured ? "primary" : "neutral"}>
           {s?.configured ? "API connected" : "Not configured"}
         </Chip>
         <Chip tone={s?.builderCode ? "primary" : "neutral"}>
-          {s?.builderCode ? "Builder code set" : "No builder code"}
+          {s?.builderCode ? "OKX builder set" : "No OKX builder"}
         </Chip>
+        <Chip tone="primary">Base · {DEFAULT_BASE_BUILDER_CODE}</Chip>
         <Chip tone="neutral">{s?.label ?? s?.network ?? "…"}</Chip>
       </div>
     </Panel>

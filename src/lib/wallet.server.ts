@@ -26,6 +26,7 @@ import {
   gasSponsorshipEnabled,
   type AuraNetwork,
 } from "@/lib/chain-config";
+import { baseBuilderDataSuffix } from "@/lib/base-builder";
 import { decryptConnectionKey, encryptConnectionKey } from "@/server/connectionKeyCrypto";
 
 export const LIGHT_ACCOUNT_VERSION = "v2.0.0" as const;
@@ -144,6 +145,46 @@ export async function isDeployed(address: string, network: AuraNetwork = activeN
 
 export type LightClient = Awaited<ReturnType<typeof createLightAccountAlchemyClient>>;
 
+type UserOpCall =
+  | { target: Address; data: Hex; value?: bigint }
+  | { target: Address; data: Hex; value?: bigint }[];
+
+/**
+ * Send a Light Account UserOp, appending Base Builder Code (ERC-8021) to callData on Base.
+ */
+async function sendAttributedUserOperation(
+  client: LightClient,
+  uo: UserOpCall,
+  network: AuraNetwork,
+): Promise<{ hash: string }> {
+  const suffix = baseBuilderDataSuffix(network);
+  if (!suffix) {
+    const result = await client.sendUserOperation({ uo });
+    const hash =
+      typeof result === "string" ? result : String((result as { hash?: string }).hash ?? result);
+    return { hash };
+  }
+
+  const uoStruct = await client.buildUserOperation({ uo });
+  const callData = uoStruct.callData as Hex | undefined;
+  if (typeof callData === "string" && callData.startsWith("0x")) {
+    uoStruct.callData = concatHex([callData, suffix]);
+  }
+
+  const request = await client.signUserOperation({ uoStruct });
+  const entryPoint = client.account.getEntryPoint();
+  // Bundler client decorator — present on Alchemy Light Account clients
+  const hash = await (
+    client as LightClient & {
+      sendRawUserOperation: (
+        req: unknown,
+        entryPointAddress: Address,
+      ) => Promise<Hex>;
+    }
+  ).sendRawUserOperation(request, entryPoint.address);
+  return { hash: String(hash) };
+}
+
 /** Builds a sponsored (when policy set) Light Account client for an owner key on a specific chain. */
 export async function createSponsoredLightClient(
   privateKey: Hex,
@@ -190,16 +231,16 @@ export async function deploySmartAccount(
 
   const sponsored = gasSponsorshipEnabled(network);
   try {
-    const result = await client.sendUserOperation({
-      uo: {
+    const result = await sendAttributedUserOperation(
+      client,
+      {
         target: address,
         data: "0x",
         value: 0n,
       },
-    });
-    const userOpHash =
-      typeof result === "string" ? result : ((result as { hash?: string }).hash ?? null);
-    return { address, deployed: true, userOpHash, sponsored, network };
+      network,
+    );
+    return { address, deployed: true, userOpHash: result.hash, sponsored, network };
   } catch (e) {
     // Without a paymaster and without ETH, deploy will fail — keep counterfactual.
     console.warn("smart account deploy deferred", e instanceof Error ? e.message : e);
@@ -217,16 +258,16 @@ export async function executeContractUserOp(
 ): Promise<{ userOpHash: string; address: Address }> {
   const client = await createSponsoredLightClient(privateKey, network);
   const address = client.account.address as Address;
-  const result = await client.sendUserOperation({
-    uo: {
+  const result = await sendAttributedUserOperation(
+    client,
+    {
       target: call.target,
       data: call.data,
       value: call.value ?? 0n,
     },
-  });
-  const userOpHash =
-    typeof result === "string" ? result : String((result as { hash?: string }).hash ?? result);
-  return { userOpHash, address };
+    network,
+  );
+  return { userOpHash: result.hash, address };
 }
 
 /**
@@ -245,16 +286,16 @@ export async function executeBatchUserOps(
   }
   // Account Kit Light Account supports batch via array uo when available
   try {
-    const result = await client.sendUserOperation({
-      uo: calls.map((c) => ({
+    const result = await sendAttributedUserOperation(
+      client,
+      calls.map((c) => ({
         target: c.target,
         data: c.data,
         value: c.value ?? 0n,
       })),
-    });
-    const userOpHash =
-      typeof result === "string" ? result : String((result as { hash?: string }).hash ?? result);
-    return { userOpHash, address };
+      network,
+    );
+    return { userOpHash: result.hash, address };
   } catch (err) {
     console.warn(
       "Light Account batch UserOp failed — falling back to sequential (higher gas)",
