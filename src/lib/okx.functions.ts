@@ -6,6 +6,7 @@ import {
   alchemyRpcUrl,
   chainId,
   chainLabel,
+  nativeGasBufferWei,
   USDC_ADDRESSES,
   USDC_DECIMALS,
   nativeSymbol,
@@ -18,15 +19,18 @@ export const getOkxStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
   const { okxConfigured, okxBuilderCode, okxPayoutAddress } = await import("./okx.server");
   const { gasSponsorshipEnabled } = await import("./wallet.server");
+  const { nativeGasBufferHint } = await import("./chain-config");
   const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
   const network = await resolveCompanyDeskNetwork(context.supabase, {
     userId: context.userId,
   });
+  const sponsored = gasSponsorshipEnabled(network);
   return {
     configured: okxConfigured(),
     builderCode: Boolean(okxBuilderCode()),
     payoutConfigured: Boolean(okxPayoutAddress()),
-    gasSponsored: gasSponsorshipEnabled(network),
+    gasSponsored: sponsored,
+    gasHint: nativeGasBufferHint(network, sponsored),
     network,
     label: chainLabel(network),
     chainId: String(chainId(network)),
@@ -52,11 +56,26 @@ const SWAP_DIRECTIONS = new Set<TreasurySwapDirection>([
 ]);
 
 const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
+const ERC20_ALLOWANCE_SELECTOR = "0xdd62ed3e";
+/** One-time max approve so later swaps skip the approve UserOp. */
+const MAX_UINT256 = (1n << 256n) - 1n;
+const WETH_DEPOSIT_SELECTOR = "0xd0e30db0"; // deposit()
+const WETH_WITHDRAW_SELECTOR = "0x2e1a7d4d"; // withdraw(uint256)
 
 function encodeApprove(spender: Address, amount: bigint): Hex {
   const spenderWord = spender.slice(2).toLowerCase().padStart(64, "0");
   const amountWord = amount.toString(16).padStart(64, "0");
   return `${ERC20_APPROVE_SELECTOR}${spenderWord}${amountWord}` as Hex;
+}
+
+function encodeAllowanceData(owner: string, spender: string): Hex {
+  const ownerWord = owner.slice(2).toLowerCase().padStart(64, "0");
+  const spenderWord = spender.slice(2).toLowerCase().padStart(64, "0");
+  return `${ERC20_ALLOWANCE_SELECTOR}${ownerWord}${spenderWord}` as Hex;
+}
+
+function encodeWethWithdraw(amount: bigint): Hex {
+  return `${WETH_WITHDRAW_SELECTOR}${amount.toString(16).padStart(64, "0")}` as Hex;
 }
 
 function parseHumanAmount(raw: string, decimals: number): bigint {
@@ -323,13 +342,13 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
     let amountWei: bigint;
     if (fromToken === NATIVE_ETH) {
       const bal = await nativeBal();
-      const buffer = sponsored ? 2n * 10n ** 14n : 10n ** 15n;
+      const buffer = nativeGasBufferWei(network, sponsored);
       const spendable = bal > buffer ? bal - buffer : 0n;
       if (spendable <= 0n) {
         throw new Error(
           sponsored
             ? `Not enough ${native} to convert.`
-            : `Not enough ${native} after gas buffer. Keep ~0.001 ${native} for fees.`,
+            : `Not enough ${native} after gas buffer. Keep a little ${native} for fees (or set Alchemy gas sponsorship).`,
         );
       }
       amountWei =
@@ -350,12 +369,55 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       if (amountWei < minAmt) throw new Error("Amount too small.");
       if (!sponsored) {
         const eth = await nativeBal();
-        if (eth < 5n * 10n ** 14n) {
+        if (eth < nativeGasBufferWei(network, false)) {
           throw new Error(
             `Deposit a little ${native} for gas before exchanging (sponsorship is off).`,
           );
         }
       }
+    }
+
+    const pk = decryptOwnerKey(wallet.owner_key_enc) as Hex;
+
+    // ETH ↔ WETH is wrap/unwrap — never OKX (saves gas + avoids fake "fees").
+    if (data.direction === "eth_to_weth" || data.direction === "weth_to_eth") {
+      const call =
+        data.direction === "eth_to_weth"
+          ? { target: weth as Address, data: WETH_DEPOSIT_SELECTOR as Hex, value: amountWei }
+          : { target: weth as Address, data: encodeWethWithdraw(amountWei), value: 0n };
+      let wrapResult: { userOpHash: string; address: Address };
+      try {
+        wrapResult = await executeContractUserOp(pk, call, network);
+      } catch (err) {
+        throw friendlyUserOpError(err, sponsored, native);
+      }
+      const { data: companyWrap } = await context.supabase
+        .from("companies")
+        .select("id")
+        .eq("owner_id", context.userId)
+        .order("created_at")
+        .limit(1)
+        .maybeSingle();
+      if (companyWrap?.id) {
+        await supabaseAdmin.from("activity_events").insert({
+          company_id: companyWrap.id,
+          kind: "trade",
+          message: `Treasury ${fromLabel} → ${toLabel} (wrap)`,
+          value: Number(amountWei) / 1e18,
+        });
+      }
+      return {
+        ok: true as const,
+        direction: data.direction,
+        fromLabel,
+        toLabel,
+        amountIn: amountWei.toString(),
+        estimatedOut: amountWei.toString(),
+        userOpHash: wrapResult.userOpHash,
+        network,
+        gasSponsored: sponsored,
+        explorerTxUrl: buildExplorerTxUrl(network, wrapResult.userOpHash),
+      };
     }
 
     const swapRaw = await okxDexSwap({
@@ -367,12 +429,27 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       slippage: data.slippage,
     });
     const parsed = parseOkxSwapCalldata(swapRaw);
-    const pk = decryptOwnerKey(wallet.owner_key_enc) as Hex;
 
     const calls: { target: Address; data: Hex; value?: bigint }[] = [];
     if (fromToken !== NATIVE_ETH) {
       const spender = (parsed.approveTo || parsed.to) as Address;
-      calls.push({ target: fromToken as Address, data: encodeApprove(spender, amountWei * 2n) });
+      const allowRes = await fetch(rpc, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: 1,
+          jsonrpc: "2.0",
+          method: "eth_call",
+          params: [{ to: fromToken, data: encodeAllowanceData(wallet.address, spender) }, "latest"],
+        }),
+      });
+      const allowJson = (await allowRes.json()) as { result?: string };
+      const allowance =
+        allowJson.result && allowJson.result !== "0x" ? BigInt(allowJson.result) : 0n;
+      if (allowance < amountWei) {
+        // Max approve once — later swaps skip this UserOp.
+        calls.push({ target: fromToken as Address, data: encodeApprove(spender, MAX_UINT256) });
+      }
     }
     calls.push({
       target: parsed.to,
@@ -417,6 +494,7 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       estimatedOut: parsed.toAmount ?? null,
       userOpHash: result.userOpHash,
       network,
+      gasSponsored: sponsored,
       explorerTxUrl: buildExplorerTxUrl(network, result.userOpHash),
     };
   });

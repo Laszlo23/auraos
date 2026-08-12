@@ -8,6 +8,7 @@ import {
   chainId,
   chainLabel,
   explorerBaseUrl,
+  nativeGasBufferWei,
   nativeSymbol,
   stableSymbol,
   USDC_ADDRESSES,
@@ -445,7 +446,7 @@ export const sendTreasury = createServerFn({ method: "POST" })
     if (data.asset === "eth") {
       assetLabel = native;
       const bal = await nativeBal();
-      const buffer = gasSponsorshipEnabled(network) ? 2n * 10n ** 14n : 10n ** 15n;
+      const buffer = nativeGasBufferWei(network, gasSponsorshipEnabled(network));
       const spendable = bal > buffer ? bal - buffer : 0n;
       if (spendable <= 0n) throw new Error(`Not enough ${native} after gas buffer.`);
       amountWei =
@@ -463,9 +464,9 @@ export const sendTreasury = createServerFn({ method: "POST" })
       assetLabel = data.asset === "usdc" ? stable : "WETH";
       if (!gasSponsorshipEnabled(network)) {
         const ethBal = await nativeBal();
-        if (ethBal < 10n ** 15n) {
+        if (ethBal < nativeGasBufferWei(network, false)) {
           throw new Error(
-            `Keep ~0.001 ${native} for gas, or set Alchemy gas sponsorship on the server.`,
+            `Keep a little ${native} for gas, or set Alchemy gas sponsorship on the server.`,
           );
         }
       }

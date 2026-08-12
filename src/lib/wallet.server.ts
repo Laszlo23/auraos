@@ -258,7 +258,11 @@ export async function executeBatchUserOps(
         ? result
         : String((result as { hash?: string }).hash ?? result);
     return { userOpHash, address };
-  } catch {
+  } catch (err) {
+    console.warn(
+      "Light Account batch UserOp failed — falling back to sequential (higher gas)",
+      err instanceof Error ? err.message : err,
+    );
     // Fallback: sequential (approve then swap)
     let last = { userOpHash: "", address };
     for (const c of calls) {

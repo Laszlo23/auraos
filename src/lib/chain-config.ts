@@ -296,3 +296,46 @@ export function gasPolicyId(network: AuraNetwork = activeNetwork()): string | nu
 export function gasSponsorshipEnabled(network: AuraNetwork = activeNetwork()): boolean {
   return Boolean(gasPolicyId(network) && alchemyRpcUrl({ network }));
 }
+
+/**
+ * Native gas buffer left on the smart wallet when spending "max" ETH.
+ * Without Alchemy Gas Manager this used to be 0.001 ETH (~$3 on Base) and looked like a fee.
+ * Base/L2 ops are cents — keep a thin cushion only.
+ */
+export function nativeGasBufferWei(
+  network: AuraNetwork = activeNetwork(),
+  sponsored = gasSponsorshipEnabled(network),
+): bigint {
+  if (sponsored) {
+    // Tiny dust so the account never goes fully empty mid-batch.
+    return 2n * 10n ** 14n; // 0.0002
+  }
+  switch (network) {
+    case "bsc":
+      // BNB AA ops are cheap in USD; 0.0003 BNB is plenty.
+      return 3n * 10n ** 14n;
+    case "base":
+    case "base-sepolia":
+    case "opbnb":
+    case "robinhood":
+    case "robinhood-testnet":
+      // ~0.00008 ETH — enough for a few Base UserOps, not a $3 holdback.
+      return 8n * 10n ** 13n;
+    default: {
+      const _exhaustive: never = network;
+      return _exhaustive;
+    }
+  }
+}
+
+/** Human hint for UI copy. */
+export function nativeGasBufferHint(
+  network: AuraNetwork = activeNetwork(),
+  sponsored = gasSponsorshipEnabled(network),
+): string {
+  if (sponsored) return "Gas sponsored";
+  const wei = nativeGasBufferWei(network, false);
+  const eth = Number(wei) / 1e18;
+  const sym = nativeSymbol(network);
+  return `Keep ~${eth.toFixed(5)} ${sym} for gas (sponsorship off)`;
+}
