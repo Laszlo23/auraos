@@ -1,6 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion } from "motion/react";
 import { useLayoutEffect, useState } from "react";
+import {
+  ClipboardCheck,
+  Heart,
+  KeyRound,
+  Megaphone,
+  Star,
+  Store,
+  Users,
+} from "lucide-react";
 
+import {
+  FunnelCloseBand,
+  FunnelConceptStrip,
+  FunnelHeroBleed,
+  FunnelPainSection,
+  FunnelStoryBeats,
+  FunnelTrustStrip,
+  FunnelWiifmStrip,
+  type StoryBeat,
+} from "@/components/aura/funnel-visuals";
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { LocalCohortSeatsLeft } from "@/components/aura/local-cohort-seats";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -41,14 +61,16 @@ export const Route = createFileRoute("/lokal")({
       { property: "og:locale", content: "de_DE" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/lokal` }],
+    links: [
+      { rel: "canonical", href: `${SITE_URL}/lokal` },
+      { rel: "preload", as: "image", href: "/funnels/lokal-hero.jpg" },
+    ],
   }),
   component: LokalLandingPage,
 });
 
 function LokalLandingPage() {
   const { locale, setLocale } = useLocale();
-  // DE-first for SSR + first paint (no English flash for shops).
   const [lang, setLang] = useState<UiLocale>("de");
 
   useLayoutEffect(() => {
@@ -70,32 +92,48 @@ function LokalLandingPage() {
   const signupHref = authHrefForLokal("signup", lang);
   const loginHref = authHrefForLokal("signin", lang);
 
+  const beats: StoryBeat[] = [
+    {
+      no: tr("lokal.beat1No"),
+      kicker: tr("lokal.beat1Kicker"),
+      line: tr("lokal.beat1Line"),
+      body: tr("lokal.beat1Body"),
+      icon: Star,
+      tone: "gold",
+    },
+    {
+      no: tr("lokal.beat2No"),
+      kicker: tr("lokal.beat2Kicker"),
+      line: tr("lokal.beat2Line"),
+      body: tr("lokal.beat2Body"),
+      icon: Users,
+      tone: "primary",
+    },
+    {
+      no: tr("lokal.beat3No"),
+      kicker: tr("lokal.beat3Kicker"),
+      line: tr("lokal.beat3Line"),
+      body: tr("lokal.beat3Body"),
+      icon: Store,
+      tone: "muted",
+    },
+  ];
+
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 55% at 10% -8%, oklch(0.58 0.09 195 / 0.3), transparent 58%), radial-gradient(ellipse 55% 40% at 90% 5%, oklch(0.78 0.11 82 / 0.18), transparent 52%)",
-        }}
-      />
-
-      <header className="relative border-b border-border/40 backdrop-blur-xl">
+      <header className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-black/25 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-4">
           <Link
             to="/lokal"
-            className="font-display text-lg font-semibold tracking-tight sm:text-xl"
+            className="font-display text-lg font-semibold tracking-tight text-white sm:text-xl"
           >
             {SITE_NAME}
           </Link>
-          <span className="font-display text-lg font-medium text-muted-foreground sm:text-xl">
-            Lokal
-          </span>
-          <LanguageToggle className="ml-auto" />
+          <span className="font-display text-lg font-medium text-white/60 sm:text-xl">Lokal</span>
+          <LanguageToggle className="ml-auto border-white/25 bg-black/30 text-white" />
           <a
             href={loginHref}
-            className="hidden rounded-2xl border border-border/50 px-4 py-2 text-xs font-semibold sm:inline-flex"
+            className="hidden rounded-2xl border border-white/25 px-4 py-2 text-xs font-semibold text-white sm:inline-flex"
           >
             {tr("lokal.ctaLogin")}
           </a>
@@ -108,17 +146,45 @@ function LokalLandingPage() {
         </div>
       </header>
 
-      <section className="relative mx-auto flex min-h-[72svh] max-w-5xl flex-col justify-center px-6 py-16 sm:py-20">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">
-          Aura · Reputation
-        </p>
-        <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.6rem,8vw,4.4rem)] font-semibold leading-[0.96] tracking-tight">
+      <FunnelHeroBleed
+        src="/funnels/lokal-hero.jpg"
+        alt={
+          lang === "de"
+            ? "Lokaler Laden am Abend mit leuchtender 5-Sterne-Bewertung"
+            : "Neighborhood shop with a glowing five-star review"
+        }
+        wash="linear-gradient(105deg, oklch(0.16 0.03 200 / 0.92) 0%, oklch(0.17 0.03 190 / 0.7) 46%, oklch(0.25 0.06 85 / 0.38) 100%), linear-gradient(0deg, oklch(0.14 0.02 210 / 0.78) 0%, transparent 44%)"
+        showScrollCue={tr("lokal.scrollCue")}
+      >
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="font-display text-[clamp(1.9rem,5vw,2.8rem)] font-semibold tracking-tight text-white"
+        >
+          Aura Lokal
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="mt-3 max-w-3xl font-display text-[clamp(2.2rem,7vw,3.8rem)] font-semibold leading-[0.98] tracking-tight text-white"
+        >
           {tr("lokal.hero")}
-        </h1>
-        <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-muted-foreground">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.16 }}
+          className="mt-5 max-w-lg text-[16px] leading-relaxed text-white/75"
+        >
           {tr("lokal.blurb")}
-        </p>
-        <div className="mt-9 flex flex-wrap gap-3">
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+          className="mt-9 flex flex-wrap gap-3"
+        >
           <Link
             to="/lokal/audit"
             className="rounded-2xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_12px_40px_-18px_oklch(0.55_0.12_200)] transition-transform hover:scale-[1.02]"
@@ -126,83 +192,111 @@ function LokalLandingPage() {
             {tr("lokal.ctaAudit")}
           </Link>
           <a
-            href={signupHref}
-            className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
+            href="#story"
+            className="rounded-2xl border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm"
           >
-            {tr("lokal.ctaSeat", { eur: AURA_REPUTATION_EUR })}
+            {tr("lokal.wiifmCta")}
           </a>
+        </motion.div>
+      </FunnelHeroBleed>
+
+      <FunnelPainSection
+        title={tr("lokal.painTitle")}
+        body={tr("lokal.painBody")}
+        items={[
+          { bad: tr("lokal.painBad1"), good: tr("lokal.painGood1") },
+          { bad: tr("lokal.painBad2"), good: tr("lokal.painGood2") },
+        ]}
+        eyebrow={lang === "de" ? "Was bringt’s dir" : "What’s in it for you"}
+      />
+
+      <FunnelWiifmStrip
+        title={tr("lokal.wiifmTitle")}
+        sub={tr("lokal.wiifmSub")}
+        eyebrow={tr("lokal.storyPillars")}
+        items={[
+          {
+            icon: Star,
+            title: tr("lokal.wiifmStars"),
+            payoff: tr("lokal.wiifmStarsHint"),
+          },
+          {
+            icon: Heart,
+            title: tr("lokal.wiifmGuests"),
+            payoff: tr("lokal.wiifmGuestsHint"),
+          },
+          {
+            icon: Megaphone,
+            title: tr("lokal.wiifmSocial"),
+            payoff: tr("lokal.wiifmSocialHint"),
+          },
+        ]}
+      />
+
+      <FunnelStoryBeats beats={beats} />
+
+      <FunnelConceptStrip
+        eyebrow={lang === "de" ? "In drei Bildern" : "In three pictures"}
+        title={tr("lokal.conceptsTitle")}
+        concepts={[
+          {
+            icon: ClipboardCheck,
+            title: lang === "de" ? "Prüfen" : "Check",
+            hint: tr("lokal.step1").replace(/^\d\s*·\s*/, ""),
+          },
+          {
+            icon: Store,
+            title: lang === "de" ? "Betrieb" : "Shop",
+            hint: tr("lokal.step2").replace(/^\d\s*·\s*/, ""),
+          },
+          {
+            icon: KeyRound,
+            title: lang === "de" ? "Freischalten" : "Unlock",
+            hint: tr("lokal.step3").replace(/^\d\s*·\s*/, ""),
+          },
+        ]}
+      />
+
+      <section className="relative border-t border-border/40 py-14">
+        <div className="mx-auto max-w-5xl px-6">
+          <p className="text-[12px] text-muted-foreground">{tr("lokal.niches")}</p>
+          <div className="mt-6 max-w-md rounded-3xl border border-gold/30 bg-gold/8 px-5 py-4">
+            <LocalCohortSeatsLeft label={tr("lokal.seatsLeft", { cap: LOCAL_COHORT_CAP })} />
+          </div>
+        </div>
+      </section>
+
+      <FunnelTrustStrip
+        title={tr("lokal.trustTitle")}
+        items={[tr("lokal.trust1"), tr("lokal.trust2"), tr("lokal.trust3"), tr("lokal.trust4")]}
+      />
+
+      <FunnelCloseBand
+        title={`${tr("boost.unlockSeat")} · ${AURA_REPUTATION_EUR} €/Monat`}
+        body={tr("boost.seatBlurb")}
+        cta={tr("lokal.ctaAudit")}
+        href="/lokal/audit"
+        secondaryHref={signupHref}
+        secondaryLabel={tr("paywall.cta")}
+      />
+
+      <section id="barzahlung" className="relative border-t border-border/40 py-10">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6">
+          <p className="text-sm text-muted-foreground">{tr("lokal.cashHow")}</p>
           <a
-            href="#barzahlung"
-            className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold"
+            href={signupHref}
+            className="rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
           >
             {tr("lokal.ctaCash")}
           </a>
         </div>
-        <p className="mt-5 text-[12px] text-muted-foreground">{tr("lokal.niches")}</p>
-        <div className="mt-8 max-w-md rounded-3xl border border-gold/30 bg-gold/8 px-5 py-4">
-          <LocalCohortSeatsLeft label={tr("lokal.seatsLeft", { cap: LOCAL_COHORT_CAP })} />
-        </div>
       </section>
 
-      <section className="relative border-t border-border/40 py-14">
-        <div className="mx-auto max-w-5xl px-6">
-          <h2 className="font-display text-2xl font-semibold tracking-tight">
-            {tr("lokal.stepsTitle")}
-          </h2>
-          <ol className="mt-6 max-w-xl space-y-3 text-[15px] leading-relaxed text-muted-foreground">
-            <li>{tr("lokal.step1")}</li>
-            <li>{tr("lokal.step2")}</li>
-            <li>{tr("lokal.step3")}</li>
-          </ol>
-        </div>
-      </section>
-
-      <section className="relative border-t border-border/40 py-16">
-        <div className="mx-auto grid max-w-5xl gap-10 px-6 sm:grid-cols-3">
-          <div>
-            <h2 className="font-display text-xl font-semibold">{tr("nav.bewertungen")}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{tr("bewertungen.blurb")}</p>
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-semibold">{tr("nav.kunden")}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{tr("kunden.blurb")}</p>
-          </div>
-          <div>
-            <h2 className="font-display text-xl font-semibold">{tr("nav.social")}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{tr("social.blurb")}</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="barzahlung" className="relative border-t border-border/40 py-16">
-        <div className="mx-auto max-w-5xl px-6">
-          <h2 className="font-display text-3xl font-semibold tracking-tight">
-            {tr("boost.unlockSeat")} · {AURA_REPUTATION_EUR} €/Monat
-          </h2>
-          <p className="mt-3 max-w-xl text-sm text-muted-foreground">{tr("boost.seatBlurb")}</p>
-          <p className="mt-3 max-w-xl text-sm text-muted-foreground">{tr("lokal.cashHow")}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/lokal/audit"
-              className="inline-flex rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
-            >
-              {tr("lokal.ctaAudit")}
-            </Link>
-            <a
-              href={signupHref}
-              className="inline-flex rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
-            >
-              {tr("paywall.cta")}
-            </a>
-            <a
-              href={loginHref}
-              className="inline-flex rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
-            >
-              {tr("lokal.ctaLogin")}
-            </a>
-          </div>
-        </div>
-      </section>
+      <div className="border-t border-border/40 px-6 py-8 text-center">
+        <a href={loginHref} className="text-sm text-muted-foreground underline-offset-4 hover:underline">
+          {tr("lokal.ctaLogin")}
+        </a>
+      </div>
 
       <SiteFooter />
     </main>

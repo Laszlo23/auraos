@@ -180,51 +180,14 @@ export const scheduleMarketingPost = createServerFn({ method: "POST" })
       if (!conn || conn.status !== "connected") {
         throw new Error(`Connect ${data.provider} under Channels first.`);
       }
-      if (data.sharePostId && data.provider === "x") {
-        const { publishToProvider } = await import("@/lib/social-api.server");
-        const result = await publishToProvider("x", company.id, body, {
-          sharePostId: data.sharePostId,
-        });
-        const { data: post, error } = await supabaseAdmin
-          .from("channel_posts")
-          .insert({
-            company_id: company.id,
-            provider: data.provider,
-            body,
-            status: "published",
-            published_at: new Date().toISOString(),
-            agent_name: SOCIAL_AGENTS[data.provider],
-            external_post_id: result.externalPostId,
-            external_url: result.externalUrl ?? null,
-            campaign_key: data.campaignKey,
-            media_url: data.mediaUrl,
-            media_kind: data.mediaKind,
-            share_post_id: data.sharePostId,
-            impressions: 0,
-            likes: 0,
-            reposts: 0,
-          })
-          .select("id, status, scheduled_at, external_url")
-          .single();
-        if (error) throw error;
-        await supabaseAdmin.from("activity_events").insert({
-          company_id: company.id,
-          kind: "publish",
-          message: `Marketing Studio published on ${data.provider}`,
-        });
-        return {
-          ok: true as const,
-          postId: post.id,
-          status: "published" as const,
-          autoPublish: true,
-          externalUrl: post.external_url as string | null,
-          note: "Published now.",
-        };
+      if (data.provider === "tiktok" && !data.sharePostId) {
+        throw new Error("TikTok needs a share-kit video clip — pick one before publishing.");
       }
 
       const { publishToProvider } = await import("@/lib/social-api.server");
       const result = await publishToProvider(data.provider, company.id, body, {
-        sharePostId: data.provider === "x" ? data.sharePostId : null,
+        sharePostId: data.sharePostId,
+        mediaUrl: data.mediaUrl,
       });
       const { data: post, error } = await supabaseAdmin
         .from("channel_posts")
@@ -245,7 +208,7 @@ export const scheduleMarketingPost = createServerFn({ method: "POST" })
           likes: 0,
           reposts: 0,
         })
-        .select("id, status, external_url")
+        .select("id, status, scheduled_at, external_url")
         .single();
       if (error) throw error;
       await supabaseAdmin.from("activity_events").insert({

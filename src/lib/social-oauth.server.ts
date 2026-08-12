@@ -347,7 +347,8 @@ async function exchangeMeta(code: string, redirectUri: string): Promise<SocialTo
 
   return {
     accessToken: pageToken,
-    refreshToken: null,
+    // Keep long-lived user token so we can re-mint Page tokens before expiry.
+    refreshToken: userToken,
     expiresAt: llJson.expires_in
       ? new Date(Date.now() + llJson.expires_in * 1000).toISOString()
       : null,
@@ -444,6 +445,7 @@ export async function exchangeCode(
 export async function refreshAccessToken(
   provider: SocialProvider,
   refreshToken: string,
+  opts?: { metaPageId?: string | null },
 ): Promise<SocialTokens | null> {
   if (provider === "x") {
     const clientId = process.env["X_CLIENT_ID"]!;
@@ -530,7 +532,62 @@ export async function refreshAccessToken(
       scopes: json.scope ?? null,
     };
   }
+  if (provider === "meta") {
+    // refreshToken holds the long-lived *user* token; re-exchange + re-fetch Page token.
+    return refreshMetaPageToken(refreshToken, opts?.metaPageId ?? null);
+  }
   return null;
+}
+
+async function refreshMetaPageToken(
+  userToken: string,
+  preferredPageId: string | null,
+): Promise<SocialTokens | null> {
+  const appId = process.env["META_APP_ID"];
+  const appSecret = process.env["META_APP_SECRET"];
+  if (!appId || !appSecret) return null;
+
+  const llUrl = new URL("https://graph.facebook.com/v21.0/oauth/access_token");
+  llUrl.searchParams.set("grant_type", "fb_exchange_token");
+  llUrl.searchParams.set("client_id", appId);
+  llUrl.searchParams.set("client_secret", appSecret);
+  llUrl.searchParams.set("fb_exchange_token", userToken);
+  const llRes = await fetch(llUrl);
+  const llJson = (await llRes.json()) as {
+    access_token?: string;
+    expires_in?: number;
+    error?: { message?: string };
+  };
+  const nextUser = llJson.access_token || userToken;
+
+  const pagesRes = await fetch(
+    `https://graph.facebook.com/v21.0/me/accounts?fields=id,name,access_token,instagram_business_account&access_token=${encodeURIComponent(nextUser)}`,
+  );
+  if (!pagesRes.ok) return null;
+  const pages = (await pagesRes.json()) as {
+    data?: Array<{
+      id: string;
+      name: string;
+      access_token: string;
+      instagram_business_account?: { id: string };
+    }>;
+  };
+  const page =
+    (preferredPageId ? pages.data?.find((p) => p.id === preferredPageId) : null) ??
+    pages.data?.[0];
+  if (!page?.access_token) return null;
+
+  return {
+    accessToken: page.access_token,
+    refreshToken: nextUser,
+    expiresAt: llJson.expires_in
+      ? new Date(Date.now() + llJson.expires_in * 1000).toISOString()
+      : new Date(Date.now() + 55 * 24 * 3600 * 1000).toISOString(),
+    metaPageId: page.id,
+    metaPageName: page.name,
+    igUserId: page.instagram_business_account?.id ?? null,
+    handle: `${page.name}${page.instagram_business_account ? " · IG" : ""}`,
+  };
 }
 
 export function encryptToken(value: string): string {
@@ -578,7 +635,9 @@ export async function loadConnectionSecrets(
   let expiresAt = data.token_expires_at as string | null;
 
   if (expiresAt && refreshToken && new Date(expiresAt).getTime() < Date.now() + 60_000) {
-    const refreshed = await refreshAccessToken(provider, refreshToken);
+    const refreshed = await refreshAccessToken(provider, refreshToken, {
+      metaPageId: data.meta_page_id,
+    });
     if (refreshed) {
       accessToken = refreshed.accessToken;
       refreshToken = refreshed.refreshToken ?? refreshToken;
@@ -589,6 +648,9 @@ export async function loadConnectionSecrets(
           access_token_ciphertext: encryptToken(accessToken),
           refresh_token_ciphertext: refreshToken ? encryptToken(refreshToken) : null,
           token_expires_at: expiresAt,
+          ...(refreshed.metaPageId ? { meta_page_id: refreshed.metaPageId } : {}),
+          ...(refreshed.igUserId !== undefined ? { ig_user_id: refreshed.igUserId } : {}),
+          ...(refreshed.handle ? { handle: refreshed.handle } : {}),
           last_sync: new Date().toISOString(),
           status: "connected",
         })

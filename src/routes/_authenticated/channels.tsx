@@ -101,6 +101,8 @@ function ChannelsPage() {
   const { data: drip } = useLaunchDripStatus();
   const startDrip = useStartLaunchDrip();
   const xStatus = statuses.find((s) => s.provider === "x");
+  const tiktokStatus = statuses.find((s) => s.provider === "tiktok");
+  const metaStatus = statuses.find((s) => s.provider === "meta");
 
   const [pending, setPending] = useState<string | null>(null);
   const [burst, setBurst] = useState(0);
@@ -108,6 +110,8 @@ function ChannelsPage() {
   const [composeProvider, setComposeProvider] = useState<SocialProvider>("x");
   const [composeBody, setComposeBody] = useState("");
   const [clipId, setClipId] = useState(SHARE_CLIP_OPTIONS[0]?.id ?? "4am");
+  const [clipProvider, setClipProvider] = useState<"x" | "tiktok" | "meta">("x");
+  const [composeClipId, setComposeClipId] = useState("");
   const [editing, setEditing] = useState(false);
   const DEFAULT_INSTRUCTION =
     "Publish two posts a week per channel. Never announce a restock before inventory clears fourteen days of cover. Match the brand's calm voice. Reply to comments warmly and briefly.";
@@ -255,6 +259,22 @@ function ChannelsPage() {
                   ) : state?.readOnly && s.id === "farcaster" ? (
                     <p className="mt-2 text-[11px] text-primary">
                       Read live via Neynar. Add NEYNAR_AGENT_ID (or FID + custody key) to cast.
+                    </p>
+                  ) : s.id === "linkedin" && state?.available && !state.linkedInShareReady ? (
+                    <p className="mt-2 text-[11px] text-gold">
+                      Connect works. Posting needs Share on LinkedIn approved, then{" "}
+                      <span className="font-mono">LINKEDIN_SHARE_SCOPE=1</span> and reconnect.
+                    </p>
+                  ) : s.id === "linkedin" &&
+                    state?.connected &&
+                    state.linkedInShareReady &&
+                    state.needsReconnect ? (
+                    <p className="mt-2 text-[11px] text-gold">
+                      Reconnect LinkedIn to pick up <span className="font-mono">w_member_social</span>.
+                    </p>
+                  ) : s.id === "meta" && state?.connected && !state.has_instagram ? (
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      Facebook Page only — link an IG Business account on the Page for Reels.
                     </p>
                   ) : null}
                 </div>
@@ -537,24 +557,61 @@ function ChannelsPage() {
             value={composeBody}
             onChange={(e) => setComposeBody(e.target.value)}
             rows={4}
-            aria-label="Post body"
-            placeholder="What should we say?"
-            className="mt-3 w-full resize-none rounded-2xl bg-foreground/6 px-4 py-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            placeholder={
+              composeProvider === "tiktok"
+                ? "Caption for your TikTok — pick a share-kit clip below (video required)…"
+                : composeProvider === "meta"
+                  ? "Caption — add a share-kit clip for Instagram Reels (text-only posts go to Facebook Page)…"
+                  : "What should go out…"
+            }
+            className="mt-3 w-full resize-none rounded-2xl bg-foreground/6 px-3.5 py-3 text-[13px] outline-none placeholder:text-muted-foreground/50"
           />
-          <div className="mt-3 flex gap-2">
+          {(composeProvider === "tiktok" ||
+            composeProvider === "meta" ||
+            composeProvider === "x") && (
+            <select
+              value={composeClipId}
+              onChange={(e) => setComposeClipId(e.target.value)}
+              aria-label="Optional share-kit clip"
+              className="mt-3 w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] outline-none"
+            >
+              <option value="">
+                {composeProvider === "tiktok"
+                  ? "Select share-kit clip (required for TikTok)"
+                  : "Optional share-kit clip"}
+              </option>
+              {SHARE_CLIP_OPTIONS.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
-              disabled={!composeBody.trim() || publish.isPending}
+              disabled={
+                !composeBody.trim() ||
+                publish.isPending ||
+                (composeProvider === "tiktok" && !composeClipId)
+              }
               onClick={() =>
                 publish.mutate(
-                  { provider: composeProvider, body: composeBody },
+                  {
+                    provider: composeProvider,
+                    body: composeBody.trim(),
+                    ...(composeClipId ? { sharePostId: composeClipId } : {}),
+                  },
                   {
                     onSuccess: () => {
                       setComposeBody("");
-                      notify.success("Published. Engagement task queued.");
+                      setComposeClipId("");
+                      celebrate("Published", 40, "publish:manual");
+                      notify.success("Live.");
                       void fetch("/api/workers/tick", { method: "POST" });
                     },
-                    onError: (e) => notify.error(e instanceof Error ? e.message : "Publish failed"),
+                    onError: (e) =>
+                      notify.error(e instanceof Error ? e.message : "Publish failed"),
                   },
                 )
               }
@@ -565,7 +622,11 @@ function ChannelsPage() {
             </button>
             <button
               type="button"
-              disabled={!composeBody.trim() || !company}
+              disabled={
+                !composeBody.trim() ||
+                !company ||
+                (composeProvider === "tiktok" && !composeClipId)
+              }
               onClick={async () => {
                 if (!company) return;
                 const when = new Date(Date.now() + 60 * 60 * 1000).toISOString();
@@ -576,10 +637,14 @@ function ChannelsPage() {
                   status: "scheduled",
                   scheduled_at: when,
                   agent_name: SOCIALS.find((s) => s.id === composeProvider)?.agent ?? "Vela",
+                  ...(composeClipId
+                    ? { share_post_id: composeClipId, media_kind: "share_clip" }
+                    : {}),
                 });
                 if (error) notify.error("Could not schedule.");
                 else {
                   setComposeBody("");
+                  setComposeClipId("");
                   notify.success("Scheduled for ~1 hour — worker will publish.");
                   void qc.invalidateQueries({ queryKey: ["table", "channel_posts"] });
                 }
@@ -589,61 +654,6 @@ function ChannelsPage() {
               Schedule +1h
             </button>
           </div>
-        </Panel>
-
-        <Panel label="Post share-kit clip to X" glow>
-          <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
-            Native MP4 upload + caption. Requires{" "}
-            <span className="font-mono text-[11px]">media.write</span> (reconnect X if prompted).
-            Leaves a receipt on your public company page.
-          </p>
-          <select
-            value={clipId}
-            onChange={(e) => setClipId(e.target.value)}
-            aria-label="Share kit clip"
-            className="w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] outline-none"
-          >
-            {SHARE_CLIP_OPTIONS.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            disabled={!xStatus?.connected || publishClip.isPending}
-            onClick={() =>
-              publishClip.mutate(
-                { sharePostId: clipId },
-                {
-                  onSuccess: (res) => {
-                    celebrate("Clip on X", 80, "publish:clip");
-                    notify.success(res.externalUrl ? "Clip posted with video." : "Posted.");
-                    if (res.externalUrl) {
-                      window.open(res.externalUrl, "_blank", "noopener,noreferrer");
-                    }
-                  },
-                  onError: (e) =>
-                    notify.error(
-                      e instanceof Error
-                        ? e.message
-                        : "Clip publish failed — reconnect X for media.write",
-                    ),
-                },
-              )
-            }
-            className="mt-3 inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-          >
-            {publishClip.isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Radio className="h-3.5 w-3.5" />
-            )}
-            {publishClip.isPending ? "Uploading video…" : "Post clip with video"}
-          </button>
-          {xStatus?.connected && !xStatus.canPostVideo ? (
-            <p className="mt-2 text-[11px] text-gold">Reconnect X above first to unlock video.</p>
-          ) : null}
         </Panel>
 
         <Panel label="Standing instruction" delay={0.06}>
@@ -690,6 +700,101 @@ function ChannelsPage() {
           )}
         </Panel>
       </div>
+
+      <Panel label="Post share-kit clip" glow>
+        <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
+          Native video to <strong className="text-foreground">X</strong>,{" "}
+          <strong className="text-foreground">TikTok</strong>, or{" "}
+          <strong className="text-foreground">Meta (IG Reels)</strong>. X needs{" "}
+          <span className="font-mono text-[11px]">media.write</span>. TikTok needs your app
+          scopes approved.
+        </p>
+        <div className="mb-3 flex flex-wrap gap-2">
+          {(
+            [
+              { id: "x" as const, live: xStatus?.connected },
+              { id: "tiktok" as const, live: tiktokStatus?.connected },
+              { id: "meta" as const, live: metaStatus?.connected },
+            ] as const
+          ).map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              disabled={!p.live}
+              onClick={() => setClipProvider(p.id)}
+              className={cn(
+                "rounded-xl px-3 py-1.5 text-[11px] transition-colors disabled:opacity-40",
+                clipProvider === p.id
+                  ? "bg-primary/14 text-primary"
+                  : "bg-foreground/6 text-muted-foreground",
+              )}
+            >
+              {p.id === "x" ? "X" : p.id === "tiktok" ? "TikTok" : "Meta / IG"}
+            </button>
+          ))}
+        </div>
+        <select
+          value={clipId}
+          onChange={(e) => setClipId(e.target.value)}
+          aria-label="Share kit clip"
+          className="w-full max-w-xl rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] outline-none"
+        >
+          {SHARE_CLIP_OPTIONS.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.title}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          disabled={
+            (clipProvider === "x" && !xStatus?.connected) ||
+            (clipProvider === "tiktok" && !tiktokStatus?.connected) ||
+            (clipProvider === "meta" && !metaStatus?.connected) ||
+            publishClip.isPending
+          }
+          onClick={() =>
+            publishClip.mutate(
+              { sharePostId: clipId, provider: clipProvider },
+              {
+                onSuccess: (res) => {
+                  celebrate(`Clip on ${clipProvider}`, 80, "publish:clip");
+                  notify.success(res.externalUrl ? "Clip posted with video." : "Posted.");
+                  if (res.externalUrl) {
+                    window.open(res.externalUrl, "_blank", "noopener,noreferrer");
+                  }
+                },
+                onError: (e) =>
+                  notify.error(
+                    e instanceof Error
+                      ? e.message
+                      : "Clip publish failed — check connect + scopes",
+                  ),
+              },
+            )
+          }
+          className="mt-3 inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          {publishClip.isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Radio className="h-3.5 w-3.5" />
+          )}
+          {publishClip.isPending ? "Uploading video…" : "Post clip with video"}
+        </button>
+        {clipProvider === "x" && xStatus?.connected && !xStatus.canPostVideo ? (
+          <p className="mt-2 text-[11px] text-gold">Reconnect X above first to unlock video.</p>
+        ) : null}
+        {clipProvider === "tiktok" && !tiktokStatus?.connected ? (
+          <p className="mt-2 text-[11px] text-gold">Connect TikTok above first.</p>
+        ) : null}
+        {clipProvider === "meta" && metaStatus?.connected && !metaStatus.has_instagram ? (
+          <p className="mt-2 text-[11px] text-gold">
+            Meta is connected without an IG Business account — Reels need Instagram linked to your
+            Page.
+          </p>
+        ) : null}
+      </Panel>
 
       <Panel
         label="Inbox — comments & mentions"

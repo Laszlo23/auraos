@@ -41,6 +41,9 @@ export const getSocialStatus = createServerFn({ method: "GET" })
       const hasMediaWrite = scopes.split(/\s+/).includes("media.write");
       const hasTikTokPublish =
         scopes.includes("video.publish") || scopes.includes("video.upload");
+      const linkedInShareEnv = process.env["LINKEDIN_SHARE_SCOPE"] === "1";
+      const hasLinkedInShare =
+        scopes.split(/\s+/).includes("w_member_social") || linkedInShareEnv;
       const connected = row?.status === "connected";
       const writeReady = socialConfigured(provider);
       return {
@@ -51,9 +54,12 @@ export const getSocialStatus = createServerFn({ method: "GET" })
         connected,
         needsReconnect:
           Boolean(row && row.status !== "connected") ||
-          (connected && provider === "x" && !hasMediaWrite),
+          (connected && provider === "x" && !hasMediaWrite) ||
+          (connected && provider === "linkedin" && linkedInShareEnv && !scopes.includes("w_member_social")),
         canPostVideo:
           (connected && hasMediaWrite) || (connected && provider === "tiktok" && hasTikTokPublish),
+        canShare: provider !== "linkedin" || (connected && hasLinkedInShare),
+        linkedInShareReady: linkedInShareEnv,
         handle: row?.handle ?? null,
         followers: row?.followers ?? 0,
         engagement: row?.engagement ?? 0,
@@ -332,12 +338,30 @@ export const setSocialReplyMode = createServerFn({ method: "POST" })
 
 export const publishSocialNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; provider: string; body: string }) => {
-    if (!isProvider(input.provider)) throw new Error("Unknown social provider");
-    const body = String(input.body ?? "").trim();
-    if (!body) throw new Error("Write something to publish.");
-    return { companyId: String(input.companyId), provider: input.provider, body };
-  })
+  .inputValidator(
+    (input: {
+      companyId: string;
+      provider: string;
+      body: string;
+      sharePostId?: string | null;
+      mediaUrl?: string | null;
+    }) => {
+      if (!isProvider(input.provider)) throw new Error("Unknown social provider");
+      const body = String(input.body ?? "").trim();
+      if (!body) throw new Error("Write something to publish.");
+      const sharePostId = input.sharePostId ? String(input.sharePostId).trim() : null;
+      if (input.provider === "tiktok" && !sharePostId) {
+        throw new Error("TikTok needs a share-kit video clip — pick one before publishing.");
+      }
+      return {
+        companyId: String(input.companyId),
+        provider: input.provider,
+        body,
+        sharePostId,
+        mediaUrl: input.mediaUrl ? String(input.mediaUrl).trim().slice(0, 2000) : null,
+      };
+    },
+  )
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { publishToProvider } = await import("@/lib/social-api.server");
@@ -351,7 +375,10 @@ export const publishSocialNow = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!company) throw new Error("Company not found");
 
-    const result = await publishToProvider(data.provider, data.companyId, data.body);
+    const result = await publishToProvider(data.provider, data.companyId, data.body, {
+      sharePostId: data.sharePostId,
+      mediaUrl: data.mediaUrl,
+    });
     const { data: post, error } = await supabaseAdmin
       .from("channel_posts")
       .insert({
@@ -363,6 +390,9 @@ export const publishSocialNow = createServerFn({ method: "POST" })
         agent_name: SOCIAL_AGENTS[data.provider],
         external_post_id: result.externalPostId,
         external_url: result.externalUrl ?? null,
+        share_post_id: data.sharePostId,
+        media_url: data.mediaUrl,
+        media_kind: data.sharePostId ? "share_clip" : null,
         impressions: 0,
         likes: 0,
         reposts: 0,
@@ -388,7 +418,90 @@ export const publishSocialNow = createServerFn({ method: "POST" })
     return { ok: true, postId: post.id, externalUrl: result.externalUrl };
   });
 
-/** Post a share-kit clip to X with native MP4 media (requires media.write). */
+/** Post a share-kit clip to X, TikTok, or Meta (IG/FB) with native media. */
+export const publishShareClip = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      companyId: string;
+      sharePostId: string;
+      caption?: string;
+      provider?: "x" | "tiktok" | "meta";
+    }) => {
+      const sharePostId = String(input.sharePostId || "").trim();
+      if (!sharePostId) throw new Error("Pick a clip");
+      const provider = input.provider ?? "x";
+      if (provider !== "x" && provider !== "tiktok" && provider !== "meta") {
+        throw new Error("Clip publish supports X, TikTok, or Meta.");
+      }
+      return {
+        companyId: String(input.companyId),
+        sharePostId,
+        caption: input.caption ? String(input.caption).trim() : undefined,
+        provider,
+      };
+    },
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { publishToProvider } = await import("@/lib/social-api.server");
+    const { SOCIAL_AGENTS, SOCIAL_LABELS } = await import("@/lib/social-oauth.server");
+    const { getSharePost, shareWatchUrl } = await import("@/lib/share-posts");
+    const { SITE_URL } = await import("@/lib/site");
+
+    const { data: company } = await supabaseAdmin
+      .from("companies")
+      .select("id, slug, name")
+      .eq("id", data.companyId)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!company) throw new Error("Your company wasn't found for this account. Refresh and try again.");
+
+    const clip = getSharePost(data.sharePostId);
+    if (!clip) throw new Error("Unknown share clip");
+
+    const watch = shareWatchUrl(clip.id);
+    const passport = company.slug ? ` ${SITE_URL}/company/${company.slug}` : "";
+    const maxLen = data.provider === "x" ? 280 : 2200;
+    const caption =
+      data.caption ||
+      `${clip.hook}\n\n${watch}${passport}`.slice(0, maxLen);
+
+    const result = await publishToProvider(data.provider, data.companyId, caption, {
+      sharePostId: clip.id,
+    });
+
+    const { data: post, error } = await supabaseAdmin
+      .from("channel_posts")
+      .insert({
+        company_id: data.companyId,
+        provider: data.provider,
+        body: caption,
+        status: "published",
+        published_at: new Date().toISOString(),
+        agent_name: SOCIAL_AGENTS[data.provider],
+        external_post_id: result.externalPostId,
+        external_url: result.externalUrl ?? null,
+        share_post_id: clip.id,
+        media_kind: "share_clip",
+        impressions: 0,
+        likes: 0,
+        reposts: 0,
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+
+    await supabaseAdmin.from("activity_events").insert({
+      company_id: data.companyId,
+      kind: "publish",
+      message: `${SOCIAL_AGENTS[data.provider]} posted clip "${clip.title}" on ${SOCIAL_LABELS[data.provider]}`,
+    });
+
+    return { ok: true, postId: post.id, externalUrl: result.externalUrl, provider: data.provider };
+  });
+
+/** @deprecated use publishShareClip — kept for older clients */
 export const publishShareClipToX = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { companyId: string; sharePostId: string; caption?: string }) => {
@@ -401,6 +514,7 @@ export const publishShareClipToX = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data, context }) => {
+    // Delegate to the multi-provider path without nesting server-fn auth.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { publishToProvider } = await import("@/lib/social-api.server");
     const { SOCIAL_AGENTS } = await import("@/lib/social-oauth.server");
@@ -439,6 +553,8 @@ export const publishShareClipToX = createServerFn({ method: "POST" })
         agent_name: SOCIAL_AGENTS.x,
         external_post_id: result.externalPostId,
         external_url: result.externalUrl ?? null,
+        share_post_id: clip.id,
+        media_kind: "share_clip",
         impressions: 0,
         likes: 0,
         reposts: 0,
@@ -453,7 +569,7 @@ export const publishShareClipToX = createServerFn({ method: "POST" })
       message: `${SOCIAL_AGENTS.x} posted clip "${clip.title}" on X with native video`,
     });
 
-    return { ok: true, postId: post.id, externalUrl: result.externalUrl };
+    return { ok: true, postId: post.id, externalUrl: result.externalUrl, provider: "x" as const };
   });
 
 export const approveEngagementReply = createServerFn({ method: "POST" })

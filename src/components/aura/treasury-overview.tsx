@@ -256,11 +256,12 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
       </Panel>
 
       {!compact ? (
-        <Panel label="Convert for trading desk" glow>
+        <Panel label="Convert for Grow funds" glow>
           <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Quant buys with <span className="font-semibold text-foreground">USDC</span> and holds{" "}
-            <span className="font-semibold text-foreground">WETH</span>. Deposit ETH, then convert
-            in-app via OKX DEX — no external wallet needed. A small ETH buffer is kept for gas.
+            Trading strategies buy with <span className="font-semibold text-foreground">USDC</span>{" "}
+            and hold <span className="font-semibold text-foreground">WETH</span>. Deposit ETH, then
+            convert in-app via OKX DEX — no external wallet needed. A small ETH buffer is kept for
+            gas.
           </p>
           {!okx.data?.configured ? (
             <p className="mt-3 text-[12px] text-muted-foreground">
@@ -318,7 +319,7 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
               to="/trading"
               className="text-[12px] font-semibold text-primary hover:underline"
             >
-              Open trading desk →
+              Open Grow funds →
             </Link>
           </div>
         </Panel>
@@ -355,7 +356,7 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
               value={weth.toLocaleString(undefined, { maximumFractionDigits: 6 })}
             />
             <DataRow
-              label="Trading desk"
+              label="Grow funds"
               value={usdc >= 5 ? "Funded" : eth > 0.002 ? "Convert ETH → USDC" : "Awaiting deposit"}
               tone={usdc >= 5 ? "gold" : "default"}
             />
@@ -422,7 +423,7 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
               to="/trading"
               className="rounded-xl bg-gold/14 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold"
             >
-              Trading desk
+              Grow funds
             </Link>
           </div>
         </Panel>

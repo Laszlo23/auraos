@@ -17,16 +17,22 @@ export type QuantCheck = {
 
 export type QuantView = {
   stance: QuantStance;
+  /** Plain-language mood for the UI (e.g. "Sideways"). */
+  stanceLabel: string;
   blurb: string;
   confidence: number;
   risk: QuantRiskLabel;
+  riskLabel: string;
   regime: QuantRegime;
+  regimeLabel: string;
   checks: QuantCheck[];
   recommendation: QuantRecommendation;
   recommendationTitle: string;
   recommendationBody: string;
   whatIdDo: string;
   whatWouldChange: string[];
+  /** Primary CTA label for the Quant panel. */
+  actionLabel: string;
 };
 
 type DeriveInput = {
@@ -50,39 +56,89 @@ type DeriveInput = {
   pendingSignals: number;
 };
 
+function stanceLabelOf(stance: QuantStance): string {
+  switch (stance) {
+    case "BULLISH":
+      return "Leaning up";
+    case "BEARISH":
+      return "Leaning down";
+    case "NEUTRAL":
+      return "Sideways";
+    default: {
+      const _exhaustive: never = stance;
+      return _exhaustive;
+    }
+  }
+}
+
+function riskLabelOf(risk: QuantRiskLabel): string {
+  switch (risk) {
+    case "LOW":
+      return "Calm";
+    case "MEDIUM":
+      return "Watchful";
+    case "HIGH":
+      return "Elevated";
+    default: {
+      const _exhaustive: never = risk;
+      return _exhaustive;
+    }
+  }
+}
+
+function regimeLabelOf(regime: QuantRegime): string {
+  switch (regime) {
+    case "TRENDING":
+      return "Trending";
+    case "RANGE":
+      return "Chop / range";
+    case "VOLATILE":
+      return "Whippy";
+    default: {
+      const _exhaustive: never = regime;
+      return _exhaustive;
+    }
+  }
+}
+
 function recommendationCopy(
   rec: QuantRecommendation,
-): { title: string; body: string; whatIdDo: string } {
+): { title: string; body: string; whatIdDo: string; actionLabel: string } {
   switch (rec) {
     case "MAINTAIN_POSITION":
       return {
-        title: "MAINTAIN POSITION",
-        body: "Setup is intact and exposure is inside caps.",
-        whatIdDo: "Hold the current position; let stop and target work.",
+        title: "Hold what you have",
+        body: "Your open size still fits the plan. Let stop & target do the work.",
+        whatIdDo: "Don’t add size. Check the chart levels on the left.",
+        actionLabel: "See trade history",
       };
     case "WAIT_FOR_ENTRY":
       return {
-        title: "WAIT FOR ENTRY",
-        body: "Setup is forming, but confirmation is missing.",
-        whatIdDo: "Stay flat until Quant signals a cleaner entry.",
+        title: "Wait for a cleaner entry",
+        body: "Tape has a lean, but Quant wants confirmation before buying.",
+        whatIdDo: "Stay flat — or buy a small spot size yourself below if you want exposure now.",
+        actionLabel: "Review strategies",
       };
     case "REDUCE_EXPOSURE":
       return {
-        title: "REDUCE EXPOSURE",
-        body: "Risk or drawdown is elevated relative to your caps.",
-        whatIdDo: "Disarm or tighten daily notional until risk cools.",
+        title: "Trim risk",
+        body: "Drawdown or size is hot vs your caps. Protect the account first.",
+        whatIdDo: "Disarm new entries, or sell some ETH back to USDC with the ticket below.",
+        actionLabel: "Manage position",
       };
     case "REVIEW_STRATEGY":
       return {
-        title: "REVIEW STRATEGY",
-        body: "Backtest or approval state needs attention before arming live.",
-        whatIdDo: "Open Backtest Lab, then approve a strategy.",
+        title: "Pick / approve a strategy first",
+        body: "Autopilot needs an approved plan before it can hunt entries for you.",
+        whatIdDo: "Open strategies, backtest, then approve — or trade spot manually below.",
+        actionLabel: "Open strategies",
       };
     case "NO_CLEAR_SETUP":
       return {
-        title: "NO CLEAR SETUP",
-        body: "Market is mixed — no high-conviction action right now.",
-        whatIdDo: "Keep monitoring; do not force a trade.",
+        title: "No strong setup right now",
+        body: "Market is mixed. Forcing a trade here is usually noise, not edge.",
+        whatIdDo: "Sit on hands for autopilot — or use Buy/Sell ETH below if you have a view.",
+        actionLabel: "Browse strategies",
       };
     default: {
       const _exhaustive: never = rec;
@@ -112,10 +168,30 @@ export function deriveQuantView(input: DeriveInput): QuantView {
   const volWarn = regime === "VOLATILE";
 
   const checks: QuantCheck[] = [
-    { id: "trend", label: "Trend", ok: trendOk && stance === "BULLISH", warn: stance === "BEARISH" },
-    { id: "momentum", label: "Momentum", ok: momentumOk && chg > 0, warn: momentumOk && chg < 0 },
-    { id: "liquidity", label: "Liquidity", ok: liquidityOk, warn: !liquidityOk },
-    { id: "volatility", label: "Volatility", ok: !volWarn, warn: volWarn },
+    {
+      id: "trend",
+      label: stance === "BULLISH" ? "Trend up" : stance === "BEARISH" ? "Trend down" : "No clear trend",
+      ok: trendOk && stance === "BULLISH",
+      warn: stance === "BEARISH",
+    },
+    {
+      id: "momentum",
+      label: chg > 0.5 ? "Buyers active" : chg < -0.5 ? "Sellers active" : "Flat momentum",
+      ok: momentumOk && chg > 0,
+      warn: momentumOk && chg < 0,
+    },
+    {
+      id: "liquidity",
+      label: liquidityOk ? "Liquid enough" : "Thin tape",
+      ok: liquidityOk,
+      warn: !liquidityOk,
+    },
+    {
+      id: "volatility",
+      label: volWarn ? "Whippy moves" : "Vol contained",
+      ok: !volWarn,
+      warn: volWarn,
+    },
   ];
 
   const bt = input.backtest;
@@ -176,15 +252,19 @@ export function deriveQuantView(input: DeriveInput): QuantView {
 
   return {
     stance,
+    stanceLabel: stanceLabelOf(stance),
     blurb: blurbParts.join(" "),
     confidence,
     risk,
+    riskLabel: riskLabelOf(risk),
     regime,
+    regimeLabel: regimeLabelOf(regime),
     checks,
     recommendation,
     recommendationTitle: copy.title,
     recommendationBody: copy.body,
     whatIdDo: copy.whatIdDo,
+    actionLabel: copy.actionLabel,
     whatWouldChange:
       stance === "BULLISH"
         ? ["Trend reversal", "Momentum breakdown"]

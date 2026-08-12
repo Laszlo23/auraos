@@ -47,8 +47,8 @@ const PRODUCTS = [
   {
     id: "trading",
     glyph: "⟁",
-    name: "Quant Trading Desk",
-    blurb: "Hires Quant + Ledger. You fund, pick a preset, and arm under hard USDC caps.",
+    name: "Grow funds",
+    blurb: "Put USDC into an AI strategy or earn by providing liquidity — under your caps.",
     tag: "Recommended",
   },
   {

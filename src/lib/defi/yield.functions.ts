@@ -9,38 +9,18 @@ import {
   YIELD_RISK_ORDER,
 } from "@/lib/defi/catalog";
 import {
-  runYieldAutomations,
+  mergeYieldAutopilot,
   type YieldAutopilotConfig,
-  DEFAULT_AUTOPILOT,
-} from "@/lib/defi/automations";
-import {
-  accrueOpenYieldPositions,
-  closeYieldPosition,
-  ensureYieldAgent,
-  openYieldPosition,
-} from "@/lib/defi/yield.server";
-import { supplyUsdcToAaveBase, withdrawUsdcFromAaveBase } from "@/lib/defi/aave-base.server";
-import {
-  claimAndCompoundAeroRewards,
-  supplyUsdcToAerodromeWethLp,
-  withdrawUsdcFromAerodromeWethLp,
-} from "@/lib/defi/aerodrome-base.server";
-import { supplyUsdcToVenusBsc, withdrawUsdcFromVenusBsc } from "@/lib/defi/venus-bsc.server";
-import {
-  supplyUsdcToPancakeUsdtUsdcLp,
-  withdrawUsdcFromPancakeUsdtUsdcLp,
-} from "@/lib/defi/pancake-bsc.server";
-import {
-  supplyUsdcToGuessMarketLp,
-  withdrawUsdcFromGuessMarketLp,
-} from "@/lib/defi/guessmarket-base.server";
-import { decryptOwnerKey } from "@/lib/wallet.server";
+} from "@/lib/defi/autopilot-config";
 import type { Address, Hex } from "viem";
+
+export type { YieldAutopilotConfig };
 
 async function loadLiveYieldWallet(
   supabase: { from: (t: string) => any },
   userId: string,
 ): Promise<{ address: Address; privateKey: Hex }> {
+  const { decryptOwnerKey } = await import("@/lib/wallet.server");
   const { data: wallet } = await supabase
     .from("wallet_bindings")
     .select("address, owner_key_enc")
@@ -96,7 +76,35 @@ async function ownedCompany(
 }
 
 function mergeAutopilot(raw: YieldAutopilotConfig | null | undefined): YieldAutopilotConfig {
-  return { ...DEFAULT_AUTOPILOT, ...(raw ?? {}) };
+  return mergeYieldAutopilot(raw);
+}
+
+async function yieldServer() {
+  return import("@/lib/defi/yield.server");
+}
+
+async function yieldAutomations() {
+  return import("@/lib/defi/automations");
+}
+
+async function aaveBase() {
+  return import("@/lib/defi/aave-base.server");
+}
+
+async function aeroBase() {
+  return import("@/lib/defi/aerodrome-base.server");
+}
+
+async function venusBsc() {
+  return import("@/lib/defi/venus-bsc.server");
+}
+
+async function pancakeBsc() {
+  return import("@/lib/defi/pancake-bsc.server");
+}
+
+async function guessMarketBase() {
+  return import("@/lib/defi/guessmarket-base.server");
 }
 
 export const listYieldCatalog = createServerFn({ method: "GET" }).handler(async () => {
@@ -130,6 +138,7 @@ export const ensureYieldDesk = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
+    const { ensureYieldAgent } = await yieldServer();
     const agent = await ensureYieldAgent(context.supabase, data.companyId);
     return {
       agentId: agent.id,
@@ -152,6 +161,8 @@ export const getYieldDeskState = createServerFn({ method: "POST" })
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
 
+    const { ensureYieldAgent } = await yieldServer();
+    const { runYieldAutomations } = await yieldAutomations();
     const agent = await ensureYieldAgent(context.supabase, data.companyId);
     const [{ data: positions }, { data: events }, { data: openTrades }] = await Promise.all([
       context.supabase
@@ -225,6 +236,7 @@ export const setYieldDeskArmed = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
+    const { ensureYieldAgent } = await yieldServer();
     await ensureYieldAgent(context.supabase, data.companyId);
     const { error } = await context.supabase
       .from("companies")
@@ -319,6 +331,11 @@ export const runYieldAutopilotNow = createServerFn({ method: "POST" })
     if (!company) throw new Error("Company not found");
     if (!company.yield_armed && !data.dryRun) throw new Error("Arm Yield desk first");
 
+    const { ensureYieldAgent } = await yieldServer();
+    const { runYieldAutomations } = await yieldAutomations();
+    const { supplyUsdcToVenusBsc } = await venusBsc();
+    const { supplyUsdcToAaveBase } = await aaveBase();
+    const { claimAndCompoundAeroRewards } = await aeroBase();
     const agent = await ensureYieldAgent(context.supabase, data.companyId);
     const [{ data: positions }, { data: openTrades }] = await Promise.all([
       context.supabase
@@ -419,7 +436,7 @@ export const allocateYield = createServerFn({ method: "POST" })
       throw new Error("Day scalp runs on the Quant desk — arm Quant + apply an intraday preset");
     }
 
-    const agent = await ensureYieldAgent(context.supabase, data.companyId);
+    const agent = await (await yieldServer()).ensureYieldAgent(context.supabase, data.companyId);
     const { data: openRows } = await context.supabase
       .from("defi_positions")
       .select("principal_usdc")
@@ -449,6 +466,7 @@ export const allocateYield = createServerFn({ method: "POST" })
 
     if (!paper && item.id === "base_aave_usdc") {
       const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const { supplyUsdcToAaveBase } = await aaveBase();
       const fill = await supplyUsdcToAaveBase({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -462,6 +480,7 @@ export const allocateYield = createServerFn({ method: "POST" })
       };
     } else if (!paper && item.id === "bsc_venus_usdc") {
       const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const { supplyUsdcToVenusBsc } = await venusBsc();
       const fill = await supplyUsdcToVenusBsc({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -475,6 +494,7 @@ export const allocateYield = createServerFn({ method: "POST" })
       };
     } else if (!paper && item.id === "base_aero_usdc_weth_lp") {
       const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const { supplyUsdcToAerodromeWethLp } = await aeroBase();
       const fill = await supplyUsdcToAerodromeWethLp({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -492,6 +512,7 @@ export const allocateYield = createServerFn({ method: "POST" })
       };
     } else if (!paper && item.id === "bsc_pancake_stable_lp") {
       const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const { supplyUsdcToPancakeUsdtUsdcLp } = await pancakeBsc();
       const fill = await supplyUsdcToPancakeUsdtUsdcLp({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -510,6 +531,7 @@ export const allocateYield = createServerFn({ method: "POST" })
       };
     } else if (!paper && item.id === "base_limitless_pred") {
       const wallet = await loadLiveYieldWallet(context.supabase, context.userId);
+      const { supplyUsdcToGuessMarketLp } = await guessMarketBase();
       const fill = await supplyUsdcToGuessMarketLp({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -529,6 +551,7 @@ export const allocateYield = createServerFn({ method: "POST" })
       throw new Error(`Live path for ${item.name} is not wired yet — use Paper`);
     }
 
+    const { openYieldPosition } = await yieldServer();
     const position = await openYieldPosition(context.supabase, {
       companyId: data.companyId,
       catalogId: data.catalogId,
@@ -573,6 +596,7 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
       const thisPrincipal = Number(
         (siblings ?? []).find((s: { id: string }) => s.id === data.positionId)?.principal_usdc ?? 0,
       );
+      const { withdrawUsdcFromAaveBase } = await aaveBase();
       const fill = await withdrawUsdcFromAaveBase({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -595,6 +619,7 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
       const thisPrincipal = Number(
         (siblings ?? []).find((s: { id: string }) => s.id === data.positionId)?.principal_usdc ?? 0,
       );
+      const { withdrawUsdcFromVenusBsc } = await venusBsc();
       const fill = await withdrawUsdcFromVenusBsc({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -615,6 +640,7 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
       if (!/^\d+$/.test(liquidityRaw)) {
         throw new Error("Aerodrome position missing LP amount — cannot exit safely");
       }
+      const { withdrawUsdcFromAerodromeWethLp } = await aeroBase();
       const fill = await withdrawUsdcFromAerodromeWethLp({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -636,6 +662,7 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
       if (!/^\d+$/.test(liquidityRaw)) {
         throw new Error("Pancake position missing LP amount — cannot exit safely");
       }
+      const { withdrawUsdcFromPancakeUsdtUsdcLp } = await pancakeBsc();
       const fill = await withdrawUsdcFromPancakeUsdtUsdcLp({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -663,6 +690,7 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
       if (!/^0x[a-fA-F0-9]{40}$/.test(marketRaw) || !/^\d+$/.test(lpRaw)) {
         throw new Error("GuessMarket position missing market/LP — cannot exit safely");
       }
+      const { withdrawUsdcFromGuessMarketLp } = await guessMarketBase();
       const fill = await withdrawUsdcFromGuessMarketLp({
         privateKey: wallet.privateKey,
         walletAddress: wallet.address,
@@ -676,6 +704,7 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
       };
     }
 
+    const { closeYieldPosition } = await yieldServer();
     const position = await closeYieldPosition(
       context.supabase,
       data.companyId,
@@ -688,6 +717,11 @@ export const closeYieldAllocation = createServerFn({ method: "POST" })
 /** Internal: called from trading worker tick. */
 export async function runYieldTick() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { accrueOpenYieldPositions, ensureYieldAgent } = await yieldServer();
+  const { runYieldAutomations } = await yieldAutomations();
+  const { supplyUsdcToVenusBsc } = await venusBsc();
+  const { supplyUsdcToAaveBase } = await aaveBase();
+  const { claimAndCompoundAeroRewards } = await aeroBase();
   const db = supabaseAdmin as unknown as { from: (t: string) => any };
   const accrued = await accrueOpenYieldPositions(db);
 

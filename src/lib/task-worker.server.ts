@@ -83,10 +83,12 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
         typeof post.share_post_id === "string" && post.share_post_id.trim()
           ? post.share_post_id.trim()
           : null;
+      const fromBody = sharePostIdFromBody(String(post.body ?? ""));
+      // X, TikTok, and Meta (IG reels/image) can attach share-kit clips.
       const sharePostId =
-        provider === "x"
-          ? fromCol || sharePostIdFromBody(String(post.body ?? ""))
-          : null;
+        provider === "x" || provider === "tiktok" || provider === "meta"
+          ? fromCol || fromBody
+          : fromCol;
 
       const result = await publishToProvider(provider, post.company_id, post.body, {
         replyToExternalId: post.reply_to_external_id,

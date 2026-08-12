@@ -40,6 +40,28 @@ export function okxPayoutAddress(): string | null {
   return process.env["OKX_PAYOUT_ADDRESS"] || null;
 }
 
+/**
+ * Optional referrer fee on swaps (OKX: must be > 0 and ≤ 3 on EVM).
+ * Omit / leave unset for zero platform fee — never send "0" (API rejects it).
+ */
+export function okxFeePercent(): string | null {
+  const raw = process.env["OKX_FEE_PERCENT"]?.trim();
+  if (!raw) return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0 || n > 3) return null;
+  // Keep API-friendly precision (OKX allows up to 9 decimals; 4 is plenty).
+  return String(Math.min(3, Math.round(n * 1e4) / 1e4));
+}
+
+/** Attach referrer fee params only when both fee + payout address are valid. */
+function appendOkxFeeParams(params: URLSearchParams) {
+  const fee = okxFeePercent();
+  const payout = okxPayoutAddress();
+  if (!fee || !payout) return;
+  params.set("feePercent", fee);
+  params.set("fromTokenReferrerWalletAddress", payout);
+}
+
 function okxProjectId(): string | null {
   return process.env["OKX_PROJECT_ID"]?.trim() || null;
 }
@@ -103,8 +125,7 @@ export async function okxDexQuote(input: {
     swapMode: "exactIn",
     slippagePercent: input.slippage ?? "0.5",
   });
-  const builder = okxBuilderCode();
-  if (builder) params.set("feePercent", "0");
+  appendOkxFeeParams(params);
 
   const path = `/api/v6/dex/aggregator/quote?${params.toString()}`;
   const data = await okxFetch(path);
@@ -146,8 +167,7 @@ export async function okxDexSwap(input: {
     swapMode: "exactIn",
     slippagePercent: input.slippage ?? "0.5",
   });
-  const builder = okxBuilderCode();
-  if (builder) params.set("feePercent", "0");
+  appendOkxFeeParams(params);
 
   const path = `/api/v6/dex/aggregator/swap?${params.toString()}`;
   return okxFetch(path);

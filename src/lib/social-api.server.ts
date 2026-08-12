@@ -11,7 +11,11 @@ export async function publishToProvider(
   provider: SocialProvider,
   companyId: string,
   body: string,
-  opts?: { replyToExternalId?: string | null; sharePostId?: string | null },
+  opts?: {
+    replyToExternalId?: string | null;
+    sharePostId?: string | null;
+    mediaUrl?: string | null;
+  },
 ): Promise<PublishResult> {
   const conn = await loadConnectionSecrets(companyId, provider);
   if (!conn) throw new Error(`Connect ${provider} first.`);
@@ -30,10 +34,13 @@ export async function publishToProvider(
     case "linkedin":
       return publishLinkedIn(conn.accessToken, conn.externalUserId, body);
     case "meta":
-      return publishMeta(conn.accessToken, conn.metaPageId, conn.igUserId, body);
+      return publishMeta(conn.accessToken, conn.metaPageId, conn.igUserId, body, {
+        sharePostId: opts?.sharePostId ?? null,
+        mediaUrl: opts?.mediaUrl ?? null,
+      });
     case "tiktok": {
       if (!opts?.sharePostId) {
-        throw new Error("TikTok needs a video — pick a share clip or attach media.");
+        throw new Error("TikTok needs a video — pick a share-kit clip before publishing.");
       }
       return publishTikTokVideo(conn.accessToken, body, opts.sharePostId);
     }
@@ -185,6 +192,11 @@ async function publishLinkedIn(
   text: string,
 ): Promise<PublishResult> {
   if (!personId) throw new Error("LinkedIn profile id missing — reconnect the account.");
+  if (process.env["LINKEDIN_SHARE_SCOPE"] !== "1") {
+    throw new Error(
+      "LinkedIn posting needs Share on LinkedIn approved — set LINKEDIN_SHARE_SCOPE=1 and reconnect.",
+    );
+  }
   const author = personId.startsWith("urn:") ? personId : `urn:li:person:${personId}`;
   const res = await fetch("https://api.linkedin.com/v2/ugcPosts", {
     method: "POST",
@@ -208,6 +220,11 @@ async function publishLinkedIn(
   const id = res.headers.get("x-restli-id") || res.headers.get("X-RestLi-Id");
   if (!res.ok) {
     const err = await res.text().catch(() => "");
+    if (/COMPANY_PAGE|w_member_social|unauthorized|403/i.test(err)) {
+      throw new Error(
+        "LinkedIn share denied — approve Share on LinkedIn, set LINKEDIN_SHARE_SCOPE=1, reconnect.",
+      );
+    }
     throw new Error(err || "LinkedIn publish failed");
   }
   return { externalPostId: id || `li-${Date.now()}`, externalUrl: null };
@@ -218,27 +235,155 @@ async function publishMeta(
   pageId: string | null,
   igUserId: string | null,
   text: string,
+  opts?: { sharePostId?: string | null; mediaUrl?: string | null },
 ): Promise<PublishResult> {
-  // Prefer Instagram when linked; otherwise Facebook Page post.
-  if (igUserId) {
-    const create = await fetch(
-      `https://graph.facebook.com/v21.0/${igUserId}/media?access_token=${encodeURIComponent(token)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          caption: text.slice(0, 2200),
-          media_type: "CAROUSEL", // text-only IG needs a media container; use PAGE post fallback if this fails
-        }),
-      },
-    );
-    // Text-only IG feed posts aren't supported without media — fall through to Page.
-    if (!create.ok && pageId) {
-      return publishFacebookPage(token, pageId, text);
+  const caption = text.slice(0, 2200);
+  const media = await resolveMetaMedia(opts?.sharePostId ?? null, opts?.mediaUrl ?? null);
+
+  // Instagram Content Publishing needs a public HTTPS media URL.
+  if (igUserId && media) {
+    try {
+      const ig = await publishInstagram(token, igUserId, caption, media);
+      // Also mirror to the Facebook Page when available (Lokal shops often want both).
+      if (pageId) {
+        try {
+          await publishFacebookPage(token, pageId, caption);
+        } catch (e) {
+          console.warn("[meta] FB mirror after IG failed:", e);
+        }
+      }
+      return ig;
+    } catch (e) {
+      console.warn("[meta] IG publish failed, falling back to Facebook Page:", e);
+      if (!pageId) throw e instanceof Error ? e : new Error(String(e));
     }
   }
-  if (!pageId) throw new Error("Connect a Facebook Page to publish on Meta.");
-  return publishFacebookPage(token, pageId, text);
+
+  if (!pageId) {
+    throw new Error(
+      igUserId
+        ? "Instagram needs an image or video URL (share-kit clip). Attach media, then publish."
+        : "Connect a Facebook Page (with optional IG Business) to publish on Meta.",
+    );
+  }
+  return publishFacebookPage(token, pageId, caption);
+}
+
+type MetaMedia =
+  | { kind: "image"; url: string }
+  | { kind: "video"; url: string; posterUrl?: string };
+
+async function resolveMetaMedia(
+  sharePostId: string | null,
+  mediaUrl: string | null,
+): Promise<MetaMedia | null> {
+  if (sharePostId) {
+    const { getSharePost, sharePosterAbsoluteUrl, shareVideoAbsoluteUrl } =
+      await import("@/lib/share-posts");
+    const clip = getSharePost(sharePostId);
+    if (clip) {
+      return {
+        kind: "video",
+        url: shareVideoAbsoluteUrl(clip.file),
+        posterUrl: sharePosterAbsoluteUrl(clip.file),
+      };
+    }
+  }
+  const url = (mediaUrl || "").trim();
+  if (!url || !/^https:\/\//i.test(url)) return null;
+  if (/\.(mp4|mov|webm)(\?|$)/i.test(url) || /\/v\//i.test(url)) {
+    return { kind: "video", url };
+  }
+  return { kind: "image", url };
+}
+
+async function publishInstagram(
+  token: string,
+  igUserId: string,
+  caption: string,
+  media: MetaMedia,
+): Promise<PublishResult> {
+  const tryCreate = async (m: MetaMedia) => {
+    const createParams = new URLSearchParams({
+      caption,
+      access_token: token,
+    });
+    if (m.kind === "video") {
+      createParams.set("media_type", "REELS");
+      createParams.set("video_url", m.url);
+      createParams.set("share_to_feed", "true");
+    } else {
+      createParams.set("image_url", m.url);
+    }
+    const createRes = await fetch(`https://graph.facebook.com/v21.0/${igUserId}/media`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: createParams,
+    });
+    const createJson = (await createRes.json()) as {
+      id?: string;
+      error?: { message?: string };
+    };
+    if (!createRes.ok || !createJson.id) {
+      throw new Error(createJson.error?.message || "Instagram media container failed");
+    }
+    return { id: createJson.id, kind: m.kind };
+  };
+
+  let container: { id: string; kind: "image" | "video" };
+  try {
+    container = await tryCreate(media);
+  } catch (first) {
+    // REELS often needs a verified domain — fall back to share-kit poster IMAGE.
+    if (media.kind === "video") {
+      const imageUrl =
+        media.posterUrl || media.url.replace(/\.mp4(\?|$)/i, ".jpg$1");
+      try {
+        container = await tryCreate({ kind: "image", url: imageUrl });
+      } catch {
+        throw first instanceof Error ? first : new Error(String(first));
+      }
+    } else {
+      throw first instanceof Error ? first : new Error(String(first));
+    }
+  }
+
+  if (container.kind === "video") {
+    await waitForIgContainer(token, container.id);
+  }
+
+  const pubRes = await fetch(`https://graph.facebook.com/v21.0/${igUserId}/media_publish`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      creation_id: container.id,
+      access_token: token,
+    }),
+  });
+  const pubJson = (await pubRes.json()) as { id?: string; error?: { message?: string } };
+  if (!pubRes.ok || !pubJson.id) {
+    throw new Error(pubJson.error?.message || "Instagram publish failed");
+  }
+  return {
+    externalPostId: pubJson.id,
+    externalUrl: `https://www.instagram.com/p/${pubJson.id}/`,
+  };
+}
+
+async function waitForIgContainer(token: string, creationId: string) {
+  for (let i = 0; i < 20; i++) {
+    const res = await fetch(
+      `https://graph.facebook.com/v21.0/${creationId}?fields=status_code&access_token=${encodeURIComponent(token)}`,
+    );
+    if (res.ok) {
+      const json = (await res.json()) as { status_code?: string };
+      if (json.status_code === "FINISHED") return;
+      if (json.status_code === "ERROR" || json.status_code === "EXPIRED") {
+        throw new Error(`Instagram media processing ${json.status_code}`);
+      }
+    }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
 }
 
 async function publishFacebookPage(

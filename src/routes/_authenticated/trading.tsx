@@ -19,6 +19,10 @@ import { BacktestLab } from "@/components/aura/trading/backtest-lab";
 import type { BacktestSnapshot } from "@/components/aura/trading/backtest-results-dialog";
 import { QuantDeskCockpit } from "@/components/aura/trading/quant-desk-cockpit";
 import { YieldDeskPanel } from "@/components/aura/trading/yield-desk-panel";
+import {
+  GrowFundsHub,
+  type GrowPath,
+} from "@/components/aura/trading/grow-funds-hub";
 import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
 import {
   DeskDrawerShell,
@@ -31,6 +35,10 @@ import { useSmartWallet } from "@/hooks/use-earn";
 import { useMyHandle } from "@/hooks/use-identity";
 import { getTreasuryBalance } from "@/lib/treasury.functions";
 import { issueAgentSessionKey } from "@/lib/wallet.functions";
+import {
+  ensureYieldDesk,
+  getYieldDeskState,
+} from "@/lib/defi/yield.functions";
 import {
   applyTradingPreset,
   approveStrategy,
@@ -56,16 +64,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/trading")({
   head: () => ({
     meta: [
-      { title: "Quant + Yield Desk — money that works | Aura OS" },
+      { title: "Grow your money — trade or provide liquidity | Aura OS" },
       {
         name: "description",
         content:
-          "Dual desk: Quant spot/day-trade + Yield Autopilot for Aerodrome, Pancake, Venus, and prediction — founder-capped.",
+          "Put USDC into an AI trading strategy, or earn by providing liquidity. Simple paths — advanced desk when you need it.",
       },
-      { property: "og:title", content: "Quant + Yield Desk — AI capital OS" },
+      { property: "og:title", content: "Grow your money — Aura OS" },
       {
         property: "og:description",
-        content: "Idle router, epoch hunter, IL thermostat — money working for money.",
+        content: "Trade with AI or provide liquidity — clear paths to put capital to work.",
       },
     ],
   }),
@@ -136,13 +144,13 @@ type WhaleEvent = {
 const TOUR_STOPS = [
   {
     target: "[data-tour='trading-market']",
-    title: "Quant Desk",
-    body: "Live mid, Paper/Live mode, and Disarm — understand the market in seconds.",
+    title: "Advanced desk",
+    body: "Charts, risk, and live signals live here when you need them — start from the simple Grow paths first.",
   },
   {
     target: "[data-tour='trading-checklist']",
     title: "Get ready",
-    body: "Backtest → Trade session key → Fund & arm. Live fills are on-chain Base swaps.",
+    body: "Strategy → allow trading → fund & start. Live fills are on-chain Base swaps.",
   },
 ];
 
@@ -211,6 +219,22 @@ function TradingPage() {
     backtest: BacktestSnapshot;
   } | null>(null);
   const [drawer, setDrawer] = useState<DeskDrawerId>(null);
+  const [growPath, setGrowPath] = useState<GrowPath>(null);
+  const [advanced, setAdvanced] = useState(false);
+
+  const yieldQ = useQuery({
+    queryKey: ["yield-desk", company?.id],
+    queryFn: async () => {
+      if (!company?.id) return null;
+      await ensureYieldDesk({ data: { companyId: company.id } });
+      return getYieldDeskState({ data: { companyId: company.id } }) as Promise<{
+        openNotional?: number;
+        paperPnl?: number;
+      }>;
+    },
+    enabled: Boolean(company?.id),
+    refetchInterval: 45_000,
+  });
 
   const scrollToLab = (opts?: { highlight?: boolean }) => {
     if (opts?.highlight) {
@@ -270,7 +294,7 @@ function TradingPage() {
     ]);
   };
 
-  const onPreset = async (presetId: string) => {
+  const onPreset = async (presetId: string, opts?: { openLab?: boolean }) => {
     if (!company) return;
     setBusy(presetId);
     try {
@@ -283,7 +307,10 @@ function TradingPage() {
         name: res.name,
         backtest: res.backtest as BacktestSnapshot,
       });
-      scrollToLab({ highlight: true });
+      if (opts?.openLab ?? advanced) {
+        scrollToLab({ highlight: true });
+      }
+      toast.success(`${res.name} is ready — continue with Allow trading & Start.`);
       await invalidateTrading();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not apply preset");
@@ -509,18 +536,46 @@ function TradingPage() {
 
   const showSetup = !readiness?.hasTradeKey || !hasStrategy;
 
+  const tradeWorkingUsdc = open.reduce((s, t) => s + Number(t.size), 0);
+  const liquidityWorkingUsdc = Number(yieldQ.data?.openNotional ?? 0);
+  const liquidityResultUsdc = Number(yieldQ.data?.paperPnl ?? 0);
+  const availableUsdc = Number(treasury?.usdc ?? readiness?.usdc ?? 0);
+
   return (
     <div className="space-y-6">
       <Celebrate trigger={burst} />
       <XpToast label={toastXp?.label ?? ""} amount={toastXp?.amount ?? 0} show={Boolean(toastXp)} />
       <SpotlightTour
         stops={TOUR_STOPS}
-        storageKey="aura.trading.setup.tour.v4"
-        ctaLabel="How Quant Desk works"
-        replayLabel="Replay setup tips"
-        autoOpen={onboarding}
+        storageKey="aura.trading.setup.tour.v5"
+        ctaLabel="How Grow funds works"
+        replayLabel="Replay tips"
+        autoOpen={onboarding && advanced}
       />
 
+      <GrowFundsHub
+        path={growPath}
+        onPath={setGrowPath}
+        advanced={advanced}
+        onAdvanced={setAdvanced}
+        availableUsdc={availableUsdc}
+        tradeWorkingUsdc={tradeWorkingUsdc}
+        liquidityWorkingUsdc={liquidityWorkingUsdc}
+        tradeResultUsdc={realized + openPnl}
+        liquidityResultUsdc={liquidityResultUsdc}
+        companyId={company?.id ?? null}
+        readiness={readiness}
+        tradeBusyId={busy}
+        issuingKey={issuingKey}
+        armBusy={busy === "arm"}
+        paperBusy={busy === "paper"}
+        onPickStrategy={(id) => void onPreset(id, { openLab: false })}
+        onIssueKey={() => void onIssueKey()}
+        onStartTrade={() => void onArm(true)}
+        onPracticeTrade={() => void onPaperMode(true)}
+        onRealMoneyTrade={() => void onPaperMode(false)}
+        childrenAdvanced={
+          <div className="space-y-6">
       <QuantDeskCockpit
         armed={armed}
         paper={paperMode}
@@ -530,7 +585,7 @@ function TradingPage() {
         blockReason={readiness?.blockReason ?? null}
         dailyLimit={Number(company?.max_notional_usdc_day ?? riskDay)}
         dailyUsed={dailyUsed}
-        usdcBalance={Number(treasury?.usdc ?? readiness?.usdc ?? 0)}
+        usdcBalance={availableUsdc}
         maxRiskPct={effectiveSpotRiskPct(Number(company?.max_risk_pct ?? riskPct))}
         openTrades={open}
         closedTrades={closed}
@@ -646,7 +701,11 @@ function TradingPage() {
           </div>
         </Panel>
       ) : null}
+          </div>
+        }
+      />
 
+      {/* Drawers + quests available from Advanced */}
       <DeskDrawerShell
         open={drawer === "backtest"}
         onOpenChange={(o) => setDrawer(o ? "backtest" : null)}

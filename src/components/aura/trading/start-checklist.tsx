@@ -73,9 +73,8 @@ export function TradingSetup({
   return (
     <Panel label="Get Quant ready" glow data-tour="trading-checklist" className="overflow-hidden">
       <p className="text-[13px] leading-relaxed text-muted-foreground">
-        Three steps. Backtest first (see every trade + dollar risk — no money moves). Then grant a{" "}
-        <span className="font-semibold text-foreground">Trade session key</span>. Then fund USDC
-        (deposit USDC or ETH and convert on Wallet via OKX) and arm — live fills are real Base swaps.
+        Three steps to put money to work: pick a strategy, allow trading, then fund & start. Live
+        fills are real Base swaps — use Practice mode first if you want.
       </p>
 
       <ol className="mt-5 flex flex-wrap gap-2">

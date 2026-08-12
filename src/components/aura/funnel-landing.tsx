@@ -1,8 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "motion/react";
 import { useEffect } from "react";
+import { Star } from "lucide-react";
 
-import { Chip } from "@/components/aura/primitives";
+import {
+  FunnelCloseBand,
+  FunnelConceptStrip,
+  FunnelHeroBleed,
+  FunnelPainSection,
+  FunnelStoryBeats,
+  FunnelTrustStrip,
+  FunnelWiifmStrip,
+  storyForFunnel,
+} from "@/components/aura/funnel-visuals";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { captureAttribution, rememberFunnel } from "@/lib/attribution";
 import { funnelPlanById } from "@/lib/funnel-plans";
@@ -29,62 +40,98 @@ function DefaultFunnelLanding({ funnel }: { funnel: FunnelDef }) {
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   const href = authHrefForFunnel(funnel.id);
+  const story = storyForFunnel(funnel.id);
 
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 45% at 15% -10%, oklch(0.55 0.1 200 / 0.2), transparent 55%), radial-gradient(ellipse 50% 40% at 95% 15%, oklch(0.75 0.12 85 / 0.12), transparent 50%)",
-        }}
-      />
-
-      <header className="relative border-b border-border/40 backdrop-blur-xl">
+      <header className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-black/20 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-4">
           <Link
             to="/"
-            className="font-display text-sm font-semibold tracking-tight text-foreground"
+            className="font-display text-sm font-semibold tracking-tight text-white sm:text-base"
           >
             {SITE_NAME}
           </Link>
-          <Chip className="ml-auto">{funnel.audience}</Chip>
+          <span className="hidden font-display text-sm text-white/55 sm:inline">
+            {story.accentLabel}
+          </span>
           <a
             href={href}
-            className="rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+            className="ml-auto rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
           >
             {funnel.cta}
           </a>
         </div>
       </header>
 
-      <section className="relative mx-auto flex min-h-[70svh] max-w-5xl flex-col justify-center px-6 py-16 sm:py-24">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">
-          Aura · {funnel.audience}
-        </p>
-        <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.4rem,7vw,4.2rem)] font-semibold leading-[0.98] tracking-tight">
-          {funnel.headline}
-        </h1>
-        <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+      <FunnelHeroBleed
+        src={story.image}
+        alt={story.imageAlt}
+        wash={story.wash}
+        showScrollCue={story.scrollCue}
+      >
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="font-display text-[clamp(1.8rem,5vw,2.6rem)] font-semibold tracking-tight text-white"
+        >
+          {SITE_NAME}
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.08 }}
+          className="mt-3 max-w-3xl font-display text-[clamp(2rem,6.5vw,3.6rem)] font-semibold leading-[1.02] tracking-tight text-white"
+        >
+          {story.hook}
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.16 }}
+          className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/75"
+        >
           {funnel.subhead}
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.24 }}
+          className="mt-8 flex flex-wrap gap-3"
+        >
           <a
             href={href}
-            className="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
+            className="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[0_16px_48px_-20px_oklch(0.55_0.12_200)] transition-transform hover:scale-[1.02]"
           >
             {funnel.cta}
           </a>
           <a
-            href="#pricing"
-            className="rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
+            href="#story"
+            className="rounded-2xl border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10"
           >
-            See pricing
+            What’s in it for me
           </a>
-        </div>
-      </section>
+        </motion.div>
+      </FunnelHeroBleed>
 
+      <FunnelPainSection title={story.painTitle} body={story.painBody} items={story.painItems} />
+      <FunnelWiifmStrip title={story.wiifmTitle} sub={story.wiifmSub} items={story.wiifm} />
+      <FunnelStoryBeats beats={story.beats} />
+      <FunnelConceptStrip
+        eyebrow={`Aura · ${story.accentLabel}`}
+        title={story.conceptsTitle}
+        concepts={story.concepts}
+      />
+      <FunnelTrustStrip title={story.trustTitle} items={story.trustItems} />
+      <FunnelCloseBand
+        title={story.closeTitle}
+        body={story.closeBody}
+        cta={funnel.cta}
+        href={href}
+        secondaryHref="#pricing"
+        secondaryLabel="See pricing"
+      />
       <PricingBlock plans={plans} href={href} />
       <SiteFooter />
     </main>
@@ -96,6 +143,7 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
   const plans = funnel.planIds
     .map((id) => funnelPlanById(id))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const story = storyForFunnel("local");
 
   const scarcity = useQuery({
     queryKey: ["local-cohort-scarcity"],
@@ -107,32 +155,15 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
 
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 55% at 12% -8%, oklch(0.58 0.09 195 / 0.28), transparent 58%), radial-gradient(ellipse 55% 40% at 88% 8%, oklch(0.78 0.11 82 / 0.16), transparent 52%), linear-gradient(180deg, transparent 40%, oklch(0.18 0.02 250 / 0.35) 100%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[70svh] opacity-[0.35]"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
-        }}
-      />
-
-      <header className="relative border-b border-border/40 backdrop-blur-xl">
+      <header className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-black/20 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-4">
           <Link
             to="/"
-            className="font-display text-lg font-semibold tracking-tight text-foreground sm:text-xl"
+            className="font-display text-lg font-semibold tracking-tight text-white sm:text-xl"
           >
             {SITE_NAME}
           </Link>
-          <span className="font-display text-lg font-medium tracking-tight text-muted-foreground sm:text-xl">
+          <span className="font-display text-lg font-medium tracking-tight text-white/60 sm:text-xl">
             Local
           </span>
           <a
@@ -144,17 +175,41 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
         </div>
       </header>
 
-      <section className="relative mx-auto flex min-h-[78svh] max-w-5xl flex-col justify-center px-6 py-16 sm:py-24">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">
-          Aura · Local
-        </p>
-        <h1 className="mt-5 max-w-3xl font-display text-[clamp(2.6rem,8vw,4.6rem)] font-semibold leading-[0.96] tracking-tight">
-          {funnel.headline}
-        </h1>
-        <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-muted-foreground">
+      <FunnelHeroBleed
+        src={story.image}
+        alt={story.imageAlt}
+        wash={story.wash}
+        showScrollCue={story.scrollCue}
+      >
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="font-display text-[clamp(1.8rem,5vw,2.6rem)] font-semibold tracking-tight text-white"
+        >
+          {SITE_NAME} · Local
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="mt-3 max-w-3xl font-display text-[clamp(2.2rem,7vw,3.8rem)] font-semibold leading-[0.98] tracking-tight text-white"
+        >
+          {story.hook}
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.16 }}
+          className="mt-5 max-w-lg text-[16px] leading-relaxed text-white/75"
+        >
           {funnel.subhead}
-        </p>
-        <div className="mt-9 flex flex-wrap gap-3">
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+          className="mt-9 flex flex-wrap gap-3"
+        >
           <a
             href={href}
             className="rounded-2xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_12px_40px_-18px_oklch(0.55_0.12_200)] transition-transform hover:scale-[1.02]"
@@ -162,65 +217,77 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
             {funnel.cta}
           </a>
           <a
-            href="#review-boost"
-            className="rounded-2xl border border-border/50 px-7 py-3.5 text-sm font-semibold transition-colors hover:border-primary/40"
+            href="#story"
+            className="rounded-2xl border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm"
           >
-            How Review Boost works
+            What’s in it for me
           </a>
-        </div>
-      </section>
+        </motion.div>
+      </FunnelHeroBleed>
 
-      <section id="review-boost" className="relative border-t border-border/40 py-16 sm:py-20">
-        <div className="mx-auto max-w-5xl px-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
-            Review Boost
-          </p>
-          <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            First {LOCAL_COHORT_CAP} local businesses — up to {REVIEW_BOOST_INVITE_GOAL} real
-            customer invites.
-          </h2>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Agents help you systematically ask real customers for Google reviews. You approve every
-            send. We never invent reviews, never post as customers, never scrape fake stars.
-          </p>
-          <div className="mt-8 flex flex-wrap items-end gap-6">
-            <div>
-              <p className="font-display text-5xl font-semibold tracking-tight text-gold tabular-nums">
-                {scarcity.isLoading ? "—" : remaining}
-              </p>
-              <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                seats left of {LOCAL_COHORT_CAP}
-              </p>
+      <FunnelPainSection title={story.painTitle} body={story.painBody} items={story.painItems} />
+      <FunnelWiifmStrip title={story.wiifmTitle} sub={story.wiifmSub} items={story.wiifm} />
+      <FunnelStoryBeats beats={story.beats} />
+      <FunnelConceptStrip
+        eyebrow="The idea in icons"
+        title={story.conceptsTitle}
+        concepts={story.concepts}
+      />
+
+      <section id="review-boost" className="relative overflow-hidden border-t border-border/40 py-16 sm:py-20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            background:
+              "radial-gradient(ellipse 50% 60% at 85% 20%, oklch(0.78 0.11 82 / 0.22), transparent 60%)",
+          }}
+        />
+        <div className="relative mx-auto max-w-5xl px-6">
+          <div className="flex flex-wrap items-start gap-8">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gold/15 text-gold ring-1 ring-gold/30">
+              <Star className="h-8 w-8" strokeWidth={1.6} aria-hidden />
             </div>
-            <a
-              href={href}
-              className="rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-xs font-semibold"
-            >
-              Claim a seat
-            </a>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+                Review Boost
+              </p>
+              <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                First {LOCAL_COHORT_CAP} shops — up to {REVIEW_BOOST_INVITE_GOAL} real invites.
+              </h2>
+              <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                The cohort that gets systematic Google asks. You approve every send. Never fake stars.
+              </p>
+              <div className="mt-8 flex flex-wrap items-end gap-6">
+                <div>
+                  <p className="font-display text-5xl font-semibold tracking-tight text-gold tabular-nums">
+                    {scarcity.isLoading ? "—" : remaining}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    seats left of {LOCAL_COHORT_CAP}
+                  </p>
+                </div>
+                <a
+                  href={href}
+                  className="rounded-2xl border border-gold/40 bg-gold/10 px-5 py-3 text-xs font-semibold"
+                >
+                  Claim a seat
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="relative border-t border-border/40 py-16 sm:py-20">
-        <div className="mx-auto grid max-w-5xl gap-10 px-6 sm:grid-cols-2">
-          <div>
-            <h2 className="font-display text-2xl font-semibold tracking-tight">Bring your site</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Paste the homepage you already run. Aura links and promotes it — we do not force a
-              rebuild.
-            </p>
-          </div>
-          <div>
-            <h2 className="font-display text-2xl font-semibold tracking-tight">Automate socials</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Connect X, Meta, LinkedIn, TikTok, Farcaster — schedule and approve from one Channels
-              desk.
-            </p>
-          </div>
-        </div>
-      </section>
-
+      <FunnelTrustStrip title={story.trustTitle} items={story.trustItems} />
+      <FunnelCloseBand
+        title={story.closeTitle}
+        body={story.closeBody}
+        cta={funnel.cta}
+        href={href}
+        secondaryHref="#pricing"
+        secondaryLabel="See pricing"
+      />
       <PricingBlock plans={plans} href={href} />
       <SiteFooter />
     </main>

@@ -138,9 +138,9 @@ export const NAV: NavItem[] = [
   },
   {
     to: "/trading",
-    label: "Trading Desk",
-    plain: "Trading",
-    hint: "Quant velocity + Yield Autopilot — money that works",
+    label: "Grow funds",
+    plain: "Grow",
+    hint: "Trade with AI or provide liquidity",
     icon: CandlestickChart,
     group: "Revenue",
     live: true,

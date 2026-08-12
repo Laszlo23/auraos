@@ -11,22 +11,26 @@ import {
   History,
   Loader2,
   Sparkles,
+  Sprout,
   Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Chip, Panel } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
+import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
+import { WalletGrowPanel, WalletWorkingHint } from "@/components/aura/wallet-grow-panel";
+import { useCompany } from "@/hooks/use-aura";
 import { useMyHandle } from "@/hooks/use-identity";
 import { useProvisionSmartWallet, useSmartWallet } from "@/hooks/use-earn";
 import { getGenesisStatus } from "@/lib/genesis.functions";
+import { getYieldDeskState } from "@/lib/defi/yield.functions";
 import {
   executeTreasurySwap,
   getOkxStatus,
   quoteOkxSwap,
   type TreasurySwapDirection,
 } from "@/lib/okx.functions";
-import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
 import {
   getTreasuryActivity,
   getTreasuryBalance,
@@ -43,7 +47,7 @@ import { cn } from "@/lib/utils";
 const GENESIS_ART = mediaPath("/genesis-passport.webp");
 const GENESIS_ART_JPG = mediaPath("/genesis-passport.jpg");
 
-type DeskTab = "receive" | "send" | "exchange" | "activity" | null;
+type DeskTab = "receive" | "send" | "exchange" | "activity" | "grow" | null;
 
 type SwapLeg = "eth" | "usdc" | "weth";
 
@@ -117,6 +121,7 @@ export function WalletDesk({
   const handleId = handle?.id;
   const { data: wallet, isLoading: walletLoading } = useSmartWallet(handleId);
   const provision = useProvisionSmartWallet();
+  const { data: company } = useCompany();
 
   const [tab, setTab] = useState<DeskTab>(null);
   const [copied, setCopied] = useState(false);
@@ -154,10 +159,22 @@ export function WalletDesk({
     queryFn: () => getGenesisStatus(),
     staleTime: 15_000,
   });
+  const yieldQ = useQuery({
+    queryKey: ["yield-desk", company?.id],
+    enabled: Boolean(company?.id),
+    queryFn: () =>
+      getYieldDeskState({ data: { companyId: company!.id } }) as Promise<{
+        openNotional?: number;
+        openMark?: number;
+      }>,
+    staleTime: 20_000,
+    refetchInterval: 45_000,
+  });
 
   const invalidateTreasury = async () => {
     await qc.invalidateQueries({ queryKey: ["treasury-balance"] });
     await qc.invalidateQueries({ queryKey: ["treasury-activity"] });
+    await qc.invalidateQueries({ queryKey: ["yield-desk"] });
     await qc.invalidateQueries({ queryKey: ["trading-readiness"] });
   };
 
@@ -386,7 +403,9 @@ export function WalletDesk({
 
   return (
     <div className="space-y-5">
-      <DeskChainSwitcher invalidateKeys={[["treasury-activity"], ["trading-readiness"]]} />
+      <DeskChainSwitcher
+        invalidateKeys={[["treasury-activity"], ["trading-readiness"], ["yield-desk"]]}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden rounded-[1.75rem] border border-border/40 bg-gradient-to-br from-foreground/[0.06] via-background to-primary/[0.08] px-5 py-6 sm:px-7 sm:py-8">
         <div
@@ -407,15 +426,41 @@ export function WalletDesk({
                 <Chip>Gas: keep {nativeSym}</Chip>
               )}
             </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              Cash ({stableSym})
-            </p>
-            <p className="num mt-1 text-4xl font-semibold tracking-tight text-gold sm:text-5xl">
-              <Counter
-                value={totalCash}
-                format={(n) => currency(n, n >= 100 ? 2 : 4)}
-              />
-            </p>
+            {(() => {
+              const workingUsdc = Number(yieldQ.data?.openMark ?? yieldQ.data?.openNotional ?? 0);
+              const totalPicture = totalCash + workingUsdc;
+              const showTotal = workingUsdc >= 0.5;
+              return (
+                <>
+                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    {showTotal ? "Total funds (USDC picture)" : `Cash (${stableSym})`}
+                  </p>
+                  <p className="num mt-1 text-4xl font-semibold tracking-tight text-gold sm:text-5xl">
+                    <Counter
+                      value={showTotal ? totalPicture : totalCash}
+                      format={(n) => currency(n, n >= 100 ? 2 : 4)}
+                    />
+                  </p>
+                  {showTotal ? (
+                    <p className="mt-2 text-[12px] text-muted-foreground">
+                      <span className="font-mono font-semibold text-foreground">
+                        {currency(totalCash, 2)}
+                      </span>{" "}
+                      liquid in wallet ·{" "}
+                      <span className="font-mono font-semibold text-primary">
+                        {currency(workingUsdc, 2)}
+                      </span>{" "}
+                      earning / in pools
+                    </p>
+                  ) : null}
+                  <WalletWorkingHint
+                    cashUsdc={totalCash}
+                    workingUsdc={workingUsdc}
+                    onOpenGrow={() => openTab("grow")}
+                  />
+                </>
+              );
+            })()}
             <button
               type="button"
               onClick={() => void copyAddress()}
@@ -517,12 +562,13 @@ export function WalletDesk({
         </div>
 
         {/* Action bar */}
-        <div className="relative mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="relative mt-6 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {(
             [
               { id: "receive" as const, label: "Receive", icon: ArrowDownLeft },
               { id: "send" as const, label: "Send", icon: ArrowUpRight },
               { id: "exchange" as const, label: "Exchange", icon: ArrowLeftRight },
+              { id: "grow" as const, label: "Grow", icon: Sprout },
               { id: "activity" as const, label: "Activity", icon: History },
             ] as const
           ).map(({ id, label, icon: Icon }) => (
@@ -545,11 +591,30 @@ export function WalletDesk({
       </section>
 
       {/* Holdings */}
-      <Panel label="Holdings">
+      <Panel label="Liquid holdings">
+        <p className="mb-3 text-[12px] text-muted-foreground">
+          Only cash sitting in the wallet. Money in Aave or pools lives under{" "}
+          <button
+            type="button"
+            onClick={() => openTab("grow")}
+            className="font-semibold text-primary underline-offset-2 hover:underline"
+          >
+            Grow
+          </button>
+          .
+        </p>
         <div className="divide-y divide-border/40">
           {(
             [
-              { key: "usdc", label: "USDC", amount: usdc, hint: "Trading desk cash" },
+              {
+                key: "usdc",
+                label: "USDC",
+                amount: usdc,
+                hint:
+                  Number(yieldQ.data?.openNotional ?? 0) >= 0.5
+                    ? "Liquid only — more may be earning in Grow"
+                    : "Trading desk cash",
+              },
               { key: "eth", label: nativeSym, amount: eth, hint: "Native · gas + convert" },
               { key: "weth", label: "WETH", amount: weth, hint: "Desk inventory" },
             ] as const
@@ -574,6 +639,10 @@ export function WalletDesk({
           ))}
         </div>
       </Panel>
+
+      {tab === "grow" ? (
+        <WalletGrowPanel cashUsdc={usdc} eth={eth} weth={weth} nativeSymbol={nativeSym} />
+      ) : null}
 
       {/* Receive */}
       {tab === "receive" ? (

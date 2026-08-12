@@ -6,7 +6,7 @@ import {
   getLaunchDripStatus,
   getSocialStatus,
   pollFarcasterSigner,
-  publishShareClipToX,
+  publishShareClip,
   publishSocialNow,
   setSocialReplyMode,
   startFarcasterConnect,
@@ -41,6 +41,8 @@ export type SocialStatus = {
   connected: boolean;
   needsReconnect?: boolean;
   canPostVideo?: boolean;
+  canShare?: boolean;
+  linkedInShareReady?: boolean;
   handle: string | null;
   followers: number;
   engagement: number;
@@ -238,10 +240,21 @@ export function usePublishSocial() {
   const qc = useQueryClient();
   const { data: company } = useCompany();
   return useMutation({
-    mutationFn: async (input: { provider: SocialProvider; body: string }) => {
+    mutationFn: async (input: {
+      provider: SocialProvider;
+      body: string;
+      sharePostId?: string;
+      mediaUrl?: string;
+    }) => {
       if (!company) throw new Error("No company yet.");
       return publishSocialNow({
-        data: { companyId: company.id, provider: input.provider, body: input.body },
+        data: {
+          companyId: company.id,
+          provider: input.provider,
+          body: input.body,
+          ...(input.sharePostId ? { sharePostId: input.sharePostId } : {}),
+          ...(input.mediaUrl ? { mediaUrl: input.mediaUrl } : {}),
+        },
       });
     },
     onSuccess: () => {
@@ -256,12 +269,18 @@ export function usePublishShareClip() {
   const qc = useQueryClient();
   const { data: company } = useCompany();
   return useMutation({
-    mutationFn: async (input: { sharePostId: string; caption?: string }) => {
+    mutationFn: async (input: {
+      sharePostId: string;
+      caption?: string;
+      provider?: "x" | "tiktok" | "meta";
+    }) => {
       if (!company) throw new Error("No company yet.");
-      return publishShareClipToX({
+      const provider = input.provider ?? "x";
+      return publishShareClip({
         data: {
           companyId: company.id,
           sharePostId: input.sharePostId,
+          provider,
           ...(input.caption != null ? { caption: input.caption } : {}),
         },
       });

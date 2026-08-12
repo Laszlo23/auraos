@@ -29,13 +29,31 @@ Env: `META_APP_ID`, `META_APP_SECRET`
 
 Needs a Facebook Page (and optional IG Business account linked to that Page).
 
+App products / permissions:
+
+- Pages: `pages_show_list`, `pages_manage_posts`, `pages_read_engagement`, `pages_manage_engagement`
+- Instagram: `instagram_basic`, `instagram_content_publish`, `instagram_manage_comments`
+- Often: `business_management`
+
+**Publish behavior**
+
+- With IG linked + share-kit clip (or public HTTPS `mediaUrl`): Instagram Reels / IMAGE via Content Publishing API, then mirrors caption to the Facebook Page when possible.
+- Text-only (no media): Facebook Page feed post.
+- Tokens: Page access token is stored for posting; long-lived **user** token is kept as refresh so Aura can re-mint Page tokens. **Reconnect Meta once** after deploy so refresh is stored on older connections.
+
+Register redirect: `{OAUTH_REDIRECT_BASE}/api/oauth/social/callback`
+
+Share-kit MP4/JPG must be publicly reachable over HTTPS (e.g. `https://aibusiness.fun/...`) for IG to pull them.
+
 ## LinkedIn
 
 Env: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`  
 (aliases: `LINKEDIN_APP_ID` / `LINKEDIN_APP_SECRET`)
 
 Default scopes: `openid profile email` (Sign In with LinkedIn).  
-Set `LINKEDIN_SHARE_SCOPE=1` after **Share on LinkedIn** (`w_member_social`) is approved.
+Set `LINKEDIN_SHARE_SCOPE=1` after **Share on LinkedIn** (`w_member_social`) is approved, then **reconnect** LinkedIn in Channels.
+
+Comment APIs need separate LinkedIn products — reply automation stays draft/off until approved.
 
 ## TikTok
 
@@ -45,9 +63,15 @@ Env: `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`
 2. Add **Login Kit** + **Content Posting API**.
 3. Request scopes: `user.info.basic`, `video.upload`, `video.publish`.
 4. Register the shared redirect URI above.
-5. Until scopes are approved, Connect may work but publish will error with a clear message.
+5. Drop keys into VPS `.env` and restart the app (or redeploy).
+6. Until scopes are approved, Connect may work but publish will error with a clear message.
 
-Publishing is **video-only**. From Channels, use a share-kit clip (same path as X native video). Aura prefers inbox upload (`video.upload`); falls back to Direct Post when available. Unaudited clients may only post privately (`SELF_ONLY`).
+Publishing is **video-only**. From Channels:
+
+- Compose → pick a share-kit clip (required for TikTok), or
+- **Post share-kit clip** panel → choose TikTok
+
+Aura prefers inbox upload (`video.upload`); falls back to Direct Post when available. Unaudited clients may only post privately (`SELF_ONLY`).
 
 For `PULL_FROM_URL` later, verify `aibusiness.fun` (or your CDN prefix) under TikTok URL properties.
 

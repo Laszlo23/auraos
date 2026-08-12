@@ -16,6 +16,7 @@ import { PositionCard } from "@/components/aura/trading/position-card";
 import { QuantViewCard } from "@/components/aura/trading/quant-view-card";
 import { RecentTradesList } from "@/components/aura/trading/recent-trades-list";
 import { RiskMeter } from "@/components/aura/trading/risk-meter";
+import { SpotTradeTicket } from "@/components/aura/trading/spot-trade-ticket";
 import { getMarketCandles, getMarketPulse, getMarketQuote } from "@/lib/trading.functions";
 import type { ChartInterval, DeskMarket } from "@/lib/trading/market-data.server";
 import { deriveQuantView } from "@/lib/trading/quant-view";
@@ -210,7 +211,16 @@ export function QuantDeskCockpit({
           onIntervalChange={setInterval}
           levels={market === "WETH/USDC" ? levels : null}
         />
-        <QuantViewCard view={quant} onPrimaryAction={onPrimary} />
+        <div className="flex flex-col gap-5">
+          <QuantViewCard view={quant} onPrimaryAction={onPrimary} />
+          {market === "WETH/USDC" ? (
+            <SpotTradeTicket paper={paper} markPrice={mark} />
+          ) : (
+            <div className="rounded-3xl border border-border/50 bg-foreground/[0.03] p-5 text-[12px] text-muted-foreground">
+              Spot Buy/Sell is live for ETH/USDC. {market} is watch-only on this desk.
+            </div>
+          )}
+        </div>
       </div>
 
       {openTrades.length === 0 ? (

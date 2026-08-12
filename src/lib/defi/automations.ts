@@ -4,46 +4,15 @@
  */
 
 import { yieldCatalogById, type YieldRiskTier, YIELD_RISK_ORDER } from "@/lib/defi/catalog";
-import { listLimitlessActiveMarkets } from "@/lib/defi/guessmarket-base.server";
-import { openYieldPosition, closeYieldPosition, paperAccrualUsdc } from "@/lib/defi/yield.server";
+import {
+  DEFAULT_AUTOPILOT,
+  type YieldAutopilotConfig,
+} from "@/lib/defi/autopilot-config";
 
 type Db = { from: (t: string) => any };
 
-export type YieldAutopilotConfig = {
-  /** Park idle USDC in lending when Quant has no open trade. */
-  idleRouter: boolean;
-  /** Stress IL and auto-close aggressive LP paper books past budget. */
-  ilThermostat: boolean;
-  /** Max simulated IL % before exit recommendation / auto-close. */
-  ilBudgetPct: number;
-  /** Epoch Hunter: surface vote deadline + predictive edge picks. */
-  epochHunter: boolean;
-  /** Compound Cascade: log harvest→restake paper events. */
-  compoundCascade: boolean;
-  /** Live: claim gauge AERO → USDC → optional Aave (founder opt-in). */
-  autoCompoundLive: boolean;
-  /** Downgrade risk tier if unrealized paper PnL is deeply negative. */
-  riskAutopilot: boolean;
-  /** Target share of yield budget reserved for Quant velocity (0–50). */
-  quantReservePct: number;
-  /** Auto-allocate idle park when armed (paper always; live only if catalog liveReady). */
-  autoParkIdle: boolean;
-  /** Preferred idle park catalog id. */
-  idleCatalogId: string;
-};
-
-export const DEFAULT_AUTOPILOT: YieldAutopilotConfig = {
-  idleRouter: true,
-  ilThermostat: true,
-  ilBudgetPct: 8,
-  epochHunter: true,
-  compoundCascade: true,
-  autoCompoundLive: false,
-  riskAutopilot: true,
-  quantReservePct: 25,
-  autoParkIdle: false,
-  idleCatalogId: "base_aave_usdc",
-};
+export type { YieldAutopilotConfig };
+export { DEFAULT_AUTOPILOT };
 
 export type AutomationInsight = {
   id: string;
@@ -255,6 +224,10 @@ export async function runYieldAutomations(
     } | null>;
   },
 ): Promise<YieldAutomationResult> {
+  const { listLimitlessActiveMarkets } = await import("@/lib/defi/guessmarket-base.server");
+  const { openYieldPosition, closeYieldPosition, paperAccrualUsdc } =
+    await import("@/lib/defi/yield.server");
+
   const now = Date.now();
   const epoch = aerodromeEpochStatus(now);
   const predictiveEdges = scoutPredictiveEdges(now);
