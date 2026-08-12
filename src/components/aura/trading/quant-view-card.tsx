@@ -49,7 +49,9 @@ export function QuantViewCard({
             <p className="num mt-1 text-lg font-semibold">{view.confidence}%</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Risk feel</p>
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Risk feel
+            </p>
             <p className="mt-1 text-sm font-semibold">{view.riskLabel}</p>
           </div>
         </div>

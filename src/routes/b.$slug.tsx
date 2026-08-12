@@ -67,7 +67,10 @@ function LocalBusinessCardPage() {
 
       <header className="relative border-b border-border/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-6 py-4">
-          <Link to="/" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <Link
+            to="/"
+            className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+          >
             {SITE_NAME}
           </Link>
           <Chip className="ml-auto">Local</Chip>

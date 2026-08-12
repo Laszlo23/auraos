@@ -129,7 +129,10 @@ export function captureAttribution(): Attribution {
     }
   }
 
-  const peer = trim(p.get("peer"))?.toUpperCase().replace(/[^A-Z0-9]/g, "") ?? null;
+  const peer =
+    trim(p.get("peer"))
+      ?.toUpperCase()
+      .replace(/[^A-Z0-9]/g, "") ?? null;
   if (peer && peer.length >= 6) {
     rememberPeerInvite(peer);
   }
@@ -219,17 +222,18 @@ export function takeLocale(): UiLocale {
   return locale;
 }
 
-export function authHrefForLokal(
-  mode: "signin" | "signup" = "signup",
-  locale?: UiLocale,
-): string {
+export function authHrefForLokal(mode: "signin" | "signup" = "signup", locale?: UiLocale): string {
   const lang = locale ?? peekLocale();
   return `/auth?funnel=local&lang=${lang}&mode=${mode}`;
 }
 
 export function rememberPeerInvite(code: string): void {
   if (typeof window === "undefined") return;
-  const norm = code.trim().toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 16);
+  const norm = code
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .slice(0, 16);
   if (norm.length < 6) return;
   try {
     window.localStorage.setItem(PEER_KEY, norm);

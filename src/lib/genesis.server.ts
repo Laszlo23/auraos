@@ -13,7 +13,13 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia, bsc, opBNB } from "viem/chains";
 
-import { activeNetwork, alchemyRpcUrl, chainId, explorerBaseUrl, type AuraNetwork } from "@/lib/chain-config";
+import {
+  activeNetwork,
+  alchemyRpcUrl,
+  chainId,
+  explorerBaseUrl,
+  type AuraNetwork,
+} from "@/lib/chain-config";
 import { explorerTxUrl as explorerTxUrlFor } from "@/lib/trading/tokens";
 
 export const GENESIS_ABI = parseAbi([

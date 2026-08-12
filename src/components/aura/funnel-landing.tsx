@@ -17,7 +17,12 @@ import {
 import { SiteFooter } from "@/components/aura/site-footer";
 import { captureAttribution, rememberFunnel } from "@/lib/attribution";
 import { funnelPlanById } from "@/lib/funnel-plans";
-import { authHrefForFunnel, LOCAL_COHORT_CAP, REVIEW_BOOST_INVITE_GOAL, type FunnelDef } from "@/lib/funnels";
+import {
+  authHrefForFunnel,
+  LOCAL_COHORT_CAP,
+  REVIEW_BOOST_INVITE_GOAL,
+  type FunnelDef,
+} from "@/lib/funnels";
 import { getLocalCohortScarcity } from "@/lib/reviews.functions";
 import { SITE_NAME } from "@/lib/site";
 
@@ -234,7 +239,10 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
         concepts={story.concepts}
       />
 
-      <section id="review-boost" className="relative overflow-hidden border-t border-border/40 py-16 sm:py-20">
+      <section
+        id="review-boost"
+        className="relative overflow-hidden border-t border-border/40 py-16 sm:py-20"
+      >
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-40"
@@ -256,7 +264,8 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
                 First {LOCAL_COHORT_CAP} shops — up to {REVIEW_BOOST_INVITE_GOAL} real invites.
               </h2>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                The cohort that gets systematic Google asks. You approve every send. Never fake stars.
+                The cohort that gets systematic Google asks. You approve every send. Never fake
+                stars.
               </p>
               <div className="mt-8 flex flex-wrap items-end gap-6">
                 <div>

@@ -5,11 +5,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import {
-  activeNetwork,
-  resolveNetwork,
-  type AuraNetwork,
-} from "@/lib/chain-config";
+import { activeNetwork, resolveNetwork, type AuraNetwork } from "@/lib/chain-config";
 import type { Database } from "@/integrations/supabase/types";
 
 /** Chains exposed in the Wallet / Trading switcher by default. */
@@ -59,7 +55,11 @@ export async function resolveCompanyDeskNetwork(
     const raw = (company as { desk_network?: string | null } | null)?.desk_network;
     if (raw) {
       const resolved = resolveNetwork(raw);
-      if (enabledDeskNetworks().includes(resolved) || resolved === "base-sepolia" || resolved === "opbnb") {
+      if (
+        enabledDeskNetworks().includes(resolved) ||
+        resolved === "base-sepolia" ||
+        resolved === "opbnb"
+      ) {
         return resolved;
       }
     }

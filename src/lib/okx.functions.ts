@@ -11,40 +11,39 @@ import {
   USDC_DECIMALS,
   nativeSymbol,
 } from "@/lib/chain-config";
-import { NATIVE_ETH, WETH_ADDRESSES, explorerTxUrl as buildExplorerTxUrl } from "@/lib/trading/tokens";
+import {
+  NATIVE_ETH,
+  WETH_ADDRESSES,
+  explorerTxUrl as buildExplorerTxUrl,
+} from "@/lib/trading/tokens";
 
 /** Public status of OKX rails (no secrets). */
 export const getOkxStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-  const { okxConfigured, okxBuilderCode, okxPayoutAddress } = await import("./okx.server");
-  const { gasSponsorshipEnabled } = await import("./wallet.server");
-  const { nativeGasBufferHint } = await import("./chain-config");
-  const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
-  const network = await resolveCompanyDeskNetwork(context.supabase, {
-    userId: context.userId,
+    const { okxConfigured, okxBuilderCode, okxPayoutAddress } = await import("./okx.server");
+    const { gasSponsorshipEnabled } = await import("./wallet.server");
+    const { nativeGasBufferHint } = await import("./chain-config");
+    const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
+    const network = await resolveCompanyDeskNetwork(context.supabase, {
+      userId: context.userId,
+    });
+    const sponsored = gasSponsorshipEnabled(network);
+    return {
+      configured: okxConfigured(),
+      builderCode: Boolean(okxBuilderCode()),
+      payoutConfigured: Boolean(okxPayoutAddress()),
+      gasSponsored: sponsored,
+      gasHint: nativeGasBufferHint(network, sponsored),
+      network,
+      label: chainLabel(network),
+      chainId: String(chainId(network)),
+      nativeSymbol: nativeSymbol(network),
+    };
   });
-  const sponsored = gasSponsorshipEnabled(network);
-  return {
-    configured: okxConfigured(),
-    builderCode: Boolean(okxBuilderCode()),
-    payoutConfigured: Boolean(okxPayoutAddress()),
-    gasSponsored: sponsored,
-    gasHint: nativeGasBufferHint(network, sponsored),
-    network,
-    label: chainLabel(network),
-    chainId: String(chainId(network)),
-    nativeSymbol: nativeSymbol(network),
-  };
-});
 
 export type TreasurySwapDirection =
-  | "eth_to_usdc"
-  | "eth_to_weth"
-  | "weth_to_usdc"
-  | "weth_to_eth"
-  | "usdc_to_eth"
-  | "usdc_to_weth";
+  "eth_to_usdc" | "eth_to_weth" | "weth_to_usdc" | "weth_to_eth" | "usdc_to_eth" | "usdc_to_weth";
 
 const SWAP_DIRECTIONS = new Set<TreasurySwapDirection>([
   "eth_to_usdc",
@@ -113,7 +112,7 @@ function friendlyUserOpError(err: unknown, sponsored: boolean, native: string): 
 /** Quote a DEX route for the company's smart-wallet treasury. */
 export const quoteOkxSwap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       toTokenAddress: string;
       amount: string;
@@ -159,7 +158,7 @@ export const quoteOkxSwap = createServerFn({ method: "POST" })
 /** Fetch swap calldata for a treasury address (does not broadcast). */
 export const prepareOkxSwap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       toTokenAddress: string;
       amount: string;
@@ -211,7 +210,7 @@ export const prepareOkxSwap = createServerFn({ method: "POST" })
  */
 export const executeTreasurySwap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { direction: string; amount?: string; slippage?: string }) => {
+  .validator((input: { direction: string; amount?: string; slippage?: string }) => {
     const direction = String(input.direction || "") as TreasurySwapDirection;
     if (!SWAP_DIRECTIONS.has(direction)) {
       throw new Error("Choose eth↔usdc, eth↔weth, weth↔usdc, or usdc↔eth / usdc↔weth.");
@@ -227,12 +226,8 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
     if (!okxConfigured()) throw new Error("OKX DEX rails are not configured on the server.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const {
-      decryptOwnerKey,
-      executeBatchUserOps,
-      executeContractUserOp,
-      gasSponsorshipEnabled,
-    } = await import("./wallet.server");
+    const { decryptOwnerKey, executeBatchUserOps, executeContractUserOp, gasSponsorshipEnabled } =
+      await import("./wallet.server");
 
     const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
     const network = await resolveCompanyDeskNetwork(context.supabase, {
@@ -352,18 +347,14 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
         );
       }
       amountWei =
-        data.amount === "max" || data.amount === ""
-          ? spendable
-          : parseHumanAmount(data.amount, 18);
+        data.amount === "max" || data.amount === "" ? spendable : parseHumanAmount(data.amount, 18);
       if (amountWei > spendable) amountWei = spendable;
       if (amountWei < 10n ** 12n) throw new Error("Amount too small.");
     } else {
       const bal = await balanceOf(fromToken);
       if (bal <= 0n) throw new Error(`No ${fromLabel} balance to convert.`);
       amountWei =
-        data.amount === "max" || data.amount === ""
-          ? bal
-          : parseHumanAmount(data.amount, decimals);
+        data.amount === "max" || data.amount === "" ? bal : parseHumanAmount(data.amount, decimals);
       if (amountWei > bal) amountWei = bal;
       const minAmt = decimals === 6 ? 10_000n : 10n ** 12n;
       if (amountWei < minAmt) throw new Error("Amount too small.");

@@ -1,9 +1,4 @@
-import {
-  SITE_URL,
-  TOKEN_LAUNCH_AT,
-  TOKEN_LAUNCH_DISPLAY,
-  TOKEN_LAUNCH_MS,
-} from "@/lib/site";
+import { SITE_URL, TOKEN_LAUNCH_AT, TOKEN_LAUNCH_DISPLAY, TOKEN_LAUNCH_MS } from "@/lib/site";
 
 /** Hard cap on founding company seats (product truth — paid inventory). */
 export const FOUNDING_SEATS_TOTAL = 1000;

@@ -4,10 +4,7 @@
  */
 
 import { yieldCatalogById, type YieldRiskTier, YIELD_RISK_ORDER } from "@/lib/defi/catalog";
-import {
-  DEFAULT_AUTOPILOT,
-  type YieldAutopilotConfig,
-} from "@/lib/defi/autopilot-config";
+import { DEFAULT_AUTOPILOT, type YieldAutopilotConfig } from "@/lib/defi/autopilot-config";
 
 type Db = { from: (t: string) => any };
 
@@ -75,7 +72,10 @@ export function aerodromeEpochStatus(nowMs: number = Date.now()) {
   const voteDeadline = epochStart + 6 * 24 * 3600 * 1000 + 23 * 3600 * 1000; // Wed 23:00
   const msToVote = voteDeadline - nowMs;
   const msToEpochEnd = epochEnd - nowMs;
-  const elapsedPct = Math.min(100, Math.max(0, ((nowMs - epochStart) / (7 * 24 * 3600 * 1000)) * 100));
+  const elapsedPct = Math.min(
+    100,
+    Math.max(0, ((nowMs - epochStart) / (7 * 24 * 3600 * 1000)) * 100),
+  );
 
   return {
     epochStartIso: new Date(epochStart).toISOString(),
@@ -177,7 +177,13 @@ export function simulateIlStressPct(
   }
   const days = Math.max(0, (nowMs - openedAtMs) / 86_400_000);
   const vol =
-    riskTier === "extreme" ? 1.8 : riskTier === "aggressive" ? 1.2 : riskTier === "balanced" ? 0.55 : 0.15;
+    riskTier === "extreme"
+      ? 1.8
+      : riskTier === "aggressive"
+        ? 1.2
+        : riskTier === "balanced"
+          ? 0.55
+          : 0.15;
   const wave = Math.abs(Math.sin(seed / 8e7 + days / 3)) * vol * Math.sqrt(days + 0.25);
   return Number(Math.min(35, wave * 2.2).toFixed(2));
 }
@@ -210,7 +216,10 @@ export async function runYieldAutomations(
     quantHasOpenTrade: boolean;
     dryRun: boolean;
     /** When set, auto-park can execute live Aave/Venus supply (owner wallet). */
-    livePark?: (amountUsdc: number, catalogId: string) => Promise<{
+    livePark?: (
+      amountUsdc: number,
+      catalogId: string,
+    ) => Promise<{
       userOpHash: string;
       wallet: string;
     } | null>;
@@ -259,7 +268,9 @@ export async function runYieldAutomations(
       meta: epoch,
     });
 
-    const best = predictiveEdges.filter((e) => e.protocol === "Aerodrome" && e.predictiveEdgePct > 0).slice(0, 3);
+    const best = predictiveEdges
+      .filter((e) => e.protocol === "Aerodrome" && e.predictiveEdgePct > 0)
+      .slice(0, 3);
     for (const edge of best) {
       insights.push({
         id: `edge-${edge.pool}`,
@@ -302,7 +313,8 @@ export async function runYieldAutomations(
 
   // --- Idle Capital Router ---
   if (args.autopilot.idleRouter && !args.quantHasOpenTrade && freeCapacity >= 25) {
-    const idleItem = yieldCatalogById(args.autopilot.idleCatalogId) ?? yieldCatalogById("base_aave_usdc");
+    const idleItem =
+      yieldCatalogById(args.autopilot.idleCatalogId) ?? yieldCatalogById("base_aave_usdc");
     const alreadyParked = args.openPositions.some((p) => p.catalog_id === idleItem?.id);
     if (idleItem && !alreadyParked) {
       const parkAmt = Math.min(freeCapacity, Math.max(idleItem.minUsdc, freeCapacity * 0.5));
@@ -334,8 +346,7 @@ export async function runYieldAutomations(
           (idleItem.id === "base_aave_usdc" || idleItem.id === "bsc_venus_usdc");
         if (canPaper || canLive) {
           let liveTx:
-            | { userOpHash: string; wallet: string; protocol: string; chain: string }
-            | undefined;
+            { userOpHash: string; wallet: string; protocol: string; chain: string } | undefined;
           if (canLive) {
             if (!args.livePark) {
               insights.push({
@@ -453,9 +464,7 @@ export async function runYieldAutomations(
 
   // --- Compound Cascade ---
   if (args.autopilot.compoundCascade) {
-    const farmLike = args.openPositions.filter((p) =>
-      ["lp", "farm", "ve_lock"].includes(p.kind),
-    );
+    const farmLike = args.openPositions.filter((p) => ["lp", "farm", "ve_lock"].includes(p.kind));
     const liveAero = args.openPositions.some(
       (p) => p.catalog_id === "base_aero_usdc_weth_lp" && !p.paper,
     );

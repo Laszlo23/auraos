@@ -230,9 +230,7 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
 
         <div className="mt-5 grid gap-3 rounded-2xl bg-foreground/4 p-4 sm:grid-cols-3">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Network
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Network</p>
             <p className="mt-1 text-[13px] font-medium">{networkLabel}</p>
             <p className="text-[11px] text-muted-foreground">
               Chain ID {treasury.data?.chainId ?? "—"}
@@ -246,9 +244,7 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
             <p className="text-[11px] text-muted-foreground">Convert ETH in-app via OKX</p>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Custody
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Custody</p>
             <p className="mt-1 text-[13px] font-medium">Alchemy Light Account</p>
             <p className="text-[11px] text-muted-foreground">Encrypted owner key · session caps</p>
           </div>
@@ -315,10 +311,7 @@ export function TreasuryOverview({ compact = false }: { compact?: boolean }) {
             </>
           )}
           <div className="mt-4">
-            <Link
-              to="/trading"
-              className="text-[12px] font-semibold text-primary hover:underline"
-            >
+            <Link to="/trading" className="text-[12px] font-semibold text-primary hover:underline">
               Open Grow funds →
             </Link>
           </div>

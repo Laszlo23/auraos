@@ -76,7 +76,8 @@ export const AGENT_ROSTER: Record<string, AgentDef> = {
     role: "Finance",
     avatar: "▣",
     accent: "emerald",
-    memory: "Finance. Tracks real ledger and subscription tokens only — no vanity MRR.",
+    memory:
+      "Finance + bookkeeper assist. Tracks real ledger tokens; classifies uploaded bills into expense drafts for founder confirm. Tax-prep assist only — never claim licensed Steuerberater/CPA advice or invent refunds.",
   },
 };
 
@@ -89,11 +90,7 @@ export const PRODUCT_AGENT_MAP: Record<string, string[]> = {
 type Db = { from: (t: string) => any };
 
 /** Hire an agent by name if missing. Returns agent id. */
-export async function ensureCompanyAgent(
-  db: Db,
-  companyId: string,
-  name: string,
-): Promise<string> {
+export async function ensureCompanyAgent(db: Db, companyId: string, name: string): Promise<string> {
   const def = AGENT_ROSTER[name];
   if (!def) throw new Error(`Unknown agent: ${name}`);
 

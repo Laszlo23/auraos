@@ -14,7 +14,8 @@ export const Route = createFileRoute("/_authenticated/missions")({
       { title: "Revenue Missions — Aura OS" },
       {
         name: "description",
-        content: "Goal → strategy → execution → result. Progress from real ledger settlements only.",
+        content:
+          "Goal → strategy → execution → result. Progress from real ledger settlements only.",
       },
     ],
   }),
@@ -66,11 +67,7 @@ function MissionsPage() {
                   </span>
                   <Chip
                     tone={
-                      m.status === "active"
-                        ? "primary"
-                        : m.status === "paused"
-                          ? "gold"
-                          : "gold"
+                      m.status === "active" ? "primary" : m.status === "paused" ? "gold" : "gold"
                     }
                   >
                     {m.status}

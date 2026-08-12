@@ -167,9 +167,9 @@ function GrantsPage() {
         </h1>
         <p className="mt-4 text-[14.5px] leading-relaxed text-muted-foreground">{PITCH.oneLine}</p>
         <p className="mt-3 text-[13.5px] leading-relaxed text-muted-foreground">
-          Self-funded, {TEAM_SIZE} people, live product. No outside capital.
-          Everything below is measured from the running system, not a deck. Grant portals still need
-          a human click — this page is the kit so applying is paste, not invent.
+          Self-funded, {TEAM_SIZE} people, live product. No outside capital. Everything below is
+          measured from the running system, not a deck. Grant portals still need a human click —
+          this page is the kit so applying is paste, not invent.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <button

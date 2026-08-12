@@ -8,10 +8,7 @@ import {
   type YieldRiskTier,
   YIELD_RISK_ORDER,
 } from "@/lib/defi/catalog";
-import {
-  mergeYieldAutopilot,
-  type YieldAutopilotConfig,
-} from "@/lib/defi/autopilot-config";
+import { mergeYieldAutopilot, type YieldAutopilotConfig } from "@/lib/defi/autopilot-config";
 import type { Address, Hex } from "viem";
 
 export type { YieldAutopilotConfig };
@@ -131,7 +128,7 @@ export const listYieldCatalog = createServerFn({ method: "GET" }).handler(async 
 
 export const ensureYieldDesk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => {
+  .validator((input: { companyId: string }) => {
     if (!input?.companyId) throw new Error("companyId required");
     return input;
   })
@@ -153,7 +150,7 @@ export const ensureYieldDesk = createServerFn({ method: "POST" })
 
 export const getYieldDeskState = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => {
+  .validator((input: { companyId: string }) => {
     if (!input?.companyId) throw new Error("companyId required");
     return input;
   })
@@ -232,7 +229,7 @@ export const getYieldDeskState = createServerFn({ method: "POST" })
 
 export const setYieldDeskArmed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; armed: boolean }) => input)
+  .validator((input: { companyId: string; armed: boolean }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
@@ -248,7 +245,7 @@ export const setYieldDeskArmed = createServerFn({ method: "POST" })
 
 export const setYieldPaperMode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; paper: boolean }) => input)
+  .validator((input: { companyId: string; paper: boolean }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
@@ -262,12 +259,8 @@ export const setYieldPaperMode = createServerFn({ method: "POST" })
 
 export const updateYieldRisk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: {
-      companyId: string;
-      maxNotionalUsdc?: number;
-      maxRiskTier?: YieldRiskTier;
-    }) => {
+  .validator(
+    (input: { companyId: string; maxNotionalUsdc?: number; maxRiskTier?: YieldRiskTier }) => {
       if (!input.companyId) throw new Error("companyId required");
       if (input.maxNotionalUsdc != null) {
         input.maxNotionalUsdc = Math.max(50, Math.min(100_000, input.maxNotionalUsdc));
@@ -304,7 +297,7 @@ export const updateYieldRisk = createServerFn({ method: "POST" })
 
 export const updateYieldAutopilot = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; autopilot: Partial<YieldAutopilotConfig> }) => {
+  .validator((input: { companyId: string; autopilot: Partial<YieldAutopilotConfig> }) => {
     if (!input.companyId) throw new Error("companyId required");
     return input;
   })
@@ -322,7 +315,7 @@ export const updateYieldAutopilot = createServerFn({ method: "POST" })
 
 export const runYieldAutopilotNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; dryRun?: boolean }) => {
+  .validator((input: { companyId: string; dryRun?: boolean }) => {
     if (!input.companyId) throw new Error("companyId required");
     return { companyId: input.companyId, dryRun: input.dryRun !== false };
   })
@@ -413,7 +406,7 @@ export const runYieldAutopilotNow = createServerFn({ method: "POST" })
 
 export const allocateYield = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; catalogId: string; amountUsdc: number }) => {
+  .validator((input: { companyId: string; catalogId: string; amountUsdc: number }) => {
     if (!input.companyId || !input.catalogId) throw new Error("companyId + catalogId required");
     input.amountUsdc = Math.max(1, Math.min(100_000, Number(input.amountUsdc) || 0));
     return input;
@@ -569,7 +562,7 @@ export const allocateYield = createServerFn({ method: "POST" })
 
 export const closeYieldAllocation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; positionId: string }) => input)
+  .validator((input: { companyId: string; positionId: string }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
@@ -793,7 +786,10 @@ export async function runYieldTick() {
                     ...(fill.skipped ? { skipped: fill.skipped } : {}),
                   };
                 } catch (e) {
-                  console.warn("[yield-tick] liveCompound failed", e instanceof Error ? e.message : e);
+                  console.warn(
+                    "[yield-tick] liveCompound failed",
+                    e instanceof Error ? e.message : e,
+                  );
                   return null;
                 }
               },

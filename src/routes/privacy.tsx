@@ -41,8 +41,8 @@ function PrivacyPage() {
     >
       <LegalSection title="1. Who we are">
         <p>
-          Controller: {LEGAL_ENTITY} ({BUILDING_CULTURE.short}), operating {SITE_NAME} at{" "}
-          {SITE_URL}. Contact:{" "}
+          Controller: {LEGAL_ENTITY} ({BUILDING_CULTURE.short}), operating {SITE_NAME} at {SITE_URL}
+          . Contact:{" "}
           <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>
@@ -80,8 +80,8 @@ function PrivacyPage() {
           </li>
           <li>
             Payment records for founding seats and other products: Stripe customer / session IDs,
-            amount, currency, status, invoice/receipt metadata, and seat entitlement — not full
-            card numbers.
+            amount, currency, status, invoice/receipt metadata, and seat entitlement — not full card
+            numbers.
           </li>
           <li>Technical logs for APIs, authentication, webhooks, and fraud prevention.</li>
         </ul>
@@ -89,11 +89,12 @@ function PrivacyPage() {
 
       <LegalSection title="3. Payments & Stripe">
         <p>
-          Fiat payments are processed by <strong className="text-foreground">Stripe, Inc. and its affiliates</strong>.
-          When you open Checkout, Stripe collects payment method details and billing information
-          needed to complete the transaction under Stripe&apos;s privacy policy. We receive
-          confirmation of payment, limited customer identifiers, and metadata required to unlock
-          your founding seat or subscription.
+          Fiat payments are processed by{" "}
+          <strong className="text-foreground">Stripe, Inc. and its affiliates</strong>. When you
+          open Checkout, Stripe collects payment method details and billing information needed to
+          complete the transaction under Stripe&apos;s privacy policy. We receive confirmation of
+          payment, limited customer identifiers, and metadata required to unlock your founding seat
+          or subscription.
         </p>
         <p>
           We do not store complete card numbers, CVC, or full bank account numbers on Aura OS
@@ -123,8 +124,8 @@ function PrivacyPage() {
         <p>
           Depending on the activity: performance of a contract (account + paid seat), legitimate
           interests (security, product improvement, fraud prevention), consent (optional marketing
-          or non-essential cookies where required), and legal obligation (tax, accounting,
-          dispute records).
+          or non-essential cookies where required), and legal obligation (tax, accounting, dispute
+          records).
         </p>
       </LegalSection>
 
@@ -169,9 +170,9 @@ function PrivacyPage() {
       <LegalSection title="10. Your choices">
         <p>
           You can update profile data in-product, disconnect integrations, and request access,
-          correction, or deletion by emailing {LEGAL_EMAIL}. Depending on your location you may
-          have additional rights (access, erasure, portability, objection, complaint to a
-          supervisory authority).
+          correction, or deletion by emailing {LEGAL_EMAIL}. Depending on your location you may have
+          additional rights (access, erasure, portability, objection, complaint to a supervisory
+          authority).
         </p>
       </LegalSection>
 

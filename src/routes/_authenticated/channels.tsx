@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Check, Link2, Loader2, MessageCircle, Radio, RefreshCw, Send, Sparkles } from "lucide-react";
+import {
+  Check,
+  Link2,
+  Loader2,
+  MessageCircle,
+  Radio,
+  RefreshCw,
+  Send,
+  Sparkles,
+} from "lucide-react";
 import { toast as notify } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -270,7 +279,8 @@ function ChannelsPage() {
                     state.linkedInShareReady &&
                     state.needsReconnect ? (
                     <p className="mt-2 text-[11px] text-gold">
-                      Reconnect LinkedIn to pick up <span className="font-mono">w_member_social</span>.
+                      Reconnect LinkedIn to pick up{" "}
+                      <span className="font-mono">w_member_social</span>.
                     </p>
                   ) : s.id === "meta" && state?.connected && !state.has_instagram ? (
                     <p className="mt-2 text-[11px] text-muted-foreground">
@@ -394,7 +404,7 @@ function ChannelsPage() {
                     ) : (
                       <Link2 className="h-3.5 w-3.5" />
                     )}
-                    {state?.canConnect ?? state?.available
+                    {(state?.canConnect ?? state?.available)
                       ? state.needsReconnect
                         ? `Reconnect ${s.name}`
                         : `Connect ${s.name}`
@@ -510,18 +520,14 @@ function ChannelsPage() {
                     Open on X
                   </a>
                 ) : null}
-                {p.error ? (
-                  <p className="mt-1 text-[11px] text-destructive">{p.error}</p>
-                ) : null}
+                {p.error ? <p className="mt-1 text-[11px] text-destructive">{p.error}</p> : null}
               </li>
             ))}
           </ul>
         ) : drip?.preview ? (
           <p className="mt-3 text-[11px] text-muted-foreground">
             Will schedule {drip.preview.count} posts
-            {drip.preview.firstAt
-              ? ` from ${new Date(drip.preview.firstAt).toLocaleString()}`
-              : ""}
+            {drip.preview.firstAt ? ` from ${new Date(drip.preview.firstAt).toLocaleString()}` : ""}
             {drip.preview.lastAt
               ? ` through ${new Date(drip.preview.lastAt).toLocaleString()}`
               : ""}
@@ -610,8 +616,7 @@ function ChannelsPage() {
                       notify.success("Live.");
                       void fetch("/api/workers/tick", { method: "POST" });
                     },
-                    onError: (e) =>
-                      notify.error(e instanceof Error ? e.message : "Publish failed"),
+                    onError: (e) => notify.error(e instanceof Error ? e.message : "Publish failed"),
                   },
                 )
               }
@@ -623,9 +628,7 @@ function ChannelsPage() {
             <button
               type="button"
               disabled={
-                !composeBody.trim() ||
-                !company ||
-                (composeProvider === "tiktok" && !composeClipId)
+                !composeBody.trim() || !company || (composeProvider === "tiktok" && !composeClipId)
               }
               onClick={async () => {
                 if (!company) return;
@@ -706,8 +709,8 @@ function ChannelsPage() {
           Native video to <strong className="text-foreground">X</strong>,{" "}
           <strong className="text-foreground">TikTok</strong>, or{" "}
           <strong className="text-foreground">Meta (IG Reels)</strong>. X needs{" "}
-          <span className="font-mono text-[11px]">media.write</span>. TikTok needs your app
-          scopes approved.
+          <span className="font-mono text-[11px]">media.write</span>. TikTok needs your app scopes
+          approved.
         </p>
         <div className="mb-3 flex flex-wrap gap-2">
           {(
@@ -766,9 +769,7 @@ function ChannelsPage() {
                 },
                 onError: (e) =>
                   notify.error(
-                    e instanceof Error
-                      ? e.message
-                      : "Clip publish failed — check connect + scopes",
+                    e instanceof Error ? e.message : "Clip publish failed — check connect + scopes",
                   ),
               },
             )

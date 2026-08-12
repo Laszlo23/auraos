@@ -94,7 +94,10 @@ export function localSigner(privateKey: Hex) {
 }
 
 /** Counterfactual Light Account address for an owner (salt 0). */
-export function predictAddress(ownerAddress: Address, network: AuraNetwork = activeNetwork()): Address {
+export function predictAddress(
+  ownerAddress: Address,
+  network: AuraNetwork = activeNetwork(),
+): Address {
   const factory =
     getDefaultLightAccountFactoryAddress(viemChain(network), LIGHT_ACCOUNT_VERSION) ??
     LIGHT_ACCOUNT_FACTORY;
@@ -195,9 +198,7 @@ export async function deploySmartAccount(
       },
     });
     const userOpHash =
-      typeof result === "string"
-        ? result
-        : ((result as { hash?: string }).hash ?? null);
+      typeof result === "string" ? result : ((result as { hash?: string }).hash ?? null);
     return { address, deployed: true, userOpHash, sponsored, network };
   } catch (e) {
     // Without a paymaster and without ETH, deploy will fail — keep counterfactual.
@@ -224,9 +225,7 @@ export async function executeContractUserOp(
     },
   });
   const userOpHash =
-    typeof result === "string"
-      ? result
-      : String((result as { hash?: string }).hash ?? result);
+    typeof result === "string" ? result : String((result as { hash?: string }).hash ?? result);
   return { userOpHash, address };
 }
 
@@ -254,9 +253,7 @@ export async function executeBatchUserOps(
       })),
     });
     const userOpHash =
-      typeof result === "string"
-        ? result
-        : String((result as { hash?: string }).hash ?? result);
+      typeof result === "string" ? result : String((result as { hash?: string }).hash ?? result);
     return { userOpHash, address };
   } catch (err) {
     console.warn(

@@ -128,7 +128,8 @@ export const createGenesisCheckout = createServerFn({ method: "POST" })
     const { data: hasSeat } = await context.supabase.rpc("user_has_company_seat", {
       _uid: context.userId,
     });
-    if (!hasSeat) throw new Error("A founding seat is required before buying the Genesis Passport.");
+    if (!hasSeat)
+      throw new Error("A founding seat is required before buying the Genesis Passport.");
 
     const company = await ownedCompany(context.supabase, context.userId);
     const wallet = await founderWallet(context.supabase, context.userId);
@@ -191,7 +192,7 @@ export const createGenesisCheckout = createServerFn({ method: "POST" })
 /** Mark purchase paid after a settled x402 genesis-passport call for this company. */
 export const markGenesisPaidFromX402 = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input?: { paymentId?: string }) => ({
+  .validator((input?: { paymentId?: string }) => ({
     paymentId: input?.paymentId ? String(input.paymentId).slice(0, 128) : undefined,
   }))
   .handler(async ({ data, context }) => {
@@ -215,16 +216,14 @@ export const markGenesisPaidFromX402 = createServerFn({ method: "POST" })
     if (existing?.status === "minted") return { status: "minted" as const };
     if (existing?.status === "paid") return { status: "paid" as const };
 
-    let call:
-      | {
-          id: string;
-          status: string;
-          tx_hash: string | null;
-          amount_usdc: number;
-          company_id: string | null;
-          slug: string;
-        }
-      | null = null;
+    let call: {
+      id: string;
+      status: string;
+      tx_hash: string | null;
+      amount_usdc: number;
+      company_id: string | null;
+      slug: string;
+    } | null = null;
 
     if (data.paymentId) {
       const { data: rows } = await supabaseAdmin
@@ -277,12 +276,8 @@ export const markGenesisPaidFromX402 = createServerFn({ method: "POST" })
 export const claimGenesisNft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const {
-      walletOwnsGenesis,
-      mintGenesisToWallet,
-      genesisMaxSupply,
-      explorerTxUrl,
-    } = await genesisServer();
+    const { walletOwnsGenesis, mintGenesisToWallet, genesisMaxSupply, explorerTxUrl } =
+      await genesisServer();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("genesis_purchases")

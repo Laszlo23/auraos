@@ -11,7 +11,12 @@ function env(...keys: string[]): string | undefined {
 }
 
 function geminiKey(): string | undefined {
-  return env("GEMINI_API_KEY", "GOOGLE_GENERATIVE_AI_API_KEY", "GOOGLE_API_KEY", "GENERATIVE_AI_API_KEY");
+  return env(
+    "GEMINI_API_KEY",
+    "GOOGLE_GENERATIVE_AI_API_KEY",
+    "GOOGLE_API_KEY",
+    "GENERATIVE_AI_API_KEY",
+  );
 }
 
 export function openaiImagesConfigured(): boolean {
@@ -36,8 +41,7 @@ export async function generateGeminiImageBytes(prompt: string): Promise<{
   if (!key) {
     throw new Error("Image generation needs GEMINI_API_KEY.");
   }
-  const model =
-    env("GEMINI_IMAGE_MODEL") ?? "gemini-2.5-flash-image";
+  const model = env("GEMINI_IMAGE_MODEL") ?? "gemini-2.5-flash-image";
   const clean = prompt.replace(/\s+/g, " ").trim().slice(0, 1200);
   if (clean.length < 8) throw new Error("Image prompt is too short.");
 
@@ -61,7 +65,9 @@ export async function generateGeminiImageBytes(prompt: string): Promise<{
 
   const json = (await res.json()) as {
     candidates?: Array<{
-      content?: { parts?: Array<{ inlineData?: { mimeType?: string; data?: string }; text?: string }> };
+      content?: {
+        parts?: Array<{ inlineData?: { mimeType?: string; data?: string }; text?: string }>;
+      };
     }>;
   };
   const parts = json.candidates?.[0]?.content?.parts ?? [];

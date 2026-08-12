@@ -107,13 +107,7 @@ export function buildHolderPerks(opts: {
   const questXpBoostPct = base.questXpBoostPct + genesisExtras.questXpBoostPct;
 
   const next =
-    tier === "none"
-      ? TIERS[0]
-      : tier === "spark"
-        ? TIERS[1]
-        : tier === "charge"
-          ? TIERS[2]
-          : null;
+    tier === "none" ? TIERS[0] : tier === "spark" ? TIERS[1] : tier === "charge" ? TIERS[2] : null;
 
   const perks: HolderPerk[] = [
     {

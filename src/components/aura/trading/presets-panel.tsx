@@ -16,16 +16,14 @@ export function PresetsPanel({
   /** When true, only show the recommended preset + a note. */
   compact?: boolean;
 }) {
-  const list = compact
-    ? TRADING_PRESETS.filter((p) => p.id === recommendId)
-    : TRADING_PRESETS;
+  const list = compact ? TRADING_PRESETS.filter((p) => p.id === recommendId) : TRADING_PRESETS;
   const shown = list.length ? list : TRADING_PRESETS.slice(0, 1);
 
   return (
     <Panel label="Pick a strategy" glow data-tour="trading-presets">
       <p className="text-[13px] leading-relaxed text-muted-foreground">
-        One tap drafts, backtests, and approves. Start with Steady ETH — then read the results
-        panel before you grant a Trade key.
+        One tap drafts, backtests, and approves. Start with Steady ETH — then read the results panel
+        before you grant a Trade key.
       </p>
       <div className={cn("mt-5 grid gap-3", compact ? "md:grid-cols-1" : "md:grid-cols-3")}>
         {shown.map((p) => {
@@ -47,7 +45,13 @@ export function PresetsPanel({
                 <p className="text-[14px] font-semibold">{p.name}</p>
                 <div className="flex items-center gap-1.5">
                   {recommended ? <Chip tone="gold">Start here</Chip> : null}
-                  <Chip tone={p.riskLabel === "Low" ? "gold" : p.riskLabel === "High" ? "danger" : "primary"}>{p.riskLabel}</Chip>
+                  <Chip
+                    tone={
+                      p.riskLabel === "Low" ? "gold" : p.riskLabel === "High" ? "danger" : "primary"
+                    }
+                  >
+                    {p.riskLabel}
+                  </Chip>
                 </div>
               </div>
               <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{p.tagline}</p>

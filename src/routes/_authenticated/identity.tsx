@@ -296,11 +296,18 @@ function FioPanel({
   const primary = attestations.find((a) => a.status === "valid");
 
   return (
+    <div id="fio-panel" className="scroll-mt-28">
     <Panel label="FIO crypto handle" glow delay={0.05}>
       <p className="mb-3 text-[13px] leading-relaxed text-muted-foreground">
         FIO is Aura&apos;s main crypto-handle service — human-readable receive addresses that travel
         across wallets. Your in-app @{auraHandle} stays for the leaderboard; FIO is how people send
-        you crypto without pasting 0x… strings.
+        you crypto without pasting 0x… strings.{" "}
+        <a
+          href="/partners/fio"
+          className="font-medium text-primary underline-offset-2 hover:underline"
+        >
+          Partner kit
+        </a>
       </p>
 
       {primary ? (
@@ -484,6 +491,7 @@ function FioPanel({
         </div>
       ) : null}
     </Panel>
+    </div>
   );
 }
 
@@ -627,6 +635,8 @@ function ProfileEditor({
 function IdentityBody() {
   const { data: handle } = useMyHandle();
   const { data: wallets = [] } = useWallets(handle?.id);
+  const { data: fioAttestations = [] } = useFioAttestations(handle?.id);
+  const hasValidFio = fioAttestations.some((a) => a.status === "valid" && a.verified);
   const award = useAwardXp();
   const [burst, setBurst] = useState(0);
   const [xp, setXp] = useState<{ label: string; amount: number } | null>(null);
@@ -689,7 +699,22 @@ function IdentityBody() {
                   slot={slot}
                   handleId={handle.id}
                   wallet={wallets.find((w) => w.slot === slot)}
-                  onVerified={() => celebrate("Wallet verified", 200, "identity:wallet")}
+                  onVerified={() => {
+                    celebrate("Wallet verified", 200, "identity:wallet");
+                    if (hasValidFio) return;
+                    toast.message("Next: attest your FIO handle", {
+                      description:
+                        "Human-readable receive for USDC — we soft-gate live money moves until this is set.",
+                      action: {
+                        label: "Set up FIO",
+                        onClick: () =>
+                          document.getElementById("fio-panel")?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          }),
+                      },
+                    });
+                  }}
                 />
               ))}
             </div>

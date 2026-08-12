@@ -39,8 +39,7 @@ function failedCount(agentId: string, tasks: TaskLite[]) {
 
 function hasOpenWork(agentId: string, tasks: TaskLite[]) {
   return tasks.some(
-    (t) =>
-      t.agent_id === agentId && (t.status === "running" || t.status === "queued"),
+    (t) => t.agent_id === agentId && (t.status === "running" || t.status === "queued"),
   );
 }
 
@@ -110,9 +109,7 @@ export function WorkforceBoard({ agents, tasks }: Props) {
                 <span>AURA · {a.credits_used ?? 0}</span>
                 <span>
                   Attributed ·{" "}
-                  {(a.revenue_generated ?? 0) > 0
-                    ? currency(a.revenue_generated ?? 0)
-                    : "$0"}
+                  {(a.revenue_generated ?? 0) > 0 ? currency(a.revenue_generated ?? 0) : "$0"}
                 </span>
               </div>
               {(a.performance ?? 0) > 0 ? (

@@ -47,7 +47,10 @@ export const Route = createFileRoute("/_authenticated/marketing")({
           "Campaigns, scheduled social posts, AI images, share-kit video, brainstorm ideas, and growth funnels.",
       },
       { property: "og:title", content: "Marketing Studio — Aura OS" },
-      { property: "og:description", content: "Create campaigns, schedule posts, and ship creative." },
+      {
+        property: "og:description",
+        content: "Create campaigns, schedule posts, and ship creative.",
+      },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -119,10 +122,7 @@ function MarketingPage() {
   }, [campaigns]);
 
   const upcoming = useMemo(
-    () =>
-      posts
-        .filter((p) => p.status === "scheduled" || p.status === "draft")
-        .slice(0, 8),
+    () => posts.filter((p) => p.status === "scheduled" || p.status === "draft").slice(0, 8),
     [posts],
   );
 
@@ -212,11 +212,7 @@ function MarketingPage() {
         />
       ) : null}
       {tab === "compose" ? (
-        <ComposeTab
-          campaigns={campaigns}
-          social={social.data ?? []}
-          upcoming={upcoming}
-        />
+        <ComposeTab campaigns={campaigns} social={social.data ?? []} upcoming={upcoming} />
       ) : null}
       {tab === "brainstorm" ? <BrainstormTab /> : null}
       {tab === "funnels" ? <FunnelsTab /> : null}
@@ -409,7 +405,11 @@ function CampaignsTab({
           onClick={() => create.mutate()}
           className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-40"
         >
-          {create.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Megaphone className="h-3.5 w-3.5" />}
+          {create.isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Megaphone className="h-3.5 w-3.5" />
+          )}
           Create campaign
         </button>
       </Panel>
@@ -522,7 +522,7 @@ function ComposeTab({
           scheduledAt: status === "scheduled" ? new Date(scheduledAt).toISOString() : null,
           campaignKey: campaignKey || null,
           sharePostId: sharePostId || null,
-          mediaUrl: mediaUrl || (videoUrl.trim() || null),
+          mediaUrl: mediaUrl || videoUrl.trim() || null,
           mediaKind: sharePostId
             ? "share_clip"
             : mediaUrl
@@ -615,28 +615,28 @@ function ComposeTab({
         </div>
 
         <p className="mt-3 text-[12px] text-muted-foreground">
-          {conn?.connected
-            ? conn.auto_publish
-              ? "Autopublish is on — scheduled posts will go live when due."
-              : "Autopublish is off — scheduled posts wait until you enable it in Channels or Publish now."
-            : (
-              <>
-                Channel not connected —{" "}
-                <Link to="/channels" className="text-primary underline-offset-2 hover:underline">
-                  open Channels
-                </Link>
-                .
-              </>
-            )}
+          {conn?.connected ? (
+            conn.auto_publish ? (
+              "Autopublish is on — scheduled posts will go live when due."
+            ) : (
+              "Autopublish is off — scheduled posts wait until you enable it in Channels or Publish now."
+            )
+          ) : (
+            <>
+              Channel not connected —{" "}
+              <Link to="/channels" className="text-primary underline-offset-2 hover:underline">
+                open Channels
+              </Link>
+              .
+            </>
+          )}
         </p>
 
         <div className="mt-5 rounded-2xl border border-border/40 bg-background/40 p-4">
           <div className="flex items-center gap-2 text-[12px] font-semibold">
             <ImagePlus className="h-4 w-4 text-primary" /> AI image
             {!imageStatus.data?.configured ? (
-              <span className="font-normal text-muted-foreground">
-                (needs OPENAI_API_KEY)
-              </span>
+              <span className="font-normal text-muted-foreground">(needs OPENAI_API_KEY)</span>
             ) : null}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">

@@ -34,6 +34,7 @@ import {
   publishAkquiseResult,
   researchLeads,
   runAkquiseGoal,
+  saveLeadDraft,
   sendLeadEmail,
 } from "@/lib/akquise.functions";
 import { AKQUISE_TEMPLATES, type AkquiseTemplateId } from "@/lib/akquise-templates";
@@ -131,7 +132,17 @@ const MAILBOX_META: Record<MailboxProvider, { name: string; glyph: string; blurb
 };
 
 function leadsToCsv(rows: Lead[]) {
-  const header = ["name", "org", "email", "phone", "address", "score", "snippet", "source_url", "status"];
+  const header = [
+    "name",
+    "org",
+    "email",
+    "phone",
+    "address",
+    "score",
+    "snippet",
+    "source_url",
+    "status",
+  ];
   const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const lines = [
     header.join(","),
@@ -152,6 +163,27 @@ function leadsToCsv(rows: Lead[]) {
     ),
   ];
   return lines.join("\n");
+}
+
+function identityStorageKey(companyId: string) {
+  return `aura:akquise-identity:${companyId}`;
+}
+
+function loadIdentity(companyId: string | undefined, fallbackProject: string) {
+  if (!companyId || typeof window === "undefined") {
+    return { senderName: "", projectName: fallbackProject };
+  }
+  try {
+    const raw = localStorage.getItem(identityStorageKey(companyId));
+    if (!raw) return { senderName: "", projectName: fallbackProject };
+    const parsed = JSON.parse(raw) as { senderName?: string; projectName?: string };
+    return {
+      senderName: String(parsed.senderName ?? "").slice(0, 80),
+      projectName: String(parsed.projectName ?? fallbackProject).slice(0, 120) || fallbackProject,
+    };
+  } catch {
+    return { senderName: "", projectName: fallbackProject };
+  }
 }
 
 function AkquisePage() {
@@ -186,6 +218,10 @@ function AkquisePage() {
   const [seedUrls, setSeedUrls] = useState("");
   const [language, setLanguage] = useState("de");
   const [openLead, setOpenLead] = useState<string | null>(null);
+  const [editSubject, setEditSubject] = useState("");
+  const [editBody, setEditBody] = useState("");
+  const [senderName, setSenderName] = useState("");
+  const [projectName, setProjectName] = useState("");
   const [burst, setBurst] = useState(0);
   const [toastXp, setToastXp] = useState<{ label: string; amount: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -195,6 +231,42 @@ function AkquisePage() {
     if (search.region && !region) setRegion(search.region);
     else if (!region && company?.city) setRegion(String(company.city));
   }, [search.region, company?.city, region]);
+
+  useEffect(() => {
+    if (!company?.id) return;
+    const loaded = loadIdentity(company.id, String(company.name ?? ""));
+    setSenderName(loaded.senderName);
+    setProjectName(loaded.projectName || String(company.name ?? ""));
+  }, [company?.id, company?.name]);
+
+  useEffect(() => {
+    if (!company?.id) return;
+    try {
+      localStorage.setItem(
+        identityStorageKey(company.id),
+        JSON.stringify({
+          senderName: senderName.trim().slice(0, 80),
+          projectName: projectName.trim().slice(0, 120),
+        }),
+      );
+    } catch {
+      /* private mode */
+    }
+  }, [company?.id, senderName, projectName]);
+
+  useEffect(() => {
+    if (!openLead) {
+      setEditSubject("");
+      setEditBody("");
+      return;
+    }
+    const lead = leads.find((l) => l.id === openLead);
+    if (!lead) return;
+    setEditSubject(lead.draft_subject ?? "");
+    setEditBody(lead.draft_body ?? "");
+    // Intentionally sync only when switching leads — not on every leads refresh while typing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- openLead is the gate
+  }, [openLead]);
 
   useEffect(() => {
     const t = search.template;
@@ -294,7 +366,9 @@ function AkquisePage() {
           celebrate(`${res.added} prospects · ${res.auraSpent} AURA`, 200, "akquise:research");
           toast.success(`Got it. Found ${res.added} real prospects.`);
         } else {
-          toast.error("Autostart finished with 0 prospects. Try a sharper region or add FIRECRAWL_API_KEY.");
+          toast.error(
+            "Autostart finished with 0 prospects. Try a sharper region or add FIRECRAWL_API_KEY.",
+          );
         }
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Lead hunt failed";
@@ -324,25 +398,76 @@ function AkquisePage() {
   });
 
   const draft = useMutation({
-    mutationFn: (leadId: string) => draftLeadEmail({ data: { leadId } }),
+    mutationFn: (leadId: string) => {
+      if (!senderName.trim()) {
+        throw new Error("Add your name above so the email can sign off as you.");
+      }
+      if (!projectName.trim()) {
+        throw new Error("Add your project or company name above before drafting.");
+      }
+      return draftLeadEmail({
+        data: {
+          leadId,
+          senderName: senderName.trim(),
+          projectName: projectName.trim(),
+        },
+      });
+    },
+    onSuccess: async (res) => {
+      await refresh();
+      setEditSubject(res.subject);
+      setEditBody(res.body);
+      celebrate("Email written — review before send", 80);
+    },
+    onError: (e: Error) => {
+      setError(e.message);
+      toast.error(e.message);
+    },
+  });
+
+  const saveDraft = useMutation({
+    mutationFn: (leadId: string) =>
+      saveLeadDraft({
+        data: {
+          leadId,
+          subject: editSubject,
+          body: editBody,
+        },
+      }),
     onSuccess: async () => {
       await refresh();
-      celebrate("Email written", 80);
+      toast.success("Draft saved");
     },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error) => {
+      setError(e.message);
+      toast.error(e.message);
+    },
   });
 
   const connectedBox = mailboxes.find((m) => m.connected);
   const send = useMutation({
-    mutationFn: (leadId: string) => {
+    mutationFn: (input: { leadId: string; subject: string; body: string }) => {
       if (!connectedBox) throw new Error("Connect your mailbox first.");
-      return sendLeadEmail({ data: { leadId, provider: connectedBox.provider } });
+      if (!input.subject.trim() || !input.body.trim()) {
+        throw new Error("Subject and body cannot be empty.");
+      }
+      return sendLeadEmail({
+        data: {
+          leadId: input.leadId,
+          provider: connectedBox.provider,
+          subject: input.subject.trim(),
+          body: input.body.trim(),
+        },
+      });
     },
     onSuccess: async () => {
       await refresh();
       celebrate("Sent from your mailbox", 250, "akquise:send");
     },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error) => {
+      setError(e.message);
+      toast.error(e.message);
+    },
   });
 
   const share = useMutation({
@@ -526,8 +651,38 @@ function AkquisePage() {
 
           <Panel label="Your mailbox" glow={Boolean(connectedBox)}>
             <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Agents draft from research; you send from this mailbox. Aura never emails silently.
+              Set who you are first. Agents draft in your voice; you edit, then send from this
+              mailbox. Aura never emails silently.
             </p>
+            <div className="mt-3 grid gap-2">
+              <label className="block">
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Your name
+                </span>
+                <input
+                  value={senderName}
+                  onChange={(e) => setSenderName(e.target.value)}
+                  placeholder="e.g. Anna Müller"
+                  className="w-full rounded-2xl border border-border bg-foreground/5 px-3 py-2.5 text-[13px] outline-none focus:border-primary/40"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Project / company
+                </span>
+                <input
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder={company?.name ? String(company.name) : "e.g. Lokal Studio"}
+                  className="w-full rounded-2xl border border-border bg-foreground/5 px-3 py-2.5 text-[13px] outline-none focus:border-primary/40"
+                />
+              </label>
+            </div>
+            {!senderName.trim() || !projectName.trim() ? (
+              <p className="mt-2 text-[11px] text-gold">
+                Fill both fields before writing emails — drafts use them in the intro and sign-off.
+              </p>
+            ) : null}
             {connectedBox ? (
               <p className="mt-2 text-[12px] text-foreground/85">
                 From:{" "}
@@ -769,11 +924,45 @@ function AkquisePage() {
                     ) : null}
 
                     {open && lead.draft_body ? (
-                      <div className="mt-3 rounded-2xl bg-foreground/4 p-4">
-                        <p className="text-[12px] font-medium">{lead.draft_subject}</p>
-                        <p className="mt-2 whitespace-pre-wrap text-[12px] leading-relaxed text-muted-foreground">
-                          {lead.draft_body}
+                      <div className="mt-3 space-y-2 rounded-2xl bg-foreground/4 p-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                          {lead.status === "sent" ? "Sent email" : "Edit before you send"}
                         </p>
+                        <input
+                          value={editSubject}
+                          onChange={(e) => setEditSubject(e.target.value)}
+                          disabled={lead.status === "sent"}
+                          placeholder="Subject"
+                          className="w-full rounded-xl border border-border bg-background/60 px-3 py-2 text-[13px] font-medium outline-none focus:border-primary/40 disabled:opacity-70"
+                        />
+                        <textarea
+                          value={editBody}
+                          onChange={(e) => setEditBody(e.target.value)}
+                          disabled={lead.status === "sent"}
+                          rows={10}
+                          placeholder="Email body"
+                          className="w-full resize-y rounded-xl border border-border bg-background/60 px-3 py-2 text-[13px] leading-relaxed outline-none focus:border-primary/40 disabled:opacity-70"
+                        />
+                        {lead.status !== "sent" ? (
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setError(null);
+                                saveDraft.mutate(lead.id);
+                              }}
+                              disabled={
+                                saveDraft.isPending || !editSubject.trim() || !editBody.trim()
+                              }
+                              className="rounded-2xl bg-foreground/8 px-3 py-2 text-[11px] font-medium text-muted-foreground disabled:opacity-50"
+                            >
+                              {saveDraft.isPending ? "Saving…" : "Save edits"}
+                            </button>
+                            <p className="self-center text-[10px] text-muted-foreground">
+                              Send uses what’s in these fields.
+                            </p>
+                          </div>
+                        ) : null}
                       </div>
                     ) : null}
 
@@ -782,10 +971,17 @@ function AkquisePage() {
                         type="button"
                         onClick={() => {
                           setError(null);
+                          if (!senderName.trim() || !projectName.trim()) {
+                            const msg =
+                              "Add your name and project/company in Your mailbox first.";
+                            setError(msg);
+                            toast.error(msg);
+                            return;
+                          }
                           draft.mutate(lead.id);
                           setOpenLead(lead.id);
                         }}
-                        disabled={draft.isPending}
+                        disabled={draft.isPending || lead.status === "sent"}
                         className="flex items-center gap-2 rounded-2xl bg-foreground/6 px-3 py-2 text-[11px] text-muted-foreground disabled:opacity-50"
                       >
                         <PenLine className="h-3.5 w-3.5" />
@@ -797,21 +993,37 @@ function AkquisePage() {
                           onClick={() => setOpenLead(open ? null : lead.id)}
                           className="rounded-2xl bg-foreground/6 px-3 py-2 text-[11px] text-muted-foreground"
                         >
-                          {open ? "Hide draft" : "Read draft"}
+                          {open ? "Hide draft" : "Edit draft"}
                         </button>
                       ) : null}
                       <button
                         type="button"
                         onClick={() => {
                           setError(null);
-                          send.mutate(lead.id);
+                          const subject = (open ? editSubject : (lead.draft_subject ?? "")).trim();
+                          const body = (open ? editBody : (lead.draft_body ?? "")).trim();
+                          if (!open) {
+                            setOpenLead(lead.id);
+                            setEditSubject(lead.draft_subject ?? "");
+                            setEditBody(lead.draft_body ?? "");
+                          }
+                          if (!connectedBox) {
+                            toast.error("Connect your mailbox first.");
+                            return;
+                          }
+                          if (!subject || !body) {
+                            toast.error("Open the draft, edit if needed, then send.");
+                            return;
+                          }
+                          send.mutate({ leadId: lead.id, subject, body });
                         }}
                         disabled={
                           !connectedBox ||
                           !lead.email ||
                           !lead.draft_body ||
                           lead.status === "sent" ||
-                          send.isPending
+                          send.isPending ||
+                          (open && (!editSubject.trim() || !editBody.trim()))
                         }
                         className="flex items-center gap-2 rounded-2xl bg-primary px-3 py-2 text-[11px] font-semibold text-primary-foreground disabled:opacity-40"
                       >

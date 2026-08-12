@@ -125,8 +125,7 @@ function LivePage() {
 
   const t = totals.data;
   const ready = totals.isSuccess || totals.isError;
-  const fmt = (n: number | null | undefined) =>
-    ready ? Number(n ?? 0).toLocaleString() : "—";
+  const fmt = (n: number | null | undefined) => (ready ? Number(n ?? 0).toLocaleString() : "—");
   const stats = [
     { label: "Companies on Aura OS", value: fmt(t?.companies) },
     { label: "Agents at work", value: fmt(t?.agents) },

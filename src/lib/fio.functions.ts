@@ -14,7 +14,7 @@ const lookupInput = z.object({
 
 /** Public read-only FIO resolution — no auth (for collab / send-to-handle UX). */
 export const resolveFioPublic = createServerFn({ method: "POST" })
-  .inputValidator((input) => lookupInput.parse(input))
+  .validator((input) => lookupInput.parse(input))
   .handler(async ({ data }) => {
     const { isValidFioHandle, lookupFioHandle, lookupFioHandleAny, normaliseFioHandle } =
       await import("./fio.server");
@@ -36,7 +36,7 @@ export const resolveFioPublic = createServerFn({ method: "POST" })
 /** Read-only FIO resolution — shows what a handle maps to before attesting. */
 export const resolveFio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => lookupInput.parse(input))
+  .validator((input) => lookupInput.parse(input))
   .handler(async ({ data }) => {
     const { isValidFioHandle, lookupFioHandle, lookupFioHandleAny, normaliseFioHandle } =
       await import("./fio.server");
@@ -61,7 +61,7 @@ export const resolveFio = createServerFn({ method: "POST" })
  */
 export const attestFio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => lookupInput.extend({ walletId: z.string().uuid() }).parse(input))
+  .validator((input) => lookupInput.extend({ walletId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { isValidFioHandle, lookupFioHandleAny, normaliseFioHandle } =
       await import("./fio.server");
@@ -140,7 +140,7 @@ export const attestFio = createServerFn({ method: "POST" })
  */
 export const revalidateFio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { handleId: string }) => input)
+  .validator((input: { handleId: string }) => input)
   .handler(async ({ data, context }) => {
     const { lookupFioHandle } = await import("./fio.server");
 

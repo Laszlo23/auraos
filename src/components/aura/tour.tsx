@@ -95,10 +95,7 @@ export function OnboardingTour() {
           className="fixed inset-0 z-50"
         >
           {/* dimmer with a cut-out over the current section */}
-          <div
-            className="absolute inset-0 bg-background/78 backdrop-blur-[2px]"
-            onClick={close}
-          />
+          <div className="absolute inset-0 bg-background/78 backdrop-blur-[2px]" onClick={close} />
           {box && (
             <motion.div
               layout
@@ -124,9 +121,7 @@ export function OnboardingTour() {
               </button>
             </div>
             <p className="mt-3 text-[15px] font-semibold">{stop.title}</p>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-              {stop.body}
-            </p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{stop.body}</p>
 
             <div className="mt-5 flex items-center gap-2">
               <button

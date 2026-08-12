@@ -1,13 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  Check,
-  KeyRound,
-  Loader2,
-  Play,
-  Radar,
-  TrendingUp,
-  Waves,
-} from "lucide-react";
+import { Check, KeyRound, Loader2, Play, Radar, TrendingUp, Waves } from "lucide-react";
 import { useState } from "react";
 
 import { Chip, Panel } from "@/components/aura/primitives";
@@ -113,7 +105,11 @@ export function SimpleTradePath({
                       : "bg-foreground/6 text-muted-foreground",
                 )}
               >
-                {s.done ? <Check className="h-3 w-3" /> : <span className="opacity-70">{i + 1}</span>}
+                {s.done ? (
+                  <Check className="h-3 w-3" />
+                ) : (
+                  <span className="opacity-70">{i + 1}</span>
+                )}
                 {s.label}
               </li>
             );
@@ -175,13 +171,13 @@ export function SimpleTradePath({
         >
           {phase === "strategy" ? (
             <p className="mb-4 text-[13px] text-muted-foreground">
-              Start with <strong className="text-foreground">Steady growth</strong> if you’re unsure.
+              Start with <strong className="text-foreground">Steady growth</strong> if you’re
+              unsure.
             </p>
           ) : null}
           <div className="grid gap-3 md:grid-cols-3">
             {STRATEGIES.map((s) => {
-              const selected =
-                picked === s.id || (hasStrategy && !picked && s.id === "steady_eth");
+              const selected = picked === s.id || (hasStrategy && !picked && s.id === "steady_eth");
               const busy = busyId === s.id;
               return (
                 <button
@@ -210,7 +206,9 @@ export function SimpleTradePath({
                   <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
                     {s.blurb}
                   </p>
-                  <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground/90">{s.how}</p>
+                  <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground/90">
+                    {s.how}
+                  </p>
                   {busy ? (
                     <p className="mt-3 inline-flex items-center gap-1.5 text-[11px] text-primary">
                       <Loader2 className="h-3 w-3 animate-spin" /> Setting up…

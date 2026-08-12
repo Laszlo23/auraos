@@ -18,13 +18,10 @@ function asDb(client: unknown): LooseDb {
   return client as LooseDb;
 }
 
-
 async function ownedCompany(supabase: { from: (t: string) => any }, userId: string) {
   const { data } = await supabase
     .from("companies")
-    .select(
-      "id, name, slug, autonomy, daily_aura_budget, reputation, owner_id, tagline, strategy",
-    )
+    .select("id, name, slug, autonomy, daily_aura_budget, reputation, owner_id, tagline, strategy")
     .eq("owner_id", userId)
     .order("created_at", { ascending: true })
     .limit(1)
@@ -38,7 +35,7 @@ async function ensureSlug(
   company: { id: string; name: string; slug?: string | null },
 ) {
   if (company.slug) return company.slug;
-  let base = slugifyCompanyName(company.name);
+  const base = slugifyCompanyName(company.name);
   let candidate = base;
   for (let i = 0; i < 8; i++) {
     const { data } = await supabase
@@ -84,7 +81,7 @@ export const getCompanyEconomy = createServerFn({ method: "GET" })
       .limit(100);
 
     const totals = totalsFromLedger(
-      ((ledger ?? []) as { kind: string; amount_usdc: number; status: string }[]),
+      (ledger ?? []) as { kind: string; amount_usdc: number; status: string }[],
     );
 
     const { count: agentCount } = await asDb(context.supabase)
@@ -137,10 +134,7 @@ export const getCompanyEconomy = createServerFn({ method: "GET" })
       agentsActive: agentCount ?? 0,
     });
 
-    await asDb(context.supabase)
-      .from("companies")
-      .update({ reputation })
-      .eq("id", company.id);
+    await asDb(context.supabase).from("companies").update({ reputation }).eq("id", company.id);
 
     const snapshot = {
       lifetimeRevenue: totals.lifetime,
@@ -176,14 +170,16 @@ export const getCompanyEconomy = createServerFn({ method: "GET" })
         interactions: connected,
       },
       milestones,
-      recent: ((ledger ?? []) as {
-        kind: string;
-        amount_usdc: number;
-        description: string | null;
-        created_at: string;
-        status: string;
-        source: string;
-      }[]).slice(0, 12),
+      recent: (
+        (ledger ?? []) as {
+          kind: string;
+          amount_usdc: number;
+          description: string | null;
+          created_at: string;
+          status: string;
+          source: string;
+        }[]
+      ).slice(0, 12),
       feeSplit: { owner: 82, aura: 10, compute: 8 },
     };
   });
@@ -191,19 +187,18 @@ export const getCompanyEconomy = createServerFn({ method: "GET" })
 /** Founder mission → multi-agent tasks + optional worker kick. */
 export const dispatchMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { mission: string }) => {
+  .validator((input: { mission: string }) => {
     const mission = input.mission?.trim().slice(0, 500);
-    if (!mission || mission.length < 8) throw new Error("Describe the mission (at least 8 characters).");
+    if (!mission || mission.length < 8)
+      throw new Error("Describe the mission (at least 8 characters).");
     return { mission };
   })
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(asDb(context.supabase), context.userId);
 
     // Revenue outcomes → plan a Revenue Mission (founder must START; no auto-exec)
-    const {
-      isRevenueMissionGoal,
-      createRevenueMissionCore,
-    } = await import("@/lib/revenue-mission.functions");
+    const { isRevenueMissionGoal, createRevenueMissionCore } =
+      await import("@/lib/revenue-mission.functions");
     if (isRevenueMissionGoal(data.mission)) {
       const mission = await createRevenueMissionCore(context.supabase, context.userId, {
         goal: data.mission,
@@ -333,11 +328,13 @@ export const dispatchMission = createServerFn({ method: "POST" })
       if (task?.id) created.push({ agent: name, taskId: task.id as string, status });
     }
 
-    await asDb(context.supabase).from("activity_events").insert({
-      company_id: company.id,
-      kind: "mission",
-      message: `Mission launched: "${data.mission.slice(0, 100)}" · ${created.length} employees tasked`,
-    });
+    await asDb(context.supabase)
+      .from("activity_events")
+      .insert({
+        company_id: company.id,
+        kind: "mission",
+        message: `Mission launched: "${data.mission.slice(0, 100)}" · ${created.length} employees tasked`,
+      });
 
     let worker: { ok: boolean; tasksProcessed?: number } | null = null;
     if (created.some((c) => c.status === "queued")) {
@@ -362,7 +359,7 @@ export const dispatchMission = createServerFn({ method: "POST" })
 
 export const setAgentPaused = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { agentId: string; paused: boolean }) => input)
+  .validator((input: { agentId: string; paused: boolean }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(asDb(context.supabase), context.userId);
     const { error } = await asDb(context.supabase)
@@ -380,9 +377,7 @@ export const setAgentPaused = createServerFn({ method: "POST" })
 
 export const updateCompanyEconomySettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: { autonomy?: number; dailyAuraBudget?: number }) => input,
-  )
+  .validator((input: { autonomy?: number; dailyAuraBudget?: number }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(asDb(context.supabase), context.userId);
     const autonomy = data.autonomy != null ? clampAutonomy(data.autonomy) : undefined;
@@ -402,8 +397,11 @@ export const updateCompanyEconomySettings = createServerFn({ method: "POST" })
   });
 
 export const getPublicCompany = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => {
-    const slug = input.slug?.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 64);
+  .validator((input: { slug: string }) => {
+    const slug = input.slug
+      ?.toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .slice(0, 64);
     if (!slug) throw new Error("slug required");
     return { slug };
   })
@@ -597,7 +595,7 @@ export const listWorkJobs = createServerFn({ method: "GET" })
 
 export const acceptWorkJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { jobId: string }) => input)
+  .validator((input: { jobId: string }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(asDb(context.supabase), context.userId);
     const { data: job } = await asDb(context.supabase)
@@ -625,30 +623,34 @@ export const acceptWorkJob = createServerFn({ method: "POST" })
       .eq("name", "Atlas")
       .maybeSingle();
 
-    await asDb(context.supabase).from("tasks").insert({
-      company_id: company.id,
-      agent_id: atlas.data?.id ?? null,
-      title: `Job: ${job.title}`,
-      description: `${job.brief}\n\nBudget: $${job.budget_usdc} USDC. Deliver a concrete result for founder review.`,
-      status: "pending_approval",
-      priority: "high",
-      roi: Number(job.budget_usdc) || 0,
-      progress: 0,
-    });
+    await asDb(context.supabase)
+      .from("tasks")
+      .insert({
+        company_id: company.id,
+        agent_id: atlas.data?.id ?? null,
+        title: `Job: ${job.title}`,
+        description: `${job.brief}\n\nBudget: $${job.budget_usdc} USDC. Deliver a concrete result for founder review.`,
+        status: "pending_approval",
+        priority: "high",
+        roi: Number(job.budget_usdc) || 0,
+        progress: 0,
+      });
 
-    await asDb(context.supabase).from("activity_events").insert({
-      company_id: company.id,
-      kind: "job",
-      message: `Accepted job: ${job.title}`,
-      value: Number(job.budget_usdc),
-    });
+    await asDb(context.supabase)
+      .from("activity_events")
+      .insert({
+        company_id: company.id,
+        kind: "job",
+        message: `Accepted job: ${job.title}`,
+        value: Number(job.budget_usdc),
+      });
 
     return { ok: true as const, jobId: job.id as string };
   });
 
 export const deliverWorkJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { jobId: string; resultSummary: string }) => {
+  .validator((input: { jobId: string; resultSummary: string }) => {
     if (!input.resultSummary?.trim()) throw new Error("Result summary required");
     return { jobId: input.jobId, resultSummary: input.resultSummary.trim().slice(0, 2000) };
   })
@@ -710,12 +712,14 @@ export const deliverWorkJob = createServerFn({ method: "POST" })
     ];
     await asDb(context.supabase).from("company_ledger_entries").insert(rows);
 
-    await asDb(context.supabase).from("activity_events").insert({
-      company_id: company.id,
-      kind: "revenue",
-      message: `Job paid: ${job.title} · company earnings $${earnings.toFixed(2)}`,
-      value: earnings,
-    });
+    await asDb(context.supabase)
+      .from("activity_events")
+      .insert({
+        company_id: company.id,
+        kind: "revenue",
+        message: `Job paid: ${job.title} · company earnings $${earnings.toFixed(2)}`,
+        value: earnings,
+      });
 
     return {
       ok: true as const,
@@ -728,7 +732,7 @@ export const deliverWorkJob = createServerFn({ method: "POST" })
 
 export const publishAgentListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       name: string;
       role: string;
@@ -738,7 +742,8 @@ export const publishAgentListing = createServerFn({ method: "POST" })
       skills: string[];
       priceAura: number;
     }) => {
-      if (!input.name?.trim() || !input.summary?.trim()) throw new Error("Name and summary required");
+      if (!input.name?.trim() || !input.summary?.trim())
+        throw new Error("Name and summary required");
       return {
         name: input.name.trim().slice(0, 80),
         role: input.role.trim().slice(0, 80) || "Specialist",
@@ -772,24 +777,23 @@ export const publishAgentListing = createServerFn({ method: "POST" })
     return { id: row.id as string };
   });
 
-export const listAgentListings = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const admin = asDb(supabaseAdmin);
-    const { data } = await admin
-      .from("agent_listings")
-      .select(
-        "id, name, role, category, summary, price_aura, price_usdc, pricing_model, rating, tasks_completed, success_rate, companies_using, revenue_aura, creator_company_id, status",
-      )
-      .eq("status", "published")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    return (data ?? []) as Array<Record<string, string | number | null>>;
-  });
+export const listAgentListings = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const admin = asDb(supabaseAdmin);
+  const { data } = await admin
+    .from("agent_listings")
+    .select(
+      "id, name, role, category, summary, price_aura, price_usdc, pricing_model, rating, tasks_completed, success_rate, companies_using, revenue_aura, creator_company_id, status",
+    )
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  return (data ?? []) as Array<Record<string, string | number | null>>;
+});
 
 export const hirePublishedAgent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { listingId: string }) => input)
+  .validator((input: { listingId: string }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(asDb(context.supabase), context.userId);
     const { data: listing } = await asDb(context.supabase)
@@ -817,12 +821,14 @@ export const hirePublishedAgent = createServerFn({ method: "POST" })
         .from("subscriptions")
         .update({ tokens_remaining: sub.tokens_remaining - price })
         .eq("id", sub.id);
-      await asDb(context.supabase).from("token_ledger").insert({
-        company_id: company.id,
-        kind: "spend",
-        amount: -price,
-        reason: `Hired agent · ${listing.name}`,
-      });
+      await asDb(context.supabase)
+        .from("token_ledger")
+        .insert({
+          company_id: company.id,
+          kind: "spend",
+          amount: -price,
+          reason: `Hired agent · ${listing.name}`,
+        });
 
       const royalty = Math.floor((price * (Number(listing.royalty_bps) || 7000)) / 10_000);
       if (royalty > 0) {
@@ -837,22 +843,26 @@ export const hirePublishedAgent = createServerFn({ method: "POST" })
             .update({ tokens_remaining: (creatorSub.tokens_remaining ?? 0) + royalty })
             .eq("id", creatorSub.id);
         }
-        await asDb(context.supabase).from("company_ledger_entries").insert({
-          company_id: listing.creator_company_id,
-          kind: "royalty",
-          amount_aura: royalty,
-          amount_usdc: 0,
-          status: "settled",
-          source: "agent_hire",
-          source_id: listing.id,
-          description: `Royalty from ${listing.name} hire`,
-        });
-        await asDb(context.supabase).from("token_ledger").insert({
-          company_id: listing.creator_company_id,
-          kind: "grant",
-          amount: royalty,
-          reason: `Royalty · ${listing.name}`,
-        });
+        await asDb(context.supabase)
+          .from("company_ledger_entries")
+          .insert({
+            company_id: listing.creator_company_id,
+            kind: "royalty",
+            amount_aura: royalty,
+            amount_usdc: 0,
+            status: "settled",
+            source: "agent_hire",
+            source_id: listing.id,
+            description: `Royalty from ${listing.name} hire`,
+          });
+        await asDb(context.supabase)
+          .from("token_ledger")
+          .insert({
+            company_id: listing.creator_company_id,
+            kind: "grant",
+            amount: royalty,
+            reason: `Royalty · ${listing.name}`,
+          });
       }
     }
 
@@ -879,16 +889,18 @@ export const hirePublishedAgent = createServerFn({ method: "POST" })
       .select("id")
       .single();
 
-    await asDb(context.supabase).from("agent_hires").upsert(
-      {
-        listing_id: listing.id,
-        hirer_company_id: company.id,
-        agent_id: agent?.id,
-        price_aura: price,
-        royalty_aura: Math.floor((price * (Number(listing.royalty_bps) || 7000)) / 10_000),
-      },
-      { onConflict: "listing_id,hirer_company_id" },
-    );
+    await asDb(context.supabase)
+      .from("agent_hires")
+      .upsert(
+        {
+          listing_id: listing.id,
+          hirer_company_id: company.id,
+          agent_id: agent?.id,
+          price_aura: price,
+          royalty_aura: Math.floor((price * (Number(listing.royalty_bps) || 7000)) / 10_000),
+        },
+        { onConflict: "listing_id,hirer_company_id" },
+      );
 
     await asDb(context.supabase)
       .from("agent_listings")

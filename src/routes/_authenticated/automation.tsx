@@ -64,7 +64,10 @@ function AutomationPage() {
         >
           {runNow.isPending ? "Running…" : "Run worker now"}
         </button>
-        <Link to="/tasks" className="text-xs text-muted-foreground underline-offset-2 hover:underline">
+        <Link
+          to="/tasks"
+          className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+        >
           Tasks
         </Link>
         <Link

@@ -25,8 +25,7 @@ export function ActivationChallenge({
   if (!zeroMoney && !zeroCustomers) return null;
 
   const missionHint =
-    productHint?.trim() ||
-    "Find and contact 20 qualified prospects for our offer.";
+    productHint?.trim() || "Find and contact 20 qualified prospects for our offer.";
 
   return (
     <div className="space-y-4">

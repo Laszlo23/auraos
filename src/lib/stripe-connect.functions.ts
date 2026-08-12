@@ -83,14 +83,8 @@ export const startStripeConnectOnboarding = createServerFn({ method: "POST" })
       retrieveConnectAccount,
       sanitizeConnectReturnPath,
     } = await import("@/lib/stripe-connect.server");
-    const returnPath = sanitizeConnectReturnPath(
-      data.returnPath,
-      "/billing?connect=return",
-    );
-    const refreshPath = sanitizeConnectReturnPath(
-      data.refreshPath,
-      "/billing?connect=refresh",
-    );
+    const returnPath = sanitizeConnectReturnPath(data.returnPath, "/billing?connect=return");
+    const refreshPath = sanitizeConnectReturnPath(data.refreshPath, "/billing?connect=refresh");
 
     try {
       const { data: authUser } = await asDb(context.supabase).auth.getUser();

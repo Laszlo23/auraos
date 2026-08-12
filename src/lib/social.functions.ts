@@ -12,7 +12,7 @@ const isProvider = isSocialProvider;
 
 export const getSocialStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => ({
+  .validator((input: { companyId: string }) => ({
     companyId: String(input.companyId),
   }))
   .handler(async ({ data, context }) => {
@@ -23,7 +23,8 @@ export const getSocialStatus = createServerFn({ method: "GET" })
       .eq("id", data.companyId)
       .eq("owner_id", context.userId)
       .maybeSingle();
-    if (!company) throw new Error("Your company wasn't found for this account. Refresh and try again.");
+    if (!company)
+      throw new Error("Your company wasn't found for this account. Refresh and try again.");
 
     const { data: rows } = await supabaseAdmin
       .from("channel_connections")
@@ -39,11 +40,9 @@ export const getSocialStatus = createServerFn({ method: "GET" })
       const row = rows?.find((r) => r.provider === provider);
       const scopes = String(row?.scopes ?? "");
       const hasMediaWrite = scopes.split(/\s+/).includes("media.write");
-      const hasTikTokPublish =
-        scopes.includes("video.publish") || scopes.includes("video.upload");
+      const hasTikTokPublish = scopes.includes("video.publish") || scopes.includes("video.upload");
       const linkedInShareEnv = process.env["LINKEDIN_SHARE_SCOPE"] === "1";
-      const hasLinkedInShare =
-        scopes.split(/\s+/).includes("w_member_social") || linkedInShareEnv;
+      const hasLinkedInShare = scopes.split(/\s+/).includes("w_member_social") || linkedInShareEnv;
       const connected = row?.status === "connected";
       const writeReady = socialConfigured(provider);
       return {
@@ -55,7 +54,10 @@ export const getSocialStatus = createServerFn({ method: "GET" })
         needsReconnect:
           Boolean(row && row.status !== "connected") ||
           (connected && provider === "x" && !hasMediaWrite) ||
-          (connected && provider === "linkedin" && linkedInShareEnv && !scopes.includes("w_member_social")),
+          (connected &&
+            provider === "linkedin" &&
+            linkedInShareEnv &&
+            !scopes.includes("w_member_social")),
         canPostVideo:
           (connected && hasMediaWrite) || (connected && provider === "tiktok" && hasTikTokPublish),
         canShare: provider !== "linkedin" || (connected && hasLinkedInShare),
@@ -77,7 +79,7 @@ export const getSocialStatus = createServerFn({ method: "GET" })
 
 export const startSocialConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { provider: string; companyId: string }) => {
+  .validator((input: { provider: string; companyId: string }) => {
     if (!isProvider(input.provider)) throw new Error("Unknown social provider");
     return { provider: input.provider, companyId: String(input.companyId) };
   })
@@ -146,7 +148,7 @@ export const startSocialConnect = createServerFn({ method: "POST" })
 
 export const startFarcasterConnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => ({
+  .validator((input: { companyId: string }) => ({
     companyId: String(input.companyId),
   }))
   .handler(async ({ data, context }) => {
@@ -231,17 +233,15 @@ export const startFarcasterConnect = createServerFn({ method: "POST" })
 
 export const pollFarcasterSigner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; state: string; signerUuid: string }) => ({
+  .validator((input: { companyId: string; state: string; signerUuid: string }) => ({
     companyId: String(input.companyId),
     state: String(input.state),
     signerUuid: String(input.signerUuid),
   }))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const {
-      lookupFarcasterSigner,
-      saveApprovedFarcasterSigner,
-    } = await import("@/lib/farcaster-neynar.server");
+    const { lookupFarcasterSigner, saveApprovedFarcasterSigner } =
+      await import("@/lib/farcaster-neynar.server");
 
     const { data: row } = await supabaseAdmin
       .from("social_oauth_states")
@@ -279,7 +279,7 @@ export const pollFarcasterSigner = createServerFn({ method: "POST" })
 
 export const disconnectSocial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { provider: string; companyId: string }) => {
+  .validator((input: { provider: string; companyId: string }) => {
     if (!isProvider(input.provider)) throw new Error("Unknown social provider");
     return { provider: input.provider, companyId: String(input.companyId) };
   })
@@ -310,7 +310,7 @@ export const disconnectSocial = createServerFn({ method: "POST" })
 
 export const setSocialReplyMode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; provider: string; mode: string }) => {
+  .validator((input: { companyId: string; provider: string; mode: string }) => {
     if (!isProvider(input.provider)) throw new Error("Unknown social provider");
     if (!["off", "draft", "auto"].includes(input.mode)) throw new Error("Invalid reply mode");
     return {
@@ -338,7 +338,7 @@ export const setSocialReplyMode = createServerFn({ method: "POST" })
 
 export const publishSocialNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       companyId: string;
       provider: string;
@@ -421,7 +421,7 @@ export const publishSocialNow = createServerFn({ method: "POST" })
 /** Post a share-kit clip to X, TikTok, or Meta (IG/FB) with native media. */
 export const publishShareClip = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       companyId: string;
       sharePostId: string;
@@ -455,7 +455,8 @@ export const publishShareClip = createServerFn({ method: "POST" })
       .eq("id", data.companyId)
       .eq("owner_id", context.userId)
       .maybeSingle();
-    if (!company) throw new Error("Your company wasn't found for this account. Refresh and try again.");
+    if (!company)
+      throw new Error("Your company wasn't found for this account. Refresh and try again.");
 
     const clip = getSharePost(data.sharePostId);
     if (!clip) throw new Error("Unknown share clip");
@@ -463,9 +464,7 @@ export const publishShareClip = createServerFn({ method: "POST" })
     const watch = shareWatchUrl(clip.id);
     const passport = company.slug ? ` ${SITE_URL}/company/${company.slug}` : "";
     const maxLen = data.provider === "x" ? 280 : 2200;
-    const caption =
-      data.caption ||
-      `${clip.hook}\n\n${watch}${passport}`.slice(0, maxLen);
+    const caption = data.caption || `${clip.hook}\n\n${watch}${passport}`.slice(0, maxLen);
 
     const result = await publishToProvider(data.provider, data.companyId, caption, {
       sharePostId: clip.id,
@@ -504,7 +503,7 @@ export const publishShareClip = createServerFn({ method: "POST" })
 /** @deprecated use publishShareClip — kept for older clients */
 export const publishShareClipToX = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; sharePostId: string; caption?: string }) => {
+  .validator((input: { companyId: string; sharePostId: string; caption?: string }) => {
     const sharePostId = String(input.sharePostId || "").trim();
     if (!sharePostId) throw new Error("Pick a clip");
     return {
@@ -527,16 +526,15 @@ export const publishShareClipToX = createServerFn({ method: "POST" })
       .eq("id", data.companyId)
       .eq("owner_id", context.userId)
       .maybeSingle();
-    if (!company) throw new Error("Your company wasn't found for this account. Refresh and try again.");
+    if (!company)
+      throw new Error("Your company wasn't found for this account. Refresh and try again.");
 
     const clip = getSharePost(data.sharePostId);
     if (!clip) throw new Error("Unknown share clip");
 
     const watch = shareWatchUrl(clip.id);
     const passport = company.slug ? ` ${SITE_URL}/company/${company.slug}` : "";
-    const caption =
-      data.caption ||
-      `${clip.hook}\n\n${watch}${passport}`.slice(0, 280);
+    const caption = data.caption || `${clip.hook}\n\n${watch}${passport}`.slice(0, 280);
 
     const result = await publishToProvider("x", data.companyId, caption, {
       sharePostId: clip.id,
@@ -574,7 +572,7 @@ export const publishShareClipToX = createServerFn({ method: "POST" })
 
 export const approveEngagementReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { engagementId: string; reply?: string }) => ({
+  .validator((input: { engagementId: string; reply?: string }) => ({
     engagementId: String(input.engagementId),
     reply: input.reply ? String(input.reply) : undefined,
   }))
@@ -677,7 +675,7 @@ export const approveEngagementReply = createServerFn({ method: "POST" })
  */
 export const bulkResolveEngagements = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       action: "send_all" | "ignore_all" | "free_auto";
       provider?: string;
@@ -858,7 +856,7 @@ export const bulkResolveEngagements = createServerFn({ method: "POST" })
  */
 export const startLaunchDripCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; enableAutoReply?: boolean }) => ({
+  .validator((input: { companyId: string; enableAutoReply?: boolean }) => ({
     companyId: String(input.companyId),
     enableAutoReply: input.enableAutoReply !== false,
   }))
@@ -947,7 +945,7 @@ export const startLaunchDripCampaign = createServerFn({ method: "POST" })
 /** Upcoming / recent launch-drip posts for the Channels UI. */
 export const getLaunchDripStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => ({
+  .validator((input: { companyId: string }) => ({
     companyId: String(input.companyId),
   }))
   .handler(async ({ data, context }) => {

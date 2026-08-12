@@ -8,6 +8,7 @@ type Box = { top: number; left: number; width: number; height: number };
 
 /**
  * Reusable spotlight tour — same feel as the landing OnboardingTour.
+ * Launcher sits above the mobile footer so CTAs stay tappable.
  */
 export function SpotlightTour({
   stops,
@@ -22,20 +23,24 @@ export function SpotlightTour({
   replayLabel?: string;
   autoOpen?: boolean;
 }) {
+  const chipKey = `${storageKey}:chip`;
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
   const [seen, setSeen] = useState(true);
+  const [chipVisible, setChipVisible] = useState(false);
 
   useEffect(() => {
     const wasSeen = localStorage.getItem(storageKey) === "1";
+    const chipDismissed = localStorage.getItem(chipKey) === "0";
     setSeen(wasSeen);
+    setChipVisible(!chipDismissed);
     if (autoOpen && !wasSeen) {
       const t = window.setTimeout(() => setOpen(true), 900);
       return () => window.clearTimeout(t);
     }
     return undefined;
-  }, [storageKey, autoOpen]);
+  }, [storageKey, chipKey, autoOpen]);
 
   const measure = useCallback(() => {
     const el = document.querySelector(stops[i]!.target);
@@ -64,6 +69,15 @@ export function SpotlightTour({
     setSeen(true);
   };
 
+  const dismissChip = () => {
+    setChipVisible(false);
+    try {
+      localStorage.setItem(chipKey, "0");
+    } catch {
+      /* private mode */
+    }
+  };
+
   const start = () => {
     setI(0);
     setOpen(true);
@@ -76,19 +90,31 @@ export function SpotlightTour({
 
   return (
     <>
-      {!open && (
-        <motion.button
-          type="button"
+      {!open && chipVisible ? (
+        <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
-          onClick={start}
-          className="glass fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-2xl px-4 py-3 text-[12.5px] font-semibold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.03]"
+          className="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] left-3 z-[45] flex max-w-[min(92vw,20rem)] items-stretch gap-1.5 md:bottom-5 md:left-5"
         >
-          <Compass className="h-4 w-4 text-primary" />
-          {seen ? replayLabel : ctaLabel}
-        </motion.button>
-      )}
+          <button
+            type="button"
+            onClick={start}
+            className="glass flex min-w-0 flex-1 items-center gap-2 rounded-2xl px-4 py-3 text-left text-[12.5px] font-semibold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+          >
+            <Compass className="h-4 w-4 shrink-0 text-primary" />
+            <span className="min-w-0 truncate">{seen ? replayLabel : ctaLabel}</span>
+          </button>
+          <button
+            type="button"
+            onClick={dismissChip}
+            aria-label="Dismiss tour"
+            className="glass grid h-auto w-11 shrink-0 place-items-center rounded-2xl text-muted-foreground shadow-[var(--shadow-glow)] transition-colors hover:text-foreground"
+          >
+            <X className="h-4 w-4" strokeWidth={1.75} />
+          </button>
+        </motion.div>
+      ) : null}
 
       <AnimatePresence>
         {open && (
@@ -96,7 +122,7 @@ export function SpotlightTour({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50"
+            className="fixed inset-0 z-[60]"
           >
             <div
               className="absolute inset-0 bg-background/78 backdrop-blur-[2px]"
@@ -116,7 +142,7 @@ export function SpotlightTour({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               style={{ top: cardTop }}
-              className="glass absolute left-1/2 w-[min(92vw,26rem)] -translate-x-1/2 rounded-3xl p-5"
+              className="glass absolute left-1/2 z-[1] w-[min(92vw,26rem)] -translate-x-1/2 rounded-3xl p-5"
             >
               <div className="flex items-start justify-between gap-4">
                 <span className="num text-[11px] tracking-[0.3em] text-primary">

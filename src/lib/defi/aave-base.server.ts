@@ -3,12 +3,7 @@
  * Addresses from bgd-labs/aave-address-book (AaveV3Base).
  */
 
-import {
-  encodeFunctionData,
-  maxUint256,
-  type Address,
-  type Hex,
-} from "viem";
+import { encodeFunctionData, maxUint256, type Address, type Hex } from "viem";
 
 import { alchemyRpcUrl, networkSpec, USDC_ADDRESSES, USDC_DECIMALS } from "@/lib/chain-config";
 import { executeBatchUserOps, executeContractUserOp } from "@/lib/wallet.server";
@@ -84,8 +79,7 @@ async function ethCall(to: Address, data: Hex): Promise<bigint> {
 }
 
 export async function fetchErc20Balance(token: Address, owner: Address): Promise<bigint> {
-  const data =
-    `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
+  const data = `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
   return ethCall(token, data);
 }
 
@@ -150,8 +144,7 @@ export async function withdrawUsdcFromAaveBase(args: {
   const aBal = await fetchErc20Balance(AAVE_V3_BASE_AUSDC, args.walletAddress);
   if (aBal <= 0n) throw new Error("No Aave aUSDC position to withdraw");
 
-  const want =
-    args.amountUsdc && args.amountUsdc > 0 ? usdcToUnits(args.amountUsdc) : maxUint256;
+  const want = args.amountUsdc && args.amountUsdc > 0 ? usdcToUnits(args.amountUsdc) : maxUint256;
   const amount = want === maxUint256 || want >= aBal ? maxUint256 : want;
   const expectedUsdc = amount === maxUint256 ? unitsToUsdc(aBal) : unitsToUsdc(amount);
 

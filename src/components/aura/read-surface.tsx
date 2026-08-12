@@ -1,12 +1,7 @@
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
@@ -36,9 +31,7 @@ export function ReadSurface({
         aria-describedby={description ? undefined : undefined}
         className={cn(
           "fixed inset-0 left-0 top-0 z-[80] flex h-[100svh] max-h-[100svh] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-background p-0 shadow-none [&>button]:hidden",
-          reduced
-            ? ""
-            : "data-[state=open]:zoom-in-100 data-[state=closed]:zoom-out-100",
+          reduced ? "" : "data-[state=open]:zoom-in-100 data-[state=closed]:zoom-out-100",
         )}
       >
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border/50 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))]">

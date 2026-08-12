@@ -27,7 +27,12 @@ function toneFor(kind: string, message: string): "ok" | "active" | "wait" | "fai
   ) {
     return "wait";
   }
-  if (kind === "revenue" || kind === "complete" || m.includes("completed") || m.includes("settled")) {
+  if (
+    kind === "revenue" ||
+    kind === "complete" ||
+    m.includes("completed") ||
+    m.includes("settled")
+  ) {
     return "ok";
   }
   if (kind === "mission" || kind === "publish" || kind === "reply" || m.includes("launch")) {
@@ -95,12 +100,7 @@ export function LiveCompanyActivity({ events, limit = 16 }: Props) {
                   <p className="text-[12px] font-semibold tracking-wide text-foreground/90">
                     {who}
                   </p>
-                  <ExpandableCopy
-                    text={e.message}
-                    title={who}
-                    maxLines={3}
-                    className="mt-0.5"
-                  />
+                  <ExpandableCopy text={e.message} title={who} maxLines={3} className="mt-0.5" />
                   <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                     {tone === "fail"
                       ? "failed"
@@ -111,9 +111,7 @@ export function LiveCompanyActivity({ events, limit = 16 }: Props) {
                           : tone === "active"
                             ? "active"
                             : "noted"}
-                    {e.value ? (
-                      <span className="ml-2 text-gold">{currency(e.value)}</span>
-                    ) : null}
+                    {e.value ? <span className="ml-2 text-gold">{currency(e.value)}</span> : null}
                   </p>
                 </div>
                 <span className="shrink-0 font-mono text-[10px] text-muted-foreground">

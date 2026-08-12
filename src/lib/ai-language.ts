@@ -58,12 +58,16 @@ export function normalizeAiLang(raw: string | null | undefined): AiLang {
 /** Lightweight heuristic: treat as German if enough DE function words appear. */
 export function detectAiLang(text: string): AiLang {
   const sample = text.slice(0, 800).toLowerCase();
-  const deHits =
-    (sample.match(/\b(und|oder|nicht|ich|wir|sie|ihr|bitte|danke|hallo|guten|für|mit|auch|schon|noch|dass|aber|wenn|kann|habe|wird|eine|einen|der|die|das)\b/g) ??
-      []).length;
-  const enHits =
-    (sample.match(/\b(the|and|or|not|you|we|please|thanks|hello|for|with|also|that|but|when|can|have|will|a|an)\b/g) ??
-      []).length;
+  const deHits = (
+    sample.match(
+      /\b(und|oder|nicht|ich|wir|sie|ihr|bitte|danke|hallo|guten|für|mit|auch|schon|noch|dass|aber|wenn|kann|habe|wird|eine|einen|der|die|das)\b/g,
+    ) ?? []
+  ).length;
+  const enHits = (
+    sample.match(
+      /\b(the|and|or|not|you|we|please|thanks|hello|for|with|also|that|but|when|can|have|will|a|an)\b/g,
+    ) ?? []
+  ).length;
   if (deHits >= 3 && deHits > enHits) return "de";
   return "en";
 }

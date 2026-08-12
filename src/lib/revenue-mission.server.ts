@@ -93,9 +93,7 @@ export function isRevenueMissionGoal(goal: string): boolean {
   ) {
     return true;
   }
-  return /(?:€|\$|£|usdc|usd|eur)\s*[\d.,]+|[\d.,]+\s*(k|m)?\s*(?:€|\$|£|usdc|usd|eur)/i.test(
-    goal,
-  );
+  return /(?:€|\$|£|usdc|usd|eur)\s*[\d.,]+|[\d.,]+\s*(k|m)?\s*(?:€|\$|£|usdc|usd|eur)/i.test(goal);
 }
 
 export function makeShareSlug(): string {
@@ -190,7 +188,8 @@ Pre-assessed feasibility: ${feasibilitySeed.feasibility} — ${feasibilitySeed.n
           title: "Draft a capped Base spot strategy",
           agent: "Quant",
           kind: "analyze",
-          detail: "WETH/USDC only, hard notional and stop limits. No leverage. Backtest before arming.",
+          detail:
+            "WETH/USDC only, hard notional and stop limits. No leverage. Backtest before arming.",
           day: 1,
         },
         {
@@ -258,7 +257,9 @@ Pre-assessed feasibility: ${feasibilitySeed.feasibility} — ${feasibilitySeed.n
       "Projected revenue is not settled until ledger rows exist.",
     ],
     risks: [
-      isTrading ? "Spot trading can lose most of the deposit." : "Offer may not convert without outreach.",
+      isTrading
+        ? "Spot trading can lose most of the deposit."
+        : "Offer may not convert without outreach.",
       "Timeline may slip if approvals or mailbox connects are missing.",
     ],
     feasibility: feasibilitySeed.feasibility,
@@ -312,7 +313,10 @@ Pre-assessed feasibility: ${feasibilitySeed.feasibility} — ${feasibilitySeed.n
   const fallbackProjected: MissionProjected = {
     cost_aura: fallbackPlan.steps.length * TASK_COST,
     cost_usdc: budgetUsdc,
-    revenue_usdc: feasibilitySeed.feasibility === "unlikely" ? Math.round(opts.targetUsdc * 0.15) : opts.targetUsdc,
+    revenue_usdc:
+      feasibilitySeed.feasibility === "unlikely"
+        ? Math.round(opts.targetUsdc * 0.15)
+        : opts.targetUsdc,
     profit_usdc:
       feasibilitySeed.feasibility === "unlikely"
         ? Math.round(opts.targetUsdc * 0.15) - budgetUsdc
@@ -400,12 +404,8 @@ Pre-assessed feasibility: ${feasibilitySeed.feasibility} — ${feasibilitySeed.n
       assumptions: assumptions.length ? assumptions : (fallbackPlan.assumptions ?? []),
       risks: risks.length ? risks : (fallbackPlan.risks ?? []),
       feasibility,
-      feasibility_note: String(
-        parsed.feasibility_note || feasibilitySeed.note,
-      ).slice(0, 400),
-      founder_decisions: decisions.length
-        ? decisions
-        : (fallbackPlan.founder_decisions ?? []),
+      feasibility_note: String(parsed.feasibility_note || feasibilitySeed.note).slice(0, 400),
+      founder_decisions: decisions.length ? decisions : (fallbackPlan.founder_decisions ?? []),
       milestones: milestones.length ? milestones : (fallbackPlan.milestones ?? []),
       steps: steps.length ? steps : fallbackPlan.steps,
     };
@@ -421,10 +421,7 @@ Pre-assessed feasibility: ${feasibilitySeed.feasibility} — ${feasibilitySeed.n
       plan.steps.length * TASK_COST,
       Number(parsed.projected?.cost_aura) || plan.steps.length * TASK_COST,
     );
-    const costUsdc = Math.max(
-      0,
-      Number(parsed.projected?.cost_usdc) || budgetUsdc,
-    );
+    const costUsdc = Math.max(0, Number(parsed.projected?.cost_usdc) || budgetUsdc);
     const projected: MissionProjected = {
       cost_aura: costAura,
       cost_usdc: costUsdc,
@@ -452,8 +449,7 @@ export async function proposeNextBestActionWithLlm(opts: {
   targetUsdc: number;
   recentEvents: string[];
 }): Promise<NextBestAction> {
-  const progress =
-    opts.targetUsdc > 0 ? Math.min(1, opts.actualRevenue / opts.targetUsdc) : 0;
+  const progress = opts.targetUsdc > 0 ? Math.min(1, opts.actualRevenue / opts.targetUsdc) : 0;
   const nextStep =
     opts.plan.steps.find((s) => s.order >= Math.floor(progress * opts.plan.steps.length) + 1) ||
     opts.plan.steps[0];
@@ -494,7 +490,10 @@ Recent: ${opts.recentEvents.slice(0, 8).join(" | ")}`,
         ? p.kind
         : fallback.kind) as NextBestAction["kind"],
       expected_cost_aura: Math.max(5, Number(p.expected_cost_aura) || TASK_COST),
-      expected_upside_usdc: Math.max(0, Number(p.expected_upside_usdc) || fallback.expected_upside_usdc),
+      expected_upside_usdc: Math.max(
+        0,
+        Number(p.expected_upside_usdc) || fallback.expected_upside_usdc,
+      ),
       confidence: Math.min(0.95, Math.max(0.2, Number(p.confidence) || 0.55)),
       status: "ready",
       label: "projected",

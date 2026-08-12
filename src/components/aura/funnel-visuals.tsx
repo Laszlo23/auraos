@@ -117,7 +117,9 @@ export function FunnelHeroBleed({
           href="#story"
           className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 text-white/55 transition-colors hover:text-white/85"
         >
-          <span className="text-[10px] font-semibold uppercase tracking-[0.28em]">{showScrollCue}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.28em]">
+            {showScrollCue}
+          </span>
           <ChevronDown className="h-5 w-5 animate-bounce" aria-hidden />
         </a>
       ) : null}
@@ -257,7 +259,9 @@ export function FunnelWiifmStrip({
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-gold/20 text-primary ring-1 ring-primary/30 transition-transform duration-300 group-hover:scale-105">
                   <Icon className="h-8 w-8" strokeWidth={1.6} aria-hidden />
                 </div>
-                <p className="mt-5 font-display text-2xl font-semibold tracking-tight">{item.title}</p>
+                <p className="mt-5 font-display text-2xl font-semibold tracking-tight">
+                  {item.title}
+                </p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.payoff}</p>
               </motion.div>
             );
@@ -296,7 +300,9 @@ export function FunnelStoryBeats({ beats }: { beats: StoryBeat[] }) {
                 >
                   <Icon className="h-5 w-5" strokeWidth={1.7} aria-hidden />
                 </span>
-                <span className="text-[11px] font-semibold tracking-[0.3em] text-primary">{beat.no}</span>
+                <span className="text-[11px] font-semibold tracking-[0.3em] text-primary">
+                  {beat.no}
+                </span>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
                   {beat.kicker}
                 </span>
@@ -335,7 +341,9 @@ export function FunnelConceptStrip({
   return (
     <section className="relative border-t border-border/40 py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">{eyebrow}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+          {eyebrow}
+        </p>
         <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
           {title}
         </h2>
@@ -374,7 +382,9 @@ export function FunnelTrustStrip({ title, items }: { title: string; items: strin
             <ShieldCheck className="h-6 w-6" strokeWidth={1.7} aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h2>
+            <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              {title}
+            </h2>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               {items.map((item, i) => (
                 <motion.li
@@ -428,7 +438,9 @@ export function FunnelCloseBand({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
         >
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Ready</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+            Ready
+          </p>
           <h2 className="mt-3 max-w-2xl font-display text-[clamp(1.9rem,5vw,3.2rem)] font-semibold tracking-tight">
             {title}
           </h2>
@@ -590,8 +602,7 @@ export function storyForFunnel(id: FunnelId): FunnelStory {
         hook: "You bring the offer. Aura builds the company around it.",
         scrollCue: "See your first week",
         painTitle: "Ideas don’t fail from lack of slides — they stall without a machine.",
-        painBody:
-          "Brand, site, list, outreach, follow-up. Aura stands that up so you can sell.",
+        painBody: "Brand, site, list, outreach, follow-up. Aura stands that up so you can sell.",
         painItems: [
           { bad: "Weeks wiring tools alone", good: "Company skeleton in days" },
           { bad: "Empty pipeline after launch", good: "First prospects + drafts ready" },
@@ -666,8 +677,7 @@ export function storyForFunnel(id: FunnelId): FunnelStory {
         hook: "Meetings on the calendar — without hiring an SDR team.",
         scrollCue: "Scroll how it fills",
         painTitle: "Growth dies when prospecting is “when I have time.”",
-        painBody:
-          "Aura is the department that keeps hunting while you deliver the work.",
+        painBody: "Aura is the department that keeps hunting while you deliver the work.",
         painItems: [
           { bad: "Feast / famine pipeline", good: "Steady outreach every week" },
           { bad: "Paying for chat tokens", good: "Paying for meetings & outcomes" },
@@ -742,11 +752,13 @@ export function storyForFunnel(id: FunnelId): FunnelStory {
         hook: "You build the sites. Aura finds the next clients.",
         scrollCue: "See the handoff",
         painTitle: "Delivery is full. The pipeline is empty.",
-        painBody:
-          "Classic agency trap. Aura runs the SDR layer so you stay in the craft.",
+        painBody: "Classic agency trap. Aura runs the SDR layer so you stay in the craft.",
         painItems: [
           { bad: "Referrals only", good: "Outbound that finds website buyers" },
-          { bad: "Founder doing sales at midnight", good: "Drafts waiting when you finish a sprint" },
+          {
+            bad: "Founder doing sales at midnight",
+            good: "Drafts waiting when you finish a sprint",
+          },
         ],
         wiifmTitle: "What’s in it for you",
         wiifmSub: "More builds booked. Same team size.",
@@ -818,8 +830,7 @@ export function storyForFunnel(id: FunnelId): FunnelStory {
         hook: "More real stars. Guests who come back. Without living on your phone.",
         scrollCue: "Scroll your week",
         painTitle: "Great work. Quiet Google page.",
-        painBody:
-          "Happy customers leave — and forget to review. Aura turns that into a habit.",
+        painBody: "Happy customers leave — and forget to review. Aura turns that into a habit.",
         painItems: [
           { bad: "Hoping for reviews", good: "Asking every real guest — you approve" },
           { bad: "Posting when you remember", good: "Social drafts waiting in one desk" },

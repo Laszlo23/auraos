@@ -39,10 +39,10 @@ const VOICES: Record<string, AgentVoice> = {
   },
   Ledger: {
     tagline: "Conservative. Numbers first.",
-    idle: "Books are quiet.",
-    working: "Reconciling.",
-    waiting: "Settlement needs your eye.",
-    failed: "Expense without return — flag it.",
+    idle: "Books quiet — drop a bill anytime.",
+    working: "Classifying expenses.",
+    waiting: "Confirm the draft in Tax prep.",
+    failed: "Expense unclear — needs your eye.",
   },
   Quant: {
     tagline: "Risk-aware. Analytical. Experimental.",

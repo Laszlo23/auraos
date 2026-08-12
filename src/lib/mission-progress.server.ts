@@ -234,10 +234,7 @@ export async function onMissionTaskCompleted(
       });
     }
   } catch (e) {
-    console.warn(
-      "mission progress after task failed",
-      e instanceof Error ? e.message : e,
-    );
+    console.warn("mission progress after task failed", e instanceof Error ? e.message : e);
   }
 }
 
@@ -273,8 +270,7 @@ export async function advanceActiveMissions(
       const open = (openTasks ?? []) as { id: string; status: string }[];
       if (
         open.some(
-          (t) =>
-            t.status === "queued" || t.status === "running" || t.status === "in_progress",
+          (t) => t.status === "queued" || t.status === "running" || t.status === "in_progress",
         )
       ) {
         continue;

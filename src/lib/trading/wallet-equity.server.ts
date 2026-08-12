@@ -7,9 +7,8 @@ export async function fetchWalletUsdcBalance(
   networkArg?: AuraNetwork,
 ): Promise<number> {
   try {
-    const { activeNetwork, alchemyRpcUrl, USDC_ADDRESSES, USDC_DECIMALS } = await import(
-      "@/lib/chain-config"
-    );
+    const { activeNetwork, alchemyRpcUrl, USDC_ADDRESSES, USDC_DECIMALS } =
+      await import("@/lib/chain-config");
     const network = networkArg ?? activeNetwork();
     const url = alchemyRpcUrl({ network });
     if (!url) return 0;

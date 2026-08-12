@@ -282,7 +282,9 @@ export function ShareKit({
           <div
             className={cn(
               "relative mx-auto",
-              vertical ? "aspect-[9/16] max-h-[min(72vh,640px)] w-full max-w-[22rem]" : "aspect-video w-full",
+              vertical
+                ? "aspect-[9/16] max-h-[min(72vh,640px)] w-full max-w-[22rem]"
+                : "aspect-video w-full",
             )}
           >
             <video
@@ -348,7 +350,9 @@ export function ShareKit({
                 <Sparkles className="h-3.5 w-3.5" /> Next vibe
               </button>
             </div>
-            <p className="mt-2 text-[15px] font-medium leading-snug text-foreground/95">{post.hook}</p>
+            <p className="mt-2 text-[15px] font-medium leading-snug text-foreground/95">
+              {post.hook}
+            </p>
             <pre className="mt-4 max-h-56 overflow-y-auto whitespace-pre-wrap rounded-2xl bg-background/70 p-4 font-sans text-[13px] leading-relaxed text-muted-foreground">
               {captionWithLink}
             </pre>
@@ -358,7 +362,11 @@ export function ShareKit({
                 onClick={() => void copyWatchLink()}
                 className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90"
               >
-                {copied === "link" ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
+                {copied === "link" ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <Link2 className="h-3.5 w-3.5" />
+                )}
                 {copied === "link" ? "Link copied" : "Copy watch link"}
               </button>
               <button
@@ -366,7 +374,11 @@ export function ShareKit({
                 onClick={() => void copyCaption()}
                 className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-foreground/6 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
               >
-                {copied === "caption" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied === "caption" ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
                 {copied === "caption" ? "Copied" : "Copy caption + link"}
               </button>
               <button

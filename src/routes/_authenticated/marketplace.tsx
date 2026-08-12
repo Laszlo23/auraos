@@ -23,8 +23,7 @@ export const Route = createFileRoute("/_authenticated/marketplace")({
       { title: "Marketplace — Aura OS" },
       {
         name: "description",
-        content:
-          "Hire AI employees, publish your own agents for royalties, or use the catalog.",
+        content: "Hire AI employees, publish your own agents for royalties, or use the catalog.",
       },
       { property: "og:title", content: "Marketplace — Aura OS" },
       { property: "og:description", content: "Hire, publish, earn royalties." },

@@ -77,9 +77,10 @@ export function GrowFundsHub({
     if (!path) {
       return {
         title: "Pick how you want money to grow",
-        body: tradeLive || liquidityLive
-          ? "You already have capital working — open a path to manage it, or start the other one."
-          : "Trade for upside with AI, or earn steadier interest / fees from liquidity.",
+        body:
+          tradeLive || liquidityLive
+            ? "You already have capital working — open a path to manage it, or start the other one."
+            : "Trade for upside with AI, or earn steadier interest / fees from liquidity.",
         cta: null,
       };
     }
@@ -131,7 +132,10 @@ export function GrowFundsHub({
                 </>
               ) : null}
               . See the full map anytime on{" "}
-              <Link to="/wallet" className="font-semibold text-primary underline-offset-2 hover:underline">
+              <Link
+                to="/wallet"
+                className="font-semibold text-primary underline-offset-2 hover:underline"
+              >
                 Wallet → Grow
               </Link>
               .
@@ -201,7 +205,9 @@ export function GrowFundsHub({
             </span>
             <div>
               <p className="text-sm font-semibold text-foreground">{nextStep.title}</p>
-              <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{nextStep.body}</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                {nextStep.body}
+              </p>
             </div>
           </div>
           {nextStep.cta ? (
@@ -287,7 +293,9 @@ export function GrowFundsHub({
 
           {path === "liquidity" && !companyId ? (
             <Panel label="Provide liquidity">
-              <p className="text-[13px] text-muted-foreground">Finish onboarding to unlock this path.</p>
+              <p className="text-[13px] text-muted-foreground">
+                Finish onboarding to unlock this path.
+              </p>
             </Panel>
           ) : null}
         </>
@@ -340,12 +348,12 @@ function PathCard({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className={cn("font-semibold tracking-tight", compact ? "text-base" : "mt-5 text-xl")}>
+          <h2
+            className={cn("font-semibold tracking-tight", compact ? "text-base" : "mt-5 text-xl")}
+          >
             {title}
           </h2>
-          {badge ? (
-            <Chip tone={badge === "Working" ? "primary" : "gold"}>{badge}</Chip>
-          ) : null}
+          {badge ? <Chip tone={badge === "Working" ? "primary" : "gold"}>{badge}</Chip> : null}
         </div>
         {!compact ? (
           <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{body}</p>

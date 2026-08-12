@@ -10,10 +10,7 @@ import { FailedWorkPanel } from "@/components/aura/command/failed-work";
 import { LevelProgressRail } from "@/components/aura/command/level-rail";
 import { LiveCompanyActivity } from "@/components/aura/command/live-activity";
 import { MissionHistoryTimeline } from "@/components/aura/command/mission-history";
-import {
-  deriveMissionPipeline,
-  MissionPipeline,
-} from "@/components/aura/command/mission-pipeline";
+import { deriveMissionPipeline, MissionPipeline } from "@/components/aura/command/mission-pipeline";
 import { ProofOfWorkStrip } from "@/components/aura/command/proof-strip";
 import { WorkforceBoard } from "@/components/aura/command/workforce-board";
 import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
@@ -153,9 +150,7 @@ function Home() {
 
   const running = tasks.filter((t) => t.status === "running" || t.status === "queued");
   const awaiting = tasks.filter((t) => t.status === "pending_approval");
-  const socialAwaiting = awaiting.filter((t) =>
-    Boolean(t.result?.startsWith("social-reply:")),
-  );
+  const socialAwaiting = awaiting.filter((t) => Boolean(t.result?.startsWith("social-reply:")));
   const otherAwaiting = awaiting.filter((t) => !t.result?.startsWith("social-reply:"));
   const done = tasks.filter((t) => t.status === "completed" || t.status === "done").length;
   const failedCount = tasks.filter((t) => t.status === "failed").length;
@@ -185,15 +180,7 @@ function Home() {
         actualRevenue: lifetime,
         customers,
       }),
-    [
-      focusMission,
-      awaiting.length,
-      running.length,
-      done,
-      failedCount,
-      lifetime,
-      customers,
-    ],
+    [focusMission, awaiting.length, running.length, done, failedCount, lifetime, customers],
   );
 
   if (isLoading) {
@@ -353,218 +340,215 @@ function Home() {
 
       {/* Desktop / tablet: full stacked command surface */}
       <div className="hidden space-y-6 md:block">
-      {/* 1. Company header */}
-      <section className="flex flex-wrap items-end justify-between gap-6">
-        <div className="min-w-0">
-          <p className="mb-3 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
-            <Pulse /> Command center · {autonomyLabel(autonomy)}
-          </p>
-          <h1 className="text-gradient max-w-3xl text-3xl font-semibold leading-[1.06] md:text-4xl">
-            {company?.name ?? "Your company"}
-          </h1>
-          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-            You own the company. The staff just happen to be AI.
-            {" · "}
-            Level {level}
-            {economy?.slug ? (
-              <>
-                {" · "}
-                <Link
-                  to="/company/$slug"
-                  params={{ slug: economy.slug }}
-                  className="text-primary hover:underline"
-                >
-                  /company/{economy.slug}
-                </Link>
-              </>
-            ) : null}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Chip tone="primary">Rep {economy?.reputation ?? "—"}</Chip>
-          <Chip tone="gold">
-            {compact(sub?.tokens_remaining ?? 0)} {TOKEN_SYMBOL}
-          </Chip>
-          <Chip tone="primary">
-            Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA today
-          </Chip>
-          <Link
-            to="/ceo"
-            className="inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
-          >
-            Ask Atlas <ArrowUpRight className="h-3 w-3" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Snapshot: actual economics only */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Snap label="Revenue · actual" value={compactMoney(totals?.revenue ?? 0)} />
-        <Snap label="Profit · actual" value={compactMoney(totals?.profit ?? 0)} gold />
-        <Snap label="Customers · verified" value={String(customers)} />
-        <Snap label="Level" value={String(level)} />
-      </div>
-
-      <DailyEngagementStrip
-        streakDays={progress?.streak_days ?? 0}
-        mission={focusMission}
-        completedQuests={progress?.completed_quests ?? []}
-        awaitingApproval={awaiting.length}
-      />
-
-      <SiteGrowthStrip />
-
-      <ActivationChallenge
-        revenue={lifetime}
-        customers={customers}
-        tasksCompleted={economy?.tasksCompleted ?? done}
-        agents={economy?.agentsActive ?? agents.length}
-        actions24hApprox={events.length}
-        productHint={productHint}
-      />
-
-      {needsMailbox ? (
-        <Panel label="Mailbox needed" glow delay={0.01}>
-          <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Outreach is ready, but agents have no company email yet. Connect Gmail, Outlook, or SMTP —
-            drafts stay AI, every send stays your click.
-          </p>
-          <Link
-            to="/connect"
-            className="mt-4 inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
-          >
-            Connect mailbox <ArrowUpRight className="h-3 w-3" />
-          </Link>
-        </Panel>
-      ) : null}
-
-      {/* Pipeline */}
-      <Panel label="Mission → execute → proof → grow" delay={0.01}>
-        <p className="mb-4 text-[13px] text-muted-foreground">
-          Your bottleneck is currently you — until you approve the plan.
-        </p>
-        <MissionPipeline stages={pipeline} />
-      </Panel>
-
-      {/* Approvals — sticky priority */}
-      {showApprovals && (
-        <Panel label="Needs your approval" glow delay={0.01}>
-          <ApprovalsBody
-            socialAwaiting={socialAwaiting}
-            otherAwaiting={otherAwaiting}
-            approve={approve}
-            reject={reject}
-          />
-        </Panel>
-      )}
-
-      <FailedWorkPanel tasks={tasks} agents={agents} />
-
-      {/* Primary mission hero */}
-      <div id="primary-mission">
-        <RevenueMissionsBand />
-      </div>
-
-      {simple && (
-        <StartHere
-          hasConnections={channels.some((c) => c.status === "connected")}
-          hasInstructed={events.some((e) => e.kind === "instruction" || e.kind === "decision")}
-          hasTasks={tasks.length > 0}
-        />
-      )}
-
-      {lifetime === 0 && done === 0 && awaiting.length === 0 && missions.length === 0 && (
-        <Panel label="Your employees are waiting" glow delay={0.01}>
-          <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Nothing happened yet. That&apos;s about to change — describe a mission above, or ask
-            Atlas to propose next actions.
-          </p>
-          <button
-            type="button"
-            onClick={() => propose.mutate()}
-            disabled={propose.isPending}
-            className="mt-4 rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary hover:bg-primary/22 disabled:opacity-50"
-          >
-            {propose.isPending ? "Proposing…" : "Propose next actions"}
-          </button>
-        </Panel>
-      )}
-
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <LiveCompanyActivity events={events} />
-        <Panel
-          label="Atlas"
-          glow
-          delay={0.06}
-          action={
+        {/* 1. Company header */}
+        <section className="flex flex-wrap items-end justify-between gap-6">
+          <div className="min-w-0">
+            <p className="mb-3 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
+              <Pulse /> Command center · {autonomyLabel(autonomy)}
+            </p>
+            <h1 className="text-gradient max-w-3xl text-3xl font-semibold leading-[1.06] md:text-4xl">
+              {company?.name ?? "Your company"}
+            </h1>
+            <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+              You own the company. The staff just happen to be AI.
+              {" · "}
+              Level {level}
+              {economy?.slug ? (
+                <>
+                  {" · "}
+                  <Link
+                    to="/company/$slug"
+                    params={{ slug: economy.slug }}
+                    className="text-primary hover:underline"
+                  >
+                    /company/{economy.slug}
+                  </Link>
+                </>
+              ) : null}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip tone="primary">Rep {economy?.reputation ?? "—"}</Chip>
+            <Chip tone="gold">
+              {compact(sub?.tokens_remaining ?? 0)} {TOKEN_SYMBOL}
+            </Chip>
+            <Chip tone="primary">
+              Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA today
+            </Chip>
             <Link
               to="/ceo"
-              className="flex items-center gap-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:text-primary"
+              className="inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
             >
-              talk to atlas <ArrowUpRight className="h-3 w-3" />
+              Ask Atlas <ArrowUpRight className="h-3 w-3" />
             </Link>
-          }
-        >
-          <h3 className="text-xl font-semibold leading-snug">
-            {briefing?.title ??
-              (lifetime === 0 ? "Waiting for your first mission" : "Latest note")}
-          </h3>
-          <div className="mt-3 text-[14px] leading-relaxed text-foreground/85">
-            <StreamText
-              text={
-                briefing?.body ??
-                (lifetime === 0
-                  ? "Launch a mission or approve a proposal. I will not invent revenue."
-                  : "No new briefing filed yet — check Live activity for what the team completed.")
-              }
-              speed={14}
-            />
           </div>
-        </Panel>
-      </div>
+        </section>
 
-      <CompanyEconomicsPanel
-        totals={totals}
-        customers={customers}
-        auraSpentToday={economy?.auraSpentToday ?? 0}
-        dailyAuraBudget={economy?.dailyAuraBudget ?? 120}
-        missionBudgetUsdc={focusMission?.budget_usdc}
-        activeProjectedRevenue={focusMission?.projected?.revenue_usdc}
-        activeTargetUsdc={focusMission?.target_usdc}
-      />
+        {/* Snapshot: actual economics only */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Snap label="Revenue · actual" value={compactMoney(totals?.revenue ?? 0)} />
+          <Snap label="Profit · actual" value={compactMoney(totals?.profit ?? 0)} gold />
+          <Snap label="Customers · verified" value={String(customers)} />
+          <Snap label="Level" value={String(level)} />
+        </div>
 
-      <RevenueWallet compact />
-
-      <WorkforceBoard agents={agents} tasks={tasks} />
-
-      <ProofOfWorkStrip tasks={tasks} agents={agents} />
-
-      <CompanyMemoryStrip
-        facts={economy?.memory.facts ?? 0}
-        decisions={economy?.memory.decisions ?? 0}
-        channels={economy?.memory.interactions ?? 0}
-        items={knowledge}
-      />
-
-      <MissionHistoryTimeline
-        missions={missions}
-        onOpen={(id) => setHistoryMissionId(id)}
-      />
-
-      <LevelProgressRail
-        xpLevel={level}
-        milestones={economy?.milestones ?? []}
-        lifetimeRevenue={lifetime}
-        customers={customers}
-      />
-
-      {/* Quests — wheel lives in Daily Engagement above */}
-      <Panel label="Company quests" delay={0.02}>
-        <QuestTrail
-          quests={COMPANY_QUESTS}
-          completed={new Set(progress?.completed_quests ?? [])}
+        <DailyEngagementStrip
+          streakDays={progress?.streak_days ?? 0}
+          mission={focusMission}
+          completedQuests={progress?.completed_quests ?? []}
+          awaitingApproval={awaiting.length}
         />
-      </Panel>
+
+        <SiteGrowthStrip />
+
+        <ActivationChallenge
+          revenue={lifetime}
+          customers={customers}
+          tasksCompleted={economy?.tasksCompleted ?? done}
+          agents={economy?.agentsActive ?? agents.length}
+          actions24hApprox={events.length}
+          productHint={productHint}
+        />
+
+        {needsMailbox ? (
+          <Panel label="Mailbox needed" glow delay={0.01}>
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              Outreach is ready, but agents have no company email yet. Connect Gmail, Outlook, or
+              SMTP — drafts stay AI, every send stays your click.
+            </p>
+            <Link
+              to="/connect"
+              className="mt-4 inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+            >
+              Connect mailbox <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          </Panel>
+        ) : null}
+
+        {/* Pipeline */}
+        <Panel label="Mission → execute → proof → grow" delay={0.01}>
+          <p className="mb-4 text-[13px] text-muted-foreground">
+            Your bottleneck is currently you — until you approve the plan.
+          </p>
+          <MissionPipeline stages={pipeline} />
+        </Panel>
+
+        {/* Approvals — sticky priority */}
+        {showApprovals && (
+          <Panel label="Needs your approval" glow delay={0.01}>
+            <ApprovalsBody
+              socialAwaiting={socialAwaiting}
+              otherAwaiting={otherAwaiting}
+              approve={approve}
+              reject={reject}
+            />
+          </Panel>
+        )}
+
+        <FailedWorkPanel tasks={tasks} agents={agents} />
+
+        {/* Primary mission hero */}
+        <div id="primary-mission">
+          <RevenueMissionsBand />
+        </div>
+
+        {simple && (
+          <StartHere
+            hasConnections={channels.some((c) => c.status === "connected")}
+            hasInstructed={events.some((e) => e.kind === "instruction" || e.kind === "decision")}
+            hasTasks={tasks.length > 0}
+          />
+        )}
+
+        {lifetime === 0 && done === 0 && awaiting.length === 0 && missions.length === 0 && (
+          <Panel label="Your employees are waiting" glow delay={0.01}>
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              Nothing happened yet. That&apos;s about to change — describe a mission above, or ask
+              Atlas to propose next actions.
+            </p>
+            <button
+              type="button"
+              onClick={() => propose.mutate()}
+              disabled={propose.isPending}
+              className="mt-4 rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary hover:bg-primary/22 disabled:opacity-50"
+            >
+              {propose.isPending ? "Proposing…" : "Propose next actions"}
+            </button>
+          </Panel>
+        )}
+
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <LiveCompanyActivity events={events} />
+          <Panel
+            label="Atlas"
+            glow
+            delay={0.06}
+            action={
+              <Link
+                to="/ceo"
+                className="flex items-center gap-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:text-primary"
+              >
+                talk to atlas <ArrowUpRight className="h-3 w-3" />
+              </Link>
+            }
+          >
+            <h3 className="text-xl font-semibold leading-snug">
+              {briefing?.title ??
+                (lifetime === 0 ? "Waiting for your first mission" : "Latest note")}
+            </h3>
+            <div className="mt-3 text-[14px] leading-relaxed text-foreground/85">
+              <StreamText
+                text={
+                  briefing?.body ??
+                  (lifetime === 0
+                    ? "Launch a mission or approve a proposal. I will not invent revenue."
+                    : "No new briefing filed yet — check Live activity for what the team completed.")
+                }
+                speed={14}
+              />
+            </div>
+          </Panel>
+        </div>
+
+        <CompanyEconomicsPanel
+          totals={totals}
+          customers={customers}
+          auraSpentToday={economy?.auraSpentToday ?? 0}
+          dailyAuraBudget={economy?.dailyAuraBudget ?? 120}
+          missionBudgetUsdc={focusMission?.budget_usdc}
+          activeProjectedRevenue={focusMission?.projected?.revenue_usdc}
+          activeTargetUsdc={focusMission?.target_usdc}
+        />
+
+        <RevenueWallet compact />
+
+        <WorkforceBoard agents={agents} tasks={tasks} />
+
+        <ProofOfWorkStrip tasks={tasks} agents={agents} />
+
+        <CompanyMemoryStrip
+          facts={economy?.memory.facts ?? 0}
+          decisions={economy?.memory.decisions ?? 0}
+          channels={economy?.memory.interactions ?? 0}
+          items={knowledge}
+        />
+
+        <MissionHistoryTimeline missions={missions} onOpen={(id) => setHistoryMissionId(id)} />
+
+        <LevelProgressRail
+          xpLevel={level}
+          milestones={economy?.milestones ?? []}
+          lifetimeRevenue={lifetime}
+          customers={customers}
+        />
+
+        {/* Quests — wheel lives in Daily Engagement above */}
+        <Panel label="Company quests" delay={0.02}>
+          <QuestTrail
+            quests={COMPANY_QUESTS}
+            completed={new Set(progress?.completed_quests ?? [])}
+          />
+        </Panel>
       </div>
 
       {/* Mobile mission band below deck (deep work, not a focus card) */}
@@ -607,13 +591,13 @@ function ApprovalsBody({
           <div className="space-y-3">
             {socialAwaiting.slice(0, socialAwaiting.length > 5 ? 5 : 12).map((t) => {
               const draftPreview = t.description
-                ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
+                ? t.description
+                    .replace(/^Draft:\s*/i, "")
+                    .split("\n\nOriginal:")[0]
+                    ?.trim()
                 : null;
               return (
-                <div
-                  key={t.id}
-                  className="rounded-2xl border border-gold/30 bg-gold/5 px-3.5 py-3"
-                >
+                <div key={t.id} className="rounded-2xl border border-gold/30 bg-gold/5 px-3.5 py-3">
                   <div className="flex flex-wrap items-start gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-medium leading-snug">{t.title}</p>
@@ -665,7 +649,10 @@ function ApprovalsBody({
           <div className="space-y-3">
             {otherAwaiting.slice(0, 8).map((t) => {
               const draftPreview = t.description
-                ? t.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
+                ? t.description
+                    .replace(/^Draft:\s*/i, "")
+                    .split("\n\nOriginal:")[0]
+                    ?.trim()
                 : null;
               return (
                 <div
@@ -713,15 +700,7 @@ function ApprovalsBody({
   );
 }
 
-function Snap({
-  label,
-  value,
-  gold,
-}: {
-  label: string;
-  value: string;
-  gold?: boolean;
-}) {
+function Snap({ label, value, gold }: { label: string; value: string; gold?: boolean }) {
   return (
     <div className="glass-soft rounded-2xl p-4">
       <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>

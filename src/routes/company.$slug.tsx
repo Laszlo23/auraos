@@ -120,11 +120,7 @@ function PublicCompanyPage() {
             <Chip tone="gold">Rep {data.reputation}</Chip>
             <Chip tone="primary">{autonomyLabel(data.autonomy)}</Chip>
             {data.seat != null ? <Chip tone="gold">Seat #{data.seat}</Chip> : null}
-            {data.token ? (
-              <Chip tone="gold">
-                ${data.token.symbol} · live
-              </Chip>
-            ) : null}
+            {data.token ? <Chip tone="gold">${data.token.symbol} · live</Chip> : null}
             <Chip>/company/{data.slug}</Chip>
           </div>
           {data.token ? (
@@ -179,7 +175,9 @@ function PublicCompanyPage() {
                           <span className="num text-[11px] text-gold">{currency(r.value)}</span>
                         ) : null}
                       </div>
-                      <p className="mt-1 text-[13px] leading-snug text-foreground/90">{r.message}</p>
+                      <p className="mt-1 text-[13px] leading-snug text-foreground/90">
+                        {r.message}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -256,7 +254,10 @@ function PublicCompanyPage() {
           <Panel label="Shared missions">
             <div className="grid gap-3 sm:grid-cols-2">
               {data.missions.map((m) => (
-                <div key={m.id} className="rounded-2xl border border-border/40 bg-foreground/[0.03] p-4">
+                <div
+                  key={m.id}
+                  className="rounded-2xl border border-border/40 bg-foreground/[0.03] p-4"
+                >
                   <p className="line-clamp-2 text-[13px] font-semibold">{m.goal}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Chip>{m.status}</Chip>

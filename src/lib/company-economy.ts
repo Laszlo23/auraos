@@ -89,11 +89,13 @@ export function computeReputation(opts: {
 }
 
 export function slugifyCompanyName(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 48) || "company";
+  return (
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 48) || "company"
+  );
 }
 
 export const COMPANY_MILESTONES = [
@@ -208,6 +210,13 @@ export function agentsForMission(mission: string): string[] {
   }
   if (/trade|quant|market|portfolio|backtest/.test(m)) {
     set.add("Quant");
+    set.add("Ledger");
+  }
+  if (
+    /bill|invoice|receipt|expense|bookkeep|steuer|tax.?prep|vat|mwst|vorsteuer|rechnung/.test(
+      m,
+    )
+  ) {
     set.add("Ledger");
   }
   if (/website|landing|product|store|shop/.test(m)) {

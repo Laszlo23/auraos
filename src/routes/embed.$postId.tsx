@@ -1,11 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
-import {
-  getSharePost,
-  sharePosterSrc,
-  shareVideoDims,
-  shareVideoSrc,
-} from "@/lib/share-posts";
+import { getSharePost, sharePosterSrc, shareVideoDims, shareVideoSrc } from "@/lib/share-posts";
 import { cn } from "@/lib/utils";
 
 /**

@@ -62,10 +62,7 @@ export function MissionPipeline({ stages, className }: Props) {
               ) : null}
             </div>
             {i < stages.length - 1 ? (
-              <span
-                className="mx-1 hidden text-muted-foreground/40 md:inline"
-                aria-hidden
-              >
+              <span className="mx-1 hidden text-muted-foreground/40 md:inline" aria-hidden>
                 →
               </span>
             ) : null}
@@ -132,20 +129,10 @@ export function deriveMissionPipeline(input: {
           : "locked";
 
   const proof: PipelineStageState =
-    input.completedTasks > 0
-      ? "completed"
-      : input.runningTasks > 0
-        ? "active"
-        : "locked";
+    input.completedTasks > 0 ? "completed" : input.runningTasks > 0 ? "active" : "locked";
 
   const results: PipelineStageState =
-    input.actualRevenue > 0
-      ? "completed"
-      : complete
-        ? "waiting"
-        : active
-          ? "active"
-          : "locked";
+    input.actualRevenue > 0 ? "completed" : complete ? "waiting" : active ? "active" : "locked";
 
   const grow: PipelineStageState =
     input.customers > 0 || input.actualRevenue > 0
@@ -200,9 +187,7 @@ export function deriveMissionPipeline(input: {
       label: "Results",
       state: results,
       detail:
-        input.actualRevenue > 0
-          ? "Settled revenue on ledger"
-          : "Actual only — never projected",
+        input.actualRevenue > 0 ? "Settled revenue on ledger" : "Actual only — never projected",
     },
     {
       id: "grow",

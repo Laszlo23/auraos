@@ -2,11 +2,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import {
-  getSharePost,
-  shareVideoAbsoluteUrl,
-  type SharePost,
-} from "@/lib/share-posts";
+import { getSharePost, shareVideoAbsoluteUrl, type SharePost } from "@/lib/share-posts";
 
 /** Pull /v/{id} from a tweet body (drip captions include the watch URL). */
 export function sharePostIdFromBody(body: string): string | null {

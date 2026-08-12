@@ -41,9 +41,7 @@ export function BetaBadge() {
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           className="pointer-events-none fixed inset-x-0 bottom-[6.75rem] z-[90] flex justify-center px-4 md:inset-x-auto md:bottom-5 md:right-5 md:justify-end md:px-0"
         >
-          <div
-            className="pointer-events-auto group relative flex max-w-[17rem] items-start gap-2.5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[oklch(0.18_0.02_250/0.42)] px-3.5 py-2.5 shadow-[0_12px_40px_oklch(0.08_0.03_250/0.35),inset_0_1px_0_oklch(1_0_0/0.06)] backdrop-blur-xl backdrop-saturate-150"
-          >
+          <div className="pointer-events-auto group relative flex max-w-[17rem] items-start gap-2.5 overflow-hidden rounded-2xl border border-white/[0.08] bg-[oklch(0.18_0.02_250/0.42)] px-3.5 py-2.5 shadow-[0_12px_40px_oklch(0.08_0.03_250/0.35),inset_0_1px_0_oklch(1_0_0/0.06)] backdrop-blur-xl backdrop-saturate-150">
             <span
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,oklch(0.78_0.1_199/0.12),transparent_42%,oklch(0.82_0.1_85/0.06))]"

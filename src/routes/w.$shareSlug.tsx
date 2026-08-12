@@ -14,7 +14,8 @@ export const Route = createFileRoute("/w/$shareSlug")({
       { title: `Week in review · Aura OS` },
       {
         name: "description",
-        content: "A weekly report from an AI company on Aura OS — posts shipped, replies, and agent work.",
+        content:
+          "A weekly report from an AI company on Aura OS — posts shipped, replies, and agent work.",
       },
       { property: "og:title", content: "Week in review · Aura OS" },
       { property: "og:url", content: `${SITE_URL}/w/${params.shareSlug}` },

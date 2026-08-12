@@ -300,7 +300,9 @@ export async function closeYieldPosition(
 
   const now = new Date(nowMs).toISOString();
   const prevMeta =
-    pos.metadata && typeof pos.metadata === "object" ? (pos.metadata as Record<string, unknown>) : {};
+    pos.metadata && typeof pos.metadata === "object"
+      ? (pos.metadata as Record<string, unknown>)
+      : {};
 
   const { data: updated, error: upErr } = await db
     .from("defi_positions")
@@ -366,7 +368,10 @@ export async function accrueOpenYieldPositions(db: Db, limit = 80) {
       nowMs,
     );
     if (!(delta > 0)) {
-      await db.from("defi_positions").update({ last_accrual_at: now, updated_at: now }).eq("id", row.id);
+      await db
+        .from("defi_positions")
+        .update({ last_accrual_at: now, updated_at: now })
+        .eq("id", row.id);
       continue;
     }
     const accrued = Number(row.accrued_usdc) + delta;

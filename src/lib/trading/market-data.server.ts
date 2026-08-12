@@ -135,7 +135,7 @@ export async function fetchCandles(input: {
   // Strategy backtests historically use WETH; chart/pulse may request BTC/SOL.
   const tf = TF_TO_BINANCE[input.timeframe];
   let startTime = input.startTime;
-  let endTime = input.endTime;
+  const endTime = input.endTime;
   let truncated = false;
 
   if (startTime != null && endTime != null && endTime <= startTime) {
@@ -221,9 +221,7 @@ export async function fetchMarketCandles(input: {
 export async function fetchMarkPrice(symbol: string): Promise<{ price: number; source: string }> {
   try {
     const pair = resolvePair(symbol);
-    const res = await fetch(
-      `https://api.binance.com/api/v3/ticker/price?symbol=${pair.binance}`,
-    );
+    const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${pair.binance}`);
     if (res.ok) {
       const json = (await res.json()) as { price?: string };
       const price = Number(json.price);
@@ -264,9 +262,7 @@ export async function fetchLiveMarketQuote(symbol = "WETH/USDC"): Promise<{
 
   const [tickerRes, sparkRes] = await Promise.all([
     fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair.binance}`),
-    fetch(
-      `https://api.binance.com/api/v3/klines?symbol=${pair.binance}&interval=15m&limit=48`,
-    ),
+    fetch(`https://api.binance.com/api/v3/klines?symbol=${pair.binance}&interval=15m&limit=48`),
   ]);
 
   if (!tickerRes.ok) {
@@ -349,9 +345,24 @@ export async function fetchMarketPulse(): Promise<{
   const sol = bySym.get("SOLUSDT") ?? 0;
 
   const rows: MarketPulseRow[] = [
-    { id: "BTC", label: "BTC", change24hPct: Math.round(btc * 100) / 100, mood: moodFromChange(btc) },
-    { id: "ETH", label: "ETH", change24hPct: Math.round(eth * 100) / 100, mood: moodFromChange(eth) },
-    { id: "SOL", label: "SOL", change24hPct: Math.round(sol * 100) / 100, mood: moodFromChange(sol) },
+    {
+      id: "BTC",
+      label: "BTC",
+      change24hPct: Math.round(btc * 100) / 100,
+      mood: moodFromChange(btc),
+    },
+    {
+      id: "ETH",
+      label: "ETH",
+      change24hPct: Math.round(eth * 100) / 100,
+      mood: moodFromChange(eth),
+    },
+    {
+      id: "SOL",
+      label: "SOL",
+      change24hPct: Math.round(sol * 100) / 100,
+      mood: moodFromChange(sol),
+    },
     { id: "USDC", label: "USDC", change24hPct: 0, mood: "stable" },
   ];
   return {

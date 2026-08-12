@@ -76,7 +76,8 @@ async function buildPaymentHeader(opts: {
 
     // x402 exact scheme typically wants signature as concatenated or separate;
     // include both forms for facilitator compatibility.
-    (payload.payload as { signature: string }).signature = `0x${auth.r.slice(2)}${auth.s.slice(2)}${auth.v.toString(16).padStart(2, "0")}`;
+    (payload.payload as { signature: string }).signature =
+      `0x${auth.r.slice(2)}${auth.s.slice(2)}${auth.v.toString(16).padStart(2, "0")}`;
 
     return { header: btoa(JSON.stringify(payload)), simulated: false };
   }
@@ -104,14 +105,12 @@ async function buildPaymentHeader(opts: {
 
 export const agentBuy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: { sessionKeyId: string; companyId: string; slug: string; input: unknown }) => {
-      if (!input.sessionKeyId || !input.companyId || !input.slug) {
-        throw new Error("sessionKeyId, companyId and slug are required.");
-      }
-      return input;
-    },
-  )
+  .validator((input: { sessionKeyId: string; companyId: string; slug: string; input: unknown }) => {
+    if (!input.sessionKeyId || !input.companyId || !input.slug) {
+      throw new Error("sessionKeyId, companyId and slug are required.");
+    }
+    return input;
+  })
   .handler(async ({ data, context }): Promise<AgentPurchase> => {
     const ep = X402_CATALOG.find((e) => e.slug === data.slug);
     if (!ep) throw new Error("Unknown endpoint");

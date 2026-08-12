@@ -7,7 +7,7 @@ function shouldIgnoreSwipeTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false;
   return Boolean(
     target.closest("[data-no-swipe]") ||
-      target.closest('input, textarea, select, [contenteditable="true"]'),
+    target.closest('input, textarea, select, [contenteditable="true"]'),
   );
 }
 

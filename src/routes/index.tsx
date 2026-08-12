@@ -39,13 +39,7 @@ import { ShareMoment } from "@/components/aura/share";
 import { CompanyOrg } from "@/components/aura/company-org";
 import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
-import {
-  LAUNCH_SHARE_TEXT,
-  OG_IMAGE,
-  SITE_URL,
-  TOKEN_LAUNCH_DISPLAY,
-  mediaPath,
-} from "@/lib/site";
+import { LAUNCH_SHARE_TEXT, OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -156,7 +150,9 @@ function UnlockAccessBand() {
             { n: "03", t: "Share one invite", d: "Optional — earn in-app AURA on paid referrals." },
           ].map((s) => (
             <div key={s.n} className="glass rounded-2xl px-4 py-4">
-              <p className="num text-[10px] font-semibold tracking-[0.2em] text-primary/70">{s.n}</p>
+              <p className="num text-[10px] font-semibold tracking-[0.2em] text-primary/70">
+                {s.n}
+              </p>
               <p className="mt-2 text-[13px] font-semibold">{s.t}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">{s.d}</p>
             </div>
@@ -387,7 +383,10 @@ function Landing() {
             Sign in
           </button>
         </div>
-        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" aria-hidden />
+        <div
+          className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          aria-hidden
+        />
       </header>
 
       {/* ACT 00 — one composition: brand · headline · line · CTAs · film */}

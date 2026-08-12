@@ -39,24 +39,25 @@ without a clear security model.
 ## Growth playbook (next)
 
 1. **Register Aura's integrator FIO handle** (e.g. `aura@fiotoken` or our own domain) → set `FIO_TPID` / `VITE_FIO_TPID`.
-2. **Email FIO Partnerships** (`sales@fioprotocol.io`) for:
+2. **Public partner kit** — live at [`/partners/fio`](https://aibusiness.fun/partners/fio): shipped checklist, asks, copyable outreach email + downloadable markdown.
+3. **Email FIO Partnerships** (`sales@fioprotocol.io`) using the kit draft for:
    - Free handles on domain `aura` (or `aibusiness`) for founding/Lokal seats
    - Listing + co-marketing budget
    - Registration Website API access
-3. **Product**: after wallet verify on `/identity`, require or strongly nudge FIO attestation before USDC payouts.
-4. **Collab kit**: expose `resolveFioPublic` to partners; document ETH/BASE/USDC pairs.
-5. **Optional later**: FIO Request for “pay this mission” / Boost top-ups via handle.
+4. **Product soft-gates** (shipped): after wallet verify on `/identity`, toast nudges FIO; USDC send / Quant live / Yield live prompt if not attested.
+5. **Collab kit**: expose `resolveFioPublic` to partners; document ETH/BASE/USDC pairs.
+6. **Optional later**: FIO Request for “pay this mission” / Boost top-ups via handle.
 
 ## Env
 
 ```sh
 FIO_TPID=                    # our FIO handle for fee share
 FIO_DOMAIN=aura              # suggested domain in UI
-FIO_REGISTER_URL=https://www.fio.net/
+FIO_REGISTER_URL=https://app.fio.net/ref/vxkgl
 FIO_API_URL=                 # optional preferred API host
 VITE_FIO_TPID=
 VITE_FIO_DOMAIN=aura
-VITE_FIO_REGISTER_URL=https://www.fio.net/
+VITE_FIO_REGISTER_URL=https://app.fio.net/ref/vxkgl
 ```
 
-Docs: [dev.fio.net](https://dev.fio.net/) · [Benefits](https://dev.fio.net/docs/benefits-of-integration) · [TPID](https://dev.fio.net/docs/tpid)
+Docs: [dev.fio.net](https://dev.fio.net/) · [Benefits](https://dev.fio.net/docs/benefits-of-integration) · [TPID](https://dev.fio.net/docs/tpid) · Referral app: [app.fio.net/ref/vxkgl](https://app.fio.net/ref/vxkgl)

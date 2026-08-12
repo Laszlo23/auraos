@@ -285,10 +285,7 @@ function groundProspectsToSources(
   });
 }
 
-function verifyProspects(
-  prospects: ProspectDraft[],
-  targetCount: number,
-): VerifyResult {
+function verifyProspects(prospects: ProspectDraft[], targetCount: number): VerifyResult {
   const notes: string[] = [];
   const withContact = prospects.filter((p) => p.email || p.phone).length;
   if (prospects.length === 0) notes.push("No prospects extracted from sources.");
@@ -348,10 +345,9 @@ export async function executeAkquiseRun(opts: {
   step(steps, "search", `Searching the web (${provider})`, "running");
 
   // Without Firecrawl, keep the run inside typical server-fn budgets.
-  const maxQueryRounds =
-    provider.startsWith("Firecrawl")
-      ? Math.min(8, plan.queries.length)
-      : Math.min(4, plan.queries.length);
+  const maxQueryRounds = provider.startsWith("Firecrawl")
+    ? Math.min(8, plan.queries.length)
+    : Math.min(4, plan.queries.length);
   const searchErrors: string[] = [];
   for (let i = 0; i < maxQueryRounds; i++) {
     const q = plan.queries[i]!;
@@ -451,10 +447,7 @@ export async function executeAkquiseRun(opts: {
       opts.region,
       opts.objective,
     );
-    prospects = dedupeProspects([
-      ...prospects,
-      ...groundProspectsToSources(more, refreshed),
-    ]);
+    prospects = dedupeProspects([...prospects, ...groundProspectsToSources(more, refreshed)]);
     step(steps, "retry", "Retry with alternate queries", "done", `now ${prospects.length} leads`);
   }
 

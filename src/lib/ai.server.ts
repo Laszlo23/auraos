@@ -13,13 +13,7 @@
  */
 
 export type AiProviderName =
-  | "gemini"
-  | "groq"
-  | "moonshot"
-  | "xai"
-  | "freellm"
-  | "openai"
-  | "lovable";
+  "gemini" | "groq" | "moonshot" | "xai" | "freellm" | "openai" | "lovable";
 
 type Provider = {
   name: AiProviderName;
@@ -47,7 +41,12 @@ function env(...keys: string[]): string | undefined {
 }
 
 function buildProviders(): Record<AiProviderName, Provider | null> {
-  const geminiKey = env("GEMINI_API_KEY", "GOOGLE_GENERATIVE_AI_API_KEY", "GOOGLE_API_KEY", "GENERATIVE_AI_API_KEY");
+  const geminiKey = env(
+    "GEMINI_API_KEY",
+    "GOOGLE_GENERATIVE_AI_API_KEY",
+    "GOOGLE_API_KEY",
+    "GENERATIVE_AI_API_KEY",
+  );
   const groqKey = env("GROQ_API_KEY");
   const moonshotKey = env("MOONSHOT_API_KEY");
   const xaiKey = env("XAI_API_KEY");
@@ -225,8 +224,7 @@ function messageText(choice: {
   const content = typeof msg.content === "string" ? msg.content.trim() : "";
   if (content) return content;
   // Kimi / reasoning models may put the answer only in reasoning_content.
-  const reasoning =
-    typeof msg.reasoning_content === "string" ? msg.reasoning_content.trim() : "";
+  const reasoning = typeof msg.reasoning_content === "string" ? msg.reasoning_content.trim() : "";
   return reasoning || null;
 }
 
@@ -246,8 +244,7 @@ export async function aiChat(opts: {
     ...opts.messages,
   ];
   const maxTokens = Math.min(8192, Math.max(64, opts.maxTokens ?? DEFAULT_MAX_TOKENS));
-  const timeoutMs =
-    opts.timeoutMs ?? (maxTokens > 1500 ? AI_FETCH_MS_LONG : AI_FETCH_MS);
+  const timeoutMs = opts.timeoutMs ?? (maxTokens > 1500 ? AI_FETCH_MS_LONG : AI_FETCH_MS);
 
   let lastError = "AI unavailable";
   for (const p of chain) {

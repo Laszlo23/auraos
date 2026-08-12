@@ -34,7 +34,7 @@ export const getDeskNetworks = createServerFn({ method: "GET" })
 
 export const setDeskNetwork = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { network: string }) => {
+  .validator((input: { network: string }) => {
     const network = resolveNetwork(input.network);
     if (!isDeskNetwork(network) && network !== "base-sepolia" && network !== "opbnb") {
       throw new Error("Unsupported desk network.");

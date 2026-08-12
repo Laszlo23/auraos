@@ -25,8 +25,7 @@ const PROMPTS = [
 const NUDGE_COPY: Record<NudgeReason, string> = {
   hello: "Your company could be running itself by tonight. Want the thirty-second version?",
   idle: "Still looking? I can point you at the one move that matters — the founding seat.",
-  scroll:
-    "You scrolled past the story. The short path: claim a $99 seat and Atlas starts work.",
+  scroll: "You scrolled past the story. The short path: claim a $99 seat and Atlas starts work.",
   exit: "Before you go — founding seats are open at $99. I can walk you there in one step.",
 };
 
@@ -300,7 +299,7 @@ export function Greeter() {
       ) : null}
 
       {/* Launcher */}
-      <div className="pointer-events-none fixed bottom-5 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-7 sm:right-7">
+      <div className="pointer-events-none fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] right-4 z-50 flex flex-col items-end gap-3 md:bottom-7 md:right-7">
         <AnimatePresence>
           {nudge && !open ? (
             <motion.button
@@ -351,7 +350,7 @@ export function Greeter() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            className="glass fixed inset-x-3 bottom-24 z-50 flex max-h-[72vh] flex-col overflow-hidden rounded-3xl shadow-[var(--shadow-glow)] sm:inset-x-auto sm:right-7 sm:bottom-28 sm:h-[30rem] sm:w-[23rem]"
+            className="glass fixed inset-x-3 bottom-[calc(7.5rem+env(safe-area-inset-bottom))] z-50 flex max-h-[min(72vh,calc(100dvh-9.5rem))] flex-col overflow-hidden rounded-3xl shadow-[var(--shadow-glow)] sm:inset-x-auto sm:right-7 sm:bottom-28 sm:h-[30rem] sm:max-h-none sm:w-[23rem]"
           >
             <div className="flex items-center gap-2.5 border-b border-border/60 px-5 py-3">
               <Pulse />

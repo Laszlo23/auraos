@@ -19,9 +19,8 @@ async function ownedCompany(supabase: LooseDb, userId: string) {
 export const getProductImageStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
-    const { geminiImagesConfigured, productImagesConfigured } = await import(
-      "@/lib/marketing.server"
-    );
+    const { geminiImagesConfigured, productImagesConfigured } =
+      await import("@/lib/marketing.server");
     return {
       configured: productImagesConfigured(),
       gemini: geminiImagesConfigured(),
@@ -33,7 +32,7 @@ export const getProductImageStatus = createServerFn({ method: "GET" })
  */
 export const generateProductImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { productId: string; prompt?: string }) => {
+  .validator((input: { productId: string; prompt?: string }) => {
     const productId = String(input.productId ?? "").trim();
     if (!/^[0-9a-f-]{36}$/i.test(productId)) throw new Error("Invalid product.");
     return {
@@ -42,9 +41,8 @@ export const generateProductImage = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data, context }) => {
-    const { generateCreativeImageBytes, productImagesConfigured } = await import(
-      "@/lib/marketing.server"
-    );
+    const { generateCreativeImageBytes, productImagesConfigured } =
+      await import("@/lib/marketing.server");
     if (!productImagesConfigured()) {
       throw new Error(
         "Add GEMINI_API_KEY to .env (preferred) or OPENAI_API_KEY, then restart the server.",
@@ -121,28 +119,26 @@ export const generateProductImage = createServerFn({ method: "POST" })
  */
 export const setProductMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: { productId: string; imageUrl?: string | null; videoUrl?: string | null }) => {
-      const productId = String(input.productId ?? "").trim();
-      if (!/^[0-9a-f-]{36}$/i.test(productId)) throw new Error("Invalid product.");
-      const imageUrl =
-        input.imageUrl === null
-          ? null
-          : input.imageUrl !== undefined
-            ? String(input.imageUrl).trim().slice(0, 2000) || null
-            : undefined;
-      const videoUrl =
-        input.videoUrl === null
-          ? null
-          : input.videoUrl !== undefined
-            ? String(input.videoUrl).trim().slice(0, 2000) || null
-            : undefined;
-      if (imageUrl === undefined && videoUrl === undefined) {
-        throw new Error("Provide imageUrl and/or videoUrl.");
-      }
-      return { productId, imageUrl, videoUrl };
-    },
-  )
+  .validator((input: { productId: string; imageUrl?: string | null; videoUrl?: string | null }) => {
+    const productId = String(input.productId ?? "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(productId)) throw new Error("Invalid product.");
+    const imageUrl =
+      input.imageUrl === null
+        ? null
+        : input.imageUrl !== undefined
+          ? String(input.imageUrl).trim().slice(0, 2000) || null
+          : undefined;
+    const videoUrl =
+      input.videoUrl === null
+        ? null
+        : input.videoUrl !== undefined
+          ? String(input.videoUrl).trim().slice(0, 2000) || null
+          : undefined;
+    if (imageUrl === undefined && videoUrl === undefined) {
+      throw new Error("Provide imageUrl and/or videoUrl.");
+    }
+    return { productId, imageUrl, videoUrl };
+  })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const company = await ownedCompany(supabaseAdmin as unknown as LooseDb, context.userId);

@@ -38,12 +38,17 @@ export type PublicSitePayload = {
     amount_cents: number | null;
   } | null;
   preview: boolean;
-  networkPeers?: { slug: string; company_name: string; city: string | null; niche: string | null }[];
+  networkPeers?: {
+    slug: string;
+    company_name: string;
+    city: string | null;
+    niche: string | null;
+  }[];
   showNetworkStrip?: boolean;
 };
 
 export const getPublicSite = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string; preview?: boolean }) => ({
+  .validator((input: { slug: string; preview?: boolean }) => ({
     slug: String(input.slug).toLowerCase(),
     preview: Boolean(input.preview),
   }))
@@ -98,7 +103,7 @@ export const getPublicSite = createServerFn({ method: "GET" })
   });
 
 export const captureSiteLead = createServerFn({ method: "POST" })
-  .inputValidator((input: { slug: string; email: string; name?: string }) => {
+  .validator((input: { slug: string; email: string; name?: string }) => {
     const email = String(input.email ?? "")
       .trim()
       .toLowerCase();
@@ -132,7 +137,7 @@ export const captureSiteLead = createServerFn({ method: "POST" })
   });
 
 export const createSiteCheckout = createServerFn({ method: "POST" })
-  .inputValidator((input: { slug: string; email: string }) => {
+  .validator((input: { slug: string; email: string }) => {
     const email = String(input.email ?? "")
       .trim()
       .toLowerCase();
@@ -176,8 +181,7 @@ export const createSiteCheckout = createServerFn({ method: "POST" })
     }
 
     const siteOrigin = process.env["SITE_URL"] || SITE_URL;
-    const mode =
-      site.template_id === "subscription_daily" ? "subscription" : "payment";
+    const mode = site.template_id === "subscription_daily" ? "subscription" : "payment";
 
     const params = new URLSearchParams();
     params.set("mode", mode);

@@ -70,11 +70,7 @@ export function SpotTradeTicket({
       if (overBalance) throw new Error("Amount exceeds wallet balance.");
 
       const direction: TreasurySwapDirection =
-        side === "buy"
-          ? "usdc_to_weth"
-          : weth + 1e-9 >= parsed
-            ? "weth_to_usdc"
-            : "eth_to_usdc";
+        side === "buy" ? "usdc_to_weth" : weth + 1e-9 >= parsed ? "weth_to_usdc" : "eth_to_usdc";
 
       // Sell path: ticket amount is ETH; buy path: USDC dollars.
       const human = side === "buy" ? parsed.toFixed(2) : parsed.toFixed(6);
@@ -247,7 +243,10 @@ export function SpotTradeTicket({
       ) : (
         <div className="mt-4 space-y-2">
           <p className="text-[12px] text-muted-foreground">
-            Confirm {side === "buy" ? `spend $${parsed.toFixed(2)} USDC → WETH` : `sell ${parsed} ETH → USDC`}{" "}
+            Confirm{" "}
+            {side === "buy"
+              ? `spend $${parsed.toFixed(2)} USDC → WETH`
+              : `sell ${parsed} ETH → USDC`}{" "}
             via OKX DEX.
           </p>
           <div className="grid grid-cols-2 gap-2">

@@ -71,7 +71,7 @@ export async function searchMem0(
 
     const results = Array.isArray(raw)
       ? raw
-      : ((raw as { results?: unknown })?.results as unknown[]) ?? [];
+      : (((raw as { results?: unknown })?.results as unknown[]) ?? []);
 
     return results
       .map((r) => {

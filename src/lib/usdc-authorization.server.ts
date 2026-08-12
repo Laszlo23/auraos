@@ -2,13 +2,7 @@
  * EIP-3009 TransferWithAuthorization helpers for USDC (x402 exact scheme).
  * Used when agents pay machine APIs from session keys / smart accounts.
  */
-import {
-  type Address,
-  type Hex,
-  encodeFunctionData,
-  keccak256,
-  toHex,
-} from "viem";
+import { type Address, type Hex, encodeFunctionData, keccak256, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
 import { USDC_ADDRESSES, USDC_META, type AuraNetwork, chainId } from "@/lib/chain-config";

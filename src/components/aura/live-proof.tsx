@@ -1,13 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import {
-  Activity,
-  ArrowRight,
-  Bot,
-  Building2,
-  ListTodo,
-  type LucideIcon,
-} from "lucide-react";
+import { Activity, ArrowRight, Bot, Building2, ListTodo, type LucideIcon } from "lucide-react";
 
 import { Pulse } from "@/components/aura/primitives";
 import { ShareMoment } from "@/components/aura/share";
@@ -28,10 +21,7 @@ function feedLine(row: FeedRow): { who: string; what: string } | null {
   const what = (row.title || row.detail || row.kind || "Activity").trim();
   const lower = what.toLowerCase();
   // Hide reply-draft / approval spam from the public proof strip.
-  if (
-    lower.includes("approve") &&
-    (lower.includes("reply") || lower.includes("comment"))
-  ) {
+  if (lower.includes("approve") && (lower.includes("reply") || lower.includes("comment"))) {
     return null;
   }
   if (lower.startsWith("draft:") || lower.includes("social-reply")) {
@@ -100,8 +90,8 @@ export function LiveProof() {
               The operating system is already online.
             </h2>
             <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-              Real companies waking, real AI employees on the roster, real activity in the last day —
-              counted from the live database.
+              Real companies waking, real AI employees on the roster, real activity in the last day
+              — counted from the live database.
             </p>
           </div>
           <Link
@@ -141,7 +131,10 @@ export function LiveProof() {
                   key={`${line.who}-${line.what}-${i}`}
                   className="flex items-start gap-2.5 text-[13px] leading-snug text-muted-foreground"
                 >
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+                  <span
+                    className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                    aria-hidden
+                  />
                   <span>
                     <span className="font-medium text-foreground/90">{line.who}</span>
                     <span className="text-muted-foreground/50"> · </span>

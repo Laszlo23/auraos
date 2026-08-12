@@ -1,11 +1,7 @@
 import type { StrategySpec } from "@/lib/trading/backtest.server";
 
 export type TradingPresetId =
-  | "steady_eth"
-  | "dip_buyer"
-  | "whale_follow"
-  | "scalp_15m"
-  | "breakout_5m";
+  "steady_eth" | "dip_buyer" | "whale_follow" | "scalp_15m" | "breakout_5m";
 
 export type TradingPreset = {
   id: TradingPresetId;

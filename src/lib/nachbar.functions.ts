@@ -5,7 +5,10 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type LooseDb = {
   from: (table: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
+  rpc: (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: Error | null }>;
 };
 
 function asDb(client: unknown): LooseDb {
@@ -33,7 +36,13 @@ export type NachbarHub = {
     welcome_granted_at: string | null;
   };
   ledger: { id: string; kind: string; amount: number; reason: string; created_at: string }[];
-  shops: { id: string; name: string; slug: string | null; city: string | null; niche: string | null }[];
+  shops: {
+    id: string;
+    name: string;
+    slug: string | null;
+    city: string | null;
+    niche: string | null;
+  }[];
   friends: {
     invitee_id: string;
     status: string;
@@ -59,21 +68,28 @@ export const getNachbarHub = createServerFn({ method: "GET" })
 
 export const ensureNachbarProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       city?: string;
       displayName?: string;
       homeCompanyId?: string;
       friendCode?: string;
     }) => ({
-      city: String(input.city || "").trim().slice(0, 80) || undefined,
-      displayName: String(input.displayName || "").trim().slice(0, 80) || undefined,
+      city:
+        String(input.city || "")
+          .trim()
+          .slice(0, 80) || undefined,
+      displayName:
+        String(input.displayName || "")
+          .trim()
+          .slice(0, 80) || undefined,
       homeCompanyId: String(input.homeCompanyId || "").trim() || undefined,
-      friendCode: String(input.friendCode || "")
-        .trim()
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "")
-        .slice(0, 12) || undefined,
+      friendCode:
+        String(input.friendCode || "")
+          .trim()
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "")
+          .slice(0, 12) || undefined,
     }),
   )
   .handler(async ({ data, context }) => {
@@ -89,7 +105,7 @@ export const ensureNachbarProfile = createServerFn({ method: "POST" })
 
 export const requestNachbarCheckin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { code: string; source?: string }) => ({
+  .validator((input: { code: string; source?: string }) => ({
     code: String(input.code || "")
       .trim()
       .toUpperCase()
@@ -164,7 +180,7 @@ export const listOwnerNachbarPendingCheckins = createServerFn({ method: "GET" })
 
 export const confirmNachbarCheckin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { checkinId: string }) => ({
+  .validator((input: { checkinId: string }) => ({
     checkinId: String(input.checkinId || "").trim(),
   }))
   .handler(async ({ data, context }) => {
@@ -182,7 +198,7 @@ export const confirmNachbarCheckin = createServerFn({ method: "POST" })
   });
 
 export const resolveNachbarShopBySlug = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => ({
+  .validator((input: { slug: string }) => ({
     slug: String(input.slug || "")
       .trim()
       .toLowerCase()

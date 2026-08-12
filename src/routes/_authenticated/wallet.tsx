@@ -65,9 +65,7 @@ function WalletPage() {
       />
       <RevenueWallet compact />
       <div className="grid gap-5 lg:grid-cols-2">
-        <SessionKeysPanel
-          walletId={(wallet as { id?: string } | null)?.id ?? null}
-        />
+        <SessionKeysPanel walletId={(wallet as { id?: string } | null)?.id ?? null} />
         <HolderAdvantages perks={perks} />
       </div>
       <details className="group rounded-[1.5rem] border border-border/40 bg-foreground/[0.03] px-5 py-4">

@@ -35,7 +35,12 @@ function NachbarRefDeepLink() {
       }
       navigate({
         to: "/auth",
-        search: { mode: "signup", next: "/nachbar/heute", lang: "de", ref: normalized || undefined },
+        search: {
+          mode: "signup",
+          next: "/nachbar/heute",
+          lang: "de",
+          ref: normalized || undefined,
+        },
         replace: true,
       });
     })();

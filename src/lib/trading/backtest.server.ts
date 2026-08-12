@@ -100,10 +100,8 @@ function summarize(
   const end = curve.at(-1) ?? start;
   const grossWin = wins.reduce((s, t) => s + Math.max(0, t.pnl_usdc), 0);
   const grossLoss = Math.abs(losses.reduce((s, t) => s + Math.min(0, t.pnl_usdc), 0));
-  const avgWin =
-    wins.length > 0 ? wins.reduce((s, t) => s + t.pnl_pct, 0) / wins.length : 0;
-  const avgLoss =
-    losses.length > 0 ? losses.reduce((s, t) => s + t.pnl_pct, 0) / losses.length : 0;
+  const avgWin = wins.length > 0 ? wins.reduce((s, t) => s + t.pnl_pct, 0) / wins.length : 0;
+  const avgLoss = losses.length > 0 ? losses.reduce((s, t) => s + t.pnl_pct, 0) / losses.length : 0;
   const winRate = trades.length ? wins.length / trades.length : 0;
   const expectancy = winRate * avgWin + (1 - winRate) * avgLoss;
 
@@ -114,7 +112,8 @@ function summarize(
     max_drawdown_pct: Number(maxDd.toFixed(2)),
     total_return_pct: Number((((end - start) / start) * 100).toFixed(2)),
     trade_count: trades.length,
-    profit_factor: grossLoss > 0 ? Number((grossWin / grossLoss).toFixed(2)) : grossWin > 0 ? 99 : 0,
+    profit_factor:
+      grossLoss > 0 ? Number((grossWin / grossLoss).toFixed(2)) : grossWin > 0 ? 99 : 0,
     avg_win_pct: Number(avgWin.toFixed(3)),
     avg_loss_pct: Number(avgLoss.toFixed(3)),
     expectancy_pct: Number(expectancy.toFixed(3)),
@@ -195,7 +194,7 @@ export function runBacktest(
 
     if (!position && entrySignal) {
       const size = Math.min(
-        equity * (Math.max(0.1, spec.sizing.risk_pct_equity) / 100) / stop,
+        (equity * (Math.max(0.1, spec.sizing.risk_pct_equity) / 100)) / stop,
         spec.sizing.max_notional_usdc,
         equity * 0.95,
       );
@@ -212,10 +211,8 @@ export function runBacktest(
       const retFromEntry = (price - position.entry) / position.entry;
       const stopHit = barLow <= position.entry * (1 - stop);
       const takeHit = barHigh >= position.entry * (1 + take);
-      const trailHit =
-        trail != null && barLow <= position.peak * (1 - trail);
-      const timeHit =
-        maxHoldMs != null && candle.t - position.opened_at >= maxHoldMs;
+      const trailHit = trail != null && barLow <= position.peak * (1 - trail);
+      const timeHit = maxHoldMs != null && candle.t - position.opened_at >= maxHoldMs;
       const lastBar = i === candles.length - 1;
 
       let exitReason: BacktestTrade["exit_reason"] | null = null;
@@ -260,15 +257,7 @@ export function runBacktest(
     curve.push(Number(equity.toFixed(2)));
   }
 
-  return summarize(
-    trades,
-    curve,
-    startEquity,
-    feeBps,
-    source,
-    spec.timeframe,
-    symbol,
-  );
+  return summarize(trades, curve, startEquity, feeBps, source, spec.timeframe, symbol);
 }
 
 /** Train on first share of bars, test on the rest — honest OOS check. */
@@ -358,8 +347,7 @@ export function buildBacktestRiskCard(
   const uncapped = (start * riskPct) / 100;
   const cappedByNotional = (spec.sizing.max_notional_usdc * stop) / 100;
   const approxLoss = Math.round(Math.min(uncapped, cappedByNotional) * 100) / 100;
-  const worstDd =
-    Math.round(((start * Math.max(0, result.max_drawdown_pct)) / 100) * 100) / 100;
+  const worstDd = Math.round(((start * Math.max(0, result.max_drawdown_pct)) / 100) * 100) / 100;
   return {
     risk_pct_equity: riskPct,
     max_notional_usdc: spec.sizing.max_notional_usdc,

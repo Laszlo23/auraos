@@ -156,9 +156,7 @@ function TeamPage() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
             Token clarity
           </p>
-          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
-            Aura OS ≠ BCC
-          </h2>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">Aura OS ≠ BCC</h2>
           <p className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[13px] leading-relaxed text-foreground">
             {BCC_TOKEN_DISCLAIMER}
           </p>

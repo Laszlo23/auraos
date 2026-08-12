@@ -33,7 +33,11 @@ export function RevenueWallet({ compact }: { compact?: boolean }) {
         </div>
       </div>
       <div className="mt-4 space-y-1">
-        <DataRow label="Profit" value={currency(t.profit)} tone={t.profit >= 0 ? "gold" : "primary"} />
+        <DataRow
+          label="Profit"
+          value={currency(t.profit)}
+          tone={t.profit >= 0 ? "gold" : "primary"}
+        />
         <DataRow label="Expenses" value={currency(t.expenses)} />
         <DataRow
           label="Fee split (settlements)"

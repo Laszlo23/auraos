@@ -162,7 +162,9 @@ export function MissionDetailSheet({
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2">
-                <Chip tone={mission.status === "active" ? "primary" : "gold"}>{mission.status}</Chip>
+                <Chip tone={mission.status === "active" ? "primary" : "gold"}>
+                  {mission.status}
+                </Chip>
                 {mission.plan?.feasibility ? (
                   <Chip tone="gold">{mission.plan.feasibility}</Chip>
                 ) : null}
@@ -170,14 +172,8 @@ export function MissionDetailSheet({
 
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Mini label="Target" value={currency(mission.target_usdc)} />
-                <Mini
-                  label="Current"
-                  value={currency(mission.actuals?.revenue_usdc ?? 0)}
-                />
-                <Mini
-                  label="Projected"
-                  value={currency(mission.projected?.revenue_usdc ?? 0)}
-                />
+                <Mini label="Current" value={currency(mission.actuals?.revenue_usdc ?? 0)} />
+                <Mini label="Projected" value={currency(mission.projected?.revenue_usdc ?? 0)} />
                 <Mini
                   label="Deadline"
                   value={mission.deadline_at ? timeAgo(mission.deadline_at) : "—"}
@@ -262,9 +258,7 @@ export function MissionDetailSheet({
                     ) : null}
                     <p className="text-[11px] text-muted-foreground">
                       {nba.assignee ? `${nba.assignee} · ` : ""}
-                      {nba.expected_cost_aura != null
-                        ? `${nba.expected_cost_aura} AURA`
-                        : null}
+                      {nba.expected_cost_aura != null ? `${nba.expected_cost_aura} AURA` : null}
                       {nba.expected_upside_usdc != null
                         ? ` · upside ${currency(nba.expected_upside_usdc)}`
                         : null}
@@ -300,24 +294,26 @@ export function MissionDetailSheet({
                   {events.length === 0 ? (
                     <li className="text-muted-foreground">Events appear as employees work…</li>
                   ) : (
-                    events.slice(0, 12).map(
-                      (ev: {
-                        id: string;
-                        agent_name?: string | null;
-                        message?: string | null;
-                        created_at?: string | null;
-                      }) => (
-                        <li key={ev.id} className="border-b border-border/40 pb-2 last:border-0">
-                          <span className="font-medium">{ev.agent_name ?? "Aura"}</span>
-                          <span className="text-muted-foreground"> · {ev.message}</span>
-                          {ev.created_at ? (
-                            <span className="ml-2 text-[10px] text-muted-foreground">
-                              {timeAgo(ev.created_at)}
-                            </span>
-                          ) : null}
-                        </li>
-                      ),
-                    )
+                    events
+                      .slice(0, 12)
+                      .map(
+                        (ev: {
+                          id: string;
+                          agent_name?: string | null;
+                          message?: string | null;
+                          created_at?: string | null;
+                        }) => (
+                          <li key={ev.id} className="border-b border-border/40 pb-2 last:border-0">
+                            <span className="font-medium">{ev.agent_name ?? "Aura"}</span>
+                            <span className="text-muted-foreground"> · {ev.message}</span>
+                            {ev.created_at ? (
+                              <span className="ml-2 text-[10px] text-muted-foreground">
+                                {timeAgo(ev.created_at)}
+                              </span>
+                            ) : null}
+                          </li>
+                        ),
+                      )
                   )}
                 </ul>
               </Panel>

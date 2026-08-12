@@ -324,8 +324,8 @@ function CommunityPage() {
             <div className="flex items-start gap-3">
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
               <p className="text-[13px] leading-relaxed text-muted-foreground">
-                Connect your channels early so agents can draft posts and replies for you to
-                approve — that is how companies compound reach. Fair launch is on the public clock.
+                Connect your channels early so agents can draft posts and replies for you to approve
+                — that is how companies compound reach. Fair launch is on the public clock.
               </p>
             </div>
           </Panel>

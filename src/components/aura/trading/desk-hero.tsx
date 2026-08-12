@@ -139,7 +139,11 @@ export function DeskHero({
             onClick={() => onArm(false)}
             className="inline-flex items-center gap-2 rounded-2xl bg-destructive/18 px-4 py-2 text-xs font-semibold text-destructive disabled:opacity-50"
           >
-            {armBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Pause className="h-3.5 w-3.5" />}
+            {armBusy ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Pause className="h-3.5 w-3.5" />
+            )}
             Disarm
           </button>
         ) : (
@@ -150,7 +154,11 @@ export function DeskHero({
             onClick={() => onArm(true)}
             className="inline-flex items-center gap-2 rounded-2xl bg-gold px-4 py-2 text-xs font-semibold text-background disabled:opacity-45"
           >
-            {armBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+            {armBusy ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Play className="h-3.5 w-3.5" />
+            )}
             Arm Quant
           </button>
         )}
@@ -204,7 +212,12 @@ export function DeskHero({
             )}
           </p>
           {quote ? (
-            <p className={cn("mt-1 text-sm font-semibold num", up ? "text-gold" : "text-destructive")}>
+            <p
+              className={cn(
+                "mt-1 text-sm font-semibold num",
+                up ? "text-gold" : "text-destructive",
+              )}
+            >
               {up ? "+" : ""}
               {quote.change24hPct.toFixed(2)}%
             </p>
@@ -214,15 +227,21 @@ export function DeskHero({
         {quote ? (
           <div className="grid grid-cols-3 gap-4 text-[12px]">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">24h High</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                24h High
+              </p>
               <p className="num mt-1 font-semibold">{currency(quote.high24h, 2)}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">24h Low</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                24h Low
+              </p>
               <p className="num mt-1 font-semibold">{currency(quote.low24h, 2)}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Volume</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                Volume
+              </p>
               <p className="num mt-1 font-semibold">${compact(quote.volumeQuote)}</p>
             </div>
           </div>

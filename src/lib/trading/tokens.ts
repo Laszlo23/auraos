@@ -1,10 +1,5 @@
 import type { AuraNetwork } from "@/lib/chain-config";
-import {
-  USDC_ADDRESSES,
-  USDC_DECIMALS,
-  explorerBaseUrl,
-  networkSpec,
-} from "@/lib/chain-config";
+import { USDC_ADDRESSES, USDC_DECIMALS, explorerBaseUrl, networkSpec } from "@/lib/chain-config";
 
 /** Native asset sentinel used by OKX DEX (ETH or BNB depending on chain). */
 export const NATIVE_ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as const;
@@ -27,12 +22,7 @@ export const WBNB_ADDRESSES = {
 } as const;
 
 export type TradableSymbol =
-  | "WETH/USDC"
-  | "WBNB/USDC"
-  | "ETH/USDC"
-  | "BNB/USDC"
-  | "WETH/USDG"
-  | "ETH/USDG";
+  "WETH/USDC" | "WBNB/USDC" | "ETH/USDC" | "BNB/USDC" | "WETH/USDG" | "ETH/USDG";
 
 export function tradableSymbolsFor(network: AuraNetwork): TradableSymbol[] {
   const pair = networkSpec(network).primaryPair;

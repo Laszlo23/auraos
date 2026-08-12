@@ -151,8 +151,7 @@ export function grantKitMarkdown(t: GrantTraction): string {
     "",
     "## Programmes (apply via official portal — do not invent emails)",
     ...priorityApplyOrder().map(
-      (p) =>
-        `- **${p.org} — ${p.program}** [${p.status}](${p.url}) — ${p.gives}`,
+      (p) => `- **${p.org} — ${p.program}** [${p.status}](${p.url}) — ${p.gives}`,
     ),
     "",
     "## Ready outreach bodies (optional; prefer portal submit)",

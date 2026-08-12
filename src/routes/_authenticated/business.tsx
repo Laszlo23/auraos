@@ -204,8 +204,8 @@ function BusinessHubPage() {
             >
               <p className="text-sm text-muted-foreground">
                 First {LOCAL_COHORT_CAP} local businesses get up to {REVIEW_BOOST_INVITE_GOAL}{" "}
-                review <span className="text-foreground">invites</span>. Agents help you ask —
-                you approve every send. We never invent Google reviews.
+                review <span className="text-foreground">invites</span>. Agents help you ask — you
+                approve every send. We never invent Google reviews.
               </p>
               <label className="mt-4 block text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Google review link
@@ -259,7 +259,10 @@ function BusinessHubPage() {
                       ["Total", stats.total],
                     ] as const
                   ).map(([label, n]) => (
-                    <div key={label} className="rounded-2xl border border-border/40 bg-foreground/4 p-3">
+                    <div
+                      key={label}
+                      className="rounded-2xl border border-border/40 bg-foreground/4 p-3"
+                    >
                       <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                         {label}
                       </p>
@@ -272,7 +275,8 @@ function BusinessHubPage() {
                 <div className="mt-4 space-y-2">
                   <Meter
                     value={
-                      ((stats?.total ?? 0) / (hubQ.data.campaign.goal_invites || REVIEW_BOOST_INVITE_GOAL)) *
+                      ((stats?.total ?? 0) /
+                        (hubQ.data.campaign.goal_invites || REVIEW_BOOST_INVITE_GOAL)) *
                       100
                     }
                     tone="gold"
@@ -320,45 +324,46 @@ function BusinessHubPage() {
                         status: string;
                         trackUrl: string;
                       }) => (
-                      <li
-                        key={inv.id}
-                        className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/40 px-3 py-2.5 text-sm"
-                      >
-                        <Star className="h-3.5 w-3.5 text-gold" />
-                        <span className="min-w-0 flex-1 truncate">
-                          {inv.recipient_name || inv.recipient_email}
-                        </span>
-                        <Chip className="text-[10px]">{inv.status}</Chip>
-                        <button
-                          type="button"
-                          className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
-                          onClick={async () => {
-                            await navigator.clipboard.writeText(inv.trackUrl);
-                            toast.success("Track link copied — paste into your email.");
-                          }}
+                        <li
+                          key={inv.id}
+                          className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/40 px-3 py-2.5 text-sm"
                         >
-                          <Copy className="h-3 w-3" /> Link
-                        </button>
-                        {inv.status === "draft" || inv.status === "queued" ? (
-                          <button
-                            type="button"
-                            className="text-[11px] font-semibold text-primary"
-                            onClick={() => markSent.mutate(inv.id)}
-                          >
-                            Mark sent
-                          </button>
-                        ) : null}
-                        {inv.status !== "completed" ? (
+                          <Star className="h-3.5 w-3.5 text-gold" />
+                          <span className="min-w-0 flex-1 truncate">
+                            {inv.recipient_name || inv.recipient_email}
+                          </span>
+                          <Chip className="text-[10px]">{inv.status}</Chip>
                           <button
                             type="button"
                             className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
-                            onClick={() => markDone.mutate(inv.id)}
+                            onClick={async () => {
+                              await navigator.clipboard.writeText(inv.trackUrl);
+                              toast.success("Track link copied — paste into your email.");
+                            }}
                           >
-                            <Check className="h-3 w-3" /> Got review
+                            <Copy className="h-3 w-3" /> Link
                           </button>
-                        ) : null}
-                      </li>
-                    ))}
+                          {inv.status === "draft" || inv.status === "queued" ? (
+                            <button
+                              type="button"
+                              className="text-[11px] font-semibold text-primary"
+                              onClick={() => markSent.mutate(inv.id)}
+                            >
+                              Mark sent
+                            </button>
+                          ) : null}
+                          {inv.status !== "completed" ? (
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+                              onClick={() => markDone.mutate(inv.id)}
+                            >
+                              <Check className="h-3 w-3" /> Got review
+                            </button>
+                          ) : null}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </div>
               ) : null}
@@ -370,9 +375,7 @@ function BusinessHubPage() {
               </p>
               <p className="mt-3 text-[12px] text-muted-foreground">
                 Connected:{" "}
-                {connected.length
-                  ? connected.map((c) => c.provider).join(" · ")
-                  : "none yet"}
+                {connected.length ? connected.map((c) => c.provider).join(" · ") : "none yet"}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Link

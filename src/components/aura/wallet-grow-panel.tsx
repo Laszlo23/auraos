@@ -1,14 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Droplets,
-  Landmark,
-  LineChart,
-  Loader2,
-  PiggyBank,
-  Sparkles,
-  Wallet,
-} from "lucide-react";
+import { Droplets, Landmark, LineChart, Loader2, PiggyBank, Sparkles, Wallet } from "lucide-react";
 
 import { Panel } from "@/components/aura/primitives";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
@@ -121,8 +113,8 @@ export function WalletGrowPanel({
       <Panel label="Where your money is" glow>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
           Money in Aave or a pool is{" "}
-          <span className="font-semibold text-foreground">still yours</span> — it left the
-          liquid USDC line so it can earn. This tab is the full picture.
+          <span className="font-semibold text-foreground">still yours</span> — it left the liquid
+          USDC line so it can earn. This tab is the full picture.
         </p>
 
         {loading ? (
@@ -236,8 +228,7 @@ export function WalletGrowPanel({
             {openYield.map((p) => {
               const cat = yieldCatalogById(p.catalog_id);
               const Icon = kindIcon(p.kind);
-              const name =
-                p.metadata?.name || cat?.name || `${p.protocol} · ${p.catalog_id}`;
+              const name = p.metadata?.name || cat?.name || `${p.protocol} · ${p.catalog_id}`;
               const mark = Number(p.mark_usdc) || Number(p.principal_usdc);
               const accrued = Number(p.accrued_usdc) || 0;
               return (
@@ -380,9 +371,9 @@ export function WalletWorkingHint({
         Funds are working — not gone
       </p>
       <p className="mt-1 text-[13px] text-foreground">
-        <span className="font-mono font-semibold">{currency(workingUsdc, 2)}</span> in
-        liquidity / trading ·{" "}
-        <span className="font-mono font-semibold">{currency(cashUsdc, 2)}</span> still liquid
+        <span className="font-mono font-semibold">{currency(workingUsdc, 2)}</span> in liquidity /
+        trading · <span className="font-mono font-semibold">{currency(cashUsdc, 2)}</span> still
+        liquid
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">Tap Grow for the full breakdown →</p>
     </button>

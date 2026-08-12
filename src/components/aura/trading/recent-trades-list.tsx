@@ -43,8 +43,7 @@ export function RecentTradesList({
         <ul className="mt-3 divide-y divide-border/40">
           {rows.map((t) => {
             const sym = t.symbol.replace("/USDC", "").replace("WETH", "ETH");
-            const pct =
-              t.entry > 0 && t.exit != null ? ((t.exit - t.entry) / t.entry) * 100 : null;
+            const pct = t.entry > 0 && t.exit != null ? ((t.exit - t.entry) / t.entry) * 100 : null;
             const won = t.pnl >= 0;
             return (
               <li key={t.id} className="flex items-center justify-between gap-3 py-2.5">
@@ -55,7 +54,12 @@ export function RecentTradesList({
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className={cn("num text-sm font-semibold", won ? "text-gold" : "text-destructive")}>
+                  <p
+                    className={cn(
+                      "num text-sm font-semibold",
+                      won ? "text-gold" : "text-destructive",
+                    )}
+                  >
                     {won ? "+" : ""}
                     {currency(t.pnl, 2)}
                   </p>

@@ -25,8 +25,7 @@ function resolveDdgHref(rawHref: string): string | null {
 
 describe("akquise duckduckgo href resolve", () => {
   it("unwraps protocol-relative /l/?uddg= redirects", () => {
-    const raw =
-      "//duckduckgo.com/l/?uddg=https%3A%2F%2Fossig.at%2F&amp;rut=abc";
+    const raw = "//duckduckgo.com/l/?uddg=https%3A%2F%2Fossig.at%2F&amp;rut=abc";
     expect(resolveDdgHref(raw)).toBe("https://ossig.at/");
   });
 

@@ -42,7 +42,8 @@ export function SmartWalletPanel({
   const deployed =
     treasury.data?.deployed ?? Boolean((wallet as { deployed?: boolean } | null)?.deployed);
   const legacy = Boolean((wallet as { legacy?: boolean } | null)?.legacy);
-  const chain = treasury.data?.network ?? (wallet as { chain?: string } | null)?.chain ?? "base-sepolia";
+  const chain =
+    treasury.data?.network ?? (wallet as { chain?: string } | null)?.chain ?? "base-sepolia";
   const usdc = treasury.data?.usdc ?? null;
   const eth = treasury.data?.eth ?? null;
   const sponsored = Boolean(treasury.data?.sponsored);
@@ -126,17 +127,13 @@ export function SmartWalletPanel({
             <span>
               USDC ·{" "}
               <span className="num text-gold">
-                {usdc === null
-                  ? "…"
-                  : usdc.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                {usdc === null ? "…" : usdc.toLocaleString(undefined, { maximumFractionDigits: 4 })}
               </span>
             </span>
             <span>
               ETH ·{" "}
               <span className="num text-foreground">
-                {eth === null
-                  ? "…"
-                  : eth.toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                {eth === null ? "…" : eth.toLocaleString(undefined, { maximumFractionDigits: 6 })}
               </span>
             </span>
             {sponsored ? <span className="text-primary">Gas sponsored by Aura</span> : null}

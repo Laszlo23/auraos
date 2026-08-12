@@ -152,9 +152,7 @@ export function BacktestLab({
           companyId,
           strategyId: selected.id,
           walkForward,
-          ...(mode === "range"
-            ? { fromMs, toMs }
-            : { bars }),
+          ...(mode === "range" ? { fromMs, toMs } : { bars }),
         },
       });
       const snapshot: BacktestSnapshot = {
@@ -260,8 +258,8 @@ export function BacktestLab({
           <div className="rounded-2xl border border-dashed border-border/60 bg-foreground/[0.02] px-5 py-8 text-center">
             <p className="text-sm font-medium">Pick a preset above first</p>
             <p className="mt-2 text-[13px] text-muted-foreground">
-              Steady ETH drafts a strategy and runs an initial backtest automatically. You can re-run
-              a deeper lab here anytime.
+              Steady ETH drafts a strategy and runs an initial backtest automatically. You can
+              re-run a deeper lab here anytime.
             </p>
           </div>
         ) : (
@@ -297,7 +295,9 @@ export function BacktestLab({
                 onClick={() => setMode("range")}
                 className={cn(
                   "rounded-full px-3 py-1.5 text-[11px] font-semibold",
-                  mode === "range" ? "bg-primary/16 text-primary" : "bg-foreground/6 text-muted-foreground",
+                  mode === "range"
+                    ? "bg-primary/16 text-primary"
+                    : "bg-foreground/6 text-muted-foreground",
                 )}
               >
                 Date range
@@ -307,7 +307,9 @@ export function BacktestLab({
                 onClick={() => setMode("recent")}
                 className={cn(
                   "rounded-full px-3 py-1.5 text-[11px] font-semibold",
-                  mode === "recent" ? "bg-primary/16 text-primary" : "bg-foreground/6 text-muted-foreground",
+                  mode === "recent"
+                    ? "bg-primary/16 text-primary"
+                    : "bg-foreground/6 text-muted-foreground",
                 )}
               >
                 Recent bars
@@ -414,7 +416,9 @@ export function BacktestLab({
                             <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
                           )}
                         </span>
-                        <span className={cn(active && "font-medium text-foreground")}>{s.label}</span>
+                        <span className={cn(active && "font-medium text-foreground")}>
+                          {s.label}
+                        </span>
                       </li>
                     );
                   })}
@@ -494,8 +498,9 @@ export function BacktestLab({
               </div>
             ) : !running ? (
               <p className="mt-5 text-[13px] text-muted-foreground">
-                No lab result on this strategy yet. Hit <span className="font-semibold">Run backtest</span>{" "}
-                — we will walk you through the scores when it finishes.
+                No lab result on this strategy yet. Hit{" "}
+                <span className="font-semibold">Run backtest</span> — we will walk you through the
+                scores when it finishes.
               </p>
             ) : null}
           </>

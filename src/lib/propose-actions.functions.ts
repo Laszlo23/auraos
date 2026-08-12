@@ -27,7 +27,7 @@ type Db = {
 
 export const proposeNextActionsAi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; instruction?: string }) => ({
+  .validator((input: { companyId: string; instruction?: string }) => ({
     companyId: String(input.companyId),
     instruction:
       typeof input.instruction === "string" ? input.instruction.trim().slice(0, 4000) : undefined,
@@ -84,6 +84,7 @@ Rules:
 - Use only facts from company context. Never invent MRR, customers, revenue, or followers.
 - Each task must be executable by one agent and produce a real deliverable (brief, research with sources when possible, outreach list, offer definition).
 - Prefer research / offer clarity / first customers when the company is empty.
+- If founder direction mentions bills, invoices, receipts, expenses, bookkeeping, Steuer, VAT/MwSt, or tax prep — assign Ledger and point them to Files → Upload bill / Tax prep (assistive only, not filing advice).
 - If founder direction is provided, ground every proposal in that direction.
 - agent must be one of: ${roster}
 - priority: low|medium|high|critical
@@ -93,10 +94,16 @@ Return JSON: {"proposals":[{"title":"...","description":"...","agent":"Cass","pr
         `Strategy: ${company.strategy ?? "not set"}`,
         `Autonomy: ${company.autonomy ?? 0} (0=ask first)`,
         `Agents: ${
-          ((agents ?? []) as { name: string; role: string; tasks_completed?: number; current_task: string }[])
+          (
+            (agents ?? []) as {
+              name: string;
+              role: string;
+              tasks_completed?: number;
+              current_task: string;
+            }[]
+          )
             .map(
-              (a) =>
-                `${a.name} (${a.role}) tasks=${a.tasks_completed ?? 0} now=${a.current_task}`,
+              (a) => `${a.name} (${a.role}) tasks=${a.tasks_completed ?? 0} now=${a.current_task}`,
             )
             .join(" | ") || "Atlas only"
         }`,
@@ -127,8 +134,7 @@ Return JSON: {"proposals":[{"title":"...","description":"...","agent":"Cass","pr
       .filter((p) => p && typeof p.title === "string" && p.title.trim())
       .slice(0, 3)
       .map((p) => {
-        const agentName =
-          typeof p.agent === "string" && AGENT_ROSTER[p.agent] ? p.agent : "Atlas";
+        const agentName = typeof p.agent === "string" && AGENT_ROSTER[p.agent] ? p.agent : "Atlas";
         const priority =
           p.priority === "low" ||
           p.priority === "medium" ||
@@ -138,10 +144,9 @@ Return JSON: {"proposals":[{"title":"...","description":"...","agent":"Cass","pr
             : "medium";
         return {
           title: String(p.title).slice(0, 160),
-          description: String(p.description ?? "Execute and file a brief for founder review.").slice(
-            0,
-            1200,
-          ),
+          description: String(
+            p.description ?? "Execute and file a brief for founder review.",
+          ).slice(0, 1200),
           agent: agentName,
           priority,
         };

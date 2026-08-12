@@ -195,11 +195,11 @@ export function BacktestResultsDialog({
                     tone="gold"
                   />
                   <DataRow label="Max swap size" value={`$${risk.max_notional_usdc}`} />
-                  <DataRow label="Stop / take" value={`${risk.stop_pct}% / ${risk.take_profit_pct}%`} />
                   <DataRow
-                    label="Sim fee model"
-                    value={`${risk.fee_bps} bps round-trip`}
+                    label="Stop / take"
+                    value={`${risk.stop_pct}% / ${risk.take_profit_pct}%`}
                   />
+                  <DataRow label="Sim fee model" value={`${risk.fee_bps} bps round-trip`} />
                 </div>
               </div>
             </div>
@@ -212,7 +212,8 @@ export function BacktestResultsDialog({
               Walk-forward check · held-out {oos.test_bars ?? "—"} bars
             </p>
             <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
-              Trained on earlier bars, then scored on unseen bars so the number is harder to overfit.
+              Trained on earlier bars, then scored on unseen bars so the number is harder to
+              overfit.
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <DataRow
@@ -280,8 +281,8 @@ export function BacktestResultsDialog({
           <p className="mt-1.5">
             Live Quant places real Base swaps from your smart wallet (WETH/USDC). You need a little{" "}
             <span className="text-foreground">ETH for gas</span> (or a sponsored wallet path), plus
-            USDC for the trade. DEX fees and slippage are separate from this backtest&apos;s flat fee
-            model.
+            USDC for the trade. DEX fees and slippage are separate from this backtest&apos;s flat
+            fee model.
           </p>
           <p className="mt-2 text-[11px]">
             {bt.honesty_note ?? bt.source ?? "Proxy candles — not live Base fill history."}

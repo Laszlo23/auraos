@@ -111,7 +111,7 @@ export function Explainer() {
           >
             <div className="flex items-center justify-between gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/12 text-primary">
-                  <s.icon className="h-4 w-4" />
+                <s.icon className="h-4 w-4" />
               </span>
               <span className="num text-[11px] tracking-[0.3em] text-primary">{s.no}</span>
             </div>
@@ -134,7 +134,9 @@ export function Explainer() {
                 </span>
                 <div>
                   <p className="text-[14px] font-semibold">{w.title}</p>
-                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{w.body}</p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+                    {w.body}
+                  </p>
                 </div>
               </div>
             ))}

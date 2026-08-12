@@ -29,7 +29,9 @@ const BASE_CAMPAIGN_KEYS = new Set([
   "status",
 ]);
 
-export function isMissingColumnError(error: { message?: string; code?: string } | null | undefined) {
+export function isMissingColumnError(
+  error: { message?: string; code?: string } | null | undefined,
+) {
   if (!error) return false;
   const msg = error.message ?? "";
   return (
@@ -118,7 +120,11 @@ export async function insertAkquiseCampaign(
   supabase: LooseDb,
   row: Record<string, unknown>,
 ): Promise<string> {
-  const { data, error } = await supabase.from("akquise_campaigns").insert(row).select("id").single();
+  const { data, error } = await supabase
+    .from("akquise_campaigns")
+    .insert(row)
+    .select("id")
+    .single();
   if (!error && data?.id) return data.id as string;
   if (!isMissingColumnError(error)) throw error ?? new Error("Could not create campaign");
 
@@ -167,7 +173,8 @@ export async function updateAkquiseCampaign(
   if (patch["template"] != null || prev["template"] != null) {
     meta.template = String(patch["template"] ?? prev["template"]);
   }
-  if (patch["plan"] !== undefined || prev["plan"] !== undefined) meta.plan = patch["plan"] ?? prev["plan"];
+  if (patch["plan"] !== undefined || prev["plan"] !== undefined)
+    meta.plan = patch["plan"] ?? prev["plan"];
   if (patch["steps"] !== undefined || prev["steps"] !== undefined) {
     meta.steps = patch["steps"] ?? prev["steps"];
   }
@@ -199,10 +206,7 @@ export async function updateAkquiseCampaign(
   return { extended: false };
 }
 
-export async function insertAkquiseLeadsSafe(
-  supabase: LooseDb,
-  rows: Record<string, unknown>[],
-) {
+export async function insertAkquiseLeadsSafe(supabase: LooseDb, rows: Record<string, unknown>[]) {
   if (!rows.length) return 0;
   const { error } = await supabase.from("akquise_leads").insert(rows);
   if (!error) return rows.length;

@@ -26,13 +26,14 @@ export async function ensureActiveTradingSeason(db: Admin) {
     .select("*")
     .eq("slug", slug)
     .maybeSingle();
-  if (existing) return existing as {
-    id: string;
-    slug: string;
-    starts_at: string;
-    ends_at: string;
-    status: string;
-  };
+  if (existing)
+    return existing as {
+      id: string;
+      slug: string;
+      starts_at: string;
+      ends_at: string;
+      status: string;
+    };
 
   // Close prior active seasons
   await db
@@ -78,10 +79,7 @@ export function scoreDeskWeek(opts: {
 
 export async function recomputeTradingArena(db: Admin) {
   const season = await ensureActiveTradingSeason(db);
-  const { data: companies } = await db
-    .from("companies")
-    .select("id, name")
-    .limit(200);
+  const { data: companies } = await db.from("companies").select("id, name").limit(200);
 
   const rows: {
     season_id: string;

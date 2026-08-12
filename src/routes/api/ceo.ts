@@ -88,7 +88,8 @@ ${contextBlock}`;
             .catch(() => undefined);
         }
 
-        return stream;      },
+        return stream;
+      },
     },
   },
 });

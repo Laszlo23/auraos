@@ -26,10 +26,7 @@ export const SPOT_RISK_POLICY_LABEL =
 export function clampFounderRiskPct(pct: number): number {
   const n = Number(pct);
   if (!Number.isFinite(n)) return SPOT_RISK_DEFAULT_PCT;
-  return Math.min(
-    SPOT_RISK_FOUNDER_MAX_PCT,
-    Math.max(SPOT_RISK_FOUNDER_MIN_PCT, n),
-  );
+  return Math.min(SPOT_RISK_FOUNDER_MAX_PCT, Math.max(SPOT_RISK_FOUNDER_MIN_PCT, n));
 }
 
 /**

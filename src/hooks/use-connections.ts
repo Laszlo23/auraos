@@ -157,7 +157,12 @@ export function useConnectChannel() {
         if (started.mode === "agent" && started.approved) {
           return;
         }
-        if (started.mode !== "managed" || !started.approvalUrl || !started.state || !started.signerUuid) {
+        if (
+          started.mode !== "managed" ||
+          !started.approvalUrl ||
+          !started.state ||
+          !started.signerUuid
+        ) {
           throw new Error("Farcaster connect did not return an approval link.");
         }
         const popup = window.open("", "aura-social", "width=620,height=760");
@@ -189,7 +194,9 @@ export function useConnectChannel() {
               throw new Error("Farcaster connect was cancelled.");
             }
           }
-          throw new Error("Timed out waiting for Farcaster approval — open Warpcast and try again.");
+          throw new Error(
+            "Timed out waiting for Farcaster approval — open Warpcast and try again.",
+          );
         } catch (error) {
           try {
             popup.close();

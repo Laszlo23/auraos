@@ -7,12 +7,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { triggerWorkerTick } from "@/lib/worker.functions";
 
 export type AutomationJobKey =
-  | "tasks"
-  | "channels"
-  | "engagement"
-  | "trading"
-  | "site_leads"
-  | "subscriptions";
+  "tasks" | "channels" | "engagement" | "trading" | "site_leads" | "subscriptions";
 
 export type AutomationDeskStatus = {
   companyId: string;

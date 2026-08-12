@@ -1,15 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useLayoutEffect, useState } from "react";
-import {
-  ClipboardCheck,
-  Heart,
-  KeyRound,
-  Megaphone,
-  Star,
-  Store,
-  Users,
-} from "lucide-react";
+import { ClipboardCheck, Heart, KeyRound, Megaphone, Star, Store, Users } from "lucide-react";
 
 import {
   FunnelCloseBand,
@@ -293,7 +285,10 @@ function LokalLandingPage() {
       </section>
 
       <div className="border-t border-border/40 px-6 py-8 text-center">
-        <a href={loginHref} className="text-sm text-muted-foreground underline-offset-4 hover:underline">
+        <a
+          href={loginHref}
+          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+        >
           {tr("lokal.ctaLogin")}
         </a>
       </div>

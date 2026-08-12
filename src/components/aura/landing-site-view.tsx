@@ -21,17 +21,20 @@ export function LandingSiteView({
   product?: { name: string; amount_cents: number | null; interval: string } | null;
   interactive?: boolean;
   preview?: boolean;
-  networkPeers?: { slug: string; company_name: string; city: string | null; niche: string | null }[];
+  networkPeers?: {
+    slug: string;
+    company_name: string;
+    city: string | null;
+    niche: string | null;
+  }[];
   showNetworkStrip?: boolean;
 }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const needsCheckout =
-    templateId === "subscription_daily" || templateId === "ebook_product";
-  const needsLead =
-    templateId === "lead_magnet" || templateId === "service_offer";
+  const needsCheckout = templateId === "subscription_daily" || templateId === "ebook_product";
+  const needsLead = templateId === "lead_magnet" || templateId === "service_offer";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -88,9 +88,7 @@ export function AssignAgentTask({
     >
       {variant === "sheet" ? (
         <>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Assign a task
-          </p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Assign a task</p>
           <p className="text-[12px] leading-relaxed text-muted-foreground">
             One clear instruction. {voice.tagline} Atlas still owns strategy — this is a direct work
             order.

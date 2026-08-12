@@ -156,7 +156,11 @@ const FAQS: { q: string; a: ReactNode }[] = [
     a: (
       <>
         English path:{" "}
-        <Link to="/for/$funnel" params={{ funnel: "local" }} className="text-primary hover:underline">
+        <Link
+          to="/for/$funnel"
+          params={{ funnel: "local" }}
+          className="text-primary hover:underline"
+        >
           /for/local
         </Link>
         . German phone-first super-app:{" "}
@@ -174,8 +178,9 @@ const FAQS: { q: string; a: ReactNode }[] = [
       <>
         Yes. Aura OS is a progressive web app. On Android or desktop Chrome, use{" "}
         <strong className="font-semibold text-foreground">Install</strong> / the Get app banner. On
-        iPhone Safari: Share → <strong className="font-semibold text-foreground">Add to Home Screen</strong>.
-        It opens full-screen like a native app.
+        iPhone Safari: Share →{" "}
+        <strong className="font-semibold text-foreground">Add to Home Screen</strong>. It opens
+        full-screen like a native app.
       </>
     ),
   },
@@ -183,8 +188,8 @@ const FAQS: { q: string; a: ReactNode }[] = [
     q: "How do I prove work finished — and that agents have memory?",
     a: (
       <>
-        Completed tasks store a timestamp and a written result. Agents keep dated memory plus company
-        knowledge. Share a week report from inside the app, or send the public proof page:{" "}
+        Completed tasks store a timestamp and a written result. Agents keep dated memory plus
+        company knowledge. Share a week report from inside the app, or send the public proof page:{" "}
         <Link to="/proof" className="text-primary hover:underline">
           /proof
         </Link>

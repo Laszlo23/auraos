@@ -82,8 +82,11 @@ function ProductsPage() {
         throw new Error(`File too large — keep ${opts.kind}s under ${maxMb}MB.`);
       }
       const ext =
-        opts.file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ||
-        (opts.kind === "video" ? "mp4" : "png");
+        opts.file.name
+          .split(".")
+          .pop()
+          ?.toLowerCase()
+          .replace(/[^a-z0-9]/g, "") || (opts.kind === "video" ? "mp4" : "png");
       const path = `${company.id}/products/${opts.productId}-${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("product-assets")

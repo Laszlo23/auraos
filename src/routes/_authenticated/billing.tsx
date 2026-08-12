@@ -242,7 +242,10 @@ function BillingPage() {
         }
       />
 
-      <StripeConnectPanel returnPath="/billing?connect=return" refreshPath="/billing?connect=refresh" />
+      <StripeConnectPanel
+        returnPath="/billing?connect=return"
+        refreshPath="/billing?connect=refresh"
+      />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
@@ -382,82 +385,82 @@ function BillingPage() {
               })}
             </div>
           ) : (
-          <div className="grid gap-5 md:grid-cols-3">
-            {PLANS.map((p, i) => {
-              const active = p.id === plan.id;
-              return (
-                <Panel key={p.id} label={p.name} glow={active} delay={0.05 * i}>
-                  <p className="num text-2xl font-semibold text-gold">
-                    {p.aura.toLocaleString()} <span className="text-xs">{TOKEN_SYMBOL}</span>
-                  </p>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                    or {currency(p.fiat)} / month
-                  </p>
-                  <p className="mt-3 text-[12.5px] leading-relaxed text-muted-foreground">
-                    {p.blurb}
-                  </p>
-                  <ul className="mt-4 space-y-1.5">
-                    {p.perks.map((perk) => (
-                      <li
-                        key={perk}
-                        className="flex items-center gap-2 text-[12px] text-foreground/85"
-                      >
-                        <Check className="h-3 w-3 shrink-0 text-primary" /> {perk}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="num mt-4 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                    {compact(p.tokens)} {TOKEN_SYMBOL} allowance
-                  </p>
-                  <button
-                    disabled={active || checkoutBusy === p.id}
-                    onClick={() => void switchPlan(p.id)}
-                    className={cn(
-                      "mt-5 w-full rounded-2xl py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition-opacity hover:opacity-90",
-                      active ? "bg-primary/15 text-primary" : "bg-foreground/8",
-                    )}
-                  >
-                    {active ? "Current plan" : STRIPE_ENABLED ? "Checkout" : "Switch"}
-                  </button>
-                  <button
-                    disabled={checkoutBusy === p.id}
-                    onClick={() => void startCheckout(p.id)}
-                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors hover:bg-foreground/6 disabled:opacity-50"
-                  >
-                    <CreditCard className="h-3.5 w-3.5" />
-                    {checkoutBusy === p.id ? "Redirecting…" : "Pay with card"}
-                  </button>
-                </Panel>
-              );
-            })}
-          </div>
+            <div className="grid gap-5 md:grid-cols-3">
+              {PLANS.map((p, i) => {
+                const active = p.id === plan.id;
+                return (
+                  <Panel key={p.id} label={p.name} glow={active} delay={0.05 * i}>
+                    <p className="num text-2xl font-semibold text-gold">
+                      {p.aura.toLocaleString()} <span className="text-xs">{TOKEN_SYMBOL}</span>
+                    </p>
+                    <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                      or {currency(p.fiat)} / month
+                    </p>
+                    <p className="mt-3 text-[12.5px] leading-relaxed text-muted-foreground">
+                      {p.blurb}
+                    </p>
+                    <ul className="mt-4 space-y-1.5">
+                      {p.perks.map((perk) => (
+                        <li
+                          key={perk}
+                          className="flex items-center gap-2 text-[12px] text-foreground/85"
+                        >
+                          <Check className="h-3 w-3 shrink-0 text-primary" /> {perk}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="num mt-4 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                      {compact(p.tokens)} {TOKEN_SYMBOL} allowance
+                    </p>
+                    <button
+                      disabled={active || checkoutBusy === p.id}
+                      onClick={() => void switchPlan(p.id)}
+                      className={cn(
+                        "mt-5 w-full rounded-2xl py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition-opacity hover:opacity-90",
+                        active ? "bg-primary/15 text-primary" : "bg-foreground/8",
+                      )}
+                    >
+                      {active ? "Current plan" : STRIPE_ENABLED ? "Checkout" : "Switch"}
+                    </button>
+                    <button
+                      disabled={checkoutBusy === p.id}
+                      onClick={() => void startCheckout(p.id)}
+                      className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors hover:bg-foreground/6 disabled:opacity-50"
+                    >
+                      <CreditCard className="h-3.5 w-3.5" />
+                      {checkoutBusy === p.id ? "Redirecting…" : "Pay with card"}
+                    </button>
+                  </Panel>
+                );
+              })}
+            </div>
           )}
 
           {!isOutcomeBilling ? (
-          <Panel label="Token roadmap" delay={0.1}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {ROADMAP.map((r) => (
-                <div key={r.phase} className="glass-soft rounded-2xl p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="num text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                      {r.phase}
-                    </span>
-                    <Chip
-                      tone={
-                        r.state === "live" ? "primary" : r.state === "soon" ? "neutral" : "gold"
-                      }
-                    >
-                      {r.state === "live" ? "live" : r.state === "soon" ? "next" : "open now"}
-                    </Chip>
+            <Panel label="Token roadmap" delay={0.1}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {ROADMAP.map((r) => (
+                  <div key={r.phase} className="glass-soft rounded-2xl p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="num text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                        {r.phase}
+                      </span>
+                      <Chip
+                        tone={
+                          r.state === "live" ? "primary" : r.state === "soon" ? "neutral" : "gold"
+                        }
+                      >
+                        {r.state === "live" ? "live" : r.state === "soon" ? "next" : "open now"}
+                      </Chip>
+                    </div>
+                    <p className="mt-2.5 text-sm font-semibold">{r.title}</p>
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                      {r.body}
+                    </p>
                   </div>
-                  <p className="mt-2.5 text-sm font-semibold">{r.title}</p>
-                  <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
-                    {r.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Panel>
+                ))}
+              </div>
+            </Panel>
           ) : null}
 
           <Panel label="Burn by agent" delay={0.14}>

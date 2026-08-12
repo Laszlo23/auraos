@@ -144,12 +144,7 @@ async function runAkquiseGoalCore(supabase: LooseDb, companyId: string, data: Ru
     message: `Akquise run: "${data.goal.slice(0, 100)}" · ${template.label}`,
   });
 
-  await updateAkquiseCampaign(
-    supabase,
-    campaignId!,
-    { status: "running" },
-    data.goal,
-  );
+  await updateAkquiseCampaign(supabase, campaignId!, { status: "running" }, data.goal);
 
   let engine;
   try {
@@ -252,7 +247,7 @@ async function runAkquiseGoalCore(supabase: LooseDb, companyId: string, data: Ru
 /** Full goal → plan → execute → verify run. */
 export const runAkquiseGoal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       goal: string;
       template?: string;
@@ -293,7 +288,7 @@ export const runAkquiseGoal = createServerFn({ method: "POST" })
 /** Re-run research for an existing campaign. */
 export const researchLeads = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { campaignId: string }) => ({ campaignId: String(input.campaignId) }))
+  .validator((input: { campaignId: string }) => ({ campaignId: String(input.campaignId) }))
   .handler(async ({ data, context }) => {
     const supabase = asDb(context.supabase);
     const companyId = await ownedCompanyId(supabase, context.userId);
@@ -325,11 +320,7 @@ export const researchLeads = createServerFn({ method: "POST" })
   });
 
 /** Used by mission dispatch — same core without createServerFn nesting. */
-export async function runAkquiseForMission(
-  supabase: unknown,
-  companyId: string,
-  mission: string,
-) {
+export async function runAkquiseForMission(supabase: unknown, companyId: string, mission: string) {
   const template = inferTemplateFromGoal(mission);
   return runAkquiseGoalCore(asDb(supabase), companyId, {
     goal: mission,
@@ -343,12 +334,47 @@ export async function runAkquiseForMission(
   });
 }
 
+function buildSignature(senderName: string, projectName: string) {
+  const name = senderName.trim();
+  const project = projectName.trim();
+  if (name && project) return `${name}\n${project}`;
+  if (name) return name;
+  if (project) return project;
+  return "";
+}
+
+function applySignature(body: string, signature: string) {
+  const trimmed = body.replace(/\s+$/u, "");
+  if (signature) {
+    if (trimmed.includes("{{signature}}")) {
+      return trimmed.replaceAll("{{signature}}", signature);
+    }
+    return `${trimmed}\n\n${signature}`;
+  }
+  return trimmed.replaceAll("{{signature}}", "").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
 /** Write a personalized cold email for one lead. */
 export const draftLeadEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { leadId: string }) => ({ leadId: String(input.leadId) }))
+  .validator((input: { leadId: string; senderName?: string; projectName?: string }) => ({
+    leadId: String(input.leadId),
+    senderName: String(input.senderName ?? "")
+      .trim()
+      .slice(0, 80),
+    projectName: String(input.projectName ?? "")
+      .trim()
+      .slice(0, 120),
+  }))
   .handler(async ({ data, context }) => {
     const supabase = asDb(context.supabase);
+    const companyId = await ownedCompanyId(supabase, context.userId);
+    const { data: company } = await supabase
+      .from("companies")
+      .select("name")
+      .eq("id", companyId)
+      .maybeSingle();
+
     const { data: lead, error } = await supabase
       .from("akquise_leads")
       .select("*, akquise_campaigns(*)")
@@ -359,6 +385,16 @@ export const draftLeadEmail = createServerFn({ method: "POST" })
     const campaignRaw = (lead as unknown as { akquise_campaigns: Record<string, unknown> })
       .akquise_campaigns;
     const campaign = unpackCampaignRow(campaignRaw ?? {});
+
+    const projectName = data.projectName || String(company?.name ?? "").trim();
+    const senderName = data.senderName;
+    if (!senderName) {
+      throw new Error("Add your name first — drafts should sign off as you, not as an anonymous agent.");
+    }
+    if (!projectName) {
+      throw new Error("Add your project or company name so the email can introduce what you offer.");
+    }
+    const signature = buildSignature(senderName, projectName);
 
     const { firecrawlScrape, askAi, parseJsonBlock } = await import("./akquise.server");
     let context_md = lead.snippet ?? "";
@@ -375,17 +411,21 @@ export const draftLeadEmail = createServerFn({ method: "POST" })
 ${languageStyleBlock(lang)}
 Tone: ${String(campaign["tone"] ?? "warm-professional")}.
 Template context: ${template.label}.
-Rules: reference at least one concrete detail from the research so it cannot be mistaken for a template. Max 130 words. No hype, no emoji, no "I hope this email finds you well" / "ich hoffe diese Nachricht erreicht Sie wohlauf". One clear, low-friction call to action. Sign off with a placeholder line "{{signature}}".
+Sender: ${senderName} writing on behalf of ${projectName}.
+Rules: write in first person as ${senderName}. Naturally mention ${projectName} once when introducing who you are / what you do. Reference at least one concrete detail from the research so it cannot be mistaken for a template. Max 130 words. No hype, no emoji, no "I hope this email finds you well" / "ich hoffe diese Nachricht erreicht Sie wohlauf". One clear, low-friction call to action. End the body with exactly the placeholder line {{signature}} and nothing after it.
 Never invent facts. Return ONLY JSON: {"subject": string, "body": string}.`,
       `Goal/brief: ${String(campaign["goal"] || campaign["brief"] || "")}
 Objective: ${String(campaign["objective"] ?? "research")}
+Sender name: ${senderName}
+Project / company: ${projectName}
 Prospect: ${lead.name ?? "unknown"} — ${lead.org ?? "unknown"} — ${lead.address ?? ""}
 Research:\n${context_md.slice(0, 4000)}`,
     );
 
     const draft = parseJsonBlock<{ subject?: string; body?: string }>(raw, {});
     const subject = sanitizeBrandNames((draft.subject ?? "").slice(0, 200));
-    const body = sanitizeBrandNames(draft.body ?? "");
+    let body = sanitizeBrandNames(draft.body ?? "");
+    body = applySignature(body, signature);
     if (!subject || !body) throw new Error("The agent could not write this one — try again.");
 
     const { error: updateError } = await supabase
@@ -397,18 +437,67 @@ Research:\n${context_md.slice(0, 4000)}`,
     return { subject, body };
   });
 
+/** Persist founder edits to a draft before send. */
+export const saveLeadDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { leadId: string; subject: string; body: string }) => ({
+    leadId: String(input.leadId),
+    subject: String(input.subject ?? "")
+      .trim()
+      .slice(0, 200),
+    body: String(input.body ?? "")
+      .trim()
+      .slice(0, 8000),
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.subject) throw new Error("Subject cannot be empty.");
+    if (!data.body) throw new Error("Email body cannot be empty.");
+    const supabase = asDb(context.supabase);
+    const companyId = await ownedCompanyId(supabase, context.userId);
+    const { data: lead, error } = await supabase
+      .from("akquise_leads")
+      .select("id, company_id, status")
+      .eq("id", data.leadId)
+      .eq("company_id", companyId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!lead) throw new Error("Lead not found");
+    if (lead.status === "sent") throw new Error("This email was already sent.");
+
+    const { error: updateError } = await supabase
+      .from("akquise_leads")
+      .update({
+        draft_subject: data.subject,
+        draft_body: data.body,
+        status: "drafted",
+      })
+      .eq("id", lead.id);
+    if (updateError) throw updateError;
+    return { ok: true as const, subject: data.subject, body: data.body };
+  });
+
 /** Send a drafted email — always explicit founder action. */
 export const sendLeadEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { leadId: string; provider: string }) => {
-    const provider =
-      input.provider === "microsoft_outlook"
-        ? "microsoft_outlook"
-        : input.provider === "smtp"
-          ? "smtp"
-          : "google_mail";
-    return { leadId: String(input.leadId), provider };
-  })
+  .validator(
+    (input: { leadId: string; provider: string; subject?: string; body?: string }) => {
+      const provider =
+        input.provider === "microsoft_outlook"
+          ? "microsoft_outlook"
+          : input.provider === "smtp"
+            ? "smtp"
+            : "google_mail";
+      const subject =
+        typeof input.subject === "string" ? input.subject.trim().slice(0, 200) : undefined;
+      const body = typeof input.body === "string" ? input.body.trim().slice(0, 8000) : undefined;
+      return {
+        leadId: String(input.leadId),
+        provider,
+        ...(subject ? { subject } : {}),
+        ...(body ? { body } : {}),
+      };
+    },
+  )
   .handler(async ({ data, context }) => {
     const supabase = asDb(context.supabase);
     const { data: lead, error } = await supabase
@@ -419,7 +508,18 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
     if (error) throw error;
     if (!lead) throw new Error("Lead not found");
     if (!lead.email) throw new Error("This lead has no email address yet.");
-    if (!lead.draft_subject || !lead.draft_body) throw new Error("Write the email first.");
+
+    const subject = (data.subject ?? lead.draft_subject ?? "").trim();
+    const body = (data.body ?? lead.draft_body ?? "").trim();
+    if (!subject || !body) throw new Error("Write and review the email first.");
+
+    if (data.subject || data.body) {
+      const { error: saveError } = await supabase
+        .from("akquise_leads")
+        .update({ draft_subject: subject, draft_body: body, status: "drafted" })
+        .eq("id", lead.id);
+      if (saveError) throw saveError;
+    }
 
     if (data.provider === "smtp") {
       const { loadSmtpConfigForUser, sendViaSmtp } = await import("@/lib/smtp.server");
@@ -429,8 +529,8 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
         await sendViaSmtp({
           config,
           to: lead.email,
-          subject: lead.draft_subject,
-          text: lead.draft_body,
+          subject,
+          text: body,
         });
       } catch (err) {
         console.error("SMTP send failed:", err);
@@ -450,10 +550,10 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
       if (data.provider === "google_mail") {
         const mime = [
           `To: ${lead.email}`,
-          `Subject: ${lead.draft_subject}`,
+          `Subject: ${subject}`,
           'Content-Type: text/plain; charset="UTF-8"',
           "",
-          lead.draft_body,
+          body,
         ].join("\r\n");
         const raw = Buffer.from(mime, "utf8")
           .toString("base64")
@@ -482,8 +582,8 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               message: {
-                subject: lead.draft_subject,
-                body: { contentType: "Text", content: lead.draft_body },
+                subject,
+                body: { contentType: "Text", content: body },
                 toRecipients: [{ emailAddress: { address: lead.email } }],
               },
               saveToSentItems: true,
@@ -501,7 +601,12 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
 
     await supabase
       .from("akquise_leads")
-      .update({ status: "sent", sent_at: new Date().toISOString() })
+      .update({
+        draft_subject: subject,
+        draft_body: body,
+        status: "sent",
+        sent_at: new Date().toISOString(),
+      })
       .eq("id", lead.id);
 
     return { ok: true };
@@ -509,7 +614,7 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
 /** Publish a completed run for the viral result page. */
 export const publishAkquiseResult = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { campaignId: string }) => ({
+  .validator((input: { campaignId: string }) => ({
     campaignId: String(input.campaignId),
   }))
   .handler(async ({ data, context }) => {
@@ -538,8 +643,11 @@ export const publishAkquiseResult = createServerFn({ method: "POST" })
 
 /** Public (PII-redacted) result for shared runs. */
 export const getPublicAkquiseResult = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => {
-    const slug = input.slug?.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 16);
+  .validator((input: { slug: string }) => {
+    const slug = input.slug
+      ?.toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+      .slice(0, 16);
     if (!slug) throw new Error("slug required");
     return { slug };
   })

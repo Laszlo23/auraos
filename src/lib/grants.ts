@@ -52,12 +52,12 @@ export const PROGRAMS: Program[] = [
     id: "base",
     org: "Base / Coinbase",
     program: "Base ecosystem — Builder Rewards, Batches, CDP credits",
-    gives: "Weekly builder rewards, CDP API tier, founder tracks via Base Batches / Ecosystem Fund RFBs",
+    gives:
+      "Weekly builder rewards, CDP API tier, founder tracks via Base Batches / Ecosystem Fund RFBs",
     needs: "Ship on Base; cohorts are competitive but early teams are welcome",
     status: "apply-now",
     url: "https://docs.base.org/get-started/get-funded",
-    unlocks:
-      "We already settle x402 payments and reward drops on Base — closest ecosystem fit.",
+    unlocks: "We already settle x402 payments and reward drops on Base — closest ecosystem fit.",
   },
   {
     id: "base-builder-grants",

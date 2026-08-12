@@ -18,8 +18,7 @@ import { fetchCandles, fetchMarkPrice } from "@/lib/trading/market-data.server";
 import { sizeTradeNotional, unrealizedPnl } from "@/lib/trading/sizing";
 import { resolvePairTokens, WETH_ADDRESSES } from "@/lib/trading/tokens";
 
-const deskPrimary = (network: AuraNetwork = activeNetwork()) =>
-  networkSpec(network).primaryPair;
+const deskPrimary = (network: AuraNetwork = activeNetwork()) => networkSpec(network).primaryPair;
 
 const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
 
@@ -48,10 +47,7 @@ async function companyNotionalBoost(db: Admin, companyId: string): Promise<numbe
     .eq("id", companyId)
     .maybeSingle();
   let boost = 0;
-  if (
-    company?.quant_boost_until &&
-    new Date(company.quant_boost_until).getTime() > Date.now()
-  ) {
+  if (company?.quant_boost_until && new Date(company.quant_boost_until).getTime() > Date.now()) {
     boost += Number(company.quant_boost_pct ?? 10);
   }
   // Holder tier boost from AURA balance
@@ -68,11 +64,7 @@ async function companyNotionalBoost(db: Admin, companyId: string): Promise<numbe
   return boost;
 }
 
-async function spentTodayUsdc(
-  db: Admin,
-  companyId: string,
-  network: AuraNetwork,
-): Promise<number> {
+async function spentTodayUsdc(db: Admin, companyId: string, network: AuraNetwork): Promise<number> {
   const dayStart = new Date();
   dayStart.setUTCHours(0, 0, 0, 0);
   const scale = quoteScale(network);
@@ -224,7 +216,9 @@ export async function ingestSmartMoney(limitCompanies = 30) {
           events += 1;
           const { data: company } = await db
             .from("companies")
-            .select("id, trading_armed, max_notional_usdc_day, max_risk_pct, owner_id, desk_network")
+            .select(
+              "id, trading_armed, max_notional_usdc_day, max_risk_pct, owner_id, desk_network",
+            )
             .eq("id", w.company_id)
             .maybeSingle();
           if (company?.trading_armed && t._dir === "in" && asset !== "USDC") {
@@ -448,10 +442,7 @@ export async function reconcileOrders(limit = 40) {
         // Still pending — never age into confirmed on a timer alone.
         const ageMs = Date.now() - new Date(row.created_at).getTime();
         if (ageMs > 45 * 60_000) {
-          await db
-            .from("trading_orders")
-            .update({ status: "failed" })
-            .eq("id", row.id);
+          await db.from("trading_orders").update({ status: "failed" }).eq("id", row.id);
           failed += 1;
         }
         continue;
@@ -519,11 +510,8 @@ export async function manageOpenPositions(limit = 20) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
   const { okxConfigured, okxDexSwap } = await import("@/lib/okx.server");
-  const {
-    decryptOwnerKey,
-    executeBatchUserOps,
-    executeContractUserOp,
-  } = await import("@/lib/wallet.server");
+  const { decryptOwnerKey, executeBatchUserOps, executeContractUserOp } =
+    await import("@/lib/wallet.server");
 
   const { data: opens } = await db
     .from("trades")
@@ -552,10 +540,7 @@ export async function manageOpenPositions(limit = 20) {
       const cid = chainId(network);
       const mark = await fetchMarkPrice(trade.symbol || deskPrimary(network));
       const upnl = unrealizedPnl(Number(trade.entry), mark.price, Number(trade.size));
-      await db
-        .from("trades")
-        .update({ mark_price: mark.price, pnl: upnl })
-        .eq("id", trade.id);
+      await db.from("trades").update({ mark_price: mark.price, pnl: upnl }).eq("id", trade.id);
       marked += 1;
 
       let spec: StrategySpec | null = null;
@@ -727,11 +712,8 @@ export async function executeApprovedSignals(limit = 5, companyId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db = supabaseAdmin as unknown as Admin;
   const { okxConfigured, okxDexSwap } = await import("@/lib/okx.server");
-  const {
-    decryptOwnerKey,
-    executeBatchUserOps,
-    executeContractUserOp,
-  } = await import("@/lib/wallet.server");
+  const { decryptOwnerKey, executeBatchUserOps, executeContractUserOp } =
+    await import("@/lib/wallet.server");
 
   const liveOkx = okxConfigured();
   const fallbackNetwork = activeNetwork();
@@ -1064,7 +1046,10 @@ export async function executeApprovedSignals(limit = 5, companyId?: string) {
         .from("trading_signals")
         .update({
           status: "expired",
-          rationale: `Execution failed: ${e instanceof Error ? e.message : String(e)}`.slice(0, 280),
+          rationale: `Execution failed: ${e instanceof Error ? e.message : String(e)}`.slice(
+            0,
+            280,
+          ),
         })
         .eq("id", signal.id);
     }

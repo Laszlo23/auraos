@@ -7,9 +7,7 @@ const ADDR_RE = /^0x[a-fA-F0-9]{40}$/;
 let warnedFallback = false;
 
 export function isProdRuntime(): boolean {
-  return (
-    process.env["NODE_ENV"] === "production" || process.env["VITE_APP_ENV"] === "production"
-  );
+  return process.env["NODE_ENV"] === "production" || process.env["VITE_APP_ENV"] === "production";
 }
 
 function normalizeAddress(raw: string | undefined | null): `0x${string}` | null {
@@ -41,7 +39,5 @@ export function resolveX402PayTo(): `0x${string}` | null {
 export function assertX402ConfiguredForProd(): void {
   if (!isProdRuntime()) return;
   if (resolveX402PayTo()) return;
-  throw new Error(
-    "x402 is misconfigured: set X402_PAY_TO (or OKX_PAYOUT_ADDRESS) for production.",
-  );
+  throw new Error("x402 is misconfigured: set X402_PAY_TO (or OKX_PAYOUT_ADDRESS) for production.");
 }

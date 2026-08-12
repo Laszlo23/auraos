@@ -3,21 +3,39 @@ import { createServerFn } from "@tanstack/react-start";
 import { scoreReputationAudit } from "@/lib/reputation-audit";
 
 export const runReputationAudit = createServerFn({ method: "POST" })
-  .inputValidator((input: {
-    businessName: string;
-    city: string;
-    niche?: string;
-    googleUrl?: string;
-    websiteUrl?: string;
-    email?: string;
-  }) => ({
-    businessName: String(input.businessName || "").trim().slice(0, 120),
-    city: String(input.city || "").trim().slice(0, 80),
-    niche: String(input.niche || "").trim().slice(0, 60) || undefined,
-    googleUrl: String(input.googleUrl || "").trim().slice(0, 500) || undefined,
-    websiteUrl: String(input.websiteUrl || "").trim().slice(0, 500) || undefined,
-    email: String(input.email || "").trim().slice(0, 255) || undefined,
-  }))
+  .validator(
+    (input: {
+      businessName: string;
+      city: string;
+      niche?: string;
+      googleUrl?: string;
+      websiteUrl?: string;
+      email?: string;
+    }) => ({
+      businessName: String(input.businessName || "")
+        .trim()
+        .slice(0, 120),
+      city: String(input.city || "")
+        .trim()
+        .slice(0, 80),
+      niche:
+        String(input.niche || "")
+          .trim()
+          .slice(0, 60) || undefined,
+      googleUrl:
+        String(input.googleUrl || "")
+          .trim()
+          .slice(0, 500) || undefined,
+      websiteUrl:
+        String(input.websiteUrl || "")
+          .trim()
+          .slice(0, 500) || undefined,
+      email:
+        String(input.email || "")
+          .trim()
+          .slice(0, 255) || undefined,
+    }),
+  )
   .handler(async ({ data }) => {
     if (data.businessName.length < 2) throw new Error("Betriebsname fehlt.");
     if (data.city.length < 2) throw new Error("Stadt fehlt.");

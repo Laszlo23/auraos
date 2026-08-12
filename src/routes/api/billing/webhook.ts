@@ -34,7 +34,9 @@ export const Route = createFileRoute("/api/billing/webhook")({
         const rawBody = await request.text();
         const webhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
         if (!webhookSecret) {
-          console.error("[billing/webhook] STRIPE_WEBHOOK_SECRET is not set — refusing unsigned events");
+          console.error(
+            "[billing/webhook] STRIPE_WEBHOOK_SECRET is not set — refusing unsigned events",
+          );
           return Response.json({ error: "Webhook not configured" }, { status: 503 });
         }
         const ok = verifyStripeSignature(
@@ -133,11 +135,7 @@ export const Route = createFileRoute("/api/billing/webhook")({
 
           if (session?.metadata?.kind === "site_product") {
             const siteId = session.metadata.site_id || session.client_reference_id;
-            const email = (
-              session.metadata.customer_email ||
-              session.customer_email ||
-              ""
-            )
+            const email = (session.metadata.customer_email || session.customer_email || "")
               .trim()
               .toLowerCase();
             if (!siteId || !email) {
@@ -148,8 +146,7 @@ export const Route = createFileRoute("/api/billing/webhook")({
                 site_id: siteId,
                 email,
                 status: "active",
-                stripe_customer_id:
-                  typeof session.customer === "string" ? session.customer : null,
+                stripe_customer_id: typeof session.customer === "string" ? session.customer : null,
                 stripe_subscription_id:
                   typeof session.subscription === "string" ? session.subscription : null,
               },
@@ -217,10 +214,8 @@ export const Route = createFileRoute("/api/billing/webhook")({
             if (!companyId || !session.id) {
               return Response.json({ error: "Missing company_id or session id" }, { status: 400 });
             }
-            const {
-              AURA_REPUTATION_BOOST_GRANT,
-              AURA_REPUTATION_PLAN_ID,
-            } = await import("@/lib/boost-packs");
+            const { AURA_REPUTATION_BOOST_GRANT, AURA_REPUTATION_PLAN_ID } =
+              await import("@/lib/boost-packs");
             const { cycleWindow } = await import("@/lib/subscription");
             const grant = AURA_REPUTATION_BOOST_GRANT;
             const { error: seatErr } = await supabaseAdmin.rpc("mark_local_seat_paid_stripe", {
@@ -314,9 +309,7 @@ export const Route = createFileRoute("/api/billing/webhook")({
           }
 
           const funnelPlan = isFunnelPlanId(planId) ? funnelPlanById(planId) : undefined;
-          const auraPlan = funnelPlan
-            ? null
-            : planById(planId === "scale" ? "enterprise" : planId);
+          const auraPlan = funnelPlan ? null : planById(planId === "scale" ? "enterprise" : planId);
           const tokens = funnelPlan?.tokenGrant ?? auraPlan?.tokens ?? 0;
           const planLabel = funnelPlan?.name ?? auraPlan?.name ?? planId;
           const storedPlan = funnelPlan?.id ?? auraPlan?.id ?? planId;

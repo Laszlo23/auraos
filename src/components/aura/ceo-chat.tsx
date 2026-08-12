@@ -240,10 +240,7 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Atlas</h1>
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Pulse />{" "}
-              {streaming
-                ? "thinking"
-                : "chief executive · proposes work you approve"}
+              <Pulse /> {streaming ? "thinking" : "chief executive · proposes work you approve"}
             </p>
           </div>
         </header>

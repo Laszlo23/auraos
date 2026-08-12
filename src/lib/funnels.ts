@@ -45,15 +45,10 @@ export type FunnelDef = {
 const SALES_NAV = [
   "/console",
   "/missions",
-  "/ceo",
-  "/agents",
-  "/tasks",
-  "/connect",
   "/akquise",
   "/sales",
-  "/website",
-  "/marketing",
-  "/report",
+  "/ceo",
+  "/connect",
   "/billing",
   "/settings",
 ];
@@ -63,14 +58,9 @@ const START_NAV = [
   "/website",
   "/products",
   "/missions",
-  "/marketing",
   "/sales",
   "/ceo",
-  "/agents",
-  "/tasks",
   "/connect",
-  "/akquise",
-  "/report",
   "/billing",
   "/settings",
 ];
@@ -141,7 +131,8 @@ export const FUNNELS: Record<FunnelId, FunnelDef> = {
       strategy:
         "Primary offer: website packages for SMEs. Aura runs prospecting, outreach drafts, and landing pages. Founder approves sends.",
       productName: "Website package",
-      productDescription: "Fixed-scope website for local businesses — Aura finds and qualifies leads.",
+      productDescription:
+        "Fixed-scope website for local businesses — Aura finds and qualifies leads.",
       productPrice: 1500,
     },
   },
@@ -265,13 +256,7 @@ export function isFunnelId(v: unknown): v is FunnelId {
 }
 
 export function isPublicFunnelSlug(v: unknown): v is PublicFunnelSlug {
-  return (
-    v === "agencies" ||
-    v === "sales" ||
-    v === "start" ||
-    v === "realty" ||
-    v === "local"
-  );
+  return v === "agencies" || v === "sales" || v === "start" || v === "realty" || v === "local";
 }
 
 export function funnelById(id: FunnelId): FunnelDef {

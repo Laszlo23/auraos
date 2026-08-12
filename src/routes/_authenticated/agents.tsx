@@ -55,10 +55,11 @@ function memoryFactCount(memory: string | null | undefined) {
 
 function AgentsPage() {
   const { data: agents = [] } = useCompanyTable<Agent>("agents", { orderBy: "created_at" });
-  const { data: tasks = [] } = useCompanyTable<{ id: string; status: string; agent_id?: string | null }>(
-    "tasks",
-    { orderBy: "created_at" },
-  );
+  const { data: tasks = [] } = useCompanyTable<{
+    id: string;
+    status: string;
+    agent_id?: string | null;
+  }>("tasks", { orderBy: "created_at" });
   const [open, setOpen] = useState<Agent | null>(null);
   const qc = useQueryClient();
 
@@ -76,8 +77,7 @@ function AgentsPage() {
 
   function agentBusy(agentId: string) {
     return tasks.some(
-      (t) =>
-        t.agent_id === agentId && (t.status === "running" || t.status === "queued"),
+      (t) => t.agent_id === agentId && (t.status === "running" || t.status === "queued"),
     );
   }
 
@@ -85,7 +85,9 @@ function AgentsPage() {
     <div>
       <PageHeader
         eyebrow="Workforce"
-        title={agents.length <= 1 ? "Atlas is ready to build a team" : "Employees as economic workers"}
+        title={
+          agents.length <= 1 ? "Atlas is ready to build a team" : "Employees as economic workers"
+        }
         description="Status comes from real tasks (queued/running). Pause stops new assignment."
       />
 
@@ -115,7 +117,7 @@ function AgentsPage() {
                     {a.role} · {a.name}
                   </p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {a.paused ? "Paused" : a.status ?? "active"}
+                    {a.paused ? "Paused" : (a.status ?? "active")}
                   </p>
                 </div>
                 <span className="ml-auto flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -137,15 +139,11 @@ function AgentsPage() {
                 </div>
                 <div>
                   <p className="num text-lg font-semibold text-gold">{a.credits_used ?? 0}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    AURA
-                  </p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">AURA</p>
                 </div>
                 <div>
                   <p className="num text-lg font-semibold">{a.revenue_generated ?? 0}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    Rev
-                  </p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Rev</p>
                 </div>
                 <div>
                   <p className="num text-lg font-semibold">{memoryFactCount(a.memory)}</p>
@@ -161,7 +159,9 @@ function AgentsPage() {
                   tone={a.accent === "gold" ? "gold" : "primary"}
                 />
                 <p className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {a.tasks_completed ? `Performance ${a.performance}%` : "Unrated — no completed work yet"}
+                  {a.tasks_completed
+                    ? `Performance ${a.performance}%`
+                    : "Unrated — no completed work yet"}
                 </p>
               </div>
             </Panel>

@@ -158,8 +158,7 @@ async function ethCall(to: Address, data: Hex): Promise<Hex> {
 }
 
 async function fetchErc20Balance(token: Address, owner: Address): Promise<bigint> {
-  const data =
-    `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
+  const data = `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
   const result = await ethCall(token, data);
   if (!result || result === "0x") return 0n;
   return BigInt(result);
@@ -245,7 +244,8 @@ export async function supplyUsdcToPancakeUsdtUsdcLp(args: {
     throw new Error("USDT not received after OKX swap — retry Pancake allocate shortly");
   }
 
-  const usdcForLp = usdcBal < totalUsdc - swapUsdc + swapUsdc / 20n ? usdcBal : totalUsdc - swapUsdc;
+  const usdcForLp =
+    usdcBal < totalUsdc - swapUsdc + swapUsdc / 20n ? usdcBal : totalUsdc - swapUsdc;
   const useUsdc = usdcForLp > 0n ? usdcForLp : usdcBal;
   if (useUsdc <= 0n) throw new Error("No USDC left for Pancake LP leg");
 
@@ -351,8 +351,7 @@ export async function withdrawUsdcFromPancakeUsdtUsdcLp(args: {
     lpInHand = await fetchErc20Balance(PANCAKE_USDT_USDC_LP, args.walletAddress);
   }
 
-  const removeAmt =
-    args.liquidity <= lpInHand ? args.liquidity : lpInHand > 0n ? lpInHand : 0n;
+  const removeAmt = args.liquidity <= lpInHand ? args.liquidity : lpInHand > 0n ? lpInHand : 0n;
   if (removeAmt <= 0n) throw new Error("No Pancake USDT/USDC LP to remove");
 
   const deadline = BigInt(Math.floor(Date.now() / 1000) + 1200);
@@ -373,7 +372,7 @@ export async function withdrawUsdcFromPancakeUsdtUsdcLp(args: {
   hashes.push(removeOp.userOpHash);
 
   await new Promise((r) => setTimeout(r, 2500));
-  let usdtBal = await fetchErc20Balance(USDT_BSC, args.walletAddress);
+  const usdtBal = await fetchErc20Balance(USDT_BSC, args.walletAddress);
   // Dust threshold ~$0.01 of 18-decimal USDT
   if (usdtBal > 10n ** 16n) {
     const swapRaw = await okxDexSwap({

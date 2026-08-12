@@ -164,8 +164,7 @@ async function ethCall(to: Address, data: Hex): Promise<Hex> {
 }
 
 async function fetchErc20Balance(token: Address, owner: Address): Promise<bigint> {
-  const data =
-    `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
+  const data = `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
   const result = await ethCall(token, data);
   if (!result || result === "0x") return 0n;
   return BigInt(result);
@@ -254,7 +253,8 @@ export async function supplyUsdcToAerodromeWethLp(args: {
     throw new Error("WETH not received after OKX swap — retry Aerodrome allocate shortly");
   }
 
-  const usdcForLp = usdcBal < totalUsdc - swapUsdc + swapUsdc / 20n ? usdcBal : totalUsdc - swapUsdc;
+  const usdcForLp =
+    usdcBal < totalUsdc - swapUsdc + swapUsdc / 20n ? usdcBal : totalUsdc - swapUsdc;
   const useUsdc = usdcForLp > 0n ? usdcForLp : usdcBal;
   if (useUsdc <= 0n) throw new Error("No USDC left for Aerodrome LP leg");
 
@@ -369,16 +369,7 @@ export async function withdrawUsdcFromAerodromeWethLp(args: {
   const removeData = encodeFunctionData({
     abi: ROUTER_ABI,
     functionName: "removeLiquidity",
-    args: [
-      WETH_BASE,
-      usdc,
-      STABLE,
-      withdrawAmt,
-      0n,
-      0n,
-      args.walletAddress,
-      deadline,
-    ],
+    args: [WETH_BASE, usdc, STABLE, withdrawAmt, 0n, 0n, args.walletAddress, deadline],
   });
 
   const removeOp = await executeBatchUserOps(
@@ -392,7 +383,7 @@ export async function withdrawUsdcFromAerodromeWethLp(args: {
   hashes.push(removeOp.userOpHash);
 
   await new Promise((r) => setTimeout(r, 2500));
-  let wethBal = await fetchErc20Balance(WETH_BASE, args.walletAddress);
+  const wethBal = await fetchErc20Balance(WETH_BASE, args.walletAddress);
   if (wethBal > 10n ** 12n) {
     const swapRaw = await okxDexSwap({
       chainId: CHAIN_ID,

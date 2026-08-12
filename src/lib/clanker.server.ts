@@ -2,15 +2,19 @@
  * Clanker deploy helper — Base ERC-20 + Uniswap V4 pool.
  * Signer = wallet owner EOA; tokenAdmin + primary rewards = Light Account (company smart wallet).
  */
-import { createPublicClient, createWalletClient, http, type Address, type Hex, formatEther } from "viem";
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  type Address,
+  type Hex,
+  formatEther,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
 
 import { alchemyRpcUrl, activeNetwork } from "@/lib/chain-config";
-import {
-  companyTokenPresetById,
-  type CompanyTokenPresetId,
-} from "@/lib/company-token-presets";
+import { companyTokenPresetById, type CompanyTokenPresetId } from "@/lib/company-token-presets";
 
 export function clankerEnabled(): boolean {
   return process.env["CLANKER_ENABLED"] === "true" || process.env["CLANKER_ENABLED"] === "1";
@@ -76,7 +80,8 @@ export function buildClankerSpec(input: {
   smartWallet: Address;
   ownerEoa: Address;
 }): Record<string, unknown> {
-  const preset = companyTokenPresetById(input.presetId) ?? companyTokenPresetById("community_standard")!;
+  const preset =
+    companyTokenPresetById(input.presetId) ?? companyTokenPresetById("community_standard")!;
   const platformBps = clankerPlatformFeeBps();
   const treasury = platformTreasuryAddress();
   const companyBps = treasury && platformBps > 0 ? 10_000 - platformBps : 10_000;
@@ -149,7 +154,8 @@ export async function deployCompanyTokenClanker(
   const wallet = createWalletClient({ account, chain, transport: http(rpc) });
 
   const bal = await publicClient.getBalance({ address: account.address });
-  const minWei = preset.devBuyEth > 0 ? BigInt(Math.ceil((preset.devBuyEth + 0.005) * 1e18)) : 10n ** 15n; // 0.001 ETH gas floor
+  const minWei =
+    preset.devBuyEth > 0 ? BigInt(Math.ceil((preset.devBuyEth + 0.005) * 1e18)) : 10n ** 15n; // 0.001 ETH gas floor
   if (bal < minWei) {
     throw new Error(
       `Fund the wallet owner with Base ETH for gas${preset.devBuyEth > 0 ? ` + ${preset.devBuyEth} ETH dev buy` : ""} (balance ${formatEther(bal)} ETH)`,
@@ -221,13 +227,13 @@ export async function deployCompanyTokenClanker(
   }
 
   const { txHash, waitForTransaction, error } = await clanker.deploy(deployConfig as never);
-  if (error) throw new Error(typeof error === "string" ? error : error.message ?? String(error));
+  if (error) throw new Error(typeof error === "string" ? error : (error.message ?? String(error)));
   if (!txHash || !waitForTransaction) throw new Error("Clanker deploy returned no transaction");
 
   const waited = await waitForTransaction();
   if (waited && typeof waited === "object" && "error" in waited && waited.error) {
     const waitErr = waited.error as { message?: string } | string;
-    throw new Error(typeof waitErr === "string" ? waitErr : waitErr.message ?? String(waitErr));
+    throw new Error(typeof waitErr === "string" ? waitErr : (waitErr.message ?? String(waitErr)));
   }
   const address =
     waited && typeof waited === "object" && "address" in waited

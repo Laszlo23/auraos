@@ -2,11 +2,7 @@ export type QuantStance = "BULLISH" | "BEARISH" | "NEUTRAL";
 export type QuantRiskLabel = "LOW" | "MEDIUM" | "HIGH";
 export type QuantRegime = "TRENDING" | "RANGE" | "VOLATILE";
 export type QuantRecommendation =
-  | "MAINTAIN_POSITION"
-  | "WAIT_FOR_ENTRY"
-  | "REDUCE_EXPOSURE"
-  | "REVIEW_STRATEGY"
-  | "NO_CLEAR_SETUP";
+  "MAINTAIN_POSITION" | "WAIT_FOR_ENTRY" | "REDUCE_EXPOSURE" | "REVIEW_STRATEGY" | "NO_CLEAR_SETUP";
 
 export type QuantCheck = {
   id: "trend" | "momentum" | "liquidity" | "volatility";
@@ -48,11 +44,14 @@ type DeriveInput = {
   exposurePct: number;
   maxRiskPct: number;
   hasApprovedStrategy: boolean;
-  backtest: {
-    total_return_pct?: number;
-    max_drawdown_pct?: number;
-    trade_count?: number;
-  } | null | undefined;
+  backtest:
+    | {
+        total_return_pct?: number;
+        max_drawdown_pct?: number;
+        trade_count?: number;
+      }
+    | null
+    | undefined;
   pendingSignals: number;
 };
 
@@ -101,9 +100,12 @@ function regimeLabelOf(regime: QuantRegime): string {
   }
 }
 
-function recommendationCopy(
-  rec: QuantRecommendation,
-): { title: string; body: string; whatIdDo: string; actionLabel: string } {
+function recommendationCopy(rec: QuantRecommendation): {
+  title: string;
+  body: string;
+  whatIdDo: string;
+  actionLabel: string;
+} {
   switch (rec) {
     case "MAINTAIN_POSITION":
       return {
@@ -149,8 +151,7 @@ function recommendationCopy(
 
 /** Deterministic Quant presentation from live desk state — no LLM. */
 export function deriveQuantView(input: DeriveInput): QuantView {
-  const rangePct =
-    input.price > 0 ? ((input.high24h - input.low24h) / input.price) * 100 : 0;
+  const rangePct = input.price > 0 ? ((input.high24h - input.low24h) / input.price) * 100 : 0;
   const chg = input.change24hPct;
   const absChg = Math.abs(chg);
 
@@ -170,7 +171,8 @@ export function deriveQuantView(input: DeriveInput): QuantView {
   const checks: QuantCheck[] = [
     {
       id: "trend",
-      label: stance === "BULLISH" ? "Trend up" : stance === "BEARISH" ? "Trend down" : "No clear trend",
+      label:
+        stance === "BULLISH" ? "Trend up" : stance === "BEARISH" ? "Trend down" : "No clear trend",
       ok: trendOk && stance === "BULLISH",
       warn: stance === "BEARISH",
     },
@@ -214,7 +216,10 @@ export function deriveQuantView(input: DeriveInput): QuantView {
   confidence = Math.max(28, Math.min(88, confidence));
 
   let recommendation: QuantRecommendation = "NO_CLEAR_SETUP";
-  if (!input.hasApprovedStrategy || (bt && (bt.total_return_pct ?? 0) < -8 && (bt.trade_count ?? 0) > 3)) {
+  if (
+    !input.hasApprovedStrategy ||
+    (bt && (bt.total_return_pct ?? 0) < -8 && (bt.trade_count ?? 0) > 3)
+  ) {
     recommendation = "REVIEW_STRATEGY";
   } else if (input.hasOpenPosition && (risk === "HIGH" || losingOpen)) {
     recommendation = "REDUCE_EXPOSURE";

@@ -66,13 +66,21 @@ export const listShareClips = createServerFn({ method: "GET" }).handler(async ()
 
 export const createMarketingCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { name: string; channel?: string; brief?: string }) => {
-    const name = String(input.name ?? "").trim().slice(0, 120);
+  .validator((input: { name: string; channel?: string; brief?: string }) => {
+    const name = String(input.name ?? "")
+      .trim()
+      .slice(0, 120);
     if (name.length < 2) throw new Error("Campaign name is required.");
     return {
       name,
-      channel: String(input.channel ?? "Organic").trim().slice(0, 64) || "Organic",
-      brief: String(input.brief ?? "").trim().slice(0, 2000) || null,
+      channel:
+        String(input.channel ?? "Organic")
+          .trim()
+          .slice(0, 64) || "Organic",
+      brief:
+        String(input.brief ?? "")
+          .trim()
+          .slice(0, 2000) || null,
     };
   })
   .handler(async ({ data, context }) => {
@@ -114,7 +122,7 @@ export const createMarketingCampaign = createServerFn({ method: "POST" })
 
 export const scheduleMarketingPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       provider: string;
       body: string;
@@ -278,7 +286,7 @@ export const scheduleMarketingPost = createServerFn({ method: "POST" })
 
 export const generateMarketingImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { prompt: string; campaignId?: string | null }) => {
+  .validator((input: { prompt: string; campaignId?: string | null }) => {
     const prompt = String(input.prompt ?? "").trim();
     if (prompt.length < 8) throw new Error("Describe the image in a bit more detail.");
     return {
@@ -288,9 +296,7 @@ export const generateMarketingImage = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     if (!productImagesConfigured()) {
-      throw new Error(
-        "Set GEMINI_API_KEY (preferred) or OPENAI_API_KEY for image generation.",
-      );
+      throw new Error("Set GEMINI_API_KEY (preferred) or OPENAI_API_KEY for image generation.");
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const company = await ownedCompany(supabaseAdmin as unknown as LooseDb, context.userId);
@@ -336,8 +342,10 @@ export const generateMarketingImage = createServerFn({ method: "POST" })
 
 export const brainstormCampaignIdeas = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { prompt?: string; count?: number }) => ({
-    prompt: String(input.prompt ?? "").trim().slice(0, 800),
+  .validator((input: { prompt?: string; count?: number }) => ({
+    prompt: String(input.prompt ?? "")
+      .trim()
+      .slice(0, 800),
     count: Math.min(6, Math.max(2, Number(input.count) || 4)),
   }))
   .handler(async ({ data, context }) => {
@@ -430,16 +438,23 @@ export const getMarketingFunnel = createServerFn({ method: "GET" })
 
 export const updateMarketingFunnel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { name?: string; stages: FunnelStage[] }) => {
+  .validator((input: { name?: string; stages: FunnelStage[] }) => {
     if (!Array.isArray(input.stages) || input.stages.length < 2) {
       throw new Error("Funnel needs at least two stages.");
     }
     const stages = input.stages.slice(0, 8).map((s) => ({
       id: String(s.id ?? crypto.randomUUID()).slice(0, 40),
-      title: String(s.title ?? "Stage").trim().slice(0, 60) || "Stage",
-      hint: String(s.hint ?? "").trim().slice(0, 120),
+      title:
+        String(s.title ?? "Stage")
+          .trim()
+          .slice(0, 60) || "Stage",
+      hint: String(s.hint ?? "")
+        .trim()
+        .slice(0, 120),
       count: Math.max(0, Math.min(1_000_000, Number(s.count) || 0)),
-      notes: String(s.notes ?? "").trim().slice(0, 500),
+      notes: String(s.notes ?? "")
+        .trim()
+        .slice(0, 500),
     }));
     return {
       name: input.name ? String(input.name).trim().slice(0, 80) : undefined,

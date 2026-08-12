@@ -14,9 +14,7 @@ export const ALL_SOCIAL_PROVIDERS: SocialProvider[] = [
 ];
 
 export function isSocialProvider(v: unknown): v is SocialProvider {
-  return (
-    v === "x" || v === "linkedin" || v === "meta" || v === "tiktok" || v === "farcaster"
-  );
+  return v === "x" || v === "linkedin" || v === "meta" || v === "tiktok" || v === "farcaster";
 }
 
 export type SocialTokens = {
@@ -89,8 +87,7 @@ export function socialConfigured(provider: SocialProvider): boolean {
       const api = Boolean(process.env["NEYNAR_API_KEY"]?.trim());
       const agent =
         process.env["NEYNAR_AGENT_ID"]?.trim() || process.env["NEYNAR_SIGNER_UUID"]?.trim();
-      const fid =
-        process.env["NEYNAR_FARCASTER_FID"]?.trim() || process.env["NEYNAR_UID"]?.trim();
+      const fid = process.env["NEYNAR_FARCASTER_FID"]?.trim() || process.env["NEYNAR_UID"]?.trim();
       const custody = process.env["NEYNAR_CUSTODY_PRIVATE_KEY"]?.trim();
       return Boolean(api && (agent || (fid && custody)));
     }
@@ -163,7 +160,9 @@ export function authorizeUrl(
       return url.toString();
     }
     case "farcaster":
-      throw new Error("Farcaster uses the Neynar signer flow — call startFarcasterConnect instead.");
+      throw new Error(
+        "Farcaster uses the Neynar signer flow — call startFarcasterConnect instead.",
+      );
     default: {
       const _exhaustive: never = provider;
       return _exhaustive;
@@ -573,8 +572,7 @@ async function refreshMetaPageToken(
     }>;
   };
   const page =
-    (preferredPageId ? pages.data?.find((p) => p.id === preferredPageId) : null) ??
-    pages.data?.[0];
+    (preferredPageId ? pages.data?.find((p) => p.id === preferredPageId) : null) ?? pages.data?.[0];
   if (!page?.access_token) return null;
 
   return {

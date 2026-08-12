@@ -97,8 +97,7 @@ export function QuantDeskCockpit({
 
   const candlesQ = useQuery({
     queryKey: ["market-candles", market, interval],
-    queryFn: () =>
-      getMarketCandles({ data: { symbol: market, interval, limit: 96 } }),
+    queryFn: () => getMarketCandles({ data: { symbol: market, interval, limit: 96 } }),
     refetchInterval: 20_000,
     staleTime: 15_000,
   });
@@ -241,12 +240,8 @@ export function QuantDeskCockpit({
           ) : null}
           {openTrades.slice(0, 3).map((t) => {
             const long = t.side.toLowerCase() !== "short";
-            const tStop = long
-              ? t.entry * (1 - stopPct / 100)
-              : t.entry * (1 + stopPct / 100);
-            const tTarget = long
-              ? t.entry * (1 + takePct / 100)
-              : t.entry * (1 - takePct / 100);
+            const tStop = long ? t.entry * (1 - stopPct / 100) : t.entry * (1 + stopPct / 100);
+            const tTarget = long ? t.entry * (1 + takePct / 100) : t.entry * (1 - takePct / 100);
             return (
               <PositionCard
                 key={t.id}
@@ -285,10 +280,7 @@ export function QuantDeskCockpit({
         <OnchainPulse events={whaleEvents} />
       </div>
 
-      <RecentTradesList
-        trades={closedTrades}
-        onViewAll={() => onOpenDrawer("history")}
-      />
+      <RecentTradesList trades={closedTrades} onViewAll={() => onOpenDrawer("history")} />
 
       <DeskFooterActions
         onBacktest={() => onOpenDrawer("backtest")}

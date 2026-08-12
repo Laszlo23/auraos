@@ -6,12 +6,7 @@
  */
 
 export type AuraNetwork =
-  | "base-sepolia"
-  | "base"
-  | "bsc"
-  | "opbnb"
-  | "robinhood"
-  | "robinhood-testnet";
+  "base-sepolia" | "base" | "bsc" | "opbnb" | "robinhood" | "robinhood-testnet";
 
 /** Networks that can settle x402 EIP-3009 USDC with the default facilitator. */
 export type X402SettleNetwork = "base" | "base-sepolia";
@@ -138,10 +133,10 @@ const NETWORK_ALIASES: Record<string, AuraNetwork> = {
   "opbnb-mainnet": "opbnb",
   robinhood: "robinhood",
   "robinhood-mainnet": "robinhood",
-  "robinhoodchain": "robinhood",
+  robinhoodchain: "robinhood",
   rh: "robinhood",
   "robinhood-testnet": "robinhood-testnet",
-  "robinhoodtestnet": "robinhood-testnet",
+  robinhoodtestnet: "robinhood-testnet",
 };
 
 export const SUPPORTED_NETWORKS: AuraNetwork[] = [

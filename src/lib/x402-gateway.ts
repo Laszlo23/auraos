@@ -11,7 +11,12 @@
  * access, but settlement is simulated and logged with status `dev`.
  */
 import { X402_CATALOG, splitRevenue, type X402Endpoint } from "./x402-catalog";
-import { USDC_ADDRESSES, USDC_META, x402SettleNetwork, type X402SettleNetwork } from "./chain-config";
+import {
+  USDC_ADDRESSES,
+  USDC_META,
+  x402SettleNetwork,
+  type X402SettleNetwork,
+} from "./chain-config";
 import { isProdRuntime, resolveX402PayTo } from "./x402-config";
 import { genesisPriceUsdc } from "./genesis.server";
 

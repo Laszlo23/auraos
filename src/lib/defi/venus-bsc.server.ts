@@ -104,8 +104,7 @@ async function ethCall(to: Address, data: Hex): Promise<Hex> {
 }
 
 async function fetchErc20Balance(token: Address, owner: Address): Promise<bigint> {
-  const data =
-    `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
+  const data = `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
   const result = await ethCall(token, data);
   if (!result || result === "0x") return 0n;
   return BigInt(result);
@@ -186,9 +185,7 @@ export async function withdrawUsdcFromVenusBsc(args: {
   if (!(marked > 0)) throw new Error("No Venus vUSDC position to withdraw");
 
   const redeemUsdc =
-    args.amountUsdc && args.amountUsdc > 0
-      ? Math.min(args.amountUsdc, marked)
-      : marked;
+    args.amountUsdc && args.amountUsdc > 0 ? Math.min(args.amountUsdc, marked) : marked;
   const amount = usdcToUnits(redeemUsdc);
 
   const redeemData = encodeFunctionData({

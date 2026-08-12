@@ -1,8 +1,5 @@
 export type LandingTemplateId =
-  | "lead_magnet"
-  | "service_offer"
-  | "ebook_product"
-  | "subscription_daily";
+  "lead_magnet" | "service_offer" | "ebook_product" | "subscription_daily";
 
 export type SiteFaq = { q: string; a: string };
 
@@ -35,7 +32,10 @@ export const LANDING_TEMPLATES: {
       offer: "Free download · no spam",
       faq: [
         { q: "What do I get?", a: "A short PDF playbook delivered to your inbox." },
-        { q: "Will you spam me?", a: "No. One send for the guide; optional follow-ups only if you stay subscribed." },
+        {
+          q: "Will you spam me?",
+          a: "No. One send for the guide; optional follow-ups only if you stay subscribed.",
+        },
       ],
     },
   },
@@ -81,7 +81,10 @@ export const LANDING_TEMPLATES: {
       pricing: "$4.99 / month",
       productName: "Daily Drop",
       faq: [
-        { q: "When does it arrive?", a: "We generate and send once per day for active subscribers." },
+        {
+          q: "When does it arrive?",
+          a: "We generate and send once per day for active subscribers.",
+        },
         { q: "Can I cancel?", a: "Yes — manage in the Stripe customer portal or reply to cancel." },
       ],
     },
@@ -123,7 +126,10 @@ export const DEMO_SUBSCRIPTION_SITES = [
       productName: "Horoscope Daily",
       accent: "sky",
       faq: [
-        { q: "Is this AI?", a: "Yes — generated daily for subscribers. Take what resonates; leave the rest." },
+        {
+          q: "Is this AI?",
+          a: "Yes — generated daily for subscribers. Take what resonates; leave the rest.",
+        },
         { q: "When is it sent?", a: "Once per day while your subscription is active." },
       ],
     } satisfies SiteContent,
@@ -143,7 +149,10 @@ export const DEMO_SUBSCRIPTION_SITES = [
       productName: "Tarot Daily",
       accent: "rose",
       faq: [
-        { q: "How does it work?", a: "We draw a card theme and write a short reflection each day." },
+        {
+          q: "How does it work?",
+          a: "We draw a card theme and write a short reflection each day.",
+        },
         { q: "Cancel anytime?", a: "Yes." },
       ],
     } satisfies SiteContent,

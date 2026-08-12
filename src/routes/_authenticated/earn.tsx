@@ -242,8 +242,8 @@ function EarnPage() {
 
           <Panel label="Reward schedule">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Paid conversions only. Claimed AURA lands in your company reserve for compute — separate
-              from any token launch.
+              Paid conversions only. Claimed AURA lands in your company reserve for compute —
+              separate from any token launch.
             </p>
             <div className="mt-5 space-y-3">
               {REFERRAL_TIERS.map((tier, i) => (
@@ -267,8 +267,8 @@ function EarnPage() {
               ))}
             </div>
             <p className="mt-4 text-[12px] text-muted-foreground">
-              Maximum {REFERRAL_MAX.toLocaleString()} AURA per founder · invitee welcome 1,000 AURA on
-              paid seat.
+              Maximum {REFERRAL_MAX.toLocaleString()} AURA per founder · invitee welcome 1,000 AURA
+              on paid seat.
             </p>
           </Panel>
 
@@ -342,8 +342,8 @@ function EarnPage() {
             <div className="flex gap-3">
               <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <p className="text-[13px] leading-relaxed text-muted-foreground">
-                AURA here is compute fuel for online businesses on Aura OS — not a token sale payout.
-                Growing the cohort extends runway without ads.
+                AURA here is compute fuel for online businesses on Aura OS — not a token sale
+                payout. Growing the cohort extends runway without ads.
               </p>
             </div>
           </Panel>

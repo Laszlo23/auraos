@@ -84,12 +84,7 @@ function defaultCountry(): string {
 }
 
 export function formatConnectError(err: unknown, fallback: string): Error {
-  const raw =
-    err instanceof Error
-      ? err.message
-      : typeof err === "string"
-        ? err
-        : fallback;
+  const raw = err instanceof Error ? err.message : typeof err === "string" ? err : fallback;
   const lower = raw.toLowerCase();
   if (
     lower.includes("signed up for connect") ||
@@ -156,8 +151,7 @@ export function isMerchantChargesActive(account: ConnectAccount): boolean {
 }
 
 export function isMerchantPayoutsActive(account: ConnectAccount): boolean {
-  const payouts =
-    account.configuration?.merchant?.capabilities?.stripe_balance?.payouts?.status;
+  const payouts = account.configuration?.merchant?.capabilities?.stripe_balance?.payouts?.status;
   if (payouts === "active") return true;
   if (account.capabilities?.transfers === "active") return true;
   return Boolean(account.payouts_enabled);
@@ -172,15 +166,12 @@ export async function retrieveConnectAccount(accountId: string): Promise<Connect
 
   const v2Msg = json.error?.message || `Could not load Stripe account (${res.status})`;
   // Fall back to classic retrieve (works for v1 Express/Standard and many v2 IDs).
-  const v1 = await fetch(
-    `https://api.stripe.com/v1/accounts/${encodeURIComponent(accountId)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${secret()}`,
-        "Stripe-Version": STRIPE_API_VERSION,
-      },
+  const v1 = await fetch(`https://api.stripe.com/v1/accounts/${encodeURIComponent(accountId)}`, {
+    headers: {
+      Authorization: `Bearer ${secret()}`,
+      "Stripe-Version": STRIPE_API_VERSION,
     },
-  );
+  });
   const v1json = (await v1.json()) as ConnectAccount;
   if (!v1.ok || !v1json.id) {
     throw formatConnectError(
@@ -328,14 +319,8 @@ export async function createConnectAccountLink(opts: {
   refreshPath?: string;
 }): Promise<string> {
   const origin = (process.env["SITE_URL"] || SITE_URL).replace(/\/+$/, "");
-  const returnPath = sanitizeConnectReturnPath(
-    opts.returnPath,
-    "/billing?connect=return",
-  );
-  const refreshPath = sanitizeConnectReturnPath(
-    opts.refreshPath,
-    "/billing?connect=refresh",
-  );
+  const returnPath = sanitizeConnectReturnPath(opts.returnPath, "/billing?connect=return");
+  const refreshPath = sanitizeConnectReturnPath(opts.refreshPath, "/billing?connect=refresh");
   const returnUrl = `${origin}${returnPath}`;
   const refreshUrl = `${origin}${refreshPath}`;
 

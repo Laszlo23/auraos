@@ -1,11 +1,7 @@
 // Neynar managed signer helpers for Farcaster channel connect.
 import { privateKeyToAccount } from "viem/accounts";
 
-import {
-  encryptToken,
-  saveConnectionTokens,
-  type SocialTokens,
-} from "@/lib/social-oauth.server";
+import { encryptToken, saveConnectionTokens, type SocialTokens } from "@/lib/social-oauth.server";
 
 const NEYNAR_BASE = "https://api.neynar.com/v2";
 
@@ -199,10 +195,7 @@ export async function fetchChannelFeed(
     .filter((c): c is FarcasterCastCard => Boolean(c));
 }
 
-export async function searchFarcasterUsers(
-  query: string,
-  limit = 8,
-): Promise<FarcasterUserCard[]> {
+export async function searchFarcasterUsers(query: string, limit = 8): Promise<FarcasterUserCard[]> {
   const q = query.trim().replace(/^@/, "").slice(0, 64);
   if (!q) return [];
   const url = new URL(`${NEYNAR_BASE}/farcaster/user/search`);
@@ -386,10 +379,9 @@ export async function lookupFarcasterSigner(signerUuid: string): Promise<Farcast
   let username: string | null = null;
   if (json.status === "approved" && json.fid) {
     try {
-      const userRes = await fetch(
-        `${NEYNAR_BASE}/farcaster/user/bulk?fids=${json.fid}`,
-        { headers: neynarHeaders() },
-      );
+      const userRes = await fetch(`${NEYNAR_BASE}/farcaster/user/bulk?fids=${json.fid}`, {
+        headers: neynarHeaders(),
+      });
       if (userRes.ok) {
         const users = (await userRes.json()) as {
           users?: Array<{ username?: string }>;
@@ -452,7 +444,9 @@ export async function publishFarcasterCast(
   const user = json.cast.author?.username;
   return {
     hash,
-    url: user ? `https://warpcast.com/${user}/${hash.slice(0, 10)}` : `https://warpcast.com/~/conversations/${hash}`,
+    url: user
+      ? `https://warpcast.com/${user}/${hash.slice(0, 10)}`
+      : `https://warpcast.com/~/conversations/${hash}`,
   };
 }
 

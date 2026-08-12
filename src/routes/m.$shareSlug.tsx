@@ -71,7 +71,11 @@ function PublicMissionPage() {
             <>
               {" "}
               ·{" "}
-              <Link to="/company/$slug" params={{ slug: data.companySlug }} className="text-primary">
+              <Link
+                to="/company/$slug"
+                params={{ slug: data.companySlug }}
+                className="text-primary"
+              >
                 /company/{data.companySlug}
               </Link>
             </>
@@ -80,9 +84,7 @@ function PublicMissionPage() {
         <div className="mt-4 flex flex-wrap gap-2">
           <Chip tone="primary">{data.status}</Chip>
           <Chip tone="gold">#{data.missionNumber}</Chip>
-          {data.interventions > 0 && (
-            <Chip tone="primary">{data.interventions} interventions</Chip>
-          )}
+          {data.interventions > 0 && <Chip tone="primary">{data.interventions} interventions</Chip>}
         </div>
       </div>
 

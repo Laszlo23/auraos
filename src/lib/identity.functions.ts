@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /** Issues a fresh one-time challenge for a wallet slot and returns the message to sign. */
 export const issueWalletChallenge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { walletId: string }) => input)
+  .validator((input: { walletId: string }) => input)
   .handler(async ({ data, context }) => {
     const { challengeMessage } = await import("./identity.server");
     const { data: wallet, error } = await context.supabase
@@ -30,7 +30,7 @@ export const issueWalletChallenge = createServerFn({ method: "POST" })
 /** Verifies an EIP-191 signature against the stored challenge and marks the wallet verified. */
 export const confirmWalletBinding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { walletId: string; signature: string }) => input)
+  .validator((input: { walletId: string; signature: string }) => input)
   .handler(async ({ data, context }) => {
     const { challengeMessage, verifyWalletSignature } = await import("./identity.server");
     const { data: wallet, error } = await context.supabase

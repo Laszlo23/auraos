@@ -18,8 +18,12 @@ function NachbarEntdeckenPage() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Entdecken</p>
-        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Läden in der Cohort</h1>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+          Entdecken
+        </p>
+        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+          Läden in der Cohort
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Erste 1000 Local Seats — echte Betriebe, keine Fake-Sterne.
         </p>
@@ -45,7 +49,12 @@ function NachbarEntdeckenPage() {
                   </Link>
                 ) : null}
                 {shop.homepage_url ? (
-                  <a href={shop.homepage_url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground">
+                  <a
+                    href={shop.homepage_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground"
+                  >
                     Website
                   </a>
                 ) : null}

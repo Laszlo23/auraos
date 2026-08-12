@@ -85,8 +85,7 @@ export function GenesisPassport({
   const st = status?.status ?? "none";
   const minted = st === "minted" || Boolean(status?.ownsOnchain);
   const tokenId = status?.tokenId ?? seat ?? null;
-  const metaUrl =
-    tokenId != null ? `/api/genesis/meta/${tokenId}` : "/api/genesis/meta/1";
+  const metaUrl = tokenId != null ? `/api/genesis/meta/${tokenId}` : "/api/genesis/meta/1";
 
   return (
     <Panel label="Genesis · Founding Company Passport" delay={0.06} glow={minted}>
@@ -114,17 +113,21 @@ export function GenesisPassport({
 
         <div>
           <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Membership utility for founding companies — not an investment product and not part of the
-            token launch. Pay first, then claim a server-gated mint to your smart wallet.
+            Membership utility for founding companies — not an investment product and not part of
+            the token launch. Pay first, then claim a server-gated mint to your smart wallet.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="glass-soft rounded-2xl p-4">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Company</p>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                Company
+              </p>
               <p className="mt-1 font-semibold">{companyName ?? "Your company"}</p>
               {slug && <p className="mt-1 font-mono text-[11px] text-primary">/company/{slug}</p>}
             </div>
             <div className="glass-soft rounded-2xl p-4">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Status</p>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                Status
+              </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {minted ? (
                   <Chip tone="gold">Minted</Chip>

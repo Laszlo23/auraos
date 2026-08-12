@@ -44,7 +44,7 @@ function mergeDeployedChains(
  */
 export const provisionSmartWallet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { handleId: string; redeploy?: boolean; network?: string }) => {
+  .validator((input: { handleId: string; redeploy?: boolean; network?: string }) => {
     if (!input.handleId) throw new Error("A handle is required.");
     return input;
   })
@@ -318,7 +318,7 @@ export const provisionSmartWallet = createServerFn({ method: "POST" })
  */
 export const issueAgentSessionKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       companyId: string;
       agentId: string | null;
@@ -388,7 +388,7 @@ export const issueAgentSessionKey = createServerFn({ method: "POST" })
 /** Revokes a session key immediately and clears signing material. */
 export const revokeAgentSessionKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { id: string }) => input)
+  .validator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("agent_session_keys")
@@ -401,7 +401,7 @@ export const revokeAgentSessionKey = createServerFn({ method: "POST" })
 /** Attempts a sponsored deploy of the founder's smart account. */
 export const deploySmartWallet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { handleId: string }) => input)
+  .validator((input: { handleId: string }) => input)
   .handler(async ({ data, context }) => {
     return provisionSmartWallet({ data: { handleId: data.handleId, redeploy: true } });
   });

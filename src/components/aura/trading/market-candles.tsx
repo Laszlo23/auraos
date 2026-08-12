@@ -114,7 +114,9 @@ export function MarketCandles({
               onClick={() => onIntervalChange(iv)}
               className={cn(
                 "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase",
-                interval === iv ? "bg-primary/16 text-primary" : "bg-foreground/6 text-muted-foreground",
+                interval === iv
+                  ? "bg-primary/16 text-primary"
+                  : "bg-foreground/6 text-muted-foreground",
               )}
             >
               {iv}
@@ -145,9 +147,13 @@ export function MarketCandles({
 
       {levels && (levels.entry || levels.stop || levels.target) ? (
         <div className="mb-3 flex flex-wrap gap-2">
-          {levels.entry != null ? <Chip tone="primary">ENTRY ${levels.entry.toFixed(2)}</Chip> : null}
+          {levels.entry != null ? (
+            <Chip tone="primary">ENTRY ${levels.entry.toFixed(2)}</Chip>
+          ) : null}
           {levels.stop != null ? <Chip tone="danger">STOP ${levels.stop.toFixed(2)}</Chip> : null}
-          {levels.target != null ? <Chip tone="gold">TARGET ${levels.target.toFixed(2)}</Chip> : null}
+          {levels.target != null ? (
+            <Chip tone="gold">TARGET ${levels.target.toFixed(2)}</Chip>
+          ) : null}
         </div>
       ) : null}
 
@@ -161,7 +167,11 @@ export function MarketCandles({
             No chart data
           </p>
         ) : (
-          <svg viewBox={`0 0 ${chart.w} ${chart.h}`} className="h-full w-full" preserveAspectRatio="none">
+          <svg
+            viewBox={`0 0 ${chart.w} ${chart.h}`}
+            className="h-full w-full"
+            preserveAspectRatio="none"
+          >
             {chart.bodies.map((b, i) => (
               <g key={i}>
                 <line

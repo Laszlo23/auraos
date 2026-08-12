@@ -8,10 +8,7 @@ import { getOpsDashboard, triggerOpsTick, type OpsDashboard } from "@/lib/ops.fu
 
 export const Route = createFileRoute("/_authenticated/ops")({
   head: () => ({
-    meta: [
-      { title: "Ops — Aura OS" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Ops — Aura OS" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: OpsPage,
 });
@@ -103,13 +100,7 @@ function OpsPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Last worker heartbeat"
-          value={
-            hbAgeMin == null
-              ? "never"
-              : hbAgeMin < 1
-                ? "just now"
-                : `${hbAgeMin}m ago`
-          }
+          value={hbAgeMin == null ? "never" : hbAgeMin < 1 ? "just now" : `${hbAgeMin}m ago`}
         />
         <Stat label="Active missions" value={String(data.activeMissionCount)} />
         <Stat label="Spins today" value={String(data.spinsToday)} />
@@ -122,10 +113,7 @@ function OpsPage() {
         ) : (
           <ul className="space-y-2">
             {data.stuckMissions.map((m) => (
-              <li
-                key={m.id}
-                className="rounded-2xl border border-border/40 px-3 py-2 text-[12px]"
-              >
+              <li key={m.id} className="rounded-2xl border border-border/40 px-3 py-2 text-[12px]">
                 <div className="font-medium text-foreground/90">
                   {(m.goal_text || "Mission").slice(0, 80)}
                 </div>

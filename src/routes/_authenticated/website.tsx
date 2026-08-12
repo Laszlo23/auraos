@@ -20,10 +20,7 @@ import {
   updateCompanySite,
   type CompanySiteRow,
 } from "@/lib/sites.functions";
-import {
-  createConnectedSitePrice,
-  getStripeConnectStatus,
-} from "@/lib/stripe-connect.functions";
+import { createConnectedSitePrice, getStripeConnectStatus } from "@/lib/stripe-connect.functions";
 import { LANDING_TEMPLATES, type SiteContent } from "@/lib/sites/templates";
 import { SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -41,8 +38,7 @@ export const Route = createFileRoute("/_authenticated/website")({
       { title: "Website — Aura OS" },
       {
         name: "description",
-        content:
-          "Pick a landing template, edit copy, preview, and publish a real public URL.",
+        content: "Pick a landing template, edit copy, preview, and publish a real public URL.",
       },
       { property: "og:title", content: "Website — Aura OS" },
       { property: "og:description", content: "Publishable company landings on Aura OS." },
@@ -250,11 +246,7 @@ function WebsitePage() {
         description="Aura landing templates — edit copy, preview the real render, publish a shareable /s/$slug URL."
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            {site?.status === "published" ? (
-              <Chip tone="gold">Live</Chip>
-            ) : (
-              <Chip>Draft</Chip>
-            )}
+            {site?.status === "published" ? <Chip tone="gold">Live</Chip> : <Chip>Draft</Chip>}
             {review?.status === "reviewed" ? (
               <Chip tone="primary">Aura reviewed your page</Chip>
             ) : review?.status === "queued" ? (
@@ -318,7 +310,9 @@ function WebsitePage() {
             onClick={() => setSelectedId(s.id)}
             className={cn(
               "rounded-2xl px-3 py-1.5 text-[12px] font-medium",
-              s.id === activeId ? "bg-primary/15 text-primary" : "bg-foreground/6 text-muted-foreground",
+              s.id === activeId
+                ? "bg-primary/15 text-primary"
+                : "bg-foreground/6 text-muted-foreground",
             )}
           >
             {s.content.brand || s.slug}
@@ -448,9 +442,7 @@ function WebsitePage() {
                       <label className="block text-[11px] text-muted-foreground">
                         Interval
                         <select
-                          value={
-                            site.template_id === "ebook_product" ? "one_time" : priceInterval
-                          }
+                          value={site.template_id === "ebook_product" ? "one_time" : priceInterval}
                           disabled={site.template_id === "ebook_product"}
                           onChange={(e) =>
                             setPriceInterval(e.target.value as "one_time" | "month" | "year")
@@ -568,17 +560,21 @@ function SiteLeadsPanel() {
         Akquise / mailbox.
       </p>
       <ul className="space-y-3">
-        {leads.slice(0, 12).map((lead: { id: string; email: string; status: string; draft_subject: string | null }) => (
-          <li key={lead.id} className="rounded-2xl border border-border/50 px-3 py-2">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-sm font-medium">{lead.email}</span>
-              <Chip>{lead.status}</Chip>
-            </div>
-            {lead.draft_subject ? (
-              <p className="mt-1 text-[12px] text-muted-foreground">{lead.draft_subject}</p>
-            ) : null}
-          </li>
-        ))}
+        {leads
+          .slice(0, 12)
+          .map(
+            (lead: { id: string; email: string; status: string; draft_subject: string | null }) => (
+              <li key={lead.id} className="rounded-2xl border border-border/50 px-3 py-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-sm font-medium">{lead.email}</span>
+                  <Chip>{lead.status}</Chip>
+                </div>
+                {lead.draft_subject ? (
+                  <p className="mt-1 text-[12px] text-muted-foreground">{lead.draft_subject}</p>
+                ) : null}
+              </li>
+            ),
+          )}
       </ul>
     </Panel>
   );

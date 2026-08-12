@@ -24,7 +24,9 @@ export function accessTokenFromRequest(request: Request): string | null {
   return null;
 }
 
-export async function requireUserFromRequest(request: Request): Promise<
+export async function requireUserFromRequest(
+  request: Request,
+): Promise<
   | { ok: true; userId: string; token: string; supabase: ReturnType<typeof createClient<Database>> }
   | { ok: false; response: Response }
 > {

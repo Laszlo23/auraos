@@ -50,8 +50,7 @@ export function ArenaBoard({
           </div>
           {you && (
             <p className="mt-3 text-[13px]">
-              Your rank{" "}
-              <span className="num font-semibold text-gold">#{you.rank ?? "—"}</span>
+              Your rank <span className="num font-semibold text-gold">#{you.rank ?? "—"}</span>
               {" · "}
               score <span className="num">{you.score.toFixed(1)}</span>
               {" · "}
@@ -72,9 +71,7 @@ export function ArenaBoard({
                     e.isYou ? "bg-gold/10" : "bg-foreground/[0.03]",
                   )}
                 >
-                  <span className="num w-6 text-[12px] text-muted-foreground">
-                    {e.rank ?? "—"}
-                  </span>
+                  <span className="num w-6 text-[12px] text-muted-foreground">{e.rank ?? "—"}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-medium">
                       {e.company_name || "Desk"}

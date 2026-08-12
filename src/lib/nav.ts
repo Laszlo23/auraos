@@ -59,7 +59,6 @@ export const NAV: NavItem[] = [
     hint: "Boss-ready summary of posts and agent work this week",
     icon: Receipt,
     group: "Company",
-    core: true,
   },
   {
     to: "/missions",
@@ -89,7 +88,6 @@ export const NAV: NavItem[] = [
     icon: Users,
     group: "Company",
     live: true,
-    core: true,
   },
   {
     to: "/tasks",
@@ -99,7 +97,6 @@ export const NAV: NavItem[] = [
     icon: Layers,
     group: "Company",
     live: true,
-    core: true,
   },
   {
     to: "/automation",
@@ -211,7 +208,6 @@ export const NAV: NavItem[] = [
     icon: Store,
     group: "Surface",
     live: true,
-    core: true,
   },
   {
     to: "/channels",
@@ -221,7 +217,6 @@ export const NAV: NavItem[] = [
     icon: Hash,
     group: "Surface",
     live: true,
-    core: true,
   },
   {
     to: "/analytics",
@@ -241,9 +236,10 @@ export const NAV: NavItem[] = [
   {
     to: "/files",
     label: "Files",
-    hint: "Documents your agents can read",
+    hint: "Docs + bills · Ledger tax-prep assist",
     icon: FolderClosed,
     group: "Memory",
+    core: true,
   },
 
   {
@@ -278,7 +274,6 @@ export const NAV: NavItem[] = [
     icon: Gift,
     group: "System",
     live: true,
-    core: true,
   },
   {
     to: "/identity",
@@ -315,25 +310,24 @@ export const navLabel = (item: NavItem, simple: boolean) =>
 /** The short list a first-time user should see. */
 export const CORE_NAV = NAV.filter((n) => n.core);
 
+/** Always keep Settings reachable in simple lists. */
+function withSettings(items: NavItem[]): NavItem[] {
+  if (items.some((n) => n.to === "/settings")) return items;
+  const settings = NAV.find((n) => n.to === "/settings");
+  return settings ? [...items, settings] : items;
+}
+
 /** Filter nav by funnel preset paths. Empty preset = default CORE_NAV when simple. */
-export function navForFunnel(
-  corePaths: string[],
-  simple: boolean,
-): NavItem[] {
+export function navForFunnel(corePaths: string[], simple: boolean): NavItem[] {
   if (!corePaths.length) {
-    return simple ? CORE_NAV : NAV;
+    return simple ? withSettings(CORE_NAV) : NAV;
   }
   const allowed = new Set(corePaths);
   const filtered = NAV.filter((n) => allowed.has(n.to));
-  // Always keep Settings reachable.
-  if (!filtered.some((n) => n.to === "/settings")) {
-    const settings = NAV.find((n) => n.to === "/settings");
-    if (settings) filtered.push(settings);
-  }
   if (!simple) {
     // Full mode: show funnel core first, then remaining items.
     const rest = NAV.filter((n) => !allowed.has(n.to));
     return [...filtered, ...rest];
   }
-  return filtered;
+  return withSettings(filtered);
 }

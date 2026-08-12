@@ -22,9 +22,12 @@ function deskPrimarySymbol(): string {
   return networkSpec(activeNetwork()).primaryPair;
 }
 
-async function ensureQuant(supabase: {
-  from: (t: string) => any;
-}, companyId: string) {
+async function ensureQuant(
+  supabase: {
+    from: (t: string) => any;
+  },
+  companyId: string,
+) {
   const { data: existing } = await supabase
     .from("agents")
     .select("id, memory, lessons_count")
@@ -75,7 +78,11 @@ async function ensureQuant(supabase: {
   return created as { id: string; memory: string | null; lessons_count: number };
 }
 
-async function ownedCompany(supabase: { from: (t: string) => any }, userId: string, companyId: string) {
+async function ownedCompany(
+  supabase: { from: (t: string) => any },
+  userId: string,
+  companyId: string,
+) {
   const { data } = await supabase
     .from("companies")
     .select(
@@ -91,7 +98,7 @@ async function ownedCompany(supabase: { from: (t: string) => any }, userId: stri
 /** Ensure Quant exists when opening the desk. */
 export const ensureTradingDesk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => {
+  .validator((input: { companyId: string }) => {
     if (!input.companyId) throw new Error("companyId required");
     return input;
   })
@@ -130,7 +137,7 @@ export const ensureTradingDesk = createServerFn({ method: "POST" })
 /** LLM: natural language → validated strategy spec (draft). */
 export const createStrategyFromPrompt = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; prompt: string }) => {
+  .validator((input: { companyId: string; prompt: string }) => {
     if (!input.companyId || !input.prompt?.trim()) throw new Error("Prompt required");
     return { companyId: input.companyId, prompt: input.prompt.trim().slice(0, 2000) };
   })
@@ -226,7 +233,7 @@ If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), ho
 /** Run real candle backtest and persist results. */
 export const runStrategyBacktest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; strategyId: string }) => {
+  .validator((input: { companyId: string; strategyId: string }) => {
     if (!input.companyId || !input.strategyId) throw new Error("strategyId required");
     return input;
   })
@@ -278,7 +285,7 @@ export const runStrategyBacktest = createServerFn({ method: "POST" })
 /** Approve strategy — founder action on the desk is the gate. */
 export const approveStrategy = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; strategyId: string }) => input)
+  .validator((input: { companyId: string; strategyId: string }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     const { data: strategy } = await context.supabase
@@ -318,7 +325,7 @@ export const approveStrategy = createServerFn({ method: "POST" })
   });
 export const setTradingDeskArmed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; armed: boolean }) => input)
+  .validator((input: { companyId: string; armed: boolean }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
 
@@ -364,8 +371,9 @@ export const setTradingDeskArmed = createServerFn({ method: "POST" })
       message: data.armed ? "Trading desk armed" : "Trading desk disarmed",
     });
 
-    let tick: Awaited<ReturnType<typeof import("@/lib/trading-worker.server").runTradingTick>> | null =
-      null;
+    let tick: Awaited<
+      ReturnType<typeof import("@/lib/trading-worker.server").runTradingTick>
+    > | null = null;
     if (data.armed) {
       try {
         const { runTradingTick } = await import("@/lib/trading-worker.server");
@@ -381,7 +389,7 @@ export const setTradingDeskArmed = createServerFn({ method: "POST" })
 /** Founder-triggered Quant tick — evaluate strategies + execute for this company now. */
 export const triggerTradingTick = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string }) => ({
+  .validator((input: { companyId: string }) => ({
     companyId: String(input.companyId),
   }))
   .handler(async ({ data, context }) => {
@@ -400,7 +408,7 @@ export const triggerTradingTick = createServerFn({ method: "POST" })
 
 export const updateTradingRisk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       companyId: string;
       max_risk_pct?: number;
@@ -443,7 +451,7 @@ export const updateTradingRisk = createServerFn({ method: "POST" })
 
 export const followSmartMoneyWallet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; walletId: string; follow: boolean }) => input)
+  .validator((input: { companyId: string; walletId: string; follow: boolean }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     const { error } = await context.supabase
@@ -457,7 +465,7 @@ export const followSmartMoneyWallet = createServerFn({ method: "POST" })
 
 export const mirrorSmartMoneyEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; eventId: string }) => input)
+  .validator((input: { companyId: string; eventId: string }) => input)
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     const { data: event } = await context.supabase
@@ -467,10 +475,7 @@ export const mirrorSmartMoneyEvent = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!event) throw new Error("Event not found");
 
-    const notional = Math.min(
-      Number(company.max_notional_usdc_day ?? 250) * 0.2,
-      100,
-    );
+    const notional = Math.min(Number(company.max_notional_usdc_day ?? 250) * 0.2, 100);
     const side = event.direction === "in" ? "long" : "flat";
     const { data: signal, error } = await context.supabase
       .from("trading_signals")
@@ -499,7 +504,7 @@ export const mirrorSmartMoneyEvent = createServerFn({ method: "POST" })
 
 export const approveTradingSignal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; signalId: string }) => input)
+  .validator((input: { companyId: string; signalId: string }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     const { error } = await context.supabase
@@ -514,7 +519,7 @@ export const approveTradingSignal = createServerFn({ method: "POST" })
 
 export const rejectTradingSignal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; signalId: string }) => input)
+  .validator((input: { companyId: string; signalId: string }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     await context.supabase
@@ -528,7 +533,7 @@ export const rejectTradingSignal = createServerFn({ method: "POST" })
 /** One-tap preset → draft → backtest → approve (passive onboarding). */
 export const applyTradingPreset = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; presetId: string }) => {
+  .validator((input: { companyId: string; presetId: string }) => {
     if (!input.companyId || !input.presetId) throw new Error("presetId required");
     return input;
   })
@@ -749,7 +754,8 @@ export const getHolderPerks = createServerFn({ method: "GET" })
       .eq("company_id", company.id)
       .maybeSingle();
     const { buildHolderPerks } = await import("@/lib/trading/holder-perks");
-    const nftContract = process.env["VITE_GENESIS_NFT_CONTRACT"] ?? process.env["GENESIS_NFT_CONTRACT"] ?? null;
+    const nftContract =
+      process.env["VITE_GENESIS_NFT_CONTRACT"] ?? process.env["GENESIS_NFT_CONTRACT"] ?? null;
     let hasGenesisNft = false;
     try {
       const { data: handle } = await context.supabase
@@ -792,7 +798,7 @@ export const getHolderPerks = createServerFn({ method: "GET" })
 /** Live market quote for the Trading Desk (poll from client). */
 export const getMarketQuote = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input?: { symbol?: string }) => ({
+  .validator((input?: { symbol?: string }) => ({
     symbol: String(input?.symbol ?? deskPrimarySymbol()),
   }))
   .handler(async ({ data }) => {
@@ -803,7 +809,7 @@ export const getMarketQuote = createServerFn({ method: "GET" })
 /** OHLC candles for the Quant Desk chart. */
 export const getMarketCandles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input?: { symbol?: string; interval?: string; limit?: number }) => {
+  .validator((input?: { symbol?: string; interval?: string; limit?: number }) => {
     const interval = String(input?.interval ?? "15m");
     const allowed = ["5m", "15m", "1h", "4h", "1d"] as const;
     if (!allowed.includes(interval as (typeof allowed)[number])) {
@@ -865,22 +871,22 @@ export const getTradingArena = createServerFn({ method: "GET" })
 
     const { data: entries } = await context.supabase
       .from("trading_season_entries")
-      .select(
-        "company_id, company_name, realized_pnl, trade_count, score, rank, max_drawdown_pct",
-      )
+      .select("company_id, company_name, realized_pnl, trade_count, score, rank, max_drawdown_pct")
       .eq("season_id", season.id)
       .order("score", { ascending: false })
       .limit(25);
 
-    const mapped = ((entries ?? []) as {
-      company_id: string;
-      company_name: string | null;
-      realized_pnl: number;
-      trade_count: number;
-      score: number;
-      rank: number | null;
-      max_drawdown_pct: number;
-    }[]).map((e) => ({
+    const mapped = (
+      (entries ?? []) as {
+        company_id: string;
+        company_name: string | null;
+        realized_pnl: number;
+        trade_count: number;
+        score: number;
+        rank: number | null;
+        max_drawdown_pct: number;
+      }[]
+    ).map((e) => ({
       ...e,
       realized_pnl: Number(e.realized_pnl),
       score: Number(e.score),
@@ -914,7 +920,7 @@ function randomShareSlug() {
 /** Lab: run / re-run backtest with walk-forward, optional bars or date window. */
 export const runBacktestLab = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       companyId: string;
       strategyId: string;
@@ -965,9 +971,7 @@ export const runBacktestLab = createServerFn({ method: "POST" })
       ...(data.startingEquity != null ? { startingEquity: data.startingEquity } : {}),
     };
     const full = runBacktest(candles, spec, source, opts);
-    const walk = data.walkForward
-      ? runWalkForward(candles, spec, source, opts)
-      : null;
+    const walk = data.walkForward ? runWalkForward(candles, spec, source, opts) : null;
     const risk = buildBacktestRiskCard(spec, full);
     const window = {
       from_ms: candles[0]?.t ?? null,
@@ -1013,7 +1017,7 @@ export const runBacktestLab = createServerFn({ method: "POST" })
 /** Compare all presets on the same candle window. */
 export const comparePresetBacktests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; bars?: number }) => input)
+  .validator((input: { companyId: string; bars?: number }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     const { fetchCandles } = await import("@/lib/trading/market-data.server");
@@ -1044,7 +1048,7 @@ export const comparePresetBacktests = createServerFn({ method: "POST" })
 /** Freeze a backtest snapshot for sharing. */
 export const shareBacktestSnapshot = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; strategyId: string }) => input)
+  .validator((input: { companyId: string; strategyId: string }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     const { data: strategy } = await context.supabase
@@ -1076,7 +1080,7 @@ export const shareBacktestSnapshot = createServerFn({ method: "POST" })
 /** Paper vs live desk mode. Paper fills never enter the arena. */
 export const setTradingPaperMode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; paper: boolean }) => input)
+  .validator((input: { companyId: string; paper: boolean }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     const { error } = await context.supabase
@@ -1102,7 +1106,7 @@ export const setTradingPaperMode = createServerFn({ method: "POST" })
 /** Compare closed live fills to the strategy's last backtest. */
 export const getExecutionVsBacktest = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { companyId: string; strategyId?: string }) => input)
+  .validator((input: { companyId: string; strategyId?: string }) => input)
   .handler(async ({ data, context }) => {
     await ownedCompany(context.supabase, context.userId, data.companyId);
     let strategyQuery = context.supabase

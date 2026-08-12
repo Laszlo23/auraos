@@ -10,7 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 export const triggerWorkerTick = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { taskId?: string } | undefined) => {
+  .validator((input: { taskId?: string } | undefined) => {
     const out: { taskId?: string } = {};
     if (input?.taskId) out.taskId = String(input.taskId);
     return out;
@@ -51,10 +51,7 @@ export const triggerWorkerTick = createServerFn({ method: "POST" })
     return {
       ok: true as const,
       tasksProcessed,
-      taskErrors: [
-        ...(one && !one.ok && one.error ? [one.error] : []),
-        ...tasks.errors,
-      ],
+      taskErrors: [...(one && !one.ok && one.error ? [one.error] : []), ...tasks.errors],
       focusedTaskOk: one?.ok ?? null,
       channels,
       engagement,
@@ -64,7 +61,7 @@ export const triggerWorkerTick = createServerFn({ method: "POST" })
 /** Re-queue failed AI tasks (e.g. freellm_unreachable) and run them now. */
 export const retryFailedAiTasks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { taskId?: string } | undefined) => {
+  .validator((input: { taskId?: string } | undefined) => {
     const out: { taskId?: string } = {};
     if (input?.taskId) out.taskId = String(input.taskId);
     return out;

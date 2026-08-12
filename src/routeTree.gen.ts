@@ -84,6 +84,7 @@ import { Route as NachbarHeuteRouteImport } from './routes/nachbar/heute'
 import { Route as NachbarIchRouteImport } from './routes/nachbar/ich'
 import { Route as NachbarVerdienenRouteImport } from './routes/nachbar/verdienen'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
+import { Route as PartnersFioRouteImport } from './routes/partners.fio'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as TbShareSlugRouteImport } from './routes/tb.$shareSlug'
@@ -493,6 +494,11 @@ const OauthConsentRoute = OauthConsentRouteImport.update({
   path: '/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersFioRoute = PartnersFioRouteImport.update({
+  id: '/partners/fio',
+  path: '/partners/fio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RRunIdRoute = RRunIdRouteImport.update({
   id: '/r/$runId',
   path: '/r/$runId',
@@ -736,6 +742,7 @@ export interface FileRoutesByFullPath {
   '/nachbar/ich': typeof NachbarIchRoute
   '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
+  '/partners/fio': typeof PartnersFioRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
@@ -843,6 +850,7 @@ export interface FileRoutesByTo {
   '/nachbar/ich': typeof NachbarIchRoute
   '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
+  '/partners/fio': typeof PartnersFioRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
@@ -953,6 +961,7 @@ export interface FileRoutesById {
   '/nachbar/ich': typeof NachbarIchRoute
   '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
+  '/partners/fio': typeof PartnersFioRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
@@ -1063,6 +1072,7 @@ export interface FileRouteTypes {
     | '/nachbar/ich'
     | '/nachbar/verdienen'
     | '/oauth/consent'
+    | '/partners/fio'
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
@@ -1170,6 +1180,7 @@ export interface FileRouteTypes {
     | '/nachbar/ich'
     | '/nachbar/verdienen'
     | '/oauth/consent'
+    | '/partners/fio'
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
@@ -1279,6 +1290,7 @@ export interface FileRouteTypes {
     | '/nachbar/ich'
     | '/nachbar/verdienen'
     | '/oauth/consent'
+    | '/partners/fio'
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
@@ -1347,6 +1359,7 @@ export interface RootRouteChildren {
   LokalAuditRoute: typeof LokalAuditRoute
   MShareSlugRoute: typeof MShareSlugRoute
   OauthConsentRoute: typeof OauthConsentRoute
+  PartnersFioRoute: typeof PartnersFioRoute
   RRunIdRoute: typeof RRunIdRoute
   SSlugRoute: typeof SSlugRoute
   TbShareSlugRoute: typeof TbShareSlugRoute
@@ -1906,6 +1919,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners/fio': {
+      id: '/partners/fio'
+      path: '/partners/fio'
+      fullPath: '/partners/fio'
+      preLoaderRoute: typeof PartnersFioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/r/$runId': {
       id: '/r/$runId'
       path: '/r/$runId'
@@ -2287,6 +2307,7 @@ const rootRouteChildren: RootRouteChildren = {
   LokalAuditRoute: LokalAuditRoute,
   MShareSlugRoute: MShareSlugRoute,
   OauthConsentRoute: OauthConsentRoute,
+  PartnersFioRoute: PartnersFioRoute,
   RRunIdRoute: RRunIdRoute,
   SSlugRoute: SSlugRoute,
   TbShareSlugRoute: TbShareSlugRoute,

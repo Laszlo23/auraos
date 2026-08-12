@@ -109,7 +109,11 @@ export function weekWindow(now = new Date()) {
   const day = rangeEnd.getUTCDay();
   const mondayOffset = day === 0 ? -6 : 1 - day;
   const monday = new Date(
-    Date.UTC(rangeEnd.getUTCFullYear(), rangeEnd.getUTCMonth(), rangeEnd.getUTCDate() + mondayOffset),
+    Date.UTC(
+      rangeEnd.getUTCFullYear(),
+      rangeEnd.getUTCMonth(),
+      rangeEnd.getUTCDate() + mondayOffset,
+    ),
   );
   const sunday = new Date(monday);
   sunday.setUTCDate(monday.getUTCDate() + 6);
@@ -136,53 +140,60 @@ async function buildSnapshot(
 ): Promise<WeeklyReportSnapshot> {
   const since = window.rangeStart;
 
-  const [{ data: posts }, { data: engagements }, { data: events }, { data: tasks }, { data: channels }] =
-    await Promise.all([
-      db
-        .from("channel_posts")
-        .select(
-          "id, provider, body, agent_name, published_at, impressions, likes, reposts, external_url, status",
-        )
-        .eq("company_id", company.id)
-        .eq("status", "published")
-        .gte("published_at", since)
-        .order("published_at", { ascending: false })
-        .limit(40),
-      db
-        .from("channel_engagements")
-        .select("provider, reply_body, author_handle, replied_at, status")
-        .eq("company_id", company.id)
-        .not("replied_at", "is", null)
-        .gte("replied_at", since)
-        .order("replied_at", { ascending: false })
-        .limit(30),
-      db
-        .from("activity_events")
-        .select("kind, message, created_at")
-        .eq("company_id", company.id)
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
-        .limit(80),
-      db
-        .from("tasks")
-        .select("id, status, completed_at, updated_at")
-        .eq("company_id", company.id)
-        .in("status", ["done", "completed"])
-        .limit(200),
-      db
-        .from("channel_connections")
-        .select("provider, handle, status, followers")
-        .eq("company_id", company.id),
-    ]);
+  const [
+    { data: posts },
+    { data: engagements },
+    { data: events },
+    { data: tasks },
+    { data: channels },
+  ] = await Promise.all([
+    db
+      .from("channel_posts")
+      .select(
+        "id, provider, body, agent_name, published_at, impressions, likes, reposts, external_url, status",
+      )
+      .eq("company_id", company.id)
+      .eq("status", "published")
+      .gte("published_at", since)
+      .order("published_at", { ascending: false })
+      .limit(40),
+    db
+      .from("channel_engagements")
+      .select("provider, reply_body, author_handle, replied_at, status")
+      .eq("company_id", company.id)
+      .not("replied_at", "is", null)
+      .gte("replied_at", since)
+      .order("replied_at", { ascending: false })
+      .limit(30),
+    db
+      .from("activity_events")
+      .select("kind, message, created_at")
+      .eq("company_id", company.id)
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(80),
+    db
+      .from("tasks")
+      .select("id, status, completed_at, updated_at")
+      .eq("company_id", company.id)
+      .in("status", ["done", "completed"])
+      .limit(200),
+    db
+      .from("channel_connections")
+      .select("provider, handle, status, followers")
+      .eq("company_id", company.id),
+  ]);
 
   const postRows = (posts ?? []) as WeeklyPostHighlight[];
-  const replyRows = ((engagements ?? []) as Array<{
-    provider: string;
-    reply_body: string | null;
-    author_handle: string | null;
-    replied_at: string | null;
-    status: string;
-  }>)
+  const replyRows = (
+    (engagements ?? []) as Array<{
+      provider: string;
+      reply_body: string | null;
+      author_handle: string | null;
+      replied_at: string | null;
+      status: string;
+    }>
+  )
     .filter((r) => Boolean(r.reply_body))
     .map((r) => ({
       provider: r.provider,
@@ -198,12 +209,14 @@ async function buildSnapshot(
     byKind[k] = (byKind[k] ?? 0) + 1;
   }
 
-  const taskRows = ((tasks ?? []) as Array<{
-    id: string;
-    status: string;
-    completed_at: string | null;
-    updated_at: string | null;
-  }>).filter((t) => {
+  const taskRows = (
+    (tasks ?? []) as Array<{
+      id: string;
+      status: string;
+      completed_at: string | null;
+      updated_at: string | null;
+    }>
+  ).filter((t) => {
     const stamp = t.completed_at || t.updated_at;
     return stamp ? stamp >= since : false;
   });
@@ -265,10 +278,14 @@ async function maybeSummarize(snapshot: WeeklyReportSnapshot): Promise<string> {
       return `${snapshot.companyName} had a quiet week — channels are connected and ready; no posts shipped yet.`;
     }
     const bits: string[] = [];
-    if (t.postsPublished > 0) bits.push(`${t.postsPublished} post${t.postsPublished === 1 ? "" : "s"} published`);
-    if (t.repliesSent > 0) bits.push(`${t.repliesSent} repl${t.repliesSent === 1 ? "y" : "ies"} sent`);
-    if (t.tasksCompleted > 0) bits.push(`${t.tasksCompleted} task${t.tasksCompleted === 1 ? "" : "s"} completed`);
-    if (t.agentActions > 0) bits.push(`${t.agentActions} agent action${t.agentActions === 1 ? "" : "s"}`);
+    if (t.postsPublished > 0)
+      bits.push(`${t.postsPublished} post${t.postsPublished === 1 ? "" : "s"} published`);
+    if (t.repliesSent > 0)
+      bits.push(`${t.repliesSent} repl${t.repliesSent === 1 ? "y" : "ies"} sent`);
+    if (t.tasksCompleted > 0)
+      bits.push(`${t.tasksCompleted} task${t.tasksCompleted === 1 ? "" : "s"} completed`);
+    if (t.agentActions > 0)
+      bits.push(`${t.agentActions} agent action${t.agentActions === 1 ? "" : "s"}`);
     return `${snapshot.companyName} this week: ${bits.join(", ")}. Honest zeros where nothing landed.`;
   })();
 
@@ -289,7 +306,9 @@ Rules: only use the numbers given. Never invent reach, revenue, or followers gro
               body: p.body.slice(0, 120),
               likes: p.likes,
             })),
-            channels: snapshot.channels.filter((c) => c.status === "connected").map((c) => c.provider),
+            channels: snapshot.channels
+              .filter((c) => c.status === "connected")
+              .map((c) => c.provider),
           }),
         },
       ],
@@ -381,7 +400,7 @@ export const shareWeeklyReport = createServerFn({ method: "POST" })
   });
 
 export const getPublicWeeklyReport = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => ({
+  .validator((input: { slug: string }) => ({
     slug: String(input.slug || "")
       .toLowerCase()
       .replace(/[^a-z0-9]/g, "")

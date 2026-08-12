@@ -155,14 +155,10 @@ export function RevenueMissionsBand() {
   const showPlan = draft && (phase === "planned" || phase === "building" || phase === "starting");
   const plan = draft?.plan;
   const decisions = plan?.founder_decisions ?? [];
-  const allDecisionsAcked =
-    decisions.length === 0 || decisions.every((d) => ackedDecisions[d.id]);
-  const needsFeasibilityAck =
-    plan?.feasibility === "stretch" || plan?.feasibility === "unlikely";
+  const allDecisionsAcked = decisions.length === 0 || decisions.every((d) => ackedDecisions[d.id]);
+  const needsFeasibilityAck = plan?.feasibility === "stretch" || plan?.feasibility === "unlikely";
   const canStart =
-    draft?.status === "planned" &&
-    allDecisionsAcked &&
-    (!needsFeasibilityAck || ackedFeasibility);
+    draft?.status === "planned" && allDecisionsAcked && (!needsFeasibilityAck || ackedFeasibility);
 
   const agents = Object.keys(
     draft?.agents_status ||
@@ -203,7 +199,7 @@ export function RevenueMissionsBand() {
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
             rows={3}
-            placeholder='I want to make €1,000 selling websites to Austrian businesses this month.'
+            placeholder="I want to make €1,000 selling websites to Austrian businesses this month."
             aria-label="Revenue mission goal"
             disabled={phase === "building" || phase === "starting"}
             className="mt-2 w-full resize-none rounded-2xl border border-border bg-foreground/5 px-4 py-3 text-sm outline-none focus:border-primary/40 disabled:opacity-60"
@@ -249,7 +245,9 @@ export function RevenueMissionsBand() {
             animate={{ opacity: 1, y: 0 }}
             className="mt-6 space-y-4 border-t border-border/50 pt-5"
           >
-            <p className="text-sm font-medium text-primary">Before we plan — confirm the numbers.</p>
+            <p className="text-sm font-medium text-primary">
+              Before we plan — confirm the numbers.
+            </p>
             <p className="text-[13px] text-muted-foreground">
               Atlas read your goal. Adjust anything that looks wrong; this becomes the brief the
               company works from.
@@ -341,7 +339,7 @@ export function RevenueMissionsBand() {
                   )}
                 </div>
               )}
-                  {revealStep >= 3 && plan && (
+              {revealStep >= 3 && plan && (
                 <>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
                     Mission
@@ -350,7 +348,9 @@ export function RevenueMissionsBand() {
                   <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
                     Atlas recommends
                   </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{plan.summary}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                    {plan.summary}
+                  </p>
                   {plan.feasibility_note && (
                     <p className="rounded-2xl border border-border/60 bg-foreground/[0.03] px-4 py-3 text-[13px]">
                       <span className="font-semibold capitalize">{plan.feasibility}</span>
@@ -365,7 +365,11 @@ export function RevenueMissionsBand() {
                     </p>
                   )}
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <MiniStat label="Target" value={currency(draft.target_usdc)} hint="goal amount" />
+                    <MiniStat
+                      label="Target"
+                      value={currency(draft.target_usdc)}
+                      hint="goal amount"
+                    />
                     <MiniStat
                       label="Est. cost"
                       value={`${draft.projected?.cost_aura ?? 0} AURA`}
@@ -419,7 +423,9 @@ export function RevenueMissionsBand() {
                       <ol className="mt-2 space-y-2 text-[13px]">
                         {plan.milestones.map((m) => (
                           <li key={`${m.day}-${m.label}`}>
-                            <span className="font-medium">Day {m.day} · {m.label}</span>
+                            <span className="font-medium">
+                              Day {m.day} · {m.label}
+                            </span>
                             <span className="text-muted-foreground"> — {m.checkpoint}</span>
                           </li>
                         ))}
@@ -621,13 +627,7 @@ function MiniStat({ label, value, hint }: { label: string; value: string; hint: 
   );
 }
 
-function MissionCard({
-  mission,
-  onOpen,
-}: {
-  mission: RevenueMissionRow;
-  onOpen: () => void;
-}) {
+function MissionCard({ mission, onOpen }: { mission: RevenueMissionRow; onOpen: () => void }) {
   const actual = mission.actuals?.revenue_usdc ?? 0;
   const progress = Math.round((mission.progress ?? 0) * 100);
   const feasibility = mission.plan?.feasibility;
@@ -743,7 +743,9 @@ function ActiveMissionStrip({
                   <span className="text-muted-foreground"> · {e.cost_aura} AURA</span>
                 )}
                 {e.result && <span className="text-muted-foreground"> · {e.result}</span>}
-                <span className="ml-2 text-[10px] text-muted-foreground">{timeAgo(e.created_at)}</span>
+                <span className="ml-2 text-[10px] text-muted-foreground">
+                  {timeAgo(e.created_at)}
+                </span>
               </li>
             ),
           )}
@@ -753,9 +755,7 @@ function ActiveMissionStrip({
             <Chip
               key={name}
               tone={
-                st === "working" || st === "queued" || st === "coordinating"
-                  ? "primary"
-                  : "gold"
+                st === "working" || st === "queued" || st === "coordinating" ? "primary" : "gold"
               }
             >
               {st === "working" || st === "queued" || st === "coordinating" ? "●" : "○"} {name} ·{" "}
@@ -773,12 +773,8 @@ function ActiveMissionStrip({
             <div className="mt-3 flex flex-wrap gap-2">
               <Chip tone="primary">{nba.assignee}</Chip>
               <Chip tone="gold">{nba.expected_cost_aura ?? 0} AURA · projected</Chip>
-              <Chip tone="gold">
-                +{currency(nba.expected_upside_usdc ?? 0)} upside · projected
-              </Chip>
-              <Chip tone="primary">
-                {Math.round((nba.confidence ?? 0.5) * 100)}% confidence
-              </Chip>
+              <Chip tone="gold">+{currency(nba.expected_upside_usdc ?? 0)} upside · projected</Chip>
+              <Chip tone="primary">{Math.round((nba.confidence ?? 0.5) * 100)}% confidence</Chip>
             </div>
             <button
               type="button"

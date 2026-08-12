@@ -7,7 +7,10 @@ import { SITE_URL } from "@/lib/site";
 
 type LooseDb = {
   from: (table: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
+  rpc: (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: Error | null }>;
 };
 
 function asDb(client: unknown): LooseDb {
@@ -19,7 +22,7 @@ async function ensureCompanySlugRow(
   company: { id: string; name: string; slug?: string | null },
 ) {
   if (company.slug) return company.slug;
-  let base = slugifyCompanyName(company.name);
+  const base = slugifyCompanyName(company.name);
   let candidate = base;
   for (let i = 0; i < 8; i++) {
     const { data } = await supabase
@@ -87,7 +90,7 @@ export const getLocalBusinessHub = createServerFn({ method: "GET" })
       .eq("status", "active")
       .maybeSingle();
 
-    let inviteStats = { draft: 0, queued: 0, sent: 0, clicked: 0, completed: 0, total: 0 };
+    const inviteStats = { draft: 0, queued: 0, sent: 0, clicked: 0, completed: 0, total: 0 };
     if (campaign?.id) {
       const { data: invites } = await supabase
         .from("review_invites")
@@ -110,9 +113,12 @@ export const getLocalBusinessHub = createServerFn({ method: "GET" })
 
     return {
       company,
-      campaign: campaign as
-        | { id: string; goal_invites: number; status: string; created_at: string }
-        | null,
+      campaign: campaign as {
+        id: string;
+        goal_invites: number;
+        status: string;
+        created_at: string;
+      } | null,
       inviteStats,
       channels: (channels ?? []) as { provider: string; status: string }[],
       cohortRemaining: typeof remaining === "number" ? remaining : null,
@@ -122,7 +128,7 @@ export const getLocalBusinessHub = createServerFn({ method: "GET" })
 
 export const updateLocalBusinessProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { homepageUrl?: string; googleReviewUrl?: string; name?: string }) => ({
+  .validator((input: { homepageUrl?: string; googleReviewUrl?: string; name?: string }) => ({
     homepageUrl: typeof input.homepageUrl === "string" ? input.homepageUrl : undefined,
     googleReviewUrl: typeof input.googleReviewUrl === "string" ? input.googleReviewUrl : undefined,
     name: typeof input.name === "string" ? input.name.trim().slice(0, 80) : undefined,
@@ -228,13 +234,19 @@ export const startReviewBoostCampaign = createServerFn({ method: "POST" })
 
 export const addReviewInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { name?: string; email: string; body?: string }) => ({
-    name: String(input.name || "").trim().slice(0, 80) || null,
+  .validator((input: { name?: string; email: string; body?: string }) => ({
+    name:
+      String(input.name || "")
+        .trim()
+        .slice(0, 80) || null,
     email: String(input.email || "")
       .trim()
       .toLowerCase()
       .slice(0, 200),
-    body: String(input.body || "").trim().slice(0, 2000) || null,
+    body:
+      String(input.body || "")
+        .trim()
+        .slice(0, 2000) || null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.email || !data.email.includes("@")) throw new Error("Valid email required.");
@@ -305,7 +317,7 @@ export const listReviewInvites = createServerFn({ method: "GET" })
 /** Mark invite sent after founder-approved mailbox send (or manual copy of track link). */
 export const markReviewInviteSent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { inviteId: string }) => ({
+  .validator((input: { inviteId: string }) => ({
     inviteId: String(input.inviteId),
   }))
   .handler(async ({ data, context }) => {
@@ -323,7 +335,7 @@ export const markReviewInviteSent = createServerFn({ method: "POST" })
 
 export const markReviewInviteCompleted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { inviteId: string }) => ({
+  .validator((input: { inviteId: string }) => ({
     inviteId: String(input.inviteId),
   }))
   .handler(async ({ data, context }) => {

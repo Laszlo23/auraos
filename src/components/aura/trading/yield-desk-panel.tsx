@@ -1,18 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "motion/react";
-import {
-  Activity,
-  Gauge,
-  Sparkles,
-  Thermometer,
-  Timer,
-  Waves,
-  Zap,
-} from "lucide-react";
+import { Activity, Gauge, Sparkles, Thermometer, Timer, Waves, Zap } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Chip, Panel } from "@/components/aura/primitives";
+import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
 import { YIELD_CATALOG, riskTierLabel, type YieldRiskTier } from "@/lib/defi/catalog";
 import {
   allocateYield,
@@ -25,6 +18,7 @@ import {
   updateYieldAutopilot,
   updateYieldRisk,
 } from "@/lib/defi/yield.functions";
+import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
 import { cn } from "@/lib/utils";
 
 const TIER_TONES: Record<YieldRiskTier, "gold" | "primary" | "neutral" | "danger"> = {
@@ -36,6 +30,7 @@ const TIER_TONES: Record<YieldRiskTier, "gold" | "primary" | "neutral" | "danger
 
 export function YieldDeskPanel({ companyId }: { companyId: string }) {
   const qc = useQueryClient();
+  const fio = useFioReady();
   const [amountById, setAmountById] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -74,6 +69,24 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const tryLive = () => {
+    if (state?.yieldPaper) {
+      if (
+        !confirmFioOrContinue(
+          fio.ready,
+          "yield-live",
+          "Live yield moves real USDC. Attest a FIO handle so your receive identity is set.",
+        )
+      ) {
+        toast.message("Set up FIO on Identity first", {
+          action: { label: "Open", onClick: () => (window.location.href = "/identity") },
+        });
+        return;
+      }
+    }
+    paperMut.mutate(!state?.yieldPaper);
+  };
 
   async function onAllocate(catalogId: string) {
     const raw = amountById[catalogId] ?? "50";
@@ -149,7 +162,9 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
 
   const auto = state?.autopilot;
   const automation = state?.automation;
-  const openPositions = (state?.positions ?? []).filter((p: { status: string }) => p.status === "open");
+  const openPositions = (state?.positions ?? []).filter(
+    (p: { status: string }) => p.status === "open",
+  );
 
   return (
     <div className="space-y-5" data-tour="yield-desk">
@@ -160,8 +175,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
               Dual-desk OS: Quant turns inventory. Yield parks the rest.
             </p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              Live rails: Aave, Aerodrome+compound, Venus, Pancake, GuessMarket pred LP
-              (Base)
+              Live rails: Aave, Aerodrome+compound, Venus, Pancake, GuessMarket pred LP (Base)
               (BNB). Other books stay paper until wired — founder-capped either way.
             </p>
           </div>
@@ -178,6 +192,8 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
           </div>
         </div>
 
+        <FioPayoutNudge context="switching Yield to live" className="mt-4" />
+
         <div className="mt-5 grid gap-3 sm:grid-cols-4">
           {[
             { k: "Budget", v: `$${(state?.maxNotional ?? 0).toFixed(0)}` },
@@ -185,7 +201,10 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
             { k: "Mark", v: `$${(state?.openMark ?? 0).toFixed(2)}` },
             { k: "Paper PnL", v: `$${(state?.paperPnl ?? 0).toFixed(4)}` },
           ].map((s) => (
-            <div key={s.k} className="rounded-2xl border border-border/40 bg-foreground/[0.03] px-4 py-3">
+            <div
+              key={s.k}
+              className="rounded-2xl border border-border/40 bg-foreground/[0.03] px-4 py-3"
+            >
               <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{s.k}</p>
               <p className="mt-1 font-mono text-[18px] font-semibold tabular-nums">{s.v}</p>
             </div>
@@ -196,7 +215,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
           <button
             type="button"
             disabled={armMut.isPending}
-            onClick={() => armMut.mutate(!(state?.yieldArmed))}
+            onClick={() => armMut.mutate(!state?.yieldArmed)}
             className="rounded-xl bg-foreground px-4 py-2 text-[12px] font-semibold text-background"
           >
             {state?.yieldArmed ? "Disarm Yield" : "Arm Yield"}
@@ -204,7 +223,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
           <button
             type="button"
             disabled={paperMut.isPending}
-            onClick={() => paperMut.mutate(!(state?.yieldPaper))}
+            onClick={tryLive}
             className="rounded-xl border border-border/60 px-4 py-2 text-[12px] font-semibold"
           >
             {state?.yieldPaper ? "Try live mode" : "Back to paper"}
@@ -229,8 +248,8 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
 
       <Panel label="Autopilot engines" glow>
         <p className="text-[13px] text-muted-foreground">
-          Creative OS automations — Epoch Hunter, Idle Router, IL Thermostat, Compound Cascade,
-          Risk Autopilot. Scan anytime; execute only when armed.
+          Creative OS automations — Epoch Hunter, Idle Router, IL Thermostat, Compound Cascade, Risk
+          Autopilot. Scan anytime; execute only when armed.
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -329,7 +348,9 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                   <Chip tone="primary">{ins.severity}</Chip>
                 </div>
                 <p className="mt-1 text-[13px] font-medium">{ins.title}</p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">{ins.detail}</p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+                  {ins.detail}
+                </p>
               </div>
             ))}
           </div>
@@ -357,7 +378,9 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                       <span className="ml-2 text-muted-foreground">{e.protocol}</span>
                     </td>
                     <td className="py-2 font-mono tabular-nums">{e.voteSharePct.toFixed(1)}</td>
-                    <td className="py-2 font-mono tabular-nums">{e.predictedDemandPct.toFixed(1)}</td>
+                    <td className="py-2 font-mono tabular-nums">
+                      {e.predictedDemandPct.toFixed(1)}
+                    </td>
                     <td
                       className={cn(
                         "py-2 font-mono tabular-nums",
@@ -389,9 +412,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <Chip tone={TIER_TONES[c.riskTier]}>{riskTierLabel(c.riskTier)}</Chip>
-                  <Chip tone="gold">
-                    ~{c.targetApyPct}% mid
-                  </Chip>
+                  <Chip tone="gold">~{c.targetApyPct}% mid</Chip>
                   <Chip tone={c.liveReady ? "primary" : "neutral"}>
                     {c.liveReady ? "Live ready" : "Paper"}
                   </Chip>
@@ -399,7 +420,8 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
               </div>
               <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">{c.standOut}</p>
               <p className="mt-2 text-[10px] text-muted-foreground">
-                {c.chain.toUpperCase()} · {c.protocol} · {c.kind} · band {c.apyBand[0]}–{c.apyBand[1]}%
+                {c.chain.toUpperCase()} · {c.protocol} · {c.kind} · band {c.apyBand[0]}–
+                {c.apyBand[1]}%
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <input

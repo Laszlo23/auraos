@@ -37,9 +37,7 @@ export function PositionCard({
           Your position
         </p>
         <p className="mt-3 text-lg font-semibold">No open position</p>
-        <p className="mt-1 text-[13px] text-muted-foreground">
-          Quant is monitoring for a setup.
-        </p>
+        <p className="mt-1 text-[13px] text-muted-foreground">Quant is monitoring for a setup.</p>
       </div>
     );
   }
@@ -81,10 +79,7 @@ export function PositionCard({
         <Stat label="Entry" value={currency(trade.entry, 2)} />
         <Stat label="Current" value={currency(current, 2)} />
         <Stat label="Size" value={currency(trade.size, 0)} />
-        <Stat
-          label="Risk"
-          value={riskDollars != null ? currency(riskDollars, 2) : "—"}
-        />
+        <Stat label="Risk" value={riskDollars != null ? currency(riskDollars, 2) : "—"} />
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-2">
@@ -119,15 +114,7 @@ export function PositionCard({
   );
 }
 
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "gold" | "danger";
-}) {
+function Stat({ label, value, tone }: { label: string; value: string; tone?: "gold" | "danger" }) {
   return (
     <div>
       <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">{label}</p>

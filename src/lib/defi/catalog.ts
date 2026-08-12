@@ -5,14 +5,7 @@
  */
 
 export type YieldRiskTier = "conservative" | "balanced" | "aggressive" | "extreme";
-export type YieldKind =
-  | "lp"
-  | "lending"
-  | "farm"
-  | "ve_lock"
-  | "prediction"
-  | "day_trade"
-  | "arb";
+export type YieldKind = "lp" | "lending" | "farm" | "ve_lock" | "prediction" | "day_trade" | "arb";
 export type YieldChain = "base" | "bsc";
 
 export type YieldCatalogItem = {
@@ -158,7 +151,8 @@ export const YIELD_CATALOG: YieldCatalogItem[] = [
     howItWorks:
       "Supply Binance-Peg USDC into Venus Core Pool (vUSDC) on BNB Chain. Earn variable supply APY; redeem underlying when you need cash for farms or Quant.",
     risks: ["Smart-contract risk", "Stable depeg contagion", "Withdraw when utilization spikes"],
-    standOut: "Park BSC treasury that funds Pancake farms without sitting at 0%. Live rail via Venus vUSDC.",
+    standOut:
+      "Park BSC treasury that funds Pancake farms without sitting at 0%. Live rail via Venus vUSDC.",
     minUsdc: 5,
     maxBudgetPct: 50,
     liveReady: true,
@@ -176,8 +170,14 @@ export const YIELD_CATALOG: YieldCatalogItem[] = [
     assets: ["USDT", "USDC", "FDUSD", "CAKE"],
     howItWorks:
       "Half-swap USDC→USDT via OKX, add Pancake V2 USDT/USDC liquidity, stake LP in MasterChef v2 (pid 48). Earn swap fees; CAKE when farm allocPoint > 0.",
-    risks: ["Stable depeg", "CAKE emission decay", "Farm multiplier changes", "veCAKE lock complexity"],
-    standOut: "Low-fee BNB Chain compounding — agents harvest CAKE and optionally lock veCAKE for boost.",
+    risks: [
+      "Stable depeg",
+      "CAKE emission decay",
+      "Farm multiplier changes",
+      "veCAKE lock complexity",
+    ],
+    standOut:
+      "Low-fee BNB Chain compounding — agents harvest CAKE and optionally lock veCAKE for boost.",
     minUsdc: 10,
     maxBudgetPct: 40,
     liveReady: true,
@@ -246,8 +246,7 @@ export const YIELD_CATALOG: YieldCatalogItem[] = [
       "Regulatory gray zones by jurisdiction",
       "$10 GuessMarket create fee when opening a new market",
     ],
-    standOut:
-      "Agents research + seed LP fees — money working while humans doomscroll headlines.",
+    standOut: "Agents research + seed LP fees — money working while humans doomscroll headlines.",
     minUsdc: 20,
     maxBudgetPct: 10,
     liveReady: true,
@@ -286,7 +285,8 @@ export const YIELD_CATALOG: YieldCatalogItem[] = [
     howItWorks:
       "Monitor stable spreads and wrapped-native basis. Execute only when edge clears gas + slippage + inventory risk.",
     risks: ["Failed legs", "Bridge delay", "Depeg during arb", "MEV"],
-    standOut: "Quant + Yield share inventory: spot desk provides inventory, Yield harvests dislocations.",
+    standOut:
+      "Quant + Yield share inventory: spot desk provides inventory, Yield harvests dislocations.",
     minUsdc: 100,
     maxBudgetPct: 15,
     liveReady: false,

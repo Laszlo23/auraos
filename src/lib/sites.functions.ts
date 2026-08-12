@@ -12,7 +12,10 @@ import {
 
 type LooseDb = {
   from: (table: string) => any;
-  rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
+  rpc: (
+    fn: string,
+    args?: Record<string, unknown>,
+  ) => Promise<{ data: unknown; error: Error | null }>;
 };
 function asDb(client: unknown): LooseDb {
   return client as LooseDb;
@@ -84,7 +87,7 @@ export const listCompanySites = createServerFn({ method: "GET" })
 
 export const getCompanySite = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { siteId?: string; slug?: string }) => ({
+  .validator((input: { siteId?: string; slug?: string }) => ({
     siteId: input.siteId ? String(input.siteId) : undefined,
     slug: input.slug ? String(input.slug) : undefined,
   }))
@@ -114,7 +117,7 @@ export const getCompanySite = createServerFn({ method: "GET" })
 
 export const createCompanySite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { templateId: string; slug?: string }) => {
+  .validator((input: { templateId: string; slug?: string }) => {
     if (!isLandingTemplateId(input.templateId)) throw new Error("Unknown template");
     return {
       templateId: input.templateId,
@@ -148,7 +151,7 @@ export const createCompanySite = createServerFn({ method: "POST" })
 
 export const updateCompanySite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       siteId: string;
       slug?: string;
@@ -258,7 +261,7 @@ Rules: keep brand voice clear and concrete; one job per line; no exclamation mar
 
 export const publishCompanySite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { siteId: string; publish?: boolean }) => ({
+  .validator((input: { siteId: string; publish?: boolean }) => ({
     siteId: String(input.siteId),
     publish: input.publish !== false,
   }))
@@ -383,8 +386,9 @@ export const getSiteGrowthStats = createServerFn({ method: "GET" })
       .select("id, status")
       .eq("company_id", company.id);
     const siteIds = ((sites ?? []) as { id: string; status: string }[]).map((s) => s.id);
-    const live = ((sites ?? []) as { status: string }[]).filter((s) => s.status === "published")
-      .length;
+    const live = ((sites ?? []) as { status: string }[]).filter(
+      (s) => s.status === "published",
+    ).length;
 
     let subscribers = 0;
     let leadsWaiting = 0;

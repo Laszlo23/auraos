@@ -63,7 +63,9 @@ function PublicResultPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-6 md:p-10">
       <div>
-        <p className="text-[10px] uppercase tracking-[0.32em] text-primary">Aura completed this task</p>
+        <p className="text-[10px] uppercase tracking-[0.32em] text-primary">
+          Aura completed this task
+        </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">{data.goal}</h1>
         <div className="mt-4 flex flex-wrap gap-2">
           <Chip tone="primary">{template.label}</Chip>
@@ -82,7 +84,15 @@ function PublicResultPage() {
           {(Array.isArray(data.steps) ? data.steps : []).map(
             (s: { id: string; label: string; status: string; detail?: string }) => (
               <li key={s.id} className="flex items-start gap-2 text-[13px]">
-                <Pulse tone={s.status === "done" ? "primary" : s.status === "failed" ? "destructive" : "muted"} />
+                <Pulse
+                  tone={
+                    s.status === "done"
+                      ? "primary"
+                      : s.status === "failed"
+                        ? "destructive"
+                        : "muted"
+                  }
+                />
                 <span>
                   {s.label}
                   {s.detail ? <span className="text-muted-foreground"> — {s.detail}</span> : null}
@@ -99,9 +109,7 @@ function PublicResultPage() {
             <div key={i} className="glass-soft rounded-2xl p-3">
               <div className="flex items-center gap-2">
                 <span className="num text-sm font-semibold text-primary">{Number(l.score)}</span>
-                <p className="text-[13px] font-semibold">
-                  {String(l.org || l.name || "Prospect")}
-                </p>
+                <p className="text-[13px] font-semibold">{String(l.org || l.name || "Prospect")}</p>
               </div>
               {l.snippet ? (
                 <p className="mt-2 text-[12px] text-muted-foreground">{String(l.snippet)}</p>

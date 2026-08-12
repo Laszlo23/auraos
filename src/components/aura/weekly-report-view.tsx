@@ -74,7 +74,9 @@ export function WeeklyReportView({
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 {stat.label}
               </p>
-              <p className="num mt-1 text-2xl font-semibold tabular-nums md:text-3xl">{stat.value}</p>
+              <p className="num mt-1 text-2xl font-semibold tabular-nums md:text-3xl">
+                {stat.value}
+              </p>
             </div>
           ))}
         </div>

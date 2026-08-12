@@ -98,10 +98,11 @@ function TermsPage() {
       <LegalSection title="4. Founding seats & digital goods">
         <p>
           A founding seat is a one-time digital product: paid access to wake and operate one
-          founding company on {SITE_NAME}. The listed price is <strong className="text-foreground">$99 USD</strong>{" "}
-          unless we publish a different price before you pay. Seats are capped (currently 1000).
-          Purchase does not grant equity, tokens, or investment rights. Token fair launch (if any)
-          is a separate event and not part of the founding-seat product.
+          founding company on {SITE_NAME}. The listed price is{" "}
+          <strong className="text-foreground">$99 USD</strong> unless we publish a different price
+          before you pay. Seats are capped (currently 1000). Purchase does not grant equity, tokens,
+          or investment rights. Token fair launch (if any) is a separate event and not part of the
+          founding-seat product.
         </p>
         <p>
           After successful payment, your account is marked with a founding seat and company access
@@ -147,11 +148,12 @@ function TermsPage() {
             your seat), contact us within 14 days for a full refund or restoration of access.
           </li>
           <li>
-            Otherwise, founding seats are generally <strong className="text-foreground">non-refundable</strong>{" "}
-            once the seat is unlocked, to the extent permitted by applicable consumer law. EU/UK
-            consumers may have statutory withdrawal rights for digital content; if you request
-            early delivery of digital access, you may lose that right once performance begins —
-            we will honor mandatory consumer protections that cannot be waived.
+            Otherwise, founding seats are generally{" "}
+            <strong className="text-foreground">non-refundable</strong> once the seat is unlocked,
+            to the extent permitted by applicable consumer law. EU/UK consumers may have statutory
+            withdrawal rights for digital content; if you request early delivery of digital access,
+            you may lose that right once performance begins — we will honor mandatory consumer
+            protections that cannot be waived.
           </li>
         </ul>
         <p>
@@ -162,8 +164,8 @@ function TermsPage() {
 
       <LegalSection title="7. Subscriptions & other products">
         <p>
-          If we later offer recurring plans, Local Seat, boost packs, or other digital products,
-          the price, billing interval, and cancellation rules shown at Checkout or in Billing apply.
+          If we later offer recurring plans, Local Seat, boost packs, or other digital products, the
+          price, billing interval, and cancellation rules shown at Checkout or in Billing apply.
           Recurring plans renew until cancelled in-product or via support, unless stated otherwise.
         </p>
       </LegalSection>
@@ -190,8 +192,8 @@ function TermsPage() {
 
       <LegalSection title="10. AI outputs">
         <p>
-          Agent outputs are probabilistic. You remain responsible for reviewing content before it
-          is published, sent, traded, or relied on for legal, financial, or medical decisions.{" "}
+          Agent outputs are probabilistic. You remain responsible for reviewing content before it is
+          published, sent, traded, or relied on for legal, financial, or medical decisions.{" "}
           {SITE_NAME} does not provide professional advice.
         </p>
       </LegalSection>

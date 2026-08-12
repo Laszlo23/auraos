@@ -39,7 +39,9 @@ export function HolderAdvantages({ perks }: { perks: HolderPerks | undefined }) 
             key={p.id}
             className={cn(
               "rounded-2xl px-3 py-2.5 text-[12px]",
-              p.active ? "bg-gold/10 text-foreground" : "bg-foreground/[0.03] text-muted-foreground",
+              p.active
+                ? "bg-gold/10 text-foreground"
+                : "bg-foreground/[0.03] text-muted-foreground",
             )}
           >
             <p className="font-semibold">{p.label}</p>

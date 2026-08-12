@@ -42,7 +42,9 @@ function NachbarIchPage() {
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Ich</p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Profil</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Stadt und Anzeigename — Wallet bleibt unsichtbar.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Stadt und Anzeigename — Wallet bleibt unsichtbar.
+        </p>
       </div>
 
       <Panel label="Nachbarschaft">
@@ -76,7 +78,8 @@ function NachbarIchPage() {
 
       <Panel label="Cash-out">
         <p className="text-sm text-muted-foreground">
-          Status: noch nicht freigeschaltet. Zuerst Perks bei Partnerläden, dann optional USDC mit Limits.
+          Status: noch nicht freigeschaltet. Zuerst Perks bei Partnerläden, dann optional USDC mit
+          Limits.
         </p>
       </Panel>
 

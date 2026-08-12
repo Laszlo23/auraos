@@ -19,26 +19,19 @@ import { BacktestLab } from "@/components/aura/trading/backtest-lab";
 import type { BacktestSnapshot } from "@/components/aura/trading/backtest-results-dialog";
 import { QuantDeskCockpit } from "@/components/aura/trading/quant-desk-cockpit";
 import { YieldDeskPanel } from "@/components/aura/trading/yield-desk-panel";
-import {
-  GrowFundsHub,
-  type GrowPath,
-} from "@/components/aura/trading/grow-funds-hub";
+import { GrowFundsHub, type GrowPath } from "@/components/aura/trading/grow-funds-hub";
 import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
-import {
-  DeskDrawerShell,
-  type DeskDrawerId,
-} from "@/components/aura/trading/desk-drawers";
+import { DeskDrawerShell, type DeskDrawerId } from "@/components/aura/trading/desk-drawers";
 import { TRADING_QUESTS } from "@/lib/gamify";
 import { useAwardXp, useProgress } from "@/hooks/use-progress";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import { useSmartWallet } from "@/hooks/use-earn";
+import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
 import { useMyHandle } from "@/hooks/use-identity";
+import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
 import { getTreasuryBalance } from "@/lib/treasury.functions";
 import { issueAgentSessionKey } from "@/lib/wallet.functions";
-import {
-  ensureYieldDesk,
-  getYieldDeskState,
-} from "@/lib/defi/yield.functions";
+import { ensureYieldDesk, getYieldDeskState } from "@/lib/defi/yield.functions";
 import {
   applyTradingPreset,
   approveStrategy,
@@ -158,6 +151,7 @@ function TradingPage() {
   const qc = useQueryClient();
   const { data: company } = useCompany();
   const { data: handle } = useMyHandle();
+  const fio = useFioReady();
   const { data: wallet } = useSmartWallet(handle?.id);
   const { data: trades = [] } = useCompanyTable<Trade>("trades", {
     orderBy: "opened_at",
@@ -258,7 +252,8 @@ function TradingPage() {
 
   useEffect(() => {
     if (company?.max_notional_usdc_day != null) setRiskDay(Number(company.max_notional_usdc_day));
-    if (company?.max_risk_pct != null) setRiskPct(clampFounderRiskPct(Number(company.max_risk_pct)));
+    if (company?.max_risk_pct != null)
+      setRiskPct(clampFounderRiskPct(Number(company.max_risk_pct)));
   }, [company?.max_notional_usdc_day, company?.max_risk_pct]);
 
   const pop = (label: string, amount: number, quest: string) => {
@@ -414,14 +409,31 @@ function TradingPage() {
 
   const onArm = async (next: boolean) => {
     if (!company) return;
+    if (next && !paperMode) {
+      if (
+        !confirmFioOrContinue(
+          fio.ready,
+          "quant-live",
+          "Attest a FIO handle before arming the live Quant desk — so your receive identity is clear when capital moves.",
+        )
+      ) {
+        toast.message("Set up FIO on Identity first", {
+          action: { label: "Open", onClick: () => (window.location.href = "/identity") },
+        });
+        return;
+      }
+    }
     setBusy("arm");
     try {
       const res = await setTradingDeskArmed({ data: { companyId: company.id, armed: next } });
       if (next) {
         if (readiness?.funded) pop("Wallet funded", 80, "trading:fund");
         pop("Desk armed", 120, "trading:arm");
-        const tick = (res as { tick?: { evald?: { signals?: number; checked?: number }; exec?: { executed?: number } } })
-          ?.tick;
+        const tick = (
+          res as {
+            tick?: { evald?: { signals?: number; checked?: number }; exec?: { executed?: number } };
+          }
+        )?.tick;
         if (tick) {
           toast.success(
             `Desk armed · Quant checked ${tick.evald?.checked ?? 0} · ${tick.evald?.signals ?? 0} signal(s) · ${tick.exec?.executed ?? 0} fill(s)`,
@@ -463,6 +475,20 @@ function TradingPage() {
 
   const onPaperMode = async (paper: boolean) => {
     if (!company) return;
+    if (!paper) {
+      if (
+        !confirmFioOrContinue(
+          fio.ready,
+          "quant-live",
+          "Going live means real Base swaps. Attest FIO so your company has a human-readable crypto receive rail.",
+        )
+      ) {
+        toast.message("Set up FIO on Identity first", {
+          action: { label: "Open", onClick: () => (window.location.href = "/identity") },
+        });
+        return;
+      }
+    }
     setBusy("paper");
     try {
       await setTradingPaperMode({ data: { companyId: company.id, paper } });
@@ -553,6 +579,8 @@ function TradingPage() {
         autoOpen={onboarding && advanced}
       />
 
+      <FioPayoutNudge context="going live with Grow funds" />
+
       <GrowFundsHub
         path={growPath}
         onPath={setGrowPath}
@@ -576,131 +604,135 @@ function TradingPage() {
         onRealMoneyTrade={() => void onPaperMode(false)}
         childrenAdvanced={
           <div className="space-y-6">
-      <QuantDeskCockpit
-        armed={armed}
-        paper={paperMode}
-        paperBusy={busy === "paper"}
-        armBusy={busy === "arm"}
-        canArm={Boolean(readiness?.canArm)}
-        blockReason={readiness?.blockReason ?? null}
-        dailyLimit={Number(company?.max_notional_usdc_day ?? riskDay)}
-        dailyUsed={dailyUsed}
-        usdcBalance={availableUsdc}
-        maxRiskPct={effectiveSpotRiskPct(Number(company?.max_risk_pct ?? riskPct))}
-        openTrades={open}
-        closedTrades={closed}
-        activeStrategy={activeStrategy}
-        hasApprovedStrategy={Boolean(readiness?.hasApprovedStrategy)}
-        pendingSignals={pendingSignals.length}
-        whaleEvents={whaleEvents}
-        onPaperMode={(p) => void onPaperMode(p)}
-        onArm={(next) => void onArm(next)}
-        onOpenDrawer={setDrawer}
-      />
+            <QuantDeskCockpit
+              armed={armed}
+              paper={paperMode}
+              paperBusy={busy === "paper"}
+              armBusy={busy === "arm"}
+              canArm={Boolean(readiness?.canArm)}
+              blockReason={readiness?.blockReason ?? null}
+              dailyLimit={Number(company?.max_notional_usdc_day ?? riskDay)}
+              dailyUsed={dailyUsed}
+              usdcBalance={availableUsdc}
+              maxRiskPct={effectiveSpotRiskPct(Number(company?.max_risk_pct ?? riskPct))}
+              openTrades={open}
+              closedTrades={closed}
+              activeStrategy={activeStrategy}
+              hasApprovedStrategy={Boolean(readiness?.hasApprovedStrategy)}
+              pendingSignals={pendingSignals.length}
+              whaleEvents={whaleEvents}
+              onPaperMode={(p) => void onPaperMode(p)}
+              onArm={(next) => void onArm(next)}
+              onOpenDrawer={setDrawer}
+            />
 
-      {armed ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/50 bg-foreground/[0.03] px-5 py-3.5">
-          <p className="text-[13px] text-muted-foreground">
-            Quant evaluates MA/breakout entries on each tick. Cron runs every ~10m — or run now.
-          </p>
-          <button
-            type="button"
-            disabled={busy === "quant-tick"}
-            onClick={() => void onRunQuant()}
-            className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-          >
-            {busy === "quant-tick" ? "Running Quant…" : "Run Quant now"}
-          </button>
-        </div>
-      ) : null}
+            {armed ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/50 bg-foreground/[0.03] px-5 py-3.5">
+                <p className="text-[13px] text-muted-foreground">
+                  Quant evaluates MA/breakout entries on each tick. Cron runs every ~10m — or run
+                  now.
+                </p>
+                <button
+                  type="button"
+                  disabled={busy === "quant-tick"}
+                  onClick={() => void onRunQuant()}
+                  className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                >
+                  {busy === "quant-tick" ? "Running Quant…" : "Run Quant now"}
+                </button>
+              </div>
+            ) : null}
 
-      <DeskChainSwitcher
-        className="px-1"
-        invalidateKeys={[["trading-readiness"], ["trading-arena"]]}
-      />
+            <DeskChainSwitcher
+              className="px-1"
+              invalidateKeys={[["trading-readiness"], ["trading-arena"]]}
+            />
 
-      {company?.id ? <YieldDeskPanel companyId={company.id} /> : null}
+            {company?.id ? <YieldDeskPanel companyId={company.id} /> : null}
 
-      {needsKeyBanner ? (
-        <div
-          data-tour="trading-key-banner"
-          className="flex flex-col gap-3 rounded-3xl border border-primary/35 bg-primary/[0.08] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <p className="text-sm font-semibold text-primary">Trade session key required next</p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              Quant still cannot place swaps until you issue a Trade session key — a revocable
-              permission slip, not your seed phrase.
-            </p>
-          </div>
-          <button
-            type="button"
-            disabled={issuingKey}
-            onClick={() => void onIssueKey()}
-            className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-          >
-            {issuingKey ? "Issuing…" : "Issue Trade key"}
-          </button>
-        </div>
-      ) : null}
+            {needsKeyBanner ? (
+              <div
+                data-tour="trading-key-banner"
+                className="flex flex-col gap-3 rounded-3xl border border-primary/35 bg-primary/[0.08] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-primary">
+                    Trade session key required next
+                  </p>
+                  <p className="mt-1 text-[13px] text-muted-foreground">
+                    Quant still cannot place swaps until you issue a Trade session key — a revocable
+                    permission slip, not your seed phrase.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  disabled={issuingKey}
+                  onClick={() => void onIssueKey()}
+                  className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                >
+                  {issuingKey ? "Issuing…" : "Issue Trade key"}
+                </button>
+              </div>
+            ) : null}
 
-      {showSetup ? (
-        <TradingSetup
-          readiness={readiness}
-          onIssueKey={() => void onIssueKey()}
-          issuingKey={issuingKey}
-          onStartSteadyEth={() => void onPreset("steady_eth")}
-          steadyBusy={busy === "steady_eth"}
-          onArm={() => void onArm(true)}
-          armBusy={busy === "arm"}
-          onEnablePaper={() => void onPaperMode(true)}
-          paperBusy={busy === "paper"}
-          onReviewBacktest={openBacktestReview}
-        />
-      ) : null}
-
-      {readiness?.hasTradeKey ? (
-        <Panel label="Risk caps" data-tour="trading-hero">
-          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-            <label className="text-[11px] text-muted-foreground">
-              Max USDC / day
-              <input
-                type="number"
-                value={riskDay}
-                onChange={(e) => setRiskDay(Number(e.target.value))}
-                className="mt-1 w-full rounded-xl bg-foreground/6 px-3 py-2 text-sm outline-none"
+            {showSetup ? (
+              <TradingSetup
+                readiness={readiness}
+                onIssueKey={() => void onIssueKey()}
+                issuingKey={issuingKey}
+                onStartSteadyEth={() => void onPreset("steady_eth")}
+                steadyBusy={busy === "steady_eth"}
+                onArm={() => void onArm(true)}
+                armBusy={busy === "arm"}
+                onEnablePaper={() => void onPaperMode(true)}
+                paperBusy={busy === "paper"}
+                onReviewBacktest={openBacktestReview}
               />
-            </label>
-            <label className="text-[11px] text-muted-foreground">
-              Max risk % per idea
-              <input
-                type="number"
-                step="0.1"
-                min={0.1}
-                max={3}
-                value={riskPct}
-                onChange={(e) => setRiskPct(Number(e.target.value))}
-                className="mt-1 w-full rounded-xl bg-foreground/6 px-3 py-2 text-sm outline-none"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={() => void onSaveRisk()}
-              className="self-end rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
-            >
-              Save caps
-            </button>
-          </div>
-          <div className="mt-3 flex items-start gap-2 text-[12px] text-muted-foreground">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-            <span>
-              Base hard USDC cap: <span className="text-foreground">2% of wallet equity per idea</span>{" "}
-              (industry spot band 1–3%). Founder setting max 3%. Caps and Disarm are the kill switch —
-              Quant cannot exceed daily notional or the hard equity ceiling.
-            </span>
-          </div>
-        </Panel>
-      ) : null}
+            ) : null}
+
+            {readiness?.hasTradeKey ? (
+              <Panel label="Risk caps" data-tour="trading-hero">
+                <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+                  <label className="text-[11px] text-muted-foreground">
+                    Max USDC / day
+                    <input
+                      type="number"
+                      value={riskDay}
+                      onChange={(e) => setRiskDay(Number(e.target.value))}
+                      className="mt-1 w-full rounded-xl bg-foreground/6 px-3 py-2 text-sm outline-none"
+                    />
+                  </label>
+                  <label className="text-[11px] text-muted-foreground">
+                    Max risk % per idea
+                    <input
+                      type="number"
+                      step="0.1"
+                      min={0.1}
+                      max={3}
+                      value={riskPct}
+                      onChange={(e) => setRiskPct(Number(e.target.value))}
+                      className="mt-1 w-full rounded-xl bg-foreground/6 px-3 py-2 text-sm outline-none"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => void onSaveRisk()}
+                    className="self-end rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
+                  >
+                    Save caps
+                  </button>
+                </div>
+                <div className="mt-3 flex items-start gap-2 text-[12px] text-muted-foreground">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                  <span>
+                    Base hard USDC cap:{" "}
+                    <span className="text-foreground">2% of wallet equity per idea</span> (industry
+                    spot band 1–3%). Founder setting max 3%. Caps and Disarm are the kill switch —
+                    Quant cannot exceed daily notional or the hard equity ceiling.
+                  </span>
+                </div>
+              </Panel>
+            ) : null}
           </div>
         }
       />
@@ -957,7 +989,9 @@ function TradingPage() {
                 <div key={w.id} className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-medium">{w.label}</p>
-                    <p className="truncate font-mono text-[10px] text-muted-foreground">{w.address}</p>
+                    <p className="truncate font-mono text-[10px] text-muted-foreground">
+                      {w.address}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -992,7 +1026,9 @@ function TradingPage() {
                   <div key={e.id} className="flex items-start gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="text-[12px] leading-snug">{e.summary}</p>
-                      <p className="mt-1 text-[10px] text-muted-foreground">{timeAgo(e.created_at)}</p>
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {timeAgo(e.created_at)}
+                      </p>
                     </div>
                     <button
                       type="button"

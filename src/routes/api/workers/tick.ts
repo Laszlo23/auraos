@@ -5,10 +5,7 @@ import {
   syncSocialEngagement,
 } from "@/lib/task-worker.server";
 import { runTradingTick } from "@/lib/trading-worker.server";
-import {
-  runSiteLeadsDraftTick,
-  runSubscriptionContentTick,
-} from "@/lib/sites-worker.server";
+import { runSiteLeadsDraftTick, runSubscriptionContentTick } from "@/lib/sites-worker.server";
 
 function authorizeWorker(request: Request): Response | null {
   const secret = process.env["WORKER_SECRET"];
@@ -34,9 +31,8 @@ async function runTick(taskLimit: number) {
   let missions = { advanced: 0, dispatched: 0 };
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { advanceActiveMissions, writeWorkerHeartbeat } = await import(
-      "@/lib/mission-progress.server"
-    );
+    const { advanceActiveMissions, writeWorkerHeartbeat } =
+      await import("@/lib/mission-progress.server");
     missions = await advanceActiveMissions(supabaseAdmin as never, 12);
     await writeWorkerHeartbeat(supabaseAdmin as never, {
       tasks,

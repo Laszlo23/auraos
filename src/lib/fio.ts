@@ -16,7 +16,8 @@ export const FIO_CHAIN_PAIRS: FioChainPair[] = [
 ];
 
 const DEFAULT_DOMAIN = "aura";
-const DEFAULT_REGISTER = "https://www.fio.net/";
+/** Aura founder referral — every in-app “get a FIO handle” link must use this. */
+const DEFAULT_REGISTER = "https://app.fio.net/ref/vxkgl";
 
 function readVite(key: string): string {
   try {
@@ -44,6 +45,10 @@ export function fioPreferredDomain(): string {
   return readProcess("FIO_DOMAIN") || readVite("VITE_FIO_DOMAIN") || DEFAULT_DOMAIN;
 }
 
+/**
+ * Deep-link to register / map a FIO handle.
+ * Always goes through Aura's FIO App referral (`/ref/vxkgl`) unless env overrides.
+ */
 export function fioRegisterUrl(suggestedHandle?: string): string {
   const base =
     readProcess("FIO_REGISTER_URL") || readVite("VITE_FIO_REGISTER_URL") || DEFAULT_REGISTER;
@@ -59,6 +64,10 @@ export function fioRegisterUrl(suggestedHandle?: string): string {
 }
 
 export function suggestFioFromAuraHandle(auraHandle: string): string {
-  const clean = auraHandle.trim().toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 62);
+  const clean = auraHandle
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "")
+    .slice(0, 62);
   return clean ? `${clean}@${fioPreferredDomain()}` : `founder@${fioPreferredDomain()}`;
 }

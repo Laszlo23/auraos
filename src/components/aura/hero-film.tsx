@@ -114,9 +114,7 @@ export function HeroFilm({ className }: { className?: string }) {
         style={{ scale: reducedMotion ? 1 : scale, opacity }}
         className="absolute inset-0 film-grade"
       >
-        {!videoOk ? (
-          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-        ) : null}
+        {!videoOk ? <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" /> : null}
         {!reducedMotion ? (
           <video
             ref={videoRef}

@@ -455,9 +455,7 @@ const AUTOMATIONS = [
  * Enable with VITE_DEMO_SEED=1 (never on by default).
  */
 export function isDemoSeedEnabled() {
-  return (
-    import.meta.env["VITE_DEMO_SEED"] === "1" || import.meta.env["VITE_DEMO_SEED"] === "true"
-  );
+  return import.meta.env["VITE_DEMO_SEED"] === "1" || import.meta.env["VITE_DEMO_SEED"] === "true";
 }
 
 export async function seedCompany(ownerId: string) {

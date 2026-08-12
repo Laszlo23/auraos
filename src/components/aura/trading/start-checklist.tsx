@@ -203,8 +203,8 @@ export function TradingSetup({
           <Chip tone="gold">Step 3 · on-chain</Chip>
           <h3 className="mt-3 text-lg font-semibold tracking-tight">Fund the wallet, then arm</h3>
           <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-            When armed, Quant executes fully on Base — real DEX swaps from your smart wallet. Deposit{" "}
-            <span className="font-semibold text-foreground">USDC</span> for size, or deposit{" "}
+            When armed, Quant executes fully on Base — real DEX swaps from your smart wallet.
+            Deposit <span className="font-semibold text-foreground">USDC</span> for size, or deposit{" "}
             <span className="font-semibold text-foreground">ETH</span> and convert to USDC in Wallet
             (OKX). Keep a little ETH for gas unless sponsorship is on. Prefer{" "}
             <span className="font-semibold text-foreground">Paper</span> first if you want simulated

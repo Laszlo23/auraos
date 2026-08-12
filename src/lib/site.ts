@@ -101,8 +101,7 @@ export const LAUNCH_SHARE_TEXT =
   "Aura OS fair launch — 14 Aug 2026 at 14:14 CEST. Own a company. Let AI make money. Join the founding cohort before T-0.";
 
 /** Aura OS announce post — like, comment, and quote/share to earn whitelist access. */
-export const AURA_LAUNCH_POST_URL =
-  "https://x.com/buildingcultu3/status/2086020001341870326";
+export const AURA_LAUNCH_POST_URL = "https://x.com/buildingcultu3/status/2086020001341870326";
 
 export type WhitelistTaskId =
   | "follow_x"
@@ -253,4 +252,3 @@ export const PRODUCT_SURFACES: ProductSurface[] = [
     blurb: "Sign in to the founder desk",
   },
 ];
-

@@ -51,11 +51,7 @@ export function Panel({
             {action ? <div className="ml-auto flex items-center gap-2">{action}</div> : null}
           </div>
           <div
-            className={cn(
-              "relative z-10 p-5",
-              showMotif && "pb-10 pr-16 sm:pr-20",
-              bodyClassName,
-            )}
+            className={cn("relative z-10 p-5", showMotif && "pb-10 pr-16 sm:pr-20", bodyClassName)}
           >
             {children}
           </div>

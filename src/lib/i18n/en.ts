@@ -46,8 +46,7 @@ export const en: MessageTree = {
     scrollCue: "Scroll the story",
     wiifmCta: "What’s in it for me?",
     painTitle: "Great work. Quiet Google page.",
-    painBody:
-      "Happy guests leave — and forget to review. Aura turns that into a habit.",
+    painBody: "Happy guests leave — and forget to review. Aura turns that into a habit.",
     painBad1: "Hoping for reviews",
     painGood1: "Asking every real guest — you approve",
     painBad2: "Posting when you remember",

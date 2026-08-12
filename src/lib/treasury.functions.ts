@@ -376,11 +376,8 @@ export const sendTreasury = createServerFn({ method: "POST" })
     const to = toRaw.toLowerCase() as Address;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const {
-      decryptOwnerKey,
-      executeContractUserOp,
-      gasSponsorshipEnabled,
-    } = await import("@/lib/wallet.server");
+    const { decryptOwnerKey, executeContractUserOp, gasSponsorshipEnabled } =
+      await import("@/lib/wallet.server");
 
     const { resolveCompanyDeskNetwork } = await import("./desk-network.server");
     const network = await resolveCompanyDeskNetwork(context.supabase, {
@@ -449,8 +446,7 @@ export const sendTreasury = createServerFn({ method: "POST" })
       const buffer = nativeGasBufferWei(network, gasSponsorshipEnabled(network));
       const spendable = bal > buffer ? bal - buffer : 0n;
       if (spendable <= 0n) throw new Error(`Not enough ${native} after gas buffer.`);
-      amountWei =
-        amountRaw === "max" ? spendable : parseHumanAmount(amountRaw, 18);
+      amountWei = amountRaw === "max" ? spendable : parseHumanAmount(amountRaw, 18);
       if (amountWei > spendable) amountWei = spendable;
       if (amountWei <= 0n) throw new Error("Amount too small.");
       call = {
@@ -485,9 +481,7 @@ export const sendTreasury = createServerFn({ method: "POST" })
     const result = await executeContractUserOp(pk, call, network);
 
     const humanAmount =
-      data.asset === "usdc"
-        ? Number(amountWei) / 10 ** usdcDecimals
-        : Number(amountWei) / 1e18;
+      data.asset === "usdc" ? Number(amountWei) / 10 ** usdcDecimals : Number(amountWei) / 1e18;
 
     const { data: company } = await context.supabase
       .from("companies")

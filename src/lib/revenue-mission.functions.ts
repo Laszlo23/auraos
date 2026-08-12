@@ -2,11 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { AGENT_ROSTER } from "@/lib/agent-roster";
-import {
-  clampAutonomy,
-  taskStatusForAutonomy,
-  totalsFromLedger,
-} from "@/lib/company-economy";
+import { clampAutonomy, taskStatusForAutonomy, totalsFromLedger } from "@/lib/company-economy";
 import { TASK_COST } from "@/lib/task-cost";
 import {
   emptyAgentsStatus,
@@ -233,14 +229,11 @@ export async function createRevenueMissionCore(
     input.deadlineAt != null
       ? Math.max(
           1,
-          Math.ceil(
-            (new Date(input.deadlineAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000),
-          ),
+          Math.ceil((new Date(input.deadlineAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000)),
         )
       : brief.timelineDays;
   const deadlineAt =
-    input.deadlineAt ||
-    new Date(Date.now() + timelineDays * 24 * 60 * 60 * 1000).toISOString();
+    input.deadlineAt || new Date(Date.now() + timelineDays * 24 * 60 * 60 * 1000).toISOString();
 
   const { plan, projected, agents } = await planRevenueMissionWithLlm({
     goal,
@@ -302,7 +295,7 @@ export async function createRevenueMissionCore(
 
 export const createRevenueMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       goal: string;
       targetUsdc?: number;
@@ -340,7 +333,7 @@ export const createRevenueMission = createServerFn({ method: "POST" })
 
 export const startRevenueMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -401,9 +394,7 @@ export const startRevenueMission = createServerFn({ method: "POST" })
     }
 
     const plan = (mission.plan || {}) as MissionPlan;
-    const agents = Array.from(
-      new Set((plan.steps || []).map((s) => s.agent).filter(Boolean)),
-    );
+    const agents = Array.from(new Set((plan.steps || []).map((s) => s.agent).filter(Boolean)));
     if (!agents.includes("Atlas")) agents.unshift("Atlas");
 
     const agentsStatus: Record<string, string> = {};
@@ -559,7 +550,7 @@ export const listRevenueMissions = createServerFn({ method: "GET" })
 
 export const getRevenueMission = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -597,7 +588,7 @@ export const getRevenueMission = createServerFn({ method: "GET" })
 
 export const computeNextBestAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -644,7 +635,7 @@ export const computeNextBestAction = createServerFn({ method: "POST" })
 
 export const executeNextBestAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -710,10 +701,7 @@ export const executeNextBestAction = createServerFn({ method: "POST" })
         .from("akquise_campaigns")
         .update({ mission_id: mission.id })
         .eq("id", akquise.campaignId);
-      if (
-        linkNbaErr &&
-        !/mission_id|schema cache|42703|PGRST204/i.test(linkNbaErr.message || "")
-      ) {
+      if (linkNbaErr && !/mission_id|schema cache|42703|PGRST204/i.test(linkNbaErr.message || "")) {
         throw linkNbaErr;
       }
       await db
@@ -743,12 +731,7 @@ export const executeNextBestAction = createServerFn({ method: "POST" })
       return { ok: true, kind: "prospect" as const, akquise };
     }
 
-    const agentId = await ensureAgent(
-      db,
-      company.id,
-      nba.assignee,
-      nba.title,
-    );
+    const agentId = await ensureAgent(db, company.id, nba.assignee, nba.title);
     let taskId: string | null = null;
     if (agentId) {
       const { data: task } = await db
@@ -821,7 +804,7 @@ async function writeMissionLearning(
 
 export const completeRevenueMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -873,7 +856,7 @@ export const completeRevenueMission = createServerFn({ method: "POST" })
 /** Put an active mission on hold — pauses open tasks so agents stop working it. */
 export const pauseRevenueMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -936,7 +919,7 @@ export const pauseRevenueMission = createServerFn({ method: "POST" })
  */
 export const deleteRevenueMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -987,7 +970,7 @@ export const deleteRevenueMission = createServerFn({ method: "POST" })
 /** Re-run AI valuation / plan for a mission that is not complete. */
 export const evaluateRevenueMission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { missionId: string }) => ({
+  .validator((input: { missionId: string }) => ({
     missionId: String(input.missionId),
   }))
   .handler(async ({ data, context }) => {
@@ -1012,8 +995,7 @@ export const evaluateRevenueMission = createServerFn({ method: "POST" })
       ? Math.max(
           1,
           Math.ceil(
-            (new Date(String(mission.deadline_at)).getTime() - Date.now()) /
-              (24 * 60 * 60 * 1000),
+            (new Date(String(mission.deadline_at)).getTime() - Date.now()) / (24 * 60 * 60 * 1000),
           ),
         )
       : brief.timelineDays;
@@ -1068,7 +1050,7 @@ function currencyish(n: number | null | undefined) {
 }
 
 export const getPublicMission = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => ({
+  .validator((input: { slug: string }) => ({
     slug: String(input.slug || "").slice(0, 32),
   }))
   .handler(async ({ data }) => {

@@ -5,7 +5,7 @@ import { alchemyHead, sha256Hex, type AnchorResult } from "./chain.server";
 import { activeNetwork } from "./chain-config";
 
 export const anchorGrant = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z.object({ ref: z.string(), amount: z.number(), reason: z.string() }).parse(input),
   )
   .handler(async ({ data }): Promise<AnchorResult> => {

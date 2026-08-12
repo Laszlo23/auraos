@@ -11,8 +11,7 @@ import { encodeFunctionData, type Address, type Hex } from "viem";
 import { alchemyRpcUrl, USDC_ADDRESSES, USDC_DECIMALS } from "@/lib/chain-config";
 import { executeBatchUserOps, executeContractUserOp } from "@/lib/wallet.server";
 
-export const GUESSMARKET_FACTORY_BASE =
-  "0x741B0057d06583F8533f8Cb7AEB6D8B04f48Bc93" as Address;
+export const GUESSMARKET_FACTORY_BASE = "0x741B0057d06583F8533f8Cb7AEB6D8B04f48Bc93" as Address;
 /** 10 USDC (6 decimals) — `marketCreationFee()` on factory. */
 export const GUESSMARKET_CREATE_FEE_USDC = 10;
 
@@ -134,8 +133,7 @@ async function ethCall(to: Address, data: Hex): Promise<Hex> {
 }
 
 async function fetchErc20Balance(token: Address, owner: Address): Promise<bigint> {
-  const data =
-    `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
+  const data = `0x70a08231000000000000000000000000${owner.slice(2).toLowerCase()}` as Hex;
   const result = await ethCall(token, data);
   if (!result || result === "0x") return 0n;
   return BigInt(result);

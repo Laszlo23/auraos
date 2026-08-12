@@ -17,12 +17,7 @@ type Props = {
   customers: number;
 };
 
-export function LevelProgressRail({
-  xpLevel,
-  milestones,
-  lifetimeRevenue,
-  customers,
-}: Props) {
+export function LevelProgressRail({ xpLevel, milestones, lifetimeRevenue, customers }: Props) {
   const next = milestones.find((m) => !m.reached) ?? milestones[milestones.length - 1];
   const reached = milestones.filter((m) => m.reached);
 

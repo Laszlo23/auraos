@@ -29,7 +29,8 @@ const PRODUCT_META: Record<
   },
   studio: {
     name: "Content Studio",
-    description: "Brand voice that drafts daily posts for connected channels — publish on approval.",
+    description:
+      "Brand voice that drafts daily posts for connected channels — publish on approval.",
     strategy: "Primary product: Content Studio across connected social channels.",
     emoji: "❖",
     price: 29,
@@ -45,9 +46,9 @@ export async function bootstrapOnboardingProduct(
   productId: string,
   companyName: string,
 ) {
-  const id = (["trading", "commerce", "studio"].includes(productId)
-    ? productId
-    : "trading") as OnboardingProductId;
+  const id = (
+    ["trading", "commerce", "studio"].includes(productId) ? productId : "trading"
+  ) as OnboardingProductId;
   const meta = PRODUCT_META[id];
 
   // Hire product agents via client inserts (same as hireAgentIfNeeded)
@@ -56,10 +57,7 @@ export async function bootstrapOnboardingProduct(
     await hireAgentIfNeeded(companyId, n);
   }
 
-  await supabase
-    .from("companies")
-    .update({ strategy: meta.strategy })
-    .eq("id", companyId);
+  await supabase.from("companies").update({ strategy: meta.strategy }).eq("id", companyId);
 
   const { data: existingProduct } = await supabase
     .from("products")
@@ -173,9 +171,7 @@ export async function bootstrapFunnelCompany(
     .from("companies")
     .update({
       strategy: boot.strategy,
-      ...(boot.markLocalBusiness
-        ? { is_local_business: true, network_backlink: true }
-        : {}),
+      ...(boot.markLocalBusiness ? { is_local_business: true, network_backlink: true } : {}),
       ...(opts?.city ? { city: opts.city } : {}),
       ...(opts?.niche ? { niche: opts.niche } : {}),
     })

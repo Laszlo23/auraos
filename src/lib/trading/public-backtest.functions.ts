@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 /** Public shared backtest snapshot (no auth). */
 export const getPublicBacktestShare = createServerFn({ method: "GET" })
-  .inputValidator((input: { shareSlug: string }) => ({
+  .validator((input: { shareSlug: string }) => ({
     shareSlug: String(input.shareSlug || "").slice(0, 32),
   }))
   .handler(async ({ data }) => {

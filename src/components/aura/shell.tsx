@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 
-import { NAV, NAV_GROUPS, navForFunnel, navLabel } from "@/lib/nav";
+import { NAV_GROUPS, navForFunnel, navLabel } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
 import { useSwipeAxis } from "@/hooks/use-swipe-axis";
@@ -188,7 +188,10 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   {simple ? "Your company" : group}
                 </p>
               )}
-              <nav className="space-y-0.5" aria-label={simple ? "Company navigation" : `${group} navigation`}>
+              <nav
+                className="space-y-0.5"
+                aria-label={simple ? "Company navigation" : `${group} navigation`}
+              >
                 {visibleNav
                   .filter((n) => n.group === group)
                   .map((item) => {
@@ -295,7 +298,10 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
               aria-label="Open command palette"
               className="glass-soft flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
-              <Sparkle className="h-[18px] w-[18px] shrink-0 text-primary md:h-4 md:w-4" strokeWidth={1.9} />
+              <Sparkle
+                className="h-[18px] w-[18px] shrink-0 text-primary md:h-4 md:w-4"
+                strokeWidth={1.9}
+              />
               <span className="truncate font-display text-[13px] font-medium tracking-[-0.01em] md:text-sm md:font-normal md:tracking-normal">
                 Ask the company anything…
               </span>
@@ -513,10 +519,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                     className="absolute inset-0 rounded-2xl bg-primary/15 ring-1 ring-primary/30"
                   />
                 )}
-                <Icon
-                  className="relative h-[22px] w-[22px]"
-                  strokeWidth={active ? 2.2 : 1.9}
-                />
+                <Icon className="relative h-[22px] w-[22px]" strokeWidth={active ? 2.2 : 1.9} />
                 <span
                   className={cn(
                     "relative max-w-full truncate font-display text-[9px] font-semibold uppercase leading-none tracking-[0.12em]",
@@ -544,31 +547,37 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <CommandDialog open={paletteOpen} onOpenChange={setPaletteOpen}>
-        <CommandInput placeholder="Search anything — even hidden sections…" />
+        <CommandInput
+          placeholder={
+            simple ? "Search your menu…" : "Search anything — including advanced sections…"
+          }
+        />
         <CommandList>
           <CommandEmpty>Nothing matched. Try the CEO.</CommandEmpty>
-          {NAV_GROUPS.map((group) => (
+          {visibleGroups.map((group) => (
             <CommandGroup key={group} heading={group}>
-              {NAV.filter((n) => n.group === group).map((item) => (
-                <CommandItem
-                  key={item.to}
-                  value={`${item.label} ${item.plain ?? ""} ${item.hint ?? ""}`}
-                  onSelect={() => {
-                    setPaletteOpen(false);
-                    navigate({ to: item.to });
-                  }}
-                >
-                  <item.icon className="mr-2 h-4 w-4 shrink-0" />
-                  <span className="min-w-0">
-                    <span className="block truncate">{navLabel(item, simple)}</span>
-                    {item.hint && (
-                      <span className="block truncate text-[11px] text-muted-foreground">
-                        {item.hint}
-                      </span>
-                    )}
-                  </span>
-                </CommandItem>
-              ))}
+              {visibleNav
+                .filter((n) => n.group === group)
+                .map((item) => (
+                  <CommandItem
+                    key={item.to}
+                    value={`${item.label} ${item.plain ?? ""} ${item.hint ?? ""}`}
+                    onSelect={() => {
+                      setPaletteOpen(false);
+                      navigate({ to: item.to });
+                    }}
+                  >
+                    <item.icon className="mr-2 h-4 w-4 shrink-0" />
+                    <span className="min-w-0">
+                      <span className="block truncate">{navLabel(item, simple)}</span>
+                      {item.hint && (
+                        <span className="block truncate text-[11px] text-muted-foreground">
+                          {item.hint}
+                        </span>
+                      )}
+                    </span>
+                  </CommandItem>
+                ))}
             </CommandGroup>
           ))}
         </CommandList>

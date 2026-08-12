@@ -4,11 +4,10 @@ function todayUtcDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function buildDailyDrop(opts: {
-  slug: string;
-  brand: string;
-  dropDate: string;
-}): { subject: string; body: string } {
+function buildDailyDrop(opts: { slug: string; brand: string; dropDate: string }): {
+  subject: string;
+  body: string;
+} {
   const daySeed = opts.dropDate.replace(/-/g, "");
   const n = Number(daySeed) % 12;
   if (opts.slug.includes("horoscope") || opts.brand.toLowerCase().includes("horoscope")) {
@@ -174,10 +173,7 @@ export async function runSubscriptionContentTick(limit = 20): Promise<{
         .eq("id", drop.id);
       sent += 1;
     } else {
-      await supabaseAdmin
-        .from("site_content_drops")
-        .update({ status: "failed" })
-        .eq("id", drop.id);
+      await supabaseAdmin.from("site_content_drops").update({ status: "failed" }).eq("id", drop.id);
     }
   }
 

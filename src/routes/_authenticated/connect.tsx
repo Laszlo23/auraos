@@ -465,8 +465,7 @@ function ConnectPage() {
         {(() => {
           const state = mailboxes.find((x) => x.provider === "smtp");
           const status = state?.connected ? "connected" : "idle";
-          const savedLabel =
-            state?.account ?? smtpSaved?.from_email ?? null;
+          const savedLabel = state?.account ?? smtpSaved?.from_email ?? null;
           return (
             <div className="border-b border-border/40 last:border-0">
               <Row
@@ -524,9 +523,7 @@ function ConnectPage() {
                         value={smtpForm[key]}
                         placeholder={placeholder}
                         autoComplete={key === "password" ? "new-password" : "off"}
-                        onChange={(e) =>
-                          setSmtpForm((f) => ({ ...f, [key]: e.target.value }))
-                        }
+                        onChange={(e) => setSmtpForm((f) => ({ ...f, [key]: e.target.value }))}
                         className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
                       />
                     </label>
@@ -535,9 +532,7 @@ function ConnectPage() {
                     <input
                       type="checkbox"
                       checked={smtpForm.secure}
-                      onChange={(e) =>
-                        setSmtpForm((f) => ({ ...f, secure: e.target.checked }))
-                      }
+                      onChange={(e) => setSmtpForm((f) => ({ ...f, secure: e.target.checked }))}
                     />
                     Use TLS (secure) — usually on for port 465
                   </label>

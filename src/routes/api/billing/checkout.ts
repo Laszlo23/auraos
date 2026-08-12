@@ -13,11 +13,7 @@ import {
   stripePriceForAuraReputation,
   stripePriceForBoostPack,
 } from "@/lib/boost-packs";
-import {
-  funnelPlanById,
-  isFunnelPlanId,
-  stripePriceForFunnelPlan,
-} from "@/lib/funnel-plans";
+import { funnelPlanById, isFunnelPlanId, stripePriceForFunnelPlan } from "@/lib/funnel-plans";
 import { SITE_URL } from "@/lib/site";
 import { assertStripeChargesEnabled } from "@/lib/stripe-account";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
@@ -190,9 +186,7 @@ export const Route = createFileRoute("/api/billing/checkout")({
             );
           }
 
-          const price = funnelPlan
-            ? stripePriceForFunnelPlan(funnelPlan)
-            : priceForAuraPlan(plan);
+          const price = funnelPlan ? stripePriceForFunnelPlan(funnelPlan) : priceForAuraPlan(plan);
           if (!price) {
             return Response.json({ error: `No Stripe price for plan ${plan}` }, { status: 400 });
           }

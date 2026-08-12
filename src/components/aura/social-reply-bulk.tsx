@@ -17,12 +17,7 @@ type Props = {
  * Bulk tools for comment/mention reply drafts.
  * Keeps founders out of 1-by-1 hell once the queue grows.
  */
-export function SocialReplyBulkBar({
-  count,
-  provider,
-  className,
-  showFreeAuto = true,
-}: Props) {
+export function SocialReplyBulkBar({ count, provider, className, showFreeAuto = true }: Props) {
   const qc = useQueryClient();
 
   const invalidate = () => {
@@ -49,9 +44,7 @@ export function SocialReplyBulkBar({
     onSuccess: (res) => {
       invalidate();
       if (res.action === "free_auto") {
-        toast.success(
-          `Comments are free (auto). Cleared ${res.ignored} · sent ${res.sent}.`,
-        );
+        toast.success(`Comments are free (auto). Cleared ${res.ignored} · sent ${res.sent}.`);
         return;
       }
       if (res.action === "send_all") {

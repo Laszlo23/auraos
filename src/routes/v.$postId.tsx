@@ -210,7 +210,9 @@ function WatchPage() {
           <div
             className={cn(
               "relative mx-auto",
-              vertical ? "aspect-[9/16] max-h-[min(72vh,640px)] w-full max-w-[22rem]" : "aspect-video w-full",
+              vertical
+                ? "aspect-[9/16] max-h-[min(72vh,640px)] w-full max-w-[22rem]"
+                : "aspect-video w-full",
             )}
           >
             <video

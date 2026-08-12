@@ -73,16 +73,21 @@ async function smartWalletRow(supabase: Db, userId: string) {
     .eq("handle_id", handle.id)
     .eq("kind", "smart")
     .maybeSingle();
-  return (byHandle as {
-    id: string;
-    address: string;
-    owner_key_enc: string | null;
-    owner_address: string | null;
-  } | null) ?? null;
+  return (
+    (byHandle as {
+      id: string;
+      address: string;
+      owner_key_enc: string | null;
+      owner_address: string | null;
+    } | null) ?? null
+  );
 }
 
 function normalizeSymbol(raw: string): string {
-  const s = raw.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 10);
+  const s = raw
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase()
+    .slice(0, 10);
   if (s.length < 2) throw new Error("Symbol must be at least 2 characters");
   return s;
 }
@@ -167,22 +172,15 @@ export const getCompanyTokenLaunch = createServerFn({ method: "GET" })
 
 export const draftCompanyToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (input: {
-      name: string;
-      symbol: string;
-      imageUrl?: string;
-      presetId?: string;
-    }) => {
-      if (!input?.name || !input?.symbol) throw new Error("name and symbol required");
-      return {
-        name: normalizeName(input.name),
-        symbol: normalizeSymbol(input.symbol),
-        imageUrl: input.imageUrl?.trim() || null,
-        presetId: (input.presetId || "community_standard") as CompanyTokenPresetId,
-      };
-    },
-  )
+  .validator((input: { name: string; symbol: string; imageUrl?: string; presetId?: string }) => {
+    if (!input?.name || !input?.symbol) throw new Error("name and symbol required");
+    return {
+      name: normalizeName(input.name),
+      symbol: normalizeSymbol(input.symbol),
+      imageUrl: input.imageUrl?.trim() || null,
+      presetId: (input.presetId || "community_standard") as CompanyTokenPresetId,
+    };
+  })
   .handler(async ({ data, context }) => {
     await requireSeat(context.supabase, context.userId);
     const company = await ownedCompany(context.supabase, context.userId);
@@ -261,7 +259,7 @@ export const draftCompanyToken = createServerFn({ method: "POST" })
 
 export const markCompanyTokenReady = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { launchId: string }) => {
+  .validator((input: { launchId: string }) => {
     if (!input?.launchId) throw new Error("launchId required");
     return input;
   })
@@ -322,7 +320,7 @@ export const markCompanyTokenReady = createServerFn({ method: "POST" })
 
 export const deployCompanyToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { launchId: string; confirm: boolean }) => {
+  .validator((input: { launchId: string; confirm: boolean }) => {
     if (!input?.launchId) throw new Error("launchId required");
     if (!input.confirm) throw new Error("Confirm deploy explicitly");
     return input;

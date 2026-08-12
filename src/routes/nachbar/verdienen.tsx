@@ -21,7 +21,9 @@ function NachbarVerdienenPage() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Verdienen</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+          Verdienen
+        </p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Dein Guthaben</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Punkte aus Check-ins und Freunden. Später: Tausch in USDC (gestaffelt, kein Yield).
@@ -57,7 +59,9 @@ function NachbarVerdienenPage() {
                 </div>
                 <span
                   className={
-                    row.amount >= 0 ? "font-semibold tabular-nums text-primary" : "font-semibold tabular-nums"
+                    row.amount >= 0
+                      ? "font-semibold tabular-nums text-primary"
+                      : "font-semibold tabular-nums"
                   }
                 >
                   {row.amount >= 0 ? "+" : ""}

@@ -33,8 +33,7 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 function createSupabaseAdminClient() {
-  const SUPABASE_URL =
-    process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
+  const SUPABASE_URL = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
   // Prefer classic service_role JWT; also accept new opaque secret keys (sb_secret_…).
   // SUPABASE_SERVICE_ROLE_KEY_SECRET is a common local alias when the main var was
   // accidentally filled with the anon JWT.
@@ -72,9 +71,7 @@ function createSupabaseAdminClient() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [
       ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
-      ...(!SUPABASE_SERVICE_ROLE_KEY
-        ? ["SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY)"]
-        : []),
+      ...(!SUPABASE_SERVICE_ROLE_KEY ? ["SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY)"] : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Add the service_role / secret key from Supabase → Project Settings → API Keys.`;
     console.error(`[Supabase] ${message}`);
@@ -88,9 +85,7 @@ function createSupabaseAdminClient() {
       const payload = SUPABASE_SERVICE_ROLE_KEY.split(".")[1]!;
       const pad = "=".repeat((4 - (payload.length % 4)) % 4);
       const claim = JSON.parse(
-        Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64").toString(
-          "utf8",
-        ),
+        Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64").toString("utf8"),
       ) as { role?: string };
       if (claim.role && claim.role !== "service_role") {
         throw new Error(

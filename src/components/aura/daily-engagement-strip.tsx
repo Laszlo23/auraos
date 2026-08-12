@@ -41,8 +41,7 @@ export function DailyEngagementStrip({
 
   const nba = mission?.next_best_action;
   const missionTitle =
-    mission?.goal_text?.trim().slice(0, 72) ||
-    (mission ? "Active mission" : "No mission yet");
+    mission?.goal_text?.trim().slice(0, 72) || (mission ? "Active mission" : "No mission yet");
   const missionCta =
     awaitingApproval > 0
       ? { label: `Approve ${awaitingApproval} waiting`, to: "/tasks" as const }
@@ -55,12 +54,7 @@ export function DailyEngagementStrip({
             : { label: "Plan a mission", to: "/missions" as const };
 
   return (
-    <Panel
-      label="Daily engagement"
-      glow
-      delay={0.01}
-      {...(className ? { className } : {})}
-    >
+    <Panel label="Daily engagement" glow delay={0.01} {...(className ? { className } : {})}>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">

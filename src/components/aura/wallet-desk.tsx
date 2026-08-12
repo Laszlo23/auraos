@@ -19,8 +19,10 @@ import { toast } from "sonner";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
 import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
+import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
 import { WalletGrowPanel, WalletWorkingHint } from "@/components/aura/wallet-grow-panel";
 import { useCompany } from "@/hooks/use-aura";
+import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
 import { useMyHandle } from "@/hooks/use-identity";
 import { useProvisionSmartWallet, useSmartWallet } from "@/hooks/use-earn";
 import { getGenesisStatus } from "@/lib/genesis.functions";
@@ -109,19 +111,14 @@ function formatTokenAmount(raw: string, decimals: number, maxFrac = 6): string {
   }
 }
 
-export function WalletDesk({
-  seat,
-  perks,
-}: {
-  seat?: number | null;
-  perks?: HolderPerks;
-}) {
+export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: HolderPerks }) {
   const qc = useQueryClient();
   const { data: handle } = useMyHandle();
   const handleId = handle?.id;
   const { data: wallet, isLoading: walletLoading } = useSmartWallet(handleId);
   const provision = useProvisionSmartWallet();
   const { data: company } = useCompany();
+  const fio = useFioReady();
 
   const [tab, setTab] = useState<DeskTab>(null);
   const [copied, setCopied] = useState(false);
@@ -278,9 +275,7 @@ export function WalletDesk({
       }
       const human = formatTokenAmount(est, res.toDecimals);
       const label =
-        res.toLabel === "eth"
-          ? (treasury.data?.nativeSymbol ?? "ETH")
-          : res.toLabel.toUpperCase();
+        res.toLabel === "eth" ? (treasury.data?.nativeSymbol ?? "ETH") : res.toLabel.toUpperCase();
       setQuotePreview(`≈ ${human} ${label}`);
       setSwapConfirm(false);
     },
@@ -396,8 +391,7 @@ export function WalletDesk({
     );
   }
 
-  const sendBalance =
-    sendAsset === "usdc" ? usdc : sendAsset === "eth" ? eth : weth;
+  const sendBalance = sendAsset === "usdc" ? usdc : sendAsset === "eth" ? eth : weth;
   const sendAssetLabel =
     sendAsset === "usdc" ? stableSym : sendAsset === "eth" ? nativeSym : "WETH";
 
@@ -416,9 +410,7 @@ export function WalletDesk({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <Chip tone="gold">{networkLabel}</Chip>
-              <Chip tone={deployed ? "primary" : "neutral"}>
-                {deployed ? "On-chain" : "Ready"}
-              </Chip>
+              <Chip tone={deployed ? "primary" : "neutral"}>{deployed ? "On-chain" : "Ready"}</Chip>
               {okx.data?.configured ? <Chip tone="primary">Exchange live</Chip> : null}
               {treasury.data?.sponsored || okx.data?.gasSponsored ? (
                 <Chip tone="primary">Gas sponsored</Chip>
@@ -467,7 +459,11 @@ export function WalletDesk({
               className="mt-3 inline-flex items-center gap-2 rounded-full bg-foreground/6 px-3 py-1.5 font-mono text-[12px] text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
             >
               {shortAddr(address)}
-              {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-primary" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
             </button>
           </div>
           <div className="text-right text-[12px] text-muted-foreground">
@@ -619,7 +615,10 @@ export function WalletDesk({
               { key: "weth", label: "WETH", amount: weth, hint: "Desk inventory" },
             ] as const
           ).map((row) => (
-            <div key={row.key} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+            <div
+              key={row.key}
+              className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+            >
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gold/12 text-gold">
                   <Wallet className="h-4 w-4" />
@@ -648,8 +647,9 @@ export function WalletDesk({
       {tab === "receive" ? (
         <Panel label="Receive" glow>
           <p className="text-[13px] text-muted-foreground">
-            Send {nativeSym}, USDC, or WETH on <span className="font-semibold text-foreground">{networkLabel}</span> only.
-            Wrong network = lost funds.
+            Send {nativeSym}, USDC, or WETH on{" "}
+            <span className="font-semibold text-foreground">{networkLabel}</span> only. Wrong
+            network = lost funds.
           </p>
           {qrUrl ? (
             <div className="mx-auto mt-5 w-fit rounded-2xl bg-white p-2.5">
@@ -664,7 +664,9 @@ export function WalletDesk({
             </div>
           ) : null}
           <div className="mt-4 flex items-start gap-2 rounded-2xl bg-foreground/[0.04] px-3 py-2.5">
-            <p className="min-w-0 flex-1 break-all font-mono text-[12px] leading-relaxed">{address}</p>
+            <p className="min-w-0 flex-1 break-all font-mono text-[12px] leading-relaxed">
+              {address}
+            </p>
             <button
               type="button"
               onClick={() => void copyAddress()}
@@ -685,6 +687,7 @@ export function WalletDesk({
           <p className="text-[13px] text-muted-foreground">
             Withdraw to any {networkLabel} address. Irreversible — double-check the destination.
           </p>
+          <FioPayoutNudge context="sending USDC" className="mt-3" />
           {!treasury.data?.sponsored && !okx.data?.gasSponsored ? (
             <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">
               Keep a little {nativeSym} for gas — token sends need ~0.001 {nativeSym} when
@@ -702,7 +705,9 @@ export function WalletDesk({
                 }}
                 className={cn(
                   "rounded-xl px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]",
-                  sendAsset === a ? "bg-primary text-primary-foreground" : "bg-foreground/8 text-muted-foreground",
+                  sendAsset === a
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-foreground/8 text-muted-foreground",
                 )}
               >
                 {a === "eth" ? nativeSym : a.toUpperCase()}
@@ -754,6 +759,24 @@ export function WalletDesk({
               onClick={() => {
                 if (!/^0x[a-fA-F0-9]{40}$/.test(sendTo.trim())) {
                   toast.error("Enter a valid 0x address.");
+                  return;
+                }
+                if (
+                  sendAsset === "usdc" &&
+                  !confirmFioOrContinue(
+                    fio.ready,
+                    "usdc-send",
+                    "Attest a FIO handle on Identity so people can send you USDC by name@domain — and so Aura can show a verified receive rail.",
+                  )
+                ) {
+                  toast.message("Set up FIO on Identity", {
+                    action: {
+                      label: "Open",
+                      onClick: () => {
+                        window.location.href = "/identity";
+                      },
+                    },
+                  });
                   return;
                 }
                 setSendConfirm(true);
@@ -810,14 +833,9 @@ export function WalletDesk({
                   Not a hidden exchange fee: Alchemy gas sponsorship is off, so we leave a tiny{" "}
                   {nativeSym} cushion (~$0.20–0.30) when you convert max — Base gas itself is
                   usually cents. Set{" "}
-                  <span className="font-mono text-[11px]">ALCHEMY_GAS_POLICY_ID_BASE</span> on
-                  the server for gasless swaps.
-                  {okx.data.gasHint ? (
-                    <>
-                      {" "}
-                      ({okx.data.gasHint})
-                    </>
-                  ) : null}
+                  <span className="font-mono text-[11px]">ALCHEMY_GAS_POLICY_ID_BASE</span> on the
+                  server for gasless swaps.
+                  {okx.data.gasHint ? <> ({okx.data.gasHint})</> : null}
                 </p>
               ) : null}
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -947,7 +965,10 @@ export function WalletDesk({
                   </div>
                 </div>
               ) : null}
-              <Link to="/trading" className="mt-4 inline-block text-[12px] font-semibold text-primary hover:underline">
+              <Link
+                to="/trading"
+                className="mt-4 inline-block text-[12px] font-semibold text-primary hover:underline"
+              >
                 Open trading desk →
               </Link>
             </>
@@ -1013,7 +1034,9 @@ export function WalletDesk({
                     <KindIcon kind={item.kind} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className={cn("text-[13px] font-medium", kindTone(item.kind))}>{item.title}</p>
+                    <p className={cn("text-[13px] font-medium", kindTone(item.kind))}>
+                      {item.title}
+                    </p>
                     {item.detail ? (
                       <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
                         {item.detail}

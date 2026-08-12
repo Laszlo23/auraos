@@ -125,9 +125,7 @@ function OAuthConsentPage() {
     }
   }
 
-  const scopes = details?.scope?.trim()
-    ? details.scope.split(/\s+/).filter(Boolean)
-    : [];
+  const scopes = details?.scope?.trim() ? details.scope.split(/\s+/).filter(Boolean) : [];
 
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden px-6 py-16">

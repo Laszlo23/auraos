@@ -5,7 +5,11 @@ import { QrCode, Star } from "lucide-react";
 import { toast } from "sonner";
 
 import { Panel, Shimmer } from "@/components/aura/primitives";
-import { ensureNachbarProfile, getNachbarHub, requestNachbarCheckin } from "@/lib/nachbar.functions";
+import {
+  ensureNachbarProfile,
+  getNachbarHub,
+  requestNachbarCheckin,
+} from "@/lib/nachbar.functions";
 import { NACHBAR_CHECKIN_STORAGE_KEY, NACHBAR_FRIEND_STORAGE_KEY } from "@/lib/nachbar";
 
 export const Route = createFileRoute("/nachbar/heute")({

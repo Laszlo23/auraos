@@ -153,10 +153,12 @@ export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDrip
     const day = cestDateParts(cursor);
     for (const hour of SLOT_HOURS_CEST) {
       // Skip hours already past today.
-      if (day.y === cestDateParts(fromMs).y &&
-          day.m === cestDateParts(fromMs).m &&
-          day.d === cestDateParts(fromMs).d &&
-          hour <= cestDateParts(fromMs).h) {
+      if (
+        day.y === cestDateParts(fromMs).y &&
+        day.m === cestDateParts(fromMs).m &&
+        day.d === cestDateParts(fromMs).d &&
+        hour <= cestDateParts(fromMs).h
+      ) {
         continue;
       }
       // Don't schedule after launch moment on launch day.

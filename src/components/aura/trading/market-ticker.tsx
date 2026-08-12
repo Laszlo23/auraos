@@ -205,12 +205,10 @@ export function MarketLiveStrip({
                 <span className="num text-foreground/80">{currency(quote.high24h, 2)}</span>
               </span>
               <span>
-                24h low{" "}
-                <span className="num text-foreground/80">{currency(quote.low24h, 2)}</span>
+                24h low <span className="num text-foreground/80">{currency(quote.low24h, 2)}</span>
               </span>
               <span>
-                Vol{" "}
-                <span className="num text-foreground/80">${compact(quote.volumeQuote)}</span>
+                Vol <span className="num text-foreground/80">${compact(quote.volumeQuote)}</span>
               </span>
             </div>
           ) : (
@@ -233,11 +231,7 @@ export function MarketLiveStrip({
 
         <div className="min-w-0">
           <div className="h-16 rounded-2xl bg-foreground/[0.04] px-2 py-1.5">
-            <Spark
-              points={quote?.spark ?? [0, 0]}
-              tone={up ? "gold" : "primary"}
-              height={52}
-            />
+            <Spark points={quote?.spark ?? [0, 0]} tone={up ? "gold" : "primary"} height={52} />
           </div>
           <p className="mt-1.5 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             Last ~12h · 15m closes · {quote?.source?.split(" ")[0] ?? "binance"}

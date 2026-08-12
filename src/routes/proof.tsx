@@ -218,7 +218,12 @@ function ProofShareCard() {
           showKit={false}
         />
         <div className="mt-3">
-          <ShareBar url={PROOF_PAGE_URL} text={PROOF_SHARE_TEXT} placement="proof_page_bar" compact />
+          <ShareBar
+            url={PROOF_PAGE_URL}
+            text={PROOF_SHARE_TEXT}
+            placement="proof_page_bar"
+            compact
+          />
         </div>
       </div>
     </div>
@@ -314,8 +319,9 @@ function ProofPage() {
                     Timestamp + result
                   </h2>
                   <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-                    When a task completes, Aura stores <span className="text-foreground">status</span>
-                    , <span className="text-foreground">completed_at</span>, and a written{" "}
+                    When a task completes, Aura stores{" "}
+                    <span className="text-foreground">status</span>,{" "}
+                    <span className="text-foreground">completed_at</span>, and a written{" "}
                     <span className="text-foreground">result</span> — what was delivered, not a
                     shrug emoji.
                   </p>

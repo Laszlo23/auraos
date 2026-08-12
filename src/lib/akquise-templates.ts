@@ -1,11 +1,7 @@
 /** Five working Akquise templates — goal prompts, search skeletons, output schemas. */
 
 export type AkquiseTemplateId =
-  | "website_leads"
-  | "real_estate"
-  | "competitor_spy"
-  | "grant_hunter"
-  | "sales_writer";
+  "website_leads" | "real_estate" | "competitor_spy" | "grant_hunter" | "sales_writer";
 
 export type AkquiseTemplate = {
   id: AkquiseTemplateId;
@@ -87,7 +83,12 @@ snippet: positioning / offer / pricing cue visible on the page. Never invent con
     goalExample: "Find grants relevant to an Austrian AI startup in 2026.",
     defaultTarget: 10,
     agents: ["Cass", "Ledger", "Atlas"],
-    searchHints: ["Förderung Startup", "grant program application", "aws austria funding", "EU SME grant"],
+    searchHints: [
+      "Förderung Startup",
+      "grant program application",
+      "aws austria funding",
+      "EU SME grant",
+    ],
     scoringRubric:
       "Score 0-100 relevance of the grant/program to the brief. Prefer official sources with deadlines or eligibility.",
     extractSystem: `You are a grant research agent. Extract real grant programs or funding calls from pages.

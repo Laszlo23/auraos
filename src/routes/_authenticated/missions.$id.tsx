@@ -41,8 +41,7 @@ function MissionDetailPage() {
   });
 
   const { data: agents = [] } = useCompanyTable<{ id: string; name: string }>("agents");
-  const agentName = (agentId?: string | null) =>
-    agents.find((a) => a.id === agentId)?.name ?? null;
+  const agentName = (agentId?: string | null) => agents.find((a) => a.id === agentId)?.name ?? null;
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["revenue-mission", id] });
@@ -320,13 +319,17 @@ function MissionDetailPage() {
               </p>
             </div>
             <div className="rounded-xl border border-border/50 px-3 py-2">
-              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Revenue</p>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                Revenue
+              </p>
               <p className="font-semibold tabular-nums">
                 {currency(mission.projected?.revenue_usdc ?? 0)}
               </p>
             </div>
             <div className="rounded-xl border border-border/50 px-3 py-2">
-              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Profit</p>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                Profit
+              </p>
               <p className="font-semibold tabular-nums">
                 {currency(mission.projected?.profit_usdc ?? 0)}
               </p>
@@ -376,9 +379,7 @@ function MissionDetailPage() {
               <p className="mt-2 text-[13px] text-muted-foreground">{nba.detail}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Chip tone="primary">{nba.assignee}</Chip>
-                <Chip tone="gold">
-                  {nba.expected_cost_aura ?? 0} AURA · projected
-                </Chip>
+                <Chip tone="gold">{nba.expected_cost_aura ?? 0} AURA · projected</Chip>
                 <Chip tone="gold">+{currency(nba.expected_upside_usdc ?? 0)} · projected</Chip>
               </div>
               {mission.status === "active" && (
@@ -414,9 +415,7 @@ function MissionDetailPage() {
             <Chip
               key={name}
               tone={
-                st === "working" || st === "queued" || st === "coordinating"
-                  ? "primary"
-                  : "gold"
+                st === "working" || st === "queued" || st === "coordinating" ? "primary" : "gold"
               }
             >
               {AGENT_ROSTER[name]?.avatar ?? "·"}{" "}

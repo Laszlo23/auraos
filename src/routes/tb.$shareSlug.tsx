@@ -43,8 +43,7 @@ function PublicBacktestShare() {
     );
   }
 
-  const bt = ((q.data.payload as { backtest?: Record<string, unknown> }).backtest ??
-    {}) as {
+  const bt = ((q.data.payload as { backtest?: Record<string, unknown> }).backtest ?? {}) as {
     equity?: number[];
     total_return_pct?: number;
     win_rate?: number;
@@ -106,10 +105,7 @@ function PublicBacktestShare() {
               label="OOS win rate"
               value={`${bt.walk_forward.out_of_sample_win_rate ?? 0}%`}
             />
-            <DataRow
-              label="OOS max DD"
-              value={`${bt.walk_forward.out_of_sample_dd_pct ?? 0}%`}
-            />
+            <DataRow label="OOS max DD" value={`${bt.walk_forward.out_of_sample_dd_pct ?? 0}%`} />
           </div>
         ) : null}
         {bt.risk ? (

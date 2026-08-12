@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 
 const SITE_LINKS = [
   { to: "/share", label: "Share kit" },
+  { to: "/partners/fio", label: "FIO partners" },
+  { to: "/grants", label: "Grants" },
   { to: "/", label: "Waitlist", hash: "community" },
   { to: "/team", label: "Team" },
   { to: "/tokenomics", label: "Tokenomics" },
@@ -145,11 +147,7 @@ export function SiteFooter({
             <span className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
               Share the cohort
             </span>
-            <ShareBar
-              url={share.url}
-              text={share.text}
-              placement={share.placement ?? "footer"}
-            />
+            <ShareBar url={share.url} text={share.text} placement={share.placement ?? "footer"} />
           </div>
         ) : null}
 
@@ -188,11 +186,7 @@ export function SiteFooter({
               Get app
             </button>
             {LEGAL_LINKS.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="transition-colors hover:text-foreground"
-              >
+              <Link key={l.to} to={l.to} className="transition-colors hover:text-foreground">
                 {l.label}
               </Link>
             ))}

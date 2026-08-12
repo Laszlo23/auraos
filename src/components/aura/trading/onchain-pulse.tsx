@@ -25,7 +25,9 @@ export function OnchainPulse({ events }: { events: OnchainEventLite[] }) {
   }
 
   const buys = recent.filter((e) => /buy|inflow|long/i.test(`${e.direction} ${e.summary ?? ""}`));
-  const sells = recent.filter((e) => /sell|outflow|short/i.test(`${e.direction} ${e.summary ?? ""}`));
+  const sells = recent.filter((e) =>
+    /sell|outflow|short/i.test(`${e.direction} ${e.summary ?? ""}`),
+  );
   const line =
     sells.length > buys.length + 1
       ? "Large selling detected"

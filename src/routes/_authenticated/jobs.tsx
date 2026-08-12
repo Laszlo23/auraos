@@ -96,7 +96,9 @@ function JobsPage() {
                       type="button"
                       disabled={deliver.isPending}
                       onClick={() => {
-                        const summary = window.prompt("Result summary for the client / PoW receipt?");
+                        const summary = window.prompt(
+                          "Result summary for the client / PoW receipt?",
+                        );
                         if (!summary?.trim()) return;
                         deliver.mutate({ jobId: id, resultSummary: summary });
                       }}

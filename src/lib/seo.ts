@@ -32,8 +32,7 @@ export function pageHead(input: PageSeoInput) {
   const canonical = url(input.path);
   const image = absoluteAsset(input.image ?? OG_IMAGE);
   const imageAlt =
-    input.imageAlt ??
-    `${SITE_NAME} — AI company operating system open-graph preview`;
+    input.imageAlt ?? `${SITE_NAME} — AI company operating system open-graph preview`;
   const w = String(input.imageWidth ?? 1200);
   const h = String(input.imageHeight ?? 630);
   const robots = input.noIndex
@@ -68,9 +67,7 @@ export function pageHead(input: PageSeoInput) {
             type: "application/ld+json",
             children: JSON.stringify({
               "@context": "https://schema.org",
-              ...(Array.isArray(input.jsonLd)
-                ? { "@graph": input.jsonLd }
-                : input.jsonLd),
+              ...(Array.isArray(input.jsonLd) ? { "@graph": input.jsonLd } : input.jsonLd),
             }),
           },
         ]

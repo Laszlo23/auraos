@@ -72,9 +72,7 @@ export function scoreReputationAudit(input: ReputationAuditInput): ReputationAud
     id: "city",
     ok: hasCity,
     title: hasCity ? "Stadt hinterlegt" : "Stadt fehlt",
-    detail: hasCity
-      ? "Lokal sichtbar in deiner Region."
-      : "Stadt hilft bei lokalen Empfehlungen.",
+    detail: hasCity ? "Lokal sichtbar in deiner Region." : "Stadt hilft bei lokalen Empfehlungen.",
   });
   if (hasCity) score += 10;
 
@@ -122,7 +120,8 @@ export function scoreReputationAudit(input: ReputationAuditInput): ReputationAud
     id: "followup",
     ok: false,
     title: "Kein systematischer Follow-up",
-    detail: "Die meisten Betriebe fragen Bewertungen nur sporadisch — Aura macht das wiederkehrend.",
+    detail:
+      "Die meisten Betriebe fragen Bewertungen nur sporadisch — Aura macht das wiederkehrend.",
   });
   findings.push({
     id: "checkin",

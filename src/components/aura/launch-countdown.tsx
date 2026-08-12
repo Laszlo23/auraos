@@ -38,15 +38,7 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function Unit({
-  value,
-  label,
-  large,
-}: {
-  value: string;
-  label: string;
-  large?: boolean;
-}) {
+function Unit({ value, label, large }: { value: string; label: string; large?: boolean }) {
   return (
     <div className="flex flex-col items-center gap-1">
       <span
@@ -66,13 +58,7 @@ function Unit({
   );
 }
 
-export function SocialJoinRow({
-  placement,
-  className,
-}: {
-  placement: string;
-  className?: string;
-}) {
+export function SocialJoinRow({ placement, className }: { placement: string; className?: string }) {
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
       {SOCIAL_LINKS.map((s) => (
@@ -81,7 +67,9 @@ export function SocialJoinRow({
           href={s.href}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => trackTeaser("social_join", { placement: `${s.id}:${placement}`.slice(0, 40) })}
+          onClick={() =>
+            trackTeaser("social_join", { placement: `${s.id}:${placement}`.slice(0, 40) })
+          }
           className="rounded-2xl border border-white/10 bg-foreground/5 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/85 transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
         >
           {s.label}

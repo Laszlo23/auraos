@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Chip, Panel } from "@/components/aura/primitives";
+import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
 import { YIELD_CATALOG, type YieldRiskTier } from "@/lib/defi/catalog";
 import {
   allocateYield,
@@ -15,6 +16,7 @@ import {
   setYieldPaperMode,
   updateYieldRisk,
 } from "@/lib/defi/yield.functions";
+import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
 import { cn } from "@/lib/utils";
 
 type YieldDeskSnapshot = {
@@ -67,6 +69,7 @@ export function SimpleLiquidityPath({
   availableUsdc?: number;
 }) {
   const qc = useQueryClient();
+  const fio = useFioReady();
   const [amountById, setAmountById] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [showMore, setShowMore] = useState(false);
@@ -108,6 +111,22 @@ export function SimpleLiquidityPath({
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const goRealMoney = () => {
+    if (
+      !confirmFioOrContinue(
+        fio.ready,
+        "yield-live",
+        "Real money mode moves USDC on-chain. Attest a FIO handle first for a clear receive identity.",
+      )
+    ) {
+      toast.message("Set up FIO on Identity first", {
+        action: { label: "Open", onClick: () => (window.location.href = "/identity") },
+      });
+      return;
+    }
+    paperMut.mutate(false);
+  };
 
   async function setTier(maxRiskTier: YieldRiskTier) {
     try {
@@ -226,7 +245,7 @@ export function SimpleLiquidityPath({
           <button
             type="button"
             disabled={paperMut.isPending || !state?.yieldPaper}
-            onClick={() => paperMut.mutate(false)}
+            onClick={goRealMoney}
             className={cn(
               "rounded-2xl px-3 py-1.5 text-[11px] font-semibold disabled:opacity-50",
               !state?.yieldPaper
@@ -244,6 +263,7 @@ export function SimpleLiquidityPath({
             {showMore ? "Hide risk" : "Risk settings"}
           </button>
         </div>
+        <FioPayoutNudge context="turning on real money liquidity" className="mt-3" />
         {showMore ? (
           <div className="mt-3 flex flex-wrap gap-2">
             <button
@@ -322,9 +342,7 @@ export function SimpleLiquidityPath({
                   type="number"
                   min={b.cat.minUsdc}
                   value={amt}
-                  onChange={(e) =>
-                    setAmountById((prev) => ({ ...prev, [b.id]: e.target.value }))
-                  }
+                  onChange={(e) => setAmountById((prev) => ({ ...prev, [b.id]: e.target.value }))}
                   className="mt-1.5 w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-sm outline-none"
                 />
               </label>

@@ -65,9 +65,7 @@ function jsonSafeRecord(raw: unknown): Record<string, string | number | boolean 
   return out;
 }
 
-function nbaSafe(
-  raw: unknown,
-): { title: string; status: string } | null {
+function nbaSafe(raw: unknown): { title: string; status: string } | null {
   if (!raw || typeof raw !== "object") return null;
   const o = raw as Record<string, unknown>;
   const title = typeof o["title"] === "string" ? o["title"] : "";
@@ -122,10 +120,7 @@ export const getOpsDashboard = createServerFn({ method: "GET" })
         .from("revenue_missions")
         .select("id", { count: "exact", head: true })
         .eq("status", "active"),
-      db
-        .from("wheel_spins")
-        .select("id", { count: "exact", head: true })
-        .eq("spun_on", today),
+      db.from("wheel_spins").select("id", { count: "exact", head: true }).eq("spun_on", today),
       db
         .from("wheel_spins")
         .select("id", { count: "exact", head: true })
@@ -179,9 +174,8 @@ export const triggerOpsTick = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { processTaskQueue } = await import("@/lib/task-worker.server");
-    const { advanceActiveMissions, writeWorkerHeartbeat } = await import(
-      "@/lib/mission-progress.server"
-    );
+    const { advanceActiveMissions, writeWorkerHeartbeat } =
+      await import("@/lib/mission-progress.server");
 
     const tasks = await processTaskQueue(8);
     const missions = await advanceActiveMissions(supabaseAdmin as never, 20);

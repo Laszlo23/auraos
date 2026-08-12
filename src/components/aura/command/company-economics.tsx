@@ -129,9 +129,7 @@ export function CompanyEconomicsPanel({
         />
         <Bucket
           label="Projected · not actual"
-          value={
-            activeProjectedRevenue != null ? currency(activeProjectedRevenue) : "—"
-          }
+          value={activeProjectedRevenue != null ? currency(activeProjectedRevenue) : "—"}
           hint={
             activeTargetUsdc != null
               ? `Target ${currency(activeTargetUsdc)} · projection — not actual revenue`

@@ -2,8 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 
 /** Public local business card data (no auth). */
 export const getPublicLocalBusiness = createServerFn({ method: "GET" })
-  .inputValidator((input: { slug: string }) => {
-    const slug = input.slug?.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 64);
+  .validator((input: { slug: string }) => {
+    const slug = input.slug
+      ?.toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .slice(0, 64);
     if (!slug) throw new Error("slug required");
     return { slug };
   })
@@ -36,13 +39,18 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       google_review_url: (company.google_review_url as string | null) ?? null,
       local_cohort_number: (company.local_cohort_number as number | null) ?? null,
       emoji: (company.emoji as string) ?? "◎",
-      posts: ((posts ?? []) as { id: string; provider: string; body: string; published_at: string | null }[]).map(
-        (p) => ({
-          id: p.id,
-          provider: p.provider,
-          body: String(p.body || "").slice(0, 280),
-          published_at: p.published_at,
-        }),
-      ),
+      posts: (
+        (posts ?? []) as {
+          id: string;
+          provider: string;
+          body: string;
+          published_at: string | null;
+        }[]
+      ).map((p) => ({
+        id: p.id,
+        provider: p.provider,
+        body: String(p.body || "").slice(0, 280),
+        published_at: p.published_at,
+      })),
     };
   });

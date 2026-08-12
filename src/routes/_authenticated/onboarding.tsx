@@ -79,9 +79,7 @@ function Onboarding() {
   const { data: company } = useCompany();
   const { t, locale, setLocale } = useLocale();
   const entryFunnel: FunnelId =
-    company?.entry_funnel && isFunnelId(company.entry_funnel)
-      ? company.entry_funnel
-      : peekFunnel();
+    company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : peekFunnel();
   const funnelDef = funnelById(entryFunnel);
   const isLokal = entryFunnel === "local";
   const skipProductPicker = funnelDef.bootstrap.skipProductPicker;
@@ -383,7 +381,8 @@ function Onboarding() {
                       onChange={(e) => setIsLocal(e.target.checked)}
                       className="h-4 w-4 rounded border-border"
                     />
-                    Local / niche online business — opt into founding network backlinks after publish
+                    Local / niche online business — opt into founding network backlinks after
+                    publish
                   </label>
                 )}
                 <StepAction
@@ -560,8 +559,8 @@ function Onboarding() {
                       Claim seat #{progress?.seat_number ?? "—"}.
                     </h1>
                     <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                      Founding companies keep their token rate for life, and their agents get priority
-                      compute during peak hours.
+                      Founding companies keep their token rate for life, and their agents get
+                      priority compute during peak hours.
                     </p>
                     <div className="glass mt-8 rounded-3xl p-6">
                       <FoundingCohort seat={progress?.seat_number} />

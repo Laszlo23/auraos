@@ -146,7 +146,7 @@ export const getLokalHub = createServerFn({ method: "GET" })
 
 export const redeemLocalSeatCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { code: string }) => ({
+  .validator((input: { code: string }) => ({
     code: String(input.code || "")
       .trim()
       .toUpperCase()
@@ -170,7 +170,7 @@ export const redeemLocalSeatCode = createServerFn({ method: "POST" })
 
 /** Ops: generate Barzahlung codes. Requires LOCAL_SEAT_OPS_KEY. */
 export const generateLocalSeatCodes = createServerFn({ method: "POST" })
-  .inputValidator((input: { opsKey: string; count?: number; soldNote?: string }) => ({
+  .validator((input: { opsKey: string; count?: number; soldNote?: string }) => ({
     opsKey: String(input.opsKey || ""),
     count: Math.min(Math.max(Number(input.count) || 1, 1), 50),
     soldNote:
@@ -320,7 +320,7 @@ export const createLocalPeerInvite = createServerFn({ method: "POST" })
 
 export const acceptLocalPeerInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { code: string }) => ({
+  .validator((input: { code: string }) => ({
     code: String(input.code || "")
       .trim()
       .toUpperCase()

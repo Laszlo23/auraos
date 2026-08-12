@@ -160,8 +160,8 @@ function AccessPage() {
           $99 one-time · {num(FOUNDING_SEATS_TOTAL)} seats · real Stripe checkout
         </p>
         <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Pay $99 once. Wake your AI company. After you&apos;re in, you get one simple invite link to
-          share — friends still pay $99; you earn in-app AURA.
+          Pay $99 once. Wake your AI company. After you&apos;re in, you get one simple invite link
+          to share — friends still pay $99; you earn in-app AURA.
         </p>
         {invite ? (
           <p className="mt-3 text-[12px] text-muted-foreground">

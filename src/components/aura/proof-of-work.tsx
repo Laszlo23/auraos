@@ -92,9 +92,7 @@ export function ProofOfWork({
                 </span>
                 <span>
                   <span className="font-medium">{s.label}</span>
-                  {s.detail ? (
-                    <span className="text-muted-foreground"> · {s.detail}</span>
-                  ) : null}
+                  {s.detail ? <span className="text-muted-foreground"> · {s.detail}</span> : null}
                 </span>
               </li>
             ))}
@@ -126,8 +124,7 @@ export function ProofOfWork({
 
       <p>
         <span className="text-muted-foreground">RESULT</span> ·{" "}
-        {result?.trim() ||
-          (done ? "Completed (no write-up)" : running ? "Working…" : "Pending")}
+        {result?.trim() || (done ? "Completed (no write-up)" : running ? "Working…" : "Pending")}
       </p>
       <p className="flex flex-wrap items-center gap-2">
         <span className="text-muted-foreground">VERIFIED</span> ·

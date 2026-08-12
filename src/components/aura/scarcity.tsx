@@ -62,8 +62,7 @@ export function FoundingCohort({
   if (compactMode) {
     return (
       <span className="text-[11px] tracking-wide text-muted-foreground">
-        Founding seats ·{" "}
-        <span className="num text-gold">{ready ? num(remaining) : "—"}</span> of{" "}
+        Founding seats · <span className="num text-gold">{ready ? num(remaining) : "—"}</span> of{" "}
         {num(FOUNDING_SEATS_TOTAL)} left
         {seat != null ? (
           <>
@@ -84,9 +83,7 @@ export function FoundingCohort({
     >
       <div className="mb-2 flex items-baseline justify-between gap-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
         <span>Founding seats · of {num(FOUNDING_SEATS_TOTAL)}</span>
-        <span className="num text-gold">
-          {ready ? `${num(remaining)} left` : "—"}
-        </span>
+        <span className="num text-gold">{ready ? `${num(remaining)} left` : "—"}</span>
       </div>
       <Meter value={ready ? pct : 0} tone="gold" />
       <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground/80">

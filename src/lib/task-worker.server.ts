@@ -38,9 +38,7 @@ export async function processTaskQueue(
 }
 
 /** Run one specific task immediately after founder approval. */
-export async function processOneTask(
-  taskId: string,
-): Promise<{ ok: boolean; error?: string }> {
+export async function processOneTask(taskId: string): Promise<{ ok: boolean; error?: string }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return executeTask(supabaseAdmin as never, taskId);
 }

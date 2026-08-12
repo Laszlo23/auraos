@@ -42,8 +42,7 @@ const SCOPES: Record<"google_mail" | "microsoft_outlook", string[]> = {
 const isOAuthProvider = (v: unknown): v is "google_mail" | "microsoft_outlook" =>
   v === "google_mail" || v === "microsoft_outlook";
 
-const isProvider = (v: unknown): v is MailboxProvider =>
-  isOAuthProvider(v) || v === "smtp";
+const isProvider = (v: unknown): v is MailboxProvider => isOAuthProvider(v) || v === "smtp";
 
 const smtpConnectSchema = z.object({
   host: z.string().trim().min(1, "SMTP host is required."),
@@ -53,11 +52,7 @@ const smtpConnectSchema = z.object({
   /** Empty string keeps the previously stored password when updating. */
   password: z.string(),
   from_name: z.string().trim(),
-  from_email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("From email is required."),
+  from_email: z.string().trim().toLowerCase().email("From email is required."),
 });
 
 /** Which mailbox providers are configured for this app, and what the user has connected. */

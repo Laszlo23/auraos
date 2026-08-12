@@ -5,7 +5,10 @@ type LooseDb = {
 };
 
 export class InsufficientAuraError extends Error {
-  constructor(public readonly required: number, public readonly available: number) {
+  constructor(
+    public readonly required: number,
+    public readonly available: number,
+  ) {
     super(
       `Not enough Boost/AURA — need ${required}, have ${available}. Top up on /boost or /billing.`,
     );

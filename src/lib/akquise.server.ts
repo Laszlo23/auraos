@@ -104,8 +104,7 @@ async function fallbackScrape(url: string): Promise<ScrapedPage | null> {
     const res = await fetch(url, {
       signal: controller.signal,
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; AuraOS-LeadHunter/1.0; +https://aibusiness.fun)",
+        "User-Agent": "Mozilla/5.0 (compatible; AuraOS-LeadHunter/1.0; +https://aibusiness.fun)",
         Accept: "text/html,application/xhtml+xml",
       },
       redirect: "follow",
@@ -134,8 +133,7 @@ async function fallbackSearch(query: string, limit: number): Promise<ScrapedPage
     const res = await fetch(url, {
       signal: controller.signal,
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; AuraOS-LeadHunter/1.0; +https://aibusiness.fun)",
+        "User-Agent": "Mozilla/5.0 (compatible; AuraOS-LeadHunter/1.0; +https://aibusiness.fun)",
         Accept: "text/html",
       },
     });
@@ -154,9 +152,7 @@ async function fallbackSearch(query: string, limit: number): Promise<ScrapedPage
   let match: RegExpExecArray | null;
   while ((match = re.exec(html)) && links.length < limit * 2) {
     const rawHref = decodeHtmlEntities(match[1] || match[3] || "");
-    const title = decodeHtmlEntities(
-      (match[2] || match[4] || "").replace(/<[^>]+>/g, "").trim(),
-    );
+    const title = decodeHtmlEntities((match[2] || match[4] || "").replace(/<[^>]+>/g, "").trim());
     let href = rawHref;
     try {
       // Protocol-relative //duckduckgo.com/l/?uddg=… must resolve against https.

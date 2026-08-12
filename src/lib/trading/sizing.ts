@@ -18,8 +18,7 @@ export function sizeTradeNotional(opts: {
   /** Extra % daily notional from Quant boost / holder tiers. */
   notionalBoostPct?: number;
 }): number {
-  const dayCap =
-    Number(opts.maxNotionalDay) * (1 + Math.max(0, opts.notionalBoostPct ?? 0) / 100);
+  const dayCap = Number(opts.maxNotionalDay) * (1 + Math.max(0, opts.notionalBoostPct ?? 0) / 100);
   const remaining = Math.max(0, dayCap - opts.spentToday);
   const equity = Math.max(opts.equityUsdc, 10);
   const riskPct = effectiveSpotRiskPct(opts.maxRiskPct);
@@ -39,9 +38,13 @@ export function sizeTradeNotional(opts: {
   const minFloor = Math.min(5, hardUsdc);
   if (raw < minFloor && remaining >= minFloor && riskBudget < minFloor && hardUsdc >= minFloor) {
     return Number(
-      Math.min(minFloor, remaining, opts.specMaxNotional, hardUsdc, opts.requested || minFloor).toFixed(
-        2,
-      ),
+      Math.min(
+        minFloor,
+        remaining,
+        opts.specMaxNotional,
+        hardUsdc,
+        opts.requested || minFloor,
+      ).toFixed(2),
     );
   }
 

@@ -111,9 +111,9 @@ function DeferredAnalytics() {
     if (typeof ric === "function") {
       const handle = ric(boot, { timeout: 3500 });
       return () => {
-        (
-          window as Window & { cancelIdleCallback?: (id: number) => void }
-        ).cancelIdleCallback?.(handle);
+        (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(
+          handle,
+        );
       };
     }
     const t = window.setTimeout(boot, 2200);

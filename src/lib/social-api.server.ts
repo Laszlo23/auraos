@@ -270,8 +270,7 @@ async function publishMeta(
 }
 
 type MetaMedia =
-  | { kind: "image"; url: string }
-  | { kind: "video"; url: string; posterUrl?: string };
+  { kind: "image"; url: string } | { kind: "video"; url: string; posterUrl?: string };
 
 async function resolveMetaMedia(
   sharePostId: string | null,
@@ -336,8 +335,7 @@ async function publishInstagram(
   } catch (first) {
     // REELS often needs a verified domain — fall back to share-kit poster IMAGE.
     if (media.kind === "video") {
-      const imageUrl =
-        media.posterUrl || media.url.replace(/\.mp4(\?|$)/i, ".jpg$1");
+      const imageUrl = media.posterUrl || media.url.replace(/\.mp4(\?|$)/i, ".jpg$1");
       try {
         container = await tryCreate({ kind: "image", url: imageUrl });
       } catch {
@@ -710,14 +708,23 @@ ${languageStyleBlock(lang)}
 Calm, helpful, on-brand. No hashtag spam. Under 220 characters for X when needed. Match the commenter's language.
 Return JSON {"reply":"..."}.`,
       [
-        delimitUntrusted("standing_instruction", opts.instruction ?? "Match the brand's calm voice.", 800),
+        delimitUntrusted(
+          "standing_instruction",
+          opts.instruction ?? "Match the brand's calm voice.",
+          800,
+        ),
         delimitUntrusted("author", opts.author ?? "someone", 120),
         delimitUntrusted("comment", opts.comment, 1200),
       ].join("\n"),
       "reply",
     )) as { reply?: string };
     const reply = sanitizeBrandNames(
-      (json.reply ?? (lang === "de" ? "Danke fürs Teilen — wir schauen uns das an." : "Thanks for sharing that — we'll take a look.")).trim(),
+      (
+        json.reply ??
+        (lang === "de"
+          ? "Danke fürs Teilen — wir schauen uns das an."
+          : "Thanks for sharing that — we'll take a look.")
+      ).trim(),
     );
     return reply;
   } catch (e) {

@@ -1,5 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
-import { peekFunnel, peekLocale, peekPeerInvite, rememberLocale, takeFunnel } from "@/lib/attribution";
+import {
+  peekFunnel,
+  peekLocale,
+  peekPeerInvite,
+  rememberLocale,
+  takeFunnel,
+} from "@/lib/attribution";
 import { isFunnelId, type FunnelId } from "@/lib/funnels";
 
 const ATLAS_MEMORY =
@@ -51,9 +57,7 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
       autonomy: 0,
       entry_funnel: funnel,
       ui_locale: uiLocale,
-      ...(funnel === "local"
-        ? { is_local_business: true, network_backlink: true }
-        : {}),
+      ...(funnel === "local" ? { is_local_business: true, network_backlink: true } : {}),
       trading_paper: true,
       trading_armed: false,
     })

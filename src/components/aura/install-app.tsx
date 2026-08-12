@@ -25,9 +25,7 @@ export function requestInstallPrompt() {
 function isStandalone(): boolean {
   if (typeof window === "undefined") return true;
   const mq = window.matchMedia("(display-mode: standalone)").matches;
-  const ios = Boolean(
-    (window.navigator as Navigator & { standalone?: boolean }).standalone,
-  );
+  const ios = Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone);
   return mq || ios;
 }
 
@@ -142,7 +140,8 @@ export function InstallApp({ className }: { className?: string }) {
       role="dialog"
       aria-label="Install Aura OS"
       className={cn(
-        "fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[60] mx-auto max-w-md",
+        // Sit above the mobile footer tab bar so Install stays tappable.
+        "fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[60] mx-auto max-w-md md:bottom-[max(1.25rem,env(safe-area-inset-bottom))]",
         "rounded-2xl border border-border/60 bg-background/95 p-4 shadow-[0_18px_50px_-20px_rgba(0,0,0,0.75)] backdrop-blur-xl",
         className,
       )}
@@ -170,8 +169,8 @@ export function InstallApp({ className }: { className?: string }) {
           </p>
         ) : iosHint ? (
           <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-            On iPhone: tap{" "}
-            <Share className="mx-0.5 inline h-3.5 w-3.5 text-primary" aria-hidden /> Share, then{" "}
+            On iPhone: tap <Share className="mx-0.5 inline h-3.5 w-3.5 text-primary" aria-hidden />{" "}
+            Share, then{" "}
             <strong className="font-semibold text-foreground">Add to Home Screen</strong>.
           </p>
         ) : manualHint ? (

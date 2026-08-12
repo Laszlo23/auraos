@@ -28,7 +28,9 @@ function NachbarFreundePage() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Freunde</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+          Freunde
+        </p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Einladen</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Freund checkt zum ersten Mal ein → beide bekommen {NACHBAR_FRIEND_BONUS}.
@@ -62,7 +64,9 @@ function NachbarFreundePage() {
           <ul className="space-y-2 text-sm">
             {hub!.friends.map((f) => (
               <li key={f.invitee_id} className="flex justify-between gap-2">
-                <span className="truncate font-mono text-xs text-muted-foreground">{f.invitee_id.slice(0, 8)}…</span>
+                <span className="truncate font-mono text-xs text-muted-foreground">
+                  {f.invitee_id.slice(0, 8)}…
+                </span>
                 <span className="font-semibold uppercase tracking-wider text-[10px]">
                   {f.status === "activated" ? "Check-in ✓" : "Beigetreten"}
                 </span>

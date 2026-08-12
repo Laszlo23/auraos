@@ -126,7 +126,14 @@ function OrbitLove({ className }: { className?: string }) {
       aria-hidden
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="100" cy="100" r="70" className="stroke-border/60" strokeWidth="1" strokeDasharray="4 6" />
+      <circle
+        cx="100"
+        cy="100"
+        r="70"
+        className="stroke-border/60"
+        strokeWidth="1"
+        strokeDasharray="4 6"
+      />
       <circle cx="100" cy="100" r="44" className="stroke-primary/25" strokeWidth="1.5" />
       <motion.g
         style={{ originX: "100px", originY: "100px" }}
@@ -170,7 +177,12 @@ function VibesGraph({ className }: { className?: string }) {
     VIBES_CHART.map((p, i) => `${i === 0 ? "M" : "L"}${xs[i]},${y(p[key])}`).join(" ");
 
   return (
-    <svg className={className} viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Vibes versus features chart">
+    <svg
+      className={className}
+      viewBox={`0 0 ${w} ${h}`}
+      role="img"
+      aria-label="Vibes versus features chart"
+    >
       <title>Illustrative vibes / features / love chart — not forecasts</title>
       {[0, 25, 50, 75, 100].map((tick) => (
         <g key={tick}>
@@ -399,9 +411,12 @@ function RoadmapPage() {
                   className={cn(
                     "absolute left-0 top-8 flex h-8 w-8 items-center justify-center rounded-full border sm:h-10 sm:w-10",
                     stop.status === "live" && "border-primary/50 bg-primary/15 text-primary",
-                    stop.status === "brewing" && "border-amber-500/40 bg-amber-500/10 text-amber-500",
-                    stop.status === "next" && "border-foreground/30 bg-foreground/5 text-foreground",
-                    stop.status === "dreaming" && "border-border bg-background text-muted-foreground",
+                    stop.status === "brewing" &&
+                      "border-amber-500/40 bg-amber-500/10 text-amber-500",
+                    stop.status === "next" &&
+                      "border-foreground/30 bg-foreground/5 text-foreground",
+                    stop.status === "dreaming" &&
+                      "border-border bg-background text-muted-foreground",
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -423,7 +438,9 @@ function RoadmapPage() {
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-display text-xl font-semibold tracking-tight">{stop.title}</h3>
+                  <h3 className="font-display text-xl font-semibold tracking-tight">
+                    {stop.title}
+                  </h3>
                   <p className="mt-1 text-[14px] italic leading-relaxed text-muted-foreground">
                     {stop.joke}
                   </p>
