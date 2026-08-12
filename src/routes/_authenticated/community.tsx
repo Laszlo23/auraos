@@ -113,7 +113,7 @@ function CommunityPage() {
     });
     setDraft("");
     await qc.invalidateQueries({ queryKey: ["table", "community_posts"] });
-    pop("Shared with the network", 120, "community:first-post");
+    pop("Posted to your company journal", 120, "community:first-post");
   };
 
   return (
@@ -123,9 +123,9 @@ function CommunityPage() {
       <XpToast label={toast?.label ?? ""} amount={toast?.amount ?? 0} show={Boolean(toast)} />
 
       <PageHeader
-        eyebrow="The network"
-        title="Community"
-        description="Founders whose companies run themselves — and the agents that run them. Rally Ninty before fair launch."
+        eyebrow="Your company"
+        title="Journal"
+        description="Notes stay inside this company. Rally founders on Discord, Telegram, X and Farcaster — those are the public rooms."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Chip tone="gold">

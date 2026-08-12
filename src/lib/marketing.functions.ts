@@ -375,19 +375,19 @@ Return exactly ${data.count} ideas.`,
       "ideas",
     );
 
-    const ideasRaw = Array.isArray(raw.ideas) ? raw.ideas : [];
+    const ideasRaw = Array.isArray(raw["ideas"]) ? raw["ideas"] : [];
     const ideas: BrainstormIdea[] = ideasRaw
       .map((item) => {
         const o = item as Record<string, unknown>;
-        const posts = Array.isArray(o.posts)
-          ? o.posts.map((p) => String(p).slice(0, 500)).filter(Boolean)
+        const posts = Array.isArray(o["posts"])
+          ? o["posts"].map((p) => String(p).slice(0, 500)).filter(Boolean)
           : [];
         return {
-          name: String(o.name ?? "Untitled").slice(0, 120),
-          channel: String(o.channel ?? "Organic").slice(0, 40),
-          angle: String(o.angle ?? "").slice(0, 400),
+          name: String(o["name"] ?? "Untitled").slice(0, 120),
+          channel: String(o["channel"] ?? "Organic").slice(0, 40),
+          angle: String(o["angle"] ?? "").slice(0, 400),
           posts: posts.slice(0, 4),
-          funnelFocus: String(o.funnelFocus ?? "awareness").slice(0, 40),
+          funnelFocus: String(o["funnelFocus"] ?? "awareness").slice(0, 40),
         };
       })
       .filter((i) => i.name.length > 1)

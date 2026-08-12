@@ -41,12 +41,27 @@ export function PulseUpDownPanel({ companyId }: { companyId: string }) {
   const desk = useQuery({
     queryKey: ["pulse-desk", companyId],
     queryFn: () => getPulseDeskState({ data: { companyId } }),
-    refetchInterval: 4_000,
+    refetchInterval: 6_000,
   });
 
   useEffect(() => {
-    const id = window.setInterval(() => setTick((t) => t + 1), 250);
-    return () => window.clearInterval(id);
+    let id = 0;
+    const start = () => {
+      if (id) return;
+      id = window.setInterval(() => setTick((t) => t + 1), 250);
+    };
+    const stop = () => {
+      if (!id) return;
+      window.clearInterval(id);
+      id = 0;
+    };
+    const onVis = () => (document.hidden ? stop() : start());
+    onVis();
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, []);
 
   const state = desk.data;

@@ -399,7 +399,7 @@ function FilesPage() {
                         void confirmMut.mutateAsync({
                           expenseId: e.id,
                           status: "confirmed",
-                          category: sel?.value,
+                          ...(sel?.value ? { category: sel.value } : {}),
                         });
                       }}
                     >

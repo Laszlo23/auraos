@@ -262,7 +262,7 @@ export const NAV: NavItem[] = [
   {
     to: "/community",
     label: "Community",
-    hint: "Founders building in public",
+    hint: "Company journal plus public founder rooms",
     icon: MessagesSquare,
     group: "System",
   },
@@ -270,7 +270,7 @@ export const NAV: NavItem[] = [
     to: "/earn",
     label: "Earn",
     plain: "Invite & earn",
-    hint: "Invite friends, earn rewards",
+    hint: "In-app AURA from paid referrals — not cash",
     icon: Gift,
     group: "System",
     live: true,

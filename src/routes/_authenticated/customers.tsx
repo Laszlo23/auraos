@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Download } from "lucide-react";
 
@@ -65,9 +65,26 @@ function CustomersPage() {
       <Panel className="overflow-hidden p-0">
         <div className="divide-y divide-border">
           {customers.length === 0 ? (
-            <p className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No customers yet. Orin and Juno will fill this list as deals close.
-            </p>
+            <>
+              <p className="px-6 py-10 text-center text-sm text-muted-foreground">
+                No customers yet. Close a deal on Sales or start outreach on Missions — Juno keeps
+                the list warm after that.
+              </p>
+              <div className="flex justify-center gap-2 pb-8">
+                <Link
+                  to="/sales"
+                  className="rounded-2xl bg-primary/14 px-4 py-2 text-xs font-semibold text-primary"
+                >
+                  Open Sales
+                </Link>
+                <Link
+                  to="/missions"
+                  className="rounded-2xl bg-foreground/8 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                >
+                  Missions
+                </Link>
+              </div>
+            </>
           ) : null}
           {customers.map((c) => (
             <div

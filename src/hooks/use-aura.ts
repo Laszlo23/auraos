@@ -84,21 +84,47 @@ export type TableName =
   | "smart_money_wallets"
   | "smart_money_events";
 
+const LIVE_TASK_STATUSES = new Set([
+  "queued",
+  "running",
+  "pending_approval",
+  "in_progress",
+  "queue",
+  "pending",
+]);
+
+export function rowsHaveLiveWork(rows: { status?: string }[] | undefined): boolean {
+  return Boolean(rows?.some((row) => LIVE_TASK_STATUSES.has(String(row.status ?? ""))));
+}
+
+export function liveWorkInterval(ms = 12_000) {
+  return (q: { state: { data: unknown } }) =>
+    rowsHaveLiveWork(q.state.data as { status?: string }[] | undefined) ? ms : false;
+}
+
 export function useCompanyTable<T = Record<string, unknown>>(
   table: TableName,
   options?: {
     orderBy?: string;
     ascending?: boolean;
     limit?: number;
-    refetchInterval?: number | false;
+    refetchInterval?: number | false | ((query: { state: { data: unknown } }) => number | false);
+    enabled?: boolean;
   },
 ) {
   const { data: company } = useCompany();
+  const interval = options?.refetchInterval;
+  const staleTime =
+    typeof interval === "number"
+      ? Math.min(Math.floor(interval / 2), 8_000)
+      : typeof interval === "function"
+        ? 5_000
+        : 30_000;
   return useQuery({
-    queryKey: ["table", table, company?.id, options],
-    enabled: Boolean(company?.id),
-    staleTime: options?.refetchInterval ? 0 : 30_000,
-    refetchInterval: options?.refetchInterval ?? false,
+    queryKey: ["table", table, company?.id, options?.orderBy, options?.ascending, options?.limit],
+    enabled: Boolean(company?.id) && options?.enabled !== false,
+    staleTime,
+    refetchInterval: interval ?? false,
     queryFn: async (): Promise<T[]> => {
       // TableName spans company-scoped tables; cast keeps .eq("company_id") typed across the union.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

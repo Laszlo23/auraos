@@ -111,7 +111,7 @@ const LOOP: { step: string; body: string; icon: LucideIcon }[] = [
   },
   {
     step: "EARN",
-    body: "You see real results — cost, proof, and money in — not chat fluff.",
+    body: "You see real results — cost, proof, and money in — after you approve the work.",
     icon: CircleDollarSign,
   },
   {
@@ -162,7 +162,7 @@ function UnlockAccessBand() {
         <Link
           to="/access"
           onClick={() => trackTeaser("cta_click", { placement: "landing_unlock_start" })}
-          className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
+          className="cta-liquid cta-magnetic mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
           Buy founding seat — $99 <ArrowRight className="h-4 w-4" />
         </Link>
@@ -251,7 +251,7 @@ const TICKER = [
 function Ticker() {
   const row = [...TICKER, ...TICKER];
   return (
-    <div className="relative z-10 overflow-hidden border-y border-primary/10 bg-gradient-to-r from-background via-primary/[0.04] to-background py-3.5">
+    <div className="relative z-10 overflow-hidden border-y border-primary/12 bg-gradient-to-r from-background via-primary/[0.06] to-background py-3.5">
       <motion.div
         className="flex w-max gap-10 whitespace-nowrap"
         animate={{ x: ["0%", "-50%"] }}
@@ -362,9 +362,9 @@ function Landing() {
     <main className="relative min-h-screen snap-y snap-proximity overflow-x-hidden">
       <BootCurtain />
       <AuraLens />
-      <header className="fixed inset-x-0 top-0 z-30 bg-background/35 backdrop-blur-2xl">
+      <header className="fixed inset-x-0 top-0 z-30 bg-background/28 backdrop-blur-2xl">
         <div className="vital-line" aria-hidden />
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:px-6">
           <PulseOrbit size="sm" className="min-w-0" />
           <Chip className="ml-auto hidden sm:flex">
             <LaunchCountdown variant="compact" showSocials={false} placement="header" />
@@ -372,19 +372,19 @@ function Landing() {
           <Link
             to="/access"
             onClick={() => trackTeaser("cta_click", { placement: "landing_header_buy" })}
-            className="cta-liquid cta-magnetic shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+            className="cta-liquid cta-magnetic shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_28px_-10px_var(--glow)]"
           >
             Buy seat — $99
           </Link>
           <button
             onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
-            className="shrink-0 rounded-2xl border border-white/8 bg-foreground/[0.04] px-4 py-2 text-xs font-semibold transition-colors hover:border-primary/30 hover:bg-foreground/8"
+            className="shrink-0 rounded-2xl border border-white/10 bg-foreground/[0.05] px-4 py-2 text-xs font-semibold backdrop-blur-md transition-colors hover:border-primary/35 hover:bg-foreground/10"
           >
             Sign in
           </button>
         </div>
         <div
-          className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          className="h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent"
           aria-hidden
         />
       </header>
@@ -505,7 +505,7 @@ function Landing() {
             transition={{ duration: 0.7, delay: 0.12 }}
             className="mt-5 max-w-lg text-[16px] leading-relaxed text-foreground/75"
           >
-            You&apos;re the owner. The staff just happen to be AI.
+            You&apos;re the owner. You approve spend and outbound. The staff just happen to be AI.
           </motion.p>
           <motion.ul
             initial={{ opacity: 0, y: 12 }}
@@ -549,8 +549,8 @@ function Landing() {
           {joined ? (
             <p className="px-2 py-2 text-[13px] text-muted-foreground">
               You&apos;re on the list — we&apos;ll email{" "}
-              <span className="text-foreground">{email.trim().toLowerCase()}</span> when a wave
-              opens.
+              <span className="text-foreground">{email.trim().toLowerCase()}</span> launch notes.
+              Seats are open to buy anytime.
             </p>
           ) : (
             <>
@@ -593,8 +593,8 @@ function Landing() {
             Create. Execute. Earn. Grow.
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            You&apos;re the owner. The staff just happen to be AI — you give the goal, they do the
-            work, you keep the upside.
+            You&apos;re the owner. You give the goal. AI drafts the work. You approve spend and
+            outbound — then they execute, and you keep the upside.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-4">

@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 type Props = {
   handleId: string;
   smartWalletAddress?: string | null;
-  ownerAddress?: string | null;
-  className?: string;
+  ownerAddress?: string | null | undefined;
+  className?: string | undefined;
 };
 
 /**

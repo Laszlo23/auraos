@@ -223,7 +223,7 @@ export function useWallets(handleId?: string) {
         .eq("handle_id", handleId!)
         .order("slot");
       if (error) throw error;
-      return (data ?? []) as WalletBinding[];
+      return (data ?? []) as unknown as WalletBinding[];
     },
   });
 }

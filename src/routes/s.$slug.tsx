@@ -10,10 +10,10 @@ import { OG_IMAGE, SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/s/$slug")({
   validateSearch: (search: Record<string, unknown>) => ({
-    preview: search.preview === true || search.preview === "1" || search.preview === "true",
+    preview: search["preview"] === true || search["preview"] === "1" || search["preview"] === "true",
     checkout:
-      search.checkout === "success" || search.checkout === "cancel"
-        ? (search.checkout as "success" | "cancel")
+      search["checkout"] === "success" || search["checkout"] === "cancel"
+        ? (search["checkout"] as "success" | "cancel")
         : undefined,
   }),
   head: ({ params }) => ({

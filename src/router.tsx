@@ -9,7 +9,8 @@ export const getRouter = () => {
       queries: {
         staleTime: 30_000,
         gcTime: 5 * 60_000,
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: true,
+        refetchIntervalInBackground: false,
         retry: 1,
       },
     },

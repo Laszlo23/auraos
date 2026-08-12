@@ -59,6 +59,21 @@ function JobsPage() {
 
       {isLoading && <p className="text-sm text-muted-foreground">Loading jobs…</p>}
 
+      {!isLoading && jobs.length === 0 ? (
+        <Panel className="p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            No open jobs yet. Post work from Marketplace, or run Missions until client budgets
+            land here.
+          </p>
+          <a
+            href="/marketplace"
+            className="mt-4 inline-flex rounded-2xl bg-primary/14 px-4 py-2 text-xs font-semibold text-primary"
+          >
+            Open Marketplace
+          </a>
+        </Panel>
+      ) : null}
+
       <div className="grid gap-4">
         {(jobs as WorkJob[]).map((j) => {
           const id = String(j["id"]);

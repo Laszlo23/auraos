@@ -17,7 +17,7 @@ export type QuidliDropParams = {
   platform: QuidliPlatform;
   handle: string;
   amountUsdc: number;
-  memo?: string;
+  memo?: string | undefined;
   idempotencyKey: string;
 };
 
@@ -75,7 +75,7 @@ function extractRef(data: unknown): string | null {
 export async function lookupHandle(opts: {
   platform: QuidliPlatform;
   handle: string;
-}): Promise<{ ok: true; raw: unknown } | { ok: false; error: string; detail?: string }> {
+}): Promise<{ ok: true; raw: unknown } | { ok: false; error: string; detail?: string | undefined }> {
   const apiKey = quidliApiKey();
   if (!apiKey) return { ok: false, error: "not_configured" };
   const base = quidliApiBase();
@@ -172,9 +172,9 @@ export async function dropToHandles(params: QuidliDropParams): Promise<QuidliDro
 /** Smart Send wallet balances for funding checks. */
 export async function getDropBalance(chainId = 8453): Promise<{
   ok: boolean;
-  raw?: unknown;
-  error?: string;
-  detail?: string;
+  raw?: unknown | undefined;
+  error?: string | undefined;
+  detail?: string | undefined;
 }> {
   const apiKey = quidliApiKey();
   if (!apiKey) return { ok: false, error: "not_configured" };

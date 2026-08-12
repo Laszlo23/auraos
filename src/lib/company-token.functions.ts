@@ -19,10 +19,11 @@ import {
   type CompanyTokenPresetId,
 } from "@/lib/company-token-presets";
 import { decryptOwnerKey } from "@/lib/wallet.server";
+import type { Json } from "@/integrations/supabase/types";
 
-type Db = { from: (t: string) => any; rpc: (fn: string, args?: object) => any };
+type Db = { from: (t: string) => any; rpc: (...args: any[]) => any };
 
-async function ownedCompany(supabase: Db, userId: string) {
+async function ownedCompany(supabase: any, userId: string) {
   const { data } = await supabase
     .from("companies")
     .select("id, name, emoji")
@@ -33,7 +34,7 @@ async function ownedCompany(supabase: Db, userId: string) {
   return data as { id: string; name: string; emoji: string | null } | null;
 }
 
-async function requireSeat(supabase: Db, userId: string) {
+async function requireSeat(supabase: any, userId: string) {
   const { data: hasSeat } = await supabase.rpc("user_has_company_seat", { _uid: userId });
   if (!hasSeat) {
     // Legacy: existing company owners can still draft (not deploy live without seat when CLANKER strict)
@@ -42,7 +43,7 @@ async function requireSeat(supabase: Db, userId: string) {
   }
 }
 
-async function smartWalletRow(supabase: Db, userId: string) {
+async function smartWalletRow(supabase: any, userId: string) {
   const { data: byUser } = await supabase
     .from("wallet_bindings")
     .select("id, address, owner_key_enc, owner_address")
@@ -172,7 +173,7 @@ export const getCompanyTokenLaunch = createServerFn({ method: "GET" })
 
 export const draftCompanyToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { name: string; symbol: string; imageUrl?: string; presetId?: string }) => {
+  .validator((input: { name: string; symbol: string; imageUrl?: string | undefined; presetId?: string | undefined }) => {
     if (!input?.name || !input?.symbol) throw new Error("name and symbol required");
     return {
       name: normalizeName(input.name),
@@ -228,7 +229,7 @@ export const draftCompanyToken = createServerFn({ method: "POST" })
           preset_id: data.presetId,
           chain_id: clankerChainId(),
           status: "draft",
-          spec,
+          spec: spec as Json,
           error: null,
           updated_at: now,
         })
@@ -249,7 +250,7 @@ export const draftCompanyToken = createServerFn({ method: "POST" })
         preset_id: data.presetId,
         chain_id: clankerChainId(),
         status: "draft",
-        spec,
+        spec: spec as Json,
       })
       .select("*")
       .single();
@@ -295,7 +296,7 @@ export const markCompanyTokenReady = createServerFn({ method: "POST" })
       .from("company_token_launches")
       .update({
         status: "ready",
-        spec,
+        spec: spec as Json,
         token_admin: wallet.address,
         reward_recipient: wallet.address,
         updated_at: new Date().toISOString(),
@@ -389,7 +390,7 @@ export const deployCompanyToken = createServerFn({ method: "POST" })
           token_admin: result.tokenAdmin,
           reward_recipient: result.rewardRecipient,
           chain_id: result.chainId,
-          spec: result.spec,
+          spec: result.spec as Json,
           deployed_at: now,
           updated_at: now,
           error: null,
@@ -430,7 +431,7 @@ export const deployCompanyToken = createServerFn({ method: "POST" })
 
 /** Public helper for company passport badge. */
 export async function getLiveCompanyToken(
-  supabase: Db,
+  supabase: any,
   companyId: string,
 ): Promise<{
   symbol: string;

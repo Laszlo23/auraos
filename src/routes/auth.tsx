@@ -791,7 +791,7 @@ function AuthPage() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="glass w-full max-w-sm rounded-[2rem] p-8"
+            className="glass w-full max-w-sm rounded-[2rem] p-8 shadow-[var(--shadow-glow)]"
           >
             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>

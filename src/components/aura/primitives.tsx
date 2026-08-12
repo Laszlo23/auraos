@@ -15,7 +15,7 @@ export function Panel({
   bodyClassName,
   ...rest
 }: {
-  className?: string;
+  className?: string | undefined;
   children: ReactNode;
   glow?: boolean;
   /** Geometric accent (defaults on when glow is true). */
@@ -33,7 +33,7 @@ export function Panel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "glass hover-lift relative rounded-3xl",
+        "glass hover-lift relative rounded-[1.65rem]",
         showMotif && "overflow-hidden",
         glow && "shadow-[var(--shadow-glow)]",
         className,
@@ -43,9 +43,12 @@ export function Panel({
       {showMotif ? <AuraMotif /> : null}
       {label ? (
         <>
-          <div className="relative z-10 flex items-center gap-2.5 border-b border-border/60 px-5 py-3">
-            <span className="h-1.5 w-1.5 rotate-45 bg-primary/70" aria-hidden />
-            <h2 className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          <div className="relative z-10 flex items-center gap-2.5 border-b border-border/50 px-5 py-3.5">
+            <span className="relative grid h-2 w-2 place-items-center" aria-hidden>
+              <span className="absolute inset-0 animate-breathe rounded-[1px] bg-primary/50" />
+              <span className="relative h-1.5 w-1.5 rotate-45 bg-primary" />
+            </span>
+            <h2 className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
               {label}
             </h2>
             {action ? <div className="ml-auto flex items-center gap-2">{action}</div> : null}
@@ -123,16 +126,21 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-6">
+    <header className="mb-7 flex flex-wrap items-end justify-between gap-6">
       <div className="max-w-2xl">
         {eyebrow ? (
-          <p className="mb-2.5 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
+          <p className="mb-3 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.34em] text-primary">
+            <span className="h-px w-6 bg-gradient-to-r from-primary to-transparent" aria-hidden />
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="text-gradient text-3xl font-semibold leading-[1.06] md:text-4xl">{title}</h1>
+        <h1 className="text-gradient text-[1.85rem] font-semibold leading-[1.04] md:text-[2.35rem]">
+          {title}
+        </h1>
         {description ? (
-          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">{description}</p>
+          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         ) : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
@@ -167,20 +175,20 @@ export function Chip({
   className,
 }: {
   children: ReactNode;
-  tone?: "neutral" | "primary" | "gold" | "danger";
+  tone?: "neutral" | "primary" | "gold" | "danger" | undefined;
   className?: string;
 }) {
   const tones = {
-    neutral: "bg-secondary text-secondary-foreground",
-    primary: "bg-primary/12 text-primary",
-    gold: "bg-gold/14 text-gold",
-    danger: "bg-destructive/14 text-destructive",
+    neutral: "bg-secondary/80 text-secondary-foreground ring-1 ring-white/6",
+    primary: "bg-primary/14 text-primary ring-1 ring-primary/22",
+    gold: "bg-gold/16 text-gold ring-1 ring-gold/22",
+    danger: "bg-destructive/14 text-destructive ring-1 ring-destructive/22",
   } as const;
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide",
-        tones[tone],
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide backdrop-blur-sm",
+        tones[tone ?? "neutral"],
         className,
       )}
     >
@@ -191,12 +199,17 @@ export function Chip({
 
 export function Meter({ value, tone = "primary" }: { value: number; tone?: "primary" | "gold" }) {
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/8 ring-1 ring-white/5">
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        className={cn("h-full rounded-full", tone === "gold" ? "bg-gold" : "bg-primary")}
+        className={cn(
+          "h-full rounded-full",
+          tone === "gold"
+            ? "bg-gradient-to-r from-gold to-primary"
+            : "bg-gradient-to-r from-primary to-gold/80",
+        )}
       />
     </div>
   );

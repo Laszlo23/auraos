@@ -216,10 +216,10 @@ export type LimitlessMarketSummary = {
   slug: string;
   title: string;
   prices: [number, number];
-  volumeFormatted?: string;
-  yesToken?: string;
-  noToken?: string;
-  exchange?: string;
+  volumeFormatted?: string | undefined;
+  yesToken?: string | undefined;
+  noToken?: string | undefined;
+  exchange?: string | undefined;
 };
 
 export async function listLimitlessActiveMarkets(limit = 8): Promise<LimitlessMarketSummary[]> {

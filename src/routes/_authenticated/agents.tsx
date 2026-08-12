@@ -212,7 +212,7 @@ function AgentsPage() {
                 <AssignAgentTask
                   agentId={open.id}
                   agentName={open.name}
-                  paused={open.paused}
+                  paused={Boolean(open.paused)}
                   variant="sheet"
                   onAssigned={() => setOpen(null)}
                 />

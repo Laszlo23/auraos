@@ -7,7 +7,7 @@ export type PipelineStage = {
   id: string;
   label: string;
   state: PipelineStageState;
-  detail?: string;
+  detail?: string | undefined;
 };
 
 const STATE_STYLE: Record<PipelineStageState, string> = {

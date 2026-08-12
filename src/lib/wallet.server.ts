@@ -153,7 +153,7 @@ type UserOpCall =
  * Send a Light Account UserOp, appending Base Builder Code (ERC-8021) to callData on Base.
  */
 async function sendAttributedUserOperation(
-  client: LightClient,
+  client: any,
   uo: UserOpCall,
   network: AuraNetwork,
 ): Promise<{ hash: string }> {

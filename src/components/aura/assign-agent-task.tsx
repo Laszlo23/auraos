@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   agentId: string;
   agentName: string;
-  paused?: boolean;
+  paused?: boolean | undefined;
   /** Compact inline (workforce cards) vs sheet (employees page). */
   variant?: "sheet" | "inline";
   className?: string;

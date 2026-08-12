@@ -78,7 +78,7 @@ export function SimpleLiquidityPath({
     queryKey: ["yield-desk", companyId],
     queryFn: async (): Promise<YieldDeskSnapshot> => {
       await ensureYieldDesk({ data: { companyId } });
-      return getYieldDeskState({ data: { companyId } }) as Promise<YieldDeskSnapshot>;
+      return getYieldDeskState({ data: { companyId } }) as unknown as Promise<YieldDeskSnapshot>;
     },
     enabled: Boolean(companyId),
     refetchInterval: 45_000,
@@ -100,7 +100,7 @@ export function SimpleLiquidityPath({
 
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["yield-desk", companyId] });
-    void qc.invalidateQueries({ queryKey: ["treasury"] });
+    void qc.invalidateQueries({ queryKey: ["treasury-balance"] });
   };
 
   const paperMut = useMutation({

@@ -289,6 +289,3 @@ export function TradingSetup({
     </Panel>
   );
 }
-
-/** @deprecated Use TradingSetup */
-export const StartQuantChecklist = TradingSetup;

@@ -73,18 +73,17 @@ export async function searchMem0(
       ? raw
       : (((raw as { results?: unknown })?.results as unknown[]) ?? []);
 
-    return results
-      .map((r) => {
-        const row = r as { id?: string; memory?: string; score?: number };
-        const memory = String(row.memory ?? "").trim();
-        if (!memory) return null;
-        return {
-          id: row.id,
-          memory: memory.slice(0, 400),
-          score: typeof row.score === "number" ? row.score : undefined,
-        };
-      })
-      .filter((x): x is Mem0Fact => Boolean(x));
+    const facts: Mem0Fact[] = [];
+    for (const r of results) {
+      const row = r as { id?: string; memory?: string; score?: number };
+      const memory = String(row.memory ?? "").trim();
+      if (!memory) continue;
+      const fact: Mem0Fact = { memory: memory.slice(0, 400) };
+      if (row.id) fact.id = row.id;
+      if (typeof row.score === "number") fact.score = row.score;
+      facts.push(fact);
+    }
+    return facts;
   } catch (e) {
     console.warn("mem0 search failed", e instanceof Error ? e.message : e);
     return [];
@@ -115,13 +114,13 @@ export async function addMem0Lesson(
     ];
     await c.add(messages, {
       userId: companyUserId(scope.companyId),
-      agentId: scope.agentId ?? undefined,
       appId: appId(),
-      runId: scope.runId ?? undefined,
+      ...(scope.agentId ? { agentId: scope.agentId } : {}),
+      ...(scope.runId ? { runId: scope.runId } : {}),
       metadata: {
         source: "auraos",
         company_id: scope.companyId,
-        founder_user_id: scope.founderUserId ?? undefined,
+        ...(scope.founderUserId ? { founder_user_id: scope.founderUserId } : {}),
       },
     });
     return { ok: true };
@@ -153,7 +152,7 @@ export async function addMem0ChatTurn(
         userId: companyUserId(scope.companyId),
         agentId: scope.agentId ?? "atlas",
         appId: appId(),
-        runId: scope.runId ?? undefined,
+        ...(scope.runId ? { runId: scope.runId } : {}),
         metadata: {
           source: "auraos-ceo",
           company_id: scope.companyId,

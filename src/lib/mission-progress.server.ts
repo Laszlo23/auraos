@@ -171,7 +171,7 @@ export async function onMissionTaskCompleted(
     missionId: string;
     agentName: string;
     taskTitle: string;
-    summary?: string;
+    summary?: string | undefined;
   },
 ): Promise<void> {
   try {

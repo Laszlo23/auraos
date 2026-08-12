@@ -114,7 +114,7 @@ export function SiteFooter({
   share?: { url: string; text: string; placement?: string };
 }) {
   return (
-    <footer className={cn("relative z-10 border-t border-border/40 px-6 py-8", className)}>
+    <footer className={cn("relative z-10 border-t border-primary/10 px-6 py-10", className)}>
       <div className="mx-auto flex max-w-6xl flex-col gap-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
@@ -130,7 +130,7 @@ export function SiteFooter({
                 onClick={() =>
                   trackTeaser("social_join", { placement: `${s.id}:footer`.slice(0, 40) })
                 }
-                className="rounded-xl border border-border/50 bg-foreground/4 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                className="rounded-xl border border-border/50 bg-foreground/4 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary hover:shadow-[0_0_20px_-10px_var(--glow)]"
               >
                 {s.label}
               </a>

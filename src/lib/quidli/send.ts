@@ -16,14 +16,14 @@ type LooseDb = { from: (table: string) => any };
 export type QuidliSendRequest = {
   platform: string;
   handle: string;
-  amountUsdc?: number;
-  memo?: string;
-  idempotencyKey?: string;
-  campaign?: string;
-  companyId?: string | null;
-  userId?: string | null;
-  referralId?: string | null;
-  dryRun?: boolean;
+  amountUsdc?: number | undefined;
+  memo?: string | undefined;
+  idempotencyKey?: string | undefined;
+  campaign?: string | undefined;
+  companyId?: string | null | undefined;
+  userId?: string | null | undefined;
+  referralId?: string | null | undefined;
+  dryRun?: boolean | undefined;
 };
 
 export type QuidliSendOutcome =
@@ -34,7 +34,7 @@ export type QuidliSendOutcome =
       quidliRef: string | null;
       reused?: boolean;
     }
-  | { ok: false; error: string; detail?: string };
+  | { ok: false; error: string; detail?: string | undefined };
 
 function buildIdempotencyKey(
   params: QuidliSendRequest,

@@ -172,7 +172,7 @@ export const classifyCompanyBill = createServerFn({ method: "POST" })
 
     const ledgerId = await ensureCompanyAgent(supabase, company.id, "Ledger");
     const autonomy = Number(company.autonomy ?? 0);
-    const status = taskStatusForAutonomy(autonomy);
+    const status = taskStatusForAutonomy({ autonomy });
 
     const taskTitle = extracted.vendor
       ? `Review bill · ${extracted.vendor}`
@@ -292,9 +292,9 @@ export const confirmExpenseItem = createServerFn({ method: "POST" })
     (input: {
       expenseId: string;
       status: "confirmed" | "rejected";
-      category?: string;
-      taxHint?: string;
-      notes?: string;
+      category?: string | undefined;
+      taxHint?: string | undefined;
+      notes?: string | undefined;
     }) => ({
       expenseId: String(input.expenseId),
       status: input.status === "rejected" ? ("rejected" as const) : ("confirmed" as const),
@@ -358,7 +358,9 @@ export const getTaxPrepSummary = createServerFn({ method: "POST" })
       currency = String(r.currency ?? currency);
     }
 
-    const vatCandidates = (rows ?? []).filter((r) => r.tax_hint === "input_vat_possible").length;
+    const vatCandidates = (rows ?? []).filter(
+      (r: { tax_hint?: string | null }) => r.tax_hint === "input_vat_possible",
+    ).length;
 
     return {
       confirmedCount: (rows ?? []).length,

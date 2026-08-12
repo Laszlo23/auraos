@@ -36,10 +36,10 @@ function NachbarRefDeepLink() {
       navigate({
         to: "/auth",
         search: {
-          mode: "signup",
+          mode: "signup" as const,
           next: "/nachbar/heute",
-          lang: "de",
-          ref: normalized || undefined,
+          lang: "de" as const,
+          ...(normalized ? { ref: normalized } : {}),
         },
         replace: true,
       });

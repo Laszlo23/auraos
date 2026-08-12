@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download } from "lucide-react";
 import {
   Area,
@@ -97,8 +97,14 @@ function AnalyticsPage() {
       {rows.length === 0 ? (
         <Panel className="p-10 text-center">
           <p className="text-sm text-muted-foreground">
-            No metrics yet. Once agents ship work, Ledger fills this board.
+            No metrics yet. Once agents ship work and missions settle, Ledger fills this board.
           </p>
+          <Link
+            to="/missions"
+            className="mt-4 inline-flex rounded-2xl bg-primary/14 px-4 py-2 text-xs font-semibold text-primary"
+          >
+            Launch a mission
+          </Link>
         </Panel>
       ) : null}
 

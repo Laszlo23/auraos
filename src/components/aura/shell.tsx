@@ -56,7 +56,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 function AuraOsShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [railOpen, setRailOpen] = useState(true);
+  const [railOpen, setRailOpen] = useState(false);
   const [bannerOpen, setBannerOpen] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -159,23 +159,25 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
           collapsed ? "w-[76px]" : "w-[232px]",
         )}
       >
-        <div className="glass flex-1 overflow-y-auto rounded-3xl px-2.5 py-4">
+        <div className="glass flex-1 overflow-y-auto rounded-[1.7rem] px-2.5 py-4">
           <Link
             to="/console"
             title="Dashboard"
             className={cn(
-              "mb-6 flex items-center gap-2.5 rounded-2xl px-2 py-1 transition-colors hover:bg-foreground/5",
+              "mb-6 flex items-center gap-2.5 rounded-2xl px-2 py-1.5 transition-colors hover:bg-foreground/5",
               collapsed && "justify-center",
             )}
           >
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-primary/15 text-lg text-primary">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary/25 to-gold/10 text-lg text-primary shadow-[0_0_24px_-8px_var(--glow)] ring-1 ring-primary/20">
               {company?.emoji ? company.emoji : <PulseOrbit size="sm" label={false} />}
             </span>
             {!collapsed && (
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{company?.name ?? "Aura OS"}</p>
+                <p className="truncate text-sm font-semibold tracking-tight">
+                  {company?.name ?? "Aura OS"}
+                </p>
                 <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Pulse /> autonomous
+                  <Pulse /> live
                 </p>
               </div>
             )}
@@ -214,7 +216,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                           <motion.span
                             layoutId="nav-active"
                             transition={{ type: "spring", stiffness: 380, damping: 34 }}
-                            className="absolute inset-0 rounded-2xl bg-primary/12 ring-1 ring-primary/22"
+                            className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/16 to-primary/6 ring-1 ring-primary/28"
                           />
                         )}
                         <Icon
@@ -270,13 +272,13 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 space-y-2 px-4 pt-4 md:px-5">
-          <div className="glass flex items-center gap-3 rounded-3xl px-4 py-2.5">
+          <div className="glass flex items-center gap-3 rounded-[1.7rem] px-3.5 py-2.5 sm:px-4">
             <Link
               to="/console"
               title="Dashboard"
               className="hidden min-w-0 items-center gap-2.5 rounded-2xl transition-opacity hover:opacity-80 lg:flex"
             >
-              <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/15 text-sm text-primary">
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-primary/22 to-gold/10 text-sm text-primary ring-1 ring-primary/20">
                 {company?.emoji ? company.emoji : <PulseOrbit size="sm" label={false} />}
               </span>
               <div className="min-w-0">
@@ -287,7 +289,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   autonomous company
                 </p>
               </div>
-              <span className="ml-1 flex shrink-0 items-center gap-1.5 rounded-full bg-primary/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
+              <span className="ml-1 flex shrink-0 items-center gap-1.5 rounded-full bg-primary/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary ring-1 ring-primary/20">
                 <Pulse /> active
               </span>
             </Link>
@@ -336,7 +338,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
 
             <Link
               to="/ceo"
-              className="flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              className="cta-liquid flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_24px_-8px_var(--glow)] transition-opacity hover:opacity-90"
             >
               <Plus className="h-3.5 w-3.5" /> Instruct
             </Link>
@@ -406,7 +408,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto w-full min-w-0 max-w-[1440px] px-5 pb-32 pt-8 md:px-8 md:pb-10 md:pt-10"
+            className="mx-auto w-full min-w-0 max-w-[1440px] px-5 pb-32 pt-7 md:px-8 md:pb-10 md:pt-9"
           >
             {children}
           </motion.main>
@@ -499,7 +501,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
           )}
         </AnimatePresence>
 
-        <nav className="glass fixed inset-x-3 bottom-3 z-30 flex items-end justify-around gap-0.5 rounded-[1.75rem] px-2 pb-2 pt-2 md:hidden">
+        <nav className="glass fixed inset-x-3 bottom-3 z-30 flex items-end justify-around gap-0.5 rounded-[1.85rem] px-2 pb-2.5 pt-2.5 md:hidden">
           {mobileTabs.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.to;
@@ -516,7 +518,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   <motion.span
                     layoutId="tab-active"
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    className="absolute inset-0 rounded-2xl bg-primary/15 ring-1 ring-primary/30"
+                    className="absolute inset-0 rounded-2xl bg-gradient-to-b from-primary/20 to-primary/8 ring-1 ring-primary/30"
                   />
                 )}
                 <Icon className="relative h-[22px] w-[22px]" strokeWidth={active ? 2.2 : 1.9} />

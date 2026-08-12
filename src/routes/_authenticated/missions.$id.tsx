@@ -37,7 +37,10 @@ function MissionDetailPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["revenue-mission", id],
     queryFn: () => getRevenueMission({ data: { missionId: id } }),
-    refetchInterval: 10_000,
+    refetchInterval: (q) => {
+      const row = q.state.data as { mission?: { status?: string } } | undefined;
+      return row?.mission?.status === "active" ? 10_000 : false;
+    },
   });
 
   const { data: agents = [] } = useCompanyTable<{ id: string; name: string }>("agents");

@@ -81,7 +81,7 @@ export function GrowFundsHub({
         body:
           tradeLive || liquidityLive
             ? "You already have capital working — open a path to manage it, or start the other one."
-            : "Trade with AI, earn from liquidity, or call the next 3-minute ETH move on Pulse.",
+            : "Trade with AI, earn from liquidity, or call ETH on Pulse. Paper first — live USDC after you fund Wallet.",
         cta: null,
       };
     }
@@ -361,11 +361,11 @@ function PathCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "group rounded-[1.75rem] border text-left transition-colors",
+        "group rounded-[1.75rem] border text-left transition-all duration-300",
         compact ? "flex items-center gap-4 p-4" : "p-6",
         active
-          ? "border-primary/45 bg-primary/[0.09]"
-          : "border-border/55 bg-foreground/[0.03] hover:border-border",
+          ? "border-primary/50 bg-gradient-to-br from-primary/[0.14] to-gold/[0.04] shadow-[var(--shadow-glow)]"
+          : "border-border/55 bg-foreground/[0.03] hover:-translate-y-1 hover:border-primary/30 hover:bg-foreground/[0.05]",
       )}
     >
       <div

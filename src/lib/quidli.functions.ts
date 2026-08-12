@@ -40,7 +40,7 @@ function emailFromContext(context: { claims?: unknown }): string | null {
 
 export const getQuidliStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler((async ({ context }: any) => {
     const email = emailFromContext(context);
     if (!isOpsAdminEmail(email)) throw new Error("Not authorized for ops");
 
@@ -54,7 +54,7 @@ export const getQuidliStatus = createServerFn({ method: "GET" })
 
     return {
       configured: quidliConfigured(),
-      webhookUrl: quidliPublicWebhookUrl(),
+      webhookUrl: quidliPublicWebhookUrl() ?? "",
       rewardToken: quidliRewardTokenAddress(),
       chainId: quidliRewardChainId(),
       defaultAmountUsdc: quidliDefaultAmountUsdc(),
@@ -63,7 +63,7 @@ export const getQuidliStatus = createServerFn({ method: "GET" })
       spentTodayUsd: spentToday,
       balance: await getDropBalance(quidliRewardChainId()),
     };
-  });
+  }) as any);
 
 export const sendQuidliDrop = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -71,10 +71,10 @@ export const sendQuidliDrop = createServerFn({ method: "POST" })
     (input: {
       platform: string;
       handle: string;
-      amountUsdc?: number;
-      memo?: string;
-      campaign?: string;
-      dryRun?: boolean;
+      amountUsdc?: number | undefined;
+      memo?: string | undefined;
+      campaign?: string | undefined;
+      dryRun?: boolean | undefined;
     }) => ({
       platform: String(input.platform),
       handle: String(input.handle).trim(),
@@ -109,7 +109,7 @@ export const lookupQuidliHandle = createServerFn({ method: "POST" })
   .validator((input: { handle: string }) => ({
     handle: String(input.handle).trim(),
   }))
-  .handler(async ({ data, context }) => {
+  .handler((async ({ data, context }: any) => {
     const email = emailFromContext(context);
     if (!isOpsAdminEmail(email)) throw new Error("Not authorized for ops");
     const platform = data.handle.includes("@") && data.handle.includes(".") ? "email" : "twitter";
@@ -117,7 +117,7 @@ export const lookupQuidliHandle = createServerFn({ method: "POST" })
       platform: platform === "email" ? "email" : "twitter",
       handle: data.handle.replace(/^@/, ""),
     });
-  });
+  }) as any);
 
 /** Soft tip after referral milestone — safe to call from client or server. */
 export const tipReferrerForMilestoneFn = createServerFn({ method: "POST" })

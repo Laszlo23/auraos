@@ -9,12 +9,40 @@ import {
   YIELD_RISK_ORDER,
 } from "@/lib/defi/catalog";
 import { mergeYieldAutopilot, type YieldAutopilotConfig } from "@/lib/defi/autopilot-config";
+import type { YieldAutomationResult } from "@/lib/defi/automations";
 import type { Address, Hex } from "viem";
 
 export type { YieldAutopilotConfig };
 
+export type YieldPositionRow = {
+  id: string;
+  catalog_id: string;
+  principal_usdc: number;
+  mark_usdc: number;
+  accrued_usdc: number;
+  paper: boolean;
+  protocol: string;
+  status: string;
+};
+
+export type YieldDeskState = {
+  agentId: string;
+  yieldArmed: boolean;
+  yieldPaper: boolean;
+  maxNotional: number;
+  maxRiskTier: YieldRiskTier;
+  autopilot: YieldAutopilotConfig;
+  openNotional: number;
+  openMark: number;
+  paperPnl: number;
+  positions: YieldPositionRow[];
+  events: Array<Record<string, unknown>>;
+  allowedCatalogIds: string[];
+  automation: YieldAutomationResult;
+};
+
 async function loadLiveYieldWallet(
-  supabase: { from: (t: string) => any },
+  supabase: any,
   userId: string,
 ): Promise<{ address: Address; privateKey: Hex }> {
   const { decryptOwnerKey } = await import("@/lib/wallet.server");
@@ -49,7 +77,7 @@ async function loadLiveYieldWallet(
 }
 
 async function ownedCompany(
-  supabase: { from: (t: string) => any },
+  supabase: any,
   userId: string,
   companyId: string,
 ) {
@@ -154,7 +182,7 @@ export const getYieldDeskState = createServerFn({ method: "POST" })
     if (!input?.companyId) throw new Error("companyId required");
     return input;
   })
-  .handler(async ({ data, context }) => {
+  .handler((async ({ data, context }: any): Promise<YieldDeskState> => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
 
@@ -220,12 +248,12 @@ export const getYieldDeskState = createServerFn({ method: "POST" })
       openNotional,
       openMark,
       paperPnl,
-      positions: positions ?? [],
-      events: events ?? [],
+      positions: (positions ?? []) as YieldPositionRow[],
+      events: (events ?? []) as Array<Record<string, unknown>>,
       allowedCatalogIds: yieldCatalogForTier(company.max_yield_risk_tier).map((c) => c.id),
       automation,
     };
-  });
+  }) as any);
 
 export const setYieldDeskArmed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -274,10 +302,7 @@ export const updateYieldRisk = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
-    const patch: Record<string, unknown> = {};
-    if (data.maxNotionalUsdc != null) patch.max_yield_notional_usdc = data.maxNotionalUsdc;
-    if (data.maxRiskTier != null) patch.max_yield_risk_tier = data.maxRiskTier;
-    if (Object.keys(patch).length === 0) {
+    if (data.maxNotionalUsdc == null && data.maxRiskTier == null) {
       return {
         yield_armed: company.yield_armed,
         yield_paper: company.yield_paper,
@@ -287,7 +312,12 @@ export const updateYieldRisk = createServerFn({ method: "POST" })
     }
     const { data: updated, error } = await context.supabase
       .from("companies")
-      .update(patch)
+      .update({
+        ...(data.maxNotionalUsdc != null
+          ? { max_yield_notional_usdc: data.maxNotionalUsdc }
+          : {}),
+        ...(data.maxRiskTier != null ? { max_yield_risk_tier: data.maxRiskTier } : {}),
+      })
       .eq("id", data.companyId)
       .select("yield_armed, yield_paper, max_yield_notional_usdc, max_yield_risk_tier")
       .single();
@@ -319,7 +349,7 @@ export const runYieldAutopilotNow = createServerFn({ method: "POST" })
     if (!input.companyId) throw new Error("companyId required");
     return { companyId: input.companyId, dryRun: input.dryRun !== false };
   })
-  .handler(async ({ data, context }) => {
+  .handler((async ({ data, context }: any): Promise<YieldAutomationResult> => {
     const company = await ownedCompany(context.supabase, context.userId, data.companyId);
     if (!company) throw new Error("Company not found");
     if (!company.yield_armed && !data.dryRun) throw new Error("Arm Yield desk first");
@@ -402,7 +432,7 @@ export const runYieldAutopilotNow = createServerFn({ method: "POST" })
           }
         : {}),
     });
-  });
+  }) as any);
 
 export const allocateYield = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

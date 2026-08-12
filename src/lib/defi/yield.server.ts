@@ -11,7 +11,7 @@ export const YIELD_AGENT_MEMORY =
   "Yield desk. Money works for money. Prefer documented APY bands, never invent on-chain fills. Paper accrues at conservative mid-APY. Live LP/lend/predict requires founder arm + caps. Respect risk tier ceiling. Aerodrome on Base, Pancake/Venus/Lista on BNB. Pair with Quant for day-trade velocity.";
 
 export async function ensureYieldAgent(
-  db: Db,
+  db: any,
   companyId: string,
 ): Promise<{ id: string; memory: string | null; lessons_count: number }> {
   const { data: existing } = await db
@@ -129,7 +129,7 @@ export function validateOpenYield(args: OpenYieldArgs, item: YieldCatalogItem): 
   return null;
 }
 
-export async function openYieldPosition(db: Db, args: OpenYieldArgs) {
+export async function openYieldPosition(db: any, args: OpenYieldArgs) {
   const item = yieldCatalogById(args.catalogId);
   if (!item) throw new Error("Unknown yield strategy");
   const err = validateOpenYield(args, item);

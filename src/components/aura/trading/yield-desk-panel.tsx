@@ -17,7 +17,9 @@ import {
   setYieldPaperMode,
   updateYieldAutopilot,
   updateYieldRisk,
+  type YieldDeskState,
 } from "@/lib/defi/yield.functions";
+import type { YieldAutomationResult } from "@/lib/defi/automations";
 import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +46,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
     refetchInterval: 45_000,
   });
 
-  const state = deskQ.data;
+  const state = deskQ.data as YieldDeskState | undefined;
   const catalog = useMemo(() => {
     const allowed = new Set(state?.allowedCatalogIds ?? YIELD_CATALOG.map((c) => c.id));
     return YIELD_CATALOG.filter((c) => allowed.has(c.id));
@@ -119,7 +121,9 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
   async function onAutopilot(dryRun: boolean) {
     setBusy(dryRun ? "scan" : "run");
     try {
-      const res = await runYieldAutopilotNow({ data: { companyId, dryRun } });
+      const res = (await runYieldAutopilotNow({
+        data: { companyId, dryRun },
+      })) as YieldAutomationResult;
       toast.success(
         dryRun
           ? `${res.insights.length} insights · ${res.actions.length} suggested actions`
@@ -162,9 +166,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
 
   const auto = state?.autopilot;
   const automation = state?.automation;
-  const openPositions = (state?.positions ?? []).filter(
-    (p: { status: string }) => p.status === "open",
-  );
+  const openPositions = (state?.positions ?? []).filter((p) => p.status === "open");
 
   return (
     <div className="space-y-5" data-tour="yield-desk">
@@ -449,16 +451,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
       {openPositions.length ? (
         <Panel label="Open yield positions">
           <div className="space-y-2">
-            {openPositions.map(
-              (p: {
-                id: string;
-                catalog_id: string;
-                principal_usdc: number;
-                mark_usdc: number;
-                accrued_usdc: number;
-                paper: boolean;
-                protocol: string;
-              }) => (
+            {openPositions.map((p) => (
                 <div
                   key={p.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/40 px-3 py-2.5"
@@ -480,8 +473,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                     Close
                   </button>
                 </div>
-              ),
-            )}
+            ))}
           </div>
         </Panel>
       ) : null}

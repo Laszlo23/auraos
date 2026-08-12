@@ -70,20 +70,20 @@ export async function hireAgentIfNeeded(companyId: string, name: string): Promis
 
 export type NewTask = {
   title: string;
-  description?: string;
-  agent?: string;
+  description?: string | undefined;
+  agent?: string | undefined;
   /** Prefer agent UUID when assigning from an employee card. */
-  agentId?: string;
-  priority?: "low" | "medium" | "high" | "critical";
-  roi?: number;
-  activity?: string;
+  agentId?: string | undefined;
+  priority?: "low" | "medium" | "high" | "critical" | undefined;
+  roi?: number | undefined;
+  activity?: string | undefined;
   /** Founder-originated dispatch (mission / button). Autonomy decides queue vs approval. */
-  founderApproved?: boolean;
+  founderApproved?: boolean | undefined;
   /**
    * Direct assign from an employee card.
    * Autonomy 0 still gates; otherwise queues immediately (founder already wrote the brief).
    */
-  directAssign?: boolean;
+  directAssign?: boolean | undefined;
 };
 
 function initialStatus(
@@ -397,7 +397,14 @@ export function useApproveTask() {
       } else if (res.workerRan) {
         toast.success("Approved — worker started. Watch the Running column for live steps.");
       } else {
-        toast.success("Approved and queued. Worker will pick it up shortly.");
+        toast.message("Approved and queued — the worker did not start. Open Worker to run it now.", {
+          action: {
+            label: "Run worker",
+            onClick: () => {
+              window.location.href = "/automation";
+            },
+          },
+        });
       }
     },
     onError: (e: Error) => toast.error(e.message || "Couldn't approve that task."),

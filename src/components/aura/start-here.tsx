@@ -35,8 +35,8 @@ export function StartHere({
     },
     {
       to: "/tasks",
-      title: "Watch the work happen",
-      body: "Your team picks the job up and reports back. Nothing for you to configure.",
+      title: "Approve the first task",
+      body: "Nothing spends or publishes until you tap approve. Then the worker runs it and files proof.",
       cta: "Open work",
       done: hasTasks,
     },
@@ -48,7 +48,7 @@ export function StartHere({
   return (
     <Panel label="Start here" glow>
       <p className="max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-        Three steps and your company runs itself. You are on step{" "}
+        Three steps and the company is moving. You are on step{" "}
         <span className="text-foreground">{steps.indexOf(next) + 1} of 3</span>.
       </p>
 

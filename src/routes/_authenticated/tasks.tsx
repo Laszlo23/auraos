@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Chip, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
 import { ProofOfWork, type PowStep } from "@/components/aura/proof-of-work";
-import { useCompanyTable } from "@/hooks/use-aura";
+import { useCompanyTable, liveWorkInterval } from "@/hooks/use-aura";
 import {
   useApproveTask,
   useMoveTaskStatus,
@@ -91,7 +91,7 @@ function stepSummary(steps: PowStep[] | null | undefined) {
 function TasksPage() {
   const { data: tasks = [] } = useCompanyTable<Task>("tasks", {
     orderBy: "created_at",
-    refetchInterval: 3000,
+    refetchInterval: liveWorkInterval(12_000),
   });
   const { data: agents = [] } = useCompanyTable<Agent>("agents");
   const moveStatus = useMoveTaskStatus();

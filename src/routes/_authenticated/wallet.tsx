@@ -57,7 +57,7 @@ function WalletPage() {
         title="Your money, on-chain"
         description="Balances, badges, receive, send, and exchange. Fund USDC on Base — keep a little ETH for gas until sponsorship is on."
       />
-      <WalletDesk seat={progress?.seat_number} perks={perks} />
+      <WalletDesk seat={progress?.seat_number ?? null} {...(perks ? { perks } : {})} />
       <GenesisPassport
         companyName={company?.name}
         slug={economy?.slug}

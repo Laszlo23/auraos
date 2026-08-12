@@ -7,7 +7,7 @@ type LooseDb = {
   from: (table: string) => any;
   rpc: (
     fn: string,
-    args?: Record<string, unknown>,
+    args?: Record<string, unknown> | undefined,
   ) => Promise<{ data: unknown; error: Error | null }>;
 };
 
@@ -70,10 +70,10 @@ export const ensureNachbarProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(
     (input: {
-      city?: string;
-      displayName?: string;
-      homeCompanyId?: string;
-      friendCode?: string;
+      city?: string | undefined;
+      displayName?: string | undefined;
+      homeCompanyId?: string | undefined;
+      friendCode?: string | undefined;
     }) => ({
       city:
         String(input.city || "")
@@ -92,7 +92,7 @@ export const ensureNachbarProfile = createServerFn({ method: "POST" })
           .slice(0, 12) || undefined,
     }),
   )
-  .handler(async ({ data, context }) => {
+  .handler((async ({ data, context }: any) => {
     const { data: row, error } = await asDb(context.supabase).rpc("ensure_nachbar_profile", {
       _city: data.city ?? null,
       _display_name: data.displayName ?? null,
@@ -100,8 +100,8 @@ export const ensureNachbarProfile = createServerFn({ method: "POST" })
       _friend_code: data.friendCode ?? null,
     });
     if (error) throw error;
-    return row;
-  });
+    return row ?? null;
+  }) as any);
 
 export const requestNachbarCheckin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

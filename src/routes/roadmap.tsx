@@ -92,15 +92,15 @@ function SteamCup({ className }: { className?: string }) {
           strokeLinecap="round"
           fill="none"
           initial={reduce ? false : { pathLength: 0.2, opacity: 0.35 }}
-          animate={
-            reduce
-              ? undefined
-              : {
+          {...(reduce
+            ? {}
+            : {
+                animate: {
                   pathLength: [0.25, 1, 0.25],
                   opacity: [0.3, 0.85, 0.3],
                   y: [0, -4, 0],
-                }
-          }
+                },
+              })}
           transition={{ duration: 2.4 + i * 0.35, repeat: Infinity, ease: "easeInOut" }}
         />
       ))}
@@ -109,7 +109,7 @@ function SteamCup({ className }: { className?: string }) {
         cy="78"
         r="6"
         className="fill-primary/40"
-        animate={reduce ? undefined : { scale: [1, 1.25, 1], opacity: [0.4, 0.7, 0.4] }}
+        {...(reduce ? {} : { animate: { scale: [1, 1.25, 1], opacity: [0.4, 0.7, 0.4] } })}
         transition={{ duration: 3, repeat: Infinity }}
       />
     </svg>
@@ -137,7 +137,7 @@ function OrbitLove({ className }: { className?: string }) {
       <circle cx="100" cy="100" r="44" className="stroke-primary/25" strokeWidth="1.5" />
       <motion.g
         style={{ originX: "100px", originY: "100px" }}
-        animate={reduce ? undefined : { rotate: 360 }}
+        {...(reduce ? {} : { animate: { rotate: 360 } })}
         transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
       >
         <circle cx="100" cy="30" r="7" className="fill-primary/80" />
@@ -148,7 +148,7 @@ function OrbitLove({ className }: { className?: string }) {
         d="M100 88c-8-10-24-6-24 8 0 14 24 28 24 28s24-14 24-28c0-14-16-18-24-8z"
         className="fill-primary/30 stroke-primary/70"
         strokeWidth="1.5"
-        animate={reduce ? undefined : { scale: [1, 1.08, 1] }}
+        {...(reduce ? {} : { animate: { scale: [1, 1.08, 1] } })}
         transition={{ duration: 2.2, repeat: Infinity }}
         style={{ originX: "100px", originY: "108px" }}
       />

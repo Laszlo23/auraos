@@ -63,7 +63,7 @@ export const proposeNextActionsAi = createServerFn({ method: "POST" })
           .limit(8),
         db
           .from("revenue_missions")
-          .select("title, status, goal")
+          .select("goal_text, status, target_usdc")
           .eq("company_id", company.id)
           .order("created_at", { ascending: false })
           .limit(5),
@@ -118,8 +118,19 @@ Return JSON: {"proposals":[{"title":"...","description":"...","agent":"Cass","pr
           ((knowledge ?? []) as { title: string }[]).map((k) => k.title).join("; ") || "empty"
         }`,
         `Missions: ${
-          ((missions ?? []) as { status: string; title: string }[])
-            .map((m) => `${m.status}:${m.title}`)
+          (
+            (missions ?? []) as {
+              status: string;
+              goal_text?: string;
+              target_usdc?: number | null;
+            }[]
+          )
+            .map(
+              (m) =>
+                `${m.status}:${(m.goal_text ?? "untitled").slice(0, 80)}${
+                  m.target_usdc != null ? ` ($${m.target_usdc})` : ""
+                }`,
+            )
             .join("; ") || "none"
         }`,
         instructionBlock,

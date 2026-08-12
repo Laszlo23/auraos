@@ -27,7 +27,7 @@ import { QuestTrail } from "@/components/aura/quests";
 import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
 import { COMPANY_QUESTS } from "@/lib/gamify";
 import { levelFromXp, useProgress } from "@/hooks/use-progress";
-import { useCompany, useCompanyTable } from "@/hooks/use-aura";
+import { useCompany, useCompanyTable, liveWorkInterval, rowsHaveLiveWork } from "@/hooks/use-aura";
 import { useChannels } from "@/hooks/use-connections";
 import { useMailboxes } from "@/hooks/use-mailbox";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
@@ -114,16 +114,17 @@ function Home() {
   const { data: sub } = useSubscription();
   const { data: progress } = useProgress();
   const { data: agents = [] } = useCompanyTable<Agent>("agents", { orderBy: "created_at" });
-  const { data: events = [] } = useCompanyTable<Event>("activity_events", {
-    orderBy: "created_at",
-    ascending: false,
-    limit: 24,
-  });
   const { data: insights = [] } = useCompanyTable<Insight>("insights");
   const { data: tasks = [] } = useCompanyTable<Task>("tasks", {
     orderBy: "created_at",
     ascending: false,
-    refetchInterval: 5_000,
+    refetchInterval: liveWorkInterval(12_000),
+  });
+  const { data: events = [] } = useCompanyTable<Event>("activity_events", {
+    orderBy: "created_at",
+    ascending: false,
+    limit: 24,
+    refetchInterval: rowsHaveLiveWork(tasks) ? 12_000 : false,
   });
   const { data: knowledge = [] } = useCompanyTable<Knowledge>("knowledge_items", {
     orderBy: "created_at",
@@ -172,7 +173,7 @@ function Home() {
     () =>
       deriveMissionPipeline({
         hasMission: Boolean(focusMission),
-        missionStatus: focusMission?.status,
+        missionStatus: focusMission?.status ?? null,
         awaitingApproval: awaiting.length,
         runningTasks: running.length,
         completedTasks: done,
@@ -286,7 +287,7 @@ function Home() {
           {lifetime === 0 && done === 0 && awaiting.length === 0 && missions.length === 0 ? (
             <button
               type="button"
-              onClick={() => propose.mutate()}
+              onClick={() => propose.mutate({})}
               disabled={propose.isPending}
               className="mt-4 w-full rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary disabled:opacity-50"
             >
@@ -452,7 +453,7 @@ function Home() {
           <RevenueMissionsBand />
         </div>
 
-        {simple && (
+        {(simple || (lifetime === 0 && done === 0)) && (
           <StartHere
             hasConnections={channels.some((c) => c.status === "connected")}
             hasInstructed={events.some((e) => e.kind === "instruction" || e.kind === "decision")}
@@ -468,7 +469,7 @@ function Home() {
             </p>
             <button
               type="button"
-              onClick={() => propose.mutate()}
+              onClick={() => propose.mutate({})}
               disabled={propose.isPending}
               className="mt-4 rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary hover:bg-primary/22 disabled:opacity-50"
             >
@@ -511,13 +512,13 @@ function Home() {
         </div>
 
         <CompanyEconomicsPanel
-          totals={totals}
+          totals={totals ?? null}
           customers={customers}
           auraSpentToday={economy?.auraSpentToday ?? 0}
           dailyAuraBudget={economy?.dailyAuraBudget ?? 120}
-          missionBudgetUsdc={focusMission?.budget_usdc}
-          activeProjectedRevenue={focusMission?.projected?.revenue_usdc}
-          activeTargetUsdc={focusMission?.target_usdc}
+          missionBudgetUsdc={focusMission?.budget_usdc ?? null}
+          activeProjectedRevenue={focusMission?.projected?.revenue_usdc ?? null}
+          activeTargetUsdc={focusMission?.target_usdc ?? null}
         />
 
         <RevenueWallet compact />
@@ -549,11 +550,6 @@ function Home() {
             completed={new Set(progress?.completed_quests ?? [])}
           />
         </Panel>
-      </div>
-
-      {/* Mobile mission band below deck (deep work, not a focus card) */}
-      <div id="primary-mission" className="mt-6 md:hidden">
-        <RevenueMissionsBand />
       </div>
 
       <MissionDetailSheet

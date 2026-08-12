@@ -203,7 +203,7 @@ type OpenPos = {
 };
 
 export async function runYieldAutomations(
-  db: Db,
+  db: any,
   args: {
     companyId: string;
     agentId: string;

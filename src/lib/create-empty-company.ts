@@ -78,7 +78,7 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
     if (/row-level security|policy|42501/i.test(msg)) {
       throw new Error(
         funnel === "os"
-          ? "Invite required — buy a founding seat with a valid invite before creating a company."
+          ? "Buy a founding seat first — $99, no invite needed — then we can open your company."
           : "Could not create company — check your connection and try again.",
       );
     }

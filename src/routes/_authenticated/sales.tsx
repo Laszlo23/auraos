@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { Chip, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
@@ -17,10 +17,10 @@ export const Route = createFileRoute("/_authenticated/sales")({
       {
         name: "description",
         content:
-          "The pipeline Orin qualifies, negotiates and closes — every deal moving without a human touching it.",
+          "The pipeline Orin qualifies and you advance — deals move when you approve the next step.",
       },
       { property: "og:title", content: "Sales — Aura OS" },
-      { property: "og:description", content: "A pipeline that closes itself." },
+      { property: "og:description", content: "A pipeline you steer. Agents draft the next move." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -118,8 +118,22 @@ function SalesPage() {
       ) : deals.length === 0 ? (
         <Panel className="p-8 text-center">
           <p className="text-sm text-muted-foreground">
-            No data yet — approve your first agent proposal, or add a deal when Orin finds a lead.
+            No deals yet. Start a mission or ask Atlas to propose the first outreach tasks.
           </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <Link
+              to="/missions"
+              className="rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+            >
+              Open Missions
+            </Link>
+            <Link
+              to="/akquise"
+              className="rounded-2xl bg-foreground/8 px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              Akquise
+            </Link>
+          </div>
         </Panel>
       ) : (
         <div className="grid gap-5 lg:grid-cols-4">

@@ -75,7 +75,7 @@ export async function fetchEthBalance(address: Address): Promise<bigint> {
 export function buildClankerSpec(input: {
   name: string;
   symbol: string;
-  imageUrl?: string | null;
+  imageUrl?: string | null | undefined;
   presetId: string;
   smartWallet: Address;
   ownerEoa: Address;

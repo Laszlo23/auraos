@@ -13,7 +13,7 @@ import { useLocale } from "@/hooks/use-locale";
 import { useConnectChannel, type SocialProvider } from "@/hooks/use-connections";
 import { useAwardXp, useCompleteOnboarding, useProgress } from "@/hooks/use-progress";
 import { useAdvanceReferral, useProvisionSmartWallet } from "@/hooks/use-earn";
-import { useMyHandle } from "@/hooks/use-identity";
+import { useClaimHandle, useMyHandle } from "@/hooks/use-identity";
 import { supabase } from "@/integrations/supabase/client";
 import { peekFunnel } from "@/lib/attribution";
 import { bootstrapFunnelCompany, bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
       {
         name: "description",
         content:
-          "Four quiet steps: name the company, choose its first autonomous product, connect its channels, claim your founding seat.",
+          "Four quiet steps: name the company, pick the first product, connect a channel, open the company.",
       },
       { property: "og:title", content: "Wake your company | Aura OS" },
       {
@@ -87,6 +87,7 @@ function Onboarding() {
   const award = useAwardXp();
   const complete = useCompleteOnboarding();
   const { data: myHandle } = useMyHandle();
+  const claimHandle = useClaimHandle();
   const provisionWallet = useProvisionSmartWallet();
   const advanceReferral = useAdvanceReferral();
   const connectChannel = useConnectChannel();
@@ -239,17 +240,37 @@ function Onboarding() {
 
   const finish = async () => {
     setFinishing(true);
-    pop(entryFunnel === "os" ? "Founding seat claimed" : "Company ready", 300, "onboard:seat");
+    pop(entryFunnel === "os" ? "Company open" : "Company ready", 300, "onboard:seat");
     await complete.mutateAsync();
 
-    // Give the founder a working wallet and pay whoever invited them. Neither
-    // is allowed to block the celebration.
-    if (myHandle?.id) {
-      try {
-        await provisionWallet.mutateAsync(myHandle.id);
-      } catch {
-        /* wallet can be provisioned later from Identity */
+    // Claim a handle from the company name if needed, then provision the wallet.
+    // Neither is allowed to block the celebration.
+    try {
+      let handleId = myHandle?.id;
+      if (!handleId && company?.name) {
+        const base =
+          company.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "")
+            .slice(0, 16) || "founder";
+        for (const candidate of [base, `${base}${Math.floor(Math.random() * 90 + 10)}`]) {
+          try {
+            const row = await claimHandle.mutateAsync({
+              handle: candidate,
+              display_name: company.name,
+            });
+            handleId = row.id;
+            break;
+          } catch {
+            /* handle taken — try suffix */
+          }
+        }
       }
+      if (handleId) {
+        await provisionWallet.mutateAsync(handleId);
+      }
+    } catch {
+      /* wallet can be provisioned later from Identity */
     }
     try {
       await advanceReferral.mutateAsync("activated");
@@ -271,7 +292,7 @@ function Onboarding() {
     ? [t("onboarding.lokalStepName"), t("onboarding.lokalStepGo")]
     : skipProductPicker
       ? ["Identity", "Department", "Voice", "Go"]
-      : ["Identity", "First product", "Voice", "Seat"];
+      : ["Identity", "First product", "Voice", "Open"];
 
   return (
     <div className="relative -mx-1 min-h-[76vh]">
@@ -556,11 +577,11 @@ function Onboarding() {
                 {entryFunnel === "os" ? (
                   <>
                     <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                      Claim seat #{progress?.seat_number ?? "—"}.
+                      Open company #{progress?.seat_number ?? "—"}.
                     </h1>
                     <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                      Founding companies keep their token rate for life, and their agents get
-                      priority compute during peak hours.
+                      Your seat is already paid. This opens the company, claims your @handle, and
+                      provisions a smart wallet so Grow funds can receive USDC.
                     </p>
                     <div className="glass mt-8 rounded-3xl p-6">
                       <FoundingCohort seat={progress?.seat_number} />
@@ -571,7 +592,7 @@ function Onboarding() {
                     </div>
                     <StepAction
                       onClick={finish}
-                      label={finishing ? "Opening your company…" : "Claim my seat"}
+                      label={finishing ? "Opening your company…" : "Open my company"}
                       busy={finishing}
                       tone="gold"
                     />

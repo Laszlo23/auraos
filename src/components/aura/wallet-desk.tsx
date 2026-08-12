@@ -112,7 +112,7 @@ function formatTokenAmount(raw: string, decimals: number, maxFrac = 6): string {
   }
 }
 
-export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: HolderPerks }) {
+export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: HolderPerks | undefined }) {
   const qc = useQueryClient();
   const { data: handle } = useMyHandle();
   const handleId = handle?.id;
@@ -356,13 +356,14 @@ export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: Hold
     return (
       <Panel label="Wallet" glow>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
-          Claim your founder handle first — your smart wallet is bound to that identity.
+          Your smart wallet is bound to a founder @handle. Claim one on Identity — it takes a few
+          seconds — then this desk can receive USDC.
         </p>
         <Link
           to="/identity"
           className="mt-4 inline-flex rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
         >
-          Open Identity
+            Open Identity — claim @handle
         </Link>
       </Panel>
     );
@@ -401,6 +402,34 @@ export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: Hold
       <DeskChainSwitcher
         invalidateKeys={[["treasury-activity"], ["trading-readiness"], ["yield-desk"]]}
       />
+      <div className="grid gap-2 sm:grid-cols-3">
+        {[
+          {
+            k: "On-chain cash",
+            v: `${currency(totalCash, 2)} USDC`,
+            h: "Smart wallet — send, swap, fund Grow",
+          },
+          {
+            k: "Working",
+            v: `${currency(Number(yieldQ.data?.openMark ?? yieldQ.data?.openNotional ?? 0), 2)}`,
+            h: "In trades / pools — still yours",
+          },
+          {
+            k: "Pulse",
+            v: "Paper bankroll",
+            h: "Demo game on Grow — not this wallet",
+          },
+        ].map((row) => (
+          <div
+            key={row.k}
+            className="rounded-2xl border border-border/40 bg-foreground/[0.03] px-4 py-3"
+          >
+            <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{row.k}</p>
+            <p className="mt-1 font-mono text-[14px] font-semibold">{row.v}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">{row.h}</p>
+          </div>
+        ))}
+      </div>
       {/* Hero */}
       <section className="relative overflow-hidden rounded-[1.75rem] border border-border/40 bg-gradient-to-br from-foreground/[0.06] via-background to-primary/[0.08] px-5 py-6 sm:px-7 sm:py-8">
         <div

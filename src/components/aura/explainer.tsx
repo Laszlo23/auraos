@@ -35,8 +35,8 @@ const STEPS: {
   },
   {
     no: "03",
-    title: "They work while you sleep",
-    body: "They find leads, write posts, ship work, and report back in one short summary.",
+    title: "They work after you approve",
+    body: "They draft leads, posts, and research. Nothing spends or goes public until you tap approve — then they execute and report back.",
     icon: Moon,
   },
 ];

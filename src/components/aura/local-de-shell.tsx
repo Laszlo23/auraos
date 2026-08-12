@@ -42,19 +42,6 @@ export function isLocalFunnelCompany(
   return company?.entry_funnel === "local";
 }
 
-/** @deprecated use isLocalFunnelCompany */
-export function isLocalDeCompany(
-  company:
-    | {
-        entry_funnel?: string | null;
-        ui_locale?: string | null;
-      }
-    | null
-    | undefined,
-): boolean {
-  return isLocalFunnelCompany(company);
-}
-
 const SEAT_GATED = new Set(["/heute", "/social", "/kunden", "/bewertungen", "/akquise"]);
 
 export function LocalDeShell({ children }: { children: React.ReactNode }) {

@@ -766,8 +766,8 @@ export const executeNextBestAction = createServerFn({ method: "POST" })
       try {
         const { processTaskQueue } = await import("@/lib/task-worker.server");
         await processTaskQueue(2, company.id);
-      } catch {
-        /* ignore */
+      } catch (err) {
+        console.error("[mission] worker tick failed", err);
       }
     }
 

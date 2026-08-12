@@ -80,7 +80,7 @@ export function WalletGrowPanel({
     queryKey: ["yield-desk", company?.id],
     enabled: Boolean(company?.id),
     queryFn: () =>
-      getYieldDeskState({ data: { companyId: company!.id } }) as Promise<{
+      getYieldDeskState({ data: { companyId: company!.id } }) as unknown as Promise<{
         openNotional?: number;
         openMark?: number;
         paperPnl?: number;

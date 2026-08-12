@@ -51,8 +51,8 @@ export function autonomyLabel(n: unknown) {
  */
 export function taskStatusForAutonomy(opts: {
   autonomy: number | undefined;
-  founderApproved?: boolean;
-  overDailyBudget?: boolean;
+  founderApproved?: boolean | undefined;
+  overDailyBudget?: boolean | undefined;
 }): "pending_approval" | "queued" {
   const a = clampAutonomy(opts.autonomy);
   if (opts.overDailyBudget) return "pending_approval";

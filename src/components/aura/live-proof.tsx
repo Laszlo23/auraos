@@ -5,6 +5,7 @@ import { Activity, ArrowRight, Bot, Building2, ListTodo, type LucideIcon } from 
 import { Pulse } from "@/components/aura/primitives";
 import { ShareMoment } from "@/components/aura/share";
 import { useNetworkTotals, usePublicFeed, type FeedRow } from "@/hooks/use-public";
+import { useInView } from "@/hooks/use-in-view";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -31,8 +32,11 @@ function feedLine(row: FeedRow): { who: string; what: string } | null {
 }
 
 export function LiveProof() {
-  const { data, isSuccess, isError } = useNetworkTotals();
-  const feed = usePublicFeed(4);
+  const { ref, inView: onScreen } = useInView();
+  const { data, isSuccess, isError } = useNetworkTotals({
+    refetchInterval: onScreen ? 30_000 : false,
+  });
+  const feed = usePublicFeed(4, { refetchInterval: onScreen ? 12_000 : false });
   const ready = isSuccess || isError;
   const stats: { label: string; value: string; icon: LucideIcon }[] = [
     {
@@ -73,7 +77,7 @@ export function LiveProof() {
     : "Aura OS is live — autonomous companies with public receipts.";
 
   return (
-    <section className="relative z-10 mx-auto max-w-6xl px-6 py-10">
+    <section ref={ref} className="relative z-10 mx-auto max-w-6xl px-6 py-10">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}

@@ -12,6 +12,7 @@ import {
   computeNextBestAction,
   createRevenueMission,
   executeNextBestAction,
+  getRevenueMission,
   listRevenueMissions,
   startRevenueMission,
   type RevenueMissionRow,
@@ -692,11 +693,8 @@ function ActiveMissionStrip({
 }) {
   const { data: detail } = useQuery({
     queryKey: ["revenue-mission", mission.id],
-    queryFn: async () => {
-      const { getRevenueMission } = await import("@/lib/revenue-mission.functions");
-      return getRevenueMission({ data: { missionId: mission.id } });
-    },
-    refetchInterval: 12_000,
+    queryFn: () => getRevenueMission({ data: { missionId: mission.id } }),
+    refetchInterval: mission.status === "active" ? 12_000 : false,
   });
 
   const events = detail?.events ?? [];

@@ -153,6 +153,7 @@ function TradingPage() {
   const { data: handle } = useMyHandle();
   const fio = useFioReady();
   const { data: wallet } = useSmartWallet(handle?.id);
+  const [advanced, setAdvanced] = useState(false);
   const { data: trades = [] } = useCompanyTable<Trade>("trades", {
     orderBy: "opened_at",
     ascending: false,
@@ -167,17 +168,20 @@ function TradingPage() {
     ascending: false,
     limit: 30,
     refetchInterval: 20_000,
+    enabled: advanced,
   });
   const { data: whales = [] } = useCompanyTable<Whale>("smart_money_wallets", {
     orderBy: "label",
+    enabled: advanced,
   });
   const { data: whaleEvents = [] } = useCompanyTable<WhaleEvent>("smart_money_events", {
     orderBy: "created_at",
     ascending: false,
     limit: 20,
+    enabled: advanced,
   });
   const { data: treasury } = useQuery({
-    queryKey: ["treasury"],
+    queryKey: ["treasury-balance"],
     queryFn: () => getTreasuryBalance(),
     staleTime: 20_000,
   });
@@ -190,6 +194,7 @@ function TradingPage() {
     queryKey: ["trading-arena"],
     queryFn: () => getTradingArena(),
     refetchInterval: 60_000,
+    enabled: advanced,
   });
   const perksQ = useQuery({
     queryKey: ["holder-perks"],
@@ -214,7 +219,6 @@ function TradingPage() {
   } | null>(null);
   const [drawer, setDrawer] = useState<DeskDrawerId>(null);
   const [growPath, setGrowPath] = useState<GrowPath>(null);
-  const [advanced, setAdvanced] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

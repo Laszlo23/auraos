@@ -29,11 +29,11 @@ export function PageProgress() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-[96] h-0.5 overflow-hidden"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[96] h-[2px] overflow-hidden"
     >
       <div
         className={cn(
-          "h-full w-full origin-left bg-primary transition-opacity duration-300",
+          "h-full w-full origin-left bg-gradient-to-r from-primary via-gold to-primary transition-opacity duration-300",
           visible ? "opacity-100" : "opacity-0",
           busy && "animate-[page-loader-slide_1.1s_ease-in-out_infinite]",
         )}

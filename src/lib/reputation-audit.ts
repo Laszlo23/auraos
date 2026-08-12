@@ -3,10 +3,10 @@
 export type ReputationAuditInput = {
   businessName: string;
   city: string;
-  googleUrl?: string;
-  websiteUrl?: string;
-  niche?: string;
-  email?: string;
+  googleUrl?: string | undefined;
+  websiteUrl?: string | undefined;
+  niche?: string | undefined;
+  email?: string | undefined;
 };
 
 export type ReputationFinding = {

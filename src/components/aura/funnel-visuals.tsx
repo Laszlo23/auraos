@@ -966,27 +966,6 @@ export function storyForFunnel(id: FunnelId): FunnelStory {
   }
 }
 
-/** @deprecated use storyForFunnel — kept for older imports */
-export function visualThemeForFunnel(
-  id: FunnelId,
-  _icons?: unknown,
-): {
-  image: string;
-  imageAlt: string;
-  accentLabel: string;
-  wash: string;
-  concepts: FunnelConcept[];
-} {
-  const s = storyForFunnel(id);
-  return {
-    image: s.image,
-    imageAlt: s.imageAlt,
-    accentLabel: s.accentLabel,
-    wash: s.wash,
-    concepts: s.concepts,
-  };
-}
-
 export const FUNNEL_IMAGE = {
   local: LOCAL_IMAGE,
   realty: REALTY_IMAGE,
