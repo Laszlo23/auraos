@@ -1,6 +1,15 @@
 /** Canonical public origin. Every absolute URL in metadata and share links uses this. */
 export const SITE_URL = "https://aibusiness.fun";
 export const SITE_NAME = "Aura OS";
+/** Dedicated Aura Lokal review / feedback machine (separate Node app on the VPS). */
+export const REVIEW_APP_URL = "https://review.aibusiness.fun";
+
+export function reviewAppUrl(path = "/") {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return `${REVIEW_APP_URL}${p}`;
+}
+/** Phone-safe viewport — cover lets iOS/Android honor notch safe-area insets. */
+export const VIEWPORT_CONTENT = "width=device-width, initial-scale=1, viewport-fit=cover";
 export const OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 export const LEGAL_EMAIL = "founders@aibusiness.fun";
 export const LEGAL_UPDATED = "August 11, 2026";
@@ -43,13 +52,13 @@ export {
 } from "@/lib/legal-entity";
 
 /**
- * Fair token launch — 14 Aug 2026, 14:14 Central European Summer Time (UTC+2).
+ * Fair token launch — Monday 17 Aug 2026, 13:11 Central European Summer Time (UTC+2).
  * No ticker / CA until T-0; keep this ISO string as the single countdown source.
  */
-export const TOKEN_LAUNCH_AT = "2026-08-14T14:14:00+02:00";
+export const TOKEN_LAUNCH_AT = "2026-08-17T13:11:00+02:00";
 export const TOKEN_LAUNCH_MS = Date.parse(TOKEN_LAUNCH_AT);
 export const TOKEN_LAUNCH_LABEL = "Fair launch";
-export const TOKEN_LAUNCH_DISPLAY = "14 Aug 2026 · 14:14 CEST";
+export const TOKEN_LAUNCH_DISPLAY = "17 Aug 2026 · 13:11 CEST";
 
 export type SocialLinkId = "x" | "discord" | "telegram" | "farcaster";
 
@@ -99,7 +108,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export const LAUNCH_SHARE_TEXT =
-  "Aura OS fair launch — 14 Aug 2026 at 14:14 CEST. Own a company. Let AI make money. Join the founding cohort before T-0.";
+  "Aura OS fair launch — 17 Aug 2026 at 13:11 CEST. Own a company. Let AI make money. Join the founding cohort before T-0.";
 
 /** Aura OS announce post — like, comment, and quote/share to earn whitelist access. */
 export const AURA_LAUNCH_POST_URL = "https://x.com/buildingcultu3/status/2086020001341870326";
@@ -202,6 +211,13 @@ export const PRODUCT_SURFACES: ProductSurface[] = [
     href: "/lokal",
     group: "product",
     blurb: "Local business growth (DE)",
+  },
+  {
+    id: "wien",
+    label: "Wien · 1.000 Betriebe",
+    href: "/wien",
+    group: "product",
+    blurb: "Vienna hub — reviews, missions, directory",
   },
   {
     id: "nachbar",

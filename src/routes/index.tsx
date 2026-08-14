@@ -241,7 +241,7 @@ const TICKER = [
   "OWN A COMPANY",
   "YOU OWN THE COMPANY",
   "STAFF HAPPEN TO BE AI",
-  "FAIR LAUNCH · 14 AUG 14:14 CEST",
+  "FAIR LAUNCH · 17 AUG 13:11 CEST",
   "CREATE → EXECUTE → EARN → GROW",
   "PROOF OF WORK",
   "FOUNDING COMPANIES",
@@ -763,6 +763,18 @@ function Landing() {
             />
           </div>
           <div className="mt-6 flex flex-wrap gap-3 text-[12px]">
+            <Link to="/whitepaper" className="text-primary underline-offset-2 hover:underline">
+              Whitepaper
+            </Link>
+            <span className="text-muted-foreground/40">·</span>
+            <Link to="/tokenomics" className="text-primary underline-offset-2 hover:underline">
+              Tokenomics
+            </Link>
+            <span className="text-muted-foreground/40">·</span>
+            <Link to="/wien" className="text-primary underline-offset-2 hover:underline">
+              Wien hub
+            </Link>
+            <span className="text-muted-foreground/40">·</span>
             <Link to="/pitch" className="text-primary underline-offset-2 hover:underline">
               Pitch &amp; roadmap decks
             </Link>

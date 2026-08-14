@@ -75,7 +75,7 @@ Connect X (OAuth)
 ```
 
 - Cadence: slots at **09:14 / 13:14 / 18:14 CEST**, quiet before 07:00.
-- Ends at `TOKEN_LAUNCH_AT` (`14 Aug 2026 · 14:14 CEST`) from [`src/lib/site.ts`](../src/lib/site.ts).
+- Ends at `TOKEN_LAUNCH_AT` (`17 Aug 2026 · 13:11 CEST`) from [`src/lib/site.ts`](../src/lib/site.ts).
 - Bodies are ≤280 chars: short line + `https://aibusiness.fun/v/{postId}`.
 - Worker attaches the native MP4 when the X token includes `media.write` (reconnect Channels → X after scope add).
 - Humans can still download MP4s from `/share`.

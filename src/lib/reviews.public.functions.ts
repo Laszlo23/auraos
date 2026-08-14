@@ -1,5 +1,44 @@
 import { createServerFn } from "@tanstack/react-start";
 
+export type PublicLokalListing = {
+  name: string;
+  slug: string;
+  tagline: string | null;
+  city: string | null;
+  niche: string | null;
+  homepage_url: string | null;
+  google_review_url: string | null;
+  local_cohort_number: number | null;
+  emoji: string;
+};
+
+/** Public Vienna / Lokal directory (no auth). */
+export const getPublicLokalDirectory = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: companies } = await supabaseAdmin
+    .from("companies")
+    .select(
+      "name, slug, tagline, city, niche, homepage_url, google_review_url, local_cohort_number, emoji",
+    )
+    .eq("is_local_business", true)
+    .order("local_cohort_number", { ascending: true })
+    .limit(48);
+
+  return (companies ?? [])
+    .filter((c) => Boolean(c.slug) && Boolean(c.name))
+    .map((c) => ({
+      name: String(c.name),
+      slug: String(c.slug),
+      tagline: c.tagline ?? null,
+      city: c.city ?? null,
+      niche: c.niche ?? null,
+      homepage_url: c.homepage_url ?? null,
+      google_review_url: c.google_review_url ?? null,
+      local_cohort_number: c.local_cohort_number ?? null,
+      emoji: c.emoji || "◎",
+    })) satisfies PublicLokalListing[];
+});
+
 /** Public local business card data (no auth). */
 export const getPublicLocalBusiness = createServerFn({ method: "GET" })
   .validator((input: { slug: string }) => {

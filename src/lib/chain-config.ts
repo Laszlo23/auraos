@@ -314,8 +314,8 @@ export function nativeGasBufferWei(
     case "opbnb":
     case "robinhood":
     case "robinhood-testnet":
-      // ~0.00008 ETH — enough for a few Base UserOps, not a $3 holdback.
-      return 8n * 10n ** 13n;
+      // Light Account UserOps on Base need ~0.0003–0.0005 ETH; 0.00008 was reverting max-sends.
+      return 5n * 10n ** 14n;
     default: {
       const _exhaustive: never = network;
       return _exhaustive;

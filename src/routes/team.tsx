@@ -10,14 +10,16 @@ import {
   LEGAL_ENTITY,
   OG_IMAGE,
   SITE_NAME,
+  SITE_URL,
   TOKEN_PRODUCT_SEPARATION,
   legalAddressDisplay,
   url,
 } from "@/lib/site";
+import { WIEN_ORIGIN, WIEN_STICKERS } from "@/lib/wien-story";
 
-const TITLE = `Team & company — ${SITE_NAME}`;
+const TITLE = `Gründungsteam Wien — ${SITE_NAME}`;
 const DESCRIPTION =
-  "Founding team for Aura OS / Ninty LLC, company address, and clear separation from any BCC token.";
+  "Laszlo Bihary, Martina Hammer, Darco, Evreen, Martin. Wie AURA in Wien zsamkemma is — und warum keine Fake-Sterne.";
 
 export const Route = createFileRoute("/team")({
   head: () => ({
@@ -60,14 +62,14 @@ function TeamPage() {
             ← Home
           </Link>
           <nav className="ml-auto flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em]">
+            <Link to="/wien" className="text-muted-foreground hover:text-foreground">
+              Wien
+            </Link>
+            <Link to="/sticker" className="text-muted-foreground hover:text-foreground">
+              Stickers
+            </Link>
             <Link to="/impressum" className="text-muted-foreground hover:text-foreground">
               Impressum
-            </Link>
-            <Link to="/terms" className="text-muted-foreground hover:text-foreground">
-              Terms
-            </Link>
-            <Link to="/tokenomics" className="text-muted-foreground hover:text-foreground">
-              Tokenomics
             </Link>
           </nav>
         </div>
@@ -75,33 +77,42 @@ function TeamPage() {
 
       <div className="relative mx-auto max-w-3xl px-6 py-14 sm:py-20">
         <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">
-          Trust · {LEGAL_ENTITY}
+          Gründungsteam Wien · {LEGAL_ENTITY}
         </p>
         <h1 className="mt-4 font-display text-[clamp(2.4rem,8vw,3.6rem)] font-semibold leading-[0.98] tracking-tight">
-          Founders.
-          <span className="block text-gold">Real names. Clear rails.</span>
+          Fünf Gesichter.
+          <span className="block text-gold">Eine Stadt.</span>
         </h1>
         <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          {SITE_NAME} is operated by {LEGAL_ENTITY}. Below is the founding roster, company contact,
-          and an explicit disclaimer that the product does not run on a BCC token.
+          {SITE_NAME} wird von {LEGAL_ENTITY} betrieben. Unten das Gründungsteam — echte Vornamen,
+          Nachnamen wo schon da. Impressum bleibt bei Laszlo. Stickers sind Drop 0 der Collection,
+          kein Token-Sale.
         </p>
 
         <section className="mt-12">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Founding team
+            Crew
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {FOUNDERS.map((f, i) => (
+            {FOUNDERS.map((f) => (
               <article
                 key={f.id}
                 className="rounded-3xl border border-border/50 bg-card/20 px-5 py-5"
               >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  Founder {i + 1}
+                <img
+                  src={f.avatar}
+                  alt=""
+                  width={512}
+                  height={512}
+                  className="h-28 w-28 rounded-2xl object-cover ring-1 ring-border/40"
+                />
+                <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  {f.title}
                 </p>
-                <h2 className="mt-2 font-display text-xl font-semibold tracking-tight">
-                  {f.name ?? "To be announced"}
-                </h2>
+                <h2 className="mt-2 font-display text-xl font-semibold tracking-tight">{f.name}</h2>
+                {f.lastNamePending ? (
+                  <p className="mt-1 text-[11px] text-muted-foreground/80">Nachname folgt</p>
+                ) : null}
                 <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{f.blurb}</p>
                 {f.linkedin ? (
                   <a
@@ -113,10 +124,61 @@ function TeamPage() {
                     LinkedIn <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 ) : (
-                  <p className="mt-4 text-[11px] text-muted-foreground/80">Profile coming soon</p>
+                  <p className="mt-4 text-[11px] text-muted-foreground/80">Profil folgt</p>
                 )}
               </article>
             ))}
+          </div>
+        </section>
+
+        <section id="origin" className="mt-14">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            {WIEN_ORIGIN.kicker}
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            {WIEN_ORIGIN.kickerEn}
+          </h2>
+          <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+            {WIEN_ORIGIN.lead}
+          </p>
+          <ol className="mt-6 space-y-5">
+            {WIEN_ORIGIN.beats.map((b) => (
+              <li key={b.no} className="border-t border-border/40 pt-5">
+                <p className="num text-[11px] font-semibold text-gold">{b.no}</p>
+                <h3 className="mt-1 font-display text-lg font-semibold tracking-tight">
+                  {b.title}
+                </h3>
+                <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{b.de}</p>
+                <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground/70">{b.en}</p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-6 border-l-2 border-primary/50 pl-4 text-[15px] font-medium leading-relaxed">
+            {WIEN_ORIGIN.close}
+          </p>
+        </section>
+
+        <section className="mt-14 rounded-3xl border border-border/40 bg-foreground/[0.03] px-5 py-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            {WIEN_STICKERS.drop}
+          </p>
+          <h2 className="mt-2 font-display text-xl font-semibold tracking-tight">
+            {WIEN_STICKERS.name}
+          </h2>
+          <p className="mt-2 text-[13px] text-muted-foreground">{WIEN_STICKERS.blurb}</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              to="/sticker"
+              className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
+            >
+              Sticker-Pack
+            </Link>
+            <Link
+              to="/wien"
+              className="rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
+            >
+              Wien-Hub
+            </Link>
           </div>
         </section>
 
@@ -149,6 +211,7 @@ function TeamPage() {
             <Link to="/impressum" className="text-primary hover:underline">
               /impressum
             </Link>
+            . Nur Laszlo ist inhaltlich verantwortlich.
           </p>
         </section>
 
@@ -171,7 +234,13 @@ function TeamPage() {
         </section>
       </div>
 
-      <SiteFooter />
+      <SiteFooter
+        share={{
+          url: `${SITE_URL}/team`,
+          text: "Gründungsteam Wien — Laszlo, Martina, Darco, Evreen, Martin. Wie’s zsamkemma is.",
+          placement: "team",
+        }}
+      />
     </main>
   );
 }

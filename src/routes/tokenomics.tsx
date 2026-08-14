@@ -3,13 +3,20 @@ import { Download } from "lucide-react";
 
 import { Chip, Panel } from "@/components/aura/primitives";
 import { SiteFooter } from "@/components/aura/site-footer";
+import {
+  AURA_ALLOCATIONS,
+  AURA_BUY_PLAN,
+  AURA_MAX_SUPPLY_DISPLAY,
+  AURA_TEAM_VESTING,
+  formatAuraAmount,
+} from "@/lib/aura-token";
 import { OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
 import { TOKEN_DISCLAIMER, TOKENOMICS } from "@/lib/tokenomics";
 
-const TITLE = "AURA tokenomics — ecosystem layer, product first";
+const TITLE = "AURA tokenomics — 777,777,777 supply, product first";
 const DESCRIPTION =
-  "Subscriptions are the Aura OS business. AURA is the ecosystem utility and incentive layer. Fair launch plan, utility, risk controls — no invented supply tables.";
+  "Fixed maximum supply 777,777,777 AURA. Subscriptions are the Aura OS business. Fair launch plan, allocation table, and how to buy only after the official Base CA is published.";
 
 export const Route = createFileRoute("/tokenomics")({
   head: () => ({
@@ -50,6 +57,9 @@ function TokenomicsPage() {
             ← Home
           </Link>
           <nav className="ml-auto flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em]">
+            <Link to="/wien" className="text-muted-foreground hover:text-foreground">
+              Wien
+            </Link>
             <Link to="/lightpaper" className="text-muted-foreground hover:text-foreground">
               Lightpaper
             </Link>
@@ -88,6 +98,68 @@ function TokenomicsPage() {
         </p>
 
         <section className="mt-12">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Supply
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            {AURA_MAX_SUPPLY_DISPLAY} AURA
+          </h2>
+          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
+            Fixed maximum supply. Proposed allocation — not a finalized legal offering. Team:{" "}
+            {AURA_TEAM_VESTING.note}
+          </p>
+          <div className="mt-5 overflow-x-auto rounded-2xl border border-border/40">
+            <table className="w-full min-w-[28rem] text-left text-[13px]">
+              <thead className="bg-foreground/[0.03] text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2.5 font-semibold">Allocation</th>
+                  <th className="px-4 py-2.5 text-right font-semibold">Share</th>
+                  <th className="px-4 py-2.5 text-right font-semibold">AURA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {AURA_ALLOCATIONS.map((a) => (
+                  <tr key={a.id} className="border-t border-border/30">
+                    <td className="px-4 py-2.5 text-muted-foreground">{a.label}</td>
+                    <td className="num px-4 py-2.5 text-right">{a.pct}%</td>
+                    <td className="num px-4 py-2.5 text-right">{formatAuraAmount(a.amount)}</td>
+                  </tr>
+                ))}
+                <tr className="border-t border-border/50">
+                  <td className="px-4 py-2.5 font-semibold">Total</td>
+                  <td className="num px-4 py-2.5 text-right font-semibold">100%</td>
+                  <td className="num px-4 py-2.5 text-right font-semibold">
+                    {AURA_MAX_SUPPLY_DISPLAY}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="mt-14">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            How to buy
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            {AURA_BUY_PLAN.headline}
+          </h2>
+          <ol className="mt-5 space-y-3">
+            {AURA_BUY_PLAN.steps.map((step, i) => (
+              <li key={step.t} className="flex items-start gap-3 text-[14px]">
+                <span className="num grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">
+                  {i + 1}
+                </span>
+                <span className="pt-0.5">
+                  <span className="font-semibold text-foreground">{step.t}.</span>{" "}
+                  <span className="text-muted-foreground">{step.d}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="mt-14">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
             Core revenue
           </p>
@@ -187,9 +259,8 @@ function TokenomicsPage() {
             ))}
           </ol>
           <p className="mt-4 text-[13px] text-muted-foreground">
-            Total supply, vesting cliffs, and exchange listings are{" "}
-            <span className="text-foreground">not published yet</span> — we will not invent a pie
-            chart. When CA and supply are live, this page updates from the same source of truth.
+            Supply and allocation are published above. The contract address is published only at
+            T-0 on aibusiness.fun and X @buildingcultu3. Listings are not promised.
           </p>
         </section>
 
@@ -209,10 +280,16 @@ function TokenomicsPage() {
             <Download className="h-3.5 w-3.5" /> Token strategy deck
           </a>
           <Link
-            to="/lightpaper"
+            to="/whitepaper"
             className="inline-flex items-center rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
           >
-            Lightpaper →
+            Whitepaper →
+          </Link>
+          <Link
+            to="/wien"
+            className="inline-flex items-center rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
+          >
+            Wien hub →
           </Link>
         </div>
       </div>

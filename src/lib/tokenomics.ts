@@ -1,7 +1,6 @@
 /**
- * Canonical narrative for tokenomics / lightpaper / whitepaper pages.
- * Sourced from public decks (Investor Presentation + Product/Token Strategy).
- * Do not invent total supply, FDV, or allocation % — those are not published yet.
+ * Canonical narrative for tokenomics / lightpaper / OS product addendum.
+ * Market-token supply and allocation live in `aura-token.ts` (777,777,777 AURA).
  */
 
 import { TOKEN_LAUNCH_DISPLAY, SITE_URL } from "@/lib/site";
@@ -116,7 +115,7 @@ export const WHITEPAPER_SECTIONS = [
   {
     id: "token",
     title: "7. Token & fair launch",
-    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading.`,
+    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No contract address until T-0.`,
   },
   {
     id: "desks",
@@ -159,11 +158,11 @@ export const LIGHTPAPER = {
     },
     {
       h: "What the token is for",
-      p: "Ecosystem participation, rewards, progression, and agent-economy utility around the product — not the primary P&L.",
+      p: "Ecosystem participation, rewards, progression, and agent-economy utility around the product — not the primary P&L. Fixed maximum supply: 777,777,777 AURA.",
     },
     {
       h: "Fair launch",
-      p: `${TOKEN_LAUNCH_DISPLAY}. €6k initial market-ops plan (€3k buy + €3k across 30 capped agents). Volume targets are not guarantees.`,
+      p: `${TOKEN_LAUNCH_DISPLAY}. €6k initial market-ops plan (€3k buy + €3k across 30 capped agents). No contract address until T-0. Volume targets are not guarantees.`,
     },
     {
       h: "Control",

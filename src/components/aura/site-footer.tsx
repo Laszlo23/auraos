@@ -20,6 +20,9 @@ const SITE_LINKS = [
   { to: "/grants", label: "Grants" },
   { to: "/", label: "Waitlist", hash: "community" },
   { to: "/team", label: "Team" },
+  { to: "/wien", label: "Wien" },
+  { to: "/sticker", label: "Stickers" },
+  { to: "/review", label: "Reviews" },
   { to: "/tokenomics", label: "Tokenomics" },
   { to: "/lightpaper", label: "Lightpaper" },
   { to: "/whitepaper", label: "Whitepaper" },
@@ -45,6 +48,7 @@ function ProductSwitcher() {
     const exact = PRODUCT_SURFACES.find((p) => p.href === pathname);
     if (exact) return exact.id;
     if (pathname.startsWith("/nachbar")) return "nachbar";
+    if (pathname === "/wien" || pathname === "/review" || pathname === "/sticker") return "wien";
     if (pathname.startsWith("/for/")) {
       const slug = pathname.split("/")[2];
       const match = PRODUCT_SURFACES.find((p) => p.href === `/for/${slug}`);

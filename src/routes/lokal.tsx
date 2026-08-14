@@ -27,7 +27,7 @@ import {
 import { AURA_REPUTATION_EUR } from "@/lib/boost-packs";
 import { LOCAL_COHORT_CAP } from "@/lib/funnels";
 import { t as translate } from "@/lib/i18n";
-import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { OG_IMAGE, REVIEW_APP_URL, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/lokal")({
   head: () => ({
@@ -122,6 +122,20 @@ function LokalLandingPage() {
             {SITE_NAME}
           </Link>
           <span className="font-display text-lg font-medium text-white/60 sm:text-xl">Lokal</span>
+          <Link
+            to="/wien"
+            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70 sm:inline"
+          >
+            Wien
+          </Link>
+          <a
+            href={REVIEW_APP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70 sm:inline"
+          >
+            Reviews
+          </a>
           <LanguageToggle className="ml-auto border-white/25 bg-black/30 text-white" />
           <a
             href={loginHref}
@@ -182,6 +196,12 @@ function LokalLandingPage() {
             className="rounded-2xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_12px_40px_-18px_oklch(0.55_0.12_200)] transition-transform hover:scale-[1.02]"
           >
             {tr("lokal.ctaAudit")}
+          </Link>
+          <Link
+            to="/wien"
+            className="rounded-2xl border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm"
+          >
+            Wien-Übersicht
           </Link>
           <a
             href="#story"

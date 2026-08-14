@@ -35,6 +35,9 @@ export function ensureUiLocale(explicit?: UiLocale | null): UiLocale {
     const lokalSurface =
       path === "/lokal" ||
       path.startsWith("/lokal/") ||
+      path === "/wien" ||
+      path === "/sticker" ||
+      path === "/review" ||
       path.startsWith("/nachbar") ||
       path === "/heute" ||
       path === "/bewertungen" ||

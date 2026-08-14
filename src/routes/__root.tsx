@@ -17,7 +17,7 @@ import { AppBootLoader, PageProgress } from "@/components/aura/page-loader";
 import { Toaster } from "@/components/ui/sonner";
 import { LocaleProvider, useLocale } from "@/hooks/use-locale";
 import { usePwa } from "@/hooks/use-pwa";
-import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { OG_IMAGE, SITE_NAME, SITE_URL, VIEWPORT_CONTENT } from "@/lib/site";
 import { baseAppId } from "@/lib/base-builder";
 import { rootOrganizationGraph } from "@/lib/seo";
 
@@ -129,7 +129,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: VIEWPORT_CONTENT },
       { title: "Aura OS — The AI Company Operating System" },
       {
         name: "description",

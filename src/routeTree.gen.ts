@@ -25,12 +25,15 @@ import { Route as NachbarRouteRouteImport } from './routes/nachbar/route'
 import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProofRouteImport } from './routes/proof'
+import { Route as ReviewRouteImport } from './routes/review'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ShareRouteImport } from './routes/share'
+import { Route as StickerRouteImport } from './routes/sticker'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
 import { Route as WhitepaperRouteImport } from './routes/whitepaper'
+import { Route as WienRouteImport } from './routes/wien'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
 import { Route as AuthenticatedAkquiseRouteImport } from './routes/_authenticated/akquise'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
@@ -198,6 +201,11 @@ const ProofRoute = ProofRouteImport.update({
   path: '/proof',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewRoute = ReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RoadmapRoute = RoadmapRouteImport.update({
   id: '/roadmap',
   path: '/roadmap',
@@ -206,6 +214,11 @@ const RoadmapRoute = RoadmapRouteImport.update({
 const ShareRoute = ShareRouteImport.update({
   id: '/share',
   path: '/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StickerRoute = StickerRouteImport.update({
+  id: '/sticker',
+  path: '/sticker',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamRoute = TeamRouteImport.update({
@@ -226,6 +239,11 @@ const TokenomicsRoute = TokenomicsRouteImport.update({
 const WhitepaperRoute = WhitepaperRouteImport.update({
   id: '/whitepaper',
   path: '/whitepaper',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WienRoute = WienRouteImport.update({
+  id: '/wien',
+  path: '/wien',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAgentsRoute = AuthenticatedAgentsRouteImport.update({
@@ -691,12 +709,15 @@ export interface FileRoutesByFullPath {
   '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
+  '/review': typeof ReviewRoute
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
+  '/sticker': typeof StickerRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
   '/whitepaper': typeof WhitepaperRoute
+  '/wien': typeof WienRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/akquise': typeof AuthenticatedAkquiseRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -800,12 +821,15 @@ export interface FileRoutesByTo {
   '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
+  '/review': typeof ReviewRoute
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
+  '/sticker': typeof StickerRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
   '/whitepaper': typeof WhitepaperRoute
+  '/wien': typeof WienRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/akquise': typeof AuthenticatedAkquiseRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
@@ -912,12 +936,15 @@ export interface FileRoutesById {
   '/pitch': typeof PitchRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
+  '/review': typeof ReviewRoute
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
+  '/sticker': typeof StickerRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
   '/whitepaper': typeof WhitepaperRoute
+  '/wien': typeof WienRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
   '/_authenticated/akquise': typeof AuthenticatedAkquiseRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
@@ -1024,12 +1051,15 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/privacy'
     | '/proof'
+    | '/review'
     | '/roadmap'
     | '/share'
+    | '/sticker'
     | '/team'
     | '/terms'
     | '/tokenomics'
     | '/whitepaper'
+    | '/wien'
     | '/agents'
     | '/akquise'
     | '/analytics'
@@ -1133,12 +1163,15 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/privacy'
     | '/proof'
+    | '/review'
     | '/roadmap'
     | '/share'
+    | '/sticker'
     | '/team'
     | '/terms'
     | '/tokenomics'
     | '/whitepaper'
+    | '/wien'
     | '/agents'
     | '/akquise'
     | '/analytics'
@@ -1244,12 +1277,15 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/privacy'
     | '/proof'
+    | '/review'
     | '/roadmap'
     | '/share'
+    | '/sticker'
     | '/team'
     | '/terms'
     | '/tokenomics'
     | '/whitepaper'
+    | '/wien'
     | '/_authenticated/agents'
     | '/_authenticated/akquise'
     | '/_authenticated/analytics'
@@ -1356,12 +1392,15 @@ export interface RootRouteChildren {
   PitchRoute: typeof PitchRoute
   PrivacyRoute: typeof PrivacyRoute
   ProofRoute: typeof ProofRoute
+  ReviewRoute: typeof ReviewRoute
   RoadmapRoute: typeof RoadmapRoute
   ShareRoute: typeof ShareRoute
+  StickerRoute: typeof StickerRoute
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TokenomicsRoute: typeof TokenomicsRoute
   WhitepaperRoute: typeof WhitepaperRoute
+  WienRoute: typeof WienRoute
   ApiCeoRoute: typeof ApiCeoRoute
   BSlugRoute: typeof BSlugRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -1519,6 +1558,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProofRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/review': {
+      id: '/review'
+      path: '/review'
+      fullPath: '/review'
+      preLoaderRoute: typeof ReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/roadmap': {
       id: '/roadmap'
       path: '/roadmap'
@@ -1531,6 +1577,13 @@ declare module '@tanstack/react-router' {
       path: '/share'
       fullPath: '/share'
       preLoaderRoute: typeof ShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sticker': {
+      id: '/sticker'
+      path: '/sticker'
+      fullPath: '/sticker'
+      preLoaderRoute: typeof StickerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/team': {
@@ -1559,6 +1612,13 @@ declare module '@tanstack/react-router' {
       path: '/whitepaper'
       fullPath: '/whitepaper'
       preLoaderRoute: typeof WhitepaperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wien': {
+      id: '/wien'
+      path: '/wien'
+      fullPath: '/wien'
+      preLoaderRoute: typeof WienRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/agents': {
@@ -2312,12 +2372,15 @@ const rootRouteChildren: RootRouteChildren = {
   PitchRoute: PitchRoute,
   PrivacyRoute: PrivacyRoute,
   ProofRoute: ProofRoute,
+  ReviewRoute: ReviewRoute,
   RoadmapRoute: RoadmapRoute,
   ShareRoute: ShareRoute,
+  StickerRoute: StickerRoute,
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TokenomicsRoute: TokenomicsRoute,
   WhitepaperRoute: WhitepaperRoute,
+  WienRoute: WienRoute,
   ApiCeoRoute: ApiCeoRoute,
   BSlugRoute: BSlugRoute,
   BlogSlugRoute: BlogSlugRoute,

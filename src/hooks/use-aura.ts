@@ -30,6 +30,7 @@ export type Company = {
   local_cohort_number?: number | null;
   ui_locale?: string | null;
   local_seat_paid_at?: string | null;
+  pulse_paper_usdc?: number | null;
 };
 
 export function useCompany() {

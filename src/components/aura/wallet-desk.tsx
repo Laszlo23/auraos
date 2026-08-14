@@ -416,8 +416,8 @@ export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: Hold
           },
           {
             k: "Pulse",
-            v: "Paper bankroll",
-            h: "Demo game on Grow — not this wallet",
+            v: `${currency(Number(company?.pulse_paper_usdc ?? 0), 2)}`,
+            h: "Paper bankroll on Grow — not on-chain cash",
           },
         ].map((row) => (
           <div

@@ -89,9 +89,9 @@ const STACK = [
   },
 ];
 
-const TEAM = FOUNDERS.map((f, i) => ({
-  role: f.name ? `${f.role} · ${f.name}` : `Founder ${i + 1} · TBA`,
-  note: f.blurb,
+const TEAM = FOUNDERS.map((f) => ({
+  role: `${f.title} · ${f.name}`,
+  note: f.blurbEn,
   linkedin: f.linkedin,
 }));
 

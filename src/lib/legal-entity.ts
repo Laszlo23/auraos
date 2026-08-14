@@ -1,54 +1,78 @@
 /**
  * Legal entity, founders, and trust copy for Aura OS / Ninty LLC.
  * Keep street address accurate — do not invent lines.
+ * Impressum-responsible person is Laszlo only. The Wien crew is public team, not legal officers.
  */
 
-export type FounderPublic = {
+export type TeamPublic = {
   id: string;
-  /** Display name; null = placeholder until published. */
-  name: string | null;
-  role: "Founder";
+  name: string;
+  /** True when family name is withheld on purpose. */
+  lastNamePending?: boolean;
+  /** Public crew label — not a statutory title. */
+  title: string;
   linkedin: string | null;
-  /** Short public blurb. */
   blurb: string;
+  blurbEn: string;
+  avatar: string;
+  /** Only the operator is listed as Impressum-responsible. */
+  impressum: boolean;
 };
 
-/** Five-founder roster. Names/links fill in as founders consent to publish. */
-export const FOUNDERS: FounderPublic[] = [
+/** Named Gründungsteam Wien. Empty TBA slots are gone. */
+export const FOUNDERS: TeamPublic[] = [
   {
     id: "laszlo-bihary",
     name: "Laszlo Bihary",
-    role: "Founder",
+    title: "Operator · Aura OS",
     linkedin: "https://www.linkedin.com/in/laszlo-bihary/",
-    blurb: "Product, Web3 & AI — vision and go-to-market for Aura OS.",
+    blurb: "Product, Web3 & AI — Vision und Go-to-Market für Aura OS.",
+    blurbEn: "Product, Web3 & AI — vision and go-to-market for Aura OS.",
+    avatar: "/crew/laszlo.png",
+    impressum: true,
   },
   {
-    id: "founder-2",
-    name: null,
-    role: "Founder",
+    id: "martina-hammer",
+    name: "Martina Hammer",
+    title: "Gründungsteam Wien",
     linkedin: null,
-    blurb: "Founding team member — name to be published.",
+    blurb: "Betriebe, Menschen, der Laden, der sich anfühlt wie ein Laden.",
+    blurbEn: "Shops, people, the place that still feels like a place.",
+    avatar: "/crew/martina.png",
+    impressum: false,
   },
   {
-    id: "founder-3",
-    name: null,
-    role: "Founder",
+    id: "darco",
+    name: "Darco",
+    lastNamePending: true,
+    title: "Gründungsteam Wien",
     linkedin: null,
-    blurb: "Founding team member — name to be published.",
+    blurb: "Straße, Community, der der zuerst fragt.",
+    blurbEn: "Street, community, the one who asks first.",
+    avatar: "/crew/darco.png",
+    impressum: false,
   },
   {
-    id: "founder-4",
-    name: null,
-    role: "Founder",
+    id: "evreen",
+    name: "Evreen",
+    lastNamePending: true,
+    title: "Gründungsteam Wien",
     linkedin: null,
-    blurb: "Founding team member — name to be published.",
+    blurb: "Funke, Content, der der den Tisch zum Lachen bringt.",
+    blurbEn: "Spark, content, the one who gets the table laughing.",
+    avatar: "/crew/evreen.png",
+    impressum: false,
   },
   {
-    id: "founder-5",
-    name: null,
-    role: "Founder",
+    id: "martin",
+    name: "Martin",
+    lastNamePending: true,
+    title: "Gründungsteam Wien",
     linkedin: null,
-    blurb: "Founding team member — name to be published.",
+    blurb: "Der der den Betrieb zusammenhält, wenn’s ernst wird.",
+    blurbEn: "The one who holds the shop together when it gets serious.",
+    avatar: "/crew/martin.png",
+    impressum: false,
   },
 ];
 
@@ -89,6 +113,10 @@ export function legalAddressDisplay(): string[] {
   return out;
 }
 
-export function publishedFounders(): FounderPublic[] {
+export function publishedFounders(): TeamPublic[] {
   return FOUNDERS.filter((f) => Boolean(f.name));
+}
+
+export function impressumContact(): TeamPublic {
+  return FOUNDERS.find((f) => f.impressum) ?? FOUNDERS[0];
 }

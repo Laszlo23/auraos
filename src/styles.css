@@ -171,6 +171,9 @@
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -179,6 +182,8 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv01", "cv11";
     letter-spacing: -0.011em;
+    min-height: 100dvh;
+    overflow-x: clip;
   }
 
   h1, h2, h3, h4 {

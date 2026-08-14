@@ -82,11 +82,11 @@ function ImpressumPage() {
           .
         </p>
         <p>
-          Full team roster:{" "}
+          Public Wien crew (not legal officers):{" "}
           <Link to="/team" className="text-primary hover:underline">
             /team
           </Link>
-          {named.length > 1 ? ` (${named.length} founders published)` : null}.
+          {named.length > 1 ? ` · ${named.length} names published` : null}.
         </p>
       </LegalSection>
 

@@ -56,7 +56,7 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     id: "fair-launch",
     when: TOKEN_LAUNCH_DISPLAY,
     title: "Fair launch day",
-    joke: "14:14 because romance is a schedule, not a vibe check.",
+    joke: "13:11 because romance is a schedule, not a vibe check.",
     body: "Ecosystem token layer goes live with the published ops plan — product subscriptions stay the business. Targets ≠ guarantees.",
     status: "next",
     kind: "love",
