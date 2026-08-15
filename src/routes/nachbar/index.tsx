@@ -9,7 +9,8 @@ import {
   NACHBAR_FRIEND_BONUS,
   NACHBAR_WELCOME_GRANT,
 } from "@/lib/nachbar";
-import { OG_IMAGE, SITE_URL } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/nachbar/")({
   head: () => ({
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/nachbar/")({
       },
       { property: "og:title", content: "Aura Nachbar" },
       { property: "og:url", content: `${SITE_URL}/nachbar` },
-      { property: "og:image", content: OG_IMAGE },
+      ...ogCampaignMeta("nachbar"),
       { property: "og:locale", content: "de_DE" },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/nachbar` }],

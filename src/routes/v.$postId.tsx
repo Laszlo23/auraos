@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { ShareBar } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { WienWaveLoop } from "@/components/aura/wien-wave-loop";
 import {
   downloadShareVideo,
   fetchShareVideoFile,
@@ -336,6 +337,8 @@ function WatchPage() {
               Open full share kit →
             </Link>
           </div>
+
+          <WienWaveLoop current={post} />
         </div>
       </div>
 

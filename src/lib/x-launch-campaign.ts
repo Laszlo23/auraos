@@ -12,8 +12,12 @@ export type LaunchDripSlot = {
   scheduledAt: string;
 };
 
-/** Clip rotation: Quant desk lead, then strongest kit posts. */
+/** Clip rotation: Wien wave first, then Quant desk + strongest kit posts. */
 const ROTATION_IDS = [
+  "wien",
+  "oida",
+  "checkout",
+  "1fromweek",
   "auraos-bedroom",
   "4am",
   "donotsleep",
@@ -29,6 +33,26 @@ const ROTATION_IDS = [
 
 /** Short X-native lines (before URL). Keep under ~200 so URL fits in 280. */
 const X_LINES: Record<string, string[]> = {
+  wien: [
+    "Ned in einem WeWork. In Wien. Cracked screen. Real street.",
+    "Ottakring. Echt. Ehrlich. No pitch deck required.",
+    "Homepage still in Überarbeitung. That's ok. We start here.",
+  ],
+  oida: [
+    "Geschäft wird geschlossen. Danke für euere Treue. Herz.",
+    "No judgment. Just the now. A thank-you on a shutter is still a business.",
+    "See the little things. Be grateful they were here.",
+  ],
+  checkout: [
+    "€500 BAR vs empty stars. Oida, ned des.",
+    "We don't buy Google. We buy a Melange after a real visit.",
+    "Reputation isn't an envelope. It's a neighbor who came back.",
+  ],
+  "1fromweek": [
+    "Week 1. Share kit live. Not perfect. Present. Grateful. Shipping.",
+    "Command center in the mountains. Heart still in Wien.",
+    "See the little things. Keep the love. Stay in the now.",
+  ],
   "4am": [
     "It's 4am. Coffee for me. Ship log for the agents.",
     "Woke up early. The company was already mid-sprint.",

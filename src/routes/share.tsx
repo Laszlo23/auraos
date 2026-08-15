@@ -3,32 +3,31 @@ import { ArrowLeft } from "lucide-react";
 
 import { ShareKit } from "@/components/aura/share-kit";
 import { SiteFooter } from "@/components/aura/site-footer";
-import { LAUNCH_SHARE_TEXT, OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { LAUNCH_SHARE_TEXT, SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 
 export const Route = createFileRoute("/share")({
   head: () => ({
     meta: [
-      { title: "Share kit — hosted Aura OS clips + captions | Aura OS" },
+      { title: "Share kit — Wien wave + hosted Aura OS clips | Aura OS" },
       {
         name: "description",
-        content: `Share free Aura OS watch links and captions — or download MP4s for native upload. Fair launch ${TOKEN_LAUNCH_DISPLAY}. No login.`,
+        content: `Wien wave: Schmäh with love, no judging, just the now. Steal captions and share hosted watch links. Fair launch ${TOKEN_LAUNCH_DISPLAY}. No login.`,
       },
-      { property: "og:title", content: "Aura OS share kit — steal these posts" },
+      { property: "og:title", content: "Aura OS share kit — Wien wave" },
       {
         property: "og:description",
         content:
-          "Funny captions + hosted watch pages. Share the link, or download for LinkedIn/TikTok native upload.",
+          "New Wien clips first. Copy a caption, send a neighbor the watch link. Or download for LinkedIn/TikTok native upload.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/share` },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Aura OS share kit — steal these posts" },
+      ...ogCampaignMeta("share"),
+      { name: "twitter:title", content: "Aura OS share kit — Wien wave" },
       {
         name: "twitter:description",
-        content: "Hosted clips + captions. Share the watch link. Free for everyone.",
+        content: "Kein Urteil. Nur jetzt. Hosted clips + captions. Share with a neighbor.",
       },
-      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/share` }],
   }),

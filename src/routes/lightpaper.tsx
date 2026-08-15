@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download } from "lucide-react";
 
 import { SiteFooter } from "@/components/aura/site-footer";
-import { OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { LIGHTPAPER, TOKEN_DISCLAIMER, TOKENOMICS } from "@/lib/tokenomics";
 
 const TITLE = "Aura OS Lightpaper — own a company, AI executes";
@@ -18,8 +19,7 @@ export const Route = createFileRoute("/lightpaper")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "article" },
       { property: "og:url", content: url("/lightpaper") },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...ogCampaignMeta("token"),
     ],
     links: [{ rel: "canonical", href: url("/lightpaper") }],
   }),

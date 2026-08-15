@@ -10,7 +10,7 @@ export function reviewAppUrl(path = "/") {
 }
 /** Phone-safe viewport — cover lets iOS/Android honor notch safe-area insets. */
 export const VIEWPORT_CONTENT = "width=device-width, initial-scale=1, viewport-fit=cover";
-export const OG_IMAGE = `${SITE_URL}/og-image.jpg`;
+export const OG_IMAGE = `${SITE_URL}/og/home.jpg`;
 export const LEGAL_EMAIL = "founders@aibusiness.fun";
 export const LEGAL_UPDATED = "August 11, 2026";
 /** Public support contact shown on Stripe Checkout / legal pages. */
@@ -23,7 +23,7 @@ export const url = (path = "/") => `${SITE_URL}${path.startsWith("/") ? path : `
  * Bump when public media must bypass stale CDN/browser caches
  * (e.g. after a mistaken immutable Cache-Control on 403 responses).
  */
-export const MEDIA_CACHE_BUST = "20260812funnels";
+export const MEDIA_CACHE_BUST = "20260815wienwave";
 
 /** Public asset path with cache-bust query (videos, posters). */
 export function mediaPath(path: string) {

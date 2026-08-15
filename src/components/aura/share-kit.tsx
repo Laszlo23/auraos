@@ -15,14 +15,17 @@ import {
 } from "lucide-react";
 
 import { ShareBar } from "@/components/aura/share";
+import { WienWaveLoop } from "@/components/aura/wien-wave-loop";
 import {
   downloadShareVideo,
   fetchShareVideoFile,
+  isWienWave,
   SHARE_POSTS,
   shareKitUrl,
   sharePosterSrc,
   shareVideoSrc,
   shareWatchUrl,
+  wienWavePosts,
   type SharePost,
 } from "@/lib/share-posts";
 import { SITE_URL } from "@/lib/site";
@@ -44,7 +47,8 @@ export function ShareKit({
   className?: string;
   placement?: string;
 }) {
-  const [activeId, setActiveId] = useState(SHARE_POSTS[0]?.id ?? "auraos-bedroom");
+  const [activeId, setActiveId] = useState(SHARE_POSTS[0]?.id ?? "wien");
+  const [filter, setFilter] = useState<"wave" | "all">("wave");
   const [captionIx, setCaptionIx] = useState(0);
   const [copied, setCopied] = useState<"caption" | "link" | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -52,9 +56,13 @@ export function ShareKit({
   const [busy, setBusy] = useState<"dl" | "native" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const catalog = useMemo(
+    () => (filter === "wave" ? wienWavePosts() : SHARE_POSTS),
+    [filter],
+  );
   const post = useMemo(
-    () => SHARE_POSTS.find((p) => p.id === activeId) ?? SHARE_POSTS[0]!,
-    [activeId],
+    () => catalog.find((p) => p.id === activeId) ?? catalog[0] ?? SHARE_POSTS[0]!,
+    [activeId, catalog],
   );
   const caption = pickCaption(post, captionIx);
   const watchUrl = shareWatchUrl(post.id);
@@ -65,6 +73,8 @@ export function ShareKit({
     const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : "";
     if (hash && SHARE_POSTS.some((p) => p.id === hash)) {
       setActiveId(hash);
+      const hashed = SHARE_POSTS.find((p) => p.id === hash);
+      if (hashed && !isWienWave(hashed)) setFilter("all");
     }
   }, []);
 
@@ -90,7 +100,7 @@ export function ShareKit({
   };
 
   const remix = () => {
-    const nextPost = SHARE_POSTS[Math.floor(Math.random() * SHARE_POSTS.length)]!;
+    const nextPost = catalog[Math.floor(Math.random() * catalog.length)]!;
     const nextCap = Math.floor(Math.random() * nextPost.captions.length);
     setActiveId(nextPost.id);
     setCaptionIx(nextCap);
@@ -228,15 +238,15 @@ export function ShareKit({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-            Share kit · free for everyone
+            Wien wave · Schmäh with love
           </p>
           <h1 className="mt-2 font-display text-[clamp(1.75rem,5vw,2.75rem)] leading-[0.98] tracking-tight">
             Steal these posts.
-            <span className="block text-muted-foreground">Share the hosted clip.</span>
+            <span className="block text-muted-foreground">Kein Urteil. Nur jetzt.</span>
           </h1>
           <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
-            Pick a clip, copy a caption, and share the watch link — the video stays hosted on Aura.
-            Download the MP4 only when a platform needs a native upload (LinkedIn, TikTok, Reels).
+            Four new Wien clips plus the classic kit. Copy a caption, share the watch link with a
+            neighbor. Download the MP4 only when a platform needs a native upload.
           </p>
         </div>
         <button
@@ -248,8 +258,36 @@ export function ShareKit({
         </button>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {(
+          [
+            ["wave", "Wien wave"],
+            ["all", "All clips"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => {
+              setFilter(id);
+              if (id === "wave" && !isWienWave(post)) {
+                setActiveId(wienWavePosts()[0]?.id ?? post.id);
+              }
+            }}
+            className={cn(
+              "rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors",
+              filter === id
+                ? "border-primary/50 bg-primary/12 text-foreground"
+                : "border-border/50 text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {SHARE_POSTS.map((p) => {
+        {catalog.map((p) => {
           const on = p.id === post.id;
           return (
             <button
@@ -265,6 +303,7 @@ export function ShareKit({
             >
               <span className="block text-[11px] font-semibold">{p.title}</span>
               <span className="mt-0.5 block text-[10px] uppercase tracking-[0.16em] opacity-70">
+                {p.campaign === "wien-schmah" ? "Wien · " : ""}
                 {p.aspect === "vertical" ? "9:16" : "16:9"} · {p.duration}
               </span>
             </button>
@@ -416,6 +455,8 @@ export function ShareKit({
             </div>
           </div>
 
+          <WienWaveLoop current={post} />
+
           <div className="rounded-[1.5rem] border border-border/50 bg-white/[0.03] p-5">
             <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
               Share this kit
@@ -465,15 +506,15 @@ export function ShareKitTeaser({ className }: { className?: string }) {
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-              Free share kit
+              Wien wave · free share kit
             </p>
             <h2 className="mt-2 font-display text-[clamp(2rem,6vw,3.1rem)] leading-[0.98] tracking-tight">
-              Funny posts.
+              Schmäh with love.
               <span className="block text-primary">Hosted clips.</span>
             </h2>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-              You own the company. The staff just happen to be AI — captions and watch links that
-              sound like that, not a press release. Download for native upload when you need it.
+              New Wien cuts first — no judging, just the now. Copy a caption, send a neighbor the
+              watch link. Download for native upload when you need it.
             </p>
             <ul className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               <li className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">

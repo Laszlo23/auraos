@@ -39,6 +39,10 @@
   <url><loc>https://aibusiness.fun/auth</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://aibusiness.fun/company/aura-goods</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
   <!-- Share videos -->
+  <url><loc>https://aibusiness.fun/v/wien</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/v/oida</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/v/checkout</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aibusiness.fun/v/1fromweek</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://aibusiness.fun/v/4am</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://aibusiness.fun/v/donotsleep</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://aibusiness.fun/v/hired</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>

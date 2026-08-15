@@ -41,7 +41,8 @@ import { LanguageToggle } from "@/components/aura/language-toggle";
 import { WienStoryStrip } from "@/components/aura/wien-story-strip";
 import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
-import { LAUNCH_SHARE_TEXT, OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { LAUNCH_SHARE_TEXT, SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocale } from "@/hooks/use-locale";
@@ -61,21 +62,13 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: SITE_URL },
-      { property: "og:image", content: OG_IMAGE },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      {
-        property: "og:image:alt",
-        content: "Aura OS — a glowing cyan orbit mark on deep charcoal",
-      },
+      ...ogCampaignMeta("home"),
       { property: "og:locale", content: "en_US" },
-      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Aura OS — Own a company. Let AI make money." },
       {
         name: "twitter:description",
         content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. AI executes the work. You control the company — and own the upside.`,
       },
-      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
       { rel: "canonical", href: `${SITE_URL}/` },

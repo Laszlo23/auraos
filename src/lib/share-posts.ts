@@ -2,6 +2,8 @@ import { SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
 
 export type ShareAspect = "vertical" | "landscape";
 
+export type ShareCampaign = "wien-schmah";
+
 export type SharePost = {
   id: string;
   /** Short punchy title shown on the card. */
@@ -18,15 +20,184 @@ export type SharePost = {
   hook: string;
   /** Ready-to-post captions. Each already includes the CTA + link placeholder. */
   captions: string[];
+  /** Featured social wave — shown first in the kit. */
+  campaign?: ShareCampaign;
 };
 
 const CTA = `Fair launch ${TOKEN_LAUNCH_DISPLAY} → ${SITE_URL}`;
+
+const WIEN_CTA = `Kein Urteil. Nur jetzt.
+Die kleinen Dinge. Dankbar.
+
+Wien → ${SITE_URL}/wien
+Fair launch ${TOKEN_LAUNCH_DISPLAY} → ${SITE_URL}`;
 
 /**
  * Public share kit — funny, copy-ready posts paired with hosted watch pages + MP4s.
  * Everyone can share a link (watch on Aura) or download for native upload. No login.
  */
 export const SHARE_POSTS: SharePost[] = [
+  {
+    id: "wien",
+    title: "Ned in einem WeWork",
+    vibe: "In Wien. Cracked screen. Real street.",
+    file: "wien",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["TikTok", "Reels", "WhatsApp", "X"],
+    campaign: "wien-schmah",
+    hook: "Ned in einem WeWork. In Wien.",
+    captions: [
+      `Ned in einem WeWork. In Wien.
+
+Cracked screen. Real street.
+Homepage still “in Überarbeitung.”
+That's ok. We start here.
+
+Ottakring. Echt. Ehrlich.
+No pitch deck required.
+
+${WIEN_CTA}`,
+      `Ned in einem WeWork.
+
+A Beisl with a dying homepage.
+A phone that already lived a life.
+A street that doesn't need a slide deck.
+
+See the little things.
+Be grateful they're still open.
+
+${WIEN_CTA}`,
+      `In Wien.
+
+Not a campus. Not a demo day.
+A shop light on cobblestones.
+
+Full focus. Full love. Just the now.
+
+${WIEN_CTA}`,
+    ],
+  },
+  {
+    id: "oida",
+    title: "Danke für euere Treue",
+    vibe: "A shutter, a heart, no judgment.",
+    file: "oida",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["TikTok", "Reels", "WhatsApp", "X"],
+    campaign: "wien-schmah",
+    hook: "Geschäft wird geschlossen. Danke. Herz.",
+    captions: [
+      `Geschäft wird geschlossen.
+Danke für euere Treue.
+Herz.
+
+No judgment. Just the now.
+A handwritten thank-you on a shutter is still a business.
+
+See the little things.
+Be grateful they were here.
+
+${WIEN_CTA}`,
+      `Oida.
+
+A shop that said goodbye with a heart
+instead of a press release.
+
+That's Wien.
+That's enough.
+
+${WIEN_CTA}`,
+      `We don't rank a goodbye.
+We notice it.
+
+Thank you for the years.
+Thank you for the light in the Gasse.
+
+${WIEN_CTA}`,
+    ],
+  },
+  {
+    id: "checkout",
+    title: "Oida, ned des",
+    vibe: "€500 BAR vs empty stars. Wien remembers.",
+    file: "checkout",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["TikTok", "Reels", "X", "WhatsApp"],
+    campaign: "wien-schmah",
+    hook: "Cash for stars? Oida, ned des.",
+    captions: [
+      `€500 BAR.
+Five empty stars.
+
+Oida, ned des.
+
+We don't buy Google.
+We buy a Melange and ask after a real visit.
+
+Love the visit. Leave the rating if it's true.
+
+${WIEN_CTA}`,
+      `Someone offered cash for stars.
+Vienna said: not like that.
+
+No fake glow.
+No judging the shop that said no.
+
+Just a real night, a real street, a real no.
+
+${WIEN_CTA}`,
+      `Reputation isn't an envelope.
+It's a neighbor who came back.
+
+That's the whole Schmäh.
+
+${WIEN_CTA}`,
+    ],
+  },
+  {
+    id: "1fromweek",
+    title: "Week 1 · Share kit live",
+    vibe: "Command center in the mountains. Heart still in Wien.",
+    file: "1fromweek",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["TikTok", "Reels", "X", "LinkedIn"],
+    campaign: "wien-schmah",
+    hook: "Week 1. Not perfect. Present. Grateful. Shipping.",
+    captions: [
+      `Week 1.
+Share kit live.
+Build like Aura OS.
+
+Not perfect.
+Present.
+Grateful.
+Shipping.
+
+Heart still in Wien.
+
+${WIEN_CTA}`,
+      `First week energy:
+see the little things,
+keep the love,
+skip the judgment,
+stay in the now.
+
+Then share it with a neighbor.
+
+${WIEN_CTA}`,
+      `Command center. Mountain light.
+The work is still a Beisl homepage
+and a thank-you on a shutter.
+
+That's week 1. That's enough for today.
+
+${WIEN_CTA}`,
+    ],
+  },
   {
     id: "auraos-bedroom",
     title: "Not a bot. A desk.",
@@ -323,6 +494,25 @@ export function sharePosterAbsoluteUrl(file: string) {
 
 export function getSharePost(postId: string): SharePost | undefined {
   return SHARE_POSTS.find((p) => p.id === postId);
+}
+
+export function isWienWave(post: SharePost) {
+  return post.campaign === "wien-schmah";
+}
+
+export function wienWavePosts() {
+  return SHARE_POSTS.filter(isWienWave);
+}
+
+/** Cycle the Wien wave. After a classic clip, land people in the wave. */
+export function nextLoopPost(currentId: string): SharePost {
+  const wave = wienWavePosts();
+  const current = getSharePost(currentId);
+  if (current && isWienWave(current)) {
+    const ix = wave.findIndex((p) => p.id === currentId);
+    return wave[(ix + 1) % wave.length] ?? wave[0]!;
+  }
+  return wave[0] ?? SHARE_POSTS[0]!;
 }
 
 /** Video dimensions for OG / Twitter player tags. */

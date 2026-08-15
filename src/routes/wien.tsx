@@ -8,7 +8,9 @@ import { SiteFooter } from "@/components/aura/site-footer";
 import { LOCAL_COHORT_CAP } from "@/lib/funnels";
 import { FOUNDERS } from "@/lib/legal-entity";
 import { getPublicLokalDirectory } from "@/lib/reviews.public.functions";
-import { OG_IMAGE, REVIEW_APP_URL, reviewAppUrl, SITE_URL, url } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { REVIEW_APP_URL, reviewAppUrl, SITE_URL, url } from "@/lib/site";
+import { sharePosterSrc, wienWavePosts } from "@/lib/share-posts";
 import { WIEN_ORIGIN, WIEN_STICKERS, WIEN_VERTICALS } from "@/lib/wien-story";
 
 const TITLE = "AURA Wien — 1.000 Betriebe, Nachbarschaft, Missionen";
@@ -54,9 +56,8 @@ export const Route = createFileRoute("/wien")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:url", content: url("/wien") },
-      { property: "og:image", content: OG_IMAGE },
+      ...ogCampaignMeta("wien"),
       { property: "og:locale", content: "de_AT" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: url("/wien") }],
   }),
@@ -185,6 +186,42 @@ function WienHubPage() {
             </p>
             <p className="mt-1 text-[13px] text-muted-foreground">Erste Kohorte, Founder-Jahr</p>
           </Panel>
+        </div>
+
+        <div className="mt-12">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+            Wien wave · Schmäh with love
+          </p>
+          <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+            Kein Urteil. Nur jetzt. Schau, teil mit an Nachbarn, sie schauen weiter.
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {wienWavePosts().map((p) => (
+              <Link
+                key={p.id}
+                to="/v/$postId"
+                params={{ postId: p.id }}
+                className="group overflow-hidden rounded-2xl border border-border/40 bg-white/[0.03]"
+              >
+                <img
+                  src={sharePosterSrc(p.file)}
+                  alt={p.title}
+                  width={360}
+                  height={640}
+                  className="aspect-[9/16] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <span className="block px-2.5 py-2 text-[11px] font-semibold leading-snug">
+                  {p.title}
+                </span>
+              </Link>
+            ))}
+          </div>
+          <Link
+            to="/share"
+            className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary"
+          >
+            Open the share kit →
+          </Link>
         </div>
       </section>
 

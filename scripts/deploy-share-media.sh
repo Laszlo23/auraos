@@ -10,6 +10,10 @@ REMOTE_PUBLIC="${DEPLOY_PUBLIC:-/opt/auraos/public}"
 REMOTE_OUTPUT_PUBLIC="${DEPLOY_OUTPUT_PUBLIC:-/opt/auraos/.output/public}"
 
 KIT_MP4S=(
+  wien.mp4
+  oida.mp4
+  checkout.mp4
+  1fromweek.mp4
   4am.mp4
   donotsleep.mp4
   hired.mp4

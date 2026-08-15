@@ -27,7 +27,8 @@ import {
 import { AURA_REPUTATION_EUR } from "@/lib/boost-packs";
 import { LOCAL_COHORT_CAP } from "@/lib/funnels";
 import { t as translate } from "@/lib/i18n";
-import { OG_IMAGE, REVIEW_APP_URL, SITE_NAME, SITE_URL } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { REVIEW_APP_URL, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/lokal")({
   head: () => ({
@@ -49,9 +50,8 @@ export const Route = createFileRoute("/lokal")({
         content: "Kunden-Nachbetreuung + echte Google-Bewertungen — keine Fake-Sterne.",
       },
       { property: "og:url", content: `${SITE_URL}/lokal` },
-      { property: "og:image", content: OG_IMAGE },
+      ...ogCampaignMeta("lokal"),
       { property: "og:locale", content: "de_DE" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "canonical", href: `${SITE_URL}/lokal` },

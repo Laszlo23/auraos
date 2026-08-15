@@ -15,6 +15,7 @@ Public clips people can steal, plus an OAuth-only X schedule that posts ~2–3×
 | Embed | `/embed/{postId}` | iframes / partners |
 | Channels drip | `/channels` → **Fair-launch X drip** | Founder (authenticated) |
 | Landing teaser | `/#share-kit` | Anyone |
+| Per-page OG cards | `/og/{home,wien,share,story,access,nachbar,review,token,lokal,team}.jpg` | Link previews — James Dean × Matrix × Wien |
 
 Code map:
 
@@ -38,8 +39,14 @@ Each entry in `SHARE_POSTS` needs:
 
 ### Current campaign clips (Aug 2026)
 
+**Wien wave** (lead the kit + X drip). Tone: Wiener Schmäh, love, no judging, present-moment, gratitude. Growth loop: watch `/v/:id` → copy caption → share with a neighbor → next clip → `/wien`. Never pay-for-Google-review copy.
+
 | id | file | angle |
 |---|---|---|
+| `wien` | `wien.mp4` | Ned in einem WeWork. In Wien. |
+| `oida` | `oida.mp4` | Closing-shop thank-you + heart |
+| `checkout` | `checkout.mp4` | €500 BAR vs stars — oida, ned des |
+| `1fromweek` | `1fromweek.mp4` | Week 1. Share kit live. Grateful. |
 | `4am` | `4am.mp4` | Founder awake; agents already shipped |
 | `donotsleep` | `donotsleep.mp4` | Agents don’t sleep — you can |
 | `hired` | `hired.mp4` | Just hired 8 AI employees |

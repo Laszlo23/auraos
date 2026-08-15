@@ -3,7 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { FOUNDERS } from "@/lib/legal-entity";
-import { OG_IMAGE, SITE_URL, url } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { SITE_URL, url } from "@/lib/site";
 import { WIEN_ORIGIN } from "@/lib/wien-story";
 import { useLocale } from "@/hooks/use-locale";
 
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/story")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:url", content: url("/story") },
-      { property: "og:image", content: OG_IMAGE },
+      ...ogCampaignMeta("story"),
       { property: "og:locale", content: "de_AT" },
     ],
     links: [{ rel: "canonical", href: url("/story") }],

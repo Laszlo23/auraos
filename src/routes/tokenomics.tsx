@@ -13,7 +13,8 @@ import {
   auraCaLive,
   formatAuraAmount,
 } from "@/lib/aura-token";
-import { OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
 import { TOKEN_DISCLAIMER, TOKENOMICS } from "@/lib/tokenomics";
 
@@ -30,9 +31,7 @@ export const Route = createFileRoute("/tokenomics")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: url("/tokenomics") },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: OG_IMAGE },
+      ...ogCampaignMeta("token"),
     ],
     links: [{ rel: "canonical", href: url("/tokenomics") }],
   }),

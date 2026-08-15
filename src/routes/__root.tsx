@@ -156,16 +156,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:url", content: SITE_URL },
       { property: "og:image", content: OG_IMAGE },
       { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "640" },
+      { property: "og:image:height", content: "630" },
       {
         property: "og:image:alt",
-        content: "Aura OS — AI company operating system brand preview",
+        content: "Own the company. AI works. You keep the upside.",
       },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG_IMAGE },
       {
         name: "twitter:image:alt",
-        content: "Aura OS — AI company operating system brand preview",
+        content: "Own the company. AI works. You keep the upside.",
       },
       { name: "twitter:title", content: "Aura OS — The AI Company Operating System" },
       {

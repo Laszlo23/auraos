@@ -11,7 +11,8 @@ import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { startFoundingSeatCheckout } from "@/lib/founding-seat";
 import { FOUNDING_SEATS_TOTAL } from "@/lib/marketing-scarcity";
-import { LAUNCH_SHARE_TEXT, OG_IMAGE, SITE_URL } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { LAUNCH_SHARE_TEXT, SITE_URL } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { num } from "@/lib/format";
 
@@ -38,9 +39,7 @@ export const Route = createFileRoute("/access")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/access` },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: OG_IMAGE },
+      ...ogCampaignMeta("access"),
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/access` }],
   }),

@@ -9,13 +9,13 @@ import {
   LEGAL_ADDRESS,
   LEGAL_EMAIL,
   LEGAL_ENTITY,
-  OG_IMAGE,
   SITE_NAME,
   SITE_URL,
   TOKEN_PRODUCT_SEPARATION,
   legalAddressDisplay,
   url,
 } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
 import { WIEN_ORIGIN, WIEN_STICKERS } from "@/lib/wien-story";
 
 const TITLE = `Gründungsteam Wien — ${SITE_NAME}`;
@@ -31,9 +31,7 @@ export const Route = createFileRoute("/team")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:url", content: url("/team") },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: OG_IMAGE },
+      ...ogCampaignMeta("team"),
     ],
     links: [{ rel: "canonical", href: url("/team") }],
   }),

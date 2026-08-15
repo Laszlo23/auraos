@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
 import { SiteFooter } from "@/components/aura/site-footer";
-import { OG_IMAGE, REVIEW_APP_URL, reviewAppUrl, SITE_URL, url } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { REVIEW_APP_URL, reviewAppUrl, SITE_URL, url } from "@/lib/site";
 
 const TITLE = "Aura Lokal Reviews — echte Feedback-Maschine";
 const DESCRIPTION =
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/review")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:url", content: url("/review") },
-      { property: "og:image", content: OG_IMAGE },
+      ...ogCampaignMeta("review"),
     ],
     links: [{ rel: "canonical", href: url("/review") }],
   }),

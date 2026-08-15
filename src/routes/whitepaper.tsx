@@ -4,7 +4,8 @@ import { Download } from "lucide-react";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { AURA_MAX_SUPPLY_DISPLAY } from "@/lib/aura-token";
 import { AURA_WHITEPAPER, WHITEPAPER_META, type WpBlock } from "@/lib/aura-whitepaper";
-import { OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
+import { ogCampaignMeta } from "@/lib/og-campaign";
+import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { TOKENOMICS, WHITEPAPER_SECTIONS } from "@/lib/tokenomics";
 
 const TITLE = "AURA Token whitepaper — the economic layer of Building Culture";
@@ -20,8 +21,7 @@ export const Route = createFileRoute("/whitepaper")({
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "article" },
       { property: "og:url", content: url("/whitepaper") },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...ogCampaignMeta("token"),
     ],
     links: [{ rel: "canonical", href: url("/whitepaper") }],
   }),
