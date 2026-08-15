@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { captureAttribution, peekFunnel, rememberFunnel, rememberLocale } from "@/lib/attribution";
 import { trackTeaser } from "@/lib/teaser-track";
 import { trackAppEvent } from "@/lib/app-track";
+import { AuraLogo } from "@/components/aura/aura-logo";
 import { Pulse } from "@/components/aura/primitives";
 import { StreamText } from "@/components/aura/stream-text";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -753,14 +754,10 @@ function AuthPage() {
       <div className="grid flex-1 lg:grid-cols-[1.1fr_1fr]">
         <div className="relative hidden items-center justify-end px-10 py-14 lg:flex xl:px-14 2xl:px-20">
           <div className="flex h-full w-full max-w-xl flex-col justify-between xl:mr-8">
-            <div className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-2xl bg-primary/15 text-primary">
-                ◎
-              </span>
-              <span className="text-sm font-semibold tracking-tight">
-                {isLokalEntry ? "Aura Lokal" : "Aura OS"}
-              </span>
-            </div>
+            <AuraLogo
+              size="sm"
+              label={isLokalEntry ? "Aura Lokal" : "Aura OS"}
+            />
 
             <div>
               <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.34em] text-primary">
@@ -818,6 +815,7 @@ function AuthPage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="glass w-full max-w-sm rounded-[2rem] p-8 shadow-[var(--shadow-glow)]"
           >
+            <AuraLogo size="xs" className="mb-5 lg:hidden" />
             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
 

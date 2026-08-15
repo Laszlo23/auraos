@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 520" fill="none" role="img" aria-labelledby="title">
+  <title id="title">Aura OS logo</title>
+  <defs>
+    <linearGradient id="os" x1="1180" y1="160" x2="1480" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4DE8F7" />
+      <stop offset="0.55" stop-color="#F4C04A" />
+      <stop offset="1" stop-color="#7AF0FF" />
+    </linearGradient>
+    <filter id="aura-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1600" height="520" rx="48" fill="#07090E" />
+  <g transform="translate(88 88)">
+    <circle cx="172" cy="172" r="128" stroke="#4DE8F7" stroke-width="14" filter="url(#aura-glow)" />
+    <circle
+      cx="172"
+      cy="172"
+      r="128"
+      stroke="#F4C04A"
+      stroke-width="14"
+      stroke-linecap="round"
+      stroke-dasharray="102 702"
+      transform="rotate(-58 172 172)"
+      filter="url(#aura-glow)"
+    />
+    <circle cx="172" cy="172" r="40" fill="#4DE8F7" filter="url(#aura-glow)" />
+    <circle cx="172" cy="172" r="15" fill="#E9FCFF" />
+  </g>
+  <text
+    x="480"
+    y="310"
+    fill="#F4F7FF"
+    font-family="Sora, Avenir Next, Helvetica Neue, sans-serif"
+    font-size="168"
+    font-weight="700"
+    letter-spacing="-6"
+  >AURA</text>
+  <text
+    x="1068"
+    y="310"
+    fill="url(#os)"
+    font-family="Sora, Avenir Next, Helvetica Neue, sans-serif"
+    font-size="168"
+    font-weight="700"
+    letter-spacing="10"
+  >OS</text>
+</svg>

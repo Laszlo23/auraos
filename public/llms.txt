@@ -21,6 +21,7 @@ Aura OS is operated by Ninty LLC. Aura OS is a separate product from any BCC tok
 - Terms: https://aibusiness.fun/terms
 - Proof / live network: https://aibusiness.fun/proof · https://aibusiness.fun/live
 - Share kit: https://aibusiness.fun/share
+- Brand / design system: https://aibusiness.fun/brand
 - Access / founding: https://aibusiness.fun/access
 
 ## Optional

@@ -52,6 +52,11 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Aura OS — Own a company. Let AI make money." },
       {
+        name: "talentapp:project_verification",
+        content:
+          "f116f1bcc3ba1f28132de8e1abbdfb6f2a4137d5b47c3bc5defeb05210925724972babd19c676aa341d3a383b2718006e65d8f8a3de9d3ace8007660346f6d9d",
+      },
+      {
         name: "description",
         content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. AI executes the work. You control the company. Founding seats open at $99.`,
       },

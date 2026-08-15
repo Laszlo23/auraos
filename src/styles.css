@@ -94,6 +94,12 @@
   --gold: oklch(0.86 0.165 76);
   --gold-foreground: oklch(0.18 0.05 60);
 
+  /* Named CI aliases — keep in sync with src/lib/brand.ts */
+  --aura-cyan: var(--primary);
+  --aura-gold: var(--gold);
+  --aura-stage: var(--background);
+  --aura-ink: var(--foreground);
+
   /* Austria — thin red-white-red, not a flag dump */
   --austria-red: oklch(0.52 0.195 25);
 

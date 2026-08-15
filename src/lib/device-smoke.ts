@@ -15,6 +15,7 @@ export const PUBLIC_SMOKE_PATHS = [
   "/sticker",
   "/team",
   "/share",
+  "/brand",
   "/v/wien",
 ] as const;
 

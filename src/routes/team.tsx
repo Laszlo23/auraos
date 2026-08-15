@@ -20,7 +20,7 @@ import { WIEN_ORIGIN, WIEN_STICKERS } from "@/lib/wien-story";
 
 const TITLE = `Gründungsteam Wien — ${SITE_NAME}`;
 const DESCRIPTION =
-  "Laszlo Bihary, Martina Hammer, Darco, Evreen, Martin. Wie AURA in Wien zsamkemma is — und warum keine Fake-Sterne.";
+  "Laszlo Bihary, Martina Hammer, Darko Tanackovic, Evren Demir, Mart Johann. Wie AURA in Wien zsamkemma is — und warum keine Fake-Sterne.";
 
 export const Route = createFileRoute("/team")({
   head: () => ({
@@ -85,9 +85,8 @@ function TeamPage() {
           <span className="block text-gold">Eine Stadt.</span>
         </h1>
         <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          {SITE_NAME} wird von {LEGAL_ENTITY} betrieben. Unten das Gründungsteam — echte Vornamen,
-          Nachnamen wo schon da. Impressum bleibt bei Laszlo. Stickers sind Drop 0 der Collection,
-          kein Token-Sale.
+          {SITE_NAME} wird von {LEGAL_ENTITY} betrieben. Unten das Gründungsteam — echte Namen.
+          Impressum bleibt bei Laszlo. Stickers sind Drop 0 der Collection, kein Token-Sale.
         </p>
 
         <section className="mt-12">
@@ -238,7 +237,7 @@ function TeamPage() {
       <SiteFooter
         share={{
           url: `${SITE_URL}/team`,
-          text: "Gründungsteam Wien — Laszlo, Martina, Darco, Evreen, Martin. Wie’s zsamkemma is.",
+          text: "Gründungsteam Wien — Laszlo, Martina, Darko, Evren, Mart. Wie’s zsamkemma is.",
           placement: "team",
         }}
       />

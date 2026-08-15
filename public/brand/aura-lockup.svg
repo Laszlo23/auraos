@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 220" fill="none" role="img" aria-labelledby="title">
+  <title id="title">Aura OS lockup</title>
+  <defs>
+    <linearGradient id="os" x1="720" y1="70" x2="900" y2="160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4DE8F7" />
+      <stop offset="0.55" stop-color="#F4C04A" />
+      <stop offset="1" stop-color="#7AF0FF" />
+    </linearGradient>
+    <filter id="aura-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <g transform="translate(18 18)">
+    <circle cx="92" cy="92" r="68" stroke="#4DE8F7" stroke-width="8" filter="url(#aura-glow)" />
+    <circle
+      cx="92"
+      cy="92"
+      r="68"
+      stroke="#F4C04A"
+      stroke-width="8"
+      stroke-linecap="round"
+      stroke-dasharray="54 374"
+      transform="rotate(-58 92 92)"
+      filter="url(#aura-glow)"
+    />
+    <circle cx="92" cy="92" r="21" fill="#4DE8F7" filter="url(#aura-glow)" />
+    <circle cx="92" cy="92" r="8" fill="#E9FCFF" />
+  </g>
+  <text
+    x="236"
+    y="138"
+    fill="#F4F7FF"
+    font-family="Sora, ui-sans-serif, system-ui, sans-serif"
+    font-size="92"
+    font-weight="700"
+    letter-spacing="-3.2"
+  >AURA</text>
+  <text
+    x="548"
+    y="138"
+    fill="url(#os)"
+    font-family="Sora, ui-sans-serif, system-ui, sans-serif"
+    font-size="92"
+    font-weight="700"
+    letter-spacing="6"
+  >OS</text>
+</svg>

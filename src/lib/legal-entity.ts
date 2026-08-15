@@ -43,8 +43,7 @@ export const FOUNDERS: TeamPublic[] = [
   },
   {
     id: "darco",
-    name: "Darco",
-    lastNamePending: true,
+    name: "Darko Tanackovic",
     title: "Gründungsteam Wien",
     linkedin: null,
     blurb: "Straße, Community, der der zuerst fragt.",
@@ -54,8 +53,7 @@ export const FOUNDERS: TeamPublic[] = [
   },
   {
     id: "evreen",
-    name: "Evreen",
-    lastNamePending: true,
+    name: "Evren Demir",
     title: "Gründungsteam Wien",
     linkedin: null,
     blurb: "Funke, Content, der der den Tisch zum Lachen bringt.",
@@ -65,8 +63,7 @@ export const FOUNDERS: TeamPublic[] = [
   },
   {
     id: "martin",
-    name: "Martin",
-    lastNamePending: true,
+    name: "Mart Johann",
     title: "Gründungsteam Wien",
     linkedin: null,
     blurb: "Der der den Betrieb zusammenhält, wenn’s ernst wird.",

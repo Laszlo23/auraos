@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title">
+  <title id="title">Aura OS app icon</title>
+  <defs>
+    <linearGradient id="stage" x1="80" y1="40" x2="460" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14182A" />
+      <stop offset="1" stop-color="#07090E" />
+    </linearGradient>
+    <radialGradient id="well" cx="50%" cy="42%" r="48%">
+      <stop stop-color="#1A2440" stop-opacity="0.9" />
+      <stop offset="1" stop-color="#07090E" stop-opacity="0" />
+    </radialGradient>
+    <filter id="aura-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="118" fill="url(#stage)" />
+  <rect width="512" height="512" rx="118" fill="url(#well)" />
+  <circle cx="256" cy="256" r="132" stroke="#4DE8F7" stroke-width="14" filter="url(#aura-glow)" />
+  <circle
+    cx="256"
+    cy="256"
+    r="132"
+    stroke="#F4C04A"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-dasharray="104 726"
+    transform="rotate(-58 256 256)"
+    filter="url(#aura-glow)"
+  />
+  <circle cx="256" cy="256" r="40" fill="#4DE8F7" filter="url(#aura-glow)" />
+  <circle cx="256" cy="256" r="15" fill="#E9FCFF" />
+</svg>

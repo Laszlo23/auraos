@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title">
+  <title id="title">Aura OS mark</title>
+  <defs>
+    <filter id="aura-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="148" stroke="#4DE8F7" stroke-width="16" filter="url(#aura-glow)" />
+  <circle
+    cx="256"
+    cy="256"
+    r="148"
+    stroke="#F4C04A"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-dasharray="118 812"
+    transform="rotate(-58 256 256)"
+    filter="url(#aura-glow)"
+  />
+  <circle cx="256" cy="256" r="44" fill="#4DE8F7" filter="url(#aura-glow)" />
+  <circle cx="256" cy="256" r="16" fill="#E9FCFF" />
+</svg>

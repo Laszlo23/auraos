@@ -9,12 +9,14 @@ import {
   SITE_URL,
   SOCIAL_LINKS,
 } from "@/lib/site";
+import { AuraMark } from "@/components/aura/aura-logo";
 import { ShareBar } from "@/components/aura/share";
 import { requestInstallPrompt } from "@/components/aura/install-app";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
 const SITE_LINKS = [
+  { to: "/brand", label: "Brand" },
   { to: "/share", label: "Share kit" },
   { to: "/partners/fio", label: "FIO partners" },
   { to: "/grants", label: "Grants" },
@@ -170,11 +172,14 @@ export function SiteFooter({
             "sm:flex-row sm:items-center sm:justify-between",
           )}
         >
-          <span>
-            ◎ {SITE_NAME} · {NINTY.short} · {NINTY.tagline} ·{" "}
-            <a href={SITE_URL} className="transition-colors hover:text-foreground">
-              aibusiness.fun
-            </a>
+          <span className="inline-flex items-center gap-2 normal-case tracking-normal">
+            <AuraMark className="h-4 w-4 text-primary" />
+            <span className="uppercase tracking-[0.24em]">
+              {SITE_NAME} · {NINTY.short} · {NINTY.tagline} ·{" "}
+              <a href={SITE_URL} className="transition-colors hover:text-foreground">
+                aibusiness.fun
+              </a>
+            </span>
           </span>
           <nav aria-label="Site" className="flex flex-wrap items-center gap-x-4 gap-y-2">
             {SITE_LINKS.map((l) => (

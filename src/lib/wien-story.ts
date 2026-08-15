@@ -75,9 +75,9 @@ export const WIEN_STICKERS = {
   items: [
     { id: "laszlo", src: "/stickers/laszlo.png", label: "Laszlo" },
     { id: "martina", src: "/stickers/martina.png", label: "Martina" },
-    { id: "darco", src: "/stickers/darco.png", label: "Darco" },
-    { id: "evreen", src: "/stickers/evreen.png", label: "Evreen" },
-    { id: "martin", src: "/stickers/martin.png", label: "Martin" },
+    { id: "darco", src: "/stickers/darco.png", label: "Darko" },
+    { id: "evreen", src: "/stickers/evreen.png", label: "Evren" },
+    { id: "martin", src: "/stickers/martin.png", label: "Mart" },
     { id: "oida", src: "/stickers/oida.png", label: "Oida" },
     { id: "passt-scho", src: "/stickers/passt-scho.png", label: "Passt scho" },
     { id: "ned-fake-sterne", src: "/stickers/ned-fake-sterne.png", label: "Ned Fake-Sterne" },

@@ -102,10 +102,10 @@ export function rootOrganizationGraph() {
         url: SITE_URL,
         logo: {
           "@type": "ImageObject",
-          url: `${SITE_URL}/icons/icon-512.png`,
+          url: `${SITE_URL}/brand/aura-app-icon.png`,
           width: 512,
           height: 512,
-          caption: "Aura OS app icon",
+          caption: "Aura OS mark",
         },
         sameAs: SOCIAL_LINKS.map((s) => s.href),
       },

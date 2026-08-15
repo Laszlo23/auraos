@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AccessRouteImport } from './routes/access'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BrandRouteImport } from './routes/brand'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
@@ -141,6 +142,11 @@ const AccessRoute = AccessRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandRoute = BrandRouteImport.update({
+  id: '/brand',
+  path: '/brand',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CookiesRoute = CookiesRouteImport.update({
@@ -710,6 +716,7 @@ export interface FileRoutesByFullPath {
   '/nachbar': typeof NachbarRouteRouteWithChildren
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
+  '/brand': typeof BrandRoute
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
@@ -824,6 +831,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
+  '/brand': typeof BrandRoute
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
@@ -941,6 +949,7 @@ export interface FileRoutesById {
   '/nachbar': typeof NachbarRouteRouteWithChildren
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
+  '/brand': typeof BrandRoute
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
@@ -1058,6 +1067,7 @@ export interface FileRouteTypes {
     | '/nachbar'
     | '/access'
     | '/auth'
+    | '/brand'
     | '/cookies'
     | '/faq'
     | '/grants'
@@ -1172,6 +1182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/access'
     | '/auth'
+    | '/brand'
     | '/cookies'
     | '/faq'
     | '/grants'
@@ -1288,6 +1299,7 @@ export interface FileRouteTypes {
     | '/nachbar'
     | '/access'
     | '/auth'
+    | '/brand'
     | '/cookies'
     | '/faq'
     | '/grants'
@@ -1405,6 +1417,7 @@ export interface RootRouteChildren {
   NachbarRouteRoute: typeof NachbarRouteRouteWithChildren
   AccessRoute: typeof AccessRoute
   AuthRoute: typeof AuthRoute
+  BrandRoute: typeof BrandRoute
   CookiesRoute: typeof CookiesRoute
   FaqRoute: typeof FaqRoute
   GrantsRoute: typeof GrantsRoute
@@ -1498,6 +1511,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brand': {
+      id: '/brand'
+      path: '/brand'
+      fullPath: '/brand'
+      preLoaderRoute: typeof BrandRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cookies': {
@@ -2401,6 +2421,7 @@ const rootRouteChildren: RootRouteChildren = {
   NachbarRouteRoute: NachbarRouteRouteWithChildren,
   AccessRoute: AccessRoute,
   AuthRoute: AuthRoute,
+  BrandRoute: BrandRoute,
   CookiesRoute: CookiesRoute,
   FaqRoute: FaqRoute,
   GrantsRoute: GrantsRoute,
