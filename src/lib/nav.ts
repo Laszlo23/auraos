@@ -45,11 +45,31 @@ export type NavItem = {
 export const NAV: NavItem[] = [
   {
     to: "/console",
-    label: "Dashboard",
-    plain: "Home",
+    label: "Company",
+    plain: "Company",
     hint: "How your company is doing today",
     icon: Gauge,
     group: "Company",
+    core: true,
+  },
+  {
+    to: "/approvals",
+    label: "Approvals",
+    plain: "Approvals",
+    hint: "Everything that needs you before it spends or goes public",
+    icon: Layers,
+    group: "Approvals",
+    live: true,
+    core: true,
+  },
+  {
+    to: "/proofs",
+    label: "Proof",
+    plain: "Proof",
+    hint: "Completed work you can see and share",
+    icon: Receipt,
+    group: "Proof",
+    live: true,
     core: true,
   },
   {
@@ -66,7 +86,7 @@ export const NAV: NavItem[] = [
     plain: "Missions",
     hint: "Revenue goals — plan, start, and track real settlements",
     icon: Target,
-    group: "Company",
+    group: "Missions",
     live: true,
     core: true,
   },
@@ -82,12 +102,13 @@ export const NAV: NavItem[] = [
   },
   {
     to: "/agents",
-    label: "Agents",
-    plain: "Your team",
+    label: "Employees",
+    plain: "Employees",
     hint: "The AI employees working for you",
     icon: Users,
-    group: "Company",
+    group: "Employees",
     live: true,
+    core: true,
   },
   {
     to: "/tasks",
@@ -141,7 +162,6 @@ export const NAV: NavItem[] = [
     icon: CandlestickChart,
     group: "Revenue",
     live: true,
-    core: true,
   },
   {
     to: "/wallet",
@@ -151,7 +171,6 @@ export const NAV: NavItem[] = [
     icon: Wallet,
     group: "Revenue",
     live: true,
-    core: true,
   },
   {
     to: "/x402",
@@ -239,7 +258,6 @@ export const NAV: NavItem[] = [
     hint: "Docs + bills · Ledger tax-prep assist",
     icon: FolderClosed,
     group: "Memory",
-    core: true,
   },
 
   {
@@ -285,11 +303,11 @@ export const NAV: NavItem[] = [
   },
   {
     to: "/billing",
-    label: "Billing",
-    plain: "Plan & credits",
-    hint: "Your subscription and token balance",
+    label: "Economy",
+    plain: "Economy",
+    hint: "Revenue, costs, budgets — product money, not the token",
     icon: CreditCard,
-    group: "System",
+    group: "Economy",
     core: true,
   },
   {
@@ -301,7 +319,25 @@ export const NAV: NavItem[] = [
   },
 ];
 
-export const NAV_GROUPS = ["Company", "Revenue", "Surface", "Memory", "System"];
+export const NAV_GROUPS = [
+  "Company",
+  "Missions",
+  "Employees",
+  "Approvals",
+  "Proof",
+  "Economy",
+  "Revenue",
+  "Surface",
+  "Memory",
+  "System",
+];
+
+const MORE_GROUPS = new Set(["Revenue", "Surface", "Memory", "System"]);
+
+/** Groups shown first. The rest sit under More in simple mode. */
+export function isMoreGroup(group: string) {
+  return MORE_GROUPS.has(group);
+}
 
 /** Label to show given the current mode. */
 export const navLabel = (item: NavItem, simple: boolean) =>

@@ -4,6 +4,7 @@ export const AURA_TOKEN_SYMBOL = "AURA";
 export const AURA_TOKEN_NAME = "AURA Token";
 export const AURA_MAX_SUPPLY = 777_777_777;
 export const AURA_MAX_SUPPLY_DISPLAY = "777,777,777";
+export const AURA_MAX_SUPPLY_DISPLAY_DE = "777.777.777";
 
 /** Official Base CA — null until T-0. Never invent one. */
 export const AURA_TOKEN_CA: `0x${string}` | null = null;
@@ -20,6 +21,7 @@ export function auraCaLive(): boolean {
 export type AuraAllocation = {
   id: string;
   label: string;
+  labelDe: string;
   pct: number;
   amount: number;
 };
@@ -29,15 +31,69 @@ export type AuraAllocation = {
  * ecosystem, private, marketing, and public so the table adds up exactly.
  */
 export const AURA_ALLOCATIONS: AuraAllocation[] = [
-  { id: "community", label: "Community & contributor rewards", pct: 30, amount: 233_333_333 },
-  { id: "ecosystem", label: "Ecosystem growth & partnerships", pct: 15, amount: 116_666_667 },
-  { id: "treasury", label: "Treasury", pct: 15, amount: 116_666_667 },
-  { id: "team", label: "Team & founders", pct: 12, amount: 93_333_333 },
-  { id: "private", label: "Private / strategic sale", pct: 10, amount: 77_777_778 },
-  { id: "liquidity", label: "Liquidity", pct: 8, amount: 62_222_222 },
-  { id: "advisors", label: "Advisors", pct: 3, amount: 23_333_333 },
-  { id: "marketing", label: "Marketing & acquisition", pct: 5, amount: 38_888_889 },
-  { id: "public", label: "Public launch / community", pct: 2, amount: 15_555_555 },
+  {
+    id: "community",
+    label: "Community & contributor rewards",
+    labelDe: "Gemeinschaft und Mitmachen",
+    pct: 30,
+    amount: 233_333_333,
+  },
+  {
+    id: "ecosystem",
+    label: "Ecosystem growth & partnerships",
+    labelDe: "Wachstum und Partner",
+    pct: 15,
+    amount: 116_666_667,
+  },
+  {
+    id: "treasury",
+    label: "Treasury",
+    labelDe: "Firmenreserve",
+    pct: 15,
+    amount: 116_666_667,
+  },
+  {
+    id: "team",
+    label: "Team & founders",
+    labelDe: "Team und Gründer",
+    pct: 12,
+    amount: 93_333_333,
+  },
+  {
+    id: "private",
+    label: "Private / strategic sale",
+    labelDe: "Privater und strategischer Verkauf",
+    pct: 10,
+    amount: 77_777_778,
+  },
+  {
+    id: "liquidity",
+    label: "Liquidity",
+    labelDe: "Liquidität",
+    pct: 8,
+    amount: 62_222_222,
+  },
+  {
+    id: "advisors",
+    label: "Advisors",
+    labelDe: "Berater",
+    pct: 3,
+    amount: 23_333_333,
+  },
+  {
+    id: "marketing",
+    label: "Marketing & acquisition",
+    labelDe: "Werbung und Kundengewinnung",
+    pct: 5,
+    amount: 38_888_889,
+  },
+  {
+    id: "public",
+    label: "Public launch / community",
+    labelDe: "Öffentlicher Start",
+    pct: 2,
+    amount: 15_555_555,
+  },
 ];
 
 export const AURA_ALLOCATION_TOTAL = AURA_ALLOCATIONS.reduce((s, a) => s + a.amount, 0);
@@ -50,6 +106,8 @@ export const AURA_TEAM_VESTING = {
   cliffMonths: 12,
   vestMonths: 36,
   note: "12-month cliff, then 36-month linear vesting. No unrestricted team unlock at T-0.",
+  noteDe:
+    "12 Monate Sperrfrist, danach 36 Monate schrittweise Freigabe. Beim Start bekommt das Team nichts frei.",
 } as const;
 
 export const AURA_BUY_PLAN = {
@@ -74,6 +132,6 @@ export const AURA_BUY_PLAN = {
   ],
 } as const;
 
-export function formatAuraAmount(n: number): string {
-  return n.toLocaleString("en-US");
+export function formatAuraAmount(n: number, locale: "en" | "de" = "en"): string {
+  return n.toLocaleString(locale === "de" ? "de-AT" : "en-US");
 }

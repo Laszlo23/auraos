@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Play, X } from "lucide-react";
 
+import { useLocale } from "@/hooks/use-locale";
 import { trackTeaser } from "@/lib/teaser-track";
 import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -154,6 +155,7 @@ export function TeaserLightbox({
 
 /** Small poster tile that opens the teaser. */
 export function TeaserCard({ className }: { className?: string }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   // Local poster — Lovable CDN assets 404 outside Lovable Cloud.
   const posterSrc = TEASER_POSTER;
@@ -188,13 +190,13 @@ export function TeaserCard({ className }: { className?: string }) {
         </span>
         <span className="min-w-0">
           <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            15 second cut
+            {t("landing.teaserKicker")}
           </span>
           <span className="mt-1.5 block text-[15px] font-semibold leading-snug">
-            Watch the teaser
+            {t("landing.teaserTitle")}
           </span>
           <span className="mt-1 block text-[12px] leading-relaxed text-muted-foreground">
-            Vertical, sound-off, built for the feed.
+            {t("landing.teaserBody")}
           </span>
         </span>
       </button>

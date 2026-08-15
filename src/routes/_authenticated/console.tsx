@@ -21,6 +21,7 @@ import { Chip, Panel, Pulse, Shimmer } from "@/components/aura/primitives";
 import { DailyEngagementStrip } from "@/components/aura/daily-engagement-strip";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
+import { FirstWin } from "@/components/aura/first-win";
 import { StartHere } from "@/components/aura/start-here";
 import { StreamText } from "@/components/aura/stream-text";
 import { QuestTrail } from "@/components/aura/quests";
@@ -28,7 +29,6 @@ import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
 import { COMPANY_QUESTS } from "@/lib/gamify";
 import { levelFromXp, useProgress } from "@/hooks/use-progress";
 import { useCompany, useCompanyTable, liveWorkInterval, rowsHaveLiveWork } from "@/hooks/use-aura";
-import { useChannels } from "@/hooks/use-connections";
 import { useMailboxes } from "@/hooks/use-mailbox";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
 import { useSubscription } from "@/hooks/use-tokens";
@@ -131,7 +131,6 @@ function Home() {
     ascending: false,
     limit: 6,
   });
-  const { data: channels = [] } = useChannels();
   const { data: mailboxes = [] } = useMailboxes();
   const mailboxLive = mailboxes.some((m) => m.connected);
   const { data: akquiseCampaigns = [] } = useCompanyTable<{ id: string }>("akquise_campaigns", {
@@ -221,7 +220,11 @@ function Home() {
       <FocusDeck labels={mobileLabels}>
         <FocusCard
           eyebrow={`Command · ${autonomyLabel(autonomy)}`}
-          title={company?.name ?? "Your company"}
+          title={
+            running.length > 0 || focusMission?.status === "active"
+              ? "Your company is working."
+              : (company?.name ?? "Your company")
+          }
           footer={
             <Link
               to="/ceo"
@@ -348,10 +351,12 @@ function Home() {
               <Pulse /> Command center · {autonomyLabel(autonomy)}
             </p>
             <h1 className="text-gradient max-w-3xl text-3xl font-semibold leading-[1.06] md:text-4xl">
-              {company?.name ?? "Your company"}
+              {running.length > 0 || focusMission?.status === "active"
+                ? "Your company is working."
+                : (company?.name ?? "Your company")}
             </h1>
             <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-              You own the company. The staff just happen to be AI.
+              You own the company. You give outcomes. Aura handles the rest.
               {" · "}
               Level {level}
               {economy?.slug ? (
@@ -369,13 +374,17 @@ function Home() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Chip tone="primary">Rep {economy?.reputation ?? "—"}</Chip>
-            <Chip tone="gold">
-              {compact(sub?.tokens_remaining ?? 0)} {TOKEN_SYMBOL}
-            </Chip>
-            <Chip tone="primary">
-              Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA today
-            </Chip>
+            {!simple ? (
+              <>
+                <Chip tone="primary">Rep {economy?.reputation ?? "—"}</Chip>
+                <Chip tone="gold">
+                  {compact(sub?.tokens_remaining ?? 0)} {TOKEN_SYMBOL}
+                </Chip>
+                <Chip tone="primary">
+                  Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA today
+                </Chip>
+              </>
+            ) : null}
             <Link
               to="/ceo"
               className="inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
@@ -453,28 +462,33 @@ function Home() {
           <RevenueMissionsBand />
         </div>
 
+        {(simple || customers < 10) && (
+          <FirstWin
+            goal={focusMission?.goal_text || "Get 10 qualified leads"}
+            completed={Math.min(customers || done, 10)}
+            target={10}
+          />
+        )}
+
         {(simple || (lifetime === 0 && done === 0)) && (
           <StartHere
-            hasConnections={channels.some((c) => c.status === "connected")}
-            hasInstructed={events.some((e) => e.kind === "instruction" || e.kind === "decision")}
-            hasTasks={tasks.length > 0}
+            hasMission={missions.length > 0}
+            hasApproval={awaiting.length > 0 || done > 0}
+            hasProof={done > 0}
           />
         )}
 
         {lifetime === 0 && done === 0 && awaiting.length === 0 && missions.length === 0 && (
-          <Panel label="Your employees are waiting" glow delay={0.01}>
+          <Panel label="Give your company something to do" glow delay={0.01}>
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Nothing happened yet. That&apos;s about to change — describe a mission above, or ask
-              Atlas to propose next actions.
+              You hired an entire company. Tell it the first outcome — Aura will draft the plan.
             </p>
-            <button
-              type="button"
-              onClick={() => propose.mutate({})}
-              disabled={propose.isPending}
-              className="mt-4 rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary hover:bg-primary/22 disabled:opacity-50"
+            <Link
+              to="/missions"
+              className="mt-4 inline-flex rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
             >
-              {propose.isPending ? "Proposing…" : "Propose next actions"}
-            </button>
+              Create your first mission
+            </Link>
           </Panel>
         )}
 

@@ -4,6 +4,7 @@ import { hireAgentIfNeeded } from "@/lib/actions";
 import { AKQUISE_TEMPLATES } from "@/lib/akquise-templates";
 import { funnelById, isFunnelId, type FunnelId } from "@/lib/funnels";
 import { createRevenueMission } from "@/lib/revenue-mission.functions";
+import { publishLocalListing } from "@/lib/company-slug";
 import { defaultContentFor, slugifyBrand } from "@/lib/sites/templates";
 
 export type OnboardingProductId = "trading" | "commerce" | "studio";
@@ -183,6 +184,20 @@ export async function bootstrapFunnelCompany(
     });
     if (cohortErr) {
       console.warn("[bootstrapFunnelCompany] local cohort", cohortErr.message);
+    }
+    try {
+      const { data: listingRow } = await supabase
+        .from("companies")
+        .select("slug")
+        .eq("id", companyId)
+        .maybeSingle();
+      await publishLocalListing(supabase, {
+        id: companyId,
+        name: brand,
+        slug: listingRow?.slug,
+      });
+    } catch (err) {
+      console.warn("[bootstrapFunnelCompany] listing", err);
     }
     await supabase.from("knowledge_items").insert({
       company_id: companyId,

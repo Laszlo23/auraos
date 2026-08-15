@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { slugifyCompanyName } from "@/lib/company-economy";
+import { ensureCompanySlug } from "@/lib/company-slug";
 import { REVIEW_BOOST_INVITE_GOAL } from "@/lib/funnels";
 import { SITE_URL } from "@/lib/site";
 
@@ -21,22 +21,7 @@ async function ensureCompanySlugRow(
   supabase: LooseDb,
   company: { id: string; name: string; slug?: string | null },
 ) {
-  if (company.slug) return company.slug;
-  const base = slugifyCompanyName(company.name);
-  let candidate = base;
-  for (let i = 0; i < 8; i++) {
-    const { data } = await supabase
-      .from("companies")
-      .select("id")
-      .eq("slug", candidate)
-      .maybeSingle();
-    if (!data || data.id === company.id) {
-      await supabase.from("companies").update({ slug: candidate }).eq("id", company.id);
-      return candidate;
-    }
-    candidate = `${base}-${i + 2}`;
-  }
-  return base;
+  return ensureCompanySlug(supabase, company);
 }
 
 async function ownedCompany(supabase: LooseDb, userId: string) {

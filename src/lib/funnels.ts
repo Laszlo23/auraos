@@ -45,6 +45,9 @@ export type FunnelDef = {
 const SALES_NAV = [
   "/console",
   "/missions",
+  "/agents",
+  "/approvals",
+  "/proofs",
   "/akquise",
   "/sales",
   "/ceo",
@@ -58,6 +61,9 @@ const START_NAV = [
   "/website",
   "/products",
   "/missions",
+  "/agents",
+  "/approvals",
+  "/proofs",
   "/sales",
   "/ceo",
   "/connect",
@@ -67,18 +73,20 @@ const START_NAV = [
 
 const LOCAL_NAV = [
   "/console",
+  "/missions",
+  "/agents",
+  "/approvals",
+  "/proofs",
+  "/billing",
   "/business",
   "/connect",
   "/channels",
-  "/missions",
   "/akquise",
   "/sales",
   "/website",
   "/ceo",
-  "/agents",
   "/tasks",
   "/report",
-  "/billing",
   "/settings",
 ];
 
@@ -96,7 +104,7 @@ export const FUNNELS: Record<FunnelId, FunnelDef> = {
     billingKind: "aura_tokens",
     planIds: [],
     navCore: [],
-    mobileTabs: ["/console", "/trading", "/missions", "/ceo"],
+    mobileTabs: ["/console", "/missions", "/approvals", "/proofs"],
     bootstrap: {
       agents: [],
       skipProductPicker: false,
@@ -222,7 +230,7 @@ export const FUNNELS: Record<FunnelId, FunnelDef> = {
     billingKind: "outcome_sub",
     planIds: OUTCOME_PLANS.map((p) => p.id),
     navCore: LOCAL_NAV,
-    mobileTabs: ["/business", "/channels", "/missions", "/connect"],
+    mobileTabs: ["/console", "/missions", "/approvals", "/proofs"],
     bootstrap: {
       agents: ["Atlas", "Vela", "Orin", "Iris", "Juno", "Ledger"],
       skipProductPicker: true,

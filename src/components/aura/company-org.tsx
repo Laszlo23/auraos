@@ -12,16 +12,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { useLocale } from "@/hooks/use-locale";
 import { cn } from "@/lib/utils";
 
-const AGENTS: { label: string; icon: LucideIcon; hint: string }[] = [
-  { label: "Growth", icon: Megaphone, hint: "Outreach & posts" },
-  { label: "Sales", icon: Briefcase, hint: "Leads & closes" },
-  { label: "Product", icon: Package, hint: "Specs & shipping" },
-  { label: "Eng", icon: Code2, hint: "Build & ship" },
-  { label: "Customers", icon: Users, hint: "Support & care" },
-  { label: "Finance", icon: Banknote, hint: "Books & spend" },
-  { label: "Social", icon: MessageCircle, hint: "Presence" },
+const AGENTS: { label: string; hint: string; icon: LucideIcon }[] = [
+  { label: "landing.orgGrowth", hint: "landing.orgGrowthHint", icon: Megaphone },
+  { label: "landing.orgSales", hint: "landing.orgSalesHint", icon: Briefcase },
+  { label: "landing.orgProduct", hint: "landing.orgProductHint", icon: Package },
+  { label: "landing.orgEng", hint: "landing.orgEngHint", icon: Code2 },
+  { label: "landing.orgCs", hint: "landing.orgCsHint", icon: Users },
+  { label: "landing.orgFinance", hint: "landing.orgFinanceHint", icon: Banknote },
+  { label: "landing.orgSocial", hint: "landing.orgSocialHint", icon: MessageCircle },
 ];
 
 /**
@@ -29,6 +30,7 @@ const AGENTS: { label: string; icon: LucideIcon; hint: string }[] = [
  * Decorative, not a dashboard: clarifies “AI employees” without jargon.
  */
 export function CompanyOrg({ className }: { className?: string }) {
+  const { t } = useLocale();
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
@@ -36,38 +38,38 @@ export function CompanyOrg({ className }: { className?: string }) {
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
       className={cn("relative", className)}
-      aria-label="Aura OS company structure"
+      aria-label={t("landing.orgTitle")}
     >
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-            Your company
+            {t("landing.orgKicker")}
           </p>
           <h3 className="mt-2 font-display text-[clamp(1.4rem,3.5vw,2rem)] leading-tight tracking-tight">
-            One owner. One CEO. A full AI roster.
+            {t("landing.orgTitle")}
           </h3>
         </div>
         <p className="max-w-xs text-[12px] leading-relaxed text-muted-foreground">
-          You set the mission. The CEO splits work. Agents execute and file proof.
+          {t("landing.orgBody")}
         </p>
       </div>
 
       {/* Flow strip: You → mission → CEO → work → upside */}
       <div className="mb-8 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        <FlowChip icon={Crown} label="You" tone="gold" />
+        <FlowChip icon={Crown} label={t("landing.orgYou")} tone="gold" />
         <FlowArrow />
         <span className="rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5 text-primary">
-          Mission
+          {t("landing.orgMission")}
         </span>
         <FlowArrow />
-        <FlowChip icon={Bot} label="CEO" tone="primary" />
+        <FlowChip icon={Bot} label={t("landing.orgCeo")} tone="primary" />
         <FlowArrow />
         <span className="rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">
-          Agents
+          {t("landing.orgAgents")}
         </span>
         <FlowArrow />
         <span className="rounded-full border border-gold/35 bg-gold/10 px-3 py-1.5 text-gold">
-          Upside
+          {t("landing.orgUpside")}
         </span>
       </div>
 
@@ -89,8 +91,8 @@ export function CompanyOrg({ className }: { className?: string }) {
                 <Crown className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-[13px] font-semibold text-foreground">You · Owner</p>
-                <p className="text-[11px] text-muted-foreground">Approve · pause · keep upside</p>
+                <p className="text-[13px] font-semibold text-foreground">{t("landing.orgYouRole")}</p>
+                <p className="text-[11px] text-muted-foreground">{t("landing.orgYouHint")}</p>
               </div>
             </div>
             <span className="hidden text-primary/50 sm:block" aria-hidden>
@@ -101,8 +103,8 @@ export function CompanyOrg({ className }: { className?: string }) {
                 <Bot className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-[13px] font-semibold">CEO agent</p>
-                <p className="text-[11px] text-muted-foreground">Plans · delegates · reports</p>
+                <p className="text-[13px] font-semibold">{t("landing.orgCeoRole")}</p>
+                <p className="text-[11px] text-muted-foreground">{t("landing.orgCeoHint")}</p>
               </div>
             </div>
           </div>
@@ -121,15 +123,13 @@ export function CompanyOrg({ className }: { className?: string }) {
                   <a.icon className="h-3.5 w-3.5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-[12px] font-semibold">{a.label}</p>
-                  <p className="truncate text-[10px] text-muted-foreground">{a.hint}</p>
+                  <p className="truncate text-[12px] font-semibold">{t(a.label)}</p>
+                  <p className="truncate text-[10px] text-muted-foreground">{t(a.hint)}</p>
                 </div>
               </motion.div>
             ))}
           </div>
-          <p className="text-center text-[11px] text-muted-foreground/70">
-            Optional later: Quant and other specialists — never the whole product.
-          </p>
+          <p className="text-center text-[11px] text-muted-foreground/70">{t("landing.orgNote")}</p>
         </div>
       </div>
     </motion.div>

@@ -143,9 +143,15 @@ export function WorkforceBoard({ agents, tasks }: Props) {
           );
         })}
         {agents.length === 0 ? (
-          <p className="text-[13px] text-muted-foreground sm:col-span-2">
-            No employees hired yet — start a mission and Atlas will staff the plan.
-          </p>
+          <div className="sm:col-span-2">
+            <p className="font-medium">Your company is ready for its first employee.</p>
+            <Link
+              to="/missions"
+              className="mt-2 inline-flex text-[12px] font-semibold text-primary"
+            >
+              Build my workforce
+            </Link>
+          </div>
         ) : null}
       </div>
     </Panel>

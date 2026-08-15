@@ -34,11 +34,17 @@ function KnowledgePage() {
     queryFn: () => getCompanyEconomy(),
     staleTime: 30_000,
   });
-  const clusters = Array.from(new Set(items.map((i) => i.cluster)));
   const create = useCreateRow("knowledge_items");
   const remove = useDeleteRow("knowledge_items");
   const [open, setOpen] = useState(false);
+  const [ask, setAsk] = useState("");
   const [draft, setDraft] = useState({ title: "", summary: "", cluster: "" });
+  const visible = ask.trim()
+    ? items.filter((i) =>
+        `${i.title} ${i.summary} ${i.cluster}`.toLowerCase().includes(ask.trim().toLowerCase()),
+      )
+    : items;
+  const clusters = Array.from(new Set(visible.map((i) => i.cluster)));
   const facts = economy?.memory.facts ?? items.length;
   const decisions = economy?.memory.decisions ?? 0;
   const interactions = economy?.memory.interactions ?? 0;
@@ -69,8 +75,8 @@ function KnowledgePage() {
     <div>
       <PageHeader
         eyebrow="Memory"
-        title="What the company knows"
-        description="Company memory is the differentiator — counts from real tables, never padded."
+        title="What your company remembers"
+        description="Customers, products, market knowledge, decisions, and what already worked — never padded."
         actions={
           <button
             onClick={() => setOpen((v) => !v)}
@@ -79,6 +85,14 @@ function KnowledgePage() {
             <Plus className="h-3.5 w-3.5" /> Teach the company
           </button>
         }
+      />
+
+      <input
+        value={ask}
+        onChange={(e) => setAsk(e.target.value)}
+        placeholder="What did we learn about Vienna real estate?"
+        aria-label="Search company memory"
+        className="mb-6 w-full rounded-2xl border border-border bg-foreground/5 px-4 py-3 text-sm outline-none focus:border-primary/40"
       />
 
       <div className="mb-8 grid gap-3 sm:grid-cols-3">
@@ -134,6 +148,12 @@ function KnowledgePage() {
         </Panel>
       )}
 
+      {ask.trim() && visible.length === 0 ? (
+        <p className="mb-8 text-[14px] text-muted-foreground">
+          Nothing in memory matches that yet. Teach the company, or try another question.
+        </p>
+      ) : null}
+
       <div className="space-y-12">
         {clusters.map((cluster) => (
           <section key={cluster}>
@@ -142,7 +162,7 @@ function KnowledgePage() {
               hint={`${items.filter((i) => i.cluster === cluster).length} facts`}
             />
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {items
+              {visible
                 .filter((i) => i.cluster === cluster)
                 .map((i, idx) => (
                   <Panel key={i.id} className="relative p-6" delay={0.04 * idx}>

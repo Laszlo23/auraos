@@ -34,11 +34,13 @@ import { Route as StoryRouteImport } from './routes/story'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
+import { Route as VerkaufRouteImport } from './routes/verkauf'
 import { Route as WhitepaperRouteImport } from './routes/whitepaper'
 import { Route as WienRouteImport } from './routes/wien'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
 import { Route as AuthenticatedAkquiseRouteImport } from './routes/_authenticated/akquise'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
+import { Route as AuthenticatedApprovalsRouteImport } from './routes/_authenticated/approvals'
 import { Route as AuthenticatedArenaRouteImport } from './routes/_authenticated/arena'
 import { Route as AuthenticatedAutomationRouteImport } from './routes/_authenticated/automation'
 import { Route as AuthenticatedBewertungenRouteImport } from './routes/_authenticated/bewertungen'
@@ -64,6 +66,7 @@ import { Route as AuthenticatedMissionsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedOpsRouteImport } from './routes/_authenticated/ops'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
+import { Route as AuthenticatedProofsRouteImport } from './routes/_authenticated/proofs'
 import { Route as AuthenticatedReportRouteImport } from './routes/_authenticated/report'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -105,6 +108,7 @@ import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greete
 import { Route as ApiWebhooksQuidliRouteImport } from './routes/api/webhooks/quidli'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
 import { Route as IFcFidRouteImport } from './routes/i.fc.$fid'
+import { Route as LokalClaimTokenRouteImport } from './routes/lokal_.claim.$token'
 import { Route as NachbarCCodeRouteImport } from './routes/nachbar/c.$code'
 import { Route as NachbarRefCodeRouteImport } from './routes/nachbar/ref.$code'
 import { Route as OauthMailboxReturnRouteImport } from './routes/oauth/mailbox.return'
@@ -249,6 +253,11 @@ const TokenomicsRoute = TokenomicsRouteImport.update({
   path: '/tokenomics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerkaufRoute = VerkaufRouteImport.update({
+  id: '/verkauf',
+  path: '/verkauf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WhitepaperRoute = WhitepaperRouteImport.update({
   id: '/whitepaper',
   path: '/whitepaper',
@@ -272,6 +281,11 @@ const AuthenticatedAkquiseRoute = AuthenticatedAkquiseRouteImport.update({
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedApprovalsRoute = AuthenticatedApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedArenaRoute = AuthenticatedArenaRouteImport.update({
@@ -399,6 +413,11 @@ const AuthenticatedOpsRoute = AuthenticatedOpsRouteImport.update({
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProofsRoute = AuthenticatedProofsRouteImport.update({
+  id: '/proofs',
+  path: '/proofs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReportRoute = AuthenticatedReportRouteImport.update({
@@ -606,6 +625,11 @@ const IFcFidRoute = IFcFidRouteImport.update({
   path: '/i/fc/$fid',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LokalClaimTokenRoute = LokalClaimTokenRouteImport.update({
+  id: '/lokal_/claim/$token',
+  path: '/lokal/claim/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NachbarCCodeRoute = NachbarCCodeRouteImport.update({
   id: '/c/$code',
   path: '/c/$code',
@@ -736,11 +760,13 @@ export interface FileRoutesByFullPath {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
   '/wien': typeof WienRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/akquise': typeof AuthenticatedAkquiseRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/approvals': typeof AuthenticatedApprovalsRoute
   '/arena': typeof AuthenticatedArenaRoute
   '/automation': typeof AuthenticatedAutomationRoute
   '/bewertungen': typeof AuthenticatedBewertungenRoute
@@ -766,6 +792,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/proofs': typeof AuthenticatedProofsRoute
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -807,6 +834,7 @@ export interface FileRoutesByFullPath {
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/i/fc/$fid': typeof IFcFidRoute
+  '/lokal/claim/$token': typeof LokalClaimTokenRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
@@ -851,11 +879,13 @@ export interface FileRoutesByTo {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
   '/wien': typeof WienRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/akquise': typeof AuthenticatedAkquiseRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
+  '/approvals': typeof AuthenticatedApprovalsRoute
   '/arena': typeof AuthenticatedArenaRoute
   '/automation': typeof AuthenticatedAutomationRoute
   '/bewertungen': typeof AuthenticatedBewertungenRoute
@@ -881,6 +911,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/proofs': typeof AuthenticatedProofsRoute
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -922,6 +953,7 @@ export interface FileRoutesByTo {
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/i/fc/$fid': typeof IFcFidRoute
+  '/lokal/claim/$token': typeof LokalClaimTokenRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
@@ -969,11 +1001,13 @@ export interface FileRoutesById {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
   '/wien': typeof WienRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
   '/_authenticated/akquise': typeof AuthenticatedAkquiseRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
+  '/_authenticated/approvals': typeof AuthenticatedApprovalsRoute
   '/_authenticated/arena': typeof AuthenticatedArenaRoute
   '/_authenticated/automation': typeof AuthenticatedAutomationRoute
   '/_authenticated/bewertungen': typeof AuthenticatedBewertungenRoute
@@ -999,6 +1033,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/ops': typeof AuthenticatedOpsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
+  '/_authenticated/proofs': typeof AuthenticatedProofsRoute
   '/_authenticated/report': typeof AuthenticatedReportRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -1040,6 +1075,7 @@ export interface FileRoutesById {
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/i/fc/$fid': typeof IFcFidRoute
+  '/lokal_/claim/$token': typeof LokalClaimTokenRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
@@ -1087,11 +1123,13 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tokenomics'
+    | '/verkauf'
     | '/whitepaper'
     | '/wien'
     | '/agents'
     | '/akquise'
     | '/analytics'
+    | '/approvals'
     | '/arena'
     | '/automation'
     | '/bewertungen'
@@ -1117,6 +1155,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/ops'
     | '/products'
+    | '/proofs'
     | '/report'
     | '/sales'
     | '/settings'
@@ -1158,6 +1197,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/i/fc/$fid'
+    | '/lokal/claim/$token'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
@@ -1202,11 +1242,13 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tokenomics'
+    | '/verkauf'
     | '/whitepaper'
     | '/wien'
     | '/agents'
     | '/akquise'
     | '/analytics'
+    | '/approvals'
     | '/arena'
     | '/automation'
     | '/bewertungen'
@@ -1232,6 +1274,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/ops'
     | '/products'
+    | '/proofs'
     | '/report'
     | '/sales'
     | '/settings'
@@ -1273,6 +1316,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/i/fc/$fid'
+    | '/lokal/claim/$token'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
@@ -1319,11 +1363,13 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tokenomics'
+    | '/verkauf'
     | '/whitepaper'
     | '/wien'
     | '/_authenticated/agents'
     | '/_authenticated/akquise'
     | '/_authenticated/analytics'
+    | '/_authenticated/approvals'
     | '/_authenticated/arena'
     | '/_authenticated/automation'
     | '/_authenticated/bewertungen'
@@ -1349,6 +1395,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/ops'
     | '/_authenticated/products'
+    | '/_authenticated/proofs'
     | '/_authenticated/report'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
@@ -1390,6 +1437,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/i/fc/$fid'
+    | '/lokal_/claim/$token'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
@@ -1437,6 +1485,7 @@ export interface RootRouteChildren {
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TokenomicsRoute: typeof TokenomicsRoute
+  VerkaufRoute: typeof VerkaufRoute
   WhitepaperRoute: typeof WhitepaperRoute
   WienRoute: typeof WienRoute
   ApiCeoRoute: typeof ApiCeoRoute
@@ -1464,6 +1513,7 @@ export interface RootRouteChildren {
   ApiWebhooksQuidliRoute: typeof ApiWebhooksQuidliRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
   IFcFidRoute: typeof IFcFidRoute
+  LokalClaimTokenRoute: typeof LokalClaimTokenRoute
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
   OauthSocialReturnRoute: typeof OauthSocialReturnRoute
   RReviewTokenRoute: typeof RReviewTokenRoute
@@ -1660,6 +1710,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TokenomicsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verkauf': {
+      id: '/verkauf'
+      path: '/verkauf'
+      fullPath: '/verkauf'
+      preLoaderRoute: typeof VerkaufRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/whitepaper': {
       id: '/whitepaper'
       path: '/whitepaper'
@@ -1693,6 +1750,13 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/approvals': {
+      id: '/_authenticated/approvals'
+      path: '/approvals'
+      fullPath: '/approvals'
+      preLoaderRoute: typeof AuthenticatedApprovalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/arena': {
@@ -1868,6 +1932,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/proofs': {
+      id: '/_authenticated/proofs'
+      path: '/proofs'
+      fullPath: '/proofs'
+      preLoaderRoute: typeof AuthenticatedProofsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/report': {
@@ -2157,6 +2228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IFcFidRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lokal_/claim/$token': {
+      id: '/lokal_/claim/$token'
+      path: '/lokal/claim/$token'
+      fullPath: '/lokal/claim/$token'
+      preLoaderRoute: typeof LokalClaimTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/nachbar/c/$code': {
       id: '/nachbar/c/$code'
       path: '/c/$code'
@@ -2310,6 +2388,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgentsRoute: typeof AuthenticatedAgentsRoute
   AuthenticatedAkquiseRoute: typeof AuthenticatedAkquiseRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
+  AuthenticatedApprovalsRoute: typeof AuthenticatedApprovalsRoute
   AuthenticatedArenaRoute: typeof AuthenticatedArenaRoute
   AuthenticatedAutomationRoute: typeof AuthenticatedAutomationRoute
   AuthenticatedBewertungenRoute: typeof AuthenticatedBewertungenRoute
@@ -2335,6 +2414,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOpsRoute: typeof AuthenticatedOpsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
+  AuthenticatedProofsRoute: typeof AuthenticatedProofsRoute
   AuthenticatedReportRoute: typeof AuthenticatedReportRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -2350,6 +2430,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgentsRoute: AuthenticatedAgentsRoute,
   AuthenticatedAkquiseRoute: AuthenticatedAkquiseRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
+  AuthenticatedApprovalsRoute: AuthenticatedApprovalsRoute,
   AuthenticatedArenaRoute: AuthenticatedArenaRoute,
   AuthenticatedAutomationRoute: AuthenticatedAutomationRoute,
   AuthenticatedBewertungenRoute: AuthenticatedBewertungenRoute,
@@ -2375,6 +2456,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOpsRoute: AuthenticatedOpsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
+  AuthenticatedProofsRoute: AuthenticatedProofsRoute,
   AuthenticatedReportRoute: AuthenticatedReportRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
@@ -2441,6 +2523,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TokenomicsRoute: TokenomicsRoute,
+  VerkaufRoute: VerkaufRoute,
   WhitepaperRoute: WhitepaperRoute,
   WienRoute: WienRoute,
   ApiCeoRoute: ApiCeoRoute,
@@ -2468,6 +2551,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWebhooksQuidliRoute: ApiWebhooksQuidliRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
   IFcFidRoute: IFcFidRoute,
+  LokalClaimTokenRoute: LokalClaimTokenRoute,
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,
   OauthSocialReturnRoute: OauthSocialReturnRoute,
   RReviewTokenRoute: RReviewTokenRoute,

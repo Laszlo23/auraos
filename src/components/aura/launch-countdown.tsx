@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
 import { Pulse } from "@/components/aura/primitives";
+import { useLocale } from "@/hooks/use-locale";
 import {
   SOCIAL_LINKS,
   TOKEN_LAUNCH_DISPLAY,
@@ -94,6 +95,7 @@ export function LaunchCountdown({
   showSocials?: boolean;
   placement?: string;
 }) {
+  const { t } = useLocale();
   const { d, h, m, s, live } = useLaunchClock();
 
   if (variant === "compact") {
@@ -107,7 +109,7 @@ export function LaunchCountdown({
       >
         <Pulse />
         {live ? (
-          <span className="text-primary">{TOKEN_LAUNCH_LABEL} is live</span>
+          <span className="text-primary">{t("landing.launchLive", { label: TOKEN_LAUNCH_LABEL })}</span>
         ) : (
           <span className="flex items-center gap-1.5 text-muted-foreground">
             <span className="text-primary">{TOKEN_LAUNCH_LABEL}</span>
@@ -124,7 +126,9 @@ export function LaunchCountdown({
     <div className={cn("space-y-6", className)} aria-live="polite">
       <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
         <Pulse />
-        {live ? `${TOKEN_LAUNCH_LABEL} is live` : `${TOKEN_LAUNCH_LABEL} · ${TOKEN_LAUNCH_DISPLAY}`}
+        {live
+          ? t("landing.launchLive", { label: TOKEN_LAUNCH_LABEL })
+          : `${TOKEN_LAUNCH_LABEL} · ${TOKEN_LAUNCH_DISPLAY}`}
       </div>
 
       {live ? (
@@ -133,18 +137,18 @@ export function LaunchCountdown({
           animate={{ opacity: 1, y: 0 }}
           className="font-display text-[clamp(1.8rem,5vw,2.8rem)] leading-[1.05] tracking-tight"
         >
-          The fair launch window is open.
-          <span className="block text-primary">Follow Ninty for the reveal.</span>
+          {t("landing.launchOpen")}
+          <span className="block text-primary">{t("landing.launchFollow")}</span>
         </motion.p>
       ) : (
         <div className="flex flex-wrap items-end gap-4 sm:gap-7">
-          <Unit value={String(d)} label="Days" large />
+          <Unit value={String(d)} label={t("landing.days")} large />
           <span className="mb-6 text-2xl text-muted-foreground/50">:</span>
-          <Unit value={pad(h)} label="Hours" large />
+          <Unit value={pad(h)} label={t("landing.hours")} large />
           <span className="mb-6 text-2xl text-muted-foreground/50">:</span>
-          <Unit value={pad(m)} label="Mins" large />
+          <Unit value={pad(m)} label={t("landing.mins")} large />
           <span className="mb-6 text-2xl text-muted-foreground/50">:</span>
-          <Unit value={pad(s)} label="Secs" large />
+          <Unit value={pad(s)} label={t("landing.secs")} large />
         </div>
       )}
 

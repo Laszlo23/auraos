@@ -22,7 +22,7 @@ import {
 import { PulseOrbit } from "@/components/aura/pulse-orbit";
 import { AuraLens } from "@/components/aura/aura-lens";
 import { WordReveal } from "@/components/aura/word-reveal";
-import { Chip, Panel } from "@/components/aura/primitives";
+import { Panel } from "@/components/aura/primitives";
 import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
 import { HeroFilm } from "@/components/aura/hero-film";
 import { ActFilm } from "@/components/aura/act-film";
@@ -100,30 +100,15 @@ export const Route = createFileRoute("/")({
 });
 
 const LOOP: { step: string; body: string; icon: LucideIcon }[] = [
-  {
-    step: "CREATE",
-    body: "You name the company. AI employees wake up ready to work.",
-    icon: Building2,
-  },
-  {
-    step: "EXECUTE",
-    body: "You give one goal in plain words. They split the work and do it.",
-    icon: Workflow,
-  },
-  {
-    step: "EARN",
-    body: "You see real results — cost, proof, and money in — after you approve the work.",
-    icon: CircleDollarSign,
-  },
-  {
-    step: "GROW",
-    body: "You reinvest. Hire better agents. The company compounds.",
-    icon: ChartNoAxesCombined,
-  },
+  { step: "landing.loopCreate", body: "landing.loopCreateBody", icon: Building2 },
+  { step: "landing.loopExecute", body: "landing.loopExecuteBody", icon: Workflow },
+  { step: "landing.loopEarn", body: "landing.loopEarnBody", icon: CircleDollarSign },
+  { step: "landing.loopGrow", body: "landing.loopGrowBody", icon: ChartNoAxesCombined },
 ];
 
 /** How founding seats work — buy first; invite is post-purchase share. */
 function UnlockAccessBand() {
+  const { t } = useLocale();
   return (
     <section
       id="unlock"
@@ -132,23 +117,22 @@ function UnlockAccessBand() {
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
         <div className="mb-8 max-w-2xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-            How to get in
+            {t("landing.unlockKicker")}
           </p>
           <h2 className="mt-3 font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
-            Buy a founding seat.
-            <span className="block text-primary">$99 · 1000 companies · open now.</span>
+            {t("landing.unlockTitle")}
+            <span className="block text-primary">{t("landing.unlockTitle2")}</span>
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            No invite required. Pay once, wake your AI company, then share one invite if you want —
-            friends still pay $99. Token fair launch is a separate event.
+            {t("landing.unlockBody")}
           </p>
         </div>
 
         <div className="grid gap-2 sm:grid-cols-3">
           {[
-            { n: "01", t: "Pay $99", d: "One-time founding seat via Stripe." },
-            { n: "02", t: "Wake the company", d: "Atlas and your staff go live." },
-            { n: "03", t: "Share one invite", d: "Optional — earn in-app AURA on paid referrals." },
+            { n: "01", t: t("landing.unlockPay"), d: t("landing.unlockPayBody") },
+            { n: "02", t: t("landing.unlockWake"), d: t("landing.unlockWakeBody") },
+            { n: "03", t: t("landing.unlockShare"), d: t("landing.unlockShareBody") },
           ].map((s) => (
             <div key={s.n} className="glass rounded-2xl px-4 py-4">
               <p className="num text-[10px] font-semibold tracking-[0.2em] text-primary/70">
@@ -165,7 +149,7 @@ function UnlockAccessBand() {
           onClick={() => trackTeaser("cta_click", { placement: "landing_unlock_start" })}
           className="cta-liquid cta-magnetic mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-7 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
-          Buy founding seat — $99 <ArrowRight className="h-4 w-4" />
+          {t("landing.unlockCta")} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </section>
@@ -173,21 +157,9 @@ function UnlockAccessBand() {
 }
 
 const PILLARS = [
-  {
-    icon: Trophy,
-    title: "You own the company",
-    body: "Not a chat window — a digital company with employees, memory, and economic upside.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI employees execute",
-    body: "They don't just answer questions. They take missions, file proof of work, and report results.",
-  },
-  {
-    icon: Disc3,
-    title: "Earn, then grow",
-    body: "Progress and AURA come from real activity — tasks, settlements, milestones — not vanity points.",
-  },
+  { icon: Trophy, title: "landing.pillarOwn", body: "landing.pillarOwnBody" },
+  { icon: Sparkles, title: "landing.pillarExec", body: "landing.pillarExecBody" },
+  { icon: Disc3, title: "landing.pillarGrow", body: "landing.pillarGrowBody" },
 ];
 
 /** The story. Four acts, one screen each — reads like a scroll on phone, like film on desktop. */
@@ -202,36 +174,36 @@ const ACTS: {
 }[] = [
   {
     no: "01",
-    kicker: "The problem",
-    line: "You are currently the whole company.",
-    body: "Ops, growth, support, research, the books. Twelve tabs and one human. The ceiling is your calendar.",
+    kicker: "landing.act1Kicker",
+    line: "landing.act1Line",
+    body: "landing.act1Body",
     tone: "muted",
     film: null,
     icon: Timer,
   },
   {
     no: "02",
-    kicker: "The switch",
-    line: "Wake the team.",
-    body: "CEO, growth, sales, product, engineering, customers, finance, social. You give one mission. They split it, execute it, report back.",
+    kicker: "landing.act2Kicker",
+    line: "landing.act2Line",
+    body: "landing.act2Body",
     tone: "primary",
     film: mediaPath("/act-agents.mp4"),
     icon: Bot,
   },
   {
     no: "03",
-    kicker: "The work",
-    line: "They execute. You own the upside.",
-    body: "Every meaningful action shows who, what, when, cost, and result. Real business activity — not chat fluff. Optional specialists (like Quant) come later.",
+    kicker: "landing.act3Kicker",
+    line: "landing.act3Line",
+    body: "landing.act3Body",
     tone: "gold",
     film: mediaPath("/act-quant.mp4"),
     icon: CircleDollarSign,
   },
   {
     no: "04",
-    kicker: "The loop",
-    line: "Create. Execute. Earn. Grow.",
-    body: "Completed work levels the company. Reinvest in better agents. Compete on the board. Build an economy of autonomous companies.",
+    kicker: "landing.act4Kicker",
+    line: "landing.act4Line",
+    body: "landing.act4Body",
     tone: "primary",
     film: mediaPath("/act-rewards.mp4"),
     icon: Rocket,
@@ -284,6 +256,7 @@ function Ticker() {
 }
 
 function Act({ act, index }: { act: (typeof ACTS)[number]; index: number }) {
+  const { t } = useLocale();
   return (
     <motion.section
       initial={{ opacity: 0, y: 40 }}
@@ -310,7 +283,7 @@ function Act({ act, index }: { act: (typeof ACTS)[number]; index: number }) {
             {act.no}
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-            {act.kicker}
+            {t(act.kicker)}
           </span>
         </div>
         <h2
@@ -322,7 +295,7 @@ function Act({ act, index }: { act: (typeof ACTS)[number]; index: number }) {
                 : "text-muted-foreground"
           }`}
         >
-          <Typewriter text={act.line} speed={38} />
+          <Typewriter text={t(act.line)} speed={38} />
         </h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -331,7 +304,7 @@ function Act({ act, index }: { act: (typeof ACTS)[number]; index: number }) {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="mt-5 text-[15px] leading-relaxed text-muted-foreground sm:text-base"
         >
-          {act.body}
+          {t(act.body)}
         </motion.p>
       </div>
     </motion.section>
@@ -356,19 +329,19 @@ function Landing() {
     e.preventDefault();
     const value = email.trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value) || value.length > 255) {
-      toast.error("That email doesn't look right.");
+      toast.error(t("landing.emailBad"));
       return;
     }
     setBusy(true);
     const { error } = await supabase.from("waitlist_signups").insert({ email: value });
     setBusy(false);
     if (error && !error.message.includes("duplicate")) {
-      toast.error("Couldn't save that — try again.");
+      toast.error(t("landing.emailFail"));
       return;
     }
     trackTeaser("cta_click", { placement: "waitlist_join" });
     setJoined(true);
-    toast.success("You're on the list — seats are open to buy anytime.");
+    toast.success(t("landing.emailOk"));
   };
 
   return (
@@ -379,28 +352,49 @@ function Landing() {
         <div className="austria-bar" aria-hidden />
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:px-6">
           <PulseOrbit size="sm" className="min-w-0" />
-          <Chip className="ml-auto hidden sm:flex">
-            <LaunchCountdown variant="compact" showSocials={false} placement="header" />
-          </Chip>
-          <Link
-            to="/wien"
-            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:inline"
+          <nav
+            aria-label="Primary"
+            className="ml-auto hidden items-center gap-4 lg:flex"
           >
-            {t("landing.wien")}
-          </Link>
-          <Link
-            to="/story"
-            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:inline"
-          >
-            {t("landing.story")}
-          </Link>
+            <Link
+              to="/"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+            >
+              {t("landing.navOs")}
+            </Link>
+            <Link
+              to="/lokal"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+            >
+              {t("landing.navLokal")}
+            </Link>
+            <a
+              href="#how"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+            >
+              {t("landing.navHow")}
+            </a>
+            <Link
+              to="/proof"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+            >
+              {t("landing.navProof")}
+            </Link>
+            <Link
+              to="/access"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+            >
+              {t("landing.navPricing")}
+            </Link>
+          </nav>
           <LanguageToggle className="hidden border-white/15 bg-black/20 sm:inline-flex" />
           <Link
-            to="/access"
-            onClick={() => trackTeaser("cta_click", { placement: "landing_header_buy" })}
+            to="/auth"
+            search={{ mode: "signup" }}
+            onClick={() => trackTeaser("cta_click", { placement: "landing_header_start" })}
             className="cta-liquid cta-magnetic shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_28px_-10px_var(--glow)]"
           >
-            {t("landing.buy")}
+            {t("landing.navStart")}
           </Link>
           <button
             onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
@@ -416,7 +410,7 @@ function Landing() {
       </header>
 
       {/* ACT 00 — one composition: brand · headline · line · CTAs · film */}
-      <section className="relative flex min-h-[100svh] snap-start items-end overflow-hidden sm:items-center">
+      <section className="relative z-10 flex min-h-[100svh] snap-start items-end overflow-hidden sm:items-center">
         <HeroFilm />
         <div
           data-tour="hero"
@@ -541,11 +535,11 @@ function Landing() {
             className="mt-8 max-w-md space-y-2.5 text-[15px] text-muted-foreground"
           >
             {[
-              "Find customers",
-              "Build products",
-              "Run marketing",
-              "Research markets",
-              "Handle operations",
+              t("landing.jobCustomers"),
+              t("landing.jobProducts"),
+              t("landing.jobMarketing"),
+              t("landing.jobMarkets"),
+              t("landing.jobOps"),
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
                 <span className="h-1 w-1 shrink-0 rotate-45 bg-primary" aria-hidden />
@@ -561,8 +555,68 @@ function Landing() {
             transition={{ duration: 0.6, delay: 0.28 }}
             className="mt-10 inline-flex items-center gap-2 text-[13px] font-semibold text-primary underline-offset-4 hover:underline"
           >
-            See how it works <ArrowRight className="h-3.5 w-3.5" />
+            {t("landing.seeHow")} <ArrowRight className="h-3.5 w-3.5" />
           </motion.a>
+        </div>
+      </section>
+
+      <section id="start" className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-16 sm:py-20">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
+          {t("landing.audienceKicker")}
+        </p>
+        <h2 className="display-hero mt-4 max-w-3xl text-[clamp(2.2rem,6vw,3.8rem)]">
+          {t("landing.audienceTitle")}
+        </h2>
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <Link
+            to="/auth"
+            search={{ mode: "signup" }}
+            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_os" })}
+            className="glass hover-lift group rounded-[1.65rem] p-6"
+          >
+            <p className="text-2xl" aria-hidden>
+              🚀
+            </p>
+            <h3 className="mt-4 text-xl font-semibold">{t("landing.audienceOsTitle")}</h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.audienceOsBody")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+              {t("landing.audienceOsCta")} <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </Link>
+          <Link
+            to="/lokal"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_lokal" })}
+            className="glass hover-lift group rounded-[1.65rem] p-6"
+          >
+            <p className="text-2xl" aria-hidden>
+              🏪
+            </p>
+            <h3 className="mt-4 text-xl font-semibold">{t("landing.audienceLokalTitle")}</h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.audienceLokalBody")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+              {t("landing.audienceLokalCta")} <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </Link>
+          <Link
+            to="/tokenomics"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_aura" })}
+            className="glass hover-lift group rounded-[1.65rem] p-6"
+          >
+            <p className="text-2xl" aria-hidden>
+              🪙
+            </p>
+            <h3 className="mt-4 text-xl font-semibold">{t("landing.audienceAuraTitle")}</h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.audienceAuraBody")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+              {t("landing.audienceAuraCta")} <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </Link>
         </div>
       </section>
 
@@ -574,9 +628,7 @@ function Landing() {
         >
           {joined ? (
             <p className="px-2 py-2 text-[13px] text-muted-foreground">
-              You&apos;re on the list — we&apos;ll email{" "}
-              <span className="text-foreground">{email.trim().toLowerCase()}</span> launch notes.
-              Seats are open to buy anytime.
+              {t("landing.waitlistJoined", { email: email.trim().toLowerCase() })}
             </p>
           ) : (
             <>
@@ -644,9 +696,9 @@ function Landing() {
                 <l.icon className="h-4 w-4" />
               </span>
               <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
-                {String(i + 1).padStart(2, "0")} · {l.step}
+                {String(i + 1).padStart(2, "0")} · {t(l.step)}
               </p>
-              <p className="mt-2 text-[13px] leading-snug text-muted-foreground">{l.body}</p>
+              <p className="mt-2 text-[13px] leading-snug text-muted-foreground">{t(l.body)}</p>
             </motion.div>
           ))}
         </div>
@@ -660,13 +712,13 @@ function Landing() {
             onClick={() => trackTeaser("cta_click", { placement: "landing_how_earn" })}
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Founding seats <ArrowRight className="h-4 w-4" />
+            {t("landing.howSeatsCta")} <ArrowRight className="h-4 w-4" />
           </Link>
           <a
             href="#unlock"
             className="text-[13px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
-            How founding seats work
+            {t("landing.howSeats")}
           </a>
         </div>
       </section>
@@ -680,14 +732,13 @@ function Landing() {
         <div className="flex flex-col gap-6 rounded-3xl border border-border/40 bg-foreground/[0.03] p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
           <div className="max-w-xl flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-              Proof &amp; memory
+              {t("landing.proofKicker")}
             </p>
             <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
-              Finished work leaves evidence
+              {t("landing.proofTitle")}
             </h2>
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              Timestamps, written results, dated agent memory — and founding seats capped at 1000
-              (paid inventory only). Steal the shareable proof card.
+              {t("landing.proofBody")}
             </p>
             <div className="mt-5 max-w-sm">
               <MarketingWaveScarcity />
@@ -698,7 +749,7 @@ function Landing() {
             onClick={() => trackTeaser("cta_click", { placement: "landing_proof" })}
             className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
           >
-            Open proof page <ArrowRight className="h-3.5 w-3.5" />
+            {t("landing.proofCta")} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </section>
@@ -712,15 +763,14 @@ function Landing() {
       >
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <h2 className="font-display text-[clamp(2rem,6vw,3.2rem)] leading-[0.98] tracking-tight">
-            Fair launch.
+            {t("landing.launchTitle")}
             <span className="mt-1 flex items-center gap-3 text-primary">
               <Rocket className="h-7 w-7 shrink-0 sm:h-8 sm:w-8" aria-hidden />
-              Same clock for everyone.
+              {t("landing.launchLine")}
             </span>
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-            Fair launch. No team-dump narrative — the countdown ends {TOKEN_LAUNCH_DISPLAY}. Join
-            the Ninty channels so you are in the room when it opens.
+            {t("landing.launchBody", { when: TOKEN_LAUNCH_DISPLAY })}
           </p>
           <div className="mt-8">
             <LaunchCountdown variant="hero" placement="landing_launch" />
@@ -754,8 +804,8 @@ function Landing() {
               className="glass rounded-3xl p-5"
             >
               <p.icon className="h-4 w-4 text-gold" />
-              <p className="mt-3 text-[13px] font-semibold">{p.title}</p>
-              <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">{p.body}</p>
+              <p className="mt-3 text-[13px] font-semibold">{t(p.title)}</p>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">{t(p.body)}</p>
             </motion.div>
           ))}
         </div>
@@ -769,13 +819,12 @@ function Landing() {
       >
         <div className="flex flex-col justify-center">
           <h2 className="font-display text-[clamp(2rem,7vw,3.4rem)] leading-[0.98] tracking-tight">
-            Buy the seat.
+            {t("landing.claimTitle")}
             <br />
-            <span className="text-gold">Wake the company.</span>
+            <span className="text-gold">{t("landing.claimTitle2")}</span>
           </h2>
           <p className="mt-5 max-w-md text-[14px] leading-relaxed text-muted-foreground">
-            $99 one-time · hard-capped at 1000. No invite required. After you&apos;re in, share one
-            invite if you want — friends still pay. Genesis Passport NFT is a separate wallet key.
+            {t("landing.claimBody")}
           </p>
           <div className="mt-8">
             <FoundingCohort />
@@ -786,7 +835,7 @@ function Landing() {
               text={LAUNCH_SHARE_TEXT}
               title="Aura OS"
               placement="landing_claim_share"
-              label="Share Aura OS"
+              label={t("landing.claimShare")}
               showKit
             />
           </div>
@@ -800,7 +849,7 @@ function Landing() {
             </Link>
             <span className="text-muted-foreground/40">·</span>
             <Link to="/wien" className="text-primary underline-offset-2 hover:underline">
-              Wien hub
+              {t("landing.wienHub")}
             </Link>
             <span className="text-muted-foreground/40">·</span>
             <Link to="/pitch" className="text-primary underline-offset-2 hover:underline">
@@ -812,39 +861,37 @@ function Landing() {
               params={{ slug: "nfts-as-keys" }}
               className="text-primary underline-offset-2 hover:underline"
             >
-              Why NFTs as keys (funny edition)
+              {t("landing.nftsFunny")}
             </Link>
           </div>
         </div>
 
         <div className="space-y-4">
-          <Panel label="Founding seat — $99" glow>
+          <Panel label={t("landing.seatPanel")} glow>
             <p className="text-[12px] leading-relaxed text-muted-foreground">
-              Open Stripe checkout after a quick signup. Seat unlocks when payment clears.
+              {t("landing.seatPanelBody")}
             </p>
             <Link
               to="/access"
               onClick={() => trackTeaser("cta_click", { placement: "landing_claim_buy" })}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
             >
-              Buy founding seat — $99 <ArrowRight className="h-3.5 w-3.5" />
+              {t("landing.unlockCta")} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </Panel>
 
-          <Panel label="Just want updates" delay={0.08}>
+          <Panel label={t("landing.updatesPanel")} delay={0.08}>
             {joined ? (
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
                 <p className="text-[13px] leading-relaxed text-muted-foreground">
-                  You&apos;re on the list — we&apos;ll email{" "}
-                  <span className="text-foreground">{email.trim().toLowerCase()}</span>. Seats are
-                  already open to buy above.
+                  {t("landing.waitlistJoinedShort", { email: email.trim().toLowerCase() })}
                 </p>
               </div>
             ) : (
               <form onSubmit={join} className="space-y-3">
                 <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  Optional email list. Buying does not require this.
+                  {t("landing.updatesHint")}
                 </p>
                 <input
                   id="landing-email"
@@ -853,8 +900,8 @@ function Landing() {
                   onChange={(e) => setEmail(e.target.value)}
                   maxLength={255}
                   required
-                  placeholder="you@company.com"
-                  aria-label="Work email for Aura OS waitlist"
+                  placeholder={t("landing.waitlistPh")}
+                  aria-label={t("landing.waitlistPh")}
                   autoComplete="email"
                   className="w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/80 focus-visible:ring-2 focus-visible:ring-primary/45"
                 />
@@ -863,7 +910,7 @@ function Landing() {
                   disabled={busy}
                   className="w-full rounded-2xl border border-border/50 px-4 py-2.5 text-xs font-semibold transition-colors hover:border-primary/40 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                 >
-                  {busy ? "Saving…" : "Join the waitlist"}
+                  {busy ? t("landing.updatesSaving") : t("landing.updatesCta")}
                 </button>
               </form>
             )}

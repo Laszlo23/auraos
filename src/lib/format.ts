@@ -24,6 +24,17 @@ export function timeAgo(iso: string) {
   return `${Math.round(hrs / 24)}d ago`;
 }
 
+export function timeAgoDe(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diff / 60000);
+  if (mins < 1) return "gerade eben";
+  if (mins < 60) return `vor ${mins} Min`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `vor ${hrs} Std`;
+  const days = Math.round(hrs / 24);
+  return days === 1 ? "vor 1 Tag" : `vor ${days} Tagen`;
+}
+
 export function seedRandom(seed: number) {
   let s = seed % 2147483647;
   if (s <= 0) s += 2147483646;

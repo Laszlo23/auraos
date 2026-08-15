@@ -59,6 +59,7 @@ export const TOKEN_LAUNCH_AT = "2026-08-17T13:11:00+02:00";
 export const TOKEN_LAUNCH_MS = Date.parse(TOKEN_LAUNCH_AT);
 export const TOKEN_LAUNCH_LABEL = "Fair launch";
 export const TOKEN_LAUNCH_DISPLAY = "17 Aug 2026 · 13:11 CEST";
+export const TOKEN_LAUNCH_DISPLAY_DE = "17. August 2026 · 13:11 MESZ";
 
 export type SocialLinkId = "x" | "discord" | "telegram" | "farcaster";
 

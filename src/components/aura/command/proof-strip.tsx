@@ -32,7 +32,7 @@ export function ProofOfWorkStrip({ tasks, agents }: Props) {
       delay={0.09}
       action={
         <Link
-          to="/tasks"
+          to="/proofs"
           className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:text-primary"
         >
           All proofs

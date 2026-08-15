@@ -128,6 +128,12 @@ function LokalLandingPage() {
           >
             Wien
           </Link>
+          <Link
+            to="/verkauf"
+            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70 sm:inline"
+          >
+            Verkauf
+          </Link>
           <a
             href={REVIEW_APP_URL}
             target="_blank"

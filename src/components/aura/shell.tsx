@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 
-import { NAV_GROUPS, navForFunnel, navLabel } from "@/lib/nav";
+import { isMoreGroup, NAV_GROUPS, navForFunnel, navLabel } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
 import { useSwipeAxis } from "@/hooks/use-swipe-axis";
@@ -75,8 +75,11 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
     [funnelNav.navCore, simple],
   );
   const visibleGroups = useMemo(
-    () => NAV_GROUPS.filter((g) => visibleNav.some((n) => n.group === g)),
-    [visibleNav],
+    () =>
+      NAV_GROUPS.filter((g) => visibleNav.some((n) => n.group === g)).filter(
+        (g) => !simple || !isMoreGroup(g),
+      ),
+    [visibleNav, simple],
   );
 
   /** Bottom tabs: funnel preferred order, then fill from visibleNav. */
@@ -84,7 +87,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
     const preferred =
       funnelNav.mobileTabs.length > 0
         ? funnelNav.mobileTabs
-        : (["/console", "/trading", "/missions", "/ceo"] as const);
+        : (["/console", "/missions", "/approvals", "/proofs"] as const);
     const byTo = new Map(visibleNav.map((n) => [n.to, n]));
     const tabs: typeof visibleNav = [];
     for (const to of preferred) {
@@ -252,7 +255,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
           )}
         >
           <Layers3 className="h-4 w-4" aria-hidden />
-          {!collapsed && (simple ? "Show everything" : "Simple mode")}
+          {!collapsed && (simple ? "More" : "Less")}
         </button>
 
         <button

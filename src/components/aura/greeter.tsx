@@ -4,6 +4,7 @@ import { ArrowUp, MessageCircle, Square, X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
 import { Pulse } from "@/components/aura/primitives";
+import { useLocale } from "@/hooks/use-locale";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { trackTeaser } from "@/lib/teaser-track";
@@ -12,21 +13,11 @@ import { cn } from "@/lib/utils";
 type Message = { role: "user" | "assistant"; content: string };
 type NudgeReason = "hello" | "idle" | "scroll" | "exit";
 
-const OPENING =
-  "I'm Aura — the intelligence at the front door. Ask me anything about running a company staffed entirely by AI, or I'll show you around in thirty seconds.";
-
-const PROMPTS = [
-  "What is Aura OS, really?",
-  "Who are the eight agents?",
-  "How does an AI employee actually work?",
-  "How do I get a founding seat?",
-];
-
-const NUDGE_COPY: Record<NudgeReason, string> = {
-  hello: "Your company could be running itself by tonight. Want the thirty-second version?",
-  idle: "Still looking? I can point you at the one move that matters — the founding seat.",
-  scroll: "You scrolled past the story. The short path: claim a $99 seat and Atlas starts work.",
-  exit: "Before you go — founding seats are open at $99. I can walk you there in one step.",
+const NUDGE_KEYS: Record<NudgeReason, string> = {
+  hello: "greeter.nudgeHello",
+  idle: "greeter.nudgeIdle",
+  scroll: "greeter.nudgeScroll",
+  exit: "greeter.nudgeExit",
 };
 
 const EMAIL_RE = /[\w.+-]+@[\w-]+\.[\w.-]+/;
@@ -52,12 +43,15 @@ function spendNudgeBudget() {
 }
 
 export function Greeter() {
+  const { t, locale } = useLocale();
   const navigate = useNavigate();
   const reducedMotion = usePrefersReducedMotion();
   const [open, setOpen] = useState(false);
   const [nudge, setNudge] = useState(false);
   const [nudgeReason, setNudgeReason] = useState<NudgeReason>("hello");
-  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: OPENING }]);
+  const [messages, setMessages] = useState<Message[]>(() => [
+    { role: "assistant", content: t("greeter.opening") },
+  ]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false });
@@ -68,6 +62,15 @@ export function Greeter() {
   const engagedRef = useRef(false);
   const maxScrollRef = useRef(0);
   const lastMoveRef = useRef(Date.now());
+
+  useEffect(() => {
+    setMessages((current) => {
+      if (current.length === 1 && current[0]?.role === "assistant") {
+        return [{ role: "assistant", content: t("greeter.opening") }];
+      }
+      return current;
+    });
+  }, [locale, t]);
 
   /** Soft cursor follower — presence without noise. Disabled for reduced motion / touch. */
   useEffect(() => {
@@ -246,16 +249,16 @@ export function Greeter() {
         const detail = await res.text().catch(() => "");
         const message =
           res.status === 429
-            ? "A lot of founders are asking at once. Give me a moment and try again."
+            ? t("greeter.errBusy")
             : res.status === 402
-              ? "My reserve is empty for the moment — the team has been told."
+              ? t("greeter.errEmpty")
               : detail.includes("not configured") ||
                   detail.includes("FREELLM") ||
                   detail.includes("GEMINI_API_KEY") ||
                   detail.includes("XAI_API_KEY") ||
                   detail.includes("provider key")
-                ? "I'm offline until FreeLLM or a fallback provider key is live on the server."
-                : detail || "I lost the connection. Try again?";
+                ? t("greeter.errOffline")
+                : detail || t("greeter.errLost");
         setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: message }]);
         return;
       }
@@ -272,14 +275,14 @@ export function Greeter() {
       if (!acc.trim()) {
         setMessages((m) => [
           ...m.slice(0, -1),
-          { role: "assistant", content: "I went quiet there. Ask me once more." },
+          { role: "assistant", content: t("greeter.errQuiet") },
         ]);
       }
     } catch (err) {
       if ((err as Error)?.name !== "AbortError") {
         setMessages((m) => [
           ...m.slice(0, -1),
-          { role: "assistant", content: "Something interrupted us. Try again?" },
+          { role: "assistant", content: t("greeter.errInterrupt") },
         ]);
       }
     } finally {
@@ -313,11 +316,11 @@ export function Greeter() {
               <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
                 <Pulse /> Aura
                 {aiOnline === false ? (
-                  <span className="normal-case tracking-normal text-gold">· reconnecting</span>
+                  <span className="normal-case tracking-normal text-gold">· {t("greeter.reconnecting")}</span>
                 ) : null}
               </span>
               <span className="mt-1.5 block text-[13px] leading-relaxed text-foreground">
-                {NUDGE_COPY[nudgeReason]}
+                {t(NUDGE_KEYS[nudgeReason])}
               </span>
             </motion.button>
           ) : null}
@@ -327,7 +330,7 @@ export function Greeter() {
           type="button"
           onClick={() => (open ? setOpen(false) : launch())}
           whileTap={{ scale: 0.94 }}
-          aria-label={open ? "Close Aura" : "Chat with Aura"}
+          aria-label={open ? t("greeter.close") : t("greeter.chat")}
           className="glass pointer-events-auto relative flex h-13 w-13 items-center justify-center rounded-full p-3.5 shadow-[var(--shadow-glow)]"
         >
           <span className="absolute inset-0 rounded-full bg-primary/10 blur-md" />
@@ -355,11 +358,11 @@ export function Greeter() {
             <div className="flex items-center gap-2.5 border-b border-border/60 px-5 py-3">
               <Pulse />
               <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                Aura · front desk
+                {t("greeter.frontDesk")}
               </span>
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Close"
+                aria-label={t("greeter.close")}
                 className="ml-auto text-muted-foreground transition-colors hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
@@ -382,14 +385,19 @@ export function Greeter() {
                   ) : m.content ? (
                     <span className="whitespace-pre-wrap">{m.content}</span>
                   ) : (
-                    <span className="text-muted-foreground">Thinking…</span>
+                    <span className="text-muted-foreground">{t("greeter.thinking")}</span>
                   )}
                 </div>
               ))}
 
               {messages.length <= 1 && !streaming ? (
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {PROMPTS.map((p) => (
+                  {[
+                    t("greeter.prompt1"),
+                    t("greeter.prompt2"),
+                    t("greeter.prompt3"),
+                    t("greeter.prompt4"),
+                  ].map((p) => (
                     <button
                       key={p}
                       onClick={() => void send(p)}
@@ -415,7 +423,7 @@ export function Greeter() {
                       void send(input);
                     }
                   }}
-                  placeholder="Ask Aura anything…"
+                  placeholder={t("greeter.placeholder")}
                   className="max-h-24 flex-1 resize-none bg-transparent text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
                 />
                 {streaming ? (
@@ -444,7 +452,7 @@ export function Greeter() {
                 }}
                 className="mt-2 text-[10px] uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:text-primary"
               >
-                Claim founding seat →
+                {t("greeter.claim")}
               </button>
             </div>
           </motion.div>

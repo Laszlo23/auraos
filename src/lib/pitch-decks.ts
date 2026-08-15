@@ -59,6 +59,15 @@ export const PITCH_DECKS: PitchDeck[] = [
     lang: "en",
   },
   {
+    id: "lokal-sales",
+    href: "/Aura_Lokal_Verkauf.pptx",
+    title: "Aura Lokal · Verkauf (DE)",
+    blurb:
+      "Für den Tisch: Sterne, Gäste, 49 €/Monat, Einwände, Abschluss. Live auch unter /verkauf.",
+    tag: "Verkauf",
+    lang: "de",
+  },
+  {
     id: "lokal-reviews",
     href: "/Aura_Lokal_Google_Review_Boost.pptx",
     title: "Aura Lokal · Google Review Boost",
@@ -86,6 +95,7 @@ export const PITCH_DECKS: PitchDeck[] = [
 ];
 
 export const FEATURED_DECK_IDS = [
+  "lokal-sales",
   "investor",
   "wien-world",
   "product-token",

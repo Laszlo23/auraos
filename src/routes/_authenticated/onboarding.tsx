@@ -1,113 +1,88 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Check, Link2, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Loader2 } from "lucide-react";
+import { toast as notify } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
-import { FoundingCohort } from "@/components/aura/scarcity";
-import { VideoBackdrop } from "@/components/aura/video-bg";
-import { Chip, Meter, Pulse } from "@/components/aura/primitives";
+import { Chip, Meter } from "@/components/aura/primitives";
 import { useCompany } from "@/hooks/use-aura";
 import { useLocale } from "@/hooks/use-locale";
-import { useConnectChannel, type SocialProvider } from "@/hooks/use-connections";
-import { useAwardXp, useCompleteOnboarding, useProgress } from "@/hooks/use-progress";
+import { useAwardXp, useCompleteOnboarding } from "@/hooks/use-progress";
 import { useAdvanceReferral, useProvisionSmartWallet } from "@/hooks/use-earn";
 import { useClaimHandle, useMyHandle } from "@/hooks/use-identity";
 import { supabase } from "@/integrations/supabase/client";
-import { peekFunnel } from "@/lib/attribution";
+import { peekFunnel, rememberFunnel } from "@/lib/attribution";
 import { bootstrapFunnelCompany, bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
-import { LOCAL_DE_NICHES } from "@/lib/boost-packs";
 import { funnelById, isFunnelId, type FunnelId } from "@/lib/funnels";
+import {
+  interpretBusiness,
+  LOKAL_GOALS,
+  ONBOARD_EXAMPLES,
+  type LokalImproveGoal,
+  type OnboardBrief,
+} from "@/lib/onboard-brief";
+import { createRevenueMission, startRevenueMission } from "@/lib/revenue-mission.functions";
 import { cn } from "@/lib/utils";
-import { toast as notify } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
-      { title: "Wake your company — Aura OS onboarding" },
+      { title: "What should Aura build? — Aura OS" },
       {
         name: "description",
-        content:
-          "Four quiet steps: name the company, pick the first product, connect a channel, open the company.",
+        content: "Describe your business. Aura wakes the company. You give the first mission.",
       },
       { property: "og:title", content: "Wake your company | Aura OS" },
-      {
-        property: "og:description",
-        content: "Name it, give it a product, connect its voice. Then let it run.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Onboarding,
 });
 
-const PRODUCTS = [
-  {
-    id: "commerce",
-    glyph: "◍",
-    name: "Commerce Engine",
-    blurb: "Hires Iris, Vela, Juno. Creates a product + landing draft for your approval.",
-    tag: "Recommended",
-  },
-  {
-    id: "studio",
-    glyph: "❖",
-    name: "Content Studio",
-    blurb: "Hires Vela, Orin, Iris. Drafts brand voice — nothing publishes without you.",
-  },
-  {
-    id: "trading",
-    glyph: "⟁",
-    name: "Grow funds",
-    blurb: "Put USDC into an AI strategy or earn by providing liquidity — under your caps. Opt-in.",
-  },
-];
-
-const CHANNELS = [
-  { id: "x", name: "X", glyph: "𝕏" },
-  { id: "meta", name: "Meta", glyph: "∞" },
-  { id: "linkedin", name: "LinkedIn", glyph: "in" },
-  { id: "tiktok", name: "TikTok", glyph: "♪" },
-  { id: "farcaster", name: "Farcaster", glyph: "FC" },
+const PHASES = ["Describe", "Build", "Mission", "Approve"] as const;
+const PHASES_DE = ["Beschreiben", "Bauen", "Mission", "Freigeben"] as const;
+const WAKE_TICKS = [
+  "Company identity",
+  "CEO activated",
+  "Employees assigned",
+  "Company memory initialized",
+  "Mission system ready",
+  "Approval controls enabled",
 ];
 
 function Onboarding() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: company } = useCompany();
-  const { t, locale, setLocale } = useLocale();
+  const { locale, setLocale } = useLocale();
+  const de = locale === "de";
   const entryFunnel: FunnelId =
     company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : peekFunnel();
-  const funnelDef = funnelById(entryFunnel);
   const isLokal = entryFunnel === "local";
-  const skipProductPicker = funnelDef.bootstrap.skipProductPicker;
-  const { data: progress } = useProgress();
   const award = useAwardXp();
   const complete = useCompleteOnboarding();
   const { data: myHandle } = useMyHandle();
   const claimHandle = useClaimHandle();
   const provisionWallet = useProvisionSmartWallet();
   const advanceReferral = useAdvanceReferral();
-  const connectChannel = useConnectChannel();
 
-  const [step, setStep] = useState(0);
-  const [name, setName] = useState("");
-  const [city, setCity] = useState("");
-  const [niche, setNiche] = useState("");
-  const [isLocal, setIsLocal] = useState(true);
-  const [product, setProduct] = useState("commerce");
-  const [picked, setPicked] = useState<string[]>(["x", "linkedin"]);
-  const [connecting, setConnecting] = useState(false);
+  const [phase, setPhase] = useState(0);
+  const [prompt, setPrompt] = useState("");
+  const [brief, setBrief] = useState<OnboardBrief | null>(null);
+  const [shopName, setShopName] = useState("");
+  const [lokalGoal, setLokalGoal] = useState<LokalImproveGoal>("reviews");
+  const [mission, setMission] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [wakeTick, setWakeTick] = useState(0);
+  const [missionId, setMissionId] = useState<string | null>(null);
+  const [planSteps, setPlanSteps] = useState<string[]>([]);
+  const [estCost, setEstCost] = useState<number | null>(null);
   const [burst, setBurst] = useState(0);
   const [toast, setToast] = useState<{ label: string; amount: number } | null>(null);
-  const [finishing, setFinishing] = useState(false);
-  const [lokalSaving, setLokalSaving] = useState(false);
 
   useEffect(() => {
-    if (!isLokal) return;
-    setLocale("de");
+    if (isLokal) setLocale("de");
   }, [isLokal, setLocale]);
 
   const pop = (label: string, amount: number, quest?: string) => {
@@ -117,134 +92,31 @@ function Onboarding() {
     award.mutate({ amount, quest });
   };
 
-  const next = () => setStep((s) => Math.min(3, s + 1));
-
-  const saveName = async () => {
-    if (name.trim().length < 2) {
-      notify.error(isLokal ? "Bitte Betriebsname eingeben." : "Please enter a company name.");
-      return;
-    }
-    if (company) {
-      await supabase
-        .from("companies")
-        .update({
-          name: name.trim(),
-          city: city.trim() || null,
-          niche: niche.trim() || null,
-          is_local_business: isLocal || isLokal,
-          network_backlink: isLocal || isLokal,
-          ...(isLokal ? { ui_locale: "de", entry_funnel: "local" } : {}),
-        })
-        .eq("id", company.id);
-      await qc.invalidateQueries({ queryKey: ["company"] });
-    }
-
-    if (isLokal) {
-      if (!company) {
-        notify.error("Betrieb noch nicht bereit — kurz warten und nochmal tippen.");
-        return;
-      }
-      setLokalSaving(true);
-      try {
-        await bootstrapFunnelCompany(company.id, "local", name.trim() || company.name, {
-          city: city.trim() || null,
-          niche: niche.trim() || null,
-        });
-        await qc.invalidateQueries({ queryKey: ["company"] });
-        await qc.invalidateQueries({ queryKey: ["table", "agents"] });
-        await qc.invalidateQueries({ queryKey: ["table", "products"] });
-        await qc.invalidateQueries({ queryKey: ["table", "tasks"] });
-        await qc.invalidateQueries({ queryKey: ["table", "knowledge_items"] });
-        pop(locale === "de" ? "Betrieb gespeichert" : "Shop saved", 100, "onboard:name");
-        setStep(1);
-      } catch (e) {
-        notify.error(e instanceof Error ? e.message : "Einrichtung fehlgeschlagen.");
-      } finally {
-        setLokalSaving(false);
-      }
-      return;
-    }
-
-    pop("Company named", 100, "onboard:name");
-    next();
+  const invalidateCompany = async () => {
+    await qc.invalidateQueries({ queryKey: ["company"] });
+    await qc.invalidateQueries({ queryKey: ["table", "agents"] });
+    await qc.invalidateQueries({ queryKey: ["table", "tasks"] });
+    await qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
+    await qc.invalidateQueries({ queryKey: ["revenue-missions"] });
   };
 
-  const saveProduct = async () => {
-    if (!company) {
-      notify.error("Company not ready yet — wait a moment and try again.");
-      return;
-    }
-    try {
-      if (skipProductPicker) {
-        const res = await bootstrapFunnelCompany(
-          company.id,
-          entryFunnel,
-          name.trim() || company.name,
-          { city: city.trim() || null, niche: niche.trim() || null },
-        );
-        await qc.invalidateQueries({ queryKey: ["company"] });
-        await qc.invalidateQueries({ queryKey: ["table", "agents"] });
-        await qc.invalidateQueries({ queryKey: ["table", "products"] });
-        await qc.invalidateQueries({ queryKey: ["table", "tasks"] });
-        await qc.invalidateQueries({ queryKey: ["table", "knowledge_items"] });
-        await qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
-        await qc.invalidateQueries({ queryKey: ["table", "akquise_campaigns"] });
-        await qc.invalidateQueries({ queryKey: ["revenue-missions"] });
-        pop(`${res.lead} hired`, 150, "onboard:product");
-        notify.success("Sales department seeded — review Missions and Lead hunter next.");
-        next();
-        return;
-      }
-      const res = await bootstrapOnboardingProduct(
-        company.id,
-        product,
-        name.trim() || company.name,
-      );
-      await qc.invalidateQueries({ queryKey: ["company"] });
-      await qc.invalidateQueries({ queryKey: ["table", "agents"] });
-      await qc.invalidateQueries({ queryKey: ["table", "products"] });
-      await qc.invalidateQueries({ queryKey: ["table", "tasks"] });
-      await qc.invalidateQueries({ queryKey: ["table", "knowledge_items"] });
-      await qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
-      pop(`${res.meta.name} hired`, 150, "onboard:product");
-      notify.success(
-        `${res.lead} filed a starter brief — approve it on Tasks to put them to work.`,
-      );
-      next();
-    } catch (e) {
-      notify.error(e instanceof Error ? e.message : "Could not hire the product team.");
-    }
+  const persistIdentity = async (name: string, extra?: { city?: string | null; niche?: string | null; local?: boolean }) => {
+    if (!company) throw new Error(de ? "Betrieb noch nicht bereit." : "Company not ready yet.");
+    await supabase
+      .from("companies")
+      .update({
+        name,
+        city: extra?.city ?? null,
+        niche: extra?.niche ?? null,
+        is_local_business: Boolean(extra?.local || isLokal),
+        network_backlink: Boolean(extra?.local || isLokal),
+        ...(isLokal || extra?.local ? { ui_locale: "de", entry_funnel: "local" } : {}),
+      })
+      .eq("id", company.id);
   };
 
-  const saveChannels = async () => {
-    if (!company || picked.length === 0) return next();
-    setConnecting(true);
-    let linked = 0;
-    for (const provider of picked as SocialProvider[]) {
-      try {
-        await connectChannel.mutateAsync(provider);
-        linked += 1;
-      } catch (e) {
-        notify.error(
-          e instanceof Error
-            ? e.message
-            : `Could not connect ${provider}. You can finish this on Channels.`,
-        );
-      }
-    }
-    setConnecting(false);
-    if (linked > 0)
-      pop(`${linked} channel${linked === 1 ? "" : "s"} live`, 200, "onboard:channels");
-    next();
-  };
-
-  const finish = async () => {
-    setFinishing(true);
-    pop(entryFunnel === "os" ? "Company open" : "Company ready", 300, "onboard:seat");
+  const finishTo = async (dest: string) => {
     await complete.mutateAsync();
-
-    // Claim a handle from the company name if needed, then provision the wallet.
-    // Neither is allowed to block the celebration.
     try {
       let handleId = myHandle?.id;
       if (!handleId && company?.name) {
@@ -262,409 +134,498 @@ function Onboarding() {
             handleId = row.id;
             break;
           } catch {
-            /* handle taken — try suffix */
+            /* taken */
           }
         }
       }
-      if (handleId) {
-        await provisionWallet.mutateAsync(handleId);
-      }
+      if (handleId) await provisionWallet.mutateAsync(handleId);
     } catch {
-      /* wallet can be provisioned later from Identity */
+      /* later */
     }
     try {
       await advanceReferral.mutateAsync("activated");
     } catch {
-      /* no referrer, or already credited */
+      /* none */
     }
-
-    const dest = isLokal
-      ? "/boost"
-      : entryFunnel !== "os"
-        ? "/missions"
-        : product === "trading"
-          ? "/trading"
-          : "/console";
-    setTimeout(() => navigate({ to: dest }), 1200);
+    navigate({ to: dest });
   };
 
-  const steps = isLokal
-    ? [t("onboarding.lokalStepName"), t("onboarding.lokalStepGo")]
-    : skipProductPicker
-      ? ["Identity", "Department", "Voice", "Go"]
-      : ["Identity", "First product", "Voice", "Open"];
+  const startWake = async (nextBrief: OnboardBrief) => {
+    if (!company) return;
+    setBusy(true);
+    setPhase(1);
+    setWakeTick(0);
+    try {
+      await persistIdentity(nextBrief.name, {
+        city: nextBrief.city,
+        niche: nextBrief.industry,
+        local: nextBrief.local,
+      });
+      if (nextBrief.local || isLokal) {
+        rememberFunnel("local");
+        await bootstrapFunnelCompany(company.id, "local", nextBrief.name, {
+          city: nextBrief.city,
+          niche: nextBrief.industry,
+        });
+      } else if (entryFunnel !== "os") {
+        await bootstrapFunnelCompany(company.id, entryFunnel, nextBrief.name, {
+          city: nextBrief.city,
+          niche: nextBrief.industry,
+        });
+      } else {
+        await bootstrapOnboardingProduct(company.id, nextBrief.product, nextBrief.name);
+      }
+      await invalidateCompany();
+      pop(de ? "Firma wacht auf" : "Company waking", 150, "onboard:product");
+    } catch (e) {
+      notify.error(e instanceof Error ? e.message : "Could not wake the company.");
+      setBusy(false);
+      return;
+    }
+    setBusy(false);
+  };
+
+  useEffect(() => {
+    if (phase !== 1) return;
+    if (wakeTick >= WAKE_TICKS.length) {
+      const t = window.setTimeout(() => setPhase(2), 700);
+      return () => window.clearTimeout(t);
+    }
+    const t = window.setTimeout(() => setWakeTick((n) => n + 1), 380);
+    return () => window.clearTimeout(t);
+  }, [phase, wakeTick]);
+
+  const submitDescribe = () => {
+    if (prompt.trim().length < 4) {
+      notify.error(de ? "Erzähl kurz, was du machst." : "Tell Aura what you do — one sentence is enough.");
+      return;
+    }
+    const next = interpretBusiness(prompt);
+    setBrief(next);
+    setMission(next.missions[0] ?? "");
+    setPhase(0.5 as unknown as number);
+  };
+
+  const submitLokalName = () => {
+    if (shopName.trim().length < 2) {
+      notify.error("Bitte Betriebsname eingeben.");
+      return;
+    }
+    const next = interpretBusiness(`${shopName} salon Wien`);
+    next.name = shopName.trim();
+    next.local = true;
+    setBrief(next);
+    setPhase(0.5 as unknown as number);
+  };
+
+  const confirmUnderstand = () => {
+    if (!brief) return;
+    void startWake(brief);
+  };
+
+  const submitMission = async () => {
+    const goal = mission.trim();
+    if (goal.length < 4) {
+      notify.error(de ? "Sag, was die Firma zuerst schaffen soll." : "What should the company accomplish first?");
+      return;
+    }
+    if (!company || !brief) return;
+    setBusy(true);
+    setPlanSteps(brief.planSteps);
+    setEstCost(12);
+    try {
+      const row = await createRevenueMission({
+        data: {
+          goal,
+          industry: brief.industry,
+          location: brief.city,
+          risk: "medium",
+        },
+      });
+      const id = (row as { id?: string })?.id;
+      if (id) setMissionId(id);
+      const steps = (row as { plan?: { steps?: { label?: string; title?: string }[] } })?.plan?.steps;
+      if (Array.isArray(steps) && steps.length) {
+        setPlanSteps(steps.map((s) => s.label || s.title || "").filter(Boolean));
+      }
+      const cost = (row as { projected?: { cost_usdc?: number } })?.projected?.cost_usdc;
+      if (typeof cost === "number" && cost > 0) setEstCost(Math.round(cost));
+      pop(de ? "Plan bereit" : "Plan ready", 150, "onboard:mission");
+      setPhase(3);
+    } catch (e) {
+      notify.error(e instanceof Error ? e.message : "Could not draft the plan.");
+      setPhase(3);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const approvePlan = async () => {
+    setBusy(true);
+    try {
+      if (missionId) {
+        await startRevenueMission({ data: { missionId } });
+      }
+      pop(de ? "Firma arbeitet" : "Company is working", 300, "onboard:seat");
+      await finishTo(isLokal || brief?.local ? "/kunden" : "/console");
+    } catch (e) {
+      notify.error(e instanceof Error ? e.message : "Could not start the mission.");
+      setBusy(false);
+    }
+  };
+
+  const finishLokalFirstWin = async () => {
+    setBusy(true);
+    try {
+      pop("Reputation live", 300, "onboard:seat");
+      await finishTo("/kunden");
+    } catch (e) {
+      notify.error(e instanceof Error ? e.message : "Konnte nicht öffnen.");
+      setBusy(false);
+    }
+  };
+
+  const phaseIndex = phase === 0.5 ? 0 : phase === 1 ? 1 : phase === 2 ? 2 : phase >= 3 ? 3 : 0;
+  const labels = de ? PHASES_DE : PHASES;
+  const understand = phase === 0.5;
 
   return (
-    <div className="relative -mx-1 min-h-[76vh]">
-      <VideoBackdrop intensity={0.4} />
+    <div className="relative mx-auto min-h-[78vh] max-w-3xl px-1">
       <Celebrate trigger={burst} />
       <XpToast label={toast?.label ?? ""} amount={toast?.amount ?? 0} show={Boolean(toast)} />
 
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-10 flex items-center gap-3">
-          {steps.map((label, i) => (
-            <div key={label} className="flex flex-1 flex-col gap-2">
-              <Meter
-                value={i < step ? 100 : i === step ? 45 : 0}
-                tone={i <= step ? "primary" : "gold"}
+      <div className="mb-10 flex items-center gap-3">
+        {labels.map((label, i) => (
+          <div key={label} className="flex flex-1 flex-col gap-2">
+            <Meter value={i < phaseIndex ? 100 : i === phaseIndex ? 50 : 0} tone={i <= phaseIndex ? "primary" : "gold"} />
+            <span
+              className={cn(
+                "text-[10px] uppercase tracking-[0.22em]",
+                i === phaseIndex ? "text-primary" : "text-muted-foreground/60",
+              )}
+            >
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={String(phase) + (understand ? "-u" : "")}
+          initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -12, filter: "blur(8px)" }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {phase === 0 && !understand && isLokal ? (
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
+                Aura Lokal
+              </p>
+              <h1 className="mt-3 font-display text-[clamp(2.2rem,7vw,3.6rem)] font-semibold leading-[1.02] tracking-tight">
+                Grow my local business
+              </h1>
+              <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">
+                Wie heißt der Betrieb? Aura erkennt den Rest.
+              </p>
+              <input
+                autoFocus
+                value={shopName}
+                onChange={(e) => setShopName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && submitLokalName()}
+                placeholder="z. B. Körperglanz & Shape-Line"
+                className="glass mt-8 w-full rounded-2xl px-5 py-4 text-lg outline-none"
               />
-              <span
-                className={cn(
-                  "text-[10px] uppercase tracking-[0.22em]",
-                  i === step ? "text-primary" : "text-muted-foreground/60",
-                )}
-              >
-                {label}
-              </span>
-            </div>
-          ))}
-        </div>
+              <p className="mt-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Was willst du verbessern?
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {LOKAL_GOALS.map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => setLokalGoal(g.id)}
+                    className={cn(
+                      "rounded-2xl border px-4 py-3 text-left",
+                      lokalGoal === g.id ? "border-primary/50 bg-primary/10" : "border-border/40 bg-card/30",
+                    )}
+                  >
+                    <p className="font-semibold">{g.title}</p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">{g.body}</p>
+                  </button>
+                ))}
+              </div>
+              <Primary onClick={submitLokalName} label="Weiter" />
+            </section>
+          ) : null}
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, y: 18, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -14, filter: "blur(8px)" }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {step === 0 && (
-              <section>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
-                  {isLokal ? t("onboarding.lokalStep") : "Step one"}
-                </p>
-                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  {isLokal ? t("onboarding.lokalAsk") : "Name the online business."}
-                </h1>
-                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  {isLokal
-                    ? t("onboarding.lokalHint")
-                    : "Prefer local / niche businesses — published landings can join the founding backlink network. Token launch is separate from this seat."}
-                </p>
-                <input
-                  autoFocus
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && saveName()}
-                  placeholder={
-                    isLokal
-                      ? locale === "de"
-                        ? "z. B. Salon Mira"
-                        : "e.g. Salon Mira"
-                      : company?.name && company.name !== "Untitled company"
-                        ? company.name
-                        : "e.g. Northwind Labs"
-                  }
-                  className="glass mt-8 w-full rounded-3xl px-6 py-5 text-2xl outline-none placeholder:text-muted-foreground/40 focus:ring-1 focus:ring-primary/40"
-                />
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder={isLokal ? t("onboarding.city") : "City (optional)"}
-                    className="glass w-full rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/40"
-                  />
-                  {!isLokal ? (
-                    <input
-                      value={niche}
-                      onChange={(e) => setNiche(e.target.value)}
-                      placeholder="Niche (e.g. dental, café)"
-                      className="glass w-full rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/40"
-                    />
-                  ) : null}
+          {phase === 0 && !understand && !isLokal ? (
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
+                {de ? "Dein Unternehmen" : "Your company"}
+              </p>
+              <h1 className="mt-3 font-display text-[clamp(2.2rem,7vw,3.8rem)] font-semibold leading-[1.02] tracking-tight">
+                {de ? "Was soll Aura für dich bauen?" : "What do you want Aura to build for you?"}
+              </h1>
+              <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+                {de
+                  ? "Ein Satz reicht. Du bist der Owner. Aura versteht den Rest."
+                  : "One sentence is enough. You are the owner. Aura understands the rest."}
+              </p>
+              <textarea
+                autoFocus
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                rows={3}
+                placeholder={ONBOARD_EXAMPLES[0]}
+                className="glass mt-8 w-full resize-none rounded-3xl px-5 py-4 text-lg leading-relaxed outline-none"
+              />
+              <div className="mt-4 flex flex-wrap gap-2">
+                {ONBOARD_EXAMPLES.map((ex) => (
+                  <button
+                    key={ex}
+                    type="button"
+                    onClick={() => setPrompt(ex)}
+                    className="rounded-full border border-border/40 px-3 py-1.5 text-[12px] text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  >
+                    {ex}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Primary onClick={submitDescribe} label={de ? "Firma bauen →" : "Build my company →"} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPrompt(ONBOARD_EXAMPLES[2]);
+                    const next = interpretBusiness(ONBOARD_EXAMPLES[2]);
+                    setBrief(next);
+                    setMission(next.missions[0] ?? "");
+                    setPhase(0.5 as unknown as number);
+                  }}
+                  className="text-sm font-semibold text-muted-foreground hover:text-foreground"
+                >
+                  {de ? "Beispiel ansehen" : "Explore an example"}
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          {understand && brief ? (
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
+                {de ? "Ich verstehe." : "I understand."}
+              </p>
+              <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+                {brief.name}
+              </h1>
+              <dl className="mt-6 space-y-2 text-[15px]">
+                <div>
+                  <dt className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    {de ? "Geschäft" : "Business"}
+                  </dt>
+                  <dd className="font-medium">
+                    {brief.industry}
+                    {brief.city ? ` · ${brief.city}` : ""}
+                  </dd>
                 </div>
-                {isLokal ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {LOCAL_DE_NICHES.map((n) => (
-                      <button
-                        key={n.id}
-                        type="button"
-                        onClick={() => {
-                          setNiche(n.label);
-                          setIsLocal(true);
-                        }}
-                        className={cn(
-                          "rounded-2xl border px-3 py-2 text-xs font-semibold transition-colors",
-                          niche === n.label
-                            ? "border-primary bg-primary/15 text-foreground"
-                            : "border-border/50 text-muted-foreground",
-                        )}
-                      >
-                        {n.label}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <label className="mt-4 flex cursor-pointer items-center gap-3 text-[13px] text-muted-foreground">
-                    <input
-                      type="checkbox"
-                      checked={isLocal}
-                      onChange={(e) => setIsLocal(e.target.checked)}
-                      className="h-4 w-4 rounded border-border"
-                    />
-                    Local / niche online business — opt into founding network backlinks after
-                    publish
-                  </label>
-                )}
-                <StepAction
-                  onClick={() => void saveName()}
-                  label={
-                    lokalSaving
-                      ? t("onboarding.lokalSaving")
-                      : isLokal
-                        ? t("common.continue")
-                        : "Wake the company"
-                  }
-                  busy={lokalSaving}
-                />
-              </section>
-            )}
-
-            {step === 1 && isLokal && (
-              <section>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-gold">
-                  {t("onboarding.lokalStepGo")}
-                </p>
-                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  {t("onboarding.lokalTitle")}
-                </h1>
-                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  {t("onboarding.lokalBlurb")}
-                </p>
-                <StepAction
-                  onClick={finish}
-                  label={finishing ? t("onboarding.opening") : t("onboarding.finishLokal")}
-                  busy={finishing}
-                  tone="gold"
-                />
-              </section>
-            )}
-
-            {step === 1 && !isLokal && skipProductPicker && (
-              <section>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
-                  Step two
-                </p>
-                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  Hire your AI department.
-                </h1>
-                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  {funnelDef.subhead}
-                </p>
-                <div className="glass mt-8 rounded-3xl p-5">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                    First mission
-                  </p>
-                  <p className="mt-2 text-[15px] font-medium leading-relaxed">
-                    {funnelDef.bootstrap.missionGoal}
-                  </p>
-                  <p className="mt-4 text-[12px] text-muted-foreground">
-                    Agents: {funnelDef.bootstrap.agents.join(" · ")}
-                  </p>
+                <div>
+                  <dt className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    {de ? "Ziel" : "Primary goal"}
+                  </dt>
+                  <dd className="text-muted-foreground">{brief.goal}</dd>
                 </div>
-                <StepAction onClick={() => void saveProduct()} label="Hire the team" />
-              </section>
-            )}
+              </dl>
+              {brief.local || isLokal ? (
+                <p className="mt-4 text-[13px] text-muted-foreground">
+                  {de
+                    ? "Google-Profil bestätigst du später selbst. Aura erfindet keine Sterne und keine Reviews."
+                    : "You’ll confirm the Google profile yourself. Aura never invents ratings or reviews."}
+                </p>
+              ) : null}
+              <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                {de ? "Erste Belegschaft" : "First workforce"}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {brief.roles.map((r) => (
+                  <li key={r.key} className="rounded-2xl border border-border/40 bg-card/30 px-4 py-3">
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-primary">{r.title}</p>
+                    <p className="font-semibold">{r.name}</p>
+                    <p className="text-[13px] text-muted-foreground">{r.blurb}</p>
+                  </li>
+                ))}
+              </ul>
+              <Primary onClick={confirmUnderstand} label={de ? "Firma wecken →" : "Wake my company →"} />
+            </section>
+          ) : null}
 
-            {step === 1 && !isLokal && !skipProductPicker && (
-              <section>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
-                  Step two
-                </p>
-                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  Choose its first product.
-                </h1>
-                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  One product, fully autonomous. You can add more once this one earns.
-                </p>
-                <div className="mt-8 space-y-3">
-                  {PRODUCTS.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setProduct(p.id)}
+          {phase === 1 ? (
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
+                {de ? "Firma entsteht" : "Creating company…"}
+              </p>
+              <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+                {brief?.name ?? (de ? "Dein Unternehmen" : "Your company")}
+              </h1>
+              <ul className="mt-8 space-y-3">
+                {WAKE_TICKS.map((label, i) => (
+                  <li key={label} className="flex items-center gap-3 text-[15px]">
+                    <span
                       className={cn(
-                        "glass flex w-full items-start gap-4 rounded-3xl p-5 text-left transition-all",
-                        product === p.id
-                          ? "ring-1 ring-primary/45"
-                          : "opacity-70 hover:opacity-100",
+                        "grid h-6 w-6 place-items-center rounded-full border",
+                        i < wakeTick
+                          ? "border-primary bg-primary/20 text-primary"
+                          : "border-border/50 text-muted-foreground",
                       )}
                     >
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/14 text-lg text-primary">
-                        {p.glyph}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2">
-                          <span className="text-[15px] font-semibold">{p.name}</span>
-                          {p.tag ? <Chip tone="gold">{p.tag}</Chip> : null}
-                        </span>
-                        <span className="mt-1 block text-[13px] leading-relaxed text-muted-foreground">
-                          {p.blurb}
-                        </span>
-                      </span>
-                      {product === p.id ? (
-                        <Check className="h-4 w-4 shrink-0 text-primary" />
-                      ) : null}
-                    </button>
-                  ))}
-                </div>
-                <StepAction onClick={() => void saveProduct()} label="Hire the team" />
-              </section>
-            )}
+                      {i < wakeTick ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                    </span>
+                    <span className={i < wakeTick ? "text-foreground" : "text-muted-foreground"}>
+                      {label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
-            {step === 2 && !isLokal && (
-              <section>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-primary">
-                  Step three
-                </p>
-                <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                  Give it a voice.
-                </h1>
-                <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                  Connect the channels your company will speak through. It drafts; nothing publishes
-                  without your standing instruction.
-                </p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {CHANNELS.map((c) => {
-                    const on = picked.includes(c.id);
-                    return (
-                      <button
-                        key={c.id}
-                        onClick={() =>
-                          setPicked((p) => (on ? p.filter((x) => x !== c.id) : [...p, c.id]))
-                        }
-                        className={cn(
-                          "glass flex flex-col items-center gap-3 rounded-3xl px-4 py-7 transition-all",
-                          on ? "ring-1 ring-primary/45" : "opacity-65 hover:opacity-100",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "grid h-12 w-12 place-items-center rounded-2xl text-lg font-semibold",
-                            on
-                              ? "bg-primary/16 text-primary"
-                              : "bg-foreground/6 text-muted-foreground",
-                          )}
-                        >
-                          {c.glyph}
-                        </span>
-                        <span className="text-sm font-medium">{c.name}</span>
-                        <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                          {on ? (
-                            <>
-                              <Pulse /> selected
-                            </>
-                          ) : (
-                            <>
-                              <Link2 className="h-3 w-3" /> connect
-                            </>
-                          )}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <StepAction
-                  onClick={saveChannels}
-                  label={connecting ? "Authorising…" : "Connect channels"}
-                  busy={connecting}
+          {phase === 2 && brief && (isLokal || brief.local) && lokalGoal === "reviews" ? (
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
+                {de ? "Deine Firma lebt." : "Your company is alive."}
+              </p>
+              <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+                {de ? "Erste echte Review-Anfrage" : "Get your first genuine review request sent."}
+              </h1>
+              <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">
+                Besuch → Check-in → Erlaubnis → Einladung. Der Gast schreibt selbst. Aura erzeugt keine Reviews.
+              </p>
+              <ol className="mt-6 space-y-2 text-[14px] text-muted-foreground">
+                <li>01 Check-in-QR im Laden</li>
+                <li>02 Gast kommt — du bestätigst den Besuch</li>
+                <li>03 Aura bereitet die Einladung vor</li>
+                <li>04 Du gibst frei — der Gast schreibt auf Google</li>
+              </ol>
+              <Primary
+                onClick={() => void finishLokalFirstWin()}
+                label={busy ? "Öffnen…" : "Reputation starten →"}
+                busy={busy}
+              />
+            </section>
+          ) : null}
+
+          {phase === 2 && brief && !((isLokal || brief.local) && lokalGoal === "reviews") ? (
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
+                {de ? "Deine Firma lebt." : "Your company is alive."}
+              </p>
+              <h1 className="mt-3 font-display text-[clamp(2rem,6vw,3.2rem)] font-semibold leading-[1.05] tracking-tight">
+                {de ? "Was soll sie zuerst schaffen?" : "What should your company accomplish first?"}
+              </h1>
+              <textarea
+                autoFocus
+                value={mission}
+                onChange={(e) => setMission(e.target.value)}
+                rows={3}
+                className="glass mt-8 w-full resize-none rounded-3xl px-5 py-4 text-lg outline-none"
+              />
+              <div className="mt-4 flex flex-wrap gap-2">
+                {brief.missions.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMission(m)}
+                    className="rounded-full border border-border/40 px-3 py-1.5 text-[12px] text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+              <Primary
+                onClick={() => void submitMission()}
+                label={busy ? (de ? "Plant…" : "Planning…") : de ? "Plan zeigen →" : "Show the plan →"}
+                busy={busy}
+              />
+            </section>
+          ) : null}
+
+          {phase === 3 ? (
+            <section>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
+                {de ? "Auras Plan" : "Aura's plan"}
+              </p>
+              <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">{mission}</h1>
+              <ol className="mt-8 space-y-2">
+                {planSteps.map((s, i) => (
+                  <li key={s} className="flex gap-3 rounded-2xl border border-border/40 bg-card/25 px-4 py-3">
+                    <span className="font-display text-lg text-gold">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="text-[15px]">{s}</span>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Chip tone="gold">
+                  {de ? "Geschätzte Kosten" : "Estimated cost"}: €{estCost ?? 12}
+                </Chip>
+                <Chip>{de ? "Freigabe nötig" : "Approval required"}: Yes</Chip>
+              </div>
+              <p className="mt-4 text-[13px] text-muted-foreground">
+                {de
+                  ? "Nichts Öffentliches und kein Geld ohne deine Freigabe."
+                  : "Nothing public and no spend without your approval."}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Primary
+                  onClick={() => void approvePlan()}
+                  label={busy ? (de ? "Startet…" : "Starting…") : de ? "Freigeben & ausführen" : "Approve & execute"}
+                  busy={busy}
                 />
-              </section>
-            )}
+                <button
+                  type="button"
+                  onClick={() => setPhase(2)}
+                  className="rounded-2xl border border-border/50 px-5 py-3 text-sm font-semibold"
+                >
+                  {de ? "Plan ändern" : "Edit plan"}
+                </button>
+              </div>
+            </section>
+          ) : null}
+        </motion.div>
+      </AnimatePresence>
 
-            {step === 3 && !isLokal && (
-              <section>
-                <p className="mb-3 text-[10px] uppercase tracking-[0.32em] text-gold">Final step</p>
-                {entryFunnel === "os" ? (
-                  <>
-                    <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                      Open company #{progress?.seat_number ?? "—"}.
-                    </h1>
-                    <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                      Your seat is already paid. This opens the company, claims your @handle, and
-                      provisions a smart wallet so Grow funds can receive USDC.
-                    </p>
-                    <div className="glass mt-8 rounded-3xl p-6">
-                      <FoundingCohort seat={progress?.seat_number} />
-                    </div>
-                    <div className="mt-6 flex items-center gap-2 text-[13px] text-muted-foreground">
-                      <Sparkles className="h-4 w-4 text-gold" />
-                      Your seat number is your place in the founding cohort — no inflated counters.
-                    </div>
-                    <StepAction
-                      onClick={finish}
-                      label={finishing ? "Opening your company…" : "Open my company"}
-                      busy={finishing}
-                      tone="gold"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <h1 className="text-gradient text-4xl font-semibold leading-[1.05] md:text-5xl">
-                      Open your company.
-                    </h1>
-                    <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-                      {funnelDef.headline} Pick an outcome plan on Billing when you&apos;re ready —
-                      no founding-seat invite required for this funnel.
-                    </p>
-                    <div className="glass mt-8 rounded-3xl p-6">
-                      <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                        Funnel
-                      </p>
-                      <p className="mt-2 text-[15px] font-medium">{funnelDef.audience}</p>
-                      <p className="mt-2 text-[13px] text-muted-foreground">{funnelDef.subhead}</p>
-                    </div>
-                    <StepAction
-                      onClick={finish}
-                      label={finishing ? "Opening…" : "Enter Aura OS"}
-                      busy={finishing}
-                      tone="gold"
-                    />
-                  </>
-                )}
-              </section>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
+      <p className="mt-16 text-[12px] text-muted-foreground">
+        {funnelById(entryFunnel).headline} ·{" "}
         <button
-          onClick={() => {
-            void complete.mutateAsync();
-            navigate({ to: isLokal ? "/boost" : "/console" });
-          }}
-          className="mt-10 text-[12px] text-muted-foreground/60 transition-colors hover:text-foreground"
+          type="button"
+          onClick={() => void finishTo(isLokal ? "/kunden" : "/console")}
+          className="text-primary"
         >
-          {isLokal ? t("onboarding.lokalSkip") : "Skip — I'll explore first"}
+          {de ? "Später öffnen" : "Skip for now"}
         </button>
-      </div>
+      </p>
     </div>
   );
 }
 
-function StepAction({
+function Primary({
   onClick,
   label,
   busy,
-  tone = "primary",
 }: {
   onClick: () => void;
   label: string;
   busy?: boolean;
-  tone?: "primary" | "gold";
 }) {
   return (
-    <motion.button
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
+    <button
+      type="button"
       disabled={busy}
-      className={cn(
-        "mt-9 flex items-center gap-2.5 rounded-2xl px-6 py-3.5 text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-60",
-        tone === "gold"
-          ? "bg-gold text-background shadow-[0_0_40px_-10px_var(--gold)]"
-          : "bg-primary text-primary-foreground shadow-[var(--shadow-glow)]",
-      )}
+      onClick={onClick}
+      className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
     >
       {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
       {label}
-    </motion.button>
+    </button>
   );
 }

@@ -11,74 +11,33 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { useLocale } from "@/hooks/use-locale";
+
 /**
  * The "explain it to anyone" section. No jargon, no acronyms — three plain
  * sentences, three steps, and an honest answer to "why can't I just sign up?".
  */
-const STEPS: {
-  no: string;
-  title: string;
-  body: string;
-  icon: LucideIcon;
-}[] = [
-  {
-    no: "01",
-    title: "You describe the business",
-    body: "In normal words. \u201cI sell apartments in Vienna.\u201d That\u2019s enough to start.",
-    icon: ClipboardCheck,
-  },
-  {
-    no: "02",
-    title: "AI employees get hired",
-    body: "A CEO, a marketer, a salesperson, product, ops. Each one has a job, a memory and a budget.",
-    icon: UserRoundPlus,
-  },
-  {
-    no: "03",
-    title: "They work after you approve",
-    body: "They draft leads, posts, and research. Nothing spends or goes public until you tap approve — then they execute and report back.",
-    icon: Moon,
-  },
+const STEPS: { no: string; title: string; body: string; icon: LucideIcon }[] = [
+  { no: "01", title: "landing.step1", body: "landing.step1Body", icon: ClipboardCheck },
+  { no: "02", title: "landing.step2", body: "landing.step2Body", icon: UserRoundPlus },
+  { no: "03", title: "landing.step3", body: "landing.step3Body", icon: Moon },
 ];
 
 const WHY: { title: string; body: string; icon: LucideIcon }[] = [
-  {
-    title: "Because it never forgets",
-    body: "Every agent writes to one shared company memory. Ask a question today and it answers with everything the company learned since day one.",
-    icon: Brain,
-  },
-  {
-    title: "Because work is measured, not promised",
-    body: "Every action has a cost and a result attached. You see what each employee earned or spent \u2014 not a chat log.",
-    icon: Scale,
-  },
-  {
-    title: "Because you stay the boss",
-    body: "Nothing spends money or goes public until you approve it. You can pause any employee mid-task.",
-    icon: ShieldCheck,
-  },
+  { title: "landing.why1", body: "landing.why1Body", icon: Brain },
+  { title: "landing.why2", body: "landing.why2Body", icon: Scale },
+  { title: "landing.why3", body: "landing.why3Body", icon: ShieldCheck },
 ];
 
 const FAQ = [
-  {
-    q: "So\u2026 what is this, in one sentence?",
-    a: "A company you run by giving instructions instead of doing the work \u2014 the staff are AI, the results are real.",
-  },
-  {
-    q: "Do I need to know anything technical?",
-    a: "No. If you can write a text message, you can run a company here. There is nothing to install and no code to write.",
-  },
-  {
-    q: "How do I get a seat?",
-    a: "Buy open — $99 one-time, capped at 1000 companies. No invite needed to purchase. After you're in, you get one invite link to share (friends still pay). Token launch is separate.",
-  },
-  {
-    q: "What do I actually get as a founding member?",
-    a: "A paid company seat, a founding badge, one invite to pass on, in-app AURA growth rewards on paid conversions, and a concierge page-review queue. Compute billing and token launch stay separate.",
-  },
+  { q: "landing.faq1q", a: "landing.faq1a" },
+  { q: "landing.faq2q", a: "landing.faq2a" },
+  { q: "landing.faq3q", a: "landing.faq3a" },
+  { q: "landing.faq4q", a: "landing.faq4a" },
 ];
 
 export function Explainer() {
+  const { t } = useLocale();
   const [open, setOpen] = useState<number | null>(2);
 
   return (
@@ -90,12 +49,12 @@ export function Explainer() {
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       >
         <p className="text-[10px] uppercase tracking-[0.34em] text-muted-foreground">
-          In plain words
+          {t("landing.plainKicker")}
         </p>
         <h2 className="mt-4 max-w-3xl font-display text-[clamp(1.8rem,5.4vw,3rem)] leading-[1.02] tracking-tight">
-          It&rsquo;s a company. You&rsquo;re the owner.
+          {t("landing.plainTitle")}
           <br />
-          <span className="text-muted-foreground">The staff just happen to be AI.</span>
+          <span className="text-muted-foreground">{t("landing.plainTitle2")}</span>
         </h2>
       </motion.div>
 
@@ -115,8 +74,8 @@ export function Explainer() {
               </span>
               <span className="num text-[11px] tracking-[0.3em] text-primary">{s.no}</span>
             </div>
-            <p className="mt-4 text-[15px] font-semibold leading-snug">{s.title}</p>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{s.body}</p>
+            <p className="mt-4 text-[15px] font-semibold leading-snug">{t(s.title)}</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{t(s.body)}</p>
           </motion.div>
         ))}
       </div>
@@ -124,7 +83,7 @@ export function Explainer() {
       <div className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.1fr]">
         <div data-tour="why">
           <p className="text-[10px] uppercase tracking-[0.34em] text-muted-foreground">
-            Why it works
+            {t("landing.whyKicker")}
           </p>
           <div className="mt-6 space-y-6">
             {WHY.map((w) => (
@@ -133,9 +92,9 @@ export function Explainer() {
                   <w.icon className="h-3.5 w-3.5" />
                 </span>
                 <div>
-                  <p className="text-[14px] font-semibold">{w.title}</p>
+                  <p className="text-[14px] font-semibold">{t(w.title)}</p>
                   <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-                    {w.body}
+                    {t(w.body)}
                   </p>
                 </div>
               </div>
@@ -145,7 +104,7 @@ export function Explainer() {
 
         <div data-tour="faq">
           <p className="text-[10px] uppercase tracking-[0.34em] text-muted-foreground">
-            Straight answers
+            {t("landing.faqKicker")}
           </p>
           <div className="mt-6 space-y-2">
             {FAQ.map((f, i) => {
@@ -157,7 +116,7 @@ export function Explainer() {
                     aria-expanded={isOpen}
                     className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                   >
-                    <span className="text-[13.5px] font-medium">{f.q}</span>
+                    <span className="text-[13.5px] font-medium">{t(f.q)}</span>
                     <ChevronDown
                       className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 ${
                         isOpen ? "rotate-180" : ""
@@ -171,7 +130,7 @@ export function Explainer() {
                     className="overflow-hidden"
                   >
                     <p className="px-5 pb-5 text-[13px] leading-relaxed text-muted-foreground">
-                      {f.a}
+                      {t(f.a)}
                     </p>
                   </motion.div>
                 </div>

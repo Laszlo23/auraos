@@ -20,7 +20,7 @@ export function CompanyMemoryStrip({ facts, decisions, channels, items }: Props)
 
   return (
     <Panel
-      label="Company memory"
+      label="What your company remembers"
       delay={0.1}
       action={
         <Link

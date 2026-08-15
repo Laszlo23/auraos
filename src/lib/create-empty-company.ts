@@ -6,6 +6,7 @@ import {
   rememberLocale,
   takeFunnel,
 } from "@/lib/attribution";
+import { publishLocalListing } from "@/lib/company-slug";
 import { isFunnelId, type FunnelId } from "@/lib/funnels";
 
 const ATLAS_MEMORY =
@@ -126,6 +127,12 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
       if (peerErr) {
         console.warn("[createEmptyCompany] peer invite", peerErr.message);
       }
+    }
+    try {
+      const slug = await publishLocalListing(supabase, company);
+      company.slug = slug;
+    } catch (err) {
+      console.warn("[createEmptyCompany] listing", err);
     }
   }
 

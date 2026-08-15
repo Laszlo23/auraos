@@ -12,39 +12,69 @@ import {
 import { AuraMark } from "@/components/aura/aura-logo";
 import { ShareBar } from "@/components/aura/share";
 import { requestInstallPrompt } from "@/components/aura/install-app";
+import { useLocale } from "@/hooks/use-locale";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
-const SITE_LINKS = [
-  { to: "/brand", label: "Brand" },
-  { to: "/share", label: "Share kit" },
-  { to: "/partners/fio", label: "FIO partners" },
-  { to: "/grants", label: "Grants" },
-  { to: "/", label: "Waitlist", hash: "community" },
-  { to: "/team", label: "Team" },
-  { to: "/wien", label: "Wien" },
-  { to: "/story", label: "Story" },
-  { to: "/sticker", label: "Stickers" },
-  { to: "/review", label: "Reviews" },
-  { to: "/tokenomics", label: "Tokenomics" },
-  { to: "/lightpaper", label: "Lightpaper" },
-  { to: "/whitepaper", label: "Whitepaper" },
-  { to: "/roadmap", label: "Roadmap" },
-  { to: "/proof", label: "Proof" },
-  { to: "/pitch", label: "Pitch & decks" },
-  { to: "/blog", label: "Blog" },
-  { to: "/access", label: "Founding seats" },
-  { to: "/faq", label: "FAQ" },
-] as const;
-
-const LEGAL_LINKS = [
-  { to: "/impressum", label: "Impressum" },
-  { to: "/privacy", label: "Privacy" },
-  { to: "/terms", label: "Terms / AGB" },
-  { to: "/cookies", label: "Cookies" },
-] as const;
+function footerColumns(t: (key: string) => string) {
+  return [
+    {
+      title: t("footer.product"),
+      links: [
+        { to: "/", label: "Aura OS" },
+        { to: "/lokal", label: "Aura Lokal" },
+        { to: "/proof", label: t("footer.proof") },
+        { to: "/access", label: t("footer.pricing") },
+        { to: "/faq", label: t("footer.faq") },
+      ],
+    },
+    {
+      title: t("footer.ecosystem"),
+      links: [
+        { to: "/tokenomics", label: "AURA" },
+        { to: "/tokenomics", label: "Tokenomics" },
+        { to: "/lightpaper", label: "Lightpaper" },
+        { to: "/whitepaper", label: "Whitepaper" },
+        { to: "/roadmap", label: "Roadmap" },
+        { to: "/marketplace", label: "Marketplace" },
+      ],
+    },
+    {
+      title: t("footer.company"),
+      links: [
+        { to: "/team", label: "Team" },
+        { to: "/story", label: "Story" },
+        { to: "/blog", label: "Blog" },
+        { to: "/grants", label: "Grants" },
+        { to: "/partners/fio", label: t("footer.partners") },
+        { to: "/wien", label: "Wien" },
+      ],
+    },
+    {
+      title: t("footer.resources"),
+      links: [
+        { to: "/pitch", label: t("footer.pitch") },
+        { to: "/share", label: t("footer.shareKit") },
+        { to: "/review", label: t("footer.reviews") },
+        { to: "/brand", label: "Brand" },
+        { to: "/sticker", label: "Stickers" },
+        { to: "/", label: t("footer.waitlist"), hash: "community" },
+      ],
+    },
+    {
+      title: t("footer.legal"),
+      links: [
+        { to: "/impressum", label: "Impressum" },
+        { to: "/privacy", label: t("footer.privacy") },
+        { to: "/terms", label: t("footer.terms") },
+        { to: "/cookies", label: t("footer.cookies") },
+      ],
+    },
+  ];
+}
 
 function ProductSwitcher() {
+  const { t } = useLocale();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const current = useMemo(() => {
@@ -78,7 +108,7 @@ function ProductSwitcher() {
   return (
     <label className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
       <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-        Switch project
+        {t("footer.switch")}
       </span>
       <select
         value={current}
@@ -91,21 +121,21 @@ function ProductSwitcher() {
         }}
         className="max-w-full rounded-xl border border-border/60 bg-foreground/[0.04] px-3 py-2 text-[12px] font-medium text-foreground outline-none focus:border-primary/50 sm:min-w-[16rem]"
       >
-        <optgroup label="Products">
+        <optgroup label={t("footer.products")}>
           {PRODUCT_SURFACES.filter((p) => p.group === "product").map((p) => (
             <option key={p.id} value={p.id}>
               {p.label} — {p.blurb}
             </option>
           ))}
         </optgroup>
-        <optgroup label="Funnels">
+        <optgroup label={t("footer.funnels")}>
           {PRODUCT_SURFACES.filter((p) => p.group === "funnel").map((p) => (
             <option key={p.id} value={p.id}>
               {p.label}
             </option>
           ))}
         </optgroup>
-        <optgroup label="App">
+        <optgroup label={t("footer.appGroup")}>
           {PRODUCT_SURFACES.filter((p) => p.group === "app").map((p) => (
             <option key={p.id} value={p.id}>
               {p.label}
@@ -127,28 +157,62 @@ export function SiteFooter({
   className?: string;
   share?: { url: string; text: string; placement?: string };
 }) {
+  const { t } = useLocale();
+  const columns = footerColumns(t);
   return (
     <footer className={cn("relative z-10 border-t border-primary/10 px-6 py-10", className)}>
-      <div className="mx-auto flex max-w-6xl flex-col gap-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            Join Ninty
-          </span>
-          <nav aria-label="Social" className="flex flex-wrap gap-2">
-            {SOCIAL_LINKS.map((s) => (
-              <a
-                key={s.id}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() =>
-                  trackTeaser("social_join", { placement: `${s.id}:footer`.slice(0, 40) })
-                }
-                className="rounded-xl border border-border/50 bg-foreground/4 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary hover:shadow-[0_0_20px_-10px_var(--glow)]"
-              >
-                {s.label}
-              </a>
-            ))}
+      <div className="mx-auto flex max-w-6xl flex-col gap-8">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
+          {columns.map((col) => (
+            <nav key={col.title} aria-label={col.title}>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                {col.title}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {col.links.map((l) => (
+                  <li key={`${col.title}-${l.label}`}>
+                    {l.to ? (
+                      <Link
+                        to={l.to}
+                        {...(l.hash ? { hash: l.hash } : {})}
+                        className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={l.href}
+                        className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {l.label}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+          <nav aria-label={t("footer.community")}>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              {t("footer.community")}
+            </p>
+            <ul className="mt-3 space-y-2">
+              {SOCIAL_LINKS.map((s) => (
+                <li key={s.id}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      trackTeaser("social_join", { placement: `${s.id}:footer`.slice(0, 40) })
+                    }
+                    className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </nav>
         </div>
 
@@ -159,7 +223,7 @@ export function SiteFooter({
         {share ? (
           <div className="flex flex-col gap-3 border-t border-border/40 pt-5 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              Share the cohort
+              {t("footer.share")}
             </span>
             <ShareBar url={share.url} text={share.text} placement={share.placement ?? "footer"} />
           </div>
@@ -181,17 +245,7 @@ export function SiteFooter({
               </a>
             </span>
           </span>
-          <nav aria-label="Site" className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {SITE_LINKS.map((l) => (
-              <Link
-                key={l.label}
-                to={l.to}
-                {...("hash" in l && l.hash ? { hash: l.hash } : {})}
-                className="transition-colors hover:text-foreground"
-              >
-                {l.label}
-              </Link>
-            ))}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <button
               type="button"
               onClick={() => {
@@ -200,20 +254,15 @@ export function SiteFooter({
               }}
               className="transition-colors hover:text-foreground"
             >
-              Get app
+              {t("footer.app")}
             </button>
-            {LEGAL_LINKS.map((l) => (
-              <Link key={l.to} to={l.to} className="transition-colors hover:text-foreground">
-                {l.label}
-              </Link>
-            ))}
             <a
               href={`mailto:${LEGAL_EMAIL}`}
               className="normal-case tracking-normal transition-colors hover:text-foreground"
             >
               {LEGAL_EMAIL}
             </a>
-          </nav>
+          </div>
         </div>
       </div>
     </footer>

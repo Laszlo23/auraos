@@ -3,10 +3,13 @@
  * Market-token supply and allocation live in `aura-token.ts` (777,777,777 AURA).
  */
 
-import { TOKEN_LAUNCH_DISPLAY, SITE_URL } from "@/lib/site";
+import { TOKEN_LAUNCH_DISPLAY, TOKEN_LAUNCH_DISPLAY_DE, SITE_URL } from "@/lib/site";
 
 export const TOKEN_DISCLAIMER =
   "Nothing here is an offer to sell securities. AURA (if and when launched) is an ecosystem utility/incentive layer. Subscriptions are the core business. Aura OS does not run on or require a BCC token. Figures marked “target” or “illustrative” are not forecasts or guarantees.";
+
+export const TOKEN_DISCLAIMER_DE =
+  "Hier wird nichts zum Kauf angeboten, schon gar keine Wertpapiere. AURA — falls und sobald es startet — ist ein Nutz- und Belohnungsmittel im Netz, nicht das Geschäft selbst. Das Geschäft sind Software-Abos. Aura OS braucht keinen BCC-Token und läuft nicht darauf. Zahlen mit „Ziel“ oder „Beispiel“ sind keine Prognose und keine Garantie.";
 
 export const TOKENOMICS = {
   oneLine:
@@ -141,6 +144,74 @@ export const WHITEPAPER_SECTIONS = [
     id: "disclaimer",
     title: "12. Disclaimer",
     body: TOKEN_DISCLAIMER,
+  },
+] as const;
+
+export const WHITEPAPER_SECTIONS_DE = [
+  {
+    id: "abstract",
+    title: "In einem Satz",
+    body: `Aura OS ist die Software für eine Firma, die von selbst manchen Teil der Arbeit macht: Der Gründer besitzt sie. Atlas führt die KI-Mitarbeiter. Jede wichtige Tat hinterlässt einen Beleg. Im Buch steht nur, was wirklich abgerechnet ist — keine schönen Zahlen für die Show. Verdient wird mit Software-Abos. Der AURA-Token ist Belohnung und Zahlungsmittel rund um das Produkt, nicht das Produkt selbst.`,
+  },
+  {
+    id: "problem",
+    title: "1. Das Problem",
+    body: `Heute ist der Gründer die ganze Firma: Chef, Verkauf, Werbung, Recherche, Betrieb, Hilfe, Produkt, Technik, Geld, Social, Recht, Personal. Der Wille reicht. Der Tag nicht. Jeder neue Kunde macht mehr Arbeit, bis ein Mensch nicht mehr kann.`,
+  },
+  {
+    id: "switch",
+    title: "2. Die Wende",
+    body: `Statt einem Menschen, der alles macht: ein Eigentümer und eine KI-Belegschaft. Der Eigentümer setzt das Ziel und gibt frei. Atlas plant und verteilt. Die Fachleute tun. Der Beleg sagt: wer, was, wann, was es gekostet hat, was herausgekommen ist. Im Buch stehen echte Ergebnisse getrennt von Hoffnungen.`,
+  },
+  {
+    id: "product",
+    title: "3. Was schon läuft",
+    body: `Aura OS ist schon die Schaltzentrale: Atlas als Chef, die Mitarbeiter, Aufträge, Freigaben, Aufgaben, Belege, das Gedächtnis der Firma, das Wirtschaftsbuch, die Suche nach Interessenten, die Website, die Geldbörse, der Handelstisch, der Ertragstisch, die Maschinenschnittstelle, der Marktplatz und die Gemeinschaft. Als Nächstes muss sich zeigen: Leute die zahlen, Umsatz der wirklich da ist.`,
+  },
+  {
+    id: "workforce",
+    title: "4. Die KI-Mitarbeiter",
+    body: `Atlas führt. Quant handelt. Ledger führt Buch. Cass baut. Iris denkt das Produkt. Vela holt Wachstum. Orin schreibt nach außen. Yield legt Restgeld an. Ein Auftrag wird zur gemeinsamen Arbeit — der Gründer bleibt am Hebel.`,
+  },
+  {
+    id: "proof",
+    title: "5. Beleg und Wahrheit",
+    body: `Was die KI tut, muss man nachlesen können: Quelle, Kosten, Ergebnis. Umsatz und Kunden zählen erst, wenn sie im Buch stehen. Schätzungen heißen Schätzungen. Zugewiesenes Budget und Belohnungen in der App sind kein Firmenumsatz. Das ist Absicht.`,
+  },
+  {
+    id: "business",
+    title: "6. Womit wir verdienen",
+    body: `Das Geschäft sind Abos: Einstieg 49 € im Monat, Wachstum 149 € (das, was wir empfehlen), Autonom 399 € und mehr. Mehr verdienen wir, wenn jemand weitere Mitarbeiter, Automatik, Schnittstellen, eine zweite Firma, einen großen Vertrag oder den Marktplatz nutzt. Der Token ist nicht das Geschäft.`,
+  },
+  {
+    id: "token",
+    title: "7. Der Token und der öffentliche Start",
+    body: `AURA ist zum Mitmachen da: Belohnung, Fortschritt, ausgewählte Nutzung in der App, Wirtschaft zwischen Firmen und Programmen, Anreize am Marktplatz, später Mitreden. Höchstens 777.777.777 AURA. Plan für den öffentlichen Start (${TOKEN_LAUNCH_DISPLAY_DE}): 3.000 € gezielter erster Kauf plus 3.000 € auf 30 begrenzte Handelsprogramme. Ziel bis 500.000 $ Umsatz im Handel — ein Ziel, keine Garantie. Kein Scheinhandel, kein Handel mit sich selbst, kein Kreis. Vor dem Start gibt es keine Vertragsadresse.`,
+  },
+  {
+    id: "desks",
+    title: "8. Handel und Ertrag",
+    body: `Am Handelstisch: Übung oder echt, Deckel, Not-Aus, Lage lesen, an der Vergangenheit prüfen. Selbstständig heißt nicht: Risiko ohne Grenze. Am Ertragstisch liegt Restgeld von vorsichtig bis mutig. Überall sitzen Markt, Vertragscode, Handelbarkeit und der Verlust, wenn Paare sich verschieben. Spannen sind keine versprochene Rendite.`,
+  },
+  {
+    id: "gtm",
+    title: "9. Wo wir anfangen",
+    body: `Dort, wo der Nutzen sofort sichtbar ist: Betriebe vor Ort (Anfragen, Bewertungen, Nachfassen), Agenturen, Online-Firmen, Web3. Erstes Bild: eine Wiener Web-Agentur, Website um 1.500 €, fünf neue Kunden im Monat, der ganze Weg vom Auftrag zur Arbeit zum Kunden zum Geld.`,
+  },
+  {
+    id: "moat",
+    title: "10. Was uns schwer kopieren lässt",
+    body: `Nicht der Token. Das Gedächtnis der Firma, wie Aufträge verteilt werden, mehrere KI-Mitarbeiter die zusammenarbeiten, die Belege, das Wirtschaftsbuch, die Freigaben des Gründers, die Anschlüsse, die Geschichte was wer geschafft hat, die wirtschaftliche Infrastruktur und ein Netz von Firmen die so laufen. Ein Sprachmodell kann jeder rufen. Aus KI eine Firma zu machen, die arbeitet, können wenige.`,
+  },
+  {
+    id: "roadmap",
+    title: "11. Der Fahrplan",
+    body: `Phase 1 — das Produkt läuft. Phase 2 — jemand zahlt. Phase 3 — von 100 auf 1.000 Firmen und der Marktplatz. Phase 4 — ein Netz, das sich selbst trägt. In 90 Tagen: zahlende Firmen und Umsatz im Buch (1–10, dann 10–50, dann 50–100 und mehr). Keine Show aus Funktionen.`,
+  },
+  {
+    id: "disclaimer",
+    title: "12. Klartext",
+    body: TOKEN_DISCLAIMER_DE,
   },
 ] as const;
 

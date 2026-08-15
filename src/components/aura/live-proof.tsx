@@ -4,6 +4,7 @@ import { Activity, ArrowRight, Bot, Building2, ListTodo, type LucideIcon } from 
 
 import { Pulse } from "@/components/aura/primitives";
 import { ShareMoment } from "@/components/aura/share";
+import { useLocale } from "@/hooks/use-locale";
 import { useNetworkTotals, usePublicFeed, type FeedRow } from "@/hooks/use-public";
 import { useInView } from "@/hooks/use-in-view";
 import { SITE_URL } from "@/lib/site";
@@ -41,6 +42,7 @@ function feedLine(row: FeedRow): { who: string; what: string } | null {
 }
 
 export function LiveProof() {
+  const { t } = useLocale();
   const { ref, inView: onScreen } = useInView();
   const { data, isSuccess, isError } = useNetworkTotals({
     refetchInterval: onScreen ? 30_000 : false,
@@ -49,22 +51,22 @@ export function LiveProof() {
   const ready = isSuccess || isError;
   const stats: { label: string; value: string; icon: LucideIcon }[] = [
     {
-      label: "Companies on Aura OS",
+      label: t("landing.liveCompanies"),
       value: liveValue(data?.companies, ready),
       icon: Building2,
     },
     {
-      label: "AI employees at work",
+      label: t("landing.liveAgents"),
       value: liveValue(data?.agents, ready),
       icon: Bot,
     },
     {
-      label: "Open tasks",
+      label: t("landing.liveTasks"),
       value: liveValue(data?.tasks, ready),
       icon: ListTodo,
     },
     {
-      label: "Actions in 24h",
+      label: t("landing.liveActions"),
       value: liveValue(data?.actions_24h, ready),
       icon: Activity,
     },
@@ -82,8 +84,8 @@ export function LiveProof() {
       ? `${companies.toLocaleString()} companies · ${actions24h.toLocaleString()} actions · 24h`
       : null;
   const shareText = shareStat
-    ? `Aura OS is live — ${shareStat}. Real ledger, not demo theater.`
-    : "Aura OS is live — autonomous companies with public receipts.";
+    ? t("landing.liveShareStat", { stat: shareStat })
+    : t("landing.liveSharePlain");
 
   return (
     <section ref={ref} className="relative z-10 mx-auto max-w-6xl px-6 py-10">
@@ -97,21 +99,20 @@ export function LiveProof() {
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
-              <Pulse /> Live right now
+              <Pulse /> {t("landing.liveKicker")}
             </p>
             <h2 className="font-display text-[clamp(1.5rem,4vw,2.4rem)] leading-[1.05] tracking-tight">
-              The operating system is already online.
+              {t("landing.liveTitle")}
             </h2>
             <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-              Wave 1 is open. Companies, agents, and 24h actions are counted from the live
-              database — no demo theater, no reply-approval noise.
+              {t("landing.liveBody")}
             </p>
           </div>
           <Link
             to="/live"
             className="inline-flex items-center gap-1.5 rounded-2xl bg-foreground/8 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
           >
-            Watch it live <ArrowRight className="h-3.5 w-3.5" />
+            {t("landing.liveWatch")} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -136,7 +137,7 @@ export function LiveProof() {
         {lines.length > 0 ? (
           <div className="mt-8 border-t border-border/40 pt-5">
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-              Latest activity
+              {t("landing.liveLatest")}
             </p>
             <ul className="space-y-2.5">
               {lines.map((line, i) => (
@@ -165,7 +166,7 @@ export function LiveProof() {
             text={shareText}
             title="Aura OS · live network"
             placement="landing_live_proof"
-            label="Share live proof"
+            label={t("landing.liveShare")}
             statLine={shareStat}
           />
         </div>

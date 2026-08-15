@@ -20,7 +20,7 @@ import { WIEN_ORIGIN, WIEN_STICKERS } from "@/lib/wien-story";
 
 const TITLE = `Gründungsteam Wien — ${SITE_NAME}`;
 const DESCRIPTION =
-  "Laszlo Bihary, Martina Hammer, Darko Tanackovic, Evren Demir, Mart Johann. Wie AURA in Wien zsamkemma is — und warum keine Fake-Sterne.";
+  "Laszlo Bihary, Martina Schulz, Darko Tanackovic, Evren Demir, Mart Johann. Wie AURA in Wien zsamkemma is — und warum keine Fake-Sterne.";
 
 export const Route = createFileRoute("/team")({
   head: () => ({

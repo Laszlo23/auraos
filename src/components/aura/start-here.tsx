@@ -10,35 +10,39 @@ type Step = { to: string; title: string; body: string; cta: string; done: boolea
  * The first five minutes. One obvious next action, in plain language.
  */
 export function StartHere({
-  hasConnections,
-  hasInstructed,
-  hasTasks,
+  hasMission,
+  hasApproval,
+  hasProof,
 }: {
-  hasConnections: boolean;
-  hasInstructed: boolean;
-  hasTasks: boolean;
+  hasMission: boolean;
+  hasApproval: boolean;
+  hasProof: boolean;
+  /** @deprecated kept so older call sites type-check during the cutover */
+  hasConnections?: boolean;
+  hasInstructed?: boolean;
+  hasTasks?: boolean;
 }) {
   const steps: Step[] = [
     {
-      to: "/connect",
-      title: "Connect one account",
-      body: "Your email or a social account. That is how your agents reach the outside world.",
-      cta: "Connect",
-      done: hasConnections,
+      to: "/missions",
+      title: "Give your company something to do",
+      body: "A sentence is enough. Aura turns it into a plan you can approve.",
+      cta: "Create a mission",
+      done: hasMission,
     },
     {
-      to: "/ceo",
-      title: "Tell the CEO what you want",
-      body: 'Plain words work: "find me ten leads in Vienna" or "write this week\'s posts".',
-      cta: "Say something",
-      done: hasInstructed,
+      to: "/approvals",
+      title: "Approve the first action",
+      body: "Nothing spends or publishes until you tap approve.",
+      cta: "Open approvals",
+      done: hasApproval,
     },
     {
-      to: "/tasks",
-      title: "Approve the first task",
-      body: "Nothing spends or publishes until you tap approve. Then the worker runs it and files proof.",
-      cta: "Open work",
-      done: hasTasks,
+      to: "/proofs",
+      title: "See the proof",
+      body: "When work finishes, the result is filed here — not a vanity number.",
+      cta: "View proof",
+      done: hasProof,
     },
   ];
 
@@ -46,9 +50,9 @@ export function StartHere({
   if (!next) return null;
 
   return (
-    <Panel label="Start here" glow>
+    <Panel label="Your company is ready" glow>
       <p className="max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-        Three steps and the company is moving. You are on step{" "}
+        You own the company. Give an outcome. Aura handles the rest. You are on step{" "}
         <span className="text-foreground">{steps.indexOf(next) + 1} of 3</span>.
       </p>
 

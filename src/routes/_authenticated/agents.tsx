@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
@@ -86,14 +86,20 @@ function AgentsPage() {
       <PageHeader
         eyebrow="Workforce"
         title={
-          agents.length <= 1 ? "Atlas is ready to build a team" : "Employees as economic workers"
+          agents.length <= 1 ? "Your company is ready for its first employee" : "Your employees"
         }
-        description="Status comes from real tasks (queued/running). Pause stops new assignment."
+        description="They work the mission. You approve spend and anything public."
       />
 
       {agents.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
-          No agents yet — your company will wake Atlas on first login.
+        <div className="rounded-3xl border border-dashed border-border px-6 py-16 text-center">
+          <p className="font-medium">Your company is ready for its first employee.</p>
+          <Link
+            to="/missions"
+            className="mt-4 inline-flex rounded-2xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+          >
+            Build my workforce
+          </Link>
         </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">

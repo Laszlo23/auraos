@@ -92,6 +92,13 @@ function LightpaperPage() {
             Full whitepaper →
           </Link>
           <Link
+            to="/whitepaper"
+            search={{ lang: "de" }}
+            className="rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
+          >
+            Whitepaper auf Deutsch
+          </Link>
+          <Link
             to="/tokenomics"
             className="rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
           >

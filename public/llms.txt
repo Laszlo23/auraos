@@ -8,11 +8,13 @@ Aura OS is operated by Ninty LLC. Aura OS is a separate product from any BCC tok
 
 - Home: https://aibusiness.fun/
 - Aura Lokal (DE local growth): https://aibusiness.fun/lokal
+- Aura Lokal sales deck: https://aibusiness.fun/verkauf · https://aibusiness.fun/Aura_Lokal_Verkauf.pptx
 - Aura Nachbar: https://aibusiness.fun/nachbar
 - Trading + Yield desks (app, auth): https://aibusiness.fun/trading
 - Tokenomics: https://aibusiness.fun/tokenomics
 - Lightpaper: https://aibusiness.fun/lightpaper
 - Whitepaper: https://aibusiness.fun/whitepaper
+- Whitepaper (DE / Wien): https://aibusiness.fun/whitepaper?lang=de
 - Roadmap: https://aibusiness.fun/roadmap
 - FAQ: https://aibusiness.fun/faq
 - Team: https://aibusiness.fun/team

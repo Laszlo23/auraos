@@ -28,6 +28,7 @@ aibusiness.fun, www.aibusiness.fun {
   header @pwa Service-Worker-Allowed "/"
 
   redir /share-kit /share 308
+  redir /whitepaper/de /whitepaper?lang=de 302
 
   # Kit videos + posters live on disk (too large for Nitro build / git).
   @media path *.mp4 /share/*

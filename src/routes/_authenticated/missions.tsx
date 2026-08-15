@@ -42,7 +42,12 @@ function MissionsPage() {
       <Panel label="All missions">
         {isLoading && <Shimmer className="h-32" />}
         {!isLoading && missions.length === 0 && (
-          <p className="text-sm text-muted-foreground">No missions yet — build one above.</p>
+          <div className="rounded-2xl border border-border/40 bg-foreground/[0.03] px-4 py-5">
+            <p className="font-medium">Give your company something to do.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              A sentence is enough. Aura turns it into a plan you approve.
+            </p>
+          </div>
         )}
         <ul className="space-y-3">
           {missions.map((m) => (

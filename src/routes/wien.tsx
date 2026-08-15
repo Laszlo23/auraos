@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Compass, ExternalLink, HeartHandshake, Megaphone, Star, Store, Users } from "lucide-react";
+import { Compass, ExternalLink, HeartHandshake, MapPin, Megaphone, Star, Store, Users } from "lucide-react";
 
 import { Chip, Panel, Shimmer } from "@/components/aura/primitives";
 import { LanguageToggle } from "@/components/aura/language-toggle";
@@ -11,6 +11,7 @@ import { getPublicLokalDirectory } from "@/lib/reviews.public.functions";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { REVIEW_APP_URL, reviewAppUrl, SITE_URL, url } from "@/lib/site";
 import { sharePosterSrc, wienWavePosts } from "@/lib/share-posts";
+import { formatShopAddress } from "@/lib/lokal-shops";
 import { WIEN_ORIGIN, WIEN_STICKERS, WIEN_VERTICALS } from "@/lib/wien-story";
 
 const TITLE = "AURA Wien — 1.000 Betriebe, Nachbarschaft, Missionen";
@@ -67,9 +68,16 @@ export const Route = createFileRoute("/wien")({
 function WienHubPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["public-lokal-directory"],
-    queryFn: () => getPublicLokalDirectory(),
+    queryFn: async () => {
+      try {
+        const rows = await getPublicLokalDirectory();
+        return Array.isArray(rows) ? rows : [];
+      } catch {
+        return [];
+      }
+    },
   });
-  const listings = data ?? [];
+  const listings = Array.isArray(data) ? data : [];
   const live = listings.length;
   const remaining = Math.max(0, LOCAL_COHORT_CAP - live);
 
@@ -104,7 +112,11 @@ function WienHubPage() {
             <Link to="/sticker" className="text-muted-foreground hover:text-foreground">
               Stickers
             </Link>
-            <Link to="/whitepaper" className="text-muted-foreground hover:text-foreground">
+            <Link
+              to="/whitepaper"
+              search={{ lang: "de" }}
+              className="text-muted-foreground hover:text-foreground"
+            >
               Whitepaper
             </Link>
             <a
@@ -220,7 +232,7 @@ function WienHubPage() {
             to="/share"
             className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary"
           >
-            Open the share kit →
+            Share-Kit öffnen →
           </Link>
         </div>
       </section>
@@ -335,15 +347,22 @@ function WienHubPage() {
           </div>
         ) : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {listings.map((b) => (
-              <li key={b.slug}>
+            {listings.map((b) => {
+              const address = formatShopAddress(b);
+              return (
+              <li key={b.slug} className={b.featured ? "sm:col-span-2" : undefined}>
                 <Link
                   to="/b/$slug"
                   params={{ slug: b.slug }}
-                  className="block rounded-3xl border border-border/40 bg-card/30 p-5 transition-colors hover:border-primary/40"
+                  className={`block overflow-hidden rounded-3xl border bg-card/30 transition-colors hover:border-primary/40 ${
+                    b.featured ? "border-gold/40" : "border-border/40"
+                  }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="grid h-11 w-11 place-items-center rounded-2xl bg-foreground/[0.04] text-lg">
+                  {b.cover_url ? (
+                    <img src={b.cover_url} alt="" className="h-36 w-full object-cover" />
+                  ) : null}
+                  <div className="flex items-start gap-3 p-5">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-foreground/[0.04] text-lg">
                       {b.emoji}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -351,13 +370,20 @@ function WienHubPage() {
                         <h3 className="font-display text-lg font-semibold tracking-tight">
                           {b.name}
                         </h3>
+                        {b.featured ? <Chip tone="gold">Wien zuerst</Chip> : null}
                         {b.local_cohort_number ? (
                           <Chip tone="gold">#{b.local_cohort_number}</Chip>
                         ) : null}
                       </div>
                       <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-muted-foreground">
-                        {[b.city, b.niche].filter(Boolean).join(" · ") || "Wien"}
+                        {[b.district || b.city, b.niche].filter(Boolean).join(" · ") || "Wien"}
                       </p>
+                      {address ? (
+                        <p className="mt-2 flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5 shrink-0" />
+                          {address}
+                        </p>
+                      ) : null}
                       {b.tagline ? (
                         <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
                           {b.tagline}
@@ -367,7 +393,8 @@ function WienHubPage() {
                   </div>
                 </Link>
               </li>
-            ))}
+              );
+            })}
             {remaining > 0 ? (
               <li className="rounded-3xl border border-dashed border-border/50 bg-foreground/[0.02] p-5">
                 <Store className="h-5 w-5 text-primary" />
@@ -483,6 +510,7 @@ function WienHubPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               to="/whitepaper"
+              search={{ lang: "de" }}
               className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
             >
               Whitepaper

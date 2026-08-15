@@ -229,11 +229,11 @@ function BillingPage() {
     <div className="space-y-5">
       <PageHeader
         eyebrow="Capital"
-        title={isOutcomeBilling ? "Outcome plans" : "Tokenized monthly subscription"}
+        title={isOutcomeBilling ? "Outcome plans" : "Company economy"}
         description={
           isOutcomeBilling
             ? `${funnelDef.audience}: pay for outcomes. Compute is metered underneath — success fees for Performance are billed manually after verified wins.`
-            : "One monthly allowance of AURA. Agents burn it as they work. Ledger is source of truth today — smart-wallet settlement migrates 1:1 later."
+            : "Revenue, costs, and budgets. AURA is optional utility — you do not need the token to run the company."
         }
         actions={
           <Chip tone="gold">

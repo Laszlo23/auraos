@@ -89,9 +89,14 @@ export function computeReputation(opts: {
 }
 
 export function slugifyCompanyName(name: string) {
+  const folded = name
+    .toLowerCase()
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss");
   return (
-    name
-      .toLowerCase()
+    folded
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "")
       .slice(0, 48) || "company"

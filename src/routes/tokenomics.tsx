@@ -305,6 +305,13 @@ function TokenomicsPage() {
             Whitepaper →
           </Link>
           <Link
+            to="/whitepaper"
+            search={{ lang: "de" }}
+            className="inline-flex items-center rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
+          >
+            Whitepaper DE →
+          </Link>
+          <Link
             to="/wien"
             className="inline-flex items-center rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
           >

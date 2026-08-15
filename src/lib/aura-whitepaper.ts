@@ -1,6 +1,7 @@
 import {
   AURA_ALLOCATIONS,
   AURA_MAX_SUPPLY_DISPLAY,
+  AURA_MAX_SUPPLY_DISPLAY_DE,
   AURA_TEAM_VESTING,
   formatAuraAmount,
 } from "@/lib/aura-token";
@@ -25,10 +26,23 @@ export const WHITEPAPER_META = {
   date: "15 August 2026",
 } as const;
 
+export const WHITEPAPER_META_DE = {
+  title: "AURA Token — womit Building Culture wirtschaftet",
+  subtitle: "AURA OS · AURA Lokal · das Netz rund um Building Culture",
+  version: "Whitepaper 1.0",
+  date: "15. August 2026",
+} as const;
+
 const ALLOC_ROWS = AURA_ALLOCATIONS.map((a) => [
   a.label,
   `${a.pct}%`,
   formatAuraAmount(a.amount),
+]);
+
+const ALLOC_ROWS_DE = AURA_ALLOCATIONS.map((a) => [
+  a.labelDe,
+  `${a.pct} %`,
+  formatAuraAmount(a.amount, "de"),
 ]);
 
 export const AURA_WHITEPAPER: WpSection[] = [
@@ -335,3 +349,316 @@ export const AURA_WHITEPAPER: WpSection[] = [
     ],
   },
 ];
+
+export const AURA_WHITEPAPER_DE: WpSection[] = [
+  {
+    id: "notice",
+    title: "Wichtiger Hinweis",
+    blocks: [
+      {
+        kind: "notice",
+        text: "Das ist ein Entwurf — Strategie und Technik, keine Rechts-, Steuer- oder Anlageberatung. AURA soll im Alltag etwas nützen, nicht als Wette verkauft werden. Nichts hier verspricht, dass der Token teurer wird, dass man ihn immer verkaufen kann, oder dass sich eine Einlage verzinst. Bevor AURA öffentlich angeboten wird, holen wir Rat zu MiCA und zum österreichischen und europäischen Recht. Wie etwas heißt, entscheidet nicht, was es rechtlich ist.",
+      },
+    ],
+  },
+  {
+    id: "summary",
+    title: "1. Kurz gesagt",
+    blocks: [
+      {
+        kind: "p",
+        text: "AURA ist das gemeinsame Geld- und Belohnungssystem von Building Culture. Darüber können Produkte, Gäste, Betriebe und KI-Mitarbeiter zahlen und verdienen.",
+      },
+      {
+        kind: "ul",
+        items: [
+          "AURA OS — die Software, mit der ein Mensch eine Firma führt und KI die Arbeit macht.",
+          "AURA Lokal — Wachstum für Betriebe vor Ort. Wir fangen in Wien an.",
+        ],
+      },
+      {
+        kind: "lead",
+        text: "Zuerst 1.000 Betriebe. Dann die Leute rundherum, die mitmachen. Dann wird aus dem Netz eine Wirtschaft, die mit AURA läuft.",
+      },
+      {
+        kind: "p",
+        text: "AURA ist nicht einfach ein weiterer Coin. Es ist, womit man im Netz bezahlt, belohnt wird, Vertrauen aufbaut und mitmacht.",
+      },
+    ],
+  },
+  {
+    id: "problem",
+    title: "2. Das Problem",
+    blocks: [
+      {
+        kind: "p",
+        text: "Viele Betriebe haben schon eine Website, ein Google-Profil, Social Media, Werbung, ein Kundenbuch, Bewertungen, Kassa und irgendwelche KI-Hilfen. Trotzdem hängt das nicht zusammen. Es ist kein gemeinsames Netz in der Stadt. Und wer online Zeit und Wissen hergibt, kann daraus kaum etwas Echtes machen. Genau diese gemeinsame Schicht fehlt. AURA soll sie sein.",
+      },
+    ],
+  },
+  {
+    id: "vision",
+    title: "3. Was Building Culture will",
+    blocks: [
+      {
+        kind: "p",
+        text: "Building Culture ist das Ganze. AURA ist, womit darin gewirtschaftet wird. Dazu gehören AURA OS, AURA Lokal, KI-Mitarbeiter, Werkzeuge für Betriebe, Angebote für Macher, ein Marktplatz — und was später dazukommt.",
+      },
+      {
+        kind: "lead",
+        text: "Zuerst Produkte, an denen echte Leute echtes Geld verdienen. Der Token kommt danach und hält das zusammen — nicht umgekehrt.",
+      },
+    ],
+  },
+  {
+    id: "os",
+    title: "4. AURA OS",
+    blocks: [
+      {
+        kind: "p",
+        text: "Früher: Mensch öffnet eine App und klickt sich durch. Bei AURA OS sagt man, was man will. Ein KI-Mitarbeiter macht den Weg. Am Ende steht ein Ergebnis. Die KI kann recherchieren, werben, helfen, verkaufen, den Laden führen, Texte und Bilder machen, Interessenten finden, Zahlen lesen und Abläufe erledigen. AURA ist, womit diese Mitarbeiter im Netz bezahlen und bezahlt werden.",
+      },
+    ],
+  },
+  {
+    id: "lokal",
+    title: "5. AURA Lokal",
+    blocks: [
+      {
+        kind: "p",
+        text: "AURA Lokal holt das Ganze auf die Straße. Wien zuerst. Betriebe, Gäste, Leute die mitmachen, KI, Daten und Belohnungen gehören zusammen: gefunden werden, neue Gäste, ehrliches Feedback, Beiträge, dass Leute wiederkommen, Empfehlungen, der Alltag im Laden.",
+      },
+      {
+        kind: "notice",
+        text: "AURA Lokal verkauft keine Google-Sterne und zahlt nicht dafür. Google will echte Besuche und verbietet Geld oder Geschenke im Tausch gegen eine Bewertung. Belohnen darf man, was geprüft ist: einen Betrieb finden, eine Umfrage, ehrliches Feedback, etwas ausprobieren, einen Beitrag, eine Empfehlung, erlaubte Aktionen und Aufgaben am Marktplatz. Die Google-Bewertung bleibt getrennt und frei.",
+      },
+    ],
+  },
+  {
+    id: "vienna",
+    title: "6. Wien: 1.000 Betriebe",
+    blocks: [
+      {
+        kind: "lead",
+        text: "Startstadt: Wien. Ziel: 1.000 Betriebe — Lokale, Cafés, Friseure, Beauty, Fitness, Handwerk, Immobilien, Ordinationen, Hotels, Autohäuser, Handel, Büros, Kultur.",
+      },
+      {
+        kind: "p",
+        text: "Lieber eine Stadt voll als ganz Österreich dünn. Die Stadt ist die Probe. Wenn’s zwischen Ottakring und dem 7. hält, darf’s weiter.",
+      },
+    ],
+  },
+  {
+    id: "flywheel",
+    title: "7–8. Der Kreislauf und die Straße",
+    blocks: [
+      {
+        kind: "p",
+        text: "Ein Betrieb kommt dazu. Er bekommt Werkzeuge. Gäste und Mitmacher tun etwas. Wer ehrlich mitmacht, verdient AURA. Die Leute holen Freunde. Der Betrieb hat mehr Leben. Der nächste Betrieb sieht das und kommt auch. Je mehr echte Wirtschaft durch AURA geht, desto mehr nützt der Token.",
+      },
+      {
+        kind: "p",
+        text: "Auf der Straße in Wien: Konto anlegen, ausweisen soweit nötig, eine erste echte Aufgabe machen oder eine Willkommensbelohnung holen, dann jemanden mitnehmen. Das erste Bargeld ist Werbung, damit Leute anfangen — nicht der Preis für eine Google-Bewertung.",
+      },
+    ],
+  },
+  {
+    id: "cash-to-aura",
+    title: "9–12. Vom Euro zu AURA",
+    blocks: [
+      {
+        kind: "ul",
+        items: [
+          "Stufe 1 — Einstieg in Euro.",
+          "Stufe 2 — Euro und AURA nebeneinander.",
+          "Stufe 3 — Belohnungen vor allem in AURA.",
+          "Mitmachen heißt: Betriebe finden, Umfragen, ausprobieren, ehrlich Rückmeldung geben, Beiträge, Freunde holen, Aktionen, Aufgaben am Marktplatz.",
+          "Eine Empfehlung zahlt erst, wenn die neue Person wirklich etwas geleistet hat. Kein Endlos-Anwerben.",
+          "Betriebe zahlen fürs Abo, für KI, für Aktionen, für Zahlen, für Sichtbarkeit und für den Marktplatz — in Euro, in einem stabilen Coin oder in AURA, sobald das sauber geht.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "utility",
+    title: "13. Wozu der Token gut ist",
+    blocks: [
+      {
+        kind: "ul",
+        items: [
+          "Bezahlen, wo Produkte und Dienste im Netz das erlauben",
+          "Belohnung für geprüfte Arbeit und für Empfehlungen, die halten",
+          "Zahlungen zwischen KI-Mitarbeitern und am Marktplatz",
+          "Besserer Zugang und Vorteile für Betriebe",
+          "Mitreden, wo Recht und Technik das hergeben",
+          "Freiwillig festlegen für Stufen — niemals mit Zinsversprechen",
+        ],
+      },
+    ],
+  },
+  {
+    id: "spec",
+    title: "14–20. So ist der Token aufgeteilt",
+    blocks: [
+      {
+        kind: "lead",
+        text: `Höchstens ${AURA_MAX_SUPPLY_DISPLAY_DE} AURA. Die Menge bleibt fest, außer eine spätere, offene Abstimmung ändert das ausdrücklich.`,
+      },
+      {
+        kind: "table",
+        headers: ["Wofür", "Anteil", "AURA"],
+        rows: [...ALLOC_ROWS_DE, ["Summe", "100 %", AURA_MAX_SUPPLY_DISPLAY_DE]],
+      },
+      {
+        kind: "p",
+        text: `Team (${formatAuraAmount(93_333_333, "de")} AURA): ${AURA_TEAM_VESTING.noteDe} Wer privat oder strategisch kauft, hat festgelegte Sperren. Wie die Handelbarkeit geführt wird, soll man nachlesen können. Sperren, wenn es sie gibt, öffentlich prüfbar. Niemand verspricht einen festen Preis. Die Wallets der Firmenreserve sollen erkennbar sein, soweit das Recht das zulässt.`,
+      },
+      {
+        kind: "notice",
+        text: "Die Prozente sind ein Vorschlag, wie man teilt — keine fertige rechtliche Zuteilung und kein Verkauf.",
+      },
+    ],
+  },
+  {
+    id: "emission",
+    title: "21–24. Ausgabe, Belohnung, Betrug, Ruf",
+    blocks: [
+      {
+        kind: "p",
+        text: "Eine feste Obergrenze, und was rausgeht, wird dosiert — nicht endlos nachgedruckt. Belohnt wird geleistete Arbeit, nicht bloß Anwerben und nicht bloß Halten. Gegen Betrug: Ausweis, Gerätesignale, Doppelgänger finden, Wartezeiten, Obergrenzen, Handprüfung, Muster die die KI sieht. Der Ruf im System ist eine interne Note (Qualität, Streit, Betrugssignale) — das ist nicht dasselbe wie Token besitzen.",
+      },
+    ],
+  },
+  {
+    id: "agents",
+    title: "25–28. KI-Mitarbeiter, Karten, Umsatz",
+    blocks: [
+      {
+        kind: "p",
+        text: "Später sollen KI-Mitarbeiter AURA verdienen und ausgeben: für Anfragen, Aktionen, Hilfe, Recherche und Abläufe — Programme, die einander bezahlen. Eine Karte oder ein Ausgeben-Produkt darf nur über beaufsichtigte Partner kommen. AURA ist keine Bank, kein Zahlungsdienst und gibt keine Karten aus, außer das wäre extra erlaubt.",
+      },
+      {
+        kind: "p",
+        text: "Womit AURA Lokal verdient: Software-Abo, stärkere KI, Aktionen, Marktplatz-Gebühr, geprüfte Anfragen, Sichtbarkeit, Hinweise auf Finanzpartner, große Kunden. Preise als Beispiel: Einstieg 29 €, Wachstum 79 €, Pro 149 €, Große nach Gespräch — das muss der Markt erst zeigen. Die Abos von Aura OS sind ein eigenes Geschäft.",
+      },
+    ],
+  },
+  {
+    id: "stages",
+    title: "29–36. 1.000 Betriebe, danach, was es rechnet",
+    blocks: [
+      {
+        kind: "ul",
+        items: [
+          "Stufe 1 (0–100): Das Gründungsteam verkauft selbst, geht hin, gibt Probezeit — zeigen, dass es passt.",
+          "Stufe 2 (100–300): Texte, die sitzen. Botschafter. Seiten pro Branche. Der Einstieg läuft von selbst.",
+          "Stufe 3 (300–600): Dicht in den Bezirken, Gruppen, Abende.",
+          "Stufe 4 (600–1.000): Empfehlungen, die sich selbst tragen. Netz der Mitmacher. KI, die mitverkauft. Geschichten, die man zeigen kann.",
+          "Dann Österreich, dann DACH, dann Europa, dann weiter. Wien ist die erste Wirtschaft — kein Software-Abfall, den man irgendwohin kippt.",
+          "Beispiel: 1.000 Betriebe mal 79 € sind 79.000 € im Monat. Ein Rechenbeispiel, keine Prognose.",
+          "20 € auf der Straße mal 1.000 Mitmacher sind 20.000 € Werbung. Gemessen wird: Wer bleibt? Wer ist echt? Wer kommt nach einer Woche, nach einem Monat wieder? Wer holt Freunde? Was ist ein Gast auf Dauer wert? Kein Lohn für Google-Sterne.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "community",
+    title: "37–43. Leute, Daten, Mitbestimmung, Recht",
+    blocks: [
+      {
+        kind: "p",
+        text: "Eine Wiener Gruppe — etwa auf WhatsApp — kann den Anfang beschleunigen. Dafür muss niemand seine Handynummer abliefern, wenn’s nicht nötig ist. DSGVO: so wenig Daten wie möglich, wer darf ran, Recht auf Löschen. Am Anfang entscheidet das Gründungsteam. Dann eine offene Firmenreserve. Dann Abstimmungen, wo sie Sinn haben. „Dezentral“ ist kein Werbespruch. Die Reserve: mehrere Schlüssel, Grenzen, Berichte wenn möglich.",
+      },
+      {
+        kind: "notice",
+        text: "AURA verkauft keine Google-Bewertungen, zahlt nicht dafür, verlangt keine fünf Sterne und keinen fertigen Text, zieht keine Scheinkampagnen auf und versteckt keine schlechten Stimmen. Eine Bewertung muss ein echter Besuch sein. Das steht im Produkt, nicht in der Fußnote.",
+      },
+    ],
+  },
+  {
+    id: "moat",
+    title: "44–48. Warum das größer ist als Sterne",
+    blocks: [
+      {
+        kind: "p",
+        text: "Der Weg ist: gefunden werden, Gast gewinnen, Erlebnis, Rückmeldung, Beitrag, wiederkommen, weitererzählen, Umsatz. Was uns schwer kopieren lässt, sind Betriebe plus Mitmacher plus Daten plus KI plus Reichweite plus Dichte in einer Stadt — nicht der Name des Tokens. AURA Lokal arbeitet in der echten Stadt. AURA OS lässt KI die Arbeit tun. AURA hält die Wirtschaft zusammen.",
+      },
+    ],
+  },
+  {
+    id: "roadmap",
+    title: "49–52. Fahrplan und woran wir uns messen",
+    blocks: [
+      {
+        kind: "ul",
+        items: [
+          "Phase 0 — Bau, Rechtslage, erstes Lokal-Produkt, OS, Einstieg.",
+          "Phase 1 — Wien: die ersten 100 Betriebe, die erste Gruppe die mitmacht, der Versuch auf der Straße.",
+          "Phase 2 — der Weg zu 1.000 Betrieben und Geld, das jeden Monat wiederkommt.",
+          "Phase 3 — AURA im Alltag: Belohnungen, Betriebe die damit zahlen, Handelbarkeit.",
+          "Phase 4–7 — Österreich, DACH, Europa, weiter.",
+          "Wir zählen: Betriebe die zahlen, monatlicher Umsatz, was ein neuer Betrieb kostet, wer abspringt, geprüfte Mitmacher, erledigte Aufgaben, wie oft betrogen wird, wie oft AURA wirklich wandert. Ziel sind 1.000 Betriebe die bleiben und zahlen — nicht leere Anmeldungen.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "why-token",
+    title: "53–56. Warum es den Token braucht",
+    blocks: [
+      {
+        kind: "p",
+        text: "Ohne Gemeinsames zahlt der Betrieb in Euro, der Macher über eine Plattform, die KI über Schnittstellen, der Gast in Punkten, die Empfehlung in Hausguthaben. AURA kann das eine Mittel sein. Nachfrage soll kommen, weil man etwas damit tun kann — Dienste, Belohnung, Zahlung zwischen Programmen, Zugang. Nicht weil jemand sagt, es wird teurer.",
+      },
+      {
+        kind: "lead",
+        text: "Dass etwas nützt, heißt nicht, dass es wertvoll bleibt. AURA kann fallen, unsichtbar werden oder scheitern. MiCA will, dass man das so sagt.",
+      },
+      {
+        kind: "p",
+        text: "AURA darf nicht an Google, WhatsApp, X, Meta, eine einzelne Kette oder einen einzelnen KI-Anbieter gekettet sein. Fällt eine Plattform um, läuft das Netz weiter.",
+      },
+    ],
+  },
+  {
+    id: "risks",
+    title: "55. Die großen Risiken",
+    blocks: [
+      {
+        kind: "ul",
+        items: [
+          "Markt, Recht, Technik, Sicherheit",
+          "Ob Leute mitmachen, ob andere schneller sind, ob man verkaufen kann, ob wir’s schaffen",
+          "Betrug, wo Belohnungen fließen",
+          "Wenn Google, WhatsApp oder andere die Regeln ändern",
+        ],
+      },
+    ],
+  },
+  {
+    id: "close",
+    title: "57–60. Worum es geht",
+    blocks: [
+      {
+        kind: "p",
+        text: "Zuerst 1.000 Betriebe in Wien. Dann 10.000. Dann 100.000. Menschen machen Wert. Betriebe brauchen Gäste. KI macht die Arbeit. AURA hält die Wirtschaft zusammen. Die These ist nicht: kaufen, weil der Token steigt. Die These ist: eine echte Wirtschaft um lebende Produkte bauen, dicht, in Wien, zuerst.",
+      },
+      {
+        kind: "lead",
+        text: "Was nützt, soll auch etwas wert sein können. AURA OS. AURA Lokal. Building Culture. Ein Netz. Eine Wirtschaft.",
+      },
+      {
+        kind: "notice",
+        text: "Das hier ist nicht das fertige Papier, das das Gesetz für ein öffentliches Krypto-Angebot verlangt. Bevor AURA angeboten, zum Handel zugelassen oder beworben wird, holen wir Rat in Österreich und in der EU und machen die Angaben, die MiCA verlangt. AURA verspricht keinen Gewinn. Ob’s wird, hängt an der Arbeit, daran ob Leute mitmachen, am Recht, an der Technik — und daran, ob wirklich Wirtschaft passiert.",
+      },
+    ],
+  },
+];
+
+export type WhitepaperLang = "en" | "de";
+
+export function whitepaperFor(lang: WhitepaperLang) {
+  return lang === "de"
+    ? { meta: WHITEPAPER_META_DE, sections: AURA_WHITEPAPER_DE }
+    : { meta: WHITEPAPER_META, sections: AURA_WHITEPAPER };
+}

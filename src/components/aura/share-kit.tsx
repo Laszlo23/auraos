@@ -30,6 +30,7 @@ import {
 } from "@/lib/share-posts";
 import { SITE_URL } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
+import { useLocale } from "@/hooks/use-locale";
 import { cn } from "@/lib/utils";
 
 function pickCaption(post: SharePost, index: number) {
@@ -494,6 +495,7 @@ export function ShareKit({
 
 /** Compact teaser band for the landing page — links into the full kit. */
 export function ShareKitTeaser({ className }: { className?: string }) {
+  const { t } = useLocale();
   return (
     <section
       id="share-kit"
@@ -506,22 +508,21 @@ export function ShareKitTeaser({ className }: { className?: string }) {
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-              Wien wave · free share kit
+              {t("landing.kitKicker")}
             </p>
             <h2 className="mt-2 font-display text-[clamp(2rem,6vw,3.1rem)] leading-[0.98] tracking-tight">
-              Schmäh with love.
-              <span className="block text-primary">Hosted clips.</span>
+              {t("landing.kitTitle")}
+              <span className="block text-primary">{t("landing.kitTitle2")}</span>
             </h2>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-              New Wien cuts first — no judging, just the now. Copy a caption, send a neighbor the
-              watch link. Download for native upload when you need it.
+              {t("landing.kitBody")}
             </p>
             <ul className="mt-5 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               <li className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">
-                <Copy className="h-3 w-3 text-primary" /> Caption
+                <Copy className="h-3 w-3 text-primary" /> {t("landing.kitCaption")}
               </li>
               <li className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">
-                <Link2 className="h-3 w-3 text-primary" /> Watch link
+                <Link2 className="h-3 w-3 text-primary" /> {t("landing.kitLink")}
               </li>
               <li className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-foreground/4 px-3 py-1.5">
                 <Download className="h-3 w-3 text-primary" /> MP4
@@ -532,7 +533,7 @@ export function ShareKitTeaser({ className }: { className?: string }) {
               onClick={() => trackTeaser("share", { placement: "landing_kit_cta" })}
               className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
-              Open the share kit <Share2 className="h-4 w-4" />
+              {t("landing.kitCta")} <Share2 className="h-4 w-4" />
             </Link>
           </div>
           <div className="grid grid-cols-3 gap-2 sm:gap-3">

@@ -1024,14 +1024,18 @@ export type Database = {
           allowed_symbols: string[]
           autonomy: number
           city: string | null
+          cover_url: string | null
           created_at: string
           credits: number
           daily_aura_budget: number
           desk_network: string
+          district: string | null
           emoji: string
           entry_funnel: string
+          featured: boolean
           google_review_url: string | null
           homepage_url: string | null
+          hours_note: string | null
           id: string
           is_local_business: boolean
           local_cohort_number: number | null
@@ -1046,14 +1050,20 @@ export type Database = {
           name: string
           network_backlink: boolean
           niche: string | null
+          owner_display_name: string | null
           owner_id: string
+          phone: string | null
+          postal_code: string | null
+          public_email: string | null
           pulse_paper_usdc: number | null
           quant_boost_pct: number
           quant_boost_until: string | null
           referred_by_company_id: string | null
           reputation: number
           runway_days: number
+          services: string[]
           slug: string | null
+          street: string | null
           strategy: string | null
           tagline: string | null
           theme: string
@@ -1069,14 +1079,18 @@ export type Database = {
           allowed_symbols?: string[]
           autonomy?: number
           city?: string | null
+          cover_url?: string | null
           created_at?: string
           credits?: number
           daily_aura_budget?: number
           desk_network?: string
+          district?: string | null
           emoji?: string
           entry_funnel?: string
+          featured?: boolean
           google_review_url?: string | null
           homepage_url?: string | null
+          hours_note?: string | null
           id?: string
           is_local_business?: boolean
           local_cohort_number?: number | null
@@ -1091,14 +1105,20 @@ export type Database = {
           name: string
           network_backlink?: boolean
           niche?: string | null
+          owner_display_name?: string | null
           owner_id: string
+          phone?: string | null
+          postal_code?: string | null
+          public_email?: string | null
           pulse_paper_usdc?: number | null
           quant_boost_pct?: number
           quant_boost_until?: string | null
           referred_by_company_id?: string | null
           reputation?: number
           runway_days?: number
+          services?: string[]
           slug?: string | null
+          street?: string | null
           strategy?: string | null
           tagline?: string | null
           theme?: string
@@ -1114,14 +1134,18 @@ export type Database = {
           allowed_symbols?: string[]
           autonomy?: number
           city?: string | null
+          cover_url?: string | null
           created_at?: string
           credits?: number
           daily_aura_budget?: number
           desk_network?: string
+          district?: string | null
           emoji?: string
           entry_funnel?: string
+          featured?: boolean
           google_review_url?: string | null
           homepage_url?: string | null
+          hours_note?: string | null
           id?: string
           is_local_business?: boolean
           local_cohort_number?: number | null
@@ -1136,14 +1160,20 @@ export type Database = {
           name?: string
           network_backlink?: boolean
           niche?: string | null
+          owner_display_name?: string | null
           owner_id?: string
+          phone?: string | null
+          postal_code?: string | null
+          public_email?: string | null
           pulse_paper_usdc?: number | null
           quant_boost_pct?: number
           quant_boost_until?: string | null
           referred_by_company_id?: string | null
           reputation?: number
           runway_days?: number
+          services?: string[]
           slug?: string | null
+          street?: string | null
           strategy?: string | null
           tagline?: string | null
           theme?: string
@@ -1158,6 +1188,41 @@ export type Database = {
           {
             foreignKeyName: "companies_referred_by_company_id_fkey"
             columns: ["referred_by_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      local_shop_claims: {
+        Row: {
+          claimed_at: string | null
+          claimed_by: string | null
+          company_id: string
+          created_at: string
+          id: string
+          token: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          token: string
+        }
+        Update: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_shop_claims_company_id_fkey"
+            columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
