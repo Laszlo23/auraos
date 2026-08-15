@@ -16,3 +16,6 @@ export const NACHBAR_FRIEND_BONUS = 25;
 export const NACHBAR_FRIEND_STORAGE_KEY = "aura_nachbar_friend_ref";
 export const NACHBAR_SHOP_STORAGE_KEY = "aura_nachbar_shop_slug";
 export const NACHBAR_CHECKIN_STORAGE_KEY = "aura_nachbar_pending_checkin";
+export const NACHBAR_AUTOSUBMIT_KEY = "aura_nachbar_autosubmit";
+
+export const NACHBAR_STAMP_GOAL = 3;

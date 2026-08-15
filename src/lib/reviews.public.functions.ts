@@ -62,6 +62,8 @@ export type PublicLocalBusiness = {
   posts: { id: string; provider: string; body: string; published_at: string | null }[];
   recent_checkins: PublicShopCheckin[];
   neighbors: PublicLokalListing[];
+  nachbar_rating_avg: number | null;
+  nachbar_rating_count: number;
 };
 
 const LISTING_COLS =
@@ -141,7 +143,15 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!company) return null;
 
-    const [{ data: posts }, checkins, invites, { data: recent }, { data: neighborRows }, { data: catalogRows }] =
+    const [
+      { data: posts },
+      checkins,
+      invites,
+      { data: recent },
+      { data: neighborRows },
+      { data: catalogRows },
+      ratings,
+    ] =
       await Promise.all([
       supabaseAdmin
         .from("channel_posts")
@@ -183,6 +193,10 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         .eq("is_public", true)
         .order("sort_order")
         .order("created_at"),
+      supabaseAdmin
+        .from("nachbar_ratings" as never)
+        .select("score")
+        .eq("company_id", company.id),
     ]);
 
     const editorial = editorialForSlug(company.slug as string);
@@ -226,6 +240,12 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         }),
       nachbar_checkin_code: (company.nachbar_checkin_code as string | null) ?? null,
       checkin_count: checkins.count ?? 0,
+      nachbar_rating_avg: (() => {
+        const scores = ((ratings.data ?? []) as { score: number }[]).map((r) => Number(r.score));
+        if (scores.length === 0) return null;
+        return Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
+      })(),
+      nachbar_rating_count: ((ratings.data ?? []) as { score: number }[]).length,
       invite_count: invites.count ?? 0,
       second_studio_note: editorial?.secondStudioNote ?? null,
       google_find_copy: editorial?.googleFindCopy ?? null,

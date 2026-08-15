@@ -146,6 +146,7 @@ export const de: MessageTree = {
     openCheckins: "Offene Check-ins",
     nonePending: "Keine offenen Check-ins.",
     confirm: "Bestätigen",
+    reject: "Ablehnen",
     openLink: "Check-in-Link öffnen",
     leadHunter: "Mehr Gäste finden",
     leadHunterBlurb: "Optional: lokale Interessenten suchen{region}.",

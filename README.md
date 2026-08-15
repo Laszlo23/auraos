@@ -27,7 +27,7 @@ Honest by default: workforce **Active** means a real queued/running task; quiet 
 | Aura Lokal (DE/EN) | `/lokal` | Local-business landing (browser language + toggle) |
 | Local funnel (EN) | `/for/local` | English local / Review Boost funnel |
 | Public shop card | `/b/$slug` | Homepage + socials + review CTA |
-| Aura Nachbar | `/nachbar` | Patron app — check-in, earn, friends |
+| Aura Nachbar | `/nachbar` | City play — check-in, stamps, missions, friends (no business required) |
 | Review invite bridge | `/r/review/$token` | Nachbar CTA + optional unpaid Google |
 | Connect | `/connect` | Socials, mailbox, wallet |
 | Channels | `/channels` | Publish, drip, reply modes |
@@ -36,6 +36,37 @@ Honest by default: workforce **Active** means a real queued/running task; quiet 
 | Public report | `/w/$slug` | Shareable snapshot (no login) |
 | Company passport | `/company/$slug` | Public company page |
 | FAQ | `/faq` | Product answers for founders |
+
+## Aura Nachbar (city play)
+
+Live: [aibusiness.fun/nachbar](https://aibusiness.fun/nachbar) · [Entdecken](https://aibusiness.fun/nachbar/entdecken). Product vision: [docs/CUSTOMER_APP.md](docs/CUSTOMER_APP.md).
+
+Nachbar is the **guest** loop. Anyone can play without opening a company. Console and Nachbar share the same Supabase session — login once, stay logged in on both sides. Community accounts must never hit company onboarding (`useCompany` / empty-company create).
+
+```text
+Entdecken → check-in (slug or /nachbar/c/$code)
+         → owner confirms on /kunden (or Tresen demo if you own the shop)
+         → stamps + weekly missions + Nachbar points
+         → Nachbar-Note (1–5 after a confirmed visit)
+         → share / invite friends
+```
+
+| Path | Who | Notes |
+|---|---|---|
+| `/nachbar` | Public | Landing. Session-aware “Weiter spielen”. Indexed. |
+| `/nachbar/entdecken` | Public | City map, heat, missions. Indexed. |
+| `/nachbar/heute` | Signed-in guest | Daily play, one-tap check-in, rating, feedback. `noindex`. |
+| `/nachbar/c/$code` | Deep link | Remembers the visit, then Heute or `/auth?next=/nachbar/heute`. |
+| `/nachbar/freunde` · `/verdienen` · `/ich` | Signed-in guest | Invite, ledger, profile. `noindex`. |
+| `/kunden` | Shop owner | Pending check-ins for **all** owned shops + current-shop QR. |
+
+Honest rules:
+
+- **Two ledgers.** Nachbar guest points ≠ company AURA / wheel / `founder_progress`. Do not merge them.
+- **No pay-for-stars.** Google review links are optional and unpaid. Share-without-visit pays 0 (`visit_required`).
+- **AURA CA** stays `null` in `src/lib/aura-token.ts` until T-0. Never invent a contract.
+- **Confirm is the mint gate.** Requesting a check-in only creates `pending`. Credits run through `_nachbar_credit` after the shop owner confirms. Owner self-confirm is demo-only and mints **0**.
+- Internal `_nachbar_*` helpers are not client RPCs (no `anon` / `authenticated` execute).
 
 ## Quickstart
 

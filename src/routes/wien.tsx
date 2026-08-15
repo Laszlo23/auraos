@@ -23,7 +23,7 @@ const MISSIONS = [
     icon: Compass,
     title: "Entdecken",
     body: "Finde einen Wiener Betrieb, checke ein, hinterlasse einen echten Besuch. Belohnt wird verifizierte Discovery — nicht eine Sterne-Kampagne.",
-    href: "/nachbar",
+    href: "/nachbar/heute",
     cta: "Nachbar werden",
   },
   {
@@ -37,14 +37,14 @@ const MISSIONS = [
     icon: Megaphone,
     title: "Content",
     body: "Foto, Kurzstory, Empfehlung — Content, den der Betrieb wirklich nutzen kann. Qualität vor Volumen.",
-    href: "/nachbar",
+    href: "/nachbar/heute",
     cta: "Mitmachen",
   },
   {
     icon: Users,
     title: "Freunde einladen",
     body: "Referral zahlt erst, wenn die eingeladene Person echte Aktivität abschließt. Kein Endlos-MLM.",
-    href: "/nachbar",
+    href: "/nachbar/freunde",
     cta: "Einladen",
   },
 ] as const;
@@ -436,9 +436,16 @@ function WienHubPage() {
                 <Link to="/review" className="mt-4 inline-block text-sm font-semibold text-primary">
                   {m.cta} →
                 </Link>
+              ) : m.href === "/nachbar/freunde" ? (
+                <Link
+                  to="/nachbar/freunde"
+                  className="mt-4 inline-block text-sm font-semibold text-primary"
+                >
+                  {m.cta} →
+                </Link>
               ) : (
                 <Link
-                  to="/nachbar"
+                  to="/nachbar/heute"
                   className="mt-4 inline-block text-sm font-semibold text-primary"
                 >
                   {m.cta} →

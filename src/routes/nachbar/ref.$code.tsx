@@ -2,16 +2,17 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { NACHBAR_FRIEND_STORAGE_KEY } from "@/lib/nachbar";
-import { SITE_URL } from "@/lib/site";
+import { nachbarHead } from "@/lib/nachbar-seo";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/nachbar/ref/$code")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "Einladung — Aura Nachbar" },
-      { property: "og:url", content: `${SITE_URL}/nachbar/ref/${params.code}` },
-    ],
-  }),
+  head: ({ params }) =>
+    nachbarHead({
+      title: "Einladung — Aura Nachbar",
+      description:
+        "Mitkommen nach Wien: Check-in im Laden, dann zählen beide. Bonus erst nach dem echten Besuch.",
+      path: `/nachbar/ref/${params.code}`,
+    }),
   component: NachbarRefDeepLink,
 });
 

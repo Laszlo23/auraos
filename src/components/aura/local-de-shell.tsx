@@ -144,6 +144,12 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
             Aura <span className="text-muted-foreground">Lokal</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
+            <Link
+              to="/nachbar/heute"
+              className="rounded-full border border-border/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+            >
+              Nachbar
+            </Link>
             <LanguageToggle />
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/40 px-2.5 py-1 text-[11px] font-semibold tabular-nums">
               <Sparkle className="h-3 w-3 text-gold" />

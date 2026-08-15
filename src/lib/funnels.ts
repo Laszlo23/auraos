@@ -73,6 +73,7 @@ const START_NAV = [
 
 const LOCAL_NAV = [
   "/console",
+  "/nachbar/heute",
   "/missions",
   "/agents",
   "/approvals",

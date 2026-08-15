@@ -9,6 +9,7 @@ import { getNachbarHub } from "@/lib/nachbar.functions";
 import { compact } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useSupabaseSession } from "@/hooks/use-supabase-session";
 import { Pulse } from "@/components/aura/primitives";
 
 const TAB_ICONS: Record<(typeof NACHBAR_TABS)[number]["to"], LucideIcon> = {
@@ -26,28 +27,23 @@ export function NachbarShell({ children }: { children?: React.ReactNode }) {
   const navigate = useNavigate();
   const isLanding = pathname === "/nachbar";
   const isPublicDeep = PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
-  const needsAuth = !isLanding && !isPublicDeep;
+  const isDiscover = pathname === "/nachbar/entdecken";
+  const needsAuth = !isLanding && !isPublicDeep && !isDiscover;
+  const showAppChrome = !isLanding && !isPublicDeep;
 
-  const { data: sessionReady, isLoading: authLoading } = useQuery({
-    queryKey: ["nachbar-session"],
-    enabled: needsAuth,
-    queryFn: async () => {
-      const { data } = await supabase.auth.getUser();
-      return Boolean(data.user);
-    },
-    staleTime: 15_000,
-  });
+  const { data: user, isLoading: authLoading } = useSupabaseSession();
 
   const { data: hub } = useQuery({
     queryKey: ["nachbar-hub"],
-    enabled: needsAuth && sessionReady === true,
+    enabled: showAppChrome && Boolean(user),
     queryFn: () => getNachbarHub(),
     staleTime: 20_000,
+    retry: 1,
   });
 
   useEffect(() => {
     if (!needsAuth || authLoading) return;
-    if (sessionReady === false) {
+    if (!user) {
       navigate({
         to: "/auth",
         search: {
@@ -57,13 +53,13 @@ export function NachbarShell({ children }: { children?: React.ReactNode }) {
         },
       });
     }
-  }, [needsAuth, authLoading, sessionReady, navigate, pathname]);
+  }, [needsAuth, authLoading, user, navigate, pathname]);
 
   if (isLanding || isPublicDeep) {
     return <>{children ?? <Outlet />}</>;
   }
 
-  if (authLoading || sessionReady === false) {
+  if (needsAuth && (authLoading || !user)) {
     return (
       <div className="grid min-h-svh place-items-center bg-background text-sm text-muted-foreground">
         Aura Nachbar wird geladen…
@@ -88,21 +84,41 @@ export function NachbarShell({ children }: { children?: React.ReactNode }) {
             Aura <span className="text-muted-foreground">Nachbar</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/40 px-2.5 py-1 text-[11px] font-semibold tabular-nums">
-              <Pulse tone="gold" />
-              {compact(hub?.profile.balance ?? 0)}
-            </span>
-            <button
-              type="button"
-              aria-label="Abmelden"
-              className="rounded-full p-1.5 text-muted-foreground hover:text-foreground"
-              onClick={async () => {
-                await supabase.auth.signOut();
-                navigate({ to: "/nachbar" });
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+            {user ? (
+              <>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/40 px-2.5 py-1 text-[11px] font-semibold tabular-nums">
+                  <Pulse tone="gold" />
+                  {compact(hub?.profile.balance ?? 0)}
+                </span>
+                {hub?.has_company ? (
+                  <Link
+                    to="/console"
+                    className="rounded-full border border-border/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+                  >
+                    Console
+                  </Link>
+                ) : null}
+                <button
+                  type="button"
+                  aria-label="Abmelden"
+                  className="rounded-full p-1.5 text-muted-foreground hover:text-foreground"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    navigate({ to: "/nachbar" });
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/auth"
+                search={{ mode: "signup", next: "/nachbar/heute", lang: "de" }}
+                className="rounded-full bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground"
+              >
+                Mitspielen
+              </Link>
+            )}
           </div>
         </div>
       </header>

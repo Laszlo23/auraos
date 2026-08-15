@@ -4,35 +4,28 @@ import { useEffect } from "react";
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useLocale } from "@/hooks/use-locale";
+import { useSupabaseSession } from "@/hooks/use-supabase-session";
 import {
   NACHBAR_FIRST_CHECKIN_GRANT,
   NACHBAR_FRIEND_BONUS,
   NACHBAR_WELCOME_GRANT,
 } from "@/lib/nachbar";
-import { ogCampaignMeta } from "@/lib/og-campaign";
-import { SITE_URL } from "@/lib/site";
+import { nachbarHead } from "@/lib/nachbar-seo";
 
 export const Route = createFileRoute("/nachbar/")({
-  head: () => ({
-    meta: [
-      { title: "Aura Nachbar — Check-in, verdienen, Freunde einladen" },
-      {
-        name: "description",
-        content:
-          "Die Gäste-App für Aura Lokal: Check-in im Laden, Guthaben verdienen, Freunde mitbringen. Keine Belohnung für Google-Sterne.",
-      },
-      { property: "og:title", content: "Aura Nachbar" },
-      { property: "og:url", content: `${SITE_URL}/nachbar` },
-      ...ogCampaignMeta("nachbar"),
-      { property: "og:locale", content: "de_DE" },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/nachbar` }],
-  }),
+  head: () =>
+    nachbarHead({
+      title: "Aura Nachbar — Check-in, verdienen, Freunde einladen",
+      description:
+        "Die Gäste-App für Aura Lokal: Check-in im Laden, Guthaben verdienen, Freunde mitbringen. Keine Belohnung für Google-Sterne.",
+      path: "/nachbar",
+    }),
   component: NachbarLandingPage,
 });
 
 function NachbarLandingPage() {
   const { t, locale } = useLocale();
+  const { data: user } = useSupabaseSession();
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -74,18 +67,27 @@ function NachbarLandingPage() {
         </p>
 
         <div className="mt-8 flex flex-col gap-3">
+          {user ? (
+            <Link
+              to="/nachbar/heute"
+              className="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground"
+            >
+              Weiter spielen
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              search={{ mode: "signup", next: "/nachbar/heute", lang: locale }}
+              className="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground"
+            >
+              {t("nachbar.ctaAccount")}
+            </Link>
+          )}
           <Link
-            to="/auth"
-            search={{ mode: "signup", next: "/nachbar/heute", lang: locale }}
-            className="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground"
-          >
-            {t("nachbar.ctaAccount")}
-          </Link>
-          <Link
-            to="/nachbar/heute"
+            to="/nachbar/entdecken"
             className="inline-flex items-center justify-center rounded-2xl border border-border/50 px-5 py-3.5 text-sm font-semibold"
           >
-            {t("nachbar.ctaApp")}
+            Läden entdecken
           </Link>
         </div>
 

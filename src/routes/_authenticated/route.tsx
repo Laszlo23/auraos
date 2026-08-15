@@ -15,11 +15,6 @@ export const Route = createFileRoute("/_authenticated")({
     const { data: sessionData } = await supabase.auth.getSession();
     const session = sessionData.session;
     if (!session?.user) throw redirect({ to: "/auth" });
-    void supabase.auth.getUser().then(({ data, error }) => {
-      if (error || !data.user) {
-        void supabase.auth.signOut();
-      }
-    });
     return { user: session.user };
   },
   pendingComponent: () => <PageLoader label="Einen Moment…" />,

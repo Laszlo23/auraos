@@ -30,6 +30,10 @@ Disallow: /products
 Disallow: /website
 Disallow: /x402
 Disallow: /akquise
+Disallow: /nachbar/heute
+Disallow: /nachbar/verdienen
+Disallow: /nachbar/freunde
+Disallow: /nachbar/ich
 
 User-agent: Bingbot
 Allow: /
@@ -45,6 +49,10 @@ Disallow: /onboarding
 Disallow: /missions
 Disallow: /wallet
 Disallow: /trading
+Disallow: /nachbar/heute
+Disallow: /nachbar/verdienen
+Disallow: /nachbar/freunde
+Disallow: /nachbar/ich
 
 User-agent: Twitterbot
 Allow: /
@@ -66,6 +74,10 @@ Disallow: /onboarding
 Disallow: /missions
 Disallow: /wallet
 Disallow: /trading
+Disallow: /nachbar/heute
+Disallow: /nachbar/verdienen
+Disallow: /nachbar/freunde
+Disallow: /nachbar/ich
 
 Sitemap: https://aibusiness.fun/sitemap.xml
 # For AI agents / LLM crawlers

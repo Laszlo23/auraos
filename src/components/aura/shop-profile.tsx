@@ -10,6 +10,7 @@ import {
   Store,
 } from "lucide-react";
 
+import { NachbarNotePips } from "@/components/aura/nachbar-note";
 import { Chip, Pulse } from "@/components/aura/primitives";
 import { ShopCatalogAndBook } from "@/components/aura/shop-book";
 import { ShareBar } from "@/components/aura/share";
@@ -385,6 +386,11 @@ function Feed({ shop, checkinHref }: { shop: PublicLocalBusiness; checkinHref: s
                   ? "Sei der erste Nachbar"
                   : `${shop.checkin_count} echte Check-ins`}
               </h2>
+              <NachbarNotePips
+                className="mt-2"
+                avg={shop.nachbar_rating_avg}
+                count={shop.nachbar_rating_count}
+              />
               <p className="mt-2 text-[14px] text-muted-foreground">
                 Code {shop.nachbar_checkin_code} — scannen oder tippen. Kein Theater, nur der Besuch.
               </p>

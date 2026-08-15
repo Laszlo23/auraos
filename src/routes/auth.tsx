@@ -14,6 +14,7 @@ import { StreamText } from "@/components/aura/stream-text";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { startFoundingSeatCheckout } from "@/lib/founding-seat";
 import { isFunnelId, type FunnelId } from "@/lib/funnels";
+import { isSafeNachbarPath } from "@/lib/nachbar-play";
 import { OG_IMAGE, SITE_URL } from "@/lib/site";
 
 type AuthMode = "signin" | "signup" | "forgot" | "reset" | "magic";
@@ -33,7 +34,7 @@ type PostAuthDest =
   | `/oauth/consent?${string}`;
 
 function isNachbarNext(next?: string): next is `/nachbar${string}` {
-  return Boolean(next && /^\/nachbar(\/[\w\-./]*)?$/.test(next));
+  return isSafeNachbarPath(next);
 }
 
 function isBuilderInviteNext(next?: string): next is `/i/fc/${string}` {

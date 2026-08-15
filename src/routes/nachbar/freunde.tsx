@@ -3,13 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { NachbarWinShare } from "@/components/aura/nachbar-win-share";
 import { Panel, Shimmer } from "@/components/aura/primitives";
 import { getNachbarHub } from "@/lib/nachbar.functions";
+import { friendStatusLabel } from "@/lib/nachbar-play";
 import { NACHBAR_FRIEND_BONUS } from "@/lib/nachbar";
+import { nachbarHead } from "@/lib/nachbar-seo";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/nachbar/freunde")({
-  head: () => ({ meta: [{ title: "Freunde — Aura Nachbar" }] }),
+  ssr: false,
+  head: () =>
+    nachbarHead({
+      title: "Freunde — Aura Nachbar",
+      description:
+        "Freunde mitbringen. Bonus erst nach dem ersten echten Check-in — beide Seiten, kein Fake.",
+      path: "/nachbar/freunde",
+      index: false,
+    }),
   component: NachbarFreundePage,
 });
 
@@ -24,6 +35,8 @@ function NachbarFreundePage() {
 
   const code = hub?.profile.referral_code || "";
   const link = `${SITE_URL}/nachbar/ref/${code}`;
+  const waiting = (hub?.friends ?? []).filter((f) => f.status !== "activated");
+  const arrived = (hub?.friends ?? []).filter((f) => f.status === "activated");
 
   return (
     <div className="space-y-5">
@@ -31,9 +44,9 @@ function NachbarFreundePage() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
           Freunde
         </p>
-        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Einladen</h1>
+        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Mitbringen</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Freund checkt zum ersten Mal ein → beide bekommen {NACHBAR_FRIEND_BONUS}.
+          Zahlt erst, wenn die Person wirklich eincheckt — beide +{NACHBAR_FRIEND_BONUS}.
         </p>
       </div>
 
@@ -55,20 +68,38 @@ function NachbarFreundePage() {
         >
           {copied ? "Kopiert" : "Link kopieren"}
         </button>
+        <div className="mt-3">
+          <NachbarWinShare shopName="Komm mit nach Wien" />
+        </div>
       </Panel>
 
-      <Panel label="Eingeladen">
-        {(hub?.friends?.length ?? 0) === 0 ? (
-          <p className="text-sm text-muted-foreground">Noch niemand. Teile deinen Link.</p>
+      <Panel label="Wartet auf den ersten Besuch">
+        {waiting.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Niemand in der Warteschlange.</p>
         ) : (
           <ul className="space-y-2 text-sm">
-            {hub!.friends.map((f) => (
+            {waiting.map((f) => (
               <li key={f.invitee_id} className="flex justify-between gap-2">
-                <span className="truncate font-mono text-xs text-muted-foreground">
-                  {f.invitee_id.slice(0, 8)}…
+                <span className="truncate font-medium">{f.display_name || "Nachbar"}</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {friendStatusLabel(f.status)}
                 </span>
-                <span className="font-semibold uppercase tracking-wider text-[10px]">
-                  {f.status === "activated" ? "Check-in ✓" : "Beigetreten"}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel label="Schon da">
+        {arrived.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Noch kein bestätigter Freund-Check-in.</p>
+        ) : (
+          <ul className="space-y-2 text-sm">
+            {arrived.map((f) => (
+              <li key={f.invitee_id} className="flex justify-between gap-2">
+                <span className="truncate font-medium">{f.display_name || "Nachbar"}</span>
+                <span className="text-[11px] font-semibold text-primary">
+                  {friendStatusLabel(f.status)}
                 </span>
               </li>
             ))}

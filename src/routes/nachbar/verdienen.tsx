@@ -3,10 +3,20 @@ import { useQuery } from "@tanstack/react-query";
 
 import { Panel, Shimmer } from "@/components/aura/primitives";
 import { getNachbarHub } from "@/lib/nachbar.functions";
+import { nachbarHead } from "@/lib/nachbar-seo";
+import { AURA_OFFICIAL_CA_SOURCES, auraCaLive } from "@/lib/aura-token";
 import { compact, timeAgo } from "@/lib/format";
 
 export const Route = createFileRoute("/nachbar/verdienen")({
-  head: () => ({ meta: [{ title: "Verdienen — Aura Nachbar" }] }),
+  ssr: false,
+  head: () =>
+    nachbarHead({
+      title: "Verdienen — Aura Nachbar",
+      description:
+        "Nachbar-Punkte aus echten Besuchen. AURA bleibt reserviert, bis ein Contract live ist. Keine Fake-Sterne.",
+      path: "/nachbar/verdienen",
+      index: false,
+    }),
   component: NachbarVerdienenPage,
 });
 
@@ -18,6 +28,8 @@ function NachbarVerdienenPage() {
 
   if (isLoading) return <Shimmer className="h-40" />;
 
+  const reserved = hub?.progress.aura_weight ?? 0;
+
   return (
     <div className="space-y-5">
       <div>
@@ -26,7 +38,7 @@ function NachbarVerdienenPage() {
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Dein Guthaben</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Punkte aus Check-ins und Freunden. Später: Tausch in USDC (gestaffelt, kein Yield).
+          Punkte aus bestätigten Besuchen und Missionen. AURA erst, wenn der offizielle CA live ist.
         </p>
       </div>
 
@@ -34,9 +46,7 @@ function NachbarVerdienenPage() {
         <p className="font-display text-5xl font-semibold tracking-tight tabular-nums">
           {compact(hub?.profile.balance ?? 0)}
         </p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Phase A: Shop-Perks. Phase B: optional USDC — siehe Docs.
-        </p>
+        <p className="mt-2 text-xs text-muted-foreground">Nachbar-Punkte · kein Google-Deal</p>
         <button
           type="button"
           disabled
@@ -44,6 +54,18 @@ function NachbarVerdienenPage() {
         >
           Tausche in USDC — bald
         </button>
+      </Panel>
+
+      <Panel label="AURA reserved">
+        <p className="font-display text-4xl font-semibold tabular-nums">{reserved}</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {auraCaLive()
+            ? "Claim öffnet, sobald der Button hier steht."
+            : "In-app Reservation aus echten Besuchen. Claim, wenn der CA auf aibusiness.fun und @buildingcultu3 steht — nicht vorher."}
+        </p>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          {AURA_OFFICIAL_CA_SOURCES[0]}
+        </p>
       </Panel>
 
       <Panel label="Verlauf">

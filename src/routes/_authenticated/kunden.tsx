@@ -11,7 +11,9 @@ import {
   confirmNachbarCheckin,
   getOwnerNachbarCheckinCode,
   listOwnerNachbarPendingCheckins,
+  rejectNachbarCheckin,
 } from "@/lib/nachbar.functions";
+import { NACHBAR_STAMP_GOAL } from "@/lib/nachbar";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/kunden")({
@@ -26,8 +28,9 @@ function KundenPage() {
   const qc = useQueryClient();
   const { data: company } = useCompany();
   const { data, isLoading } = useQuery({
-    queryKey: ["owner-nachbar-checkin"],
-    queryFn: () => getOwnerNachbarCheckinCode(),
+    queryKey: ["owner-nachbar-checkin", company?.id],
+    enabled: Boolean(company?.id),
+    queryFn: () => getOwnerNachbarCheckinCode({ data: { companyId: company?.id } }),
   });
   const pending = useQuery({
     queryKey: ["owner-nachbar-pending"],
@@ -37,6 +40,14 @@ function KundenPage() {
     mutationFn: (checkinId: string) => confirmNachbarCheckin({ data: { checkinId } }),
     onSuccess: async () => {
       celebrateLokalWin("Gast bestätigt — stark für Stammkunden.");
+      await qc.invalidateQueries({ queryKey: ["owner-nachbar-pending"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const reject = useMutation({
+    mutationFn: (checkinId: string) => rejectNachbarCheckin({ data: { checkinId } }),
+    onSuccess: async () => {
+      toast.success("Check-in abgelehnt.");
       await qc.invalidateQueries({ queryKey: ["owner-nachbar-pending"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -101,17 +112,31 @@ function KundenPage() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{row.display_name || "Gast"}</p>
                   <p className="text-[11px] text-muted-foreground">
+                    {row.company_name ? `${row.company_name} · ` : ""}
                     {new Date(row.created_at).toLocaleString()}
+                    {typeof row.stamp_count === "number"
+                      ? ` · Stempel ${row.stamp_count}/${NACHBAR_STAMP_GOAL}`
+                      : ""}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  disabled={confirm.isPending}
-                  onClick={() => confirm.mutate(row.id)}
-                  className="shrink-0 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
-                >
-                  {t("kunden.confirm")}
-                </button>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    type="button"
+                    disabled={confirm.isPending}
+                    onClick={() => confirm.mutate(row.id)}
+                    className="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+                  >
+                    {t("kunden.confirm")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={reject.isPending}
+                    onClick={() => reject.mutate(row.id)}
+                    className="rounded-xl border border-border/50 px-3 py-2 text-xs font-semibold"
+                  >
+                    {t("kunden.reject")}
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

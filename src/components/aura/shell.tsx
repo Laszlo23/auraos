@@ -324,6 +324,14 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             </Link>
 
             <Link
+              to="/nachbar/heute"
+              title="Aura Nachbar — city play"
+              className="hidden shrink-0 items-center gap-2 rounded-2xl bg-gold/12 px-3 py-1.5 text-xs font-semibold text-gold transition-opacity hover:opacity-80 sm:flex"
+            >
+              Nachbar
+            </Link>
+
+            <Link
               to="/community"
               title={`Level ${lvl.level} — ${lvl.into}/${lvl.needed} XP`}
               className="hidden shrink-0 items-center gap-2 rounded-2xl bg-primary/10 px-3 py-1.5 text-xs text-primary transition-opacity hover:opacity-80 lg:flex"
