@@ -28,10 +28,21 @@ type PostAuthDest =
   | "/trading"
   | "/onboarding"
   | `/nachbar${string}`
+  | `/i/fc/${string}`
   | `/oauth/consent?${string}`;
 
 function isNachbarNext(next?: string): next is `/nachbar${string}` {
   return Boolean(next && /^\/nachbar(\/[\w\-./]*)?$/.test(next));
+}
+
+function isBuilderInviteNext(next?: string): next is `/i/fc/${string}` {
+  if (!next) return false;
+  try {
+    const u = new URL(next, SITE_URL);
+    return /^\/i\/fc\/\d+$/.test(u.pathname);
+  } catch {
+    return false;
+  }
 }
 
 /** Same-origin return to Supabase OAuth Server consent UI. */
@@ -52,6 +63,7 @@ function safeNextPath(next?: string): PostAuthDest {
   const consent = oauthConsentReturn(next);
   if (consent) return consent;
   if (isNachbarNext(next)) return next;
+  if (isBuilderInviteNext(next)) return next;
   if (next && SAFE_NEXT.has(next)) {
     return next as PostAuthDest;
   }
@@ -209,6 +221,7 @@ async function resolvePostAuthPath(explicitNext?: string): Promise<PostAuthDest>
 
   // Patron app: never force company onboarding.
   if (isNachbarNext(explicitNext)) return explicitNext;
+  if (isBuilderInviteNext(explicitNext)) return explicitNext;
 
   if (explicitNext && explicitNext !== "/console" && SAFE_NEXT.has(explicitNext)) {
     return explicitNext as PostAuthDest;
@@ -494,7 +507,7 @@ function AuthPage() {
       const dest = await resolvePostAuthPath(nextFromLinkRef.current);
       postAuthDoneRef.current = true;
       if (!cancelledRef.current) {
-        if (dest.startsWith("/oauth/consent")) {
+        if (dest.startsWith("/oauth/consent") || dest.startsWith("/i/fc/")) {
           window.location.assign(dest);
         } else {
           navigate({

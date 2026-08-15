@@ -18,6 +18,7 @@ import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { PageHeader, Panel, Chip, Pulse, Meter, DataRow } from "@/components/aura/primitives";
 import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
 import { FarcasterPulse } from "@/components/aura/farcaster-pulse";
+import { FcBuilderInvites } from "@/components/aura/fc-builder-invites";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import {
   SOCIALS,
@@ -429,6 +430,7 @@ function ChannelsPage() {
       </div>
 
       <FarcasterPulse />
+      <FcBuilderInvites />
 
       {isLoading ? <p className="text-sm text-muted-foreground">Loading channels…</p> : null}
 

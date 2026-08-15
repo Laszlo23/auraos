@@ -420,17 +420,60 @@ export async function saveApprovedFarcasterSigner(
   return saveConnectionTokens(companyId, "farcaster", tokens);
 }
 
+export async function fetchLatestCastByFid(fid: number): Promise<FarcasterCastCard | null> {
+  if (!Number.isFinite(fid) || fid <= 0) return null;
+  const url = new URL(`${NEYNAR_BASE}/farcaster/feed/user/casts`);
+  url.searchParams.set("fid", String(Math.floor(fid)));
+  url.searchParams.set("limit", "1");
+  url.searchParams.set("include_replies", "false");
+  const res = await fetch(url, { headers: neynarHeaders() });
+  const json = (await res.json()) as {
+    casts?: Record<string, unknown>[];
+    result?: { casts?: Record<string, unknown>[] };
+    message?: string;
+  };
+  if (!res.ok) throw new Error(json.message || `User casts failed (${res.status})`);
+  const first = json.casts?.[0] ?? json.result?.casts?.[0];
+  return first ? mapCast(first) : null;
+}
+
+export async function lookupFarcasterUserByFid(fid: number): Promise<FarcasterUserCard | null> {
+  if (!Number.isFinite(fid) || fid <= 0) return null;
+  const res = await fetch(`${NEYNAR_BASE}/farcaster/user/bulk?fids=${Math.floor(fid)}`, {
+    headers: neynarHeaders(),
+  });
+  if (!res.ok) return null;
+  const json = (await res.json()) as { users?: Record<string, unknown>[] };
+  const u = json.users?.[0];
+  if (!u) return null;
+  const profile = (u["profile"] ?? {}) as { bio?: { text?: string } };
+  return {
+    fid: Number(u["fid"] ?? fid),
+    username: String(u["username"] ?? ""),
+    displayName: String(u["display_name"] ?? u["username"] ?? ""),
+    bio: String(profile.bio?.text ?? "").slice(0, 240),
+    followerCount: Number(u["follower_count"] ?? 0),
+    followingCount: Number(u["following_count"] ?? 0),
+    pfpUrl: typeof u["pfp_url"] === "string" ? u["pfp_url"] : null,
+    score: typeof u["score"] === "number" ? u["score"] : null,
+  };
+}
+
 export async function publishFarcasterCast(
   signerUuid: string,
   text: string,
+  opts?: { parent?: string | null; embedUrl?: string | null },
 ): Promise<{ hash: string; url: string | null }> {
+  const payload: Record<string, unknown> = {
+    signer_uuid: signerUuid,
+    text: text.slice(0, 320),
+  };
+  if (opts?.parent) payload["parent"] = opts.parent;
+  if (opts?.embedUrl) payload["embeds"] = [{ url: opts.embedUrl }];
   const res = await fetch(`${NEYNAR_BASE}/farcaster/cast/`, {
     method: "POST",
     headers: neynarHeaders(),
-    body: JSON.stringify({
-      signer_uuid: signerUuid,
-      text: text.slice(0, 320),
-    }),
+    body: JSON.stringify(payload),
   });
   const json = (await res.json()) as {
     success?: boolean;

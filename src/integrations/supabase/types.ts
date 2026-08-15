@@ -2094,6 +2094,74 @@ export type Database = {
           },
         ]
       }
+      fc_builder_invites: {
+        Row: {
+          id: string
+          company_id: string
+          fid: number
+          username: string
+          display_name: string | null
+          claim_token: string
+          credits: number
+          status: string
+          target_cast_hash: string | null
+          reply_hash: string | null
+          cast_url: string | null
+          claimed_user_id: string | null
+          claimed_at: string | null
+          feedback: string | null
+          feedback_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          fid: number
+          username: string
+          display_name?: string | null
+          claim_token: string
+          credits?: number
+          status?: string
+          target_cast_hash?: string | null
+          reply_hash?: string | null
+          cast_url?: string | null
+          claimed_user_id?: string | null
+          claimed_at?: string | null
+          feedback?: string | null
+          feedback_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          fid?: number
+          username?: string
+          display_name?: string | null
+          claim_token?: string
+          credits?: number
+          status?: string
+          target_cast_hash?: string | null
+          reply_hash?: string | null
+          cast_url?: string | null
+          claimed_user_id?: string | null
+          claimed_at?: string | null
+          feedback?: string | null
+          feedback_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fc_builder_invites_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       files: {
         Row: {
           company_id: string

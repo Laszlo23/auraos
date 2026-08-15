@@ -53,3 +53,31 @@ export const searchFarcasterUsersFn = createServerFn({ method: "GET" })
     const users = await searchFarcasterUsers(data.q, data.limit);
     return { users };
   });
+
+export const lookupFarcasterUserByFidFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { fid: number }) => ({
+    fid: Math.floor(Number(input.fid)),
+  }))
+  .handler(async ({ data }) => {
+    const { neynarApiConfigured, lookupFarcasterUserByFid } =
+      await import("@/lib/farcaster-neynar.server");
+    if (!neynarApiConfigured()) throw new Error("NEYNAR_API_KEY is not set");
+    if (!Number.isFinite(data.fid) || data.fid <= 0) throw new Error("Need a valid FID.");
+    const user = await lookupFarcasterUserByFid(data.fid);
+    return { user };
+  });
+
+export const fetchLatestCastByFidFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { fid: number }) => ({
+    fid: Math.floor(Number(input.fid)),
+  }))
+  .handler(async ({ data }) => {
+    const { neynarApiConfigured, fetchLatestCastByFid } =
+      await import("@/lib/farcaster-neynar.server");
+    if (!neynarApiConfigured()) throw new Error("NEYNAR_API_KEY is not set");
+    if (!Number.isFinite(data.fid) || data.fid <= 0) throw new Error("Need a valid FID.");
+    const cast = await fetchLatestCastByFid(data.fid);
+    return { cast };
+  });

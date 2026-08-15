@@ -103,6 +103,7 @@ import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-he
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
 import { Route as ApiWebhooksQuidliRouteImport } from './routes/api/webhooks/quidli'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
+import { Route as IFcFidRouteImport } from './routes/i.fc.$fid'
 import { Route as NachbarCCodeRouteImport } from './routes/nachbar/c.$code'
 import { Route as NachbarRefCodeRouteImport } from './routes/nachbar/ref.$code'
 import { Route as OauthMailboxReturnRouteImport } from './routes/oauth/mailbox.return'
@@ -594,6 +595,11 @@ const ApiWorkersTickRoute = ApiWorkersTickRouteImport.update({
   path: '/api/workers/tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IFcFidRoute = IFcFidRouteImport.update({
+  id: '/i/fc/$fid',
+  path: '/i/fc/$fid',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NachbarCCodeRoute = NachbarCCodeRouteImport.update({
   id: '/c/$code',
   path: '/c/$code',
@@ -793,6 +799,7 @@ export interface FileRoutesByFullPath {
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/i/fc/$fid': typeof IFcFidRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
@@ -906,6 +913,7 @@ export interface FileRoutesByTo {
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/i/fc/$fid': typeof IFcFidRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
@@ -1022,6 +1030,7 @@ export interface FileRoutesById {
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/i/fc/$fid': typeof IFcFidRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
   '/nachbar/ref/$code': typeof NachbarRefCodeRoute
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
@@ -1138,6 +1147,7 @@ export interface FileRouteTypes {
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
+    | '/i/fc/$fid'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
@@ -1251,6 +1261,7 @@ export interface FileRouteTypes {
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
+    | '/i/fc/$fid'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
@@ -1366,6 +1377,7 @@ export interface FileRouteTypes {
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
+    | '/i/fc/$fid'
     | '/nachbar/c/$code'
     | '/nachbar/ref/$code'
     | '/oauth/mailbox/return'
@@ -1438,6 +1450,7 @@ export interface RootRouteChildren {
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
   ApiWebhooksQuidliRoute: typeof ApiWebhooksQuidliRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
+  IFcFidRoute: typeof IFcFidRoute
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
   OauthSocialReturnRoute: typeof OauthSocialReturnRoute
   RReviewTokenRoute: typeof RReviewTokenRoute
@@ -2117,6 +2130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkersTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/i/fc/$fid': {
+      id: '/i/fc/$fid'
+      path: '/i/fc/$fid'
+      fullPath: '/i/fc/$fid'
+      preLoaderRoute: typeof IFcFidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/nachbar/c/$code': {
       id: '/nachbar/c/$code'
       path: '/c/$code'
@@ -2426,6 +2446,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
   ApiWebhooksQuidliRoute: ApiWebhooksQuidliRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
+  IFcFidRoute: IFcFidRoute,
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,
   OauthSocialReturnRoute: OauthSocialReturnRoute,
   RReviewTokenRoute: RReviewTokenRoute,
