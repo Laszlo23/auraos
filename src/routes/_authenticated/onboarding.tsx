@@ -50,6 +50,14 @@ const WAKE_TICKS = [
   "Mission system ready",
   "Approval controls enabled",
 ];
+const WAKE_TICKS_DE = [
+  "Firmenidentität",
+  "CEO aktiv",
+  "Mitarbeiter zugewiesen",
+  "Firmengedächtnis bereit",
+  "Missionssystem bereit",
+  "Freigabe-Kontrolle an",
+];
 
 function Onboarding() {
   const navigate = useNavigate();
@@ -80,6 +88,7 @@ function Onboarding() {
   const [estCost, setEstCost] = useState<number | null>(null);
   const [burst, setBurst] = useState(0);
   const [toast, setToast] = useState<{ label: string; amount: number } | null>(null);
+  const [firstWin, setFirstWin] = useState(false);
 
   useEffect(() => {
     if (isLokal) setLocale("de");
@@ -100,7 +109,10 @@ function Onboarding() {
     await qc.invalidateQueries({ queryKey: ["revenue-missions"] });
   };
 
-  const persistIdentity = async (name: string, extra?: { city?: string | null; niche?: string | null; local?: boolean }) => {
+  const persistIdentity = async (
+    name: string,
+    extra?: { city?: string | null; niche?: string | null; local?: boolean },
+  ) => {
     if (!company) throw new Error(de ? "Betrieb noch nicht bereit." : "Company not ready yet.");
     await supabase
       .from("companies")
@@ -197,7 +209,9 @@ function Onboarding() {
 
   const submitDescribe = () => {
     if (prompt.trim().length < 4) {
-      notify.error(de ? "Erzähl kurz, was du machst." : "Tell Aura what you do — one sentence is enough.");
+      notify.error(
+        de ? "Erzähl kurz, was du machst." : "Tell Aura what you do — one sentence is enough.",
+      );
       return;
     }
     const next = interpretBusiness(prompt);
@@ -226,7 +240,11 @@ function Onboarding() {
   const submitMission = async () => {
     const goal = mission.trim();
     if (goal.length < 4) {
-      notify.error(de ? "Sag, was die Firma zuerst schaffen soll." : "What should the company accomplish first?");
+      notify.error(
+        de
+          ? "Sag, was die Firma zuerst schaffen soll."
+          : "What should the company accomplish first?",
+      );
       return;
     }
     if (!company || !brief) return;
@@ -244,7 +262,8 @@ function Onboarding() {
       });
       const id = (row as { id?: string })?.id;
       if (id) setMissionId(id);
-      const steps = (row as { plan?: { steps?: { label?: string; title?: string }[] } })?.plan?.steps;
+      const steps = (row as { plan?: { steps?: { label?: string; title?: string }[] } })?.plan
+        ?.steps;
       if (Array.isArray(steps) && steps.length) {
         setPlanSteps(steps.map((s) => s.label || s.title || "").filter(Boolean));
       }
@@ -267,6 +286,8 @@ function Onboarding() {
         await startRevenueMission({ data: { missionId } });
       }
       pop(de ? "Firma arbeitet" : "Company is working", 300, "onboard:seat");
+      setFirstWin(true);
+      await new Promise((r) => window.setTimeout(r, 1400));
       await finishTo(isLokal || brief?.local ? "/kunden" : "/console");
     } catch (e) {
       notify.error(e instanceof Error ? e.message : "Could not start the mission.");
@@ -278,6 +299,8 @@ function Onboarding() {
     setBusy(true);
     try {
       pop("Reputation live", 300, "onboard:seat");
+      setFirstWin(true);
+      await new Promise((r) => window.setTimeout(r, 1400));
       await finishTo("/kunden");
     } catch (e) {
       notify.error(e instanceof Error ? e.message : "Konnte nicht öffnen.");
@@ -297,7 +320,10 @@ function Onboarding() {
       <div className="mb-10 flex items-center gap-3">
         {labels.map((label, i) => (
           <div key={label} className="flex flex-1 flex-col gap-2">
-            <Meter value={i < phaseIndex ? 100 : i === phaseIndex ? 50 : 0} tone={i <= phaseIndex ? "primary" : "gold"} />
+            <Meter
+              value={i < phaseIndex ? 100 : i === phaseIndex ? 50 : 0}
+              tone={i <= phaseIndex ? "primary" : "gold"}
+            />
             <span
               className={cn(
                 "text-[10px] uppercase tracking-[0.22em]",
@@ -312,7 +338,7 @@ function Onboarding() {
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={String(phase) + (understand ? "-u" : "")}
+          key={firstWin ? "win" : String(phase) + (understand ? "-u" : "")}
           initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -12, filter: "blur(8px)" }}
@@ -348,7 +374,9 @@ function Onboarding() {
                     onClick={() => setLokalGoal(g.id)}
                     className={cn(
                       "rounded-2xl border px-4 py-3 text-left",
-                      lokalGoal === g.id ? "border-primary/50 bg-primary/10" : "border-border/40 bg-card/30",
+                      lokalGoal === g.id
+                        ? "border-primary/50 bg-primary/10"
+                        : "border-border/40 bg-card/30",
                     )}
                   >
                     <p className="font-semibold">{g.title}</p>
@@ -394,7 +422,10 @@ function Onboarding() {
                 ))}
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Primary onClick={submitDescribe} label={de ? "Firma bauen →" : "Build my company →"} />
+                <Primary
+                  onClick={submitDescribe}
+                  label={de ? "Firma bauen →" : "Build my company →"}
+                />
                 <button
                   type="button"
                   onClick={() => {
@@ -449,14 +480,22 @@ function Onboarding() {
               </p>
               <ul className="mt-3 space-y-2">
                 {brief.roles.map((r) => (
-                  <li key={r.key} className="rounded-2xl border border-border/40 bg-card/30 px-4 py-3">
-                    <p className="text-[11px] uppercase tracking-[0.16em] text-primary">{r.title}</p>
+                  <li
+                    key={r.key}
+                    className="rounded-2xl border border-border/40 bg-card/30 px-4 py-3"
+                  >
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-primary">
+                      {r.title}
+                    </p>
                     <p className="font-semibold">{r.name}</p>
                     <p className="text-[13px] text-muted-foreground">{r.blurb}</p>
                   </li>
                 ))}
               </ul>
-              <Primary onClick={confirmUnderstand} label={de ? "Firma wecken →" : "Wake my company →"} />
+              <Primary
+                onClick={confirmUnderstand}
+                label={de ? "Firma wecken →" : "Wake my company →"}
+              />
             </section>
           ) : null}
 
@@ -469,7 +508,7 @@ function Onboarding() {
                 {brief?.name ?? (de ? "Dein Unternehmen" : "Your company")}
               </h1>
               <ul className="mt-8 space-y-3">
-                {WAKE_TICKS.map((label, i) => (
+                {(de ? WAKE_TICKS_DE : WAKE_TICKS).map((label, i) => (
                   <li key={label} className="flex items-center gap-3 text-[15px]">
                     <span
                       className={cn(
@@ -490,16 +529,37 @@ function Onboarding() {
             </section>
           ) : null}
 
-          {phase === 2 && brief && (isLokal || brief.local) && lokalGoal === "reviews" ? (
+          {phase === 2 &&
+          !firstWin &&
+          brief &&
+          (isLokal || brief.local) &&
+          lokalGoal === "reviews" ? (
             <section>
               <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
-                {de ? "Deine Firma lebt." : "Your company is alive."}
+                {de ? "Deine Firma ist bereit." : "Your company is ready."}
               </p>
-              <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                {["Geschäft", "CEO", "Mitarbeiter"].map((label) => (
+                  <li key={label} className="flex items-center gap-2 text-[13px]">
+                    <span className="grid h-5 w-5 place-items-center rounded-full border border-primary bg-primary/20 text-primary">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    {label}
+                  </li>
+                ))}
+                <li className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                  <span className="grid h-5 w-5 place-items-center rounded-full border border-border/50 text-[10px]">
+                    0%
+                  </span>
+                  Erste Review-Anfrage
+                </li>
+              </ul>
+              <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight">
                 {de ? "Erste echte Review-Anfrage" : "Get your first genuine review request sent."}
               </h1>
               <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">
-                Besuch → Check-in → Erlaubnis → Einladung. Der Gast schreibt selbst. Aura erzeugt keine Reviews.
+                Besuch → Check-in → Erlaubnis → Einladung. Der Gast schreibt selbst. Aura erzeugt
+                keine Reviews.
               </p>
               <ol className="mt-6 space-y-2 text-[14px] text-muted-foreground">
                 <li>01 Check-in-QR im Laden</li>
@@ -515,13 +575,46 @@ function Onboarding() {
             </section>
           ) : null}
 
-          {phase === 2 && brief && !((isLokal || brief.local) && lokalGoal === "reviews") ? (
+          {phase === 2 &&
+          !firstWin &&
+          brief &&
+          !((isLokal || brief.local) && lokalGoal === "reviews") ? (
             <section>
               <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
-                {de ? "Deine Firma lebt." : "Your company is alive."}
+                {de ? "Deine Firma ist bereit." : "Your company is ready."}
               </p>
-              <h1 className="mt-3 font-display text-[clamp(2rem,6vw,3.2rem)] font-semibold leading-[1.05] tracking-tight">
-                {de ? "Was soll sie zuerst schaffen?" : "What should your company accomplish first?"}
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                {(de
+                  ? [
+                      ["Geschäft", true],
+                      ["CEO", true],
+                      ["Mitarbeiter", true],
+                      ["Erste Mission", false],
+                    ]
+                  : [
+                      ["Business", true],
+                      ["CEO", true],
+                      ["Employees", true],
+                      ["First mission", false],
+                    ]
+                ).map(([label, done]) => (
+                  <li key={String(label)} className="flex items-center gap-2 text-[13px]">
+                    <span
+                      className={cn(
+                        "grid h-5 w-5 place-items-center rounded-full border text-[10px]",
+                        done
+                          ? "border-primary bg-primary/20 text-primary"
+                          : "border-border/50 text-muted-foreground",
+                      )}
+                    >
+                      {done ? <Check className="h-3 w-3" /> : "0%"}
+                    </span>
+                    {label}
+                  </li>
+                ))}
+              </ul>
+              <h1 className="mt-6 font-display text-[clamp(2rem,6vw,3.2rem)] font-semibold leading-[1.05] tracking-tight">
+                {de ? "Gib ihr eine Mission →" : "Give it a mission →"}
               </h1>
               <textarea
                 autoFocus
@@ -544,13 +637,31 @@ function Onboarding() {
               </div>
               <Primary
                 onClick={() => void submitMission()}
-                label={busy ? (de ? "Plant…" : "Planning…") : de ? "Plan zeigen →" : "Show the plan →"}
+                label={
+                  busy ? (de ? "Plant…" : "Planning…") : de ? "Plan zeigen →" : "Show the plan →"
+                }
                 busy={busy}
               />
             </section>
           ) : null}
 
-          {phase === 3 ? (
+          {firstWin ? (
+            <section className="text-center">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
+                {de ? "Erster Win" : "First win"}
+              </p>
+              <h1 className="mt-3 font-display text-[clamp(2rem,6vw,3.4rem)] font-semibold tracking-tight">
+                {de ? "Deine erste Firmen-Mission läuft." : "Your first company mission is live."}
+              </h1>
+              <p className="mt-4 text-[15px] text-muted-foreground">
+                {de
+                  ? "Proof kommt, sobald echte Arbeit fertig ist."
+                  : "Proof appears when real work finishes."}
+              </p>
+            </section>
+          ) : null}
+
+          {phase === 3 && !firstWin ? (
             <section>
               <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
                 {de ? "Auras Plan" : "Aura's plan"}
@@ -558,8 +669,13 @@ function Onboarding() {
               <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight">{mission}</h1>
               <ol className="mt-8 space-y-2">
                 {planSteps.map((s, i) => (
-                  <li key={s} className="flex gap-3 rounded-2xl border border-border/40 bg-card/25 px-4 py-3">
-                    <span className="font-display text-lg text-gold">{String(i + 1).padStart(2, "0")}</span>
+                  <li
+                    key={s}
+                    className="flex gap-3 rounded-2xl border border-border/40 bg-card/25 px-4 py-3"
+                  >
+                    <span className="font-display text-lg text-gold">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                     <span className="text-[15px]">{s}</span>
                   </li>
                 ))}
@@ -578,7 +694,15 @@ function Onboarding() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Primary
                   onClick={() => void approvePlan()}
-                  label={busy ? (de ? "Startet…" : "Starting…") : de ? "Freigeben & ausführen" : "Approve & execute"}
+                  label={
+                    busy
+                      ? de
+                        ? "Startet…"
+                        : "Starting…"
+                      : de
+                        ? "Freigeben & ausführen"
+                        : "Approve & execute"
+                  }
                   busy={busy}
                 />
                 <button
@@ -608,15 +732,7 @@ function Onboarding() {
   );
 }
 
-function Primary({
-  onClick,
-  label,
-  busy,
-}: {
-  onClick: () => void;
-  label: string;
-  busy?: boolean;
-}) {
+function Primary({ onClick, label, busy }: { onClick: () => void; label: string; busy?: boolean }) {
   return (
     <button
       type="button"

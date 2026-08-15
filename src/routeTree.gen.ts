@@ -14,9 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AccessRouteImport } from './routes/access'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BrandRouteImport } from './routes/brand'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LightpaperRouteImport } from './routes/lightpaper'
@@ -24,6 +26,7 @@ import { Route as LiveRouteImport } from './routes/live'
 import { Route as LokalRouteImport } from './routes/lokal'
 import { Route as NachbarRouteRouteImport } from './routes/nachbar/route'
 import { Route as PitchRouteImport } from './routes/pitch'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as ReviewRouteImport } from './routes/review'
@@ -34,6 +37,7 @@ import { Route as StoryRouteImport } from './routes/story'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
+import { Route as TryRouteImport } from './routes/try'
 import { Route as VerkaufRouteImport } from './routes/verkauf'
 import { Route as WhitepaperRouteImport } from './routes/whitepaper'
 import { Route as WienRouteImport } from './routes/wien'
@@ -153,6 +157,11 @@ const BrandRoute = BrandRouteImport.update({
   path: '/brand',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
@@ -166,6 +175,11 @@ const FaqRoute = FaqRouteImport.update({
 const GrantsRoute = GrantsRouteImport.update({
   id: '/grants',
   path: '/grants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImpressumRoute = ImpressumRouteImport.update({
@@ -201,6 +215,11 @@ const NachbarRouteRoute = NachbarRouteRouteImport.update({
 const PitchRoute = PitchRouteImport.update({
   id: '/pitch',
   path: '/pitch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -251,6 +270,11 @@ const TermsRoute = TermsRouteImport.update({
 const TokenomicsRoute = TokenomicsRouteImport.update({
   id: '/tokenomics',
   path: '/tokenomics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TryRoute = TryRouteImport.update({
+  id: '/try',
+  path: '/try',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VerkaufRoute = VerkaufRouteImport.update({
@@ -741,15 +765,18 @@ export interface FileRoutesByFullPath {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/impressum': typeof ImpressumRoute
   '/leaderboard': typeof LeaderboardRoute
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
   '/pitch': typeof PitchRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
   '/review': typeof ReviewRoute
@@ -760,6 +787,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
   '/wien': typeof WienRoute
@@ -860,15 +888,18 @@ export interface FileRoutesByTo {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/impressum': typeof ImpressumRoute
   '/leaderboard': typeof LeaderboardRoute
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
   '/pitch': typeof PitchRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
   '/review': typeof ReviewRoute
@@ -879,6 +910,7 @@ export interface FileRoutesByTo {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
   '/wien': typeof WienRoute
@@ -982,15 +1014,18 @@ export interface FileRoutesById {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/impressum': typeof ImpressumRoute
   '/leaderboard': typeof LeaderboardRoute
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
   '/pitch': typeof PitchRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/proof': typeof ProofRoute
   '/review': typeof ReviewRoute
@@ -1001,6 +1036,7 @@ export interface FileRoutesById {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
   '/wien': typeof WienRoute
@@ -1104,15 +1140,18 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/compare'
     | '/cookies'
     | '/faq'
     | '/grants'
+    | '/how-it-works'
     | '/impressum'
     | '/leaderboard'
     | '/lightpaper'
     | '/live'
     | '/lokal'
     | '/pitch'
+    | '/pricing'
     | '/privacy'
     | '/proof'
     | '/review'
@@ -1123,6 +1162,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tokenomics'
+    | '/try'
     | '/verkauf'
     | '/whitepaper'
     | '/wien'
@@ -1223,15 +1263,18 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/compare'
     | '/cookies'
     | '/faq'
     | '/grants'
+    | '/how-it-works'
     | '/impressum'
     | '/leaderboard'
     | '/lightpaper'
     | '/live'
     | '/lokal'
     | '/pitch'
+    | '/pricing'
     | '/privacy'
     | '/proof'
     | '/review'
@@ -1242,6 +1285,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tokenomics'
+    | '/try'
     | '/verkauf'
     | '/whitepaper'
     | '/wien'
@@ -1344,15 +1388,18 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/compare'
     | '/cookies'
     | '/faq'
     | '/grants'
+    | '/how-it-works'
     | '/impressum'
     | '/leaderboard'
     | '/lightpaper'
     | '/live'
     | '/lokal'
     | '/pitch'
+    | '/pricing'
     | '/privacy'
     | '/proof'
     | '/review'
@@ -1363,6 +1410,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tokenomics'
+    | '/try'
     | '/verkauf'
     | '/whitepaper'
     | '/wien'
@@ -1466,15 +1514,18 @@ export interface RootRouteChildren {
   AccessRoute: typeof AccessRoute
   AuthRoute: typeof AuthRoute
   BrandRoute: typeof BrandRoute
+  CompareRoute: typeof CompareRoute
   CookiesRoute: typeof CookiesRoute
   FaqRoute: typeof FaqRoute
   GrantsRoute: typeof GrantsRoute
+  HowItWorksRoute: typeof HowItWorksRoute
   ImpressumRoute: typeof ImpressumRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LightpaperRoute: typeof LightpaperRoute
   LiveRoute: typeof LiveRoute
   LokalRoute: typeof LokalRoute
   PitchRoute: typeof PitchRoute
+  PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ProofRoute: typeof ProofRoute
   ReviewRoute: typeof ReviewRoute
@@ -1485,6 +1536,7 @@ export interface RootRouteChildren {
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TokenomicsRoute: typeof TokenomicsRoute
+  TryRoute: typeof TryRoute
   VerkaufRoute: typeof VerkaufRoute
   WhitepaperRoute: typeof WhitepaperRoute
   WienRoute: typeof WienRoute
@@ -1570,6 +1622,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cookies': {
       id: '/cookies'
       path: '/cookies'
@@ -1589,6 +1648,13 @@ declare module '@tanstack/react-router' {
       path: '/grants'
       fullPath: '/grants'
       preLoaderRoute: typeof GrantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/impressum': {
@@ -1638,6 +1704,13 @@ declare module '@tanstack/react-router' {
       path: '/pitch'
       fullPath: '/pitch'
       preLoaderRoute: typeof PitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1708,6 +1781,13 @@ declare module '@tanstack/react-router' {
       path: '/tokenomics'
       fullPath: '/tokenomics'
       preLoaderRoute: typeof TokenomicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/try': {
+      id: '/try'
+      path: '/try'
+      fullPath: '/try'
+      preLoaderRoute: typeof TryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verkauf': {
@@ -2504,15 +2584,18 @@ const rootRouteChildren: RootRouteChildren = {
   AccessRoute: AccessRoute,
   AuthRoute: AuthRoute,
   BrandRoute: BrandRoute,
+  CompareRoute: CompareRoute,
   CookiesRoute: CookiesRoute,
   FaqRoute: FaqRoute,
   GrantsRoute: GrantsRoute,
+  HowItWorksRoute: HowItWorksRoute,
   ImpressumRoute: ImpressumRoute,
   LeaderboardRoute: LeaderboardRoute,
   LightpaperRoute: LightpaperRoute,
   LiveRoute: LiveRoute,
   LokalRoute: LokalRoute,
   PitchRoute: PitchRoute,
+  PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ProofRoute: ProofRoute,
   ReviewRoute: ReviewRoute,
@@ -2523,6 +2606,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TokenomicsRoute: TokenomicsRoute,
+  TryRoute: TryRoute,
   VerkaufRoute: VerkaufRoute,
   WhitepaperRoute: WhitepaperRoute,
   WienRoute: WienRoute,

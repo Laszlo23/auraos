@@ -44,6 +44,17 @@ import { captureAttribution } from "@/lib/attribution";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { LAUNCH_SHARE_TEXT, SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { ProductJourney } from "@/components/aura/product-journey";
+import { TryAura } from "@/components/aura/try-aura";
+import { OsPreview } from "@/components/aura/os-preview";
+import { FoundingSeatCard, StackLayers } from "@/components/aura/economics";
+import {
+  ChatbotVsCompany,
+  IntegrationsStrip,
+  MissionCase,
+  TrustControls,
+  WhoItsFor,
+} from "@/components/aura/why-aura";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocale } from "@/hooks/use-locale";
 
@@ -352,10 +363,7 @@ function Landing() {
         <div className="austria-bar" aria-hidden />
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:px-6">
           <PulseOrbit size="sm" className="min-w-0" />
-          <nav
-            aria-label="Primary"
-            className="ml-auto hidden items-center gap-4 lg:flex"
-          >
+          <nav aria-label="Primary" className="ml-auto hidden items-center gap-4 lg:flex">
             <Link
               to="/"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
@@ -368,12 +376,18 @@ function Landing() {
             >
               {t("landing.navLokal")}
             </Link>
-            <a
-              href="#how"
+            <Link
+              to="/how-it-works"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
             >
               {t("landing.navHow")}
-            </a>
+            </Link>
+            <Link
+              to="/try"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+            >
+              {t("landing.navTry")}
+            </Link>
             <Link
               to="/proof"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
@@ -381,7 +395,7 @@ function Landing() {
               {t("landing.navProof")}
             </Link>
             <Link
-              to="/access"
+              to="/pricing"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
             >
               {t("landing.navPricing")}
@@ -446,6 +460,14 @@ function Landing() {
           >
             {t("landing.blurb")}
           </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.62 }}
+            className="mt-3 max-w-lg text-[14px] font-semibold text-gold"
+          >
+            {t("landing.categoryLine")}
+          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -459,6 +481,13 @@ function Landing() {
               className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
             >
               {t("landing.buy")} <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/try"
+              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_try" })}
+              className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-background/25 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/35"
+            >
+              {t("landing.tryCta")}
             </Link>
             <button
               type="button"
@@ -547,20 +576,26 @@ function Landing() {
               </li>
             ))}
           </motion.ul>
-          <motion.a
-            href="#how"
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.28 }}
-            className="mt-10 inline-flex items-center gap-2 text-[13px] font-semibold text-primary underline-offset-4 hover:underline"
           >
-            {t("landing.seeHow")} <ArrowRight className="h-3.5 w-3.5" />
-          </motion.a>
+            <Link
+              to="/how-it-works"
+              className="mt-10 inline-flex items-center gap-2 text-[13px] font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              {t("landing.seeHow")} <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </motion.div>
         </div>
       </section>
 
-      <section id="start" className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-16 sm:py-20">
+      <section
+        id="start"
+        className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-16 sm:py-20"
+      >
         <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
           {t("landing.audienceKicker")}
         </p>
@@ -619,6 +654,13 @@ function Landing() {
           </Link>
         </div>
       </section>
+
+      <ProductJourney compact />
+      <TryAura />
+      <OsPreview />
+      <div className="relative z-10 mx-auto max-w-6xl px-6 pb-8">
+        <FoundingSeatCard />
+      </div>
 
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-10 sm:py-12">
         <form
@@ -714,12 +756,12 @@ function Landing() {
           >
             {t("landing.howSeatsCta")} <ArrowRight className="h-4 w-4" />
           </Link>
-          <a
-            href="#unlock"
+          <Link
+            to="/how-it-works"
             className="text-[13px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
-            {t("landing.howSeats")}
-          </a>
+            {t("landing.seeHow")}
+          </Link>
         </div>
       </section>
 
@@ -755,6 +797,13 @@ function Landing() {
       </section>
 
       <UnlockAccessBand />
+
+      <ChatbotVsCompany compact />
+      <WhoItsFor />
+      <TrustControls />
+      <IntegrationsStrip />
+      <MissionCase />
+      <StackLayers />
 
       {/* Fair launch — one countdown + socials (no duplicate rally column) */}
       <section
@@ -805,7 +854,9 @@ function Landing() {
             >
               <p.icon className="h-4 w-4 text-gold" />
               <p className="mt-3 text-[13px] font-semibold">{t(p.title)}</p>
-              <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">{t(p.body)}</p>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
+                {t(p.body)}
+              </p>
             </motion.div>
           ))}
         </div>

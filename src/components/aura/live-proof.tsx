@@ -134,11 +134,11 @@ export function LiveProof() {
           ))}
         </div>
 
-        {lines.length > 0 ? (
-          <div className="mt-8 border-t border-border/40 pt-5">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-              {t("landing.liveLatest")}
-            </p>
+        <div className="mt-8 border-t border-border/40 pt-5">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            {t("landing.liveLatest")}
+          </p>
+          {lines.length > 0 ? (
             <ul className="space-y-2.5">
               {lines.map((line, i) => (
                 <li
@@ -157,8 +157,12 @@ export function LiveProof() {
                 </li>
               ))}
             </ul>
-          </div>
-        ) : null}
+          ) : (
+            <p className="text-[13px] text-muted-foreground">
+              {ready ? t("landing.liveEmpty") : "—"}
+            </p>
+          )}
+        </div>
 
         <div className="mt-8 border-t border-border/40 pt-5">
           <ShareMoment

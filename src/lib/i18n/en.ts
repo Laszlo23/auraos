@@ -251,16 +251,20 @@ export const en: MessageTree = {
     navOs: "Aura OS",
     navLokal: "Aura Lokal",
     navHow: "How it works",
+    navTry: "Try Aura",
     navProof: "Proof",
     navPricing: "Pricing",
     navStart: "Get started",
+    tryCta: "Try Aura",
+    categoryLine: "Don't hire AI tools. Own an AI company.",
     audienceKicker: "Start here",
     audienceTitle: "What are you here to do?",
     audienceOsTitle: "Build an AI company",
     audienceOsBody: "Describe the business. Aura wakes the company. You give the first mission.",
     audienceOsCta: "Wake my company",
     audienceLokalTitle: "Grow my local business",
-    audienceLokalBody: "Real visits. Real check-ins. Genuine review invitations — never fake stars.",
+    audienceLokalBody:
+      "Real visits. Real check-ins. Genuine review invitations — never fake stars.",
     audienceLokalCta: "Open Aura Lokal",
     audienceAuraTitle: "Explore the AURA ecosystem",
     audienceAuraBody: "Utility and participation after you have used the product — not before.",
@@ -295,7 +299,8 @@ export const en: MessageTree = {
     howSeatsCta: "Founding seats",
     waitlistJoined:
       "You're on the list — we'll email {email} launch notes. Seats are open to buy anytime.",
-    waitlistJoinedShort: "You're on the list — we'll email {email}. Seats are already open to buy above.",
+    waitlistJoinedShort:
+      "You're on the list — we'll email {email}. Seats are already open to buy above.",
     emailBad: "That email doesn't look right.",
     emailFail: "Couldn't save that — try again.",
     emailOk: "You're on the list — seats are open to buy anytime.",
@@ -322,7 +327,8 @@ export const en: MessageTree = {
     updatesCta: "Join the waitlist",
     updatesSaving: "Saving…",
     pillarOwn: "You own the company",
-    pillarOwnBody: "Not a chat window — a digital company with employees, memory, and economic upside.",
+    pillarOwnBody:
+      "Not a chat window — a digital company with employees, memory, and economic upside.",
     pillarExec: "AI employees execute",
     pillarExecBody:
       "They don't just answer questions. They take missions, file proof of work, and report results.",
@@ -378,7 +384,8 @@ export const en: MessageTree = {
     step1: "You describe the business",
     step1Body: "In normal words. “I sell apartments in Vienna.” That's enough to start.",
     step2: "AI employees get hired",
-    step2Body: "A CEO, a marketer, a salesperson, product, ops. Each one has a job, a memory and a budget.",
+    step2Body:
+      "A CEO, a marketer, a salesperson, product, ops. Each one has a job, a memory and a budget.",
     step3: "They work after you approve",
     step3Body:
       "They draft leads, posts, and research. Nothing spends or goes public until you tap approve — then they execute and report back.",
@@ -390,28 +397,32 @@ export const en: MessageTree = {
     why2Body:
       "Every action has a cost and a result attached. You see what each employee earned or spent — not a chat log.",
     why3: "Because you stay the boss",
-    why3Body: "Nothing spends money or goes public until you approve it. You can pause any employee mid-task.",
+    why3Body:
+      "Nothing spends money or goes public until you approve it. You can pause any employee mid-task.",
     faqKicker: "Straight answers",
     faq1q: "So… what is this, in one sentence?",
-    faq1a: "A company you run by giving instructions instead of doing the work — the staff are AI, the results are real.",
+    faq1a:
+      "A company you run by giving instructions instead of doing the work — the staff are AI, the results are real.",
     faq2q: "Do I need to know anything technical?",
-    faq2a: "No. If you can write a text message, you can run a company here. There is nothing to install and no code to write.",
+    faq2a:
+      "No. If you can write a text message, you can run a company here. There is nothing to install and no code to write.",
     faq3q: "How do I get a seat?",
     faq3a:
       "Buy open — $99 one-time, capped at 1000 companies. No invite needed to purchase. After you're in, you get one invite link to share (friends still pay). Token launch is separate.",
     faq4q: "What do I actually get as a founding member?",
     faq4a:
       "A paid company seat, a founding badge, one invite to pass on, in-app AURA growth rewards on paid conversions, and a concierge page-review queue. Compute billing and token launch stay separate.",
-    liveKicker: "Live right now",
-    liveTitle: "The operating system is already online.",
+    liveKicker: "Live beta",
+    liveTitle: "Numbers from the live database — including zeros.",
     liveBody:
-      "Wave 1 is open. Companies, agents, and 24h actions are counted from the live database — no demo theater, no reply-approval noise.",
+      "Companies, agents, and 24h actions are counted from the ledger. If a figure is zero, the work has not happened yet. No demo theater.",
     liveWatch: "Watch it live",
     liveCompanies: "Companies on Aura OS",
     liveAgents: "AI employees at work",
     liveTasks: "Open tasks",
     liveActions: "Actions in 24h",
     liveLatest: "Latest activity",
+    liveEmpty: "No public activity in this window yet — zeros stay zeros.",
     liveShare: "Share live proof",
     liveSharePlain: "Aura OS is live — autonomous companies with public receipts.",
     liveShareStat: "Aura OS is live — {stat}. Real ledger, not demo theater.",
@@ -443,7 +454,8 @@ export const en: MessageTree = {
     prompt4: "How do I get a founding seat?",
     nudgeHello: "Your company could be running itself by tonight. Want the thirty-second version?",
     nudgeIdle: "Still looking? I can point you at the one move that matters — the founding seat.",
-    nudgeScroll: "You scrolled past the story. The short path: claim a $99 seat and Atlas starts work.",
+    nudgeScroll:
+      "You scrolled past the story. The short path: claim a $99 seat and Atlas starts work.",
     nudgeExit: "Before you go — founding seats are open at $99. I can walk you there in one step.",
     reconnecting: "reconnecting",
     close: "Close Aura",
@@ -471,6 +483,9 @@ export const en: MessageTree = {
     app: "Get app",
     proof: "Proof",
     pricing: "Pricing",
+    how: "How it works",
+    try: "Try Aura",
+    compare: "Why Aura",
     faq: "FAQ",
     reviews: "Reviews",
     partners: "Partners",
