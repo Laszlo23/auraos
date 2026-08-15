@@ -144,28 +144,28 @@ export const WHITELIST_TASKS: WhitelistTask[] = [
     label: "Follow on Farcaster",
     hint: "Follow 0xleonardo",
     href: "https://farcaster.xyz/0xleonardo/",
-    group: "required",
+    group: "chat_or",
   },
   {
     id: "like_post",
     label: "Like the post",
     hint: "Like the Aura OS announce on X",
     href: AURA_LAUNCH_POST_URL,
-    group: "required",
+    group: "chat_or",
   },
   {
     id: "comment_post",
     label: "Comment on the post",
     hint: "Leave a real comment on the announce",
     href: AURA_LAUNCH_POST_URL,
-    group: "required",
+    group: "chat_or",
   },
   {
     id: "share_post",
     label: "Share or quote",
     hint: "Repost or quote the Aura OS announce",
     href: AURA_LAUNCH_POST_URL,
-    group: "required",
+    group: "chat_or",
   },
   {
     id: "discord",
@@ -183,7 +183,7 @@ export const WHITELIST_TASKS: WhitelistTask[] = [
   },
 ];
 
-export const WHITELIST_REQUIRED_COUNT = 6; // 5 required + 1 of chat_or
+export const WHITELIST_REQUIRED_COUNT = 2; // launch week: follow X + one optional chat/share
 
 /**
  * Public product / funnel surfaces for footer switcher + sitemap.

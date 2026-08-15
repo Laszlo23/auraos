@@ -19,11 +19,25 @@ import { toast } from "sonner";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
 import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
-import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
+import {
+  WalletActivityPanel,
+  WalletExchangePanel,
+  WalletReceivePanel,
+  WalletSendPanel,
+} from "@/components/aura/wallet-desk-panels";
+import {
+  SWAP_ROUTES,
+  formatTokenAmount,
+  parseUiAmountToWeiString,
+  shortAddr,
+  type ActivityFilter,
+  type DeskTab,
+  type SwapLeg,
+} from "@/components/aura/wallet-desk-utils";
 import { WalletExportPanel } from "@/components/aura/wallet-export";
 import { WalletGrowPanel, WalletWorkingHint } from "@/components/aura/wallet-grow-panel";
 import { useCompany } from "@/hooks/use-aura";
-import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
+import { useFioReady } from "@/hooks/use-fio-ready";
 import { useMyHandle } from "@/hooks/use-identity";
 import { useProvisionSmartWallet, useSmartWallet } from "@/hooks/use-earn";
 import { getGenesisStatus } from "@/lib/genesis.functions";
@@ -38,79 +52,16 @@ import {
   getTreasuryActivity,
   getTreasuryBalance,
   sendTreasury,
-  type TreasuryActivityItem,
   type TreasurySendAsset,
 } from "@/lib/treasury.functions";
 import type { HolderPerks } from "@/lib/trading/holder-perks";
 import { NATIVE_ETH, WETH_ADDRESSES } from "@/lib/trading/tokens";
-import { currency, timeAgo } from "@/lib/format";
+import { currency } from "@/lib/format";
 import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const GENESIS_ART = mediaPath("/genesis-passport.webp");
 const GENESIS_ART_JPG = mediaPath("/genesis-passport.jpg");
-
-type DeskTab = "receive" | "send" | "exchange" | "activity" | "grow" | null;
-
-type SwapLeg = "eth" | "usdc" | "weth";
-
-const SWAP_ROUTES: { from: SwapLeg; to: SwapLeg; direction: TreasurySwapDirection }[] = [
-  { from: "eth", to: "usdc", direction: "eth_to_usdc" },
-  { from: "eth", to: "weth", direction: "eth_to_weth" },
-  { from: "weth", to: "usdc", direction: "weth_to_usdc" },
-  { from: "weth", to: "eth", direction: "weth_to_eth" },
-  { from: "usdc", to: "eth", direction: "usdc_to_eth" },
-  { from: "usdc", to: "weth", direction: "usdc_to_weth" },
-];
-
-function kindTone(kind: TreasuryActivityItem["kind"]) {
-  switch (kind) {
-    case "transfer_in":
-      return "text-gold";
-    case "transfer_out":
-    case "spend":
-      return "text-muted-foreground";
-    case "trade":
-      return "text-primary";
-    default:
-      return "text-foreground";
-  }
-}
-
-function KindIcon({ kind }: { kind: TreasuryActivityItem["kind"] }) {
-  if (kind === "transfer_in") return <ArrowDownLeft className="h-3.5 w-3.5 text-gold" />;
-  if (kind === "transfer_out" || kind === "spend")
-    return <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />;
-  return <ArrowLeftRight className="h-3.5 w-3.5 text-primary" />;
-}
-
-function shortAddr(addr: string) {
-  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
-}
-
-function parseUiAmountToWeiString(raw: string, decimals: number): string | null {
-  const cleaned = raw.trim().replace(/,/g, "");
-  if (!cleaned || cleaned.toLowerCase() === "max") return null;
-  if (!/^\d+(\.\d+)?$/.test(cleaned)) return null;
-  const [whole, frac = ""] = cleaned.split(".");
-  const fracPadded = (frac + "0".repeat(decimals)).slice(0, decimals);
-  const wei = BigInt(whole || "0") * 10n ** BigInt(decimals) + BigInt(fracPadded || "0");
-  return wei.toString();
-}
-
-function formatTokenAmount(raw: string, decimals: number, maxFrac = 6): string {
-  try {
-    const wei = BigInt(raw);
-    const base = 10n ** BigInt(decimals);
-    const whole = wei / base;
-    const frac = wei % base;
-    if (frac === 0n) return whole.toString();
-    const fracStr = frac.toString().padStart(decimals, "0").replace(/0+$/, "").slice(0, maxFrac);
-    return fracStr ? `${whole}.${fracStr}` : whole.toString();
-  } catch {
-    return raw;
-  }
-}
 
 export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: HolderPerks | undefined }) {
   const qc = useQueryClient();
@@ -123,7 +74,7 @@ export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: Hold
 
   const [tab, setTab] = useState<DeskTab>(null);
   const [copied, setCopied] = useState(false);
-  const [activityFilter, setActivityFilter] = useState<"all" | "in" | "out" | "trade">("all");
+  const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
 
   const [sendAsset, setSendAsset] = useState<TreasurySendAsset>("usdc");
   const [sendTo, setSendTo] = useState("");
@@ -673,429 +624,107 @@ export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: Hold
         <WalletGrowPanel cashUsdc={usdc} eth={eth} weth={weth} nativeSymbol={nativeSym} />
       ) : null}
 
-      {/* Receive */}
       {tab === "receive" ? (
-        <Panel label="Receive" glow>
-          <p className="text-[13px] text-muted-foreground">
-            Send {nativeSym}, USDC, or WETH on{" "}
-            <span className="font-semibold text-foreground">{networkLabel}</span> only. Wrong
-            network = lost funds.
-          </p>
-          {qrUrl ? (
-            <div className="mx-auto mt-5 w-fit rounded-2xl bg-white p-2.5">
-              <img
-                src={qrUrl}
-                alt="QR code to deposit crypto to your Aura smart wallet"
-                title="Deposit address QR code"
-                width={168}
-                height={168}
-                className="rounded-xl"
-              />
-            </div>
-          ) : null}
-          <div className="mt-4 flex items-start gap-2 rounded-2xl bg-foreground/[0.04] px-3 py-2.5">
-            <p className="min-w-0 flex-1 break-all font-mono text-[12px] leading-relaxed">
-              {address}
-            </p>
-            <button
-              type="button"
-              onClick={() => void copyAddress()}
-              className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-foreground/8 text-muted-foreground hover:text-primary"
-            >
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-            </button>
-          </div>
-          {treasury.data?.depositHint ? (
-            <p className="mt-3 text-[12px] text-muted-foreground">{treasury.data.depositHint}</p>
-          ) : null}
-        </Panel>
+        <WalletReceivePanel
+          address={address}
+          networkLabel={networkLabel}
+          nativeSym={nativeSym}
+          qrUrl={qrUrl}
+          copied={copied}
+          depositHint={treasury.data?.depositHint}
+          onCopy={() => void copyAddress()}
+        />
       ) : null}
 
-      {/* Send */}
       {tab === "send" ? (
-        <Panel label="Send / withdraw" glow>
-          <p className="text-[13px] text-muted-foreground">
-            Withdraw to any {networkLabel} address. Irreversible — double-check the destination.
-          </p>
-          <FioPayoutNudge context="sending USDC" className="mt-3" />
-          {!treasury.data?.sponsored && !okx.data?.gasSponsored ? (
-            <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">
-              Keep a little {nativeSym} for gas — token sends need ~0.001 {nativeSym} when
-              sponsorship is off.
-            </p>
-          ) : null}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {(["usdc", "eth", "weth"] as const).map((a) => (
-              <button
-                key={a}
-                type="button"
-                onClick={() => {
-                  setSendAsset(a);
-                  setSendConfirm(false);
-                }}
-                className={cn(
-                  "rounded-xl px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]",
-                  sendAsset === a
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-foreground/8 text-muted-foreground",
-                )}
-              >
-                {a === "eth" ? nativeSym : a.toUpperCase()}
-              </button>
-            ))}
-          </div>
-          <label className="mt-4 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-            To address
-            <input
-              value={sendTo}
-              onChange={(e) => {
-                setSendTo(e.target.value);
-                setSendConfirm(false);
-              }}
-              placeholder="0x…"
-              spellCheck={false}
-              className="mt-2 w-full rounded-2xl border border-border/50 bg-background/60 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50"
-            />
-          </label>
-          <label className="mt-3 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-            Amount ({sendAssetLabel}) · balance{" "}
-            {sendBalance.toLocaleString(undefined, { maximumFractionDigits: 6 })}
-            <div className="mt-2 flex gap-2">
-              <input
-                value={sendAmount}
-                onChange={(e) => {
-                  setSendAmount(e.target.value);
-                  setSendConfirm(false);
-                }}
-                placeholder="0.0 or max"
-                className="min-w-0 flex-1 rounded-2xl border border-border/50 bg-background/60 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  setSendAmount("max");
-                  setSendConfirm(false);
-                }}
-                className="rounded-2xl bg-foreground/8 px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
-              >
-                Max
-              </button>
-            </div>
-          </label>
-          {!sendConfirm ? (
-            <button
-              type="button"
-              disabled={!sendTo.trim() || !sendAmount.trim() || sendBalance <= 0}
-              onClick={() => {
-                if (!/^0x[a-fA-F0-9]{40}$/.test(sendTo.trim())) {
-                  toast.error("Enter a valid 0x address.");
-                  return;
-                }
-                if (
-                  sendAsset === "usdc" &&
-                  !confirmFioOrContinue(
-                    fio.ready,
-                    "usdc-send",
-                    "Attest a FIO handle on Identity so people can send you USDC by name@domain — and so Aura can show a verified receive rail.",
-                  )
-                ) {
-                  toast.message("Set up FIO on Identity", {
-                    action: {
-                      label: "Open",
-                      onClick: () => {
-                        window.location.href = "/identity";
-                      },
-                    },
-                  });
-                  return;
-                }
-                setSendConfirm(true);
-              }}
-              className="mt-5 w-full rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-45"
-            >
-              Review send
-            </button>
-          ) : (
-            <div className="mt-5 space-y-3 rounded-2xl border border-gold/30 bg-gold/8 p-4">
-              <p className="text-[13px] font-medium text-foreground">
-                Send {sendAmount === "max" ? "MAX" : sendAmount} {sendAssetLabel} to{" "}
-                <span className="font-mono">{shortAddr(sendTo.trim())}</span> on {networkLabel}?
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={send.isPending}
-                  onClick={() => send.mutate()}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-                >
-                  {send.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  Confirm & broadcast
-                </button>
-                <button
-                  type="button"
-                  disabled={send.isPending}
-                  onClick={() => setSendConfirm(false)}
-                  className="rounded-2xl bg-foreground/8 px-4 py-3 text-sm font-semibold text-muted-foreground"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </Panel>
+        <WalletSendPanel
+          networkLabel={networkLabel}
+          nativeSym={nativeSym}
+          sendAsset={sendAsset}
+          sendAssetLabel={sendAssetLabel}
+          sendBalance={sendBalance}
+          sendTo={sendTo}
+          sendAmount={sendAmount}
+          sendConfirm={sendConfirm}
+          sendPending={send.isPending}
+          fioReady={fio.ready}
+          gasSponsored={Boolean(treasury.data?.sponsored || okx.data?.gasSponsored)}
+          onAsset={(a) => {
+            setSendAsset(a);
+            setSendConfirm(false);
+          }}
+          onTo={(v) => {
+            setSendTo(v);
+            setSendConfirm(false);
+          }}
+          onAmount={(v) => {
+            setSendAmount(v);
+            setSendConfirm(false);
+          }}
+          onMax={() => {
+            setSendAmount("max");
+            setSendConfirm(false);
+          }}
+          onReview={() => setSendConfirm(true)}
+          onConfirm={() => send.mutate()}
+          onCancel={() => setSendConfirm(false)}
+        />
       ) : null}
 
-      {/* Exchange */}
       {tab === "exchange" ? (
-        <Panel label="Exchange" glow>
-          <p className="text-[13px] text-muted-foreground">
-            Convert via OKX DEX from your Light Account. Desk uses USDC / WETH — convert {nativeSym}{" "}
-            before trading.
-          </p>
-          {!okx.data?.configured ? (
-            <p className="mt-3 text-[12px] text-muted-foreground">
-              OKX rails are not configured — deposit USDC directly for now.
-            </p>
-          ) : (
-            <>
-              {!okx.data.gasSponsored ? (
-                <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] leading-relaxed text-gold">
-                  Not a hidden exchange fee: Alchemy gas sponsorship is off, so we leave a tiny{" "}
-                  {nativeSym} cushion (~$0.20–0.30) when you convert max — Base gas itself is
-                  usually cents. Set{" "}
-                  <span className="font-mono text-[11px]">ALCHEMY_GAS_POLICY_ID_BASE</span> on the
-                  server for gasless swaps.
-                  {okx.data.gasHint ? <> ({okx.data.gasHint})</> : null}
-                </p>
-              ) : null}
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  From
-                  <select
-                    value={swapFrom}
-                    onChange={(e) => onSwapFromChange(e.target.value as SwapLeg)}
-                    className="mt-2 w-full rounded-2xl border border-border/50 bg-background/60 px-4 py-3 text-sm outline-none focus:border-primary/50"
-                  >
-                    <option value="eth">{nativeSym}</option>
-                    <option value="usdc">USDC</option>
-                    <option value="weth">WETH</option>
-                  </select>
-                </label>
-                <label className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  To
-                  <select
-                    value={swapTo}
-                    onChange={(e) => {
-                      setSwapTo(e.target.value as SwapLeg);
-                      setQuotePreview(null);
-                      setSwapConfirm(false);
-                    }}
-                    className="mt-2 w-full rounded-2xl border border-border/50 bg-background/60 px-4 py-3 text-sm outline-none focus:border-primary/50"
-                  >
-                    {SWAP_ROUTES.filter((r) => r.from === swapFrom).map((r) => (
-                      <option key={r.to} value={r.to}>
-                        {r.to === "eth" ? nativeSym : r.to.toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <label className="mt-3 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                Amount
-                <div className="mt-2 flex gap-2">
-                  <input
-                    value={swapAmount}
-                    onChange={(e) => {
-                      setSwapAmount(e.target.value);
-                      setQuotePreview(null);
-                      setSwapConfirm(false);
-                    }}
-                    placeholder="max"
-                    className="min-w-0 flex-1 rounded-2xl border border-border/50 bg-background/60 px-4 py-3 font-mono text-sm outline-none focus:border-primary/50"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSwapAmount("max");
-                      setQuotePreview(null);
-                      setSwapConfirm(false);
-                    }}
-                    className="rounded-2xl bg-foreground/8 px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
-                  >
-                    Max
-                  </button>
-                </div>
-              </label>
-              {quotePreview ? (
-                <p className="mt-3 text-[12px] font-medium text-gold">{quotePreview}</p>
-              ) : null}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={quote.isPending || !swapRoute}
-                  onClick={() => {
-                    setSwapConfirm(false);
-                    quote.mutate();
-                  }}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-4 py-3 text-sm font-semibold disabled:opacity-45"
-                >
-                  {quote.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  Quote
-                </button>
-                {!swapConfirm ? (
-                  <button
-                    type="button"
-                    disabled={
-                      swap.isPending ||
-                      !swapRoute ||
-                      (swapFrom === "eth" && eth < 0.0005) ||
-                      (swapFrom === "weth" && weth < 0.0001) ||
-                      (swapFrom === "usdc" && usdc < 0.05)
-                    }
-                    onClick={() => {
-                      if (!swapRoute) {
-                        toast.error("Unsupported pair.");
-                        return;
-                      }
-                      setSwapConfirm(true);
-                    }}
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-45"
-                  >
-                    <ArrowLeftRight className="h-4 w-4" />
-                    Review exchange
-                  </button>
-                ) : null}
-              </div>
-              {swapConfirm && swapRoute ? (
-                <div className="mt-4 space-y-3 rounded-2xl border border-gold/30 bg-gold/8 p-4">
-                  <p className="text-[13px] font-medium text-foreground">
-                    Exchange {swapAmount === "max" || !swapAmount.trim() ? "MAX" : swapAmount}{" "}
-                    {swapFrom === "eth" ? nativeSym : swapFrom.toUpperCase()} →{" "}
-                    {swapTo === "eth" ? nativeSym : swapTo.toUpperCase()}
-                    {quotePreview ? ` (${quotePreview})` : ""} on {networkLabel}?
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      disabled={swap.isPending}
-                      onClick={() => swap.mutate(swapRoute.direction)}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-                    >
-                      {swap.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                      Confirm & broadcast
-                    </button>
-                    <button
-                      type="button"
-                      disabled={swap.isPending}
-                      onClick={() => setSwapConfirm(false)}
-                      className="rounded-2xl bg-foreground/8 px-4 py-3 text-sm font-semibold text-muted-foreground"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-              <Link
-                to="/trading"
-                className="mt-4 inline-block text-[12px] font-semibold text-primary hover:underline"
-              >
-                Open trading desk →
-              </Link>
-            </>
-          )}
-        </Panel>
+        <WalletExchangePanel
+          networkLabel={networkLabel}
+          nativeSym={nativeSym}
+          configured={Boolean(okx.data?.configured)}
+          gasSponsored={Boolean(okx.data?.gasSponsored)}
+          gasHint={okx.data?.gasHint}
+          swapFrom={swapFrom}
+          swapTo={swapTo}
+          swapAmount={swapAmount}
+          quotePreview={quotePreview}
+          swapConfirm={swapConfirm}
+          quotePending={quote.isPending}
+          swapPending={swap.isPending}
+          eth={eth}
+          usdc={usdc}
+          weth={weth}
+          onFrom={onSwapFromChange}
+          onTo={(to) => {
+            setSwapTo(to);
+            setQuotePreview(null);
+            setSwapConfirm(false);
+          }}
+          onAmount={(v) => {
+            setSwapAmount(v);
+            setQuotePreview(null);
+            setSwapConfirm(false);
+          }}
+          onMax={() => {
+            setSwapAmount("max");
+            setQuotePreview(null);
+            setSwapConfirm(false);
+          }}
+          onQuote={() => {
+            setSwapConfirm(false);
+            quote.mutate();
+          }}
+          onReview={() => setSwapConfirm(true)}
+          onConfirm={(direction) => swap.mutate(direction)}
+          onCancel={() => setSwapConfirm(false)}
+        />
       ) : null}
 
-      {/* Activity */}
       {tab === "activity" ? (
-        <Panel
-          label="Activity"
-          action={
-            <button
-              type="button"
-              onClick={() => {
-                void treasury.refetch();
-                void activity.refetch();
-              }}
-              className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-primary"
-            >
-              Refresh
-            </button>
-          }
-        >
-          <div className="mb-4 flex flex-wrap gap-2">
-            {(
-              [
-                { id: "all" as const, label: "All" },
-                { id: "in" as const, label: "In" },
-                { id: "out" as const, label: "Out" },
-                { id: "trade" as const, label: "Trade" },
-              ] as const
-            ).map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setActivityFilter(f.id)}
-                className={cn(
-                  "rounded-xl px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em]",
-                  activityFilter === f.id
-                    ? "bg-primary/14 text-primary"
-                    : "bg-foreground/6 text-muted-foreground",
-                )}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-          {activity.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : filteredActivity.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No activity yet. Receive funds or run an exchange — it shows here.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {filteredActivity.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-3 border-b border-border/40 pb-3 last:border-0 last:pb-0"
-                >
-                  <span className="mt-1 grid h-7 w-7 place-items-center rounded-xl bg-foreground/6">
-                    <KindIcon kind={item.kind} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className={cn("text-[13px] font-medium", kindTone(item.kind))}>
-                      {item.title}
-                    </p>
-                    {item.detail ? (
-                      <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
-                        {item.detail}
-                      </p>
-                    ) : null}
-                    <p className="mt-1 text-[10px] text-muted-foreground">{timeAgo(item.at)}</p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    {item.amount != null && item.asset === "USDC" ? (
-                      <p className="num text-[12px] text-gold">{currency(item.amount)}</p>
-                    ) : item.amount != null ? (
-                      <p className="num text-[12px]">{item.amount}</p>
-                    ) : null}
-                    {item.explorerUrl ? (
-                      <a
-                        href={item.explorerUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-1 inline-flex items-center gap-1 text-[10px] text-primary"
-                      >
-                        Explorer <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Panel>
+        <WalletActivityPanel
+          filter={activityFilter}
+          items={filteredActivity}
+          loading={activity.isLoading}
+          onFilter={setActivityFilter}
+          onRefresh={() => {
+            void treasury.refetch();
+            void activity.refetch();
+          }}
+        />
       ) : null}
 
       {handleId ? (

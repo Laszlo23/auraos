@@ -7,7 +7,7 @@ export const FOUNDING_SEATS_TOTAL = 1000;
  * Founding-seat marketing window.
  * Scarcity UI uses founding seats remaining + this fair-launch clock — no fake invite ledger.
  */
-export const WAVE1_LABEL = "Founding seats · open";
+export const WAVE1_LABEL = "Wave 1 · founding seats";
 export const WAVE1_CLOSES_AT = TOKEN_LAUNCH_AT;
 export const WAVE1_CLOSES_MS = TOKEN_LAUNCH_MS;
 export const WAVE1_CLOSES_DISPLAY = TOKEN_LAUNCH_DISPLAY;

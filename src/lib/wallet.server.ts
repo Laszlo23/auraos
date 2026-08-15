@@ -7,6 +7,9 @@
  * - Reconstructing funds requires BOTH the ciphertext in Postgres AND the server secret.
  * - Legacy `WALLET_DERIVATION_SECRET` deterministic keys are supported only for migration
  *   of existing counterfactual addresses (marked legacy, no new verified claims).
+ *
+ * Upgrade watch: keep this stack until Account Kit drops ethers v5 + Segment
+ * (see docs/multichain.md). Do not rewrite the wallet rails ahead of that release.
  */
 import { LocalAccountSigner } from "@aa-sdk/core";
 import { alchemy, base, baseSepolia, bsc, opbnbMainnet } from "@account-kit/infra";

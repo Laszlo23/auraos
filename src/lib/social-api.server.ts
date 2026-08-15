@@ -24,10 +24,20 @@ export async function publishToProvider(
     case "x": {
       let mediaIds: string[] | undefined;
       if (opts?.sharePostId) {
-        const { loadShareVideoBytes } = await import("@/lib/share-media.server");
-        const { bytes } = await loadShareVideoBytes(opts.sharePostId);
-        const mediaId = await uploadXVideo(conn.accessToken, bytes);
-        mediaIds = [mediaId];
+        try {
+          const { loadShareVideoBytes } = await import("@/lib/share-media.server");
+          const { bytes } = await loadShareVideoBytes(opts.sharePostId);
+          const mediaId = await uploadXVideo(conn.accessToken, bytes);
+          mediaIds = [mediaId];
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          // Token without media.write, or upload flake — still ship the watch-link tweet.
+          if (/media\.write|INIT failed|403|401|unauthorized/i.test(msg)) {
+            console.warn("[x] video upload skipped, posting text-only", msg);
+          } else {
+            throw e;
+          }
+        }
       }
       return publishX(conn.accessToken, body, opts?.replyToExternalId, mediaIds);
     }

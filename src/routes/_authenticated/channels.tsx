@@ -36,6 +36,7 @@ import {
 } from "@/hooks/use-connections";
 import { useAwardXp } from "@/hooks/use-progress";
 import { approveEngagementReply } from "@/lib/social.functions";
+import { triggerWorkerTick } from "@/lib/worker.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { compact, timeAgo } from "@/lib/format";
 import { TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
@@ -620,7 +621,9 @@ function ChannelsPage() {
                       setComposeClipId("");
                       celebrate("Published", 40, "publish:manual");
                       notify.success("Live.");
-                      void fetch("/api/workers/tick", { method: "POST" });
+                      void triggerWorkerTick({ data: {} }).catch((e) =>
+                        console.warn("worker tick", e instanceof Error ? e.message : e),
+                      );
                     },
                     onError: (e) => notify.error(e instanceof Error ? e.message : "Publish failed"),
                   },
@@ -809,10 +812,19 @@ function ChannelsPage() {
           <button
             type="button"
             onClick={() => {
-              void fetch("/api/workers/tick", { method: "POST" }).then(() => {
-                void qc.invalidateQueries({ queryKey: ["table", "channel_engagements"] });
-                notify.success("Synced engagement.");
-              });
+              void triggerWorkerTick({ data: {} })
+                .then((res) => {
+                  void qc.invalidateQueries({ queryKey: ["table", "channel_engagements"] });
+                  void qc.invalidateQueries({ queryKey: ["table", "channel_posts"] });
+                  void qc.invalidateQueries({ queryKey: ["table", "tasks"] });
+                  const n = res.engagement?.ingested ?? 0;
+                  notify.success(
+                    n > 0 ? `Synced — ${n} new comment${n === 1 ? "" : "s"}.` : "Synced. Inbox is current.",
+                  );
+                })
+                .catch((e) =>
+                  notify.error(e instanceof Error ? e.message : "Sync failed — try again."),
+                );
             }}
             className="grid h-8 w-8 place-items-center rounded-xl bg-foreground/6"
             title="Sync now"

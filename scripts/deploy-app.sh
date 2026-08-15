@@ -63,6 +63,13 @@ if compgen -G "/opt/auraos/public/*.pptx" >/dev/null; then
   cp -an /opt/auraos/public/*.pptx /opt/auraos/.output/public/ 2>/dev/null || true
 fi
 
+if [[ -f /opt/auraos/deploy/auraos-worker-tick.sh ]]; then
+  install -m 0755 /opt/auraos/deploy/auraos-worker-tick.sh /usr/local/bin/auraos-worker-tick
+fi
+if ! crontab -l 2>/dev/null | grep -q auraos-worker-tick; then
+  (crontab -l 2>/dev/null; echo '*/10 * * * * /usr/local/bin/auraos-worker-tick >>/var/log/auraos-worker-tick.log 2>&1') | crontab -
+fi
+
 systemctl restart auraos
 sleep 2
 systemctl is-active auraos

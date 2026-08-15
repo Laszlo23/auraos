@@ -828,6 +828,8 @@ export const startLaunchDripCampaign = createServerFn({ method: "POST" })
         scheduled_at: s.scheduledAt,
         agent_name: SOCIAL_AGENTS.x,
         campaign_key: s.campaignKey,
+        share_post_id: s.sharePostId,
+        media_kind: "share_clip",
         impressions: 0,
         likes: 0,
         reposts: 0,

@@ -157,10 +157,10 @@ export const NAV: NavItem[] = [
     to: "/x402",
     label: "Machine API",
     plain: "Paid API",
-    hint: "Let other AI agents pay to use your agents",
+    hint: "x402 on Base — shown after the first real USDC settlement",
     icon: Receipt,
     group: "Revenue",
-    live: true,
+    live: false,
   },
   {
     to: "/akquise",

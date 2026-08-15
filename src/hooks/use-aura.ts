@@ -1,6 +1,8 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { peekFunnel } from "@/lib/attribution";
 import { createEmptyCompany } from "@/lib/create-empty-company";
+import { isFunnelId } from "@/lib/funnels";
 import { isDemoSeedEnabled, seedCompany } from "@/lib/seed";
 
 export type Company = {
@@ -51,6 +53,11 @@ export function useCompany() {
       if (error) throw error;
       if (data && data.length > 0) return data[0] as Company;
       if (isDemoSeedEnabled()) return (await seedCompany(user.id)) as Company;
+      const { data: hasSeat } = await supabase.rpc("user_has_company_seat", { _uid: user.id });
+      const funnel = peekFunnel();
+      if (!hasSeat && (!isFunnelId(funnel) || funnel === "os")) {
+        throw new Error("NO_COMPANY");
+      }
       return (await createEmptyCompany(user.id)) as Company;
     },
   });

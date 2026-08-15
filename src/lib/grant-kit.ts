@@ -16,7 +16,9 @@ export type GrantTraction = {
 
 /** Standing answers — copy into portals. Keep traction honest. */
 export function grantAnswers(t: GrantTraction) {
-  const tractionLine = `${t.companies} companies · ${t.agents} AI employees · ${t.actions24h} actions in 24h · ${t.paidCalls} paid x402 calls · $${t.usdcPaid.toFixed(4)} USDC settled (live ledger).`;
+  const callsBit = t.paidCalls > 0 ? ` · ${t.paidCalls} paid x402 calls` : "";
+  const usdcBit = t.usdcPaid > 0 ? ` · $${t.usdcPaid.toFixed(4)} USDC settled (live ledger)` : "";
+  const tractionLine = `${t.companies} companies · ${t.agents} AI employees · ${t.actions24h} actions in 24h${callsBit}${usdcBit}.`;
 
   return {
     contactEmail: LEGAL_EMAIL,

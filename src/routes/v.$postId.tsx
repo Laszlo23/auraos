@@ -330,9 +330,15 @@ function WatchPage() {
               placement={`watch_bar_${post.id}`.slice(0, 40)}
             />
             <Link
+              to="/access"
+              className="mt-4 inline-flex rounded-2xl bg-primary px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground"
+            >
+              Founding seat $99 →
+            </Link>
+            <Link
               to="/share"
               hash={post.id}
-              className="mt-4 inline-block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary"
+              className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-primary"
             >
               Open full share kit →
             </Link>

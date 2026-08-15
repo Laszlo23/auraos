@@ -109,6 +109,12 @@ export async function executeTask(
 
   // Social-reply idempotency key lives in `result` — never overwrite it on holds.
   const preserveResult = typeof task.result === "string" && task.result.startsWith("social-reply:");
+  if (preserveResult) {
+    return {
+      ok: false,
+      error: "Social replies post from Approve on Tasks or Channels — not the generic worker.",
+    };
+  }
 
   const holdForApproval = async (reason: string) => {
     await db

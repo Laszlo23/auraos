@@ -1,5 +1,5 @@
 import { SHARE_POSTS, shareWatchUrl } from "@/lib/share-posts";
-import { TOKEN_LAUNCH_AT, TOKEN_LAUNCH_MS } from "@/lib/site";
+import { SITE_URL, TOKEN_LAUNCH_AT, TOKEN_LAUNCH_MS } from "@/lib/site";
 
 /** Stable campaign id for Aug 2026 fair-launch drip. */
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
@@ -134,19 +134,30 @@ function cestWallToIso(y: number, month: number, day: number, hour: number, minu
   return new Date(utcMs).toISOString();
 }
 
+/** Date-based keys so re-seed after #0–#16 history still inserts remaining windows. */
+function dripSlotKey(y: number, month: number, day: number, hour: number): string {
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  const hh = String(hour).padStart(2, "0");
+  return `${LAUNCH_DRIP_CAMPAIGN}#${y}-${mm}-${dd}T${hh}`;
+}
+
 function clipBody(sharePostId: string, lineIndex: number): string {
   const lines = X_LINES[sharePostId] ?? ["Aura OS — own a company. Let AI make money."];
   const line = lines[lineIndex % lines.length]!;
   const url = shareWatchUrl(sharePostId);
-  const body = `${line}\n\n${url}`;
+  const seat = `${SITE_URL}/access`;
+  const body = `${line}\n\n${url}\nSeat $99 → ${seat}`;
   if (body.length <= 280) return body;
+  const short = `${line}\n\n${url}`;
+  if (short.length <= 280) return short;
   const trimmed = line.slice(0, Math.max(40, 280 - url.length - 4));
   return `${trimmed}…\n\n${url}`.slice(0, 280);
 }
 
 /**
  * Build the fair-launch X drip: ~2–3 posts/day from `fromMs` through TOKEN_LAUNCH_AT,
- * skipping quiet hours (before 07:00 CEST). Idempotent keys: launch-drip-2026-08#N
+ * skipping quiet hours (before 07:00 CEST). Idempotent keys: launch-drip-2026-08#YYYY-MM-DDTHH
  */
 export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDripSlot[] {
   const endMs = TOKEN_LAUNCH_MS;
@@ -157,11 +168,13 @@ export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDrip
     for (let i = 0; i < 3; i++) {
       const id = ROTATION_IDS[i % ROTATION_IDS.length]!;
       const hour = SLOT_HOURS_CEST[i % SLOT_HOURS_CEST.length]!;
+      const at = cestWallToIso(start.y, start.m, start.d + 1, hour);
+      const day = cestDateParts(Date.parse(at));
       slots.push({
-        campaignKey: `${LAUNCH_DRIP_CAMPAIGN}#${i}`,
+        campaignKey: dripSlotKey(day.y, day.m, day.d, hour),
         sharePostId: id,
         body: clipBody(id, i),
-        scheduledAt: cestWallToIso(start.y, start.m, start.d + 1, hour),
+        scheduledAt: at,
       });
     }
     return slots;
@@ -196,7 +209,7 @@ export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDrip
       if (!SHARE_POSTS.some((p) => p.id === id) && !X_LINES[id]) continue;
 
       slots.push({
-        campaignKey: `${LAUNCH_DRIP_CAMPAIGN}#${index}`,
+        campaignKey: dripSlotKey(day.y, day.m, day.d, hour),
         sharePostId: id,
         body: clipBody(id, index),
         scheduledAt: at,

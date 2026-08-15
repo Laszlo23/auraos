@@ -419,8 +419,6 @@ function AuthPage() {
 
     const { data: hasSeat } = await supabase.rpc("user_has_company_seat", { _uid: user.id });
     if (hasSeat) {
-      takeStoredInvite();
-      takeStoredRef();
       return "ok";
     }
 
@@ -431,7 +429,6 @@ function AuthPage() {
       .limit(1)
       .maybeSingle();
     if (existingCompany) {
-      takeStoredInvite();
       return "ok";
     }
 
@@ -500,6 +497,21 @@ function AuthPage() {
       }
 
       setNeedsInviteToContinue(false);
+      const storedInvite = (
+        invite.trim() ||
+        peekStoredInvite() ||
+        (refFromLinkRef.current ?? peekStoredRef() ?? "")
+      )
+        .trim()
+        .toUpperCase();
+      if (storedInvite && looksLikeInviteCode(storedInvite)) {
+        const { error: redeemErr } = await supabase.rpc("redeem_invite_code", {
+          _code: storedInvite,
+        });
+        if (redeemErr) console.warn("redeem_invite_code", redeemErr.message);
+      }
+      takeStoredInvite();
+      takeStoredRef();
       if (isNewUser(user)) {
         trackAppEvent("signup_complete", { method: reason });
       }

@@ -39,6 +39,10 @@ Create an Alchemy app + Gas Manager policy on **Robinhood Chain** (`robinhood-ma
 - Genesis NFT mint remains Base until a Robinhood contract ships.
 - Account Kit: viem `robinhood` chain + Alchemy RPC URLs (not a stock `@account-kit/infra` export yet).
 
+## Account Kit upgrade watch
+
+`@account-kit/infra` still pulls `alchemy-sdk` → ethers v5 (`elliptic`) and Segment via `@account-kit/logging`. That is the remaining high npm-audit path. **Do not rewrite the Light Account / wallet stack** until Alchemy ships an ethers-v5 / Segment-free Account Kit. Track `@account-kit/infra` and `@account-kit/smart-contracts` (current pin `^4.88.4`); only then drop the ethers/elliptic tree.
+
 ## Ops checklist
 
 - [ ] Alchemy Robinhood app + gas policy id on VPS

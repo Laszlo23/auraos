@@ -33,6 +33,30 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
   const uiLocale = peekLocale() === "de" ? "de" : "en";
   const lokalDefaultName = uiLocale === "de" ? "Mein Betrieb" : "My shop";
 
+  const { data: hasSeat } = await supabase.rpc("user_has_company_seat", { _uid: ownerId });
+  let inviteOk = false;
+  try {
+    const stored =
+      typeof sessionStorage !== "undefined" ? sessionStorage.getItem("aura:invite") : null;
+    const code = stored?.trim().toUpperCase() || "";
+    if (code) {
+      const { data: redeemed } = await supabase.rpc("redeem_invite_code", { _code: code });
+      inviteOk = Boolean(redeemed);
+      if (!inviteOk) {
+        const { data: refOk } = await supabase.rpc("referral_code_valid", { _code: code });
+        inviteOk = Boolean(refOk);
+      }
+    }
+  } catch {
+    /* private mode / no sessionStorage */
+  }
+
+  if (!hasSeat && !inviteOk && funnel === "os") {
+    throw new Error(
+      "Buy a founding seat first — $99, no invite needed — then we can open your company.",
+    );
+  }
+
   // Funnel free-door: never invent a second company for the same owner.
   const { data: existing } = await supabase
     .from("companies")

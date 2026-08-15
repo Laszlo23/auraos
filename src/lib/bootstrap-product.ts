@@ -47,7 +47,7 @@ export async function bootstrapOnboardingProduct(
   companyName: string,
 ) {
   const id = (
-    ["trading", "commerce", "studio"].includes(productId) ? productId : "trading"
+    ["trading", "commerce", "studio"].includes(productId) ? productId : "commerce"
   ) as OnboardingProductId;
   const meta = PRODUCT_META[id];
 

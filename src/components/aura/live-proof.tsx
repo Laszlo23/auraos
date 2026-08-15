@@ -28,6 +28,12 @@ function feedLine(row: FeedRow): { who: string; what: string } | null {
   if (lower.startsWith("draft:") || lower.includes("social-reply")) {
     return null;
   }
+  if (lower.includes("reply") && (lower.includes("approve") || lower.includes("approved"))) {
+    return null;
+  }
+  if (lower.includes("machine api") && lower.includes("dev")) {
+    return null;
+  }
   return { who, what };
 }
 
@@ -94,8 +100,8 @@ export function LiveProof() {
               The operating system is already online.
             </h2>
             <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-              Real companies waking, real AI employees on the roster, real activity in the last day
-              — counted from the live database.
+              Wave 1 is open. Companies, agents, and 24h actions are counted from the live
+              database — no demo theater, no reply-approval noise.
             </p>
           </div>
           <Link

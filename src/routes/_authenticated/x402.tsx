@@ -200,7 +200,7 @@ function X402Page() {
       <PageHeader
         eyebrow="x402"
         title="Machine API"
-        description="Aura endpoints priced in USDC over x402. Autonomous agents pay per call — no accounts, no keys, no invoices."
+        description="Priced in USDC on Base via x402. No settled calls yet — this desk stays quiet until a real Base payment lands. Dev / Sepolia totals are not shown as revenue."
       />
 
       <div className="grid gap-4 md:grid-cols-3">

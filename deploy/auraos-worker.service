@@ -1,0 +1,10 @@
+[Unit]
+Description=Aura OS worker tick (tasks, drip, engagement)
+After=network-online.target auraos.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=aura
+Group=aura
+ExecStart=/bin/bash -lc 'set -a; . /opt/auraos/.env; set +a; curl -fsS -X POST -H "Authorization: Bearer $WORKER_SECRET" --max-time 90 https://aibusiness.fun/api/workers/tick'

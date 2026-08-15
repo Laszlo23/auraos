@@ -320,7 +320,25 @@ export function useApproveTask() {
           .eq("provider", provider)
           .eq("external_id", externalId)
           .maybeSingle();
-        if (!eng) throw new Error("Engagement not found — open Channels to reply");
+        if (!eng) {
+          const { data: byTitle } = await supabase
+            .from("channel_engagements")
+            .select("id, reply_body")
+            .eq("company_id", company.id)
+            .eq("status", "drafted")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (!byTitle) throw new Error("Engagement not found — open Channels to reply");
+          const { approveEngagementReply } = await import("@/lib/social.functions");
+          await approveEngagementReply({
+            data: {
+              engagementId: byTitle.id,
+              ...(byTitle.reply_body ? { reply: byTitle.reply_body } : {}),
+            },
+          });
+          return { kind: "social" as const, workerRan: false, tasksProcessed: 0, focusedOk: true };
+        }
         const { approveEngagementReply } = await import("@/lib/social.functions");
         await approveEngagementReply({
           data: {

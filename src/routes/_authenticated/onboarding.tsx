@@ -45,23 +45,23 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 
 const PRODUCTS = [
   {
-    id: "trading",
-    glyph: "⟁",
-    name: "Grow funds",
-    blurb: "Put USDC into an AI strategy or earn by providing liquidity — under your caps.",
-    tag: "Recommended",
-  },
-  {
     id: "commerce",
     glyph: "◍",
     name: "Commerce Engine",
     blurb: "Hires Iris, Vela, Juno. Creates a product + landing draft for your approval.",
+    tag: "Recommended",
   },
   {
     id: "studio",
     glyph: "❖",
     name: "Content Studio",
     blurb: "Hires Vela, Orin, Iris. Drafts brand voice — nothing publishes without you.",
+  },
+  {
+    id: "trading",
+    glyph: "⟁",
+    name: "Grow funds",
+    blurb: "Put USDC into an AI strategy or earn by providing liquidity — under your caps. Opt-in.",
   },
 ];
 
@@ -97,7 +97,7 @@ function Onboarding() {
   const [city, setCity] = useState("");
   const [niche, setNiche] = useState("");
   const [isLocal, setIsLocal] = useState(true);
-  const [product, setProduct] = useState("trading");
+  const [product, setProduct] = useState("commerce");
   const [picked, setPicked] = useState<string[]>(["x", "linkedin"]);
   const [connecting, setConnecting] = useState(false);
   const [burst, setBurst] = useState(0);

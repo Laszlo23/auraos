@@ -36,7 +36,7 @@ const config = () => {
   // x402 EIP-3009 settlement stays on Base family even when the desk runs on BSC.
   const network = x402SettleNetwork();
   const facilitator = process.env["X402_FACILITATOR_URL"] || "https://x402.org/facilitator";
-  const allowDev = !isProdRuntime();
+  const allowDev = !isProdRuntime() && process.env["X402_ALLOW_DEV"] !== "0";
   return {
     payTo: payTo || DEV_PAY_TO,
     live: Boolean(payTo),

@@ -136,7 +136,9 @@ function GrantsPage() {
     { label: "Companies on the network", value: Number(t?.companies ?? 0).toLocaleString() },
     { label: "AI employees at work", value: Number(t?.agents ?? 0).toLocaleString() },
     { label: "Paid machine calls", value: Number(t?.paid_calls ?? 0).toLocaleString() },
-    { label: "USDC settled", value: `$${Number(t?.usdc_paid ?? 0).toFixed(4)}` },
+    ...(Number(t?.usdc_paid ?? 0) > 0
+      ? [{ label: "USDC settled", value: `$${Number(t?.usdc_paid ?? 0).toFixed(4)}` }]
+      : []),
   ];
 
   const markCopied = (id: string) => {

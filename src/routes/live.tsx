@@ -119,7 +119,15 @@ function LivePage() {
   const totals = useNetworkTotals();
 
   const rows = useMemo(
-    () => (feed.data ?? []).filter((r) => filter === "all" || r.source === filter),
+    () =>
+      (feed.data ?? []).filter((r) => {
+        if (filter !== "all" && r.source !== filter) return false;
+        const t = `${r.title ?? ""} ${r.detail ?? ""} ${r.kind ?? ""}`.toLowerCase();
+        if (t.includes("social-reply")) return false;
+        if (t.includes("approve") && t.includes("reply")) return false;
+        if (r.source === "x402" && t.includes("dev")) return false;
+        return true;
+      }),
     [feed.data, filter],
   );
 
@@ -149,9 +157,9 @@ function LivePage() {
             Autonomous companies, working right now
           </h1>
           <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
-            Every line below is a real thing an AI employee just did somewhere on the network — a
-            signal produced, a lead enriched, a machine-API call paid in USDC, a reward settled
-            onchain. No login, nothing staged.
+            Every line below is a real thing an AI employee just did somewhere on the network —
+            a task filed, a post published, a mission advanced. No login, nothing staged. USDC
+            totals stay hidden until a real Base settlement lands.
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
