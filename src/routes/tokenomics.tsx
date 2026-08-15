@@ -7,7 +7,10 @@ import {
   AURA_ALLOCATIONS,
   AURA_BUY_PLAN,
   AURA_MAX_SUPPLY_DISPLAY,
+  AURA_OFFICIAL_CA_SOURCES,
   AURA_TEAM_VESTING,
+  AURA_TOKEN_CA,
+  auraCaLive,
   formatAuraAmount,
 } from "@/lib/aura-token";
 import { OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
@@ -95,6 +98,23 @@ function TokenomicsPage() {
           <Link to="/team" className="font-semibold text-primary hover:underline">
             Team & trust →
           </Link>
+        </p>
+        <p className="mt-3 rounded-2xl border border-[color:var(--austria-red)]/40 bg-[color:var(--austria-red)]/10 px-4 py-3 text-[12.5px] leading-relaxed">
+          {auraCaLive() ? (
+            <>
+              Official CA: <span className="num break-all">{AURA_TOKEN_CA}</span>
+            </>
+          ) : (
+            <>
+              No official contract address yet. T-0 is {TOKEN_LAUNCH_DISPLAY}. Any CA in a DM is a
+              scam. Official sources:{" "}
+              {AURA_OFFICIAL_CA_SOURCES.map((s) => (
+                <a key={s} href={s} className="mr-2 font-semibold text-primary hover:underline">
+                  {s.replace("https://", "")}
+                </a>
+              ))}
+            </>
+          )}
         </p>
 
         <section className="mt-12">
@@ -259,8 +279,8 @@ function TokenomicsPage() {
             ))}
           </ol>
           <p className="mt-4 text-[13px] text-muted-foreground">
-            Supply and allocation are published above. The contract address is published only at
-            T-0 on aibusiness.fun and X @buildingcultu3. Listings are not promised.
+            Supply and allocation are published above. The contract address is published only at T-0
+            on aibusiness.fun and X @buildingcultu3. Listings are not promised.
           </p>
         </section>
 

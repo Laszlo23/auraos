@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 
+import { LanguageToggle } from "@/components/aura/language-toggle";
 import { SiteFooter } from "@/components/aura/site-footer";
 import {
   BCC_TOKEN_DISCLAIMER,
@@ -53,6 +54,7 @@ function TeamPage() {
         }}
       />
 
+      <div className="austria-bar" aria-hidden />
       <header className="relative border-b border-border/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-3 px-6 py-4">
           <Link
@@ -61,7 +63,8 @@ function TeamPage() {
           >
             ← Home
           </Link>
-          <nav className="ml-auto flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em]">
+          <LanguageToggle className="ml-auto" />
+          <nav className="flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em]">
             <Link to="/wien" className="text-muted-foreground hover:text-foreground">
               Wien
             </Link>

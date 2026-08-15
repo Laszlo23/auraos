@@ -94,6 +94,9 @@
   --gold: oklch(0.86 0.165 76);
   --gold-foreground: oklch(0.18 0.05 60);
 
+  /* Austria — thin red-white-red, not a flag dump */
+  --austria-red: oklch(0.52 0.195 25);
+
   --secondary: oklch(0.26 0.022 268 / 72%);
   --secondary-foreground: oklch(0.97 0.006 250);
   --muted: oklch(0.26 0.022 268 / 58%);
@@ -367,6 +370,17 @@
 
 @utility film-grade {
   filter: contrast(1.08) saturate(1.12) brightness(0.9);
+}
+
+@utility austria-bar {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--austria-red) 0 33.33%,
+    #f7f4ef 33.33% 66.66%,
+    var(--austria-red) 66.66% 100%
+  );
 }
 
 @utility vital-line {

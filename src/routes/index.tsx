@@ -37,11 +37,14 @@ import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import { ShareKitTeaser } from "@/components/aura/share-kit";
 import { ShareMoment } from "@/components/aura/share";
 import { CompanyOrg } from "@/components/aura/company-org";
+import { LanguageToggle } from "@/components/aura/language-toggle";
+import { WienStoryStrip } from "@/components/aura/wien-story-strip";
 import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
 import { LAUNCH_SHARE_TEXT, OG_IMAGE, SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
+import { useLocale } from "@/hooks/use-locale";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -237,19 +240,30 @@ const ACTS: {
   },
 ];
 
-const TICKER = [
+const TICKER_EN = [
   "OWN A COMPANY",
-  "YOU OWN THE COMPANY",
-  "STAFF HAPPEN TO BE AI",
+  "VIENNA FIRST",
+  "NO FAKE STARS",
   "FAIR LAUNCH · 17 AUG 13:11 CEST",
   "CREATE → EXECUTE → EARN → GROW",
-  "PROOF OF WORK",
+  "777,777,777 AURA",
   "FOUNDING COMPANIES",
-  "AUTONOMOUS EMPLOYEES",
+];
+
+const TICKER_DE = [
+  "BESITZ EINE FIRMA",
+  "WIEN ZUERST",
+  "NED FAKE-STERNE",
+  "FAIR LAUNCH · 17 AUG 13:11 CEST",
+  "ANLEGEN → AUSFÜHREN → VERDIENEN",
+  "777.777.777 AURA",
+  "23 BEZIRKE",
 ];
 
 function Ticker() {
-  const row = [...TICKER, ...TICKER];
+  const { locale } = useLocale();
+  const base = locale === "de" ? TICKER_DE : TICKER_EN;
+  const row = [...base, ...base];
   return (
     <div className="relative z-10 overflow-hidden border-y border-primary/12 bg-gradient-to-r from-background via-primary/[0.06] to-background py-3.5">
       <motion.div
@@ -328,6 +342,7 @@ function Act({ act, index }: { act: (typeof ACTS)[number]; index: number }) {
 
 function Landing() {
   const navigate = useNavigate();
+  const { t } = useLocale();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
@@ -363,24 +378,37 @@ function Landing() {
       <BootCurtain />
       <AuraLens />
       <header className="fixed inset-x-0 top-0 z-30 bg-background/28 backdrop-blur-2xl">
-        <div className="vital-line" aria-hidden />
+        <div className="austria-bar" aria-hidden />
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:px-6">
           <PulseOrbit size="sm" className="min-w-0" />
           <Chip className="ml-auto hidden sm:flex">
             <LaunchCountdown variant="compact" showSocials={false} placement="header" />
           </Chip>
           <Link
+            to="/wien"
+            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:inline"
+          >
+            {t("landing.wien")}
+          </Link>
+          <Link
+            to="/story"
+            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:inline"
+          >
+            {t("landing.story")}
+          </Link>
+          <LanguageToggle className="hidden border-white/15 bg-black/20 sm:inline-flex" />
+          <Link
             to="/access"
             onClick={() => trackTeaser("cta_click", { placement: "landing_header_buy" })}
             className="cta-liquid cta-magnetic shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_28px_-10px_var(--glow)]"
           >
-            Buy seat — $99
+            {t("landing.buy")}
           </Link>
           <button
             onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
             className="shrink-0 rounded-2xl border border-white/10 bg-foreground/[0.05] px-4 py-2 text-xs font-semibold backdrop-blur-md transition-colors hover:border-primary/35 hover:bg-foreground/10"
           >
-            Sign in
+            {t("landing.signIn")}
           </button>
         </div>
         <div
@@ -406,7 +434,7 @@ function Landing() {
           </motion.div>
 
           <h1 className="display-hero max-w-4xl text-[clamp(3rem,11vw,6.6rem)]">
-            <WordReveal text="Own a company." delay={0.06} />
+            <WordReveal text={t("landing.hero1")} delay={0.06} />
             <br />
             <motion.span
               initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
@@ -414,7 +442,7 @@ function Landing() {
               transition={{ duration: 1, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className="text-money inline-block"
             >
-              Let AI make money.
+              {t("landing.hero2")}
             </motion.span>
           </h1>
 
@@ -424,7 +452,7 @@ function Landing() {
             transition={{ duration: 0.9, delay: 0.55 }}
             className="mt-7 max-w-md text-[16px] leading-relaxed text-foreground/78 sm:text-[17px]"
           >
-            AI executes the work. You control the company — and keep the upside.
+            {t("landing.blurb")}
           </motion.p>
 
           <motion.div
@@ -438,7 +466,7 @@ function Landing() {
               onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
               className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
             >
-              Buy founding seat — $99 <ArrowRight className="h-4 w-4" />
+              {t("landing.buy")} <ArrowRight className="h-4 w-4" />
             </Link>
             <button
               type="button"
@@ -451,7 +479,7 @@ function Landing() {
               <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-primary transition-transform group-hover:scale-110">
                 <Play className="h-3 w-3 fill-current" />
               </span>
-              Watch 15s
+              {t("landing.watch")}
             </button>
           </motion.div>
 
@@ -460,7 +488,7 @@ function Landing() {
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
             className="mt-16 flex items-center gap-2 text-[10px] uppercase tracking-[0.34em] text-muted-foreground/75"
           >
-            <ChevronDown className="h-3.5 w-3.5" /> How it works
+            <ChevronDown className="h-3.5 w-3.5" /> {t("landing.howCue")}
           </motion.div>
         </div>
       </section>
@@ -485,7 +513,7 @@ function Landing() {
             transition={{ duration: 0.6 }}
             className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary"
           >
-            The joke
+            {t("landing.jokeKicker")}
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 18 }}
@@ -494,9 +522,9 @@ function Landing() {
             transition={{ duration: 0.75, delay: 0.05 }}
             className="display-hero mt-4 max-w-3xl text-[clamp(2.4rem,7.5vw,4.6rem)]"
           >
-            You sleep.
+            {t("landing.joke1")}
             <br />
-            <span className="text-money">Your company doesn&apos;t.</span>
+            <span className="text-money">{t("landing.joke2")}</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -505,7 +533,7 @@ function Landing() {
             transition={{ duration: 0.7, delay: 0.12 }}
             className="mt-5 max-w-lg text-[16px] leading-relaxed text-foreground/75"
           >
-            You&apos;re the owner. You approve spend and outbound. The staff just happen to be AI.
+            {t("landing.jokeBody")}
           </motion.p>
           <motion.ul
             initial={{ opacity: 0, y: 12 }}
@@ -560,8 +588,8 @@ function Landing() {
                 onChange={(e) => setEmail(e.target.value)}
                 maxLength={255}
                 required
-                placeholder="you@company.com"
-                aria-label="Work email for Aura OS waitlist"
+                placeholder={t("landing.waitlistPh")}
+                aria-label={t("landing.waitlistPh")}
                 autoComplete="email"
                 className="min-w-0 flex-1 rounded-2xl bg-foreground/6 px-4 py-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/80 focus-visible:ring-2 focus-visible:ring-primary/45"
               />
@@ -570,13 +598,13 @@ function Landing() {
                 disabled={busy}
                 className="cta-liquid shrink-0 rounded-2xl bg-primary px-5 py-3 text-xs font-semibold text-primary-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
               >
-                {busy ? "Saving…" : "Get on the list"}
+                {busy ? t("common.loading") : t("landing.waitlistCta")}
               </button>
             </>
           )}
         </form>
         <p className="mt-3 max-w-xl text-[12px] text-muted-foreground">
-          Optional — seats are open now. Join the list for wave drops and launch notes.
+          {t("landing.waitlistHint")}
         </p>
       </section>
 
@@ -587,14 +615,13 @@ function Landing() {
       >
         <div className="mb-10 max-w-2xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-            How it works
+            {t("landing.howCue")}
           </p>
           <h2 className="mt-3 font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
-            Create. Execute. Earn. Grow.
+            {t("landing.howTitle")}
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            You&apos;re the owner. You give the goal. AI drafts the work. You approve spend and
-            outbound — then they execute, and you keep the upside.
+            {t("landing.howBody")}
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-4">
@@ -645,6 +672,9 @@ function Landing() {
           </a>
         </div>
       </section>
+
+      <div className="austria-bar opacity-80" aria-hidden />
+      <WienStoryStrip compact />
 
       <LiveProof />
 

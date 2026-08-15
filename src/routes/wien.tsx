@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Compass, ExternalLink, HeartHandshake, Megaphone, Star, Store, Users } from "lucide-react";
 
 import { Chip, Panel, Shimmer } from "@/components/aura/primitives";
+import { LanguageToggle } from "@/components/aura/language-toggle";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { LOCAL_COHORT_CAP } from "@/lib/funnels";
 import { FOUNDERS } from "@/lib/legal-entity";
@@ -82,12 +83,14 @@ function WienHubPage() {
         }}
       />
 
+      <div className="austria-bar" aria-hidden />
       <header className="relative z-10 border-b border-border/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-6 py-4">
           <Link to="/" className="font-display text-lg font-semibold tracking-tight">
             Aura <span className="text-muted-foreground">Wien</span>
           </Link>
-          <nav className="ml-auto flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em]">
+          <LanguageToggle className="ml-auto" />
+          <nav className="flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em]">
             <Link to="/lokal" className="text-muted-foreground hover:text-foreground">
               Für Betriebe
             </Link>

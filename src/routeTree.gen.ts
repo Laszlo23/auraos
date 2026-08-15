@@ -29,6 +29,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as StickerRouteImport } from './routes/sticker'
+import { Route as StoryRouteImport } from './routes/story'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
@@ -219,6 +220,11 @@ const ShareRoute = ShareRouteImport.update({
 const StickerRoute = StickerRouteImport.update({
   id: '/sticker',
   path: '/sticker',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoryRoute = StoryRouteImport.update({
+  id: '/story',
+  path: '/story',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamRoute = TeamRouteImport.update({
@@ -713,6 +719,7 @@ export interface FileRoutesByFullPath {
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
   '/sticker': typeof StickerRoute
+  '/story': typeof StoryRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
@@ -825,6 +832,7 @@ export interface FileRoutesByTo {
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
   '/sticker': typeof StickerRoute
+  '/story': typeof StoryRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
@@ -940,6 +948,7 @@ export interface FileRoutesById {
   '/roadmap': typeof RoadmapRoute
   '/share': typeof ShareRoute
   '/sticker': typeof StickerRoute
+  '/story': typeof StoryRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tokenomics': typeof TokenomicsRoute
@@ -1055,6 +1064,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/share'
     | '/sticker'
+    | '/story'
     | '/team'
     | '/terms'
     | '/tokenomics'
@@ -1167,6 +1177,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/share'
     | '/sticker'
+    | '/story'
     | '/team'
     | '/terms'
     | '/tokenomics'
@@ -1281,6 +1292,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/share'
     | '/sticker'
+    | '/story'
     | '/team'
     | '/terms'
     | '/tokenomics'
@@ -1396,6 +1408,7 @@ export interface RootRouteChildren {
   RoadmapRoute: typeof RoadmapRoute
   ShareRoute: typeof ShareRoute
   StickerRoute: typeof StickerRoute
+  StoryRoute: typeof StoryRoute
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TokenomicsRoute: typeof TokenomicsRoute
@@ -1584,6 +1597,13 @@ declare module '@tanstack/react-router' {
       path: '/sticker'
       fullPath: '/sticker'
       preLoaderRoute: typeof StickerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/story': {
+      id: '/story'
+      path: '/story'
+      fullPath: '/story'
+      preLoaderRoute: typeof StoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/team': {
@@ -2376,6 +2396,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoadmapRoute: RoadmapRoute,
   ShareRoute: ShareRoute,
   StickerRoute: StickerRoute,
+  StoryRoute: StoryRoute,
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TokenomicsRoute: TokenomicsRoute,

@@ -5,6 +5,18 @@ export const AURA_TOKEN_NAME = "AURA Token";
 export const AURA_MAX_SUPPLY = 777_777_777;
 export const AURA_MAX_SUPPLY_DISPLAY = "777,777,777";
 
+/** Official Base CA — null until T-0. Never invent one. */
+export const AURA_TOKEN_CA: `0x${string}` | null = null;
+export const AURA_PAIR_URL: string | null = null;
+export const AURA_OFFICIAL_CA_SOURCES = [
+  "https://aibusiness.fun/tokenomics",
+  "https://x.com/buildingcultu3",
+] as const;
+
+export function auraCaLive(): boolean {
+  return Boolean(AURA_TOKEN_CA);
+}
+
 export type AuraAllocation = {
   id: string;
   label: string;
@@ -31,9 +43,7 @@ export const AURA_ALLOCATIONS: AuraAllocation[] = [
 export const AURA_ALLOCATION_TOTAL = AURA_ALLOCATIONS.reduce((s, a) => s + a.amount, 0);
 
 if (AURA_ALLOCATION_TOTAL !== AURA_MAX_SUPPLY) {
-  throw new Error(
-    `AURA allocations sum to ${AURA_ALLOCATION_TOTAL}, expected ${AURA_MAX_SUPPLY}`,
-  );
+  throw new Error(`AURA allocations sum to ${AURA_ALLOCATION_TOTAL}, expected ${AURA_MAX_SUPPLY}`);
 }
 
 export const AURA_TEAM_VESTING = {

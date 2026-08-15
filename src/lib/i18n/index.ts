@@ -36,6 +36,7 @@ export function ensureUiLocale(explicit?: UiLocale | null): UiLocale {
       path === "/lokal" ||
       path.startsWith("/lokal/") ||
       path === "/wien" ||
+      path === "/story" ||
       path === "/sticker" ||
       path === "/review" ||
       path.startsWith("/nachbar") ||
