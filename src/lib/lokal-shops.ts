@@ -105,6 +105,64 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
   },
+  "aura-os": {
+    story:
+      "Aura OS ist das Betriebssystem für KI-Firmen. Du besitzt die Firma. Atlas und die Belegschaft führen aus — nach deiner Freigabe. Produkt zuerst, Token zuletzt. Wien.",
+    services: ["AI company OS", "Founding seat", "Missionen", "Proof", "Workforce"],
+    serviceDetails: [
+      { title: "AI company OS", blurb: "Eine Firma wecken, nicht ein Chatfenster öffnen." },
+      { title: "Founding seat", blurb: "$99 einmalig. Abo und Compute extra." },
+      { title: "Missionen", blurb: "Du gibst das Ziel. Der CEO zerlegt. Du genehmigst." },
+      { title: "Proof", blurb: "Zeitstempel, Ergebnis, Kosten — kein Demo-Theater." },
+      { title: "Workforce", blurb: "Atlas, Vela, Juno, Orin, Ledger — echte Rollen." },
+    ],
+    ownerAvatar: "/crew/laszlo.png",
+    ownerLabel: "Operator",
+    webLabel: "Aura OS",
+    howSteps: [
+      { title: "Beschreiben", body: "Ein Satz reicht." },
+      { title: "Wecken", body: "Die Firma steht. Du gibst die erste Mission." },
+      { title: "Proof", body: "Fertige Arbeit hinterlässt Belege." },
+    ],
+  },
+  "aura-lokal": {
+    story:
+      "Aura Lokal ist das Netz für Wiener Betriebe: echte Besuche, Check-ins, Review-Einladungen — nie Fake-Sterne. Martina, Evren, Darko und das Gründungsteam zuerst.",
+    services: ["Betriebskarte", "Review-Einladungen", "Nachbar-Check-in", "Katalog", "Termine"],
+    serviceDetails: [
+      { title: "Betriebskarte", blurb: "Öffentliche /b-Seite statt toter Google-Stille." },
+      { title: "Review-Einladungen", blurb: "Nach dem Besuch. Der Gast schreibt selbst." },
+      { title: "Nachbar-Check-in", blurb: "QR am Tresen. Bestätigung durch den Betrieb." },
+      { title: "Katalog", blurb: "Leistungen, Produkte, Tickets — was du wirklich anbietest." },
+      { title: "Termine", blurb: "Anfrage hier oder dein externes Buchungssystem." },
+    ],
+    ownerAvatar: "/crew/martina.png",
+    ownerLabel: "Wien",
+    webLabel: "Lokal",
+    howSteps: [
+      { title: "Karte", body: "Betrieb öffentlich — Leistungen und Termine, die du wirklich anbietest." },
+      { title: "Besuch", body: "Check-in und Review-Einladung nach dem echten Termin." },
+      { title: "Netz", body: "Nachbar bringt Gäste. Keine Fake-Sterne." },
+    ],
+  },
+  "aura-nachbar": {
+    story:
+      "Aura Nachbar ist die Gäste-App: Check-in im Laden, Guthaben verdienen, Freunde mitbringen. Keine Belohnung für Google-Sterne.",
+    services: ["Check-in", "Guthaben", "Freunde", "Entdecken"],
+    serviceDetails: [
+      { title: "Check-in", blurb: "QR oder Code. Der Laden bestätigt den Besuch." },
+      { title: "Guthaben", blurb: "Für echte Besuche — nicht für Sterne." },
+      { title: "Freunde", blurb: "Wer mitkommt und eincheckt, zählt." },
+      { title: "Entdecken", blurb: "Läden im Wien-Netz, ohne Fake-Verzeichnis." },
+    ],
+    ownerLabel: "Gäste",
+    webLabel: "Nachbar",
+    howSteps: [
+      { title: "Konto", body: "Kostenlos. Kein Investment." },
+      { title: "Check-in", body: "QR am Tresen, dann wartet der Laden auf Bestätigung." },
+      { title: "Wiederkommen", body: "Guthaben und Freunde — der Laden bleibt im Netz." },
+    ],
+  },
 };
 
 export function editorialForSlug(slug: string | null | undefined): LokalShopEditorial | null {

@@ -4,6 +4,7 @@ import { Check, Copy, ExternalLink, Globe, Link2, Loader2, Megaphone, Star } fro
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { ShopDesk } from "@/components/aura/shop-desk";
 import { Chip, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
 import { CompanyTokenLaunchPanel } from "@/components/aura/company-token-launch";
 import { LOCAL_COHORT_CAP, REVIEW_BOOST_INVITE_GOAL } from "@/lib/funnels";
@@ -192,6 +193,11 @@ function BusinessHubPage() {
                 ) : null}
               </div>
             </Panel>
+
+            <ShopDesk
+              bookingUrl={(company as { booking_url?: string | null }).booking_url}
+              hoursNote={(company as { hours_note?: string | null }).hours_note}
+            />
 
             <Panel
               label="Google Review Boost"

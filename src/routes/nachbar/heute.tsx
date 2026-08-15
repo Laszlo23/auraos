@@ -113,6 +113,21 @@ function NachbarHeutePage() {
         </Panel>
       ) : null}
 
+      {(hub?.checkins?.length ?? 0) > 0 ? (
+        <Panel label="Deine Check-ins">
+          <ul className="space-y-2">
+            {hub!.checkins.slice(0, 8).map((c) => (
+              <li key={c.id} className="flex items-center justify-between text-sm">
+                <span className="font-medium">{c.company_name}</span>
+                <span className="text-muted-foreground">
+                  {c.status === "pending" ? "Wartet auf den Laden" : c.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
+
       <Panel label="Deine Läden">
         {(hub?.shops?.length ?? 0) === 0 ? (
           <p className="text-sm text-muted-foreground">

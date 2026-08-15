@@ -22,10 +22,10 @@ function NachbarEntdeckenPage() {
           Entdecken
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-          Läden in der Cohort
+          Läden in Wien
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Erste 1000 Local Seats — echte Betriebe, keine Fake-Sterne.
+          Echte Betriebe im Netz. Check-in vor Ort — keine Fake-Sterne.
         </p>
       </div>
 
@@ -65,7 +65,12 @@ function NachbarEntdeckenPage() {
       </ul>
 
       {!isLoading && (data?.length ?? 0) === 0 ? (
-        <p className="text-sm text-muted-foreground">Noch keine öffentlichen Läden mit Seat.</p>
+        <p className="text-sm text-muted-foreground">
+          Noch keine Läden hier.{" "}
+          <Link to="/wien" className="font-semibold text-primary">
+            Wien-Verzeichnis →
+          </Link>
+        </p>
       ) : null}
     </div>
   );

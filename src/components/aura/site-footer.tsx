@@ -23,6 +23,7 @@ function footerColumns(t: (key: string) => string) {
       links: [
         { to: "/", label: "Aura OS" },
         { to: "/lokal", label: "Aura Lokal" },
+        { to: "/nachbar", label: "Aura Nachbar" },
         { to: "/how-it-works", label: t("footer.how") },
         { to: "/try", label: t("footer.try") },
         { to: "/compare", label: t("footer.compare") },

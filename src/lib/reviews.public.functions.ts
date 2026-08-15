@@ -5,6 +5,7 @@ import {
   editorialForSlug,
   type LokalServiceSpotlight,
 } from "@/lib/lokal-shops";
+import type { ShopCatalogItem } from "@/lib/shop-catalog.functions";
 
 export type PublicLokalListing = {
   name: string;
@@ -44,6 +45,8 @@ export type PublicLocalBusiness = {
   phone: string | null;
   public_email: string | null;
   hours_note: string | null;
+  booking_url: string | null;
+  catalog: ShopCatalogItem[];
   cover_url: string | null;
   owner_display_name: string | null;
   owner_avatar: string | null;
@@ -65,7 +68,7 @@ const LISTING_COLS =
   "name, slug, tagline, city, niche, homepage_url, google_review_url, local_cohort_number, emoji, street, postal_code, district, cover_url, featured";
 
 const PROFILE_COLS =
-  "id, name, slug, tagline, city, niche, homepage_url, google_review_url, local_cohort_number, emoji, is_local_business, street, postal_code, district, phone, public_email, hours_note, cover_url, owner_display_name, featured, services, nachbar_checkin_code";
+  "id, name, slug, tagline, city, niche, homepage_url, google_review_url, local_cohort_number, emoji, is_local_business, street, postal_code, district, phone, public_email, hours_note, booking_url, cover_url, owner_display_name, featured, services, nachbar_checkin_code";
 
 function mapListing(c: Record<string, unknown>): PublicLokalListing {
   return {
@@ -138,7 +141,7 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!company) return null;
 
-    const [{ data: posts }, checkins, invites, { data: recent }, { data: neighborRows }] =
+    const [{ data: posts }, checkins, invites, { data: recent }, { data: neighborRows }, { data: catalogRows }] =
       await Promise.all([
       supabaseAdmin
         .from("channel_posts")
@@ -171,6 +174,15 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         .order("featured", { ascending: false })
         .order("local_cohort_number", { ascending: true })
         .limit(4),
+      supabaseAdmin
+        .from("shop_catalog_items")
+        .select(
+          "id, company_id, kind, name, description, price_cents, currency, duration_min, image_url, sort_order, is_public, booking_mode, booking_url",
+        )
+        .eq("company_id", company.id)
+        .eq("is_public", true)
+        .order("sort_order")
+        .order("created_at"),
     ]);
 
     const editorial = editorialForSlug(company.slug as string);
@@ -197,6 +209,8 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       phone: (company.phone as string | null) ?? null,
       public_email: (company.public_email as string | null) ?? null,
       hours_note: (company.hours_note as string | null) ?? null,
+      booking_url: (company.booking_url as string | null) ?? null,
+      catalog: (catalogRows ?? []) as ShopCatalogItem[],
       cover_url: (company.cover_url as string | null) ?? null,
       owner_display_name: (company.owner_display_name as string | null) ?? null,
       owner_avatar: editorial?.ownerAvatar ?? null,

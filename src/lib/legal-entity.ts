@@ -32,6 +32,7 @@ export const FOUNDERS: TeamPublic[] = [
     blurbEn: "Product, Web3 & AI — vision and go-to-market for Aura OS.",
     avatar: "/crew/laszlo.png",
     impressum: true,
+    shopSlug: "aura-os",
   },
   {
     id: "martina-schulz",

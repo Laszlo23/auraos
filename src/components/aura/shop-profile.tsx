@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { Chip, Pulse } from "@/components/aura/primitives";
+import { ShopCatalogAndBook } from "@/components/aura/shop-book";
 import { ShareBar } from "@/components/aura/share";
 import { timeAgoDe } from "@/lib/format";
 import {
@@ -43,6 +44,7 @@ export function ShopProfile({ shop }: { shop: PublicLocalBusiness }) {
       <div className="relative mx-auto grid max-w-6xl gap-8 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8">
         <div className="min-w-0 space-y-5">
           <HowItWorks slug={shop.slug} />
+          <ShopCatalogAndBook shop={shop} />
           <Feed shop={shop} checkinHref={checkinHref} />
           <VisitStrip shop={shop} address={address} mapQuery={mapQuery} />
         </div>
@@ -168,15 +170,23 @@ function ActionRail({
   };
 
   const items = [
-    shop.homepage_url
+    shop.booking_url
       ? {
-          key: "web",
-          href: shop.homepage_url,
+          key: "book",
+          href: shop.booking_url,
           external: true,
-          label: editorialForSlug(shop.slug)?.webLabel ?? "Termin",
-          icon: ExternalLink,
+          label: "Termin",
+          icon: Calendar,
         }
-      : null,
+      : shop.homepage_url
+        ? {
+            key: "web",
+            href: shop.homepage_url,
+            external: true,
+            label: editorialForSlug(shop.slug)?.webLabel ?? "Web",
+            icon: ExternalLink,
+          }
+        : null,
     shop.phone
       ? { key: "tel", href: telHref(shop.phone), external: true, label: "Anrufen", icon: Phone }
       : null,
@@ -407,7 +417,7 @@ function Feed({ shop, checkinHref }: { shop: PublicLocalBusiness; checkinHref: s
         </a>
       ) : null}
 
-      {shop.service_details.length > 0 ? (
+      {shop.catalog.length === 0 && shop.service_details.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {shop.service_details.slice(0, 6).map((s, i) => (
             <article

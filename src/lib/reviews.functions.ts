@@ -28,7 +28,7 @@ async function ownedCompany(supabase: LooseDb, userId: string) {
   const { data } = await supabase
     .from("companies")
     .select(
-      "id, name, slug, homepage_url, google_review_url, local_cohort_number, entry_funnel, is_local_business",
+      "id, name, slug, homepage_url, google_review_url, local_cohort_number, entry_funnel, is_local_business, booking_url, hours_note",
     )
     .eq("owner_id", userId)
     .order("created_at", { ascending: true })
@@ -44,6 +44,8 @@ async function ownedCompany(supabase: LooseDb, userId: string) {
     local_cohort_number: number | null;
     entry_funnel: string | null;
     is_local_business: boolean;
+    booking_url: string | null;
+    hours_note: string | null;
   };
 }
 
@@ -113,11 +115,21 @@ export const getLocalBusinessHub = createServerFn({ method: "GET" })
 
 export const updateLocalBusinessProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { homepageUrl?: string; googleReviewUrl?: string; name?: string }) => ({
-    homepageUrl: typeof input.homepageUrl === "string" ? input.homepageUrl : undefined,
-    googleReviewUrl: typeof input.googleReviewUrl === "string" ? input.googleReviewUrl : undefined,
-    name: typeof input.name === "string" ? input.name.trim().slice(0, 80) : undefined,
-  }))
+  .validator(
+    (input: {
+      homepageUrl?: string;
+      googleReviewUrl?: string;
+      name?: string;
+      bookingUrl?: string;
+      hoursNote?: string;
+    }) => ({
+      homepageUrl: typeof input.homepageUrl === "string" ? input.homepageUrl : undefined,
+      googleReviewUrl: typeof input.googleReviewUrl === "string" ? input.googleReviewUrl : undefined,
+      name: typeof input.name === "string" ? input.name.trim().slice(0, 80) : undefined,
+      bookingUrl: typeof input.bookingUrl === "string" ? input.bookingUrl : undefined,
+      hoursNote: typeof input.hoursNote === "string" ? input.hoursNote.trim().slice(0, 160) : undefined,
+    }),
+  )
   .handler(async ({ data, context }) => {
     const supabase = asDb(context.supabase);
     const company = await ownedCompany(supabase, context.userId);
@@ -133,6 +145,12 @@ export const updateLocalBusinessProfile = createServerFn({ method: "POST" })
       if (data.googleReviewUrl.trim() && !url) throw new Error("Google review URL looks invalid.");
       patch["google_review_url"] = url;
     }
+    if (data.bookingUrl !== undefined) {
+      const url = data.bookingUrl.trim() ? normalizeHttpUrl(data.bookingUrl) : null;
+      if (data.bookingUrl.trim() && !url) throw new Error("Booking URL looks invalid.");
+      patch["booking_url"] = url;
+    }
+    if (data.hoursNote !== undefined) patch["hours_note"] = data.hoursNote || null;
     if (data.name && data.name.length > 1) patch["name"] = data.name;
 
     if (Object.keys(patch).length === 0) return { ok: true };

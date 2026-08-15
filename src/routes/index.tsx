@@ -653,6 +653,19 @@ function Landing() {
             </span>
           </Link>
         </div>
+        <Link
+          to="/nachbar"
+          onClick={() => trackTeaser("cta_click", { placement: "landing_audience_nachbar" })}
+          className="mt-4 flex items-center justify-between rounded-[1.4rem] border border-border/40 px-5 py-4"
+        >
+          <span>
+            <span className="block text-sm font-semibold">Aura Nachbar</span>
+            <span className="block text-[13px] text-muted-foreground">
+              {t("nachbar.hero")}
+            </span>
+          </span>
+          <span className="text-sm font-semibold text-primary">{t("nachbar.ctaApp")} →</span>
+        </Link>
       </section>
 
       <ProductJourney compact />

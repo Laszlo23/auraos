@@ -298,6 +298,18 @@ function LokalLandingPage() {
         secondaryLabel={tr("paywall.cta")}
       />
 
+      <section className="relative border-t border-border/40 py-10">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6">
+          <p className="text-sm text-muted-foreground">{tr("lokal.ctaNachbar")}</p>
+          <Link
+            to="/nachbar"
+            className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
+          >
+            Aura Nachbar
+          </Link>
+        </div>
+      </section>
+
       <section id="barzahlung" className="relative border-t border-border/40 py-10">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6">
           <p className="text-sm text-muted-foreground">{tr("lokal.cashHow")}</p>

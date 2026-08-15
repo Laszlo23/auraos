@@ -89,15 +89,28 @@ function NachbarLandingPage() {
           </Link>
         </div>
 
-        <ul className="mt-12 space-y-4 text-sm text-muted-foreground">
-          <li className="rounded-3xl border border-border/40 bg-card/30 p-4">
-            <p className="font-semibold text-foreground">Check-in</p>
-            <p className="mt-1">
-              QR → {NACHBAR_WELCOME_GRANT + NACHBAR_FIRST_CHECKIN_GRANT} · friends +
-              {NACHBAR_FRIEND_BONUS}
-            </p>
-          </li>
-        </ul>
+        <ol className="mt-12 space-y-3">
+          {[
+            { n: "01", t: "Konto", d: "Kostenlos. Kein Investment." },
+            { n: "02", t: "Check-in", d: `QR am Tresen. +${NACHBAR_FIRST_CHECKIN_GRANT} nach Bestätigung.` },
+            { n: "03", t: "Freunde", d: `Wer mitkommt und eincheckt: +${NACHBAR_FRIEND_BONUS}.` },
+          ].map((s) => (
+            <li key={s.n} className="rounded-3xl border border-border/40 bg-card/30 p-4">
+              <p className="font-display text-xl text-gold">{s.n}</p>
+              <p className="mt-1 font-semibold">{s.t}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-6 text-[12px] text-muted-foreground">
+          Willkommen +{NACHBAR_WELCOME_GRANT}. Google-Sterne bleiben optional — ohne Belohnung.
+        </p>
+        <Link to="/nachbar/entdecken" className="mt-4 inline-block text-sm font-semibold text-primary">
+          Läden entdecken →
+        </Link>
+        <Link to="/wien" className="mt-2 block text-sm text-muted-foreground">
+          Wien-Verzeichnis
+        </Link>
       </section>
 
       <SiteFooter />
