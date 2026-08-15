@@ -1,0 +1,29 @@
+[Unit]
+Description=Aura OS (TanStack Start / Nitro)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aura
+WorkingDirectory=/opt/auraos
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+Environment=NITRO_HOST=127.0.0.1
+Environment=NITRO_PORT=3000
+EnvironmentFile=/opt/auraos/.env
+ExecStart=/usr/bin/node /opt/auraos/.output/server/index.mjs
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+KillSignal=SIGTERM
+KillMode=mixed
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/auraos
+
+[Install]
+WantedBy=multi-user.target

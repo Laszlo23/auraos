@@ -34,6 +34,9 @@ function feedLine(row: FeedRow): { who: string; what: string } | null {
   if (lower.includes("machine api") && lower.includes("dev")) {
     return null;
   }
+  if (lower.includes("seeded") && lower.includes("drip")) {
+    return null;
+  }
   return { who, what };
 }
 

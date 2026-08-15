@@ -69,6 +69,10 @@ fi
 if ! crontab -l 2>/dev/null | grep -q auraos-worker-tick; then
   (crontab -l 2>/dev/null; echo '*/10 * * * * /usr/local/bin/auraos-worker-tick >>/var/log/auraos-worker-tick.log 2>&1') | crontab -
 fi
+if [[ -f /opt/auraos/deploy/auraos.service ]]; then
+  install -m 0644 /opt/auraos/deploy/auraos.service /etc/systemd/system/auraos.service
+  systemctl daemon-reload
+fi
 
 systemctl restart auraos
 sleep 2

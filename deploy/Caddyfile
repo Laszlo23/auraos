@@ -27,6 +27,8 @@ aibusiness.fun, www.aibusiness.fun {
   header @pwa Cache-Control "public, max-age=0, must-revalidate"
   header @pwa Service-Worker-Allowed "/"
 
+  redir /share-kit /share 308
+
   # Kit videos + posters live on disk (too large for Nitro build / git).
   @media path *.mp4 /share/*
   handle @media {
