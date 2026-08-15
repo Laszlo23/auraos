@@ -38,3 +38,6 @@ aibusiness.fun, www.aibusiness.fun {
 
   reverse_proxy 127.0.0.1:3000
 }
+
+# Aura Lokal — do not remove. OS deploys overwrite this file.
+import /etc/caddy/sites/*

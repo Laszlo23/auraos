@@ -35,8 +35,13 @@ chmod 600 /opt/auraos/.env
 
 if [[ -f /opt/auraos/deploy/Caddyfile ]]; then
   cp /opt/auraos/deploy/Caddyfile /etc/caddy/Caddyfile
+  if ! grep -qF "import /etc/caddy/sites" /etc/caddy/Caddyfile; then
+    printf "\n# Aura Lokal — do not remove. OS deploys overwrite this file.\nimport /etc/caddy/sites/*\n" >> /etc/caddy/Caddyfile
+  fi
+  chmod 644 /etc/caddy/Caddyfile
   caddy validate --config /etc/caddy/Caddyfile
-  systemctl reload caddy
+  # Direct reload — systemctl reload runs a hook that cannot write this file.
+  caddy reload --config /etc/caddy/Caddyfile --force
 fi
 
 sudo -u aura bash -lc '
