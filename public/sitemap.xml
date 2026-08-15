@@ -38,6 +38,9 @@
   <url><loc>https://aibusiness.fun/leaderboard</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
   <url><loc>https://aibusiness.fun/grants</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://aibusiness.fun/team</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://aibusiness.fun/b/koerperglanz-shapeline</loc><changefreq>weekly</changefreq><priority>0.86</priority></url>
+  <url><loc>https://aibusiness.fun/b/pion-professional</loc><changefreq>weekly</changefreq><priority>0.86</priority></url>
+  <url><loc>https://aibusiness.fun/b/darko-auto-wien</loc><changefreq>weekly</changefreq><priority>0.86</priority></url>
   <url><loc>https://aibusiness.fun/impressum</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
   <url><loc>https://aibusiness.fun/auth</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://aibusiness.fun/company/aura-goods</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>

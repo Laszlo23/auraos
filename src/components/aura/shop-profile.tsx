@@ -15,6 +15,7 @@ import { ShareBar } from "@/components/aura/share";
 import { timeAgoDe } from "@/lib/format";
 import {
   checkinQrUrl,
+  editorialForSlug,
   formatShopAddress,
   mapsEmbedUrl,
   mapsSearchUrl,
@@ -41,7 +42,7 @@ export function ShopProfile({ shop }: { shop: PublicLocalBusiness }) {
 
       <div className="relative mx-auto grid max-w-6xl gap-8 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8">
         <div className="min-w-0 space-y-5">
-          <HowItWorks />
+          <HowItWorks slug={shop.slug} />
           <Feed shop={shop} checkinHref={checkinHref} />
           <VisitStrip shop={shop} address={address} mapQuery={mapQuery} />
         </div>
@@ -122,7 +123,7 @@ function Hero({
               )}
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
-                  Inhaberin
+                  {editorialForSlug(shop.slug)?.ownerLabel ?? "Vor Ort"}
                 </p>
                 <p className="text-sm font-medium text-white">{shop.owner_display_name}</p>
               </div>
@@ -172,7 +173,7 @@ function ActionRail({
           key: "web",
           href: shop.homepage_url,
           external: true,
-          label: "Termin",
+          label: editorialForSlug(shop.slug)?.webLabel ?? "Termin",
           icon: ExternalLink,
         }
       : null,
@@ -272,12 +273,17 @@ function ActionRail({
   );
 }
 
-function HowItWorks() {
-  const steps = [
-    { n: "01", t: "Besuch", d: "Komm vorbei. Echter Laden, echte Zeit." },
-    { n: "02", t: "Check-in", d: "QR scannen — du wirst Nachbar." },
-    { n: "03", t: "Google", d: "Optional, ohne Belohnung für Sterne." },
-  ];
+function HowItWorks({ slug }: { slug: string }) {
+  const custom = editorialForSlug(slug)?.howSteps;
+  const steps = (custom ?? [
+    { title: "Besuch", body: "Komm vorbei. Echter Laden, echte Zeit." },
+    { title: "Check-in", body: "QR scannen — du wirst Nachbar." },
+    { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+  ]).map((s, i) => ({
+    n: String(i + 1).padStart(2, "0"),
+    t: s.title,
+    d: s.body,
+  }));
   return (
     <section className="rounded-[2rem] border border-border/40 bg-card/25 p-5 sm:p-6">
       <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">

@@ -275,7 +275,12 @@ function WienHubPage() {
         <ul className="mt-5 flex flex-wrap gap-4">
           {FOUNDERS.map((f) => (
             <li key={f.id} className="w-[7.5rem]">
-              <Link to="/team" className="block">
+              <Link
+                {...(f.shopSlug
+                  ? { to: "/b/$slug" as const, params: { slug: f.shopSlug } }
+                  : { to: "/team" as const })}
+                className="block"
+              >
                 <img
                   src={f.avatar}
                   alt={f.name}

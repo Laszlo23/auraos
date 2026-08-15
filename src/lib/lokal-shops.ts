@@ -12,6 +12,9 @@ export type LokalShopEditorial = {
   secondStudioNote?: string;
   googleFindCopy?: string;
   ownerAvatar?: string;
+  ownerLabel?: string;
+  webLabel?: string;
+  howSteps?: { title: string; body: string }[];
 };
 
 export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
@@ -39,6 +42,68 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     secondStudioNote: "Zweites Studio in Mödling: Neudorfer Straße 2, 2340 — kein zweites Listing.",
     googleFindCopy: "Gäste finden uns auf Google",
     ownerAvatar: "/crew/martina.png",
+    ownerLabel: "Inhaberin",
+  },
+  "pion-professional": {
+    story:
+      "Pion Professional ist Premium-Männerpflege aus Wien. Evren Demir führt den Vertrieb — Showroom und Büro in der Seestadt, Handelspartner in ganz Österreich. After-Shave, Care Creams, Haar- und Styling-Linien. Persönliche Beratung, keine Fake-Sterne.",
+    services: [
+      "After Shave & Cologne",
+      "Black Edition Care Cream",
+      "Haar-Shampoo & Conditioner",
+      "Aqua Wax & Clay Wax",
+      "Powder Styling",
+      "Fachberatung",
+      "Handelspartner",
+    ],
+    serviceDetails: [
+      { title: "After Shave & Cologne", blurb: "Rasur-Essentials und Colognes — vom Showroom ins Fachgeschäft." },
+      { title: "Black Edition Care Cream", blurb: "Blackberry, Pomegranate, Olive Leaf, Classic — Pflege für Hände und Gesicht." },
+      { title: "Haar-Shampoo & Conditioner", blurb: "Keratin-Linie für den modernen Mann, Salon- und Heimgrößen." },
+      { title: "Aqua Wax & Clay Wax", blurb: "Styling-Wachs für Halt ohne Theater." },
+      { title: "Powder Styling", blurb: "P1 Powder Wax — light control, ohne Verklebung." },
+      { title: "Fachberatung", blurb: "Termin im Showroom Seestadt. Evren erklärt die Linie persönlich." },
+      { title: "Handelspartner", blurb: "Vertrieb in Fachgeschäfte — österreichweit, echter Kontakt statt Kaltakquise-Spam." },
+    ],
+    googleFindCopy: "Pion in der Seestadt finden",
+    ownerAvatar: "/crew/evreen.png",
+    ownerLabel: "Vertrieb",
+    webLabel: "Shop",
+    howSteps: [
+      { title: "Termin", body: "Showroom in der Seestadt — vorher anschreiben, dann kommst du vorbei." },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar. Kein Theater." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
+  },
+  "darko-auto-wien": {
+    story:
+      "Darko Tanackovic ist der Fachmann für Autoankauf und Autoverkauf in Wien. Straße zuerst: ehrliche Bewertung, klarer Preis, Abwicklung ohne Druck. Kein erfundener Schauraum, keine gekauften Sterne — Termin, dann der Wagen.",
+    services: [
+      "Autoankauf",
+      "Autoverkauf",
+      "Faire Bewertung",
+      "Abholung in Wien",
+      "Kaufvertrag",
+      "Abmeldung",
+    ],
+    serviceDetails: [
+      { title: "Autoankauf", blurb: "Gebrauchtwagen in Wien — Zustand ehrlich ansprechen, dann ein klares Angebot." },
+      { title: "Autoverkauf", blurb: "Wenn Darko ein Auto weitergibt, sollst du wissen was du kaufst." },
+      { title: "Faire Bewertung", blurb: "Kein Höchstpreis-Geschrei. Eine Zahl, die hält." },
+      { title: "Abholung in Wien", blurb: "23 Bezirke. Termin, dann holt er den Wagen — Adresse folgt nach Claim." },
+      { title: "Kaufvertrag", blurb: "Schriftlich, verständlich, fertig." },
+      { title: "Abmeldung", blurb: "Zulassungsstelle und Papierkram, wenn ihr das so wollt." },
+    ],
+    secondStudioNote:
+      "Kein erfundener Fixstandort. Darko fährt Wienweit nach Termin — Straße und Telefon trägt er nach dem Claim selbst ein.",
+    googleFindCopy: "Darko nach dem Besuch auf Google finden",
+    ownerAvatar: "/crew/darco.png",
+    ownerLabel: "Fachmann",
+    howSteps: [
+      { title: "Termin", body: "Schreib oder ruf an, wenn die Nummer steht. Dann schaut er sich den Wagen an." },
+      { title: "Check-in", body: "QR scannen nach dem Termin — echter Besuch, nicht ein Sterne-Deal." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
   },
 };
 

@@ -114,7 +114,15 @@ function TeamPage() {
                   <p className="mt-1 text-[11px] text-muted-foreground/80">Nachname folgt</p>
                 ) : null}
                 <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{f.blurb}</p>
-                {f.linkedin ? (
+                {f.shopSlug ? (
+                  <Link
+                    to="/b/$slug"
+                    params={{ slug: f.shopSlug }}
+                    className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:underline"
+                  >
+                    Betrieb öffnen
+                  </Link>
+                ) : f.linkedin ? (
                   <a
                     href={f.linkedin}
                     target="_blank"

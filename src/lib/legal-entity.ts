@@ -17,6 +17,8 @@ export type TeamPublic = {
   avatar: string;
   /** Only the operator is listed as Impressum-responsible. */
   impressum: boolean;
+  /** Public /b/$slug when the founder has a Lokal listing. */
+  shopSlug?: string;
 };
 
 /** Named Gründungsteam Wien. Empty TBA slots are gone. */
@@ -40,26 +42,29 @@ export const FOUNDERS: TeamPublic[] = [
     blurbEn: "Shops, people — Körperglanz & Shape-Line on Rennweg.",
     avatar: "/crew/martina.png",
     impressum: false,
+    shopSlug: "koerperglanz-shapeline",
   },
   {
     id: "darco",
     name: "Darko Tanackovic",
     title: "Gründungsteam Wien",
     linkedin: null,
-    blurb: "Straße, Community, der der zuerst fragt.",
-    blurbEn: "Street, community, the one who asks first.",
+    blurb: "Straße, Autos — Ankauf und Verkauf, ehrlich und ohne Druck.",
+    blurbEn: "Street, cars — buy and sell, honest and without pressure.",
     avatar: "/crew/darco.png",
     impressum: false,
+    shopSlug: "darko-auto-wien",
   },
   {
     id: "evreen",
     name: "Evren Demir",
     title: "Gründungsteam Wien",
     linkedin: null,
-    blurb: "Funke, Content, der der den Tisch zum Lachen bringt.",
-    blurbEn: "Spark, content, the one who gets the table laughing.",
+    blurb: "Vertrieb Pion Professional — Männerpflege, Showroom Seestadt.",
+    blurbEn: "Pion Professional sales — men's care, Seestadt showroom.",
     avatar: "/crew/evreen.png",
     impressum: false,
+    shopSlug: "pion-professional",
   },
   {
     id: "martin",
