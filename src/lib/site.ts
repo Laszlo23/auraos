@@ -1,8 +1,10 @@
 /** Canonical public origin. Every absolute URL in metadata and share links uses this. */
 export const SITE_URL = "https://aibusiness.fun";
 export const SITE_NAME = "Aura OS";
-/** Dedicated Aura Lokal review / feedback machine (separate Node app on the VPS). */
+/** Dedicated Aura Local review / feedback machine (separate Node app on the VPS). */
 export const REVIEW_APP_URL = "https://review.aibusiness.fun";
+/** Public product name for the local-business surface (URL path remains /lokal). */
+export const LOCAL_PRODUCT_NAME = "Aura Local";
 
 export function reviewAppUrl(path = "/") {
   const p = path.startsWith("/") ? path : `/${path}`;
@@ -208,10 +210,10 @@ export const PRODUCT_SURFACES: ProductSurface[] = [
   },
   {
     id: "lokal",
-    label: "Aura Lokal",
+    label: "Aura Local",
     href: "/lokal",
     group: "product",
-    blurb: "Local business growth (DE)",
+    blurb: "Local business growth",
   },
   {
     id: "wien",

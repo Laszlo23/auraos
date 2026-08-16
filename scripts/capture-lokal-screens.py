@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture Aura Lokal phone screenshots into docs/deck-lokal/."""
+"""Capture Aura Local phone screenshots into docs/deck-lokal/."""
 
 from __future__ import annotations
 

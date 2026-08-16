@@ -221,7 +221,7 @@ export async function bootstrapFunnelCompany(
     if (companyRow) {
       await supabase.from("knowledge_items").insert({
         company_id: companyId,
-        title: companyRow.ui_locale === "de" ? "Aura Lokal · Spielregeln" : "Aura Lokal · playbook",
+        title: companyRow.ui_locale === "de" ? "Aura Local · Spielregeln" : "Aura Local · playbook",
         summary:
           companyRow.ui_locale === "de"
             ? [

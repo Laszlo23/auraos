@@ -10,7 +10,7 @@ import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, url } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Aura Lokal — Verkaufspräsentation";
+const TITLE = "Aura Local — Verkaufspräsentation";
 const DESCRIPTION =
   "Sterne, Gäste, Nachbetreuung. 49 € im Monat. Keine Fake-Sterne. Für den Tisch im Betrieb.";
 
@@ -73,7 +73,7 @@ function VerkaufPage() {
     <main className="relative flex min-h-svh flex-col overflow-hidden bg-background text-foreground">
       <div className="austria-bar" aria-hidden />
       <header className="relative z-10 flex items-center gap-3 border-b border-border/40 px-4 py-3 sm:px-6">
-        <AuraLogo size="xs" to="/" label="Aura Lokal" />
+        <AuraLogo size="xs" to="/" label="Aura Local" />
         <p className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground sm:block">
           Verkauf · am Tisch
         </p>
@@ -195,7 +195,7 @@ function VerkaufPage() {
       </article>
 
       <p className="sr-only">
-        Präsentation für Aura Lokal. {SITE_URL}/verkauf
+        Präsentation für Aura Local. {SITE_URL}/verkauf
       </p>
     </main>
   );

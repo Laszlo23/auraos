@@ -6,6 +6,8 @@
 export const BRAND = {
   name: "Aura OS",
   short: "Aura",
+  /** Phone-first local-business product (path stays /lokal). */
+  local: "Aura Local",
   tagline: "Own a company. Let AI make money.",
   descriptor: "The AI company operating system",
   url: "https://aibusiness.fun",

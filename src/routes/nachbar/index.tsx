@@ -17,7 +17,7 @@ export const Route = createFileRoute("/nachbar/")({
     nachbarHead({
       title: "Aura Nachbar — Check-in, verdienen, Freunde einladen",
       description:
-        "Die Gäste-App für Aura Lokal: Check-in im Laden, Guthaben verdienen, Freunde mitbringen. Keine Belohnung für Google-Sterne.",
+        "Die Gäste-App für Aura Local: Check-in im Laden, Guthaben verdienen, Freunde mitbringen. Keine Belohnung für Google-Sterne.",
       path: "/nachbar",
     }),
   component: NachbarLandingPage,

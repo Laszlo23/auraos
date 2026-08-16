@@ -20,7 +20,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/bewertungen")({
   head: () => ({
-    meta: [{ title: "Sterne — Aura Lokal" }],
+    meta: [{ title: "Sterne — Aura Local" }],
   }),
   component: BewertungenPage,
 });

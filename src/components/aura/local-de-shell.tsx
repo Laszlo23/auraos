@@ -97,7 +97,7 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
         <Shimmer className="h-10 w-48" />
         <Shimmer className="h-24 w-full max-w-sm" />
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          Aura Lokal
+          Aura Local
         </p>
       </div>
     );
@@ -108,7 +108,7 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
       <div className="relative flex min-h-svh flex-col items-center justify-center bg-background px-6 text-center">
         <LanguageToggle className="absolute right-4 top-4" />
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-          Aura Lokal
+          Aura Local
         </p>
         <h1 className="mt-4 max-w-md font-display text-3xl font-semibold tracking-tight">
           {t("paywall.title")}

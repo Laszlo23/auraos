@@ -15,7 +15,7 @@ export const Route = createFileRoute("/pitch")({
       {
         name: "description",
         content:
-          "Download Aura decks including the new investor presentation, product & token strategy, unit economics, growth playbook, and Aura Lokal — plus lightpaper, whitepaper, and tokenomics.",
+          "Download Aura decks including the new investor presentation, product & token strategy, unit economics, growth playbook, and Aura Local — plus lightpaper, whitepaper, and tokenomics.",
       },
       { property: "og:title", content: "Aura OS — Pitch & roadmap decks" },
       { property: "og:url", content: `${SITE_URL}/pitch` },

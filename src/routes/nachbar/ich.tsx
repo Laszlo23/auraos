@@ -132,7 +132,7 @@ function NachbarIchPage() {
             Landing
           </Link>
           <Link to="/lokal" className="text-muted-foreground">
-            Aura Lokal (Betriebe)
+            Aura Local (Betriebe)
           </Link>
           <a href="/privacy" className="text-muted-foreground">
             Privacy

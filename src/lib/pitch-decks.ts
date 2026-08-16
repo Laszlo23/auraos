@@ -61,7 +61,7 @@ export const PITCH_DECKS: PitchDeck[] = [
   {
     id: "lokal-sales",
     href: "/Aura_Lokal_Verkauf.pptx",
-    title: "Aura Lokal · Verkauf (DE)",
+    title: "Aura Local · Verkauf (DE)",
     blurb:
       "Für den Tisch: Sterne, Gäste, 49 €/Monat, Einwände, Abschluss. Live auch unter /verkauf.",
     tag: "Verkauf",
@@ -70,10 +70,10 @@ export const PITCH_DECKS: PitchDeck[] = [
   {
     id: "lokal-reviews",
     href: "/Aura_Lokal_Google_Review_Boost.pptx",
-    title: "Aura Lokal · Google Review Boost",
+    title: "Aura Local · Google Review Boost",
     blurb:
       "Local businesses: social, customers, and review requests — the simple phone-first path.",
-    tag: "Lokal",
+    tag: "Local",
     lang: "de",
   },
   {
@@ -87,9 +87,9 @@ export const PITCH_DECKS: PitchDeck[] = [
   {
     id: "lokal-core",
     href: "/presentation-lokal.pptx",
-    title: "Aura Lokal pitch (DE)",
+    title: "Aura Local pitch (DE)",
     blurb: "Die lokale Super-App für Betriebe — Social, Kunden, Bewertungen.",
-    tag: "Lokal",
+    tag: "Local",
     lang: "de",
   },
 ];

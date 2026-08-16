@@ -127,7 +127,7 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
   },
   "aura-lokal": {
     story:
-      "Aura Lokal ist das Netz für Wiener Betriebe: echte Besuche, Check-ins, Review-Einladungen — nie Fake-Sterne. Martina, Evren, Darko und das Gründungsteam zuerst.",
+      "Aura Local ist das Netz für Wiener Betriebe: echte Besuche, Check-ins, Review-Einladungen — nie Fake-Sterne. Martina, Evren, Darko und das Gründungsteam zuerst.",
     services: ["Betriebskarte", "Review-Einladungen", "Nachbar-Check-in", "Katalog", "Termine"],
     serviceDetails: [
       { title: "Betriebskarte", blurb: "Öffentliche /b-Seite statt toter Google-Stille." },

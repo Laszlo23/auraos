@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sales PowerPoint for Aura Lokal — German, for the person at the shop."""
+"""Sales PowerPoint for Aura Local — German, for the person at the shop."""
 
 from __future__ import annotations
 

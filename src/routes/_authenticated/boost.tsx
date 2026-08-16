@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/boost")({
       : {}),
   }),
   head: () => ({
-    meta: [{ title: "Aura Reputation — Aura Lokal" }],
+    meta: [{ title: "Aura Reputation — Aura Local" }],
   }),
   component: BoostPage,
 });

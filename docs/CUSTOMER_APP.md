@@ -36,7 +36,7 @@ After check-in, UI may show a soft Google CTA (muted styling, not earn-gold):
 
 ## Look and feel
 
-Match Aura Lokal business shell: phone-first, calm, German copy, tab bar — **not** a crypto trading dashboard.
+Match Aura Local business shell: phone-first, calm, German copy, tab bar — **not** a crypto trading dashboard.
 
 - Brand signal: “Aura Nachbar” as hero on first open; no dense stat strips
 - Typography: same display + body fonts as the Lokal shell

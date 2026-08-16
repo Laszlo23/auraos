@@ -24,6 +24,7 @@ import {
   grantAnswers,
   grantKitMarkdown,
   grantOutreachDrafts,
+  GRANT_VIDEO_SCRIPT,
   priorityApplyOrder,
 } from "@/lib/grant-kit";
 import { FOUNDERS } from "@/lib/legal-entity";
@@ -180,6 +181,22 @@ function GrantsPage() {
             className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground"
           >
             <Download className="h-3.5 w-3.5" /> Download application kit
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const blob = new Blob([GRANT_VIDEO_SCRIPT], { type: "text/markdown;charset=utf-8" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "aura-os-grant-video-script.md";
+              a.click();
+              URL.revokeObjectURL(url);
+              toast.success("Video script downloaded");
+            }}
+            className="inline-flex items-center gap-2 rounded-2xl border border-border px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em]"
+          >
+            <ClipboardCopy className="h-3.5 w-3.5" /> Grant video script
           </button>
           <a
             href={`mailto:${LEGAL_EMAIL}?subject=Aura%20OS%20—%20credits%20%26%20grants`}

@@ -3,10 +3,10 @@ import {
   AURA_REPUTATION_EUR,
 } from "@/lib/boost-packs";
 
-/** Field-sales deck for Aura Lokal. German a Wiener owner can hear at the counter. */
+/** Field-sales deck for Aura Local. German a Wiener owner can hear at the counter. */
 
 export const LOKAL_SALES = {
-  product: "Aura Lokal",
+  product: "Aura Local",
   offer: "Aura Reputation",
   url: "https://aibusiness.fun/lokal",
   auditUrl: "https://aibusiness.fun/lokal/audit",
@@ -28,7 +28,7 @@ export type SalesSlide = {
 export const LOKAL_SALES_SLIDES: SalesSlide[] = [
   {
     id: "cover",
-    kicker: "Aura Lokal · Wien",
+    kicker: "Aura Local · Wien",
     title: "Mehr echte Sterne.\nGäste, die wiederkommen.",
     lines: [
       "Für Friseur, Beauty, Gastro, Handwerk, Immobilien.",
@@ -139,4 +139,4 @@ export const LOKAL_SALES_SLIDES: SalesSlide[] = [
 ];
 
 export const LOKAL_SALES_WHATSAPP =
-  `Aura Lokal — echte Sterne und Nachbetreuung, ${AURA_REPUTATION_EUR} €/Monat, keine Fake-Reviews.\nCheck: ${LOKAL_SALES.auditUrl}\nStart: ${LOKAL_SALES.url}`;
+  `Aura Local — echte Sterne und Nachbetreuung, ${AURA_REPUTATION_EUR} €/Monat, keine Fake-Reviews.\nCheck: ${LOKAL_SALES.auditUrl}\nStart: ${LOKAL_SALES.url}`;

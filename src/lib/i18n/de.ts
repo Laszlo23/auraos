@@ -12,7 +12,7 @@ export const de: MessageTree = {
     signOut: "Abmelden",
   },
   nav: {
-    lokal: "Aura Lokal",
+    lokal: "Aura Local",
     nachbar: "Aura Nachbar",
     forBusiness: "Für Betriebe",
     heute: "Heute",
@@ -22,7 +22,7 @@ export const de: MessageTree = {
     boost: "Guthaben",
   },
   lokal: {
-    title: "Aura Lokal — mehr echte Bewertungen & Nachbetreuung",
+    title: "Aura Local — mehr echte Bewertungen & Nachbetreuung",
     description:
       "Aura Reputation automatisiert deine Kunden-Nachbetreuung und hilft dir, mehr echte Google-Bewertungen zu bekommen. Kostenloser Check · ab 49 €/Monat.",
     hero: "Mehr echte Bewertungen. Bessere Nachbetreuung. Wien zuerst.",
@@ -274,7 +274,7 @@ export const de: MessageTree = {
     token: "Token",
     signIn: "Anmelden",
     navOs: "Aura OS",
-    navLokal: "Aura Lokal",
+    navLokal: "Aura Local",
     navHow: "So geht’s",
     navTry: "Aura testen",
     navProof: "Proof",
@@ -290,7 +290,7 @@ export const de: MessageTree = {
     audienceLokalTitle: "Lokalen Betrieb wachsen",
     audienceLokalBody:
       "Echte Besuche. Echter Check-in. Echte Review-Einladungen — keine Fake-Sterne.",
-    audienceLokalCta: "Aura Lokal öffnen",
+    audienceLokalCta: "Aura Local öffnen",
     audienceAuraTitle: "AURA-Ökosystem ansehen",
     audienceAuraBody: "Utility und Teilnahme, nachdem du das Produkt erlebt hast — nicht davor.",
     audienceAuraCta: "Tokenomics lesen",

@@ -347,7 +347,7 @@ function Onboarding() {
           {phase === 0 && !understand && isLokal ? (
             <section>
               <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-                Aura Lokal
+                Aura Local
               </p>
               <h1 className="mt-3 font-display text-[clamp(2.2rem,7vw,3.6rem)] font-semibold leading-[1.02] tracking-tight">
                 Grow my local business

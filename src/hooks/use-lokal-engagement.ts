@@ -6,7 +6,7 @@ import { useProgress } from "@/hooks/use-progress";
 const STREAK_KEY = "aura.lokal.streak.seen";
 
 /**
- * Soft engagement hooks for Aura Lokal owners:
+ * Soft engagement hooks for Aura Local owners:
  * - celebrate returning with an active streak
  * - never spam — once per day per browser
  */

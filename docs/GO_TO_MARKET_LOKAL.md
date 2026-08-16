@@ -1,6 +1,6 @@
-# Go-to-market: Aura Lokal (first 1000 local businesses)
+# Go-to-market: Aura Local (first 1000 local businesses)
 
-Aura Lokal is the German phone-first surface of Aura OS for service shops — Friseur, Beauty, Gastro, Handwerk, Immobilien — that already have a homepage and real customers, but no honest system to turn visits into reputation and repeat traffic.
+Aura Local is the German phone-first surface of Aura OS for service shops — Friseur, Beauty, Gastro, Handwerk, Immobilien — that already have a homepage and real customers, but no honest system to turn visits into reputation and repeat traffic.
 
 Live landing: [aibusiness.fun/lokal](https://aibusiness.fun/lokal) · Free audit: [/lokal/audit](https://aibusiness.fun/lokal/audit) · English funnel: [/for/local](https://aibusiness.fun/for/local).
 
@@ -49,7 +49,7 @@ Local owners juggle Instagram, Google, WhatsApp, and agency PDFs. What they actu
 3. **Reputation without fakes** — systematic asks for Google feedback from people who were really there
 4. **A loop that grows itself** — every happy customer and peer shop should recruit the next
 
-Aura Lokal sells outcomes (visibility, reviews from real customers, new guests), not “AI credits.” Under the hood it is still Aura OS (Boost = metered AURA).
+Aura Local sells outcomes (visibility, reviews from real customers, new guests), not “AI credits.” Under the hood it is still Aura OS (Boost = metered AURA).
 
 ## Compliance (non-negotiable)
 

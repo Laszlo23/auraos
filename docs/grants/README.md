@@ -11,6 +11,8 @@ What we shipped instead:
 2. **SMTP connected** as `founders@aibusiness.fun` — agents may draft; you approve sends in Akquise.
 3. **Grant Hunter** — `/akquise?template=grant_hunter` pre-fills the research brief.
 4. **Alchemy + OKX kit** — `docs/grants/outreach-alchemy-okx.md` (paste-ready Typeform / Base Gas / OKX Collective).
+5. **Grant video script** — timed VO at `docs/grants/video-script.md` (also download from `/grants`).
+6. **Grant-ready test** — `npm run test:grants` (programmes, kit, honesty, video script, Aura Local brand).
 
 ## Apply this week (human + kit)
 

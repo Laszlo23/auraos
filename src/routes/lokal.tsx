@@ -28,13 +28,14 @@ import { AURA_REPUTATION_EUR } from "@/lib/boost-packs";
 import { LOCAL_COHORT_CAP } from "@/lib/funnels";
 import { t as translate } from "@/lib/i18n";
 import { ogCampaignMeta } from "@/lib/og-campaign";
-import { REVIEW_APP_URL, SITE_NAME, SITE_URL } from "@/lib/site";
+import { BRAND_ASSETS } from "@/lib/brand";
+import { LOCAL_PRODUCT_NAME, REVIEW_APP_URL, SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/lokal")({
   head: () => ({
     meta: [
       {
-        title: `Aura Lokal — mehr echte Bewertungen & Nachbetreuung`,
+        title: `${LOCAL_PRODUCT_NAME} — mehr echte Bewertungen & Nachbetreuung`,
       },
       {
         name: "description",
@@ -43,7 +44,7 @@ export const Route = createFileRoute("/lokal")({
       },
       {
         property: "og:title",
-        content: "Aura Lokal — für lokale Service-Betriebe",
+        content: `${LOCAL_PRODUCT_NAME} — für lokale Service-Betriebe`,
       },
       {
         property: "og:description",
@@ -115,13 +116,18 @@ function LokalLandingPage() {
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
       <header className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-black/25 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-4">
-          <Link
-            to="/lokal"
-            className="font-display text-lg font-semibold tracking-tight text-white sm:text-xl"
-          >
-            {SITE_NAME}
+          <Link to="/lokal" className="flex items-center gap-2.5">
+            <img
+              src={BRAND_ASSETS.logoPng}
+              alt={LOCAL_PRODUCT_NAME}
+              width={140}
+              height={36}
+              className="h-8 w-auto sm:h-9"
+            />
+            <span className="font-display text-lg font-medium tracking-tight text-white/70 sm:text-xl">
+              Local
+            </span>
           </Link>
-          <span className="font-display text-lg font-medium text-white/60 sm:text-xl">Lokal</span>
           <Link
             to="/wien"
             className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70 sm:inline"
@@ -173,7 +179,7 @@ function LokalLandingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="font-display text-[clamp(1.9rem,5vw,2.8rem)] font-semibold tracking-tight text-white"
         >
-          Aura Lokal
+          {LOCAL_PRODUCT_NAME}
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 16 }}

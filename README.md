@@ -1,15 +1,15 @@
 # Aura OS
 
 **Own a company. The staff just happen to be AI.**  
-**Aura Lokal** — phone-first OS for local service businesses (DE/AT).
+**Aura Local** — phone-first OS for local service businesses (DE/AT).
 
-Live at [aibusiness.fun](https://aibusiness.fun) · founding OS cohort + [Lokal landing](https://aibusiness.fun/lokal).
+Live at [aibusiness.fun](https://aibusiness.fun) · founding OS cohort + [Local landing](https://aibusiness.fun/lokal).
 
 Aura OS is the company operating system for founders who want agents to ship real work — posts, outreach drafts, missions, and weekly proof — without fake busy meters or invented revenue.
 
-Aura Lokal is the same organism, tailored for shops: social, customers, Review Boost invites, and Boost packs under a German phone shell. Go-to-market for the first **1000 local seats** is documented in [docs/GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md). The patron (customer) earn app vision is in [docs/CUSTOMER_APP.md](docs/CUSTOMER_APP.md). Loop audit: [docs/LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md).
+Aura Local is the same organism, tailored for shops: social, customers, Review Boost invites, and Boost packs under a German phone shell. Go-to-market for the first **1000 local seats** is documented in [docs/GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md). The patron (customer) earn app vision is in [docs/CUSTOMER_APP.md](docs/CUSTOMER_APP.md). Loop audit: [docs/LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md).
 
-## Recent development (Lokal + Nachbar)
+## Recent development (Local + Nachbar)
 
 Shipped a clearer, safer **B2B2C MVP loop** so shops and guests finish the same story without product confusion:
 
@@ -38,7 +38,7 @@ Honest by default: workforce **Active** means a real queued/running task; quiet 
 | Surface | Path | Purpose |
 |---|---|---|
 | Command center | `/console` | Missions, workforce, approvals, live activity |
-| Aura Lokal (DE/EN) | `/lokal` | Local-business landing (browser language + toggle) |
+| Aura Local (DE/EN) | `/lokal` | Local-business landing (browser language + toggle) |
 | Local funnel (EN) | `/for/local` | English local / Review Boost funnel |
 | Public shop card | `/b/$slug` | Homepage + socials + review CTA |
 | Aura Nachbar | `/nachbar` | City play — check-in, stamps, missions, friends (no business required) |
@@ -161,7 +161,8 @@ Worker tick (scheduled posts / engagement) uses a bearer secret from the server 
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, auth vs public, mailbox, honesty rules |
 | [GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md) | First 1000 local businesses, referral flywheel |
 | [CUSTOMER_APP.md](docs/CUSTOMER_APP.md) | Patron app (Aura Nachbar): earn, onboard, UI |
-| [LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md) | Lokal ↔ Nachbar happy paths, fixes, backlog |
+| [LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md) | Local ↔ Nachbar happy paths, fixes, backlog |
+| [grants/README.md](docs/grants/README.md) | Credits & grants kit + video script + `npm run test:grants` |
 | [social-channels.md](docs/social-channels.md) | OAuth scopes, TikTok, Farcaster |
 | [supabase.md](docs/supabase.md) | Local vs cloud DB |
 | [x-launch-drip.md](docs/x-launch-drip.md) | Scheduled posts / drip |

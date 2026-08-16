@@ -778,7 +778,7 @@ function AuthPage() {
           <div className="flex h-full w-full max-w-xl flex-col justify-between xl:mr-8">
             <AuraLogo
               size="sm"
-              label={isNachbarPatron ? "Aura Nachbar" : isLokalEntry ? "Aura Lokal" : "Aura OS"}
+              label={isNachbarPatron ? "Aura Nachbar" : isLokalEntry ? "Aura Local" : "Aura OS"}
             />
 
             <div>
@@ -1034,7 +1034,7 @@ function AuthPage() {
                   </div>
                 ) : mode === "signup" && isLokalEntry ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                    Aura Lokal · Anmeldung — danach Betrieb benennen und freischalten.
+                    Aura Local · Anmeldung — danach Betrieb benennen und freischalten.
                   </p>
                 ) : mode === "signup" && isFunnelEntry ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">

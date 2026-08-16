@@ -12,7 +12,7 @@ export const en: MessageTree = {
     signOut: "Sign out",
   },
   nav: {
-    lokal: "Aura Lokal",
+    lokal: "Aura Local",
     nachbar: "Aura Nachbar",
     forBusiness: "For businesses",
     heute: "Today",
@@ -22,7 +22,7 @@ export const en: MessageTree = {
     boost: "Credits",
   },
   lokal: {
-    title: "Aura Lokal — real reviews & follow-up",
+    title: "Aura Local — real reviews & follow-up",
     description:
       "Aura Reputation automates customer follow-up and helps you get more real Google reviews. Free check · from €49/month.",
     hero: "More real reviews. Better follow-up.",
@@ -271,7 +271,7 @@ export const en: MessageTree = {
     token: "Token",
     signIn: "Sign in",
     navOs: "Aura OS",
-    navLokal: "Aura Lokal",
+    navLokal: "Aura Local",
     navHow: "How it works",
     navTry: "Try Aura",
     navProof: "Proof",
@@ -287,7 +287,7 @@ export const en: MessageTree = {
     audienceLokalTitle: "Grow my local business",
     audienceLokalBody:
       "Real visits. Real check-ins. Genuine review invitations — never fake stars.",
-    audienceLokalCta: "Open Aura Lokal",
+    audienceLokalCta: "Open Aura Local",
     audienceAuraTitle: "Explore the AURA ecosystem",
     audienceAuraBody: "Utility and participation after you have used the product — not before.",
     audienceAuraCta: "Read tokenomics",

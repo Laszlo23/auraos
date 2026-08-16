@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/heute")({
   head: () => ({
-    meta: [{ title: "Heute — Aura Lokal" }],
+    meta: [{ title: "Heute — Aura Local" }],
   }),
   component: HeutePage,
 });

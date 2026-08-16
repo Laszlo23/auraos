@@ -8,7 +8,7 @@ import { getLokalHub } from "@/lib/local-seat.functions";
 
 export const Route = createFileRoute("/_authenticated/social")({
   head: () => ({
-    meta: [{ title: "Posten — Aura Lokal" }],
+    meta: [{ title: "Posten — Aura Local" }],
   }),
   component: SocialPage,
 });

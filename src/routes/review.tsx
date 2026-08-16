@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/aura/site-footer";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { REVIEW_APP_URL, reviewAppUrl, SITE_URL, url } from "@/lib/site";
 
-const TITLE = "Aura Lokal Reviews — echte Feedback-Maschine";
+const TITLE = "Aura Local Reviews — echte Feedback-Maschine";
 const DESCRIPTION =
   "Die Review-Software für lokale Betriebe: Anfragen tracken, Antworten vorschlagen, keine Fake-Google-Sterne. Live unter review.aibusiness.fun.";
 
@@ -39,7 +39,7 @@ function ReviewBridgePage() {
             to="/lokal"
             className="ml-auto text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
           >
-            Aura Lokal
+            Aura Local
           </Link>
         </div>
       </header>
@@ -84,7 +84,7 @@ function ReviewBridgePage() {
       <SiteFooter
         share={{
           url: `${SITE_URL}/review`,
-          text: "Aura Lokal Reviews — echte Feedback-Maschine für Wiener Betriebe.",
+          text: "Aura Local Reviews — echte Feedback-Maschine für Wiener Betriebe.",
           placement: "review",
         }}
       />

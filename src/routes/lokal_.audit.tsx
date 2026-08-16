@@ -25,14 +25,14 @@ export const Route = createFileRoute("/lokal_/audit")({
   head: () => ({
     meta: [
       {
-        title: "Kostenloser Reputation-Check — Aura Lokal",
+        title: "Kostenloser Reputation-Check — Aura Local",
       },
       {
         name: "description",
         content:
           "Prüfe in 60 Sekunden, wie bereit dein Betrieb für echte Google-Bewertungen und Kunden-Nachbetreuung ist.",
       },
-      { property: "og:title", content: "Kostenloser Reputation-Check — Aura Lokal" },
+      { property: "og:title", content: "Kostenloser Reputation-Check — Aura Local" },
       { property: "og:url", content: `${SITE_URL}/lokal/audit` },
       { property: "og:image", content: OG_IMAGE },
       { property: "og:locale", content: "de_DE" },

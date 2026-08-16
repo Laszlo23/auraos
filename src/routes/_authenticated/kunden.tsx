@@ -18,7 +18,7 @@ import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/kunden")({
   head: () => ({
-    meta: [{ title: "Gäste — Aura Lokal" }],
+    meta: [{ title: "Gäste — Aura Local" }],
   }),
   component: KundenPage,
 });
