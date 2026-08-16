@@ -75,6 +75,26 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
   },
+  "cafe-vision-lounge": {
+    story:
+      "Cafe Vision & Lounge ist mehr als ein gewöhnliches Kaffeehaus — Linzer Straße 74 in Wien-Penzing. Frühstückskaffee, Snacks, Lounge und Außenbereich. Betrieben als VISION Lounge GmbH. Keine Fake-Sterne — echte Gäste, echter Check-in.",
+    services: ["Frühstück", "Kaffee", "Snacks", "Lounge", "Außenbereich"],
+    serviceDetails: [
+      { title: "Frühstück", blurb: "Sichere dir früh einen Platz — Kaffee und Start in den Tag." },
+      { title: "Kaffee", blurb: "Kaffeehaus-Klassiker, ohne Theater." },
+      { title: "Snacks", blurb: "Kleine Snacks zum Zeitunglesen und Treffen mit Freunden." },
+      { title: "Lounge", blurb: "Lounge-Atmosphäre — länger bleiben, wenn du willst." },
+      { title: "Außenbereich", blurb: "Draußen sitzen, wenn das Wetter mitspielt." },
+    ],
+    googleFindCopy: "Gäste finden uns auf Google",
+    ownerLabel: "Geschäftsführerin",
+    webLabel: "Website",
+    howSteps: [
+      { title: "Besuch", body: "Linzer Straße 74, 1140 — rein, Platz nehmen." },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar. Kein Theater." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
+  },
   "darko-auto-wien": {
     story:
       "Darko Tanackovic ist der Fachmann für Autoankauf und Autoverkauf in Wien. Straße zuerst: ehrliche Bewertung, klarer Preis, Abwicklung ohne Druck. Kein erfundener Schauraum, keine gekauften Sterne — Termin, dann der Wagen.",
