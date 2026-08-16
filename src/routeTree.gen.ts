@@ -105,6 +105,8 @@ import { Route as VPostIdRouteImport } from './routes/v.$postId'
 import { Route as WShareSlugRouteImport } from './routes/w.$shareSlug'
 import { Route as AuthenticatedMissionsIdRouteImport } from './routes/_authenticated/missions.$id'
 import { Route as ApiBillingCheckoutRouteImport } from './routes/api/billing/checkout'
+import { Route as ApiBillingCryptoCheckoutRouteImport } from './routes/api/billing/crypto-checkout'
+import { Route as ApiBillingCryptoIpnRouteImport } from './routes/api/billing/crypto-ipn'
 import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing/founding-seat'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
@@ -614,6 +616,17 @@ const ApiBillingCheckoutRoute = ApiBillingCheckoutRouteImport.update({
   path: '/api/billing/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBillingCryptoCheckoutRoute =
+  ApiBillingCryptoCheckoutRouteImport.update({
+    id: '/api/billing/crypto-checkout',
+    path: '/api/billing/crypto-checkout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBillingCryptoIpnRoute = ApiBillingCryptoIpnRouteImport.update({
+  id: '/api/billing/crypto-ipn',
+  path: '/api/billing/crypto-ipn',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBillingFoundingSeatRoute = ApiBillingFoundingSeatRouteImport.update({
   id: '/api/billing/founding-seat',
   path: '/api/billing/founding-seat',
@@ -855,6 +868,8 @@ export interface FileRoutesByFullPath {
   '/nachbar/': typeof NachbarIndexRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
+  '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
+  '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
@@ -978,6 +993,8 @@ export interface FileRoutesByTo {
   '/nachbar': typeof NachbarIndexRoute
   '/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
+  '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
+  '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
@@ -1104,6 +1121,8 @@ export interface FileRoutesById {
   '/nachbar/': typeof NachbarIndexRoute
   '/_authenticated/missions/$id': typeof AuthenticatedMissionsIdRoute
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
+  '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
+  '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
@@ -1230,6 +1249,8 @@ export interface FileRouteTypes {
     | '/nachbar/'
     | '/missions/$id'
     | '/api/billing/checkout'
+    | '/api/billing/crypto-checkout'
+    | '/api/billing/crypto-ipn'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/ai-health'
@@ -1353,6 +1374,8 @@ export interface FileRouteTypes {
     | '/nachbar'
     | '/missions/$id'
     | '/api/billing/checkout'
+    | '/api/billing/crypto-checkout'
+    | '/api/billing/crypto-ipn'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/ai-health'
@@ -1478,6 +1501,8 @@ export interface FileRouteTypes {
     | '/nachbar/'
     | '/_authenticated/missions/$id'
     | '/api/billing/checkout'
+    | '/api/billing/crypto-checkout'
+    | '/api/billing/crypto-ipn'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/ai-health'
@@ -1558,6 +1583,8 @@ export interface RootRouteChildren {
   WShareSlugRoute: typeof WShareSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiBillingCheckoutRoute: typeof ApiBillingCheckoutRoute
+  ApiBillingCryptoCheckoutRoute: typeof ApiBillingCryptoCheckoutRoute
+  ApiBillingCryptoIpnRoute: typeof ApiBillingCryptoIpnRoute
   ApiBillingFoundingSeatRoute: typeof ApiBillingFoundingSeatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
@@ -2259,6 +2286,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBillingCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/billing/crypto-checkout': {
+      id: '/api/billing/crypto-checkout'
+      path: '/api/billing/crypto-checkout'
+      fullPath: '/api/billing/crypto-checkout'
+      preLoaderRoute: typeof ApiBillingCryptoCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/billing/crypto-ipn': {
+      id: '/api/billing/crypto-ipn'
+      path: '/api/billing/crypto-ipn'
+      fullPath: '/api/billing/crypto-ipn'
+      preLoaderRoute: typeof ApiBillingCryptoIpnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/billing/founding-seat': {
       id: '/api/billing/founding-seat'
       path: '/api/billing/founding-seat'
@@ -2628,6 +2669,8 @@ const rootRouteChildren: RootRouteChildren = {
   WShareSlugRoute: WShareSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiBillingCheckoutRoute: ApiBillingCheckoutRoute,
+  ApiBillingCryptoCheckoutRoute: ApiBillingCryptoCheckoutRoute,
+  ApiBillingCryptoIpnRoute: ApiBillingCryptoIpnRoute,
   ApiBillingFoundingSeatRoute: ApiBillingFoundingSeatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
@@ -2657,13 +2700,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

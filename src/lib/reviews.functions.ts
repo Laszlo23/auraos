@@ -353,6 +353,7 @@ export const markReviewInviteCompleted = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Paid founding Local seats left of 1000 (excludes Aura demos). */
 export const getLocalCohortScarcity = createServerFn({ method: "GET" }).handler(async () => {
   const { createClient } = await import("@supabase/supabase-js");
   const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
@@ -363,8 +364,8 @@ export const getLocalCohortScarcity = createServerFn({ method: "GET" }).handler(
   }
   const supabase = createClient(url, key);
   const [{ data: taken }, { data: remaining }] = await Promise.all([
-    supabase.rpc("local_cohort_taken"),
-    supabase.rpc("local_cohort_remaining"),
+    supabase.rpc("local_seats_sold"),
+    supabase.rpc("local_seats_remaining"),
   ]);
   return {
     taken: typeof taken === "number" ? taken : 0,

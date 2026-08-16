@@ -23,7 +23,7 @@ later: Customer Engine / Full Aura
 | SKU | Price | Unlock |
 |---|---|---|
 | Aura Reputation | **€49/mo** (`STRIPE_PRICE_AURA_REPUTATION`, plan `aura_reputation`) | `local_seat_paid_at` + subscription row |
-| Startpaket / Bar | €99 one-time Local Seat **or** cash codes | same entitlement |
+| Startpaket / Bar / Crypto | €99 one-time Founding Local Seat (access only) | Shell, guests, reviews — **no** boost dump; packs upsell |
 | Boost packs | one-time top-ups | only after unlock |
 
 ### Sales script (10 shops)
@@ -69,7 +69,7 @@ Review Boost today tracks invite clicks and redirects to the business Google URL
 |---|---|
 | German landing | `/lokal` |
 | Phone shell (Heute, Social, Kunden, Bewertungen, Boost) | Local DE companies after seat |
-| Local Seat | €99 · Barzahlung codes + Stripe (when price env set) |
+| Local Seat | €99 · access only · Barzahlung / Stripe / crypto (USDC·ETH·BTC·SOL) |
 | Cohort cap | First **1000** local seats (`local_cohort`) |
 | Review Boost | Campaigns + `/r/review/$token` → Nachbar check-in primary, Google optional (no reward) |
 | Public card | `/b/$slug` |
@@ -157,7 +157,7 @@ Three linked graphs. Local graph is conceptually `local_*` — reuse patterns fr
 
 | Actor | Pays / spends | Gets |
 |---|---|---|
-| Business | €99 seat, optional Boost packs | Shell, campaigns, cohort, Boost balance |
+| Business | €99 seat (access) + optional Boost packs / €49 mo | Shell, campaigns, cohort; credits via packs |
 | Customer | Time / real visits | Points → perks → later USDC (utility, not investment) |
 | Aura | Ops, Stripe, chain fees | Seat + pack revenue; network effects |
 

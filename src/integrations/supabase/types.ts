@@ -2847,6 +2847,74 @@ export type Database = {
           },
         ]
       }
+      local_crypto_checkouts: {
+        Row: {
+          id: string
+          company_id: string
+          created_by: string | null
+          asset: string
+          amount_eur: number
+          status: string
+          provider: string
+          provider_invoice_id: string | null
+          provider_payment_id: string | null
+          pay_address: string | null
+          pay_amount: string | null
+          pay_currency: string | null
+          invoice_url: string | null
+          metadata: Json
+          paid_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          company_id: string
+          created_by?: string | null
+          asset: string
+          amount_eur?: number
+          status?: string
+          provider?: string
+          provider_invoice_id?: string | null
+          provider_payment_id?: string | null
+          pay_address?: string | null
+          pay_amount?: string | null
+          pay_currency?: string | null
+          invoice_url?: string | null
+          metadata?: Json
+          paid_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          created_by?: string | null
+          asset?: string
+          amount_eur?: number
+          status?: string
+          provider?: string
+          provider_invoice_id?: string | null
+          provider_payment_id?: string | null
+          pay_address?: string | null
+          pay_amount?: string | null
+          pay_currency?: string | null
+          invoice_url?: string | null
+          metadata?: Json
+          paid_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "local_crypto_checkouts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_funnels: {
         Row: {
           company_id: string

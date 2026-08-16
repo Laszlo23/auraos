@@ -1,6 +1,7 @@
 import {
   AURA_REPUTATION_CASH_EUR,
   AURA_REPUTATION_EUR,
+  LOCAL_SEAT_EUR,
 } from "@/lib/boost-packs";
 
 /** Field-sales deck for Aura Local. German a Wiener owner can hear at the counter. */
@@ -105,13 +106,13 @@ export const LOKAL_SALES_SLIDES: SalesSlide[] = [
   {
     id: "price",
     kicker: "07 · Preis",
-    title: "Klar. Klein. Jeden Monat kündbar.",
+    title: "Klar. Fair. Upsell optional.",
     lines: [
-      `${AURA_REPUTATION_EUR} € im Monat mit Karte.`,
-      `${AURA_REPUTATION_CASH_EUR} € bar — ungefähr ${LOKAL_SALES.cashMonths} Monate, Code an der Theke.`,
-      "Zuerst der Check. Der kostet nichts.",
+      `${AURA_REPUTATION_EUR} €/Monat mit Karte — inkl. Boost-Guthaben.`,
+      `${LOCAL_SEAT_EUR} € einmalig Founding Seat — Zugang (Sterne, Gäste). Boost extra über Packs.`,
+      "Crypto: USDC · ETH · BTC · SOL. Oder Bar-Code an der Theke.",
     ],
-    say: "Nicht verhandeln unter 49. Bar ist der Code, nicht ein Rabatt. Wenn’s zu viel ist: Check dalassen, in einer Woche wiederkommen.",
+    say: "99 € ist Zugang, nicht ein Überladen-Paket. Wenn sie Boost wollen: Sichtbarkeit 49 €. Nicht unter 49 verhandeln.",
   },
   {
     id: "objections",

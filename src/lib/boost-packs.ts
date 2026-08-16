@@ -1,10 +1,14 @@
 /** German local super-app: Aura Reputation (€49/mo) + seat/cash + Boost packs. */
 
+/**
+ * Local Seat (€99 once): access only — shell, guests, reviews, cohort number.
+ * No boost dump. Credits come from packs or the €49/mo plan.
+ */
 export const LOCAL_SEAT_EUR = 99;
-export const LOCAL_SEAT_BOOST_GRANT = 15_000;
+export const LOCAL_SEAT_BOOST_GRANT = 0;
 export const LOCAL_SEAT_PLAN_ID = "local_seat" as const;
 
-/** Entry SaaS: Google reputation + customer follow-up */
+/** Entry SaaS: Google reputation + customer follow-up (includes monthly boost) */
 export const AURA_REPUTATION_EUR = 49;
 export const AURA_REPUTATION_PLAN_ID = "aura_reputation" as const;
 export const AURA_REPUTATION_BOOST_GRANT = 8_000;
@@ -23,25 +27,29 @@ export type BoostPack = {
   stripeEnv: string;
   /** Mission / campaign kickoff hint for post-purchase. */
   kickoff: "social_drip" | "review_boost" | "akquise";
+  /** Highlight after seat unlock */
+  recommended?: boolean;
 };
 
+/** Upsells after Local Seat — fair credit packs, not bundled into €99. */
 export const BOOST_PACKS: BoostPack[] = [
   {
     id: "sichtbarkeit",
     name: "Sichtbarkeit",
-    blurb: "Social-Burst: Posts vorbereiten und freigeben lassen.",
-    perks: ["Boost-Guthaben", "Mission: 3 Posts diese Woche", "Social-Kanäle verbinden"],
+    blurb: "Start hier: Social-Burst — Posts vorbereiten und freigeben lassen.",
+    perks: ["8.000 Boost", "Mission: 3 Posts diese Woche", "Social-Kanäle verbinden"],
     eur: 49,
     boostGrant: 8_000,
     stripeEnv: "STRIPE_PRICE_BOOST_SICHTBARKEIT",
     kickoff: "social_drip",
+    recommended: true,
   },
   {
     id: "bewertungen",
     name: "Bewertungen",
     blurb: "Review Boost: echte Kunden um Google-Bewertungen bitten.",
     perks: [
-      "Boost-Guthaben",
+      "12.000 Boost",
       "Review-Kampagne starten",
       "Nur echte Kunden-Einladungen — keine Fake-Reviews",
     ],
@@ -54,13 +62,20 @@ export const BOOST_PACKS: BoostPack[] = [
     id: "neukunden",
     name: "Neukunden",
     blurb: "Akquise-Schub: passende lokale Leads finden und anschreiben.",
-    perks: ["Boost-Guthaben", "Akquise-Kampagne", "Deutsche Vorlagen für Service-Betriebe"],
+    perks: ["20.000 Boost", "Akquise-Kampagne", "Deutsche Vorlagen für Service-Betriebe"],
     eur: 99,
     boostGrant: 20_000,
     stripeEnv: "STRIPE_PRICE_BOOST_NEUKUNDEN",
     kickoff: "akquise",
   },
 ];
+
+export const CRYPTO_SEAT_ASSETS = ["usdc", "eth", "btc", "sol"] as const;
+export type CryptoSeatAsset = (typeof CRYPTO_SEAT_ASSETS)[number];
+
+export function isCryptoSeatAsset(v: unknown): v is CryptoSeatAsset {
+  return v === "usdc" || v === "eth" || v === "btc" || v === "sol";
+}
 
 export function boostPackById(id: string): BoostPack | undefined {
   return BOOST_PACKS.find((p) => p.id === id);

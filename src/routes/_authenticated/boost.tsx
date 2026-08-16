@@ -12,10 +12,11 @@ import {
   AURA_REPUTATION_EUR,
   AURA_REPUTATION_PLAN_ID,
   BOOST_PACKS,
-  LOCAL_SEAT_BOOST_GRANT,
+  CRYPTO_SEAT_ASSETS,
   LOCAL_SEAT_EUR,
   LOCAL_SEAT_PLAN_ID,
   type BoostPackId,
+  type CryptoSeatAsset,
 } from "@/lib/boost-packs";
 import {
   getLokalHub,
@@ -37,10 +38,15 @@ export const Route = createFileRoute("/_authenticated/boost")({
   component: BoostPage,
 });
 
-async function startCheckout(plan: string, companyId: string) {
+async function authToken(): Promise<string> {
   const { data: session } = await supabase.auth.getSession();
   const token = session.session?.access_token;
   if (!token) throw new Error("Please sign in again.");
+  return token;
+}
+
+async function startCheckout(plan: string, companyId: string) {
+  const token = await authToken();
   const res = await fetch("/api/billing/checkout", {
     method: "POST",
     headers: {
@@ -53,6 +59,28 @@ async function startCheckout(plan: string, companyId: string) {
   if (!res.ok || !json.url) throw new Error(json.error || "Checkout failed.");
   window.location.assign(json.url);
 }
+
+async function startCryptoCheckout(asset: CryptoSeatAsset, companyId: string) {
+  const token = await authToken();
+  const res = await fetch("/api/billing/crypto-checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ asset, company_id: companyId }),
+  });
+  const json = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+  if (!res.ok || !json.url) throw new Error(json.error || "Crypto checkout failed.");
+  window.location.assign(json.url);
+}
+
+const CRYPTO_LABEL: Record<CryptoSeatAsset, string> = {
+  usdc: "USDC",
+  eth: "ETH",
+  btc: "BTC",
+  sol: "SOL",
+};
 
 function BoostPage() {
   const qc = useQueryClient();
@@ -98,10 +126,13 @@ function BoostPage() {
   const redeem = useMutation({
     mutationFn: () => redeemLocalSeatCode({ data: { code } }),
     onSuccess: async (res) => {
+      const grant = Number(res.boost_grant ?? 0);
       toast.success(
         res.already_paid
           ? t("boost.seatActive")
-          : `${t("boost.seatActive")} · +${compact(res.boost_grant ?? LOCAL_SEAT_BOOST_GRANT)}`,
+          : grant > 0
+            ? `${t("boost.seatActive")} · +${compact(grant)}`
+            : t("boost.seatActiveAccess"),
       );
       setCode("");
       await qc.invalidateQueries({ queryKey: ["lokal-hub"] });
@@ -123,6 +154,14 @@ function BoostPage() {
     mutationFn: async () => {
       if (!company?.id) throw new Error("No company.");
       await startCheckout(LOCAL_SEAT_PLAN_ID, company.id);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const payCrypto = useMutation({
+    mutationFn: async (asset: CryptoSeatAsset) => {
+      if (!company?.id) throw new Error("No company.");
+      await startCryptoCheckout(asset, company.id);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -168,6 +207,9 @@ function BoostPage() {
             {compact(hub.data?.boostBalance ?? 0)}
           </p>
           <p className="mt-2 text-sm font-semibold text-gold">{t("boost.seatActive")}</p>
+          {(hub.data?.boostBalance ?? 0) === 0 ? (
+            <p className="mt-2 text-[13px] text-muted-foreground">{t("boost.accessOnlyHint")}</p>
+          ) : null}
         </div>
       ) : null}
 
@@ -177,6 +219,7 @@ function BoostPage() {
             <li>{t("boost.pathCard")}</li>
             <li>{t("boost.pathCash")}</li>
             <li>{t("boost.pathOnce")}</li>
+            <li>{t("boost.pathCrypto")}</li>
           </ol>
           <p className="text-[15px] leading-relaxed text-muted-foreground">
             {t("boost.seatBlurb")}
@@ -229,6 +272,24 @@ function BoostPage() {
           >
             {paySeatCash.isPending ? "…" : t("boost.payCashAlt", { eur: LOCAL_SEAT_EUR })}
           </button>
+
+          <div className="mt-5 rounded-2xl border border-border/40 p-4">
+            <p className="text-sm font-semibold">{t("boost.cryptoTitle")}</p>
+            <p className="mt-1 text-[12px] text-muted-foreground">{t("boost.cryptoHint")}</p>
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {CRYPTO_SEAT_ASSETS.map((asset) => (
+                <button
+                  key={asset}
+                  type="button"
+                  disabled={payCrypto.isPending}
+                  onClick={() => payCrypto.mutate(asset)}
+                  className="rounded-2xl border border-border/50 px-3 py-3 text-sm font-semibold tabular-nums disabled:opacity-60"
+                >
+                  {payCrypto.isPending && payCrypto.variables === asset ? "…" : CRYPTO_LABEL[asset]}
+                </button>
+              ))}
+            </div>
+          </div>
         </Panel>
       ) : (
         <>
@@ -250,17 +311,32 @@ function BoostPage() {
             </div>
           </Panel>
 
-          <details className="rounded-3xl border border-border/40 px-4 py-3" open>
-            <summary className="cursor-pointer text-sm font-semibold text-muted-foreground">
-              {t("boost.packs")}
-            </summary>
-            <div className="mt-3 space-y-3">
+          <Panel label={t("boost.packs")} glow>
+            <p className="mb-3 text-sm text-muted-foreground">{t("boost.packsBlurb")}</p>
+            <div className="space-y-3">
               {BOOST_PACKS.map((pack) => (
-                <div key={pack.id} className="rounded-3xl border border-border/50 bg-card/30 p-5">
+                <div
+                  key={pack.id}
+                  className={
+                    pack.recommended
+                      ? "rounded-3xl border border-gold/40 bg-gold/5 p-5"
+                      : "rounded-3xl border border-border/50 bg-card/30 p-5"
+                  }
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div>
+                      {pack.recommended ? (
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">
+                          {t("boost.packRecommended")}
+                        </p>
+                      ) : null}
                       <p className="font-display text-xl font-semibold">{pack.name}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{pack.blurb}</p>
+                      <ul className="mt-2 space-y-0.5 text-[12px] text-muted-foreground">
+                        {pack.perks.map((p) => (
+                          <li key={p}>· {p}</li>
+                        ))}
+                      </ul>
                     </div>
                     <p className="font-display text-xl font-semibold tabular-nums">€{pack.eur}</p>
                   </div>
@@ -275,7 +351,7 @@ function BoostPage() {
                 </div>
               ))}
             </div>
-          </details>
+          </Panel>
 
           <Panel label={t("boost.peerTitle")} glow>
             <p className="text-sm text-muted-foreground">{t("boost.peerBlurb")}</p>
