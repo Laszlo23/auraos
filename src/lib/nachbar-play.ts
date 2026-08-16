@@ -6,6 +6,21 @@ import {
 
 export type NachbarCheckinStatus = "pending" | "confirmed" | "rejected";
 export type NachbarFriendStatus = "activated" | "joined";
+export type NachbarCheckinSource = "qr" | "shop" | "code";
+
+/** Analytics only. Never "ar" — that mission is granted by nachbar_mark_ar. */
+export function normalizeNachbarCheckinSource(raw?: string): NachbarCheckinSource {
+  switch (String(raw || "").trim().toLowerCase()) {
+    case "shop":
+      return "shop";
+    case "code":
+      return "code";
+    case "qr":
+      return "qr";
+    default:
+      return "qr";
+  }
+}
 
 /** Same-origin Nachbar return path. No `..`, query, or host. */
 export function isSafeNachbarPath(next?: string): next is `/nachbar${string}` {

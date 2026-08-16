@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { QrCode } from "lucide-react";
+import { Copy, QrCode } from "lucide-react";
 import { toast } from "sonner";
 
 import { Panel, Shimmer } from "@/components/aura/primitives";
@@ -27,10 +27,14 @@ function KundenPage() {
   const { t } = useLocale();
   const qc = useQueryClient();
   const { data: company } = useCompany();
-  const { data, isLoading } = useQuery({
+  const seatPaid = Boolean(company?.local_seat_paid_at);
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["owner-nachbar-checkin", company?.id],
     enabled: Boolean(company?.id),
-    queryFn: () => getOwnerNachbarCheckinCode({ data: { companyId: company?.id } }),
+    queryFn: () =>
+      getOwnerNachbarCheckinCode(
+        company?.id ? { data: { companyId: company.id } } : { data: {} },
+      ),
   });
   const pending = useQuery({
     queryKey: ["owner-nachbar-pending"],
@@ -89,17 +93,59 @@ function KundenPage() {
               {code}
             </p>
             <p className="mt-3 text-center text-sm text-muted-foreground">{t("kunden.qrHint")}</p>
-            <a
-              href={deepLink}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground"
-            >
-              <QrCode className="h-4 w-4" /> {t("kunden.openLink")}
-            </a>
+            <div className="mt-5 flex flex-col gap-2">
+              <a
+                href={deepLink}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground"
+              >
+                <QrCode className="h-4 w-4" /> {t("kunden.openLink")}
+              </a>
+              <button
+                type="button"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(deepLink);
+                  toast.success(t("kunden.copyLink"));
+                }}
+              >
+                <Copy className="h-4 w-4" /> {t("kunden.copyLink")}
+              </button>
+            </div>
           </>
+        ) : null}
+        {!isLoading && !code ? (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {seatPaid ? t("kunden.qrMissing") : t("kunden.qrNeedSeat")}
+            </p>
+            {seatPaid ? (
+              <button
+                type="button"
+                disabled={isFetching}
+                onClick={() => void refetch()}
+                className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+              >
+                {isFetching ? "…" : t("kunden.qrCreate")}
+              </button>
+            ) : (
+              <Link
+                to="/boost"
+                className="flex w-full items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground"
+              >
+                {t("heute.seatCta")}
+              </Link>
+            )}
+            {isError ? (
+              <p className="text-[12px] text-destructive">Code konnte nicht geladen werden.</p>
+            ) : null}
+          </div>
         ) : null}
       </Panel>
 
       <Panel label={t("kunden.openCheckins")}>
+        <p className="mb-3 text-[12px] leading-relaxed text-muted-foreground">
+          {t("kunden.pendingHint")}
+        </p>
         {(pending.data ?? []).length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("kunden.nonePending")}</p>
         ) : (

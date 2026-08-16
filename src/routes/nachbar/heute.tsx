@@ -31,16 +31,15 @@ import { NACHBAR_FRIEND_STORAGE_KEY, NACHBAR_STAMP_GOAL } from "@/lib/nachbar";
 
 export const Route = createFileRoute("/nachbar/heute")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>) => ({
-    shop:
-      typeof search.shop === "string"
-        ? search.shop
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9-]/g, "")
-            .slice(0, 64)
-        : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { shop?: string } => {
+    const raw = typeof search["shop"] === "string" ? search["shop"] : undefined;
+    const shop = raw
+      ?.trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .slice(0, 64);
+    return shop ? { shop } : {};
+  },
   head: () =>
     nachbarHead({
       title: "Heute — Aura Nachbar",
@@ -201,7 +200,9 @@ function NachbarHeutePage() {
   const streak = hub?.progress.streak_days ?? 0;
   const justConfirmed = (hub?.checkins ?? []).some((c) => c.status === "confirmed");
   const pendingOwn = (hub?.checkins ?? []).find((c) => c.status === "pending" && c.owned);
+  const pendingGuest = (hub?.checkins ?? []).find((c) => c.status === "pending" && !c.owned);
   const cityShops = (board.data?.shops ?? []).slice(0, 8);
+  const isFirstVisit = (hub?.checkins?.length ?? 0) === 0 && (hub?.profile.balance ?? 0) === 0;
 
   return (
     <div className="space-y-5">
@@ -213,6 +214,29 @@ function NachbarHeutePage() {
           Echte Besuche. Stempel. Missionen. Keine Fake-Sterne.
         </p>
       </div>
+
+      {isFirstVisit ? (
+        <Panel label="So geht’s" glow>
+          <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground">
+            <li>Im Laden: QR scannen oder Code eingeben</li>
+            <li>Warten bis der Tresen bestätigt</li>
+            <li>Punkte & Stempel — Google optional, ohne Belohnung</li>
+          </ol>
+        </Panel>
+      ) : null}
+
+      {pendingGuest ? (
+        <Panel label="Wartet auf den Tresen" glow>
+          <p className="text-sm font-semibold">{pendingGuest.company_name}</p>
+          <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+            Dein Check-in ist angekommen. Punkte gibt’s erst, wenn jemand im Laden bestätigt —
+            am besten vor Ort, nicht von zu Hause.
+          </p>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            {nachbarStatusLabel(pendingGuest.status)}
+          </p>
+        </Panel>
+      ) : null}
 
       <div className="grid grid-cols-3 gap-2">
         <Panel>
@@ -279,7 +303,8 @@ function NachbarHeutePage() {
 
       <Panel label="Check-in">
         <p className="text-[13px] leading-relaxed text-muted-foreground">
-          Tippe einen Laden oder gib den Code vom QR am Tresen ein.
+          Am besten im Laden: QR scannen oder Code vom Tresen. Tippen aus der Ferne geht — Punkte
+          aber erst nach Bestätigung vor Ort.
         </p>
         {cityShops.length > 0 ? (
           <ul className="mt-3 space-y-2">
@@ -319,7 +344,7 @@ function NachbarHeutePage() {
           <button
             type="button"
             disabled={checkin.isPending || code.trim().length < 6}
-            onClick={() => checkin.mutate({ source: arOpen ? "ar" : "qr" })}
+            onClick={() => checkin.mutate({ source: "qr" })}
             className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
             <QrCode className="h-4 w-4" /> Los
@@ -458,9 +483,9 @@ function NachbarHeutePage() {
             href={lastGoogle}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-2 rounded-2xl border border-gold/40 bg-gold/10 px-4 py-2.5 text-sm font-semibold"
+            className="mt-3 inline-flex items-center gap-2 rounded-2xl border border-border/50 px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            <Star className="h-4 w-4 text-gold" /> Optional: Google öffnen
+            <Star className="h-4 w-4 opacity-70" /> Optional: Google öffnen
           </a>
         </Panel>
       ) : null}

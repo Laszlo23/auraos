@@ -7,7 +7,21 @@ Live at [aibusiness.fun](https://aibusiness.fun) · founding OS cohort + [Lokal 
 
 Aura OS is the company operating system for founders who want agents to ship real work — posts, outreach drafts, missions, and weekly proof — without fake busy meters or invented revenue.
 
-Aura Lokal is the same organism, tailored for shops: social, customers, Review Boost invites, and Boost packs under a German phone shell. Go-to-market for the first **1000 local seats** is documented in [docs/GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md). The patron (customer) earn app vision is in [docs/CUSTOMER_APP.md](docs/CUSTOMER_APP.md).
+Aura Lokal is the same organism, tailored for shops: social, customers, Review Boost invites, and Boost packs under a German phone shell. Go-to-market for the first **1000 local seats** is documented in [docs/GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md). The patron (customer) earn app vision is in [docs/CUSTOMER_APP.md](docs/CUSTOMER_APP.md). Loop audit: [docs/LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md).
+
+## Recent development (Lokal + Nachbar)
+
+Shipped a clearer, safer **B2B2C MVP loop** so shops and guests finish the same story without product confusion:
+
+| Who | What changed |
+|---|---|
+| **Guests (Nachbar)** | `/auth?next=/nachbar*` never pitches the $99 founding seat. First-visit “So geht’s”, pending Tresen panel, muted optional Google CTA (no reward styling). |
+| **Shops (Lokal)** | `/boost` explains three unlock paths + handles Stripe `checkout=success\|cancel`. `/bewertungen` has send how-to + guest-flow copy. `/kunden` shows empty QR states and confirm-only-in-store hints. |
+| **Bridge** | `/r/review/$token` stays Nachbar-first; Google is secondary and unpaid. |
+| **Honesty** | Confirm remains the mint gate. Docs updated so Review Boost is documented as a bridge, not a blind Google 302. |
+
+Shop path: unlock → Sterne invites → guest bridge → Tresen confirm on `/kunden`.  
+Guest path: check-in deep link → auth as patron → wait for shop → points.
 
 ## What it is
 
@@ -62,6 +76,7 @@ Entdecken → check-in (slug or /nachbar/c/$code)
 
 Honest rules:
 
+- **Auth split.** Guest links with `next=/nachbar*` skip founding-seat checkout and company onboarding. Shop funnels use `funnel=local`.
 - **Two ledgers.** Nachbar guest points ≠ company AURA / wheel / `founder_progress`. Do not merge them.
 - **No pay-for-stars.** Google review links are optional and unpaid. Share-without-visit pays 0 (`visit_required`).
 - **AURA CA** stays `null` in `src/lib/aura-token.ts` until T-0. Never invent a contract.
@@ -146,6 +161,7 @@ Worker tick (scheduled posts / engagement) uses a bearer secret from the server 
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, auth vs public, mailbox, honesty rules |
 | [GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md) | First 1000 local businesses, referral flywheel |
 | [CUSTOMER_APP.md](docs/CUSTOMER_APP.md) | Patron app (Aura Nachbar): earn, onboard, UI |
+| [LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md) | Lokal ↔ Nachbar happy paths, fixes, backlog |
 | [social-channels.md](docs/social-channels.md) | OAuth scopes, TikTok, Farcaster |
 | [supabase.md](docs/supabase.md) | Local vs cloud DB |
 | [x-launch-drip.md](docs/x-launch-drip.md) | Scheduled posts / drip |

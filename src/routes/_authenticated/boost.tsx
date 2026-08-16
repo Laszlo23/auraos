@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Sparkle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Panel } from "@/components/aura/primitives";
@@ -26,6 +26,11 @@ import { compact } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/boost")({
+  validateSearch: (search: Record<string, unknown>): { checkout?: "success" | "cancel" } => ({
+    ...(search["checkout"] === "success" || search["checkout"] === "cancel"
+      ? { checkout: search["checkout"] }
+      : {}),
+  }),
   head: () => ({
     meta: [{ title: "Aura Reputation — Aura Lokal" }],
   }),
@@ -52,10 +57,43 @@ async function startCheckout(plan: string, companyId: string) {
 function BoostPage() {
   const qc = useQueryClient();
   const { t } = useLocale();
+  const { checkout } = Route.useSearch();
   const { data: company } = useCompany();
   const hub = useQuery({ queryKey: ["lokal-hub"], queryFn: () => getLokalHub() });
   const [code, setCode] = useState("");
   const seatPaid = Boolean(hub.data?.seatPaid ?? company?.local_seat_paid_at);
+
+  useEffect(() => {
+    if (!checkout) return;
+    let cancelled = false;
+    void (async () => {
+      if (checkout === "success") {
+        for (let i = 0; i < 10; i++) {
+          await qc.invalidateQueries({ queryKey: ["lokal-hub"] });
+          await qc.invalidateQueries({ queryKey: ["company"] });
+          await qc.invalidateQueries({ queryKey: ["subscription"] });
+          const fresh = await getLokalHub().catch(() => null);
+          if (cancelled) return;
+          if (fresh?.seatPaid) {
+            toast.success(t("boost.checkoutSuccess"));
+            window.history.replaceState({}, "", "/boost");
+            return;
+          }
+          await new Promise((r) => setTimeout(r, 600));
+        }
+        if (!cancelled) {
+          toast.message(t("boost.checkoutPending"));
+          window.history.replaceState({}, "", "/boost");
+        }
+        return;
+      }
+      toast.message(t("boost.checkoutCancel"));
+      window.history.replaceState({}, "", "/boost");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [checkout, qc, t]);
 
   const redeem = useMutation({
     mutationFn: () => redeemLocalSeatCode({ data: { code } }),
@@ -135,6 +173,11 @@ function BoostPage() {
 
       {!seatPaid ? (
         <Panel label={t("boost.unlockSeat")} glow>
+          <ol className="mb-4 list-decimal space-y-1.5 pl-5 text-[13px] leading-relaxed text-muted-foreground">
+            <li>{t("boost.pathCard")}</li>
+            <li>{t("boost.pathCash")}</li>
+            <li>{t("boost.pathOnce")}</li>
+          </ol>
           <p className="text-[15px] leading-relaxed text-muted-foreground">
             {t("boost.seatBlurb")}
           </p>
@@ -150,6 +193,9 @@ function BoostPage() {
               t("boost.payCard", { eur: AURA_REPUTATION_EUR })
             )}
           </button>
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            {t("boost.recommended")}
+          </p>
 
           <div className="mt-6 rounded-2xl border border-border/50 bg-foreground/[0.03] p-4">
             <p className="text-sm font-semibold">{t("boost.cashCode")}</p>
@@ -186,7 +232,25 @@ function BoostPage() {
         </Panel>
       ) : (
         <>
-          <details className="rounded-3xl border border-border/40 px-4 py-3">
+          <Panel label={t("boost.nextSteps")}>
+            <p className="text-sm text-muted-foreground">{t("boost.nextStepsBlurb")}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                to="/bewertungen"
+                className="rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground"
+              >
+                {t("boost.goReviews")}
+              </Link>
+              <Link
+                to="/kunden"
+                className="rounded-2xl border border-border/50 px-4 py-2.5 text-xs font-semibold"
+              >
+                {t("boost.goGuests")}
+              </Link>
+            </div>
+          </Panel>
+
+          <details className="rounded-3xl border border-border/40 px-4 py-3" open>
             <summary className="cursor-pointer text-sm font-semibold text-muted-foreground">
               {t("boost.packs")}
             </summary>

@@ -134,6 +134,9 @@ function BewertungenPage() {
 
           <Panel label={t("bewertungen.step2")} glow>
             <p className="text-sm text-muted-foreground">{t("bewertungen.step2Hint")}</p>
+            <p className="mt-2 rounded-2xl border border-border/40 bg-foreground/[0.03] px-3 py-2 text-[12px] leading-relaxed text-muted-foreground">
+              {t("bewertungen.step2How")}
+            </p>
             <div className="mt-3 grid gap-2">
               <input
                 value={inviteName}
@@ -156,6 +159,9 @@ function BewertungenPage() {
                 {addInvite.isPending ? t("common.loading") : t("bewertungen.step2Add")}
               </button>
             </div>
+            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+              {t("bewertungen.guestFlow")}
+            </p>
           </Panel>
 
           <Panel label={t("bewertungen.step3")}>
@@ -185,7 +191,14 @@ function BewertungenPage() {
                         className="inline-flex items-center gap-1 text-[11px] font-semibold"
                         onClick={async () => {
                           await navigator.clipboard.writeText(inv.trackUrl);
-                          toast.success(t("bewertungen.copyLink"));
+                          toast.success(
+                            `${t("bewertungen.copyLink")} — WhatsApp / Mail an ${inv.recipient_email || "Kunde"}`,
+                          );
+                          if (inv.status === "draft" || inv.status === "queued") {
+                            void markReviewInviteSent({ data: { inviteId: inv.id } }).then(() =>
+                              qc.invalidateQueries({ queryKey: ["review-invites"] }),
+                            );
+                          }
                         }}
                       >
                         <Copy className="h-3 w-3" /> {t("bewertungen.copyLink")}

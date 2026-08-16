@@ -8,6 +8,7 @@ import {
   isSafeNachbarPath,
   nachbarHeatLabel,
   nachbarStatusLabel,
+  normalizeNachbarCheckinSource,
   peekNachbarVisit,
   rememberNachbarVisit,
   safeHttpUrl,
@@ -96,6 +97,17 @@ describe("labels", () => {
     expect(nachbarHeatLabel(1)).toBe("Lebt");
     expect(nachbarHeatLabel(3)).toBe("Warm");
     expect(nachbarHeatLabel(8)).toBe("Heiß");
+  });
+});
+
+describe("normalizeNachbarCheckinSource", () => {
+  it("keeps analytics sources and never accepts ar", () => {
+    expect(normalizeNachbarCheckinSource("shop")).toBe("shop");
+    expect(normalizeNachbarCheckinSource("CODE")).toBe("code");
+    expect(normalizeNachbarCheckinSource("qr")).toBe("qr");
+    expect(normalizeNachbarCheckinSource("ar")).toBe("qr");
+    expect(normalizeNachbarCheckinSource("javascript:alert(1)")).toBe("qr");
+    expect(normalizeNachbarCheckinSource()).toBe("qr");
   });
 });
 

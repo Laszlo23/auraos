@@ -71,7 +71,7 @@ Review Boost today tracks invite clicks and redirects to the business Google URL
 | Phone shell (Heute, Social, Kunden, Bewertungen, Boost) | Local DE companies after seat |
 | Local Seat | €99 · Barzahlung codes + Stripe (when price env set) |
 | Cohort cap | First **1000** local seats (`local_cohort`) |
-| Review Boost | Campaigns + `/r/review/$token` → Google |
+| Review Boost | Campaigns + `/r/review/$token` → Nachbar check-in primary, Google optional (no reward) |
 | Public card | `/b/$slug` |
 | Boost packs | Sichtbarkeit / Bewertungen / Neukunden |
 

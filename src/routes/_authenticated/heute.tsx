@@ -253,8 +253,8 @@ function HeutePage() {
             : {
                 title: t("heute.boostTitle"),
                 body: t("heute.boostBody"),
-                to: "/kunden" as const,
-                cta: t("heute.doneCta"),
+                to: "/boost" as const,
+                cta: t("heute.boostCta"),
               };
 
   return (

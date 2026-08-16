@@ -213,6 +213,7 @@ function authRedirectUrl(mode?: AuthMode, next?: string) {
   if (mode) params.set("mode", mode);
   const consent = oauthConsentReturn(next);
   if (consent) params.set("next", consent);
+  else if (isNachbarNext(next)) params.set("next", next);
   const q = params.toString();
   return q ? `${origin}/auth?${q}` : `${origin}/auth`;
 }
@@ -271,6 +272,8 @@ function AuthPage() {
   /** Explicit ?funnel= from a /for/* CTA — skips founding-seat gate. Browsing alone does not. */
   const isFunnelEntry = Boolean(funnelFromLink && funnelFromLink !== "os");
   const isLokalEntry = entryFunnel === "local";
+  /** Guest/patron app — never pitch founding seat or force company onboarding. */
+  const isNachbarPatron = isNachbarNext(nextFromLink);
   const [invite, setInvite] = useState(inviteFromLink ?? "");
   const [mode, setMode] = useState<AuthMode>(() =>
     defaultAuthMode({
@@ -381,7 +384,7 @@ function AuthPage() {
 
   /** Optional invite / founder link (open sale — checkout does not require a code). */
   async function passGate(): Promise<boolean> {
-    if (isFunnelEntry) return true;
+    if (isNachbarPatron || isFunnelEntry) return true;
     const referral = (refFromLinkRef.current ?? peekStoredRef() ?? "").trim().toUpperCase();
     if (referral) {
       rememberRef(referral);
@@ -410,8 +413,14 @@ function AuthPage() {
   /**
    * Seat gate: paid founding seat (or legacy company).
    * Open sale — send new accounts to $99 Stripe checkout. Invite is optional attribution.
+   * Nachbar patrons and funnel entries skip this entirely.
    */
   async function ensureSeatOrCheckout(user: User): Promise<"ok" | "need_invite" | "checkout"> {
+    if (isNachbarPatron || isNachbarNext(nextFromLinkRef.current)) {
+      takeStoredInvite();
+      // Keep friend ref in storage for ensureNachbarProfile; do not burn founding invite.
+      return "ok";
+    }
     if (isFunnelEntry) {
       rememberFunnel(funnelFromLink!);
       takeStoredInvite();
@@ -499,6 +508,7 @@ function AuthPage() {
       }
 
       setNeedsInviteToContinue(false);
+      const patronNext = isNachbarNext(nextFromLinkRef.current);
       const storedInvite = (
         invite.trim() ||
         peekStoredInvite() ||
@@ -506,14 +516,15 @@ function AuthPage() {
       )
         .trim()
         .toUpperCase();
-      if (storedInvite && looksLikeInviteCode(storedInvite)) {
+      // Founding invite burn only for company OS path — never for Nachbar friend codes.
+      if (!patronNext && storedInvite && looksLikeInviteCode(storedInvite)) {
         const { error: redeemErr } = await supabase.rpc("redeem_invite_code", {
           _code: storedInvite,
         });
         if (redeemErr) console.warn("redeem_invite_code", redeemErr.message);
       }
       takeStoredInvite();
-      takeStoredRef();
+      if (!patronNext) takeStoredRef();
       if (isNewUser(user)) {
         trackAppEvent("signup_complete", { method: reason });
       }
@@ -522,6 +533,8 @@ function AuthPage() {
       postAuthDoneRef.current = true;
       if (!cancelledRef.current) {
         if (dest.startsWith("/oauth/consent") || dest.startsWith("/i/fc/")) {
+          window.location.assign(dest);
+        } else if (isNachbarNext(dest)) {
           window.location.assign(dest);
         } else {
           navigate({
@@ -720,35 +733,43 @@ function AuthPage() {
     mode === "signup"
       ? needsInviteToContinue
         ? "One more step"
-        : isLokalEntry
-          ? "Betrieb anlegen"
-          : "Create your company"
+        : isNachbarPatron
+          ? "Nachbar-Konto"
+          : isLokalEntry
+            ? "Betrieb anlegen"
+            : "Create your company"
       : mode === "forgot"
         ? "Reset your password"
         : mode === "reset"
           ? "Choose a new password"
           : mode === "magic"
             ? "Magic link"
-            : isLokalEntry
+            : isNachbarPatron
               ? "Willkommen zurück"
-              : "Welcome back";
+              : isLokalEntry
+                ? "Willkommen zurück"
+                : "Welcome back";
 
   const subtitle =
     mode === "signup"
       ? needsInviteToContinue
         ? "Your account is ready — pay $99 to unlock your founding seat."
-        : isLokalEntry
-          ? "Danach: Betriebsname, Stadt, freischalten. Kein AI-OS-Pitch."
-          : "Your agents will be hired and briefed the moment you arrive."
+        : isNachbarPatron
+          ? "Konto anlegen — dann Check-in und Punkte. Kein Firmenkauf."
+          : isLokalEntry
+            ? "Danach: Betriebsname, Stadt, freischalten. Kein AI-OS-Pitch."
+            : "Your agents will be hired and briefed the moment you arrive."
       : mode === "forgot"
         ? "We'll email you a link to set a new password."
         : mode === "reset"
           ? "You're recovering your account. Pick a strong password."
           : mode === "magic"
             ? "We'll email a one-click sign-in link. No password needed."
-            : isLokalEntry
-              ? "Weiter zu Sterne, Gäste und Nachbetreuung."
-              : "Your agents kept working while you were away.";
+            : isNachbarPatron
+              ? "Weiter zu Aura Nachbar — Check-in im Laden."
+              : isLokalEntry
+                ? "Weiter zu Sterne, Gäste und Nachbetreuung."
+                : "Your agents kept working while you were away.";
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -757,15 +778,25 @@ function AuthPage() {
           <div className="flex h-full w-full max-w-xl flex-col justify-between xl:mr-8">
             <AuraLogo
               size="sm"
-              label={isLokalEntry ? "Aura Lokal" : "Aura OS"}
+              label={isNachbarPatron ? "Aura Nachbar" : isLokalEntry ? "Aura Lokal" : "Aura OS"}
             />
 
             <div>
               <p className="mb-5 text-[11px] font-medium uppercase tracking-[0.34em] text-primary">
-                {isLokalEntry ? "Für lokale Betriebe" : "The AI Company Operating System"}
+                {isNachbarPatron
+                  ? "Gäste-App"
+                  : isLokalEntry
+                    ? "Für lokale Betriebe"
+                    : "The AI Company Operating System"}
               </p>
               <h1 className="text-gradient text-6xl font-semibold leading-[1.02]">
-                {isLokalEntry ? (
+                {isNachbarPatron ? (
+                  <>
+                    Check-in im Laden.
+                    <br />
+                    Punkte verdienen.
+                  </>
+                ) : isLokalEntry ? (
                   <>
                     Mehr echte Sterne.
                     <br />
@@ -780,21 +811,30 @@ function AuthPage() {
                 )}
               </h1>
               <p className="mt-7 max-w-md text-base leading-relaxed text-muted-foreground">
-                {isLokalEntry
-                  ? "Konto anlegen → Betrieb benennen → Aura Reputation freischalten. Dann Google-Bewertungen von echten Kunden anfragen."
-                  : "Eight autonomous employees. One shared memory. A business that keeps working while you sleep — and tells you what it decided when you wake up."}
+                {isNachbarPatron
+                  ? "Freunde-Code bleibt gespeichert. Nach dem Login: Check-in am Tresen — Punkte erst nach Bestätigung. Google optional, ohne Belohnung."
+                  : isLokalEntry
+                    ? "Konto anlegen → Betrieb benennen → Aura Reputation freischalten. Dann Google-Bewertungen von echten Kunden anfragen."
+                    : "Eight autonomous employees. One shared memory. A business that keeps working while you sleep — and tells you what it decided when you wake up."}
               </p>
 
               <div className="glass mt-10 max-w-md rounded-3xl p-5">
                 <p className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                  <Pulse /> {isLokalEntry ? "Aura Reputation" : "Atlas · Chief Executive"}
+                  <Pulse />{" "}
+                  {isNachbarPatron
+                    ? "Aura Nachbar"
+                    : isLokalEntry
+                      ? "Aura Reputation"
+                      : "Atlas · Chief Executive"}
                 </p>
                 <p className="text-sm leading-relaxed text-foreground/90">
                   <StreamText
                     text={
-                      isLokalEntry
-                        ? "49 €/Monat oder Barzahlungs-Code — dann Sterne und Gäste."
-                        : "Got it. I'm on it — your company is ready when you are."
+                      isNachbarPatron
+                        ? "Kein Firmenkauf. Kein Founding Seat. Nur Check-in und Punkte."
+                        : isLokalEntry
+                          ? "49 €/Monat oder Barzahlungs-Code — dann Sterne und Gäste."
+                          : "Got it. I'm on it — your company is ready when you are."
                     }
                   />
                 </p>
@@ -802,9 +842,11 @@ function AuthPage() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              {isLokalEntry
-                ? "Einfach. Für den Laden. Keine Fake-Sterne."
-                : "Encrypted. Isolated. Yours alone."}
+              {isNachbarPatron
+                ? "Echte Besuche. Keine Fake-Sterne."
+                : isLokalEntry
+                  ? "Einfach. Für den Laden. Keine Fake-Sterne."
+                  : "Encrypted. Isolated. Yours alone."}
             </p>
           </div>
         </div>
@@ -899,11 +941,11 @@ function AuthPage() {
                 }}
                 className="space-y-3"
               >
-                {magicCreatesUser && !isFunnelEntry && (refFromLink || invite) ? (
+                {magicCreatesUser && (refFromLink || invite) ? (
                   <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm">
                     <Pulse />
                     <span className="text-muted-foreground">
-                      Friend code attached ·{" "}
+                      {isNachbarPatron ? "Nachbar-Einladung · " : "Friend code attached · "}
                       <span className="font-semibold uppercase tracking-[0.14em] text-primary">
                         {refFromLink || invite}
                       </span>
@@ -965,7 +1007,21 @@ function AuthPage() {
               </form>
             ) : (
               <form onSubmit={(e) => void submitPassword(e)} className="space-y-3">
-                {mode === "signup" && refFromLink && !isFunnelEntry ? (
+                {mode === "signup" && isNachbarPatron ? (
+                  <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
+                    Aura Nachbar · {refFromLink ? (
+                      <>
+                        Einladung{" "}
+                        <span className="font-semibold uppercase tracking-[0.12em] text-primary">
+                          {refFromLink}
+                        </span>{" "}
+                        — danach Check-in, kein Firmenkauf.
+                      </>
+                    ) : (
+                      "Konto anlegen, dann Check-in im Laden. Kein Founding Seat."
+                    )}
+                  </p>
+                ) : mode === "signup" && refFromLink && !isFunnelEntry ? (
                   <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary/8 px-4 py-3 text-sm">
                     <Pulse />
                     <span className="text-muted-foreground">

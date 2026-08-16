@@ -7,7 +7,7 @@ This is a **product design doc**. An MVP is live at `/nachbar` (tabs, check-in, 
 
 ## Why this app exists
 
-Review Boost already asks real customers for Google feedback via `/r/review/$token`. That path is a **302 to Google** — no identity, no wallet, no earn loop.
+Review Boost invites live at `/r/review/$token`. That path is a **bridge page** (not a blind 302): primary CTA is Nachbar check-in; Google is secondary and **never rewarded**.
 
 Nachbar closes the loop:
 
@@ -21,15 +21,18 @@ Nachbar closes the loop:
 
 Earnable actions:
 
-- First account + link to a shop that invited you
-- **Check-in** at a cohort shop (QR / staff / geofence)
+- Welcome grant + friend activation after first **confirmed** check-in
+- **Check-in** at a cohort shop (QR / code; owner confirms at Tresen)
 - Referring a friend who completes a check-in
-- Referring a **new business** that takes a Local Seat
-- Optional **in-app** feedback (Aura-native), separate from Google
+- Optional **in-app** feedback / Nachbar-Note (Aura-native), separate from Google
 
-After check-in, UI may show a soft Google CTA:
+After check-in, UI may show a soft Google CTA (muted styling, not earn-gold):
 
 > “Wenn es dir gefallen hat, kannst du optional Google Bescheid sagen — dafür gibt es **keine** Belohnung.”
+
+## Auth note (critical)
+
+`/auth?next=/nachbar/*` is the **patron path**: no founding-seat $99 checkout, no company onboarding. Friend `ref` codes on Nachbar links are patronage invites, not OS founding invites.
 
 ## Look and feel
 
@@ -41,33 +44,17 @@ Match Aura Lokal business shell: phone-first, calm, German copy, tab bar — **n
 - Motion: short tab transitions, balance tick on earn, QR scan pulse — 2–3 intentional motions, not noise
 - Default: no card grids in the hero; cards only where interaction needs a container (offer redeem, check-in confirm)
 
-## Onboarding (3 screens)
+## Onboarding (shipped MVP)
 
 Entry points:
 
-- Shop invite / Review Boost link (`/r/review/$token` → Nachbar claim, then optional unpaid Google)
-- Public shop card (`/b/$slug` → “Nachbar werden”)
-- Friend referral deep link
-- Later: App Store / PWA install from `/lokal` or a `/nachbar` landing
+- Review Boost link (`/r/review/$token` → Nachbar check-in primary, Google optional)
+- Public shop card (`/b/$slug` → check-in)
+- Friend referral deep link (`/nachbar/ref/$code`)
+- Landing `/nachbar` → `/auth?next=/nachbar/heute`
 
-### Screen 1 — Welcome
-
-- Headline: **Aura Nachbar**
-- One line: “Check in bei Läden in deiner Nähe. Verdiene. Bring Freunde.”
-- CTA: Weiter mit Apple / Google / Handynummer
-- Fine print: no payment required to join; not an investment
-
-### Screen 2 — Neighborhood
-
-- City (prefill from invite)
-- First shop (from invite token or search cohort shops)
-- Confirm: “Das ist mein Stamm-Laden” (can add more later)
-
-### Screen 3 — Guthaben ready
-
-- Invisible smart-wallet provision (server-side; reuse Alchemy patterns used for founders)
-- Copy: **Dein Guthaben** — never “seed phrase,” never “APY”
-- Short tip: check in with the shop QR after your next visit
+**Shipped:** landing → auth (Nachbar copy) → `/nachbar/heute` with “So geht’s” tip + auto profile.  
+**Backlog:** 3-screen wizard, Stamm-Laden picker, Apple/phone CTAs, geofence, perk redeem, USDC cash-out.
 
 ## Core tabs
 

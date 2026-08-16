@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { explainNachbarError, safeHttpUrl } from "@/lib/nachbar-play";
+import { explainNachbarError, normalizeNachbarCheckinSource, safeHttpUrl } from "@/lib/nachbar-play";
 
 type LooseDb = {
   from: (t: string) => any;
@@ -193,7 +193,7 @@ export const requestNachbarCheckin = createServerFn({ method: "POST" })
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, "")
       .slice(0, 16),
-    source: String(input.source || "qr").slice(0, 32),
+    source: normalizeNachbarCheckinSource(input.source),
   }))
   .handler(async ({ data, context }) => {
     if (data.code.length < 6) throw new Error("Code ungültig.");
@@ -222,7 +222,7 @@ export const requestNachbarCheckinBySlug = createServerFn({ method: "POST" })
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, "")
       .slice(0, 64),
-    source: String(input.source || "shop").slice(0, 32),
+    source: normalizeNachbarCheckinSource(input.source || "shop"),
   }))
   .handler(async ({ data, context }) => {
     if (data.slug.length < 2) throw new Error("Laden nicht gefunden.");
