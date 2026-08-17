@@ -36,6 +36,7 @@ function nowApiKey(): string {
 function ipnSecret(): string {
   return (
     process.env["NOWPAYMENTS_IPN_SECRET"]?.trim() ||
+    process.env["NOWPAYMENTS_SECRET_KEY"]?.trim() ||
     process.env["NOWPAYMENTS_API_KEY"]?.trim() ||
     ""
   );
