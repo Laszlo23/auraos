@@ -72,10 +72,19 @@ export const Route = createFileRoute("/wien")({
     ],
     links: [{ rel: "canonical", href: url("/wien") }],
   }),
+  loader: async () => {
+    try {
+      const rows = await getPublicLokalDirectory();
+      return { listings: Array.isArray(rows) ? rows : [] };
+    } catch {
+      return { listings: [] as Awaited<ReturnType<typeof getPublicLokalDirectory>> };
+    }
+  },
   component: WienHubPage,
 });
 
 function WienHubPage() {
+  const initial = Route.useLoaderData();
   const { data, isLoading } = useQuery({
     queryKey: ["public-lokal-directory"],
     queryFn: async () => {
@@ -86,6 +95,7 @@ function WienHubPage() {
         return [];
       }
     },
+    initialData: initial.listings,
     staleTime: 60_000,
   });
   const listings = Array.isArray(data) ? data : [];
