@@ -1055,6 +1055,7 @@ export type Database = {
           phone: string | null
           postal_code: string | null
           public_email: string | null
+          public_story: string | null
           pulse_paper_usdc: number | null
           quant_boost_pct: number
           quant_boost_until: string | null
@@ -1110,6 +1111,7 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           public_email?: string | null
+          public_story?: string | null
           pulse_paper_usdc?: number | null
           quant_boost_pct?: number
           quant_boost_until?: string | null
@@ -1165,6 +1167,7 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           public_email?: string | null
+          public_story?: string | null
           pulse_paper_usdc?: number | null
           quant_boost_pct?: number
           quant_boost_until?: string | null
@@ -4263,6 +4266,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "social_oauth_states_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_media: {
+        Row: {
+          caption: string | null
+          company_id: string
+          created_at: string
+          id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          caption?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          caption?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_media_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"

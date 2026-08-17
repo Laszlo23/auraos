@@ -28,7 +28,7 @@ async function ownedCompany(supabase: LooseDb, userId: string) {
   const { data } = await supabase
     .from("companies")
     .select(
-      "id, name, slug, homepage_url, google_review_url, local_cohort_number, entry_funnel, is_local_business, booking_url, hours_note",
+      "id, name, slug, homepage_url, google_review_url, local_cohort_number, entry_funnel, is_local_business, booking_url, hours_note, cover_url, public_story",
     )
     .eq("owner_id", userId)
     .order("created_at", { ascending: true })
@@ -46,6 +46,8 @@ async function ownedCompany(supabase: LooseDb, userId: string) {
     is_local_business: boolean;
     booking_url: string | null;
     hours_note: string | null;
+    cover_url: string | null;
+    public_story: string | null;
   };
 }
 
@@ -122,12 +124,26 @@ export const updateLocalBusinessProfile = createServerFn({ method: "POST" })
       name?: string;
       bookingUrl?: string;
       hoursNote?: string;
+      coverUrl?: string | null;
+      publicStory?: string | null;
     }) => ({
       homepageUrl: typeof input.homepageUrl === "string" ? input.homepageUrl : undefined,
       googleReviewUrl: typeof input.googleReviewUrl === "string" ? input.googleReviewUrl : undefined,
       name: typeof input.name === "string" ? input.name.trim().slice(0, 80) : undefined,
       bookingUrl: typeof input.bookingUrl === "string" ? input.bookingUrl : undefined,
       hoursNote: typeof input.hoursNote === "string" ? input.hoursNote.trim().slice(0, 160) : undefined,
+      coverUrl:
+        input.coverUrl === null
+          ? null
+          : typeof input.coverUrl === "string"
+            ? input.coverUrl
+            : undefined,
+      publicStory:
+        input.publicStory === null
+          ? null
+          : typeof input.publicStory === "string"
+            ? input.publicStory
+            : undefined,
     }),
   )
   .handler(async ({ data, context }) => {
@@ -152,6 +168,20 @@ export const updateLocalBusinessProfile = createServerFn({ method: "POST" })
     }
     if (data.hoursNote !== undefined) patch["hours_note"] = data.hoursNote || null;
     if (data.name && data.name.length > 1) patch["name"] = data.name;
+    if (data.coverUrl !== undefined) {
+      if (data.coverUrl === null || data.coverUrl.trim() === "") {
+        patch["cover_url"] = null;
+      } else {
+        const url = normalizeHttpUrl(data.coverUrl);
+        if (!url) throw new Error("Cover URL looks invalid.");
+        patch["cover_url"] = url;
+      }
+    }
+    if (data.publicStory !== undefined) {
+      const story =
+        data.publicStory === null ? "" : String(data.publicStory).trim().slice(0, 1200);
+      patch["public_story"] = story || null;
+    }
 
     if (Object.keys(patch).length === 0) return { ok: true };
 

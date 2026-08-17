@@ -89,8 +89,9 @@ export const LOKAL_SALES_SLIDES: SalesSlide[] = [
       "Sterne — Einladungen an echte Kunden. Klicks. Keine gekauften Texte.",
       "Gäste — QR oder Code. Du bestätigst den Besuch.",
       "Posts — Entwürfe warten. Du gibst frei, wenn’s passt.",
+      "Visitenkarte — Cover, Galerie, Angebot: deine Seite sieht aus wie dein Laden.",
     ],
-    say: "Zeig Heute in der App, wenn du eingeloggt bist. Sonst diese drei Wörter. Nicht das ganze OS.",
+    say: "Zeig Heute in der App, wenn du eingeloggt bist. Sonst: Sterne, Gäste, und die öffentliche Karte. Tisch: „Deine Seite sieht aus wie dein Laden — Galerie, Angebot, echte Nachbarn.“",
   },
   {
     id: "trust",

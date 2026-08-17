@@ -195,8 +195,11 @@ function BusinessHubPage() {
             </Panel>
 
             <ShopDesk
-              bookingUrl={(company as { booking_url?: string | null }).booking_url}
-              hoursNote={(company as { hours_note?: string | null }).hours_note}
+              companyId={company?.id}
+              bookingUrl={(company as { booking_url?: string | null } | undefined)?.booking_url}
+              hoursNote={(company as { hours_note?: string | null } | undefined)?.hours_note}
+              coverUrl={(company as { cover_url?: string | null } | undefined)?.cover_url}
+              publicStory={(company as { public_story?: string | null } | undefined)?.public_story}
             />
 
             <Panel

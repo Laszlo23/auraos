@@ -7,6 +7,12 @@ import {
 } from "@/lib/lokal-shops";
 import type { ShopCatalogItem } from "@/lib/shop-catalog.functions";
 
+export type PublicShopGalleryItem = {
+  id: string;
+  url: string;
+  caption: string | null;
+};
+
 export type PublicLokalListing = {
   name: string;
   slug: string;
@@ -54,6 +60,7 @@ export type PublicLocalBusiness = {
   services: string[];
   service_details: LokalServiceSpotlight[];
   story: string;
+  gallery: PublicShopGalleryItem[];
   nachbar_checkin_code: string | null;
   checkin_count: number;
   invite_count: number;
@@ -70,7 +77,7 @@ const LISTING_COLS =
   "name, slug, tagline, city, niche, homepage_url, google_review_url, local_cohort_number, emoji, street, postal_code, district, cover_url, featured";
 
 const PROFILE_COLS =
-  "id, name, slug, tagline, city, niche, homepage_url, google_review_url, local_cohort_number, emoji, is_local_business, street, postal_code, district, phone, public_email, hours_note, booking_url, cover_url, owner_display_name, featured, services, nachbar_checkin_code";
+  "id, name, slug, tagline, city, niche, homepage_url, google_review_url, local_cohort_number, emoji, is_local_business, street, postal_code, district, phone, public_email, hours_note, booking_url, cover_url, owner_display_name, featured, services, nachbar_checkin_code, public_story";
 
 function mapListing(c: Record<string, unknown>): PublicLokalListing {
   return {
@@ -151,8 +158,8 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       { data: neighborRows },
       { data: catalogRows },
       ratings,
-    ] =
-      await Promise.all([
+      { data: galleryRows },
+    ] = await Promise.all([
       supabaseAdmin
         .from("channel_posts")
         .select("id, provider, body, published_at, status")
@@ -197,6 +204,13 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         .from("nachbar_ratings" as never)
         .select("score")
         .eq("company_id", company.id),
+      supabaseAdmin
+        .from("shop_media" as never)
+        .select("id, url, caption, sort_order")
+        .eq("company_id", company.id)
+        .order("sort_order")
+        .order("created_at")
+        .limit(12),
     ]);
 
     const editorial = editorialForSlug(company.slug as string);
@@ -206,6 +220,8 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
     const services = dbServices.length > 0 ? dbServices : (editorial?.services ?? []);
     const serviceDetails =
       editorial?.serviceDetails ?? services.map((title) => ({ title, blurb: "" }));
+    const dbStory =
+      typeof company.public_story === "string" ? company.public_story.trim() : "";
 
     return {
       name: company.name as string,
@@ -232,12 +248,22 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       services,
       service_details: serviceDetails,
       story:
-        editorial?.story ??
+        dbStory ||
+        editorial?.story ||
         defaultShopStory({
           name: company.name as string,
           city: company.city as string | null,
           niche: company.niche as string | null,
         }),
+      gallery: (
+        (galleryRows ?? []) as { id: string; url: string; caption: string | null }[]
+      )
+        .filter((row) => Boolean(row.url))
+        .map((row) => ({
+          id: row.id,
+          url: row.url,
+          caption: row.caption,
+        })),
       nachbar_checkin_code: (company.nachbar_checkin_code as string | null) ?? null,
       checkin_count: checkins.count ?? 0,
       nachbar_rating_avg: (() => {

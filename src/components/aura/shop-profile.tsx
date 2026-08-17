@@ -8,7 +8,9 @@ import {
   Share2,
   Star,
   Store,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 
 import { NachbarNotePips } from "@/components/aura/nachbar-note";
 import { Chip, Pulse } from "@/components/aura/primitives";
@@ -23,7 +25,10 @@ import {
   mapsSearchUrl,
   telHref,
 } from "@/lib/lokal-shops";
-import type { PublicLocalBusiness } from "@/lib/reviews.public.functions";
+import type {
+  PublicLocalBusiness,
+  PublicShopGalleryItem,
+} from "@/lib/reviews.public.functions";
 import { REVIEW_APP_URL, SITE_URL, url } from "@/lib/site";
 
 const ATMOSPHERE = "/funnels/lokal-hero.jpg";
@@ -45,8 +50,10 @@ export function ShopProfile({ shop }: { shop: PublicLocalBusiness }) {
       <div className="relative mx-auto grid max-w-6xl gap-8 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-8">
         <div className="min-w-0 space-y-5">
           <HowItWorks slug={shop.slug} />
+          <ShopGallery items={shop.gallery} shopName={shop.name} />
           <ShopCatalogAndBook shop={shop} />
-          <Feed shop={shop} checkinHref={checkinHref} />
+          <NachbarProof shop={shop} checkinHref={checkinHref} />
+          <Feed shop={shop} />
           <VisitStrip shop={shop} address={address} mapQuery={mapQuery} />
         </div>
 
@@ -95,8 +102,9 @@ function Hero({
         aria-hidden
         className="absolute inset-0"
         style={{
-          background:
-            "linear-gradient(180deg, oklch(0.16 0.02 240 / 0.35) 0%, oklch(0.14 0.02 240 / 0.72) 42%, oklch(0.13 0.02 240 / 0.96) 100%)",
+          background: usingCover
+            ? "linear-gradient(180deg, oklch(0.16 0.02 240 / 0.18) 0%, oklch(0.14 0.02 240 / 0.45) 48%, oklch(0.12 0.02 240 / 0.88) 100%)"
+            : "linear-gradient(180deg, oklch(0.16 0.02 240 / 0.35) 0%, oklch(0.14 0.02 240 / 0.72) 42%, oklch(0.13 0.02 240 / 0.96) 100%)",
         }}
       />
       <div className="relative mx-auto flex min-h-[72svh] max-w-6xl flex-col justify-end px-5 pb-12 pt-28 lg:px-8">
@@ -292,6 +300,138 @@ function ActionRail({
   );
 }
 
+function ShopGallery({
+  items,
+  shopName,
+}: {
+  items: PublicShopGalleryItem[];
+  shopName: string;
+}) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  if (!items.length) return null;
+  const open = openIdx != null ? items[openIdx] : null;
+
+  return (
+    <section className="space-y-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+        So sieht&apos;s aus
+      </p>
+      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
+        {items.map((item, i) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setOpenIdx(i)}
+            className="group relative h-44 w-64 shrink-0 overflow-hidden rounded-[1.4rem] border border-border/40 bg-card/30 text-left"
+          >
+            <img
+              src={item.url}
+              alt={item.caption || `${shopName} Foto ${i + 1}`}
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+              loading="lazy"
+            />
+            {item.caption ? (
+              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2.5 pt-8 text-[12px] font-medium text-white">
+                {item.caption}
+              </span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+      {open ? (
+        <div
+          role="dialog"
+          aria-modal
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setOpenIdx(null)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpenIdx(null);
+          }}
+        >
+          <button
+            type="button"
+            aria-label="Schließen"
+            className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 p-2 text-white"
+            onClick={() => setOpenIdx(null)}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img
+            src={open.url}
+            alt={open.caption || shopName}
+            className="max-h-[88vh] max-w-full rounded-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          {open.caption ? (
+            <p className="absolute bottom-6 left-1/2 max-w-lg -translate-x-1/2 text-center text-sm text-white/85">
+              {open.caption}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function NachbarProof({
+  shop,
+  checkinHref,
+}: {
+  shop: PublicLocalBusiness;
+  checkinHref: string | null;
+}) {
+  if (!checkinHref || !shop.nachbar_checkin_code) return null;
+
+  return (
+    <section className="overflow-hidden rounded-[2rem] border border-primary/30 bg-card/40">
+      <div className="grid gap-5 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
+        <img
+          src={checkinQrUrl(checkinHref)}
+          alt="Check-in QR"
+          width={180}
+          height={180}
+          className="mx-auto rounded-2xl bg-white p-2"
+        />
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+            Echte Nachbarn
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            {shop.checkin_count === 0
+              ? "Sei der erste Nachbar"
+              : `${shop.checkin_count} echte Check-ins`}
+          </h2>
+          <NachbarNotePips
+            className="mt-2"
+            avg={shop.nachbar_rating_avg}
+            count={shop.nachbar_rating_count}
+          />
+          <p className="mt-2 text-[14px] text-muted-foreground">
+            Code {shop.nachbar_checkin_code} — scannen oder tippen. Kein Theater, nur der Besuch.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              to="/nachbar/c/$code"
+              params={{ code: shop.nachbar_checkin_code }}
+              className="inline-flex rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+            >
+              Jetzt einchecken
+            </Link>
+            <a
+              href={checkinHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex rounded-2xl border border-border/50 px-4 py-2.5 text-sm font-semibold"
+            >
+              QR öffnen
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HowItWorks({ slug }: { slug: string }) {
   const custom = editorialForSlug(slug)?.howSteps;
   const steps = (custom ?? [
@@ -343,7 +483,7 @@ function HowItWorks({ slug }: { slug: string }) {
   );
 }
 
-function Feed({ shop, checkinHref }: { shop: PublicLocalBusiness; checkinHref: string | null }) {
+function Feed({ shop }: { shop: PublicLocalBusiness }) {
   return (
     <section className="space-y-4">
       <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -387,45 +527,6 @@ function Feed({ shop, checkinHref }: { shop: PublicLocalBusiness; checkinHref: s
           </p>
           <p className="mt-2 font-display text-3xl font-semibold">{shop.invite_count}</p>
           <p className="mt-1 text-[13px] text-muted-foreground">echte Gäste gebeten — nicht Sterne gekauft.</p>
-        </article>
-      ) : null}
-
-      {checkinHref && shop.nachbar_checkin_code ? (
-        <article className="overflow-hidden rounded-[2rem] border border-primary/30 bg-card/40">
-          <div className="grid gap-5 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
-            <img
-              src={checkinQrUrl(checkinHref)}
-              alt="Check-in QR"
-              width={180}
-              height={180}
-              className="mx-auto rounded-2xl bg-white p-2"
-            />
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
-                Nachbar-Check-in
-              </p>
-              <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
-                {shop.checkin_count === 0
-                  ? "Sei der erste Nachbar"
-                  : `${shop.checkin_count} echte Check-ins`}
-              </h2>
-              <NachbarNotePips
-                className="mt-2"
-                avg={shop.nachbar_rating_avg}
-                count={shop.nachbar_rating_count}
-              />
-              <p className="mt-2 text-[14px] text-muted-foreground">
-                Code {shop.nachbar_checkin_code} — scannen oder tippen. Kein Theater, nur der Besuch.
-              </p>
-              <Link
-                to="/nachbar/c/$code"
-                params={{ code: shop.nachbar_checkin_code }}
-                className="mt-4 inline-flex rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
-              >
-                Jetzt einchecken
-              </Link>
-            </div>
-          </div>
         </article>
       ) : null}
 

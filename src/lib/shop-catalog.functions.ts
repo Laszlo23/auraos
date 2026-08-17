@@ -113,12 +113,18 @@ export const upsertShopCatalogItem = createServerFn({ method: "POST" })
         : null,
     booking_mode: asMode(String(input.booking_mode || "request")),
     booking_url: input.booking_url?.trim().slice(0, 300) || null,
+    image_url:
+      input.image_url === null
+        ? null
+        : typeof input.image_url === "string"
+          ? input.image_url.trim().slice(0, 2000) || null
+          : undefined,
     is_public: input.is_public !== false,
   }))
   .handler(async ({ data, context }) => {
     if (data.name.length < 2) throw new Error("Name fehlt.");
     const companyId = await ownedCompanyId(context.supabase, context.userId);
-    const row = {
+    const row: Record<string, unknown> = {
       company_id: companyId,
       name: data.name,
       kind: data.kind,
@@ -130,6 +136,7 @@ export const upsertShopCatalogItem = createServerFn({ method: "POST" })
       is_public: data.is_public,
       updated_at: new Date().toISOString(),
     };
+    if (data.image_url !== undefined) row.image_url = data.image_url;
     if (data.id) {
       const { error } = await context.supabase
         .from("shop_catalog_items")
@@ -157,6 +164,39 @@ export const deleteShopCatalogItem = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("shop_catalog_items")
       .delete()
+      .eq("id", data.id)
+      .eq("company_id", companyId);
+    if (error) throw error;
+    return { ok: true as const };
+  });
+
+export const setShopCatalogImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { id: string; imageUrl: string | null }) => ({
+    id: String(input.id || "").trim(),
+    imageUrl:
+      input.imageUrl === null
+        ? null
+        : String(input.imageUrl || "")
+            .trim()
+            .slice(0, 2000) || null,
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.id) throw new Error("Eintrag fehlt.");
+    if (data.imageUrl) {
+      try {
+        const u = new URL(data.imageUrl);
+        if (u.protocol !== "http:" && u.protocol !== "https:") {
+          throw new Error("invalid");
+        }
+      } catch {
+        throw new Error("Bild-URL ungültig.");
+      }
+    }
+    const companyId = await ownedCompanyId(context.supabase, context.userId);
+    const { error } = await context.supabase
+      .from("shop_catalog_items")
+      .update({ image_url: data.imageUrl, updated_at: new Date().toISOString() })
       .eq("id", data.id)
       .eq("company_id", companyId);
     if (error) throw error;

@@ -72,8 +72,10 @@ Review Boost today tracks invite clicks and redirects to the business Google URL
 | Local Seat | €99 · access only · Barzahlung / Stripe / crypto (USDC·ETH·BTC·SOL) |
 | Cohort cap | First **1000** local seats (`local_cohort`) |
 | Review Boost | Campaigns + `/r/review/$token` → Nachbar check-in primary, Google optional (no reward) |
-| Public card | `/b/$slug` |
+| Public card | `/b/$slug` — **eigene Visitenkarte**: Cover-Hero, Galerie, Foto-Angebot, echte Nachbarn (Check-in + Noten), Owner-Upload unter `/business` |
 | Boost packs | Sichtbarkeit / Bewertungen / Neukunden |
+
+**Tisch pitch (Local Seat):** „Deine Seite sieht aus wie dein Laden — Galerie, Angebot, echte Nachbarn.“
 
 Founding-seat crypto invites (`/access`, earn tiers) are a **separate** graph. Do not mix founding AURA referral stages with Lokal seat economics.
 
