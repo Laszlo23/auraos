@@ -15,6 +15,8 @@ export type LokalShopEditorial = {
   ownerLabel?: string;
   webLabel?: string;
   howSteps?: { title: string; body: string }[];
+  /** Public social links shown on /b/$slug */
+  socials?: { label: string; href: string }[];
 };
 
 export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
@@ -92,6 +94,56 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     howSteps: [
       { title: "Besuch", body: "Linzer Straße 74, 1140 — rein, Platz nehmen." },
       { title: "Check-in", body: "QR scannen — du wirst Nachbar. Kein Theater." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
+  },
+  "tante-liesl": {
+    story:
+      "Bei Tante Liesl wird gekocht, gelacht & genossen — Servitengasse 7, mitten im Servitenviertel neben der Kirche. Traditionelle Wiener Küche mit modernem Twist: Schnitzel, Grammelknödel, Schwammerlgulasch, Sonntagsbraten. Gastgarten unter Bäumen im Sommer. Bodenständig, nachbarschaftlich, keine Fake-Sterne.",
+    services: [
+      "Wiener Küche",
+      "Mittagstisch",
+      "Sonntagsbraten",
+      "Gastgarten",
+      "Vegetarisch",
+      "Reservierung",
+    ],
+    serviceDetails: [
+      {
+        title: "Wiener Küche",
+        blurb: "Klassiker und Hausgerichte — Grammelknödel, Schwammerlgulasch, Schnitzel.",
+      },
+      {
+        title: "Mittagstisch",
+        blurb: "Mo–Fr wechselndes Tagesgericht, fair kalkuliert.",
+      },
+      {
+        title: "Sonntagsbraten",
+        blurb: "Der Sonntag hat seinen Platz — wie’s sich gehört.",
+      },
+      {
+        title: "Gastgarten",
+        blurb: "Schattige Terrasse zum Servitenplatz — im Sommer heiß begehrt.",
+      },
+      {
+        title: "Vegetarisch",
+        blurb: "Auch ohne Fleisch: z. B. Schwammerl-Beuschel, Erbsentascherl.",
+      },
+      {
+        title: "Reservierung",
+        blurb: "Oft voll — vorher anrufen lohnt sich.",
+      },
+    ],
+    googleFindCopy: "Tante Liesl auf Google finden",
+    ownerLabel: "Gastgeberin",
+    webLabel: "Website",
+    socials: [
+      { label: "Instagram", href: "https://www.instagram.com/tante.liesl" },
+      { label: "Facebook", href: "https://www.facebook.com/gasthaustanteliesl" },
+    ],
+    howSteps: [
+      { title: "Besuch", body: "Servitengasse 7, 1090 — neben der Servitenkirche." },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar im Grätzl." },
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
   },

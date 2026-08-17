@@ -170,6 +170,7 @@ function ActionRail({
     }
   };
 
+  const editorial = editorialForSlug(shop.slug);
   const items = [
     shop.booking_url
       ? {
@@ -184,10 +185,17 @@ function ActionRail({
             key: "web",
             href: shop.homepage_url,
             external: true,
-            label: editorialForSlug(shop.slug)?.webLabel ?? "Web",
+            label: editorial?.webLabel ?? "Web",
             icon: ExternalLink,
           }
         : null,
+    ...(editorial?.socials ?? []).map((s, i) => ({
+      key: `social-${i}`,
+      href: s.href,
+      external: true as const,
+      label: s.label,
+      icon: ExternalLink,
+    })),
     shop.phone
       ? { key: "tel", href: telHref(shop.phone), external: true, label: "Anrufen", icon: Phone }
       : null,
@@ -316,6 +324,21 @@ function HowItWorks({ slug }: { slug: string }) {
           </li>
         ))}
       </ol>
+      {editorialForSlug(slug)?.socials?.length ? (
+        <div className="mt-5 flex flex-wrap gap-2">
+          {editorialForSlug(slug)!.socials!.map((s) => (
+            <a
+              key={s.href}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-2xl border border-border/50 bg-background/50 px-4 py-2 text-xs font-semibold hover:border-primary/40"
+            >
+              {s.label}
+            </a>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
