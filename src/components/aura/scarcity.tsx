@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -9,8 +8,7 @@ import {
   FOUNDING_SEATS_TOTAL,
   WAVE1_CLOSES_DISPLAY,
   WAVE1_LABEL,
-  wave1Closed,
-  wave1RemainingMs,
+  WAVE1_LAUNCH_TRUST,
 } from "@/lib/marketing-scarcity";
 import { Meter } from "./primitives";
 
@@ -29,17 +27,6 @@ function useFoundingSeatsTaken() {
       return Number.isFinite(n) ? n : 0;
     },
   });
-}
-
-function formatCountdown(ms: number): string {
-  if (ms <= 0) return "Closed";
-  const totalSec = Math.floor(ms / 1000);
-  const d = Math.floor(totalSec / 86400);
-  const h = Math.floor((totalSec % 86400) / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  if (d > 0) return `${d}d ${h}h ${m}m`;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 /**
@@ -101,24 +88,17 @@ export function FoundingCohort({
 }
 
 /**
- * Wave 1 pressure: real founding seats remaining + real fair-launch countdown.
- * No remapped “invite slot” inventory.
+ * Wave 1 pressure: real founding seats remaining + fair-launch announce policy.
+ * No remapped “invite slot” inventory. No fixed public T-0 clock.
  */
 export function MarketingWaveScarcity({ className }: { className?: string }) {
   const { data: seatsTaken = 0, isFetched } = useFoundingSeatsTaken();
   const { data: totals } = useNetworkTotals();
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const t = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(t);
-  }, []);
 
   const taken = Math.min(FOUNDING_SEATS_TOTAL, Math.max(0, seatsTaken));
   const remaining = Math.max(0, FOUNDING_SEATS_TOTAL - taken);
   const pct = (taken / FOUNDING_SEATS_TOTAL) * 100;
-  const closed = wave1Closed(now);
-  const clock = formatCountdown(wave1RemainingMs(now));
+  const soldOut = remaining === 0;
   const companies = totals?.companies;
 
   return (
@@ -132,16 +112,16 @@ export function MarketingWaveScarcity({ className }: { className?: string }) {
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
         <span>{WAVE1_LABEL}</span>
         <span className="num text-gold">
-          {closed
-            ? "Wave closed"
+          {soldOut
+            ? "Wave sold out"
             : isFetched
               ? `${num(remaining)} of ${num(FOUNDING_SEATS_TOTAL)} seats left`
               : "—"}
         </span>
       </div>
-      <Meter value={closed ? 100 : isFetched ? pct : 0} tone="gold" />
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[12px] text-muted-foreground/85">
-        <p className="leading-relaxed">
+      <Meter value={soldOut ? 100 : isFetched ? pct : 0} tone="gold" />
+      <div className="mt-3 flex flex-col gap-2 text-[12px] text-muted-foreground/85 sm:flex-row sm:items-start sm:justify-between">
+        <p className="max-w-xl leading-relaxed">
           Paid founding seats only
           {companies != null ? (
             <>
@@ -150,10 +130,10 @@ export function MarketingWaveScarcity({ className }: { className?: string }) {
               the network
             </>
           ) : null}
-          . Clock ends at fair launch.
+          . {WAVE1_LAUNCH_TRUST}
         </p>
         <p className="num shrink-0 font-semibold tracking-wide text-foreground">
-          {closed ? WAVE1_CLOSES_DISPLAY : clock}
+          {WAVE1_CLOSES_DISPLAY}
         </p>
       </div>
     </motion.div>

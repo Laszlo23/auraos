@@ -54,14 +54,18 @@ export {
 } from "@/lib/legal-entity";
 
 /**
- * Fair token launch — Monday 17 Aug 2026, 13:11 Central European Summer Time (UTC+2).
- * No ticker / CA until T-0; keep this ISO string as the single countdown source.
+ * Fair token launch — no fixed public clock.
+ * Exact T-0 is announced on official channels 48 hours ahead. No CA until then.
  */
-export const TOKEN_LAUNCH_AT = "2026-08-17T13:11:00+02:00";
-export const TOKEN_LAUNCH_MS = Date.parse(TOKEN_LAUNCH_AT);
+export const TOKEN_LAUNCH_NOTICE_HOURS = 48;
 export const TOKEN_LAUNCH_LABEL = "Fair launch";
-export const TOKEN_LAUNCH_DISPLAY = "17 Aug 2026 · 13:11 CEST";
-export const TOKEN_LAUNCH_DISPLAY_DE = "17. August 2026 · 13:11 MESZ";
+export const TOKEN_LAUNCH_DISPLAY = "Announced 48 hours before T-0";
+export const TOKEN_LAUNCH_DISPLAY_DE = "48 Stunden vor T-0 angekündigt";
+/** Trust line for UI / share — growth in public, never a surprise CA. */
+export const TOKEN_LAUNCH_TRUST =
+  "We grow in public. Exact fair-launch time is announced on our official channels 48 hours before — never by DM, never with a surprise CA.";
+export const TOKEN_LAUNCH_TRUST_DE =
+  "Wir wachsen offen. Den genauen Fair-Launch-Zeitpunkt kündigen wir 48 Stunden vorher auf unseren offiziellen Kanälen an — nie per DM, nie mit einer Überraschungs-CA.";
 
 export type SocialLinkId = "x" | "discord" | "telegram" | "farcaster";
 
@@ -111,7 +115,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export const LAUNCH_SHARE_TEXT =
-  "Aura OS fair launch — 17 Aug 2026 at 13:11 CEST. Own a company. Let AI make money. Join the founding cohort before T-0.";
+  "Aura OS fair launch: announced 48 hours before T-0 on official channels — never by DM. Own a company. Let AI make money. Join the founding cohort and grow with us.";
 
 /** Aura OS announce post — like, comment, and quote/share to earn whitelist access. */
 export const AURA_LAUNCH_POST_URL = "https://x.com/buildingcultu3/status/2086020001341870326";

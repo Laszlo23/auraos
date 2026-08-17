@@ -1,8 +1,11 @@
 import { SHARE_POSTS, shareWatchUrl } from "@/lib/share-posts";
-import { SITE_URL, TOKEN_LAUNCH_AT, TOKEN_LAUNCH_MS } from "@/lib/site";
+import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 
-/** Stable campaign id for Aug 2026 fair-launch drip. */
+/** Stable campaign id for fair-launch drip (rolling schedule — no fixed T-0 clock). */
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
+
+/** How far ahead to schedule when no public T-0 date is published. */
+const DRIP_HORIZON_MS = 14 * 24 * 60 * 60 * 1000;
 
 export type LaunchDripSlot = {
   /** Unique per company via DB unique index on (company_id, campaign_key). */
@@ -156,33 +159,16 @@ function clipBody(sharePostId: string, lineIndex: number): string {
 }
 
 /**
- * Build the fair-launch X drip: ~2–3 posts/day from `fromMs` through TOKEN_LAUNCH_AT,
- * skipping quiet hours (before 07:00 CEST). Idempotent keys: launch-drip-2026-08#YYYY-MM-DDTHH
+ * Build the fair-launch X drip: ~2–3 posts/day for the next ~14 days
+ * (until an official 48h T-0 announce lands), skipping quiet hours (before 07:00 CEST).
+ * Idempotent keys: launch-drip-2026-08#YYYY-MM-DDTHH
  */
 export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDripSlot[] {
-  const endMs = TOKEN_LAUNCH_MS;
-  if (!Number.isFinite(endMs) || endMs <= fromMs) {
-    // Launch already passed — seed a short farewell burst of 3 slots tomorrow.
-    const start = cestDateParts(fromMs);
-    const slots: LaunchDripSlot[] = [];
-    for (let i = 0; i < 3; i++) {
-      const id = ROTATION_IDS[i % ROTATION_IDS.length]!;
-      const hour = SLOT_HOURS_CEST[i % SLOT_HOURS_CEST.length]!;
-      const at = cestWallToIso(start.y, start.m, start.d + 1, hour);
-      const day = cestDateParts(Date.parse(at));
-      slots.push({
-        campaignKey: dripSlotKey(day.y, day.m, day.d, hour),
-        sharePostId: id,
-        body: clipBody(id, i),
-        scheduledAt: at,
-      });
-    }
-    return slots;
-  }
+  const endMs = fromMs + DRIP_HORIZON_MS;
 
   const slots: LaunchDripSlot[] = [];
   let index = 0;
-  // Walk calendar days in CEST from today through launch day.
+  // Walk calendar days in CEST from today through the horizon.
   let cursor = fromMs;
   const lastDay = cestDateParts(endMs);
 
@@ -198,7 +184,7 @@ export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDrip
       ) {
         continue;
       }
-      // Don't schedule after launch moment on launch day.
+      // Don't schedule past the rolling horizon.
       const at = cestWallToIso(day.y, day.m, day.d, hour);
       const atMs = Date.parse(at);
       if (atMs > endMs) continue;
@@ -232,6 +218,6 @@ export function launchDripSummary(slots: LaunchDripSlot[] = buildLaunchDripSched
     count: slots.length,
     firstAt: slots[0]?.scheduledAt ?? null,
     lastAt: slots[slots.length - 1]?.scheduledAt ?? null,
-    launchAt: TOKEN_LAUNCH_AT,
+    launchPolicy: TOKEN_LAUNCH_DISPLAY,
   };
 }

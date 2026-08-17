@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
 import { Pulse } from "@/components/aura/primitives";
@@ -7,57 +6,10 @@ import {
   SOCIAL_LINKS,
   TOKEN_LAUNCH_DISPLAY,
   TOKEN_LAUNCH_LABEL,
-  TOKEN_LAUNCH_MS,
+  TOKEN_LAUNCH_NOTICE_HOURS,
 } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
-
-type Parts = { d: number; h: number; m: number; s: number; live: boolean };
-
-function split(msLeft: number): Parts {
-  if (msLeft <= 0) return { d: 0, h: 0, m: 0, s: 0, live: true };
-  const total = Math.floor(msLeft / 1000);
-  const d = Math.floor(total / 86400);
-  const h = Math.floor((total % 86400) / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  return { d, h, m, s, live: false };
-}
-
-function useLaunchClock(): Parts {
-  const [parts, setParts] = useState<Parts>(() => split(TOKEN_LAUNCH_MS - Date.now()));
-  useEffect(() => {
-    const tick = () => setParts(split(TOKEN_LAUNCH_MS - Date.now()));
-    tick();
-    const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
-  }, []);
-  return parts;
-}
-
-function pad(n: number) {
-  return String(n).padStart(2, "0");
-}
-
-function Unit({ value, label, large }: { value: string; label: string; large?: boolean }) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <span
-        className={cn(
-          "num font-semibold tabular-nums text-foreground",
-          large
-            ? "text-[clamp(2rem,8vw,3.6rem)] leading-none tracking-tight"
-            : "text-[13px] leading-none",
-        )}
-      >
-        {value}
-      </span>
-      <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-        {label}
-      </span>
-    </div>
-  );
-}
 
 export function SocialJoinRow({ placement, className }: { placement: string; className?: string }) {
   return (
@@ -81,8 +33,8 @@ export function SocialJoinRow({ placement, className }: { placement: string; cla
 }
 
 /**
- * Fair-launch countdown. Compact for chrome; hero for the dedicated section.
- * After T-0 flips to “live” + social CTAs (no invented CA).
+ * Fair-launch announce panel — no fixed public countdown.
+ * Exact T-0 is published on official channels 48 hours ahead (never by DM / surprise CA).
  */
 export function LaunchCountdown({
   variant = "hero",
@@ -96,7 +48,6 @@ export function LaunchCountdown({
   placement?: string;
 }) {
   const { t } = useLocale();
-  const { d, h, m, s, live } = useLaunchClock();
 
   if (variant === "compact") {
     return (
@@ -108,16 +59,11 @@ export function LaunchCountdown({
         aria-live="polite"
       >
         <Pulse />
-        {live ? (
-          <span className="text-primary">{t("landing.launchLive", { label: TOKEN_LAUNCH_LABEL })}</span>
-        ) : (
-          <span className="flex items-center gap-1.5 text-muted-foreground">
-            <span className="text-primary">{TOKEN_LAUNCH_LABEL}</span>
-            <span className="num text-foreground">
-              {d}d {pad(h)}:{pad(m)}:{pad(s)}
-            </span>
-          </span>
-        )}
+        <span className="text-muted-foreground">
+          <span className="text-primary">{TOKEN_LAUNCH_LABEL}</span>
+          {" · "}
+          {t("landing.launchCompact", { hours: TOKEN_LAUNCH_NOTICE_HOURS })}
+        </span>
       </div>
     );
   }
@@ -126,31 +72,18 @@ export function LaunchCountdown({
     <div className={cn("space-y-6", className)} aria-live="polite">
       <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
         <Pulse />
-        {live
-          ? t("landing.launchLive", { label: TOKEN_LAUNCH_LABEL })
-          : `${TOKEN_LAUNCH_LABEL} · ${TOKEN_LAUNCH_DISPLAY}`}
+        {TOKEN_LAUNCH_LABEL} · {TOKEN_LAUNCH_DISPLAY}
       </div>
 
-      {live ? (
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-display text-[clamp(1.8rem,5vw,2.8rem)] leading-[1.05] tracking-tight"
-        >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <p className="font-display text-[clamp(1.8rem,5vw,2.8rem)] leading-[1.05] tracking-tight">
           {t("landing.launchOpen")}
           <span className="block text-primary">{t("landing.launchFollow")}</span>
-        </motion.p>
-      ) : (
-        <div className="flex flex-wrap items-end gap-4 sm:gap-7">
-          <Unit value={String(d)} label={t("landing.days")} large />
-          <span className="mb-6 text-2xl text-muted-foreground/50">:</span>
-          <Unit value={pad(h)} label={t("landing.hours")} large />
-          <span className="mb-6 text-2xl text-muted-foreground/50">:</span>
-          <Unit value={pad(m)} label={t("landing.mins")} large />
-          <span className="mb-6 text-2xl text-muted-foreground/50">:</span>
-          <Unit value={pad(s)} label={t("landing.secs")} large />
-        </div>
-      )}
+        </p>
+        <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+          {t("landing.launchTrust")}
+        </p>
+      </motion.div>
 
       {showSocials ? <SocialJoinRow placement={placement} /> : null}
     </div>

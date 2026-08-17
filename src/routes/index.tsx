@@ -225,7 +225,7 @@ const TICKER_EN = [
   "OWN A COMPANY",
   "VIENNA FIRST",
   "NO FAKE STARS",
-  "FAIR LAUNCH · 17 AUG 13:11 CEST",
+  "FAIR LAUNCH · 48H OFFICIAL NOTICE",
   "CREATE → EXECUTE → EARN → GROW",
   "777,777,777 AURA",
   "FOUNDING COMPANIES",
@@ -235,7 +235,7 @@ const TICKER_DE = [
   "BESITZ EINE FIRMA",
   "WIEN ZUERST",
   "NED FAKE-STERNE",
-  "FAIR LAUNCH · 17 AUG 13:11 CEST",
+  "FAIR LAUNCH · 48H OFFICIAL NOTICE",
   "ANLEGEN → AUSFÜHREN → VERDIENEN",
   "777.777.777 AURA",
   "23 BEZIRKE",
@@ -832,7 +832,7 @@ function Landing() {
             </span>
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-            {t("landing.launchBody", { when: TOKEN_LAUNCH_DISPLAY })}
+            {t("landing.launchBody")}
           </p>
           <div className="mt-8">
             <LaunchCountdown variant="hero" placement="landing_launch" />

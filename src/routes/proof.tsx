@@ -184,7 +184,7 @@ function ProofShareCard() {
           </div>
         ) : null}
         <p className="mt-4 text-[11px] text-muted-foreground">
-          Wave 1 closes {WAVE1_CLOSES_DISPLAY} · {PROOF_PAGE_URL}
+          Fair launch · {WAVE1_CLOSES_DISPLAY} · {PROOF_PAGE_URL}
         </p>
       </div>
 
@@ -387,9 +387,10 @@ function ProofPage() {
               Founding seats are capped on purpose
             </h2>
             <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-              Hard cap: {num(FOUNDING_SEATS_TOTAL)} paid founding companies. Wave 1 closes at fair
-              launch ({WAVE1_CLOSES_DISPLAY}). Founding seats are open for purchase — numbers come
-              from the seats ledger, not a fake invite counter.
+              Hard cap: {num(FOUNDING_SEATS_TOTAL)} paid founding companies. Fair launch is{" "}
+              {WAVE1_CLOSES_DISPLAY} — we publish the exact T-0 on official channels 48 hours ahead.
+              Founding seats are open for purchase — numbers come from the seats ledger, not a fake
+              invite counter.
             </p>
             <div className="mt-6 max-w-sm">
               <FoundingCohort />

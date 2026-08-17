@@ -437,7 +437,8 @@ function ChannelsPage() {
 
       <Panel label="Fair-launch X drip" glow>
         <p className="text-[12px] leading-relaxed text-muted-foreground">
-          Schedule ~2–3 posts/day through {TOKEN_LAUNCH_DISPLAY}. Each tweet is a short line + watch
+          Schedule ~2–3 posts/day while we grow toward fair launch ({TOKEN_LAUNCH_DISPLAY}). Each
+          tweet is a short line + watch
           link, and when <span className="font-mono text-[11px]">media.write</span> is granted the
           worker attaches the native MP4. Connect X with OAuth (never a password). Autopublish must
           stay on for the worker to send them.
