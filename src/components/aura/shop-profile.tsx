@@ -30,6 +30,7 @@ import type {
   PublicShopGalleryItem,
 } from "@/lib/reviews.public.functions";
 import { REVIEW_APP_URL, SITE_URL, url } from "@/lib/site";
+import { safeHttpUrl } from "@/lib/nachbar-play";
 
 const ATMOSPHERE = "/funnels/lokal-hero.jpg";
 
@@ -87,8 +88,8 @@ function Hero({
   address: string | null;
   place: string;
 }) {
-  const atmosphere = shop.cover_url || ATMOSPHERE;
-  const usingCover = Boolean(shop.cover_url);
+  const atmosphere = safeHttpUrl(shop.cover_url) || ATMOSPHERE;
+  const usingCover = Boolean(safeHttpUrl(shop.cover_url));
 
   return (
     <section className="relative isolate min-h-[72svh] overflow-hidden">

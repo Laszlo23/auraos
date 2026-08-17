@@ -121,10 +121,17 @@ export function nachbarHeatLabel(visits: number): string {
   return "Neu";
 }
 
-/** Only http(s). Blocks javascript:/data: and CSS-breaking characters. */
+/** Only http(s). Blocks javascript:/data: and CSS-breaking characters.
+ * Also allows same-origin media paths used on shop profiles (/shops, /og, …).
+ */
 export function safeHttpUrl(raw: string | null | undefined): string | null {
   const t = String(raw || "").trim();
   if (!t || t.length > 500) return null;
+  if (t.startsWith("/")) {
+    if (!/^\/(shops|og|funnels|crew|brand|share)\/[\w./-]+$/i.test(t)) return null;
+    if (/[)('"\\<>]/.test(t) || t.includes("..")) return null;
+    return t;
+  }
   try {
     const withProto = /^https?:\/\//i.test(t) ? t : `https://${t}`;
     const u = new URL(withProto);

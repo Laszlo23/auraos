@@ -61,6 +61,8 @@ describe("safeHttpUrl", () => {
     expect(safeHttpUrl("https://ok.test/<script>")).toBeNull();
     expect(safeHttpUrl("")).toBeNull();
     expect(safeHttpUrl("x".repeat(501))).toBeNull();
+    expect(safeHttpUrl("/shops/tante-liesl/cover.jpg")).toBe("/shops/tante-liesl/cover.jpg");
+    expect(safeHttpUrl("/etc/passwd")).toBeNull();
   });
 });
 
