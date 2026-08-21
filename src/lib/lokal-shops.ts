@@ -97,6 +97,58 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
   },
+  "das-melt": {
+    story:
+      "Im Herzen des 2. Bezirks, zwischen Prater und Schwedenplatz: Das Melt ist modernes Bistro & Bar in der Schmelzgasse 9. Internationale Küche, Mittagsmenü, Brunch, Drinks — gegründet aus Freundschaft von Nemanja Biorac (Küche) und Aleksandar Milojković (Gastgeber). Events & Catering, keine Fake-Sterne.",
+    services: [
+      "Internationale Küche",
+      "Mittagstisch",
+      "Brunch",
+      "Bar & Drinks",
+      "Events",
+      "Catering",
+      "Reservierung",
+    ],
+    serviceDetails: [
+      {
+        title: "Internationale Küche",
+        blurb: "Vorspeisen, Hauptgerichte, Desserts — Fusion mit regionalem Fokus.",
+      },
+      {
+        title: "Mittagstisch",
+        blurb: "Mittagsmenü unter der Woche — rein, essen, weiter.",
+      },
+      {
+        title: "Brunch",
+        blurb: "Wochenende-Feeling am Tisch — wenn die Karte es hergibt.",
+      },
+      {
+        title: "Bar & Drinks",
+        blurb: "Bistro und Bar in einem — Date, Dinner oder Quizabend.",
+      },
+      {
+        title: "Events",
+        blurb: "Geburtstage, Firmenfeier, private Runden — Raum und Team vor Ort.",
+      },
+      {
+        title: "Catering",
+        blurb: "Melt kommt zu dir — Fingerfood bis Menü, Wien und Umgebung.",
+      },
+      {
+        title: "Reservierung",
+        blurb: "Tisch online oder anrufen — oft voll im Leopoldstadt-Kiez.",
+      },
+    ],
+    googleFindCopy: "Das Melt auf Google finden",
+    ownerLabel: "Gastgeber",
+    webLabel: "Website",
+    socials: [{ label: "Instagram", href: "https://www.instagram.com/dasmeltvienna" }],
+    howSteps: [
+      { title: "Besuch", body: "Schmelzgasse 9, 1020 — zwischen Prater und Schwedenplatz." },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar im 2." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
+  },
   "tante-liesl": {
     story:
       "Bei Tante Liesl wird gekocht, gelacht & genossen — Servitengasse 7, mitten im Servitenviertel neben der Kirche. Traditionelle Wiener Küche mit modernem Twist: Schnitzel, Grammelknödel, Schwammerlgulasch, Sonntagsbraten. Gastgarten unter Bäumen im Sommer. Bodenständig, nachbarschaftlich, keine Fake-Sterne.",
