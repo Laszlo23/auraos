@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { useLocale } from "@/hooks/use-locale";
 
 export function MarketingPage({
   children,
@@ -12,6 +13,7 @@ export function MarketingPage({
   children: ReactNode;
   shareText?: string;
 }) {
+  const { t } = useLocale();
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
       <header className="border-b border-white/5 bg-background/40 backdrop-blur-2xl">
@@ -27,19 +29,19 @@ export function MarketingPage({
               to="/how-it-works"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
             >
-              How it works
+              {t("landing.navHow")}
             </Link>
             <Link
               to="/try"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
             >
-              Try Aura
+              {t("landing.navTry")}
             </Link>
             <Link
               to="/pricing"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
             >
-              Pricing
+              {t("landing.navPricing")}
             </Link>
           </nav>
           <LanguageToggle className="ml-auto sm:ml-0" />

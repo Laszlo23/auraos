@@ -16,6 +16,7 @@ import { ogCampaignMeta } from "@/lib/og-campaign";
 import { LAUNCH_SHARE_TEXT, SITE_URL } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { num } from "@/lib/format";
+import { useLocale } from "@/hooks/use-locale";
 
 export const Route = createFileRoute("/access")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -49,6 +50,7 @@ export const Route = createFileRoute("/access")({
 
 function AccessPage() {
   const navigate = useNavigate();
+  const { t } = useLocale();
   const { invite: inviteFromLink, seat } = Route.useSearch();
   const [invite, setInvite] = useState(inviteFromLink?.toUpperCase() ?? "");
   const [email, setEmail] = useState("");
@@ -60,8 +62,8 @@ function AccessPage() {
   }, [inviteFromLink]);
 
   useEffect(() => {
-    if (seat === "cancel") toast.message("Checkout canceled — you can buy anytime.");
-  }, [seat]);
+    if (seat === "cancel") toast.message(t("access.checkoutCancel"));
+  }, [seat, t]);
 
   const buySeat = async () => {
     // Friend code from ?invite= is attribution only — never blocks checkout.
@@ -113,7 +115,7 @@ function AccessPage() {
   const joinWaitlist = async () => {
     const value = email.trim().toLowerCase();
     if (!value.includes("@")) {
-      toast.error("Enter a valid email");
+      toast.error(t("landing.emailBad"));
       return;
     }
     setBusy(true);
@@ -125,9 +127,9 @@ function AccessPage() {
       if (error && !/duplicate|unique/i.test(error.message)) throw error;
       setWaitlisted(true);
       trackTeaser("cta_click", { placement: "access_waitlist" });
-      toast.success("You're on the list — or buy a seat now above.");
+      toast.success(t("landing.emailOk"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not join waitlist");
+      toast.error(err instanceof Error ? err.message : t("landing.emailFail"));
     } finally {
       setBusy(false);
     }
@@ -141,31 +143,30 @@ function AccessPage() {
             to="/"
             className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> Home
+            <ArrowLeft className="h-3.5 w-3.5" /> {t("access.home")}
           </Link>
           <LanguageToggle className="ml-auto" />
-          <Chip>Open · $99 Stripe</Chip>
+          <Chip>{t("access.openTag")}</Chip>
         </div>
       </header>
 
       <div className="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
         <p className="mb-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-          <Pulse /> Founding cohort · live
+          <Pulse /> {t("access.foundingLive")}
         </p>
         <h1 className="font-display text-[clamp(2rem,6vw,3.2rem)] leading-[0.98] tracking-tight">
-          Buy a founding seat.
-          <span className="block text-primary">Own your AI company.</span>
+          {t("access.title")}
+          <span className="block text-primary">{t("access.subtitle")}</span>
         </h1>
         <p className="mt-3 text-[12px] font-semibold uppercase tracking-[0.22em] text-gold">
-          $99 one-time · {num(FOUNDING_SEATS_TOTAL)} seats · real Stripe checkout
+          {t("access.priceTag", { total: num(FOUNDING_SEATS_TOTAL) })}
         </p>
         <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          Pay $99 once. Wake your AI company. After you&apos;re in, you get one simple invite link
-          to share — friends still pay $99; you earn in-app AURA.
+          {t("access.blurb")}
         </p>
         {invite ? (
           <p className="mt-3 text-[12px] text-muted-foreground">
-            Friend code attached · <span className="font-semibold text-foreground">{invite}</span>
+            {t("access.friendCode")} · <span className="font-semibold text-foreground">{invite}</span>
           </p>
         ) : null}
 
@@ -175,9 +176,9 @@ function AccessPage() {
           <FoundingCohort />
         </div>
 
-        <Panel label="Buy now" className="mt-10" glow>
+        <Panel label={t("access.buyLabel")} className="mt-10" glow>
           <p className="mb-4 text-[13px] leading-relaxed text-muted-foreground">
-            Create an account (or sign in) → Stripe $99 → seat unlocks. That&apos;s the whole door.
+            {t("access.buyBlurb")}
           </p>
           <button
             type="button"
@@ -185,12 +186,12 @@ function AccessPage() {
             onClick={() => void buySeat()}
             className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-40 sm:w-auto"
           >
-            {busy ? "Opening Stripe…" : "Buy founding seat — $99"}{" "}
+            {busy ? t("access.buyOpening") : t("access.buyCta")}{" "}
             <ArrowRight className="h-4 w-4" />
           </button>
         </Panel>
 
-        <Panel label="Share the seat page" className="mt-8">
+        <Panel label={t("access.shareLabel")} className="mt-8">
           <ShareMoment
             url={`${SITE_URL}/access`}
             text={`Aura OS founding seats — $99, hard-capped at ${num(FOUNDING_SEATS_TOTAL)}. Live checkout.`}
@@ -201,22 +202,22 @@ function AccessPage() {
           />
         </Panel>
 
-        <Panel label="Just want updates" className="mt-6">
+        <Panel label={t("access.updatesLabel")} className="mt-6">
           {waitlisted ? (
             <p className="text-[13px] text-muted-foreground">
-              You're on the list. Seats are already open — buy above anytime.
+              {t("access.updatesJoined")}
             </p>
           ) : (
             <>
               <p className="mb-3 text-[12px] text-muted-foreground">
-                Optional email list. Buying a seat does not require this.
+                {t("access.updatesBlurb")}
               </p>
               <div className="flex flex-wrap gap-2">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@company.com"
+                  placeholder={t("access.updatesEmail")}
                   autoComplete="email"
                   className="min-w-[12rem] flex-1 rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-[13px] outline-none placeholder:text-muted-foreground/60"
                 />
@@ -226,7 +227,7 @@ function AccessPage() {
                   onClick={() => void joinWaitlist()}
                   className="rounded-2xl border border-border/50 px-4 py-2.5 text-xs font-semibold disabled:opacity-40"
                 >
-                  Notify me
+                  {t("access.updatesCta")}
                 </button>
               </div>
             </>

@@ -10,9 +10,16 @@ import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
 export function TryAura({ standalone = false }: { standalone?: boolean }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const de = locale === "de";
-  const [prompt, setPrompt] = useState(ONBOARD_EXAMPLES[0]);
+  const tryExamples = [
+    t("landing.tryExample1"),
+    t("landing.tryExample2"),
+    t("landing.tryExample3"),
+    t("landing.tryExample4"),
+    t("landing.tryExample5"),
+  ];
+  const [prompt, setPrompt] = useState(tryExamples[0] ?? "");
   const [step, setStep] = useState(0);
   const brief = useMemo(() => interpretBusiness(prompt), [prompt]);
   const companyName =
@@ -29,7 +36,9 @@ export function TryAura({ standalone = false }: { standalone?: boolean }) {
         standalone ? "py-10" : "py-16 sm:py-20",
       )}
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">Try Aura</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
+        {t("landing.tryCta")}
+      </p>
       <h2 className="mt-3 font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
         {de ? "Sag, was deine Firma macht." : "Tell us what your company does."}
       </h2>
@@ -51,7 +60,7 @@ export function TryAura({ standalone = false }: { standalone?: boolean }) {
                 className="mt-3 w-full resize-none rounded-2xl bg-foreground/6 px-4 py-3 text-[15px] outline-none"
               />
               <div className="mt-3 flex flex-wrap gap-2">
-                {ONBOARD_EXAMPLES.map((ex) => (
+                {tryExamples.map((ex) => (
                   <button
                     key={ex}
                     type="button"

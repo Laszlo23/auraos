@@ -473,35 +473,44 @@ function Landing() {
             initial={{ y: 18 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.85, delay: 0.68 }}
-            className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
+            className="mt-10 flex flex-col gap-4"
           >
-            <Link
-              to="/access"
-              onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
-              className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
-            >
-              {t("landing.buy")} <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                to="/access"
+                onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
+                className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+              >
+                {t("landing.buy")} <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/lokal/audit"
+                onClick={() => trackTeaser("cta_click", { placement: "landing_hero_lokal_audit" })}
+                className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+              >
+                {t("landing.lokalAudit")} <ArrowRight className="h-4 w-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  trackTeaser("open", { placement: "hero" });
+                  setTeaserOpen(true);
+                }}
+                className="group flex items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-background/25 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/35 hover:bg-foreground/[0.07]"
+              >
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-primary transition-transform group-hover:scale-110">
+                  <Play className="h-3 w-3 fill-current" />
+                </span>
+                {t("landing.watch")}
+              </button>
+            </div>
             <Link
               to="/try"
               onClick={() => trackTeaser("cta_click", { placement: "landing_hero_try" })}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-background/25 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/35"
+              className="inline-flex items-center gap-1.5 text-[14px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
-              {t("landing.tryCta")}
+              {t("landing.tryCta")} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-            <button
-              type="button"
-              onClick={() => {
-                trackTeaser("open", { placement: "hero" });
-                setTeaserOpen(true);
-              }}
-              className="group flex items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-background/25 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/35 hover:bg-foreground/[0.07]"
-            >
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-primary transition-transform group-hover:scale-110">
-                <Play className="h-3 w-3 fill-current" />
-              </span>
-              {t("landing.watch")}
-            </button>
           </motion.div>
 
           <motion.div
