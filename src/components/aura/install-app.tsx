@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { trackTeaser } from "@/lib/teaser-track";
+import { ensureUiLocale, t } from "@/lib/i18n";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -51,6 +52,7 @@ export function InstallApp({ className }: { className?: string }) {
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const gotBip = useRef(false);
+  const locale = ensureUiLocale();
 
   useEffect(() => {
     if (isStandalone()) return;
@@ -138,10 +140,10 @@ export function InstallApp({ className }: { className?: string }) {
   return (
     <div
       role="dialog"
-      aria-label="Install Aura OS"
+      aria-label={t("pwa.installLabel", locale)}
       className={cn(
-        // Sit above the mobile footer tab bar so Install stays tappable.
-        "fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[60] mx-auto max-w-md md:bottom-[max(1.25rem,env(safe-area-inset-bottom))]",
+        // Sit above mobile footer but below hero CTAs (z-40). On desktop keep below modals.
+        "fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-40 mx-auto max-w-md md:bottom-[max(1.25rem,env(safe-area-inset-bottom))]",
         "rounded-2xl border border-border/60 bg-background/95 p-4 shadow-[0_18px_50px_-20px_rgba(0,0,0,0.75)] backdrop-blur-xl",
         className,
       )}
@@ -149,7 +151,7 @@ export function InstallApp({ className }: { className?: string }) {
       <button
         type="button"
         onClick={dismiss}
-        aria-label="Dismiss"
+        aria-label={t("pwa.dismiss", locale)}
         className="absolute right-2 top-2 rounded-lg p-1.5 text-muted-foreground hover:bg-foreground/8 hover:text-foreground"
       >
         <X className="h-4 w-4" />
@@ -157,27 +159,28 @@ export function InstallApp({ className }: { className?: string }) {
 
       <div className="pr-8">
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-          Install app
+          {t("pwa.installLabel", locale)}
         </p>
         <p className="mt-1 font-display text-[15px] font-semibold tracking-tight">
-          Put Aura OS on your home screen
+          {t("pwa.installTitle", locale)}
         </p>
         {deferred ? (
           <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-            One tap installs Aura OS like a native app on this phone or desktop — works offline for
-            the shell, opens full-screen.
+            {t("pwa.installChromium", locale)}
           </p>
         ) : iosHint ? (
           <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-            On iPhone: tap <Share className="mx-0.5 inline h-3.5 w-3.5 text-primary" aria-hidden />{" "}
-            Share, then{" "}
-            <strong className="font-semibold text-foreground">Add to Home Screen</strong>.
+            {locale === "de" ? "Am iPhone: auf " : "On iPhone: tap "}
+            <Share className="mx-0.5 inline h-3.5 w-3.5 text-primary" aria-hidden />
+            {locale === "de" ? " Teilen tippen, dann " : " Share, then "}
+            <strong className="font-semibold text-foreground">
+              {locale === "de" ? "Zum Home-Bildschirm" : "Add to Home Screen"}
+            </strong>
+            .
           </p>
         ) : manualHint ? (
           <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-            Use your browser menu →{" "}
-            <strong className="font-semibold text-foreground">Install</strong> or{" "}
-            <strong className="font-semibold text-foreground">Add to Dock / Home Screen</strong>.
+            {t("pwa.installManual", locale)}
           </p>
         ) : null}
       </div>
@@ -190,7 +193,7 @@ export function InstallApp({ className }: { className?: string }) {
           className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           <Download className="h-3.5 w-3.5" />
-          {busy ? "Opening…" : "Install Aura OS"}
+          {busy ? t("pwa.installOpening", locale) : t("pwa.installButton", locale)}
         </button>
       ) : null}
     </div>

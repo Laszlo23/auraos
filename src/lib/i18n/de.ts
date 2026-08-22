@@ -11,6 +11,17 @@ export const de: MessageTree = {
     boost: "Guthaben",
     signOut: "Abmelden",
   },
+  pwa: {
+    installLabel: "App installieren",
+    installTitle: "Aura OS auf den Startbildschirm",
+    installChromium:
+      "Installiert Aura OS wie eine native App auf diesem Handy oder Desktop — funktioniert offline für die Oberfläche, öffnet im Vollbild.",
+    installIos: "Am iPhone: auf Teilen tippen, dann Zum Home-Bildschirm.",
+    installManual: "Im Browser-Menü → Installieren oder Zum Dock / Home-Bildschirm hinzufügen.",
+    installButton: "Aura OS installieren",
+    installOpening: "Öffnet…",
+    dismiss: "Schließen",
+  },
   nav: {
     lokal: "Aura Local",
     nachbar: "Aura Nachbar",

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { NachbarNotePips } from "@/components/aura/nachbar-note";
 import { Chip, Panel, Shimmer } from "@/components/aura/primitives";
+import { isPublicShopListing } from "@/components/aura/wien-directory";
 import { useSupabaseSession } from "@/hooks/use-supabase-session";
 import { NACHBAR_STAMP_GOAL } from "@/lib/nachbar";
 import { rememberNachbarVisit } from "@/lib/nachbar-play";
@@ -78,7 +79,13 @@ function NachbarEntdeckenPage() {
     retry: 1,
   });
 
-  const shops = board.data?.shops ?? [];
+  const allShops = board.data?.shops ?? [];
+  // Filter out internal Aura seed entries from public city list
+  const shops = allShops.filter((shop) => {
+    if (!shop.slug) return false;
+    if (shop.slug.startsWith("aura-")) return false;
+    return true;
+  });
   const missions = hub.data?.missions?.length
     ? hub.data.missions
     : (board.data?.missions ?? []).map((m) => ({ ...m, done: false }));
