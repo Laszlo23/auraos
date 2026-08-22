@@ -299,10 +299,7 @@ export const publishCompanySite = createServerFn({ method: "POST" })
             stage: "activated",
           });
         } catch (err) {
-          console.warn(
-            "[quidli] activated tip skipped",
-            err instanceof Error ? err.message : err,
-          );
+          console.warn("[quidli] activated tip skipped", err instanceof Error ? err.message : err);
         }
       }
     }

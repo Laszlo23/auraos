@@ -63,7 +63,13 @@ import { cn } from "@/lib/utils";
 const GENESIS_ART = mediaPath("/genesis-passport.webp");
 const GENESIS_ART_JPG = mediaPath("/genesis-passport.jpg");
 
-export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: HolderPerks | undefined }) {
+export function WalletDesk({
+  seat,
+  perks,
+}: {
+  seat?: number | null;
+  perks?: HolderPerks | undefined;
+}) {
   const qc = useQueryClient();
   const { data: handle } = useMyHandle();
   const handleId = handle?.id;
@@ -314,7 +320,7 @@ export function WalletDesk({ seat, perks }: { seat?: number | null; perks?: Hold
           to="/identity"
           className="mt-4 inline-flex rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
         >
-            Open Identity — claim @handle
+          Open Identity — claim @handle
         </Link>
       </Panel>
     );

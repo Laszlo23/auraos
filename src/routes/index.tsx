@@ -660,9 +660,7 @@ function Landing() {
         >
           <span>
             <span className="block text-sm font-semibold">Aura Nachbar</span>
-            <span className="block text-[13px] text-muted-foreground">
-              {t("nachbar.hero")}
-            </span>
+            <span className="block text-[13px] text-muted-foreground">{t("nachbar.hero")}</span>
           </span>
           <span className="text-sm font-semibold text-primary">{t("nachbar.ctaApp")} →</span>
         </Link>

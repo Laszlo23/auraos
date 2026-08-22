@@ -4,7 +4,10 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { PLACEHOLDER_NAMES, PLACEHOLDER_SLUGS } from "@/lib/company-slug";
 
 function normalizeToken(raw: string) {
-  return raw.trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80);
+  return raw
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, "")
+    .slice(0, 80);
 }
 
 function isPlaceholderShop(row: { name?: string | null; slug?: string | null }) {

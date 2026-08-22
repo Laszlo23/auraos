@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  isPublicShopListing,
-  safeShopImageUrl,
-} from "@/components/aura/wien-directory";
+import { isPublicShopListing, safeShopImageUrl } from "@/components/aura/wien-directory";
 import type { PublicLokalListing } from "@/lib/reviews.public.functions";
 
-function listing(partial: Partial<PublicLokalListing> & Pick<PublicLokalListing, "slug" | "name">): PublicLokalListing {
+function listing(
+  partial: Partial<PublicLokalListing> & Pick<PublicLokalListing, "slug" | "name">,
+): PublicLokalListing {
   return {
     tagline: null,
     city: "Wien",

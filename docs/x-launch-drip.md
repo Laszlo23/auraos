@@ -8,13 +8,13 @@ Public clips people can steal, plus an OAuth-only X schedule that posts ~2–3×
 
 ## Surfaces
 
-| Surface | URL / path | Who |
-|---|---|---|
-| Share kit | [`/share`](https://aibusiness.fun/share) | Anyone (no login) |
-| Watch page | `/v/{postId}` | Anyone — primary link in tweets |
-| Embed | `/embed/{postId}` | iframes / partners |
-| Channels drip | `/channels` → **Fair-launch X drip** | Founder (authenticated) |
-| Landing teaser | `/#share-kit` | Anyone |
+| Surface           | URL / path                                                               | Who                                        |
+| ----------------- | ------------------------------------------------------------------------ | ------------------------------------------ |
+| Share kit         | [`/share`](https://aibusiness.fun/share)                                 | Anyone (no login)                          |
+| Watch page        | `/v/{postId}`                                                            | Anyone — primary link in tweets            |
+| Embed             | `/embed/{postId}`                                                        | iframes / partners                         |
+| Channels drip     | `/channels` → **Fair-launch X drip**                                     | Founder (authenticated)                    |
+| Landing teaser    | `/#share-kit`                                                            | Anyone                                     |
 | Per-page OG cards | `/og/{home,wien,share,story,access,nachbar,review,token,lokal,team}.jpg` | Link previews — James Dean × Matrix × Wien |
 
 Code map:
@@ -41,18 +41,18 @@ Each entry in `SHARE_POSTS` needs:
 
 **Wien wave** (lead the kit + X drip). Tone: Wiener Schmäh, love, no judging, present-moment, gratitude. Growth loop: watch `/v/:id` → copy caption → share with a neighbor → next clip → `/wien`. Never pay-for-Google-review copy.
 
-| id | file | angle |
-|---|---|---|
-| `wien` | `wien.mp4` | Ned in einem WeWork. In Wien. |
-| `oida` | `oida.mp4` | Closing-shop thank-you + heart |
-| `checkout` | `checkout.mp4` | €500 BAR vs stars — oida, ned des |
-| `1fromweek` | `1fromweek.mp4` | Week 1. Share kit live. Grateful. |
-| `4am` | `4am.mp4` | Founder awake; agents already shipped |
-| `donotsleep` | `donotsleep.mp4` | Agents don’t sleep — you can |
-| `hired` | `hired.mp4` | Just hired 8 AI employees |
-| `makemoney` | `makemoney.mp4` | Own a company, let AI make money |
-| `makemoney2` | `makemoney2.mp4` | Punchier CTA cut |
-| (+ kit classics) | `meanwhile`, `aprove`, `wait`, … | Rotated into the drip after the five |
+| id               | file                             | angle                                 |
+| ---------------- | -------------------------------- | ------------------------------------- |
+| `wien`           | `wien.mp4`                       | Ned in einem WeWork. In Wien.         |
+| `oida`           | `oida.mp4`                       | Closing-shop thank-you + heart        |
+| `checkout`       | `checkout.mp4`                   | €500 BAR vs stars — oida, ned des     |
+| `1fromweek`      | `1fromweek.mp4`                  | Week 1. Share kit live. Grateful.     |
+| `4am`            | `4am.mp4`                        | Founder awake; agents already shipped |
+| `donotsleep`     | `donotsleep.mp4`                 | Agents don’t sleep — you can          |
+| `hired`          | `hired.mp4`                      | Just hired 8 AI employees             |
+| `makemoney`      | `makemoney.mp4`                  | Own a company, let AI make money      |
+| `makemoney2`     | `makemoney2.mp4`                 | Punchier CTA cut                      |
+| (+ kit classics) | `meanwhile`, `aprove`, `wait`, … | Rotated into the drip after the five  |
 
 Generate a poster:
 
@@ -103,13 +103,13 @@ Apply with Supabase MCP `apply_migration`, SQL editor, or `supabase db push` aft
 
 ### 1. Env (local + `/opt/auraos/.env`)
 
-| Variable | Purpose |
-|---|---|
-| `X_CLIENT_ID` | X OAuth 2 app client id |
-| `X_CLIENT_SECRET` | X OAuth 2 app secret |
-| `OAUTH_REDIRECT_BASE` | `https://aibusiness.fun` (or local origin) |
-| `APP_USER_CONNECTION_KEY_SECRET` | Encrypts tokens in `channel_connections` |
-| `WORKER_SECRET` | Bearer auth for `/api/workers/tick` |
+| Variable                         | Purpose                                    |
+| -------------------------------- | ------------------------------------------ |
+| `X_CLIENT_ID`                    | X OAuth 2 app client id                    |
+| `X_CLIENT_SECRET`                | X OAuth 2 app secret                       |
+| `OAUTH_REDIRECT_BASE`            | `https://aibusiness.fun` (or local origin) |
+| `APP_USER_CONNECTION_KEY_SECRET` | Encrypts tokens in `channel_connections`   |
+| `WORKER_SECRET`                  | Bearer auth for `/api/workers/tick`        |
 
 X Developer App scopes: `tweet.read tweet.write users.read offline.access`.
 
@@ -160,13 +160,13 @@ Optional standing voice: knowledge item titled **Channel standing instruction**.
 
 ## Autopublish vs reply mode
 
-| Control | Effect |
-|---|---|
-| **Autopublish on** | Worker may publish due `scheduled` posts |
-| **Autopublish off** | Due posts stay scheduled (drip paused) |
-| **Reply auto** | Mention replies send without approval |
-| **Reply draft** | Mentions land in Channels inbox for approve |
-| **Reply off** | Mentions ignored |
+| Control             | Effect                                      |
+| ------------------- | ------------------------------------------- |
+| **Autopublish on**  | Worker may publish due `scheduled` posts    |
+| **Autopublish off** | Due posts stay scheduled (drip paused)      |
+| **Reply auto**      | Mention replies send without approval       |
+| **Reply draft**     | Mentions land in Channels inbox for approve |
+| **Reply off**       | Mentions ignored                            |
 
 Manual **Publish now** on Channels still posts immediately (does not require Autopublish).
 
@@ -184,15 +184,15 @@ Manual **Publish now** on Channels still posts immediately (does not require Aut
 
 ## Troubleshooting
 
-| Symptom | Check |
-|---|---|
-| “Connect X first” | OAuth not connected, or env missing `X_CLIENT_*` |
-| “X is not configured” | `X_CLIENT_ID` / `X_CLIENT_SECRET` empty on the server process |
-| Posts stuck as `scheduled` | Autopublish off, or cron not hitting tick with `WORKER_SECRET` |
-| Status `failed` | Row `error` column — often expired token → Reconnect X |
-| Duplicate seed does nothing new | Expected — same `campaign_key`s already present |
-| Watch link 404 video | MP4 not on VPS — rerun `deploy-share-media.sh` |
-| Mentions never answered | `reply_mode` off, or autonomy `0` forces draft |
+| Symptom                         | Check                                                          |
+| ------------------------------- | -------------------------------------------------------------- |
+| “Connect X first”               | OAuth not connected, or env missing `X_CLIENT_*`               |
+| “X is not configured”           | `X_CLIENT_ID` / `X_CLIENT_SECRET` empty on the server process  |
+| Posts stuck as `scheduled`      | Autopublish off, or cron not hitting tick with `WORKER_SECRET` |
+| Status `failed`                 | Row `error` column — often expired token → Reconnect X         |
+| Duplicate seed does nothing new | Expected — same `campaign_key`s already present                |
+| Watch link 404 video            | MP4 not on VPS — rerun `deploy-share-media.sh`                 |
+| Mentions never answered         | `reply_mode` off, or autonomy `0` forces draft                 |
 
 Worker auth: Channels’ unauthenticated `fetch("/api/workers/tick")` will 401 without Bearer. Prefer cron with `WORKER_SECRET`, or the authenticated `triggerWorkerTick` path.
 

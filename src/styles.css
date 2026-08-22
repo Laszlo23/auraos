@@ -132,12 +132,10 @@
   --sidebar-ring: oklch(0.86 0.155 196 / 48%);
 
   --shadow-float:
-    0 1px 0 color-mix(in oklab, white 8%, transparent),
-    0 28px 80px -34px oklch(0 0 0 / 82%),
+    0 1px 0 color-mix(in oklab, white 8%, transparent), 0 28px 80px -34px oklch(0 0 0 / 82%),
     0 2px 14px -4px oklch(0 0 0 / 50%);
   --shadow-glow:
-    0 0 0 1px oklch(1 0 0 / 8%),
-    0 22px 70px -22px var(--glow),
+    0 0 0 1px oklch(1 0 0 / 8%), 0 22px 70px -22px var(--glow),
     0 0 56px -14px color-mix(in oklab, var(--primary) 42%, transparent);
 }
 
@@ -195,7 +193,10 @@
     overflow-x: clip;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.038em;
     font-weight: 700;
@@ -230,8 +231,13 @@
     outline: none;
   }
 
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
   ::-webkit-scrollbar-thumb {
     background: color-mix(in oklab, var(--foreground) 16%, transparent);
     border-radius: 99px;
@@ -417,33 +423,62 @@
 }
 
 @keyframes aurora-drift {
-  0%   { transform: translate3d(-6%, -4%, 0) scale(1.05); }
-  50%  { transform: translate3d(6%, 6%, 0) scale(1.2); }
-  100% { transform: translate3d(-6%, -4%, 0) scale(1.05); }
+  0% {
+    transform: translate3d(-6%, -4%, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(6%, 6%, 0) scale(1.2);
+  }
+  100% {
+    transform: translate3d(-6%, -4%, 0) scale(1.05);
+  }
 }
 
 @keyframes breathe {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50%      { opacity: 1; transform: scale(1.35); }
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
 }
 
 @keyframes shimmer-sweep {
-  0%   { transform: translateX(-120%); }
-  100% { transform: translateX(220%); }
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
 }
 
 @keyframes dash-flow {
-  to { stroke-dashoffset: -24; }
+  to {
+    stroke-dashoffset: -24;
+  }
 }
 
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes funnel-ken {
-  from { transform: scale(1.05) translate3d(0, 0, 0); }
-  to   { transform: scale(1.12) translate3d(-1.5%, -1%, 0); }
+  from {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
 }
 
 @keyframes page-loader-slide {
@@ -506,18 +541,36 @@
 }
 
 @keyframes grid-drift {
-  0% { background-position: 0 0, 0 0; }
-  100% { background-position: 48px 48px, 48px 48px; }
+  0% {
+    background-position:
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      48px 48px,
+      48px 48px;
+  }
 }
 
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 @keyframes float-y {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @utility animate-float {
@@ -736,4 +789,3 @@
     animation: none !important;
   }
 }
-

@@ -8,15 +8,15 @@
 
 ## Fixes landed this pass
 
-| Area | Change |
-|------|--------|
-| Auth | Nachbar `next=/nachbar*` skips $99 founding seat; DE copy; magic-link keeps `next` |
-| Boost | `?checkout=success\|cancel` toast + poll; 3-path pricing clarity; next-step CTAs |
-| Sterne | Send how-to + guest-flow explainer; copy link marks sent |
-| Gäste | Empty QR states; copy link; pending confirm hint |
-| Heute | Done state → Guthaben (aligned copy) |
-| Review bridge / Nachbar | Soft Google CTA (muted, not gold); first-visit “So geht’s”; pending Tresen panel |
-| Docs | `CUSTOMER_APP.md` + GTM Review Boost bridge reality |
+| Area                    | Change                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| Auth                    | Nachbar `next=/nachbar*` skips $99 founding seat; DE copy; magic-link keeps `next` |
+| Boost                   | `?checkout=success\|cancel` toast + poll; 3-path pricing clarity; next-step CTAs   |
+| Sterne                  | Send how-to + guest-flow explainer; copy link marks sent                           |
+| Gäste                   | Empty QR states; copy link; pending confirm hint                                   |
+| Heute                   | Done state → Guthaben (aligned copy)                                               |
+| Review bridge / Nachbar | Soft Google CTA (muted, not gold); first-visit “So geht’s”; pending Tresen panel   |
+| Docs                    | `CUSTOMER_APP.md` + GTM Review Boost bridge reality                                |
 
 ## Remaining backlog (not blocking MVP)
 

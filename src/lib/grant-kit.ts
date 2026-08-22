@@ -218,13 +218,15 @@ export function grantKitMarkdown(t: GrantTraction): string {
 /** Machine checklist for “grant-ready” — used by tests and optional CI. */
 export type GrantReadyIssue = { code: string; message: string };
 
-export function assessGrantReady(t: GrantTraction = {
-  companies: 0,
-  agents: 0,
-  actions24h: 0,
-  paidCalls: 0,
-  usdcPaid: 0,
-}): { ok: boolean; issues: GrantReadyIssue[] } {
+export function assessGrantReady(
+  t: GrantTraction = {
+    companies: 0,
+    agents: 0,
+    actions24h: 0,
+    paidCalls: 0,
+    usdcPaid: 0,
+  },
+): { ok: boolean; issues: GrantReadyIssue[] } {
   const issues: GrantReadyIssue[] = [];
   const ids = new Set(PROGRAMS.map((p) => p.id));
 
@@ -234,7 +236,10 @@ export function assessGrantReady(t: GrantTraction = {
 
   for (const p of PROGRAMS) {
     if (!p.id || !p.org || !p.program || !p.url || !p.gives || !p.unlocks) {
-      issues.push({ code: "program_incomplete", message: `Programme ${p.id || "?"} missing fields.` });
+      issues.push({
+        code: "program_incomplete",
+        message: `Programme ${p.id || "?"} missing fields.`,
+      });
     }
     if (!/^https:\/\//i.test(p.url)) {
       issues.push({ code: "program_url", message: `${p.id} apply URL must be https.` });
@@ -251,7 +256,13 @@ export function assessGrantReady(t: GrantTraction = {
   }
 
   const a = grantAnswers(t);
-  for (const key of ["oneLiner", "words250", "words1000", "architecture", "tractionLine"] as const) {
+  for (const key of [
+    "oneLiner",
+    "words250",
+    "words1000",
+    "architecture",
+    "tractionLine",
+  ] as const) {
     if (!a[key] || a[key].trim().length < 20) {
       issues.push({ code: "answer_short", message: `grantAnswers.${key} too short.` });
     }
@@ -278,7 +289,10 @@ export function assessGrantReady(t: GrantTraction = {
   }
 
   if (!GRANT_VIDEO_SCRIPT.includes("0:00") || !GRANT_VIDEO_SCRIPT.includes("/grants")) {
-    issues.push({ code: "video_script", message: "Grant video script missing timing or /grants CTA." });
+    issues.push({
+      code: "video_script",
+      message: "Grant video script missing timing or /grants CTA.",
+    });
   }
 
   return { ok: issues.length === 0, issues };

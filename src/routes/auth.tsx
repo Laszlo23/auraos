@@ -1009,7 +1009,8 @@ function AuthPage() {
               <form onSubmit={(e) => void submitPassword(e)} className="space-y-3">
                 {mode === "signup" && isNachbarPatron ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                    Aura Nachbar · {refFromLink ? (
+                    Aura Nachbar ·{" "}
+                    {refFromLink ? (
                       <>
                         Einladung{" "}
                         <span className="font-semibold uppercase tracking-[0.12em] text-primary">

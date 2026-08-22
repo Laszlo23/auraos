@@ -328,8 +328,8 @@ export function WalletExchangePanel({
             <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] leading-relaxed text-gold">
               Not a hidden exchange fee: Alchemy gas sponsorship is off, so we leave a tiny{" "}
               {nativeSym} cushion (~$0.20–0.30) when you convert max — Base gas itself is usually
-              cents. Set <span className="font-mono text-[11px]">ALCHEMY_GAS_POLICY_ID_BASE</span> on
-              the server for gasless swaps.
+              cents. Set <span className="font-mono text-[11px]">ALCHEMY_GAS_POLICY_ID_BASE</span>{" "}
+              on the server for gasless swaps.
               {gasHint ? <> ({gasHint})</> : null}
             </p>
           ) : null}

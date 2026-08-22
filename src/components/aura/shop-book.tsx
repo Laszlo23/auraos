@@ -57,7 +57,10 @@ export function ShopCatalogAndBook({ shop }: { shop: PublicLocalBusiness }) {
           </p>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2">
             {shop.catalog.map((item) => (
-              <li key={item.id} className="overflow-hidden rounded-[1.6rem] border border-border/40 bg-card/30">
+              <li
+                key={item.id}
+                className="overflow-hidden rounded-[1.6rem] border border-border/40 bg-card/30"
+              >
                 {item.image_url ? (
                   <img
                     src={item.image_url}
@@ -67,7 +70,9 @@ export function ShopCatalogAndBook({ shop }: { shop: PublicLocalBusiness }) {
                   />
                 ) : null}
                 <div className="p-5">
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-primary">{item.kind}</p>
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-primary">
+                    {item.kind}
+                  </p>
                   <h3 className="mt-1 font-display text-lg font-semibold">{item.name}</h3>
                   {item.description ? (
                     <p className="mt-2 text-[13px] text-muted-foreground">{item.description}</p>
@@ -192,7 +197,11 @@ export function ShopCatalogAndBook({ shop }: { shop: PublicLocalBusiness }) {
             >
               Anfrage senden
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="text-sm text-muted-foreground"
+            >
               Abbrechen
             </button>
           </div>

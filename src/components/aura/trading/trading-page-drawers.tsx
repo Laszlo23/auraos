@@ -23,7 +23,13 @@ import {
 } from "@/lib/trading.functions";
 import { cn } from "@/lib/utils";
 
-import type { Signal, Strategy, Trade, Whale, WhaleEvent } from "@/components/aura/trading/trading-page-types";
+import type {
+  Signal,
+  Strategy,
+  Trade,
+  Whale,
+  WhaleEvent,
+} from "@/components/aura/trading/trading-page-types";
 
 export function TradingPageDrawers({
   drawer,
@@ -76,33 +82,35 @@ export function TradingPageDrawers({
   pendingSignals: Signal[];
   liveSignals: Signal[];
   explorer: string;
-  arena: {
-    season?: {
-      name: string;
-      ends_at: string;
-      prize_pool_aura: number;
-    } | null;
-    entries?: {
-      rank: number | null;
-      company_name: string | null;
-      company_id: string;
-      realized_pnl: number;
-      trade_count: number;
-      score: number;
-      max_drawdown_pct: number;
-      isYou: boolean;
-    }[];
-    you?: {
-      rank: number | null;
-      company_name: string | null;
-      company_id: string;
-      realized_pnl: number;
-      trade_count: number;
-      score: number;
-      max_drawdown_pct: number;
-      isYou: boolean;
-    } | null;
-  } | undefined;
+  arena:
+    | {
+        season?: {
+          name: string;
+          ends_at: string;
+          prize_pool_aura: number;
+        } | null;
+        entries?: {
+          rank: number | null;
+          company_name: string | null;
+          company_id: string;
+          realized_pnl: number;
+          trade_count: number;
+          score: number;
+          max_drawdown_pct: number;
+          isYou: boolean;
+        }[];
+        you?: {
+          rank: number | null;
+          company_name: string | null;
+          company_id: string;
+          realized_pnl: number;
+          trade_count: number;
+          score: number;
+          max_drawdown_pct: number;
+          isYou: boolean;
+        } | null;
+      }
+    | undefined;
   perks: HolderPerks | undefined;
   doneQuests: Set<string>;
   hasTradeKey: boolean;

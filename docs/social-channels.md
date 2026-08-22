@@ -100,10 +100,10 @@ Docs: [Neynar managed signers](https://docs.neynar.com/docs/integrate-managed-si
 
 ## Agents
 
-| Provider | Agent |
-|---|---|
-| X, Meta, TikTok | Vela |
-| LinkedIn, Farcaster | Orin |
+| Provider            | Agent |
+| ------------------- | ----- |
+| X, Meta, TikTok     | Vela  |
+| LinkedIn, Farcaster | Orin  |
 
 ## Week in review
 

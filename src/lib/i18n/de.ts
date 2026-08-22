@@ -122,10 +122,12 @@ export const de: MessageTree = {
     peerBlurb: "Link teilen. Wenn der andere freischaltet, bekommst du Guthaben.",
     peerCta: "Einladungslink kopieren",
     checkoutSuccess: "Zahlung ok — Aura Reputation ist aktiv.",
-    checkoutPending: "Zahlung empfangen — Freischaltung folgt in Sekunden. Seite neu laden, falls nötig.",
+    checkoutPending:
+      "Zahlung empfangen — Freischaltung folgt in Sekunden. Seite neu laden, falls nötig.",
     checkoutCancel: "Checkout abgebrochen — du kannst jederzeit wieder starten.",
     nextSteps: "Als Nächstes",
-    nextStepsBlurb: "1) Google-Link + Kunden einladen · 2) QR für Gäste am Tresen zeigen · 3) optional Boost-Paket.",
+    nextStepsBlurb:
+      "1) Google-Link + Kunden einladen · 2) QR für Gäste am Tresen zeigen · 3) optional Boost-Paket.",
     goReviews: "Zu Sterne",
     goGuests: "Zu Gäste",
   },

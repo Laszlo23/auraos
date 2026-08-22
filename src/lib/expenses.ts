@@ -24,7 +24,11 @@ export const EXPENSE_CATEGORIES = [
 export type ExpenseCategoryId = (typeof EXPENSE_CATEGORIES)[number]["id"];
 
 export const TAX_HINTS = [
-  { id: "likely_business", label: "Likely business expense", labelDe: "Vermutlich Betriebsausgabe" },
+  {
+    id: "likely_business",
+    label: "Likely business expense",
+    labelDe: "Vermutlich Betriebsausgabe",
+  },
   { id: "input_vat_possible", label: "Input VAT possible", labelDe: "Vorsteuer möglich" },
   { id: "personal", label: "Likely personal", labelDe: "Vermutlich privat" },
   { id: "mixed", label: "Mixed / split needed", labelDe: "Gemischt / aufteilen" },

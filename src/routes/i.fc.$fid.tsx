@@ -104,7 +104,10 @@ function FcBuilderInvitePage() {
       />
 
       <header className="relative z-10 mx-auto flex max-w-3xl items-center justify-between px-6 py-6">
-        <Link to="/" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+        <Link
+          to="/"
+          className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+        >
           Aura OS
         </Link>
         <Link to="/wien" className="text-[12px] text-muted-foreground hover:text-foreground">
@@ -117,7 +120,8 @@ function FcBuilderInvitePage() {
           Personal invite · fid {Number.isFinite(fid) ? fid : "—"}
         </p>
         <h1 className="mt-3 font-display text-[clamp(2rem,7vw,3.4rem)] leading-[0.96] tracking-tight">
-          {invite?.displayName || (invite?.username ? `@${invite.username}` : "Come build with us.")}
+          {invite?.displayName ||
+            (invite?.username ? `@${invite.username}` : "Come build with us.")}
           <span className="block text-muted-foreground">Kein Urteil. Nur jetzt.</span>
         </h1>
         <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-muted-foreground">
@@ -146,7 +150,9 @@ function FcBuilderInvitePage() {
               onClick={() => claim.mutate()}
               className="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
             >
-              {claimed ? "Credits claimed" : `Claim ${invite?.credits ?? FC_BUILDER_CREDITS} test AURA`}
+              {claimed
+                ? "Credits claimed"
+                : `Claim ${invite?.credits ?? FC_BUILDER_CREDITS} test AURA`}
             </button>
             {claimed ? (
               <form
@@ -175,7 +181,10 @@ function FcBuilderInvitePage() {
                 </button>
               </form>
             ) : null}
-            <Link to="/access" className="block text-[12px] text-muted-foreground hover:text-foreground">
+            <Link
+              to="/access"
+              className="block text-[12px] text-muted-foreground hover:text-foreground"
+            >
               Founding seat still $99 →
             </Link>
           </div>

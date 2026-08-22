@@ -55,9 +55,7 @@ function recipientType(platform: QuidliPlatform): string {
 function buildRecipient(platform: QuidliPlatform, handle: string, amountUnits?: string) {
   const type = recipientType(platform);
   const base =
-    type === "email"
-      ? { type: "email", id: handle }
-      : { type, username: handle.replace(/^@/, "") };
+    type === "email" ? { type: "email", id: handle } : { type, username: handle.replace(/^@/, "") };
   if (amountUnits) return { ...base, amountInWei: amountUnits };
   return base;
 }
@@ -75,7 +73,9 @@ function extractRef(data: unknown): string | null {
 export async function lookupHandle(opts: {
   platform: QuidliPlatform;
   handle: string;
-}): Promise<{ ok: true; raw: unknown } | { ok: false; error: string; detail?: string | undefined }> {
+}): Promise<
+  { ok: true; raw: unknown } | { ok: false; error: string; detail?: string | undefined }
+> {
   const apiKey = quidliApiKey();
   if (!apiKey) return { ok: false, error: "not_configured" };
   const base = quidliApiBase();

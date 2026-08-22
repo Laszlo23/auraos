@@ -13,10 +13,7 @@ export type ShopMediaItem = {
 
 const MAX_GALLERY = 12;
 
-async function ownedCompanyId(
-  supabase: { from: (t: string) => any },
-  userId: string,
-) {
+async function ownedCompanyId(supabase: { from: (t: string) => any }, userId: string) {
   const { data, error } = await supabase
     .from("companies")
     .select("id")
@@ -62,7 +59,8 @@ export const addShopMedia = createServerFn({ method: "POST" })
     if (!url) throw new Error("Bild-URL ungültig.");
     return {
       url,
-      caption: typeof input.caption === "string" ? input.caption.trim().slice(0, 120) || null : null,
+      caption:
+        typeof input.caption === "string" ? input.caption.trim().slice(0, 120) || null : null,
     };
   })
   .handler(async ({ data, context }) => {
@@ -100,8 +98,7 @@ export const updateShopMediaCaption = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { id: string; caption?: string }) => ({
     id: String(input.id || "").trim(),
-    caption:
-      typeof input.caption === "string" ? input.caption.trim().slice(0, 120) || null : null,
+    caption: typeof input.caption === "string" ? input.caption.trim().slice(0, 120) || null : null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.id) throw new Error("Eintrag fehlt.");

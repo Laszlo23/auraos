@@ -63,9 +63,7 @@ function NachbarVerdienenPage() {
             ? "Claim öffnet, sobald der Button hier steht."
             : "In-app Reservation aus echten Besuchen. Claim, wenn der CA auf aibusiness.fun und @buildingcultu3 steht — nicht vorher."}
         </p>
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          {AURA_OFFICIAL_CA_SOURCES[0]}
-        </p>
+        <p className="mt-2 text-[11px] text-muted-foreground">{AURA_OFFICIAL_CA_SOURCES[0]}</p>
       </Panel>
 
       <Panel label="Verlauf">

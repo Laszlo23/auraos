@@ -25,10 +25,7 @@ import {
   mapsSearchUrl,
   telHref,
 } from "@/lib/lokal-shops";
-import type {
-  PublicLocalBusiness,
-  PublicShopGalleryItem,
-} from "@/lib/reviews.public.functions";
+import type { PublicLocalBusiness, PublicShopGalleryItem } from "@/lib/reviews.public.functions";
 import { REVIEW_APP_URL, SITE_URL, url } from "@/lib/site";
 import { safeHttpUrl } from "@/lib/nachbar-play";
 
@@ -301,13 +298,7 @@ function ActionRail({
   );
 }
 
-function ShopGallery({
-  items,
-  shopName,
-}: {
-  items: PublicShopGalleryItem[];
-  shopName: string;
-}) {
+function ShopGallery({ items, shopName }: { items: PublicShopGalleryItem[]; shopName: string }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   if (!items.length) return null;
   const open = openIdx != null ? items[openIdx] : null;
@@ -435,11 +426,13 @@ function NachbarProof({
 
 function HowItWorks({ slug }: { slug: string }) {
   const custom = editorialForSlug(slug)?.howSteps;
-  const steps = (custom ?? [
-    { title: "Besuch", body: "Komm vorbei. Echter Laden, echte Zeit." },
-    { title: "Check-in", body: "QR scannen — du wirst Nachbar." },
-    { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
-  ]).map((s, i) => ({
+  const steps = (
+    custom ?? [
+      { title: "Besuch", body: "Komm vorbei. Echter Laden, echte Zeit." },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ]
+  ).map((s, i) => ({
     n: String(i + 1).padStart(2, "0"),
     t: s.title,
     d: s.body,
@@ -452,7 +445,12 @@ function HowItWorks({ slug }: { slug: string }) {
       <p className="mt-2 max-w-xl text-[14px] text-muted-foreground">
         Diese Seite ist die öffentliche Heimat. Socials und Reviews laufen darüber — oida, ned
         Fake-Sterne.{" "}
-        <a href={REVIEW_APP_URL} className="font-semibold text-primary" target="_blank" rel="noreferrer">
+        <a
+          href={REVIEW_APP_URL}
+          className="font-semibold text-primary"
+          target="_blank"
+          rel="noreferrer"
+        >
           Review-Maschine
         </a>
       </p>
@@ -492,7 +490,9 @@ function Feed({ shop }: { shop: PublicLocalBusiness }) {
       </p>
 
       <article className="rounded-[2rem] border border-gold/25 bg-gradient-to-br from-gold/10 via-card/30 to-transparent p-6 sm:p-8">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">Geschichte</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">
+          Geschichte
+        </p>
         <p className="mt-3 font-display text-[1.35rem] leading-snug tracking-tight sm:text-[1.6rem]">
           {shop.story}
         </p>
@@ -527,7 +527,9 @@ function Feed({ shop }: { shop: PublicLocalBusiness }) {
             Einladungen
           </p>
           <p className="mt-2 font-display text-3xl font-semibold">{shop.invite_count}</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">echte Gäste gebeten — nicht Sterne gekauft.</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            echte Gäste gebeten — nicht Sterne gekauft.
+          </p>
         </article>
       ) : null}
 

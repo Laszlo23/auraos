@@ -14,10 +14,7 @@ export type FeedRow = {
 };
 
 /** Anonymised network-wide activity stream. Public, no login. */
-export function usePublicFeed(
-  limit = 60,
-  opts?: { refetchInterval?: number | false },
-) {
+export function usePublicFeed(limit = 60, opts?: { refetchInterval?: number | false }) {
   return useQuery({
     queryKey: ["public-feed", limit],
     refetchInterval: opts?.refetchInterval ?? 8_000,

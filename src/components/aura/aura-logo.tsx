@@ -78,12 +78,7 @@ export function AuraLogo({
     <>
       <AuraMark className={cn("shrink-0", MARK[size])} title={label} />
       {wordmark ? (
-        <span
-          className={cn(
-            "font-display font-bold tracking-[0.16em]",
-            WORD[size],
-          )}
-        >
+        <span className={cn("font-display font-bold tracking-[0.16em]", WORD[size])}>
           AURA<span className="text-money"> OS</span>
         </span>
       ) : null}

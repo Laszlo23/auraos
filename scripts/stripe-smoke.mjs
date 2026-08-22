@@ -32,17 +32,47 @@ const site = process.env.SITE_URL?.trim() || "https://aibusiness.fun";
 const flows = [
   { kind: "founding_seat", env: "STRIPE_PRICE_FOUNDING_SEAT", mode: "payment" },
   { kind: "local_seat", env: "STRIPE_PRICE_LOCAL_SEAT", mode: "payment", plan: "local_seat" },
-  { kind: "boost_pack", env: "STRIPE_PRICE_BOOST_SICHTBARKEIT", mode: "payment", plan: "sichtbarkeit" },
-  { kind: "boost_pack", env: "STRIPE_PRICE_BOOST_BEWERTUNGEN", mode: "payment", plan: "bewertungen" },
+  {
+    kind: "boost_pack",
+    env: "STRIPE_PRICE_BOOST_SICHTBARKEIT",
+    mode: "payment",
+    plan: "sichtbarkeit",
+  },
+  {
+    kind: "boost_pack",
+    env: "STRIPE_PRICE_BOOST_BEWERTUNGEN",
+    mode: "payment",
+    plan: "bewertungen",
+  },
   { kind: "boost_pack", env: "STRIPE_PRICE_BOOST_NEUKUNDEN", mode: "payment", plan: "neukunden" },
   { kind: "aura_plan", env: "STRIPE_PRICE_STARTER", mode: "subscription", plan: "starter" },
   { kind: "aura_plan", env: "STRIPE_PRICE_COMPANY", mode: "subscription", plan: "company" },
   { kind: "aura_plan", env: "STRIPE_PRICE_SCALE", mode: "subscription", plan: "scale" },
-  { kind: "funnel_plan", env: "STRIPE_PRICE_OUTCOME_STARTER", mode: "subscription", plan: "outcome_starter" },
-  { kind: "funnel_plan", env: "STRIPE_PRICE_OUTCOME_GROWTH", mode: "subscription", plan: "outcome_growth" },
-  { kind: "funnel_plan", env: "STRIPE_PRICE_OUTCOME_PERFORMANCE", mode: "subscription", plan: "outcome_performance" },
+  {
+    kind: "funnel_plan",
+    env: "STRIPE_PRICE_OUTCOME_STARTER",
+    mode: "subscription",
+    plan: "outcome_starter",
+  },
+  {
+    kind: "funnel_plan",
+    env: "STRIPE_PRICE_OUTCOME_GROWTH",
+    mode: "subscription",
+    plan: "outcome_growth",
+  },
+  {
+    kind: "funnel_plan",
+    env: "STRIPE_PRICE_OUTCOME_PERFORMANCE",
+    mode: "subscription",
+    plan: "outcome_performance",
+  },
   { kind: "funnel_plan", env: "STRIPE_PRICE_BIB_SETUP", mode: "payment", plan: "bib_setup" },
-  { kind: "funnel_plan", env: "STRIPE_PRICE_BIB_OPERATE_STARTER", mode: "subscription", plan: "bib_operate_starter" },
+  {
+    kind: "funnel_plan",
+    env: "STRIPE_PRICE_BIB_OPERATE_STARTER",
+    mode: "subscription",
+    plan: "bib_operate_starter",
+  },
   { kind: "genesis_nft", env: "STRIPE_PRICE_GENESIS_NFT", mode: "payment" },
   { kind: "site_demo", env: "STRIPE_PRICE_HOROSCOPE_DAILY", mode: "subscription" },
   { kind: "site_demo", env: "STRIPE_PRICE_TAROT_DAILY", mode: "subscription" },
@@ -95,7 +125,13 @@ for (const flow of flows) {
   const result = await createSession(flow);
   if (result.ok) {
     console.log(`PASS ${label} ${result.id} ${result.amount_total}${result.currency}`);
-    rows.push({ flow: label, status: "PASS", session: result.id, amount: result.amount_total, currency: result.currency });
+    rows.push({
+      flow: label,
+      status: "PASS",
+      session: result.id,
+      amount: result.amount_total,
+      currency: result.currency,
+    });
   } else {
     failed += 1;
     console.error(`FAIL ${label}: ${result.error}`);

@@ -110,7 +110,8 @@ export const en: MessageTree = {
     cryptoHint: "Local Seat · €99 · USDC, ETH, BTC, or SOL.",
     seatActive: "Aura Reputation active",
     seatActiveAccess: "Access unlocked — boost optional via packs.",
-    accessOnlyHint: "Access is on. Grab boost from a pack below — Visibility is a strong first step.",
+    accessOnlyHint:
+      "Access is on. Grab boost from a pack below — Visibility is a strong first step.",
     packs: "Boost packs (upsell)",
     packsBlurb: "Seat = access. Packs = credits + kickoff. That’s why €99 stays fair.",
     packRecommended: "Recommended next",
@@ -123,7 +124,8 @@ export const en: MessageTree = {
     checkoutPending: "Payment received — unlock follows in seconds. Refresh if needed.",
     checkoutCancel: "Checkout cancelled — you can restart anytime.",
     nextSteps: "Next",
-    nextStepsBlurb: "1) Save Google link + invite customers · 2) Show guest QR · 3) optional boost pack.",
+    nextStepsBlurb:
+      "1) Save Google link + invite customers · 2) Show guest QR · 3) optional boost pack.",
     goReviews: "Go to Stars",
     goGuests: "Go to Guests",
   },

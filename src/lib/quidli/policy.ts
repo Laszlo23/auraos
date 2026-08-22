@@ -8,13 +8,7 @@ export type QuidliPlatform = "twitter" | "farcaster" | "telegram" | "email" | "g
 
 type LooseDb = { from: (table: string) => any };
 
-const ALLOWED = new Set<QuidliPlatform>([
-  "twitter",
-  "farcaster",
-  "telegram",
-  "email",
-  "github",
-]);
+const ALLOWED = new Set<QuidliPlatform>(["twitter", "farcaster", "telegram", "email", "github"]);
 
 export function normalizeQuidliPlatform(raw: string): QuidliPlatform | null {
   const p = raw.trim().toLowerCase();

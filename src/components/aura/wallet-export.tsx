@@ -100,9 +100,7 @@ export function WalletExportPanel({
       id="export"
       className={className}
       delay={0.08}
-      action={
-        <Chip tone="gold">{open || revealed ? "Open" : "Advanced"}</Chip>
-      }
+      action={<Chip tone="gold">{open || revealed ? "Open" : "Advanced"}</Chip>}
     >
       <p className="text-[13px] leading-relaxed text-muted-foreground">
         Download the owner key that controls your Alchemy Light Account. There is no seed phrase —
@@ -129,9 +127,7 @@ export function WalletExportPanel({
             <ul className="space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
               <li>Store the key offline. Never paste it into a website or chat.</li>
               <li>After export you still keep the same smart-wallet address on Aura.</li>
-              <li>
-                Import the owner EOA into a compatible wallet to control this Light Account.
-              </li>
+              <li>Import the owner EOA into a compatible wallet to control this Light Account.</li>
               {smartWalletAddress ? (
                 <li className="font-mono text-[11px] text-foreground/80">
                   Smart wallet · {smartWalletAddress.slice(0, 8)}…{smartWalletAddress.slice(-6)}
@@ -175,7 +171,9 @@ export function WalletExportPanel({
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              disabled={!ack || confirmText.trim().toUpperCase() !== "EXPORT" || exportKey.isPending}
+              disabled={
+                !ack || confirmText.trim().toUpperCase() !== "EXPORT" || exportKey.isPending
+              }
               onClick={() => void reveal()}
               className={cn(
                 "inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-[12px] font-semibold uppercase tracking-[0.14em] disabled:opacity-40",
@@ -214,8 +212,7 @@ export function WalletExportPanel({
           </div>
           <div className="grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-2">
             <p>
-              Owner{" "}
-              <span className="font-mono text-foreground">{revealed.ownerAddress}</span>
+              Owner <span className="font-mono text-foreground">{revealed.ownerAddress}</span>
             </p>
             <p>
               Smart wallet{" "}

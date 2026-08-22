@@ -10,7 +10,11 @@ export type NachbarCheckinSource = "qr" | "shop" | "code";
 
 /** Analytics only. Never "ar" — that mission is granted by nachbar_mark_ar. */
 export function normalizeNachbarCheckinSource(raw?: string): NachbarCheckinSource {
-  switch (String(raw || "").trim().toLowerCase()) {
+  switch (
+    String(raw || "")
+      .trim()
+      .toLowerCase()
+  ) {
     case "shop":
       return "shop";
     case "code":

@@ -298,200 +298,201 @@ function FioPanel({
 
   return (
     <div id="fio-panel" className="scroll-mt-28">
-    <Panel label="FIO crypto handle" glow delay={0.05}>
-      <p className="mb-3 text-[13px] leading-relaxed text-muted-foreground">
-        FIO is Aura&apos;s main crypto-handle service — human-readable receive addresses that travel
-        across wallets. Your in-app @{auraHandle} stays for the leaderboard; FIO is how people send
-        you crypto without pasting 0x… strings.{" "}
-        <a
-          href="/partners/fio"
-          className="font-medium text-primary underline-offset-2 hover:underline"
-        >
-          Partner kit
-        </a>
-      </p>
-
-      {primary ? (
-        <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-primary">Primary FIO</p>
-          <p className="mt-1 font-display text-xl font-semibold">{primary.fio_handle}</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            {primary.chain_code}/{primary.token_code} ·{" "}
-            {primary.resolved_address ? shortHash(primary.resolved_address) : "—"}
-          </p>
-        </div>
-      ) : (
-        <a
-          href={fioRegisterUrl(suggested)}
-          target="_blank"
-          rel="noreferrer"
-          className="mb-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold transition-colors hover:border-primary/40"
-        >
-          Get a FIO handle · map your wallet <ExternalLink className="h-3.5 w-3.5" />
-        </a>
-      )}
-
-      {verifiedWallets.length === 0 ? (
-        <p className="text-[12.5px] text-gold">
-          Verify at least one wallet slot, then attest so we can prove the on-chain mapping.
+      <Panel label="FIO crypto handle" glow delay={0.05}>
+        <p className="mb-3 text-[13px] leading-relaxed text-muted-foreground">
+          FIO is Aura&apos;s main crypto-handle service — human-readable receive addresses that
+          travel across wallets. Your in-app @{auraHandle} stays for the leaderboard; FIO is how
+          people send you crypto without pasting 0x… strings.{" "}
+          <a
+            href="/partners/fio"
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
+            Partner kit
+          </a>
         </p>
-      ) : (
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {verifiedWallets.map((w) => (
-              <button
-                key={w.id}
-                type="button"
-                onClick={() => setWalletId(w.id)}
-                className={cn(
-                  "rounded-2xl px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition-opacity",
-                  active === w.id
-                    ? "bg-primary/14 text-primary"
-                    : "bg-foreground/8 text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {WALLET_ROLES[w.slot - 1]?.label ?? `Slot ${w.slot}`} · {shortHash(w.address)}
-              </button>
-            ))}
-          </div>
 
-          <div className="flex flex-wrap gap-2">
-            {FIO_CHAIN_PAIRS.map((p) => (
-              <button
-                key={`${p.chainCode}-${p.tokenCode}`}
-                type="button"
-                onClick={() => setPair(p)}
-                className={cn(
-                  "rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider",
-                  pair.chainCode === p.chainCode && pair.tokenCode === p.tokenCode
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-foreground/8 text-muted-foreground",
-                )}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
-          <label className="glass-soft flex items-center gap-2 rounded-2xl px-4 py-3">
-            <Link2 className="h-4 w-4 shrink-0 text-primary" />
-            <input
-              value={fio}
-              onChange={(e) => {
-                setFio(e.target.value.toLowerCase().replace(/[^a-z0-9@-]/g, ""));
-                setPreview(null);
-              }}
-              placeholder={suggested}
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
-            />
-          </label>
-
-          {preview ? (
-            <p className="text-[12.5px] text-muted-foreground">Resolves to {preview}</p>
-          ) : null}
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={!fio.includes("@") || resolve.isPending}
-              onClick={async () => {
-                try {
-                  const res = await resolve.mutateAsync({
-                    fioHandle: fio,
-                    chainCode: pair.chainCode,
-                    tokenCode: pair.tokenCode,
-                    tryAlternates: true,
-                  });
-                  if (!res.registered) toast.error("That FIO handle is not registered yet.");
-                  else if (!res.publicAddress)
-                    toast.error("No public address mapped — open FIO app and map this wallet.");
-                  else
-                    toast.success(
-                      `Mapped ${res.chainCode}/${res.tokenCode} · ${shortHash(res.publicAddress)}`,
-                    );
-                  setPreview(res.publicAddress ? shortHash(res.publicAddress) : null);
-                } catch (error) {
-                  toast.error(error instanceof Error ? error.message : "Lookup failed.");
-                }
-              }}
-              className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-            >
-              {resolve.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Resolve
-            </button>
-            <button
-              type="button"
-              disabled={!fio.includes("@") || !active || attest.isPending}
-              onClick={async () => {
-                try {
-                  await attest.mutateAsync({
-                    fioHandle: fio,
-                    walletId: active,
-                    chainCode: pair.chainCode,
-                    tokenCode: pair.tokenCode,
-                    tryAlternates: true,
-                  });
-                  setPreview(null);
-                  onAttested();
-                } catch (error) {
-                  toast.error(error instanceof Error ? error.message : "Attestation failed.");
-                }
-              }}
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
-            >
-              {attest.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Set as
-              primary
-            </button>
-          </div>
-        </div>
-      )}
-
-      {attestations.length > 0 ? (
-        <div className="mt-5 space-y-2">
-          <div className="flex items-center justify-between">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              {revalidate.isPending ? "re-checking on chain…" : lastChecked(attestations)}
+        {primary ? (
+          <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-primary">Primary FIO</p>
+            <p className="mt-1 font-display text-xl font-semibold">{primary.fio_handle}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {primary.chain_code}/{primary.token_code} ·{" "}
+              {primary.resolved_address ? shortHash(primary.resolved_address) : "—"}
             </p>
-            <button
-              type="button"
-              onClick={() => revalidate.mutate(handleId)}
-              disabled={revalidate.isPending}
-              className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-            >
-              <RefreshCw className={cn("h-3.5 w-3.5", revalidate.isPending && "animate-spin")} />
-              Re-check
-            </button>
           </div>
-          {attestations.map((a) => (
-            <div key={a.id} className="glass-soft flex items-center gap-3 rounded-2xl px-4 py-3">
-              {a.status === "valid" ? (
-                <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
-              ) : (
-                <TriangleAlert className="h-4 w-4 shrink-0 text-gold" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{a.fio_handle}</p>
-                <p className="truncate text-[11px] text-muted-foreground">
-                  {a.chain_code}/{a.token_code} ·{" "}
-                  {a.resolved_address ? shortHash(a.resolved_address) : "unmapped"}
-                  {a.previous_address ? ` · was ${shortHash(a.previous_address)}` : ""}
-                </p>
-              </div>
-              <Chip tone={a.status === "valid" ? "primary" : "gold"}>
-                {a.status === "valid" ? "live" : a.status === "changed" ? "updated" : "expired"}
-              </Chip>
+        ) : (
+          <a
+            href={fioRegisterUrl(suggested)}
+            target="_blank"
+            rel="noreferrer"
+            className="mb-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold transition-colors hover:border-primary/40"
+          >
+            Get a FIO handle · map your wallet <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
+
+        {verifiedWallets.length === 0 ? (
+          <p className="text-[12.5px] text-gold">
+            Verify at least one wallet slot, then attest so we can prove the on-chain mapping.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {verifiedWallets.map((w) => (
+                <button
+                  key={w.id}
+                  type="button"
+                  onClick={() => setWalletId(w.id)}
+                  className={cn(
+                    "rounded-2xl px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition-opacity",
+                    active === w.id
+                      ? "bg-primary/14 text-primary"
+                      : "bg-foreground/8 text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {WALLET_ROLES[w.slot - 1]?.label ?? `Slot ${w.slot}`} · {shortHash(w.address)}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {FIO_CHAIN_PAIRS.map((p) => (
+                <button
+                  key={`${p.chainCode}-${p.tokenCode}`}
+                  type="button"
+                  onClick={() => setPair(p)}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider",
+                    pair.chainCode === p.chainCode && pair.tokenCode === p.tokenCode
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-foreground/8 text-muted-foreground",
+                  )}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            <label className="glass-soft flex items-center gap-2 rounded-2xl px-4 py-3">
+              <Link2 className="h-4 w-4 shrink-0 text-primary" />
+              <input
+                value={fio}
+                onChange={(e) => {
+                  setFio(e.target.value.toLowerCase().replace(/[^a-z0-9@-]/g, ""));
+                  setPreview(null);
+                }}
+                placeholder={suggested}
+                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+              />
+            </label>
+
+            {preview ? (
+              <p className="text-[12.5px] text-muted-foreground">Resolves to {preview}</p>
+            ) : null}
+
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => remove.mutate(a.id)}
-                className="text-muted-foreground transition-colors hover:text-foreground"
-                aria-label={`Remove ${a.fio_handle}`}
+                disabled={!fio.includes("@") || resolve.isPending}
+                onClick={async () => {
+                  try {
+                    const res = await resolve.mutateAsync({
+                      fioHandle: fio,
+                      chainCode: pair.chainCode,
+                      tokenCode: pair.tokenCode,
+                      tryAlternates: true,
+                    });
+                    if (!res.registered) toast.error("That FIO handle is not registered yet.");
+                    else if (!res.publicAddress)
+                      toast.error("No public address mapped — open FIO app and map this wallet.");
+                    else
+                      toast.success(
+                        `Mapped ${res.chainCode}/${res.tokenCode} · ${shortHash(res.publicAddress)}`,
+                      );
+                    setPreview(res.publicAddress ? shortHash(res.publicAddress) : null);
+                  } catch (error) {
+                    toast.error(error instanceof Error ? error.message : "Lookup failed.");
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
               >
-                <Trash2 className="h-4 w-4" />
+                {resolve.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}{" "}
+                Resolve
+              </button>
+              <button
+                type="button"
+                disabled={!fio.includes("@") || !active || attest.isPending}
+                onClick={async () => {
+                  try {
+                    await attest.mutateAsync({
+                      fioHandle: fio,
+                      walletId: active,
+                      chainCode: pair.chainCode,
+                      tokenCode: pair.tokenCode,
+                      tryAlternates: true,
+                    });
+                    setPreview(null);
+                    onAttested();
+                  } catch (error) {
+                    toast.error(error instanceof Error ? error.message : "Attestation failed.");
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+              >
+                {attest.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Set as
+                primary
               </button>
             </div>
-          ))}
-        </div>
-      ) : null}
-    </Panel>
+          </div>
+        )}
+
+        {attestations.length > 0 ? (
+          <div className="mt-5 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                {revalidate.isPending ? "re-checking on chain…" : lastChecked(attestations)}
+              </p>
+              <button
+                type="button"
+                onClick={() => revalidate.mutate(handleId)}
+                disabled={revalidate.isPending}
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+              >
+                <RefreshCw className={cn("h-3.5 w-3.5", revalidate.isPending && "animate-spin")} />
+                Re-check
+              </button>
+            </div>
+            {attestations.map((a) => (
+              <div key={a.id} className="glass-soft flex items-center gap-3 rounded-2xl px-4 py-3">
+                {a.status === "valid" ? (
+                  <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+                ) : (
+                  <TriangleAlert className="h-4 w-4 shrink-0 text-gold" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{a.fio_handle}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {a.chain_code}/{a.token_code} ·{" "}
+                    {a.resolved_address ? shortHash(a.resolved_address) : "unmapped"}
+                    {a.previous_address ? ` · was ${shortHash(a.previous_address)}` : ""}
+                  </p>
+                </div>
+                <Chip tone={a.status === "valid" ? "primary" : "gold"}>
+                  {a.status === "valid" ? "live" : a.status === "changed" ? "updated" : "expired"}
+                </Chip>
+                <button
+                  type="button"
+                  onClick={() => remove.mutate(a.id)}
+                  className="text-muted-foreground transition-colors hover:text-foreground"
+                  aria-label={`Remove ${a.fio_handle}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </Panel>
     </div>
   );
 }

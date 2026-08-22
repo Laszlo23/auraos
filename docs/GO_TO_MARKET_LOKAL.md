@@ -20,11 +20,11 @@ STERNE + GÄSTE         (invite real customers)
 later: Customer Engine / Full Aura
 ```
 
-| SKU | Price | Unlock |
-|---|---|---|
-| Aura Reputation | **€49/mo** (`STRIPE_PRICE_AURA_REPUTATION`, plan `aura_reputation`) | `local_seat_paid_at` + subscription row |
-| Startpaket / Bar / Crypto | €99 one-time Founding Local Seat (access only) | Shell, guests, reviews — **no** boost dump; packs upsell |
-| Boost packs | one-time top-ups | only after unlock |
+| SKU                       | Price                                                               | Unlock                                                   |
+| ------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------- |
+| Aura Reputation           | **€49/mo** (`STRIPE_PRICE_AURA_REPUTATION`, plan `aura_reputation`) | `local_seat_paid_at` + subscription row                  |
+| Startpaket / Bar / Crypto | €99 one-time Founding Local Seat (access only)                      | Shell, guests, reviews — **no** boost dump; packs upsell |
+| Boost packs               | one-time top-ups                                                    | only after unlock                                        |
 
 ### Sales script (10 shops)
 
@@ -55,25 +55,25 @@ Aura Local sells outcomes (visibility, reviews from real customers, new guests),
 
 Google forbids **incentivizing Google reviews** (paying for stars or review content).
 
-| Allowed | Not allowed |
-|---|---|
-| Invite real customers to leave feedback | Pay or tip for a Google star rating |
-| Reward **check-ins**, referrals, in-app feedback, offers | Condition rewards on “leave us 5 stars” |
-| Soft, optional Google CTA after a visit (no reward) | Fake reviews, scraped stars, bot accounts |
+| Allowed                                                  | Not allowed                               |
+| -------------------------------------------------------- | ----------------------------------------- |
+| Invite real customers to leave feedback                  | Pay or tip for a Google star rating       |
+| Reward **check-ins**, referrals, in-app feedback, offers | Condition rewards on “leave us 5 stars”   |
+| Soft, optional Google CTA after a visit (no reward)      | Fake reviews, scraped stars, bot accounts |
 
 Review Boost today tracks invite clicks and redirects to the business Google URL. Rewards in the customer app attach to **visit proof and referrals**, never to Google content. See [CUSTOMER_APP.md](CUSTOMER_APP.md).
 
 ## Product wedge (what ships today)
 
-| Piece | Path / system |
-|---|---|
-| German landing | `/lokal` |
-| Phone shell (Heute, Social, Kunden, Bewertungen, Boost) | Local DE companies after seat |
-| Local Seat | €99 · access only · Barzahlung / Stripe / crypto (USDC·ETH·BTC·SOL) |
-| Cohort cap | First **1000** local seats (`local_cohort`) |
-| Review Boost | Campaigns + `/r/review/$token` → Nachbar check-in primary, Google optional (no reward) |
-| Public card | `/b/$slug` — **eigene Visitenkarte**: Cover-Hero, Galerie, Foto-Angebot, echte Nachbarn (Check-in + Noten), Owner-Upload unter `/business` |
-| Boost packs | Sichtbarkeit / Bewertungen / Neukunden |
+| Piece                                                   | Path / system                                                                                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| German landing                                          | `/lokal`                                                                                                                                   |
+| Phone shell (Heute, Social, Kunden, Bewertungen, Boost) | Local DE companies after seat                                                                                                              |
+| Local Seat                                              | €99 · access only · Barzahlung / Stripe / crypto (USDC·ETH·BTC·SOL)                                                                        |
+| Cohort cap                                              | First **1000** local seats (`local_cohort`)                                                                                                |
+| Review Boost                                            | Campaigns + `/r/review/$token` → Nachbar check-in primary, Google optional (no reward)                                                     |
+| Public card                                             | `/b/$slug` — **eigene Visitenkarte**: Cover-Hero, Galerie, Foto-Angebot, echte Nachbarn (Check-in + Noten), Owner-Upload unter `/business` |
+| Boost packs                                             | Sichtbarkeit / Bewertungen / Neukunden                                                                                                     |
 
 **Tisch pitch (Local Seat):** „Deine Seite sieht aus wie dein Laden — Galerie, Angebot, echte Nachbarn.“
 
@@ -97,9 +97,9 @@ flowchart LR
 
 **Self-growing** means three loops reinforce each other:
 
-1. More seated shops → more patron invites  
-2. More check-ins → stronger local reputation + shop demand for Boost  
-3. More B2B referrals → fill the 1000 without paid ads alone  
+1. More seated shops → more patron invites
+2. More check-ins → stronger local reputation + shop demand for Boost
+3. More B2B referrals → fill the 1000 without paid ads alone
 
 ## Referral system (product intent)
 
@@ -157,11 +157,11 @@ Three linked graphs. Local graph is conceptually `local_*` — reuse patterns fr
 
 ## Economics (honest framing)
 
-| Actor | Pays / spends | Gets |
-|---|---|---|
-| Business | €99 seat (access) + optional Boost packs / €49 mo | Shell, campaigns, cohort; credits via packs |
-| Customer | Time / real visits | Points → perks → later USDC (utility, not investment) |
-| Aura | Ops, Stripe, chain fees | Seat + pack revenue; network effects |
+| Actor    | Pays / spends                                     | Gets                                                  |
+| -------- | ------------------------------------------------- | ----------------------------------------------------- |
+| Business | €99 seat (access) + optional Boost packs / €49 mo | Shell, campaigns, cohort; credits via packs           |
+| Customer | Time / real visits                                | Points → perks → later USDC (utility, not investment) |
+| Aura     | Ops, Stripe, chain fees                           | Seat + pack revenue; network effects                  |
 
 Do **not** market patron balances as equity, yield, or guaranteed returns. Genesis / founding NFT language stays on the OS founding path, not Lokal patrons.
 

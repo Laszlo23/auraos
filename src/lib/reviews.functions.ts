@@ -128,10 +128,12 @@ export const updateLocalBusinessProfile = createServerFn({ method: "POST" })
       publicStory?: string | null;
     }) => ({
       homepageUrl: typeof input.homepageUrl === "string" ? input.homepageUrl : undefined,
-      googleReviewUrl: typeof input.googleReviewUrl === "string" ? input.googleReviewUrl : undefined,
+      googleReviewUrl:
+        typeof input.googleReviewUrl === "string" ? input.googleReviewUrl : undefined,
       name: typeof input.name === "string" ? input.name.trim().slice(0, 80) : undefined,
       bookingUrl: typeof input.bookingUrl === "string" ? input.bookingUrl : undefined,
-      hoursNote: typeof input.hoursNote === "string" ? input.hoursNote.trim().slice(0, 160) : undefined,
+      hoursNote:
+        typeof input.hoursNote === "string" ? input.hoursNote.trim().slice(0, 160) : undefined,
       coverUrl:
         input.coverUrl === null
           ? null
@@ -178,8 +180,7 @@ export const updateLocalBusinessProfile = createServerFn({ method: "POST" })
       }
     }
     if (data.publicStory !== undefined) {
-      const story =
-        data.publicStory === null ? "" : String(data.publicStory).trim().slice(0, 1200);
+      const story = data.publicStory === null ? "" : String(data.publicStory).trim().slice(0, 1200);
       patch["public_story"] = story || null;
     }
 

@@ -14,15 +14,13 @@ export function fcBuilderInviteUrl(fid: number, token: string) {
   return `${SITE_URL}${fcBuilderInvitePath(fid, token)}`;
 }
 
-export function fcBuilderCastBody(opts: {
-  username: string;
-  fid: number;
-  url: string;
-}) {
+export function fcBuilderCastBody(opts: { username: string; fid: number; url: string }) {
   const handle = opts.username.replace(/^@/, "");
   const line = `@${handle} — personal invite, fid ${opts.fid}. Come build with us. Test credits waiting. No judging. Just the now.`;
   const body = `${line}\n\n${opts.url}`;
-  return body.length <= 320 ? body : `${line.slice(0, 320 - opts.url.length - 5)}…\n\n${opts.url}`.slice(0, 320);
+  return body.length <= 320
+    ? body
+    : `${line.slice(0, 320 - opts.url.length - 5)}…\n\n${opts.url}`.slice(0, 320);
 }
 
 export function newClaimToken() {

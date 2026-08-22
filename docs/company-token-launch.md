@@ -4,12 +4,12 @@ Seat-gated Clanker launches so each Aura company can mint its own Base ERC-20 + 
 
 ## Product boundary
 
-| Layer | Meaning |
-|-------|---------|
+| Layer                   | Meaning                                     |
+| ----------------------- | ------------------------------------------- |
 | Founding seat / Genesis | Membership / utility — not the company coin |
-| In-app AURA | Compute ledger — not on-chain |
-| Platform fair launch | Ninty TGE (`TOKEN_LAUNCH_*`) |
-| **Company token** | Clanker ERC-20 for **that** business only |
+| In-app AURA             | Compute ledger — not on-chain               |
+| Platform fair launch    | Ninty TGE (`TOKEN_LAUNCH_*`)                |
+| **Company token**       | Clanker ERC-20 for **that** business only   |
 
 Not an investment product. Not auto-minted on signup. One live token per company.
 
@@ -31,13 +31,13 @@ Treasury for platform LP fee share: `X402_PAY_TO` or `OKX_PAYOUT_ADDRESS`.
 
 ## Code
 
-| File | Role |
-|------|------|
-| `src/lib/company-token-presets.ts` | Presets that work |
-| `src/lib/clanker.server.ts` | Deploy helper |
-| `src/lib/company-token.functions.ts` | Draft / ready / deploy |
-| `src/components/aura/company-token-launch.tsx` | Launch Desk UI |
-| `supabase/migrations/20260811140000_company_token_launches.sql` | Schema |
+| File                                                            | Role                   |
+| --------------------------------------------------------------- | ---------------------- |
+| `src/lib/company-token-presets.ts`                              | Presets that work      |
+| `src/lib/clanker.server.ts`                                     | Deploy helper          |
+| `src/lib/company-token.functions.ts`                            | Draft / ready / deploy |
+| `src/components/aura/company-token-launch.tsx`                  | Launch Desk UI         |
+| `supabase/migrations/20260811140000_company_token_launches.sql` | Schema                 |
 
 ## Out of v1
 

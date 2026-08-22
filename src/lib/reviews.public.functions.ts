@@ -1,10 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import {
-  defaultShopStory,
-  editorialForSlug,
-  type LokalServiceSpotlight,
-} from "@/lib/lokal-shops";
+import { defaultShopStory, editorialForSlug, type LokalServiceSpotlight } from "@/lib/lokal-shops";
 import type { ShopCatalogItem } from "@/lib/shop-catalog.functions";
 
 export type PublicShopGalleryItem = {
@@ -220,8 +216,7 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
     const services = dbServices.length > 0 ? dbServices : (editorial?.services ?? []);
     const serviceDetails =
       editorial?.serviceDetails ?? services.map((title) => ({ title, blurb: "" }));
-    const dbStory =
-      typeof company.public_story === "string" ? company.public_story.trim() : "";
+    const dbStory = typeof company.public_story === "string" ? company.public_story.trim() : "";
 
     return {
       name: company.name as string,
@@ -255,9 +250,7 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
           city: company.city as string | null,
           niche: company.niche as string | null,
         }),
-      gallery: (
-        (galleryRows ?? []) as { id: string; url: string; caption: string | null }[]
-      )
+      gallery: ((galleryRows ?? []) as { id: string; url: string; caption: string | null }[])
         .filter((row) => Boolean(row.url))
         .map((row) => ({
           id: row.id,

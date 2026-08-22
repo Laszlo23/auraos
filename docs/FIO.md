@@ -7,17 +7,17 @@ portable; Aura `@` is product UX.
 
 ## What works today
 
-| Capability | Status |
-|---|---|
-| Resolve FIO → public address (`avail_check` + `get_pub_address`) | Live — multi-endpoint failover |
-| Attest FIO to signature-verified wallet (must match mapping) | Live — `/identity` |
-| Re-validate attestations on a schedule (client sweep) | Live |
-| ETH / USDC / Base resolution pairs | Live |
-| Public profile shows verified FIO | Live — `/u/$handle` |
-| Public resolve server fn (no auth) | Live — `resolveFioPublic` |
-| Register FIO in-app (custodial key / Registration API) | Not yet — deep-link to FIO App |
-| Free handles on `*@aura` domain | Partnership ask (Foundation) |
-| TPID fee share on registrations | Env `FIO_TPID` — set once we own a FIO handle |
+| Capability                                                       | Status                                        |
+| ---------------------------------------------------------------- | --------------------------------------------- |
+| Resolve FIO → public address (`avail_check` + `get_pub_address`) | Live — multi-endpoint failover                |
+| Attest FIO to signature-verified wallet (must match mapping)     | Live — `/identity`                            |
+| Re-validate attestations on a schedule (client sweep)            | Live                                          |
+| ETH / USDC / Base resolution pairs                               | Live                                          |
+| Public profile shows verified FIO                                | Live — `/u/$handle`                           |
+| Public resolve server fn (no auth)                               | Live — `resolveFioPublic`                     |
+| Register FIO in-app (custodial key / Registration API)           | Not yet — deep-link to FIO App                |
+| Free handles on `*@aura` domain                                  | Partnership ask (Foundation)                  |
+| TPID fee share on registrations                                  | Env `FIO_TPID` — set once we own a FIO handle |
 
 Smoke: `node scripts/fio-smoke.mjs`
 

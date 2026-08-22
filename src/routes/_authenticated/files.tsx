@@ -97,14 +97,15 @@ function FilesPage() {
 
   const taxQ = useQuery({
     queryKey: ["tax-prep-summary"],
-    queryFn: async () => getTaxPrepSummary() as Promise<{
-      confirmedCount: number;
-      total: number;
-      currency: string;
-      byCategory: Record<string, { count: number; total: number; currency: string }>;
-      vatCandidates: number;
-      disclaimer: string;
-    }>,
+    queryFn: async () =>
+      getTaxPrepSummary() as Promise<{
+        confirmedCount: number;
+        total: number;
+        currency: string;
+        byCategory: Record<string, { count: number; total: number; currency: string }>;
+        vatCandidates: number;
+        disclaimer: string;
+      }>,
   });
 
   const confirmMut = useMutation({
@@ -353,27 +354,20 @@ function FilesPage() {
               Awaiting your confirm · {drafts.length}
             </p>
             {drafts.map((e) => (
-              <div
-                key={e.id}
-                className="rounded-2xl border border-border/60 px-4 py-3"
-              >
+              <div key={e.id} className="rounded-2xl border border-border/60 px-4 py-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium">
                       {e.vendor ?? "Unknown vendor"}
-                      {e.amount != null
-                        ? ` · ${e.amount} ${e.currency}`
-                        : " · amount unclear"}
+                      {e.amount != null ? ` · ${e.amount} ${e.currency}` : " · amount unclear"}
                     </p>
                     <p className="mt-1 text-[12px] text-muted-foreground">
                       {expenseCategoryLabel(e.category, locale)} ·{" "}
-                      {taxHintLabel(e.tax_hint, locale)} ·{" "}
-                      {Math.round((e.confidence ?? 0) * 100)}% conf
+                      {taxHintLabel(e.tax_hint, locale)} · {Math.round((e.confidence ?? 0) * 100)}%
+                      conf
                       {e.invoice_date ? ` · ${e.invoice_date}` : ""}
                     </p>
-                    {e.notes && (
-                      <p className="mt-1 text-[12px] text-muted-foreground">{e.notes}</p>
-                    )}
+                    {e.notes && <p className="mt-1 text-[12px] text-muted-foreground">{e.notes}</p>}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <select

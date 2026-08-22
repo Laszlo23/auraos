@@ -16,10 +16,7 @@ export function NachbarNotePips({
         {Array.from({ length: 5 }).map((_, i) => (
           <span
             key={i}
-            className={cn(
-              "h-1.5 w-1.5 rotate-45",
-              i < filled ? "bg-gold" : "bg-foreground/15",
-            )}
+            className={cn("h-1.5 w-1.5 rotate-45", i < filled ? "bg-gold" : "bg-foreground/15")}
           />
         ))}
       </span>

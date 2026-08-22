@@ -33,11 +33,7 @@ export const WHITEPAPER_META_DE = {
   date: "15. August 2026",
 } as const;
 
-const ALLOC_ROWS = AURA_ALLOCATIONS.map((a) => [
-  a.label,
-  `${a.pct}%`,
-  formatAuraAmount(a.amount),
-]);
+const ALLOC_ROWS = AURA_ALLOCATIONS.map((a) => [a.label, `${a.pct}%`, formatAuraAmount(a.amount)]);
 
 const ALLOC_ROWS_DE = AURA_ALLOCATIONS.map((a) => [
   a.labelDe,

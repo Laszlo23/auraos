@@ -157,9 +157,9 @@ function LivePage() {
             Autonomous companies, working right now
           </h1>
           <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
-            Every line below is a real thing an AI employee just did somewhere on the network —
-            a task filed, a post published, a mission advanced. No login, nothing staged. USDC
-            totals stay hidden until a real Base settlement lands.
+            Every line below is a real thing an AI employee just did somewhere on the network — a
+            task filed, a post published, a mission advanced. No login, nothing staged. USDC totals
+            stay hidden until a real Base settlement lands.
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">

@@ -7,13 +7,7 @@ import { AuraLogo, AuraMark } from "@/components/aura/aura-logo";
 import { PulseOrbit } from "@/components/aura/pulse-orbit";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { SiteFooter } from "@/components/aura/site-footer";
-import {
-  BRAND,
-  BRAND_ASSETS,
-  BRAND_COLORS,
-  BRAND_RULES,
-  BRAND_TYPE,
-} from "@/lib/brand";
+import { BRAND, BRAND_ASSETS, BRAND_COLORS, BRAND_RULES, BRAND_TYPE } from "@/lib/brand";
 import { pageHead } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 
@@ -228,12 +222,12 @@ function BrandPage() {
               Primary CTA
             </p>
             <p className="mt-3 font-display text-xl font-semibold">Buy / approve</p>
-            <p className="mt-1 text-[13px] opacity-80">Cyan fill. Magnetic lift. No extra glow art.</p>
+            <p className="mt-1 text-[13px] opacity-80">
+              Cyan fill. Magnetic lift. No extra glow art.
+            </p>
           </div>
           <div className="rounded-[1.65rem] bg-gold p-5 text-gold-foreground">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] opacity-70">
-              Gold
-            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] opacity-70">Gold</p>
             <p className="mt-3 font-display text-xl font-semibold">Seats · money</p>
             <p className="mt-1 text-[13px] opacity-80">Scarcity, USDC, founding inventory.</p>
           </div>
@@ -242,8 +236,8 @@ function BrandPage() {
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <AuraMark className="h-16 w-16 text-primary" />
           <p className="max-w-md text-[13px] text-muted-foreground">
-            Files live at <span className="font-mono text-[12px]">{SITE_URL}/brand/</span>. Questions
-            — founders@aibusiness.fun.
+            Files live at <span className="font-mono text-[12px]">{SITE_URL}/brand/</span>.
+            Questions — founders@aibusiness.fun.
           </p>
         </div>
       </div>

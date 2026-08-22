@@ -6,11 +6,7 @@ import { Chip, Panel, Shimmer } from "@/components/aura/primitives";
 import { useSupabaseSession } from "@/hooks/use-supabase-session";
 import { NACHBAR_STAMP_GOAL } from "@/lib/nachbar";
 import { rememberNachbarVisit } from "@/lib/nachbar-play";
-import {
-  getNachbarCityBoard,
-  getNachbarHub,
-  type NachbarCityShop,
-} from "@/lib/nachbar.functions";
+import { getNachbarCityBoard, getNachbarHub, type NachbarCityShop } from "@/lib/nachbar.functions";
 import { nachbarHeatLabel, safeHttpUrl } from "@/lib/nachbar-play";
 import { nachbarHead } from "@/lib/nachbar-seo";
 import { SITE_URL } from "@/lib/site";
@@ -107,9 +103,7 @@ function NachbarEntdeckenPage() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
           Stadt-Karte
         </p>
-        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-          Wien entdecken
-        </h1>
+        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Wien entdecken</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Community-Spiel, kein Business nötig. Echte Läden, echte Besuche, Nachbar-Note — keine
           Fake-Sterne.
@@ -120,7 +114,9 @@ function NachbarEntdeckenPage() {
         <div className="grid grid-cols-3 gap-2">
           <Panel>
             <div className="p-4">
-              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Streak</p>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                Streak
+              </p>
               <p className="mt-1 font-display text-2xl font-semibold">
                 {hub.data.progress.streak_days}
               </p>
@@ -164,7 +160,9 @@ function NachbarEntdeckenPage() {
               <li key={m.id} className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold leading-snug">{m.title}</p>
-                  <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">{m.body}</p>
+                  <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+                    {m.body}
+                  </p>
                 </div>
                 <Chip tone="gold" className="shrink-0">
                   +{m.grant_amount}
@@ -173,7 +171,10 @@ function NachbarEntdeckenPage() {
             ))}
           </ul>
           {user ? (
-            <Link to="/nachbar/heute" className="mt-3 inline-block text-sm font-semibold text-primary">
+            <Link
+              to="/nachbar/heute"
+              className="mt-3 inline-block text-sm font-semibold text-primary"
+            >
               Heute einchecken →
             </Link>
           ) : null}
@@ -195,7 +196,9 @@ function NachbarEntdeckenPage() {
               <article
                 className={cn(
                   "rounded-[1.65rem] border bg-card/40 p-4",
-                  isNext ? "border-gold/50 shadow-[0_0_32px_-16px_var(--glow)]" : "border-border/40",
+                  isNext
+                    ? "border-gold/50 shadow-[0_0_32px_-16px_var(--glow)]"
+                    : "border-border/40",
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -221,7 +224,9 @@ function NachbarEntdeckenPage() {
                       {shop.name}
                     </h2>
                     {place ? (
-                      <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{place}</p>
+                      <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                        {place}
+                      </p>
                     ) : null}
                   </div>
                 </div>
@@ -235,7 +240,9 @@ function NachbarEntdeckenPage() {
                 )}
 
                 {shop.tagline ? (
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{shop.tagline}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {shop.tagline}
+                  </p>
                 ) : null}
 
                 <div className="mt-3 flex flex-col gap-2">
@@ -280,12 +287,21 @@ function NachbarEntdeckenPage() {
                     </Link>
                   )}
                   {shop.slug ? (
-                    <Link to="/b/$slug" params={{ slug: shop.slug }} className="text-muted-foreground">
+                    <Link
+                      to="/b/$slug"
+                      params={{ slug: shop.slug }}
+                      className="text-muted-foreground"
+                    >
                       Karte
                     </Link>
                   ) : null}
                   {site ? (
-                    <a href={site} target="_blank" rel="noopener noreferrer" className="text-muted-foreground">
+                    <a
+                      href={site}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground"
+                    >
                       Website
                     </a>
                   ) : null}

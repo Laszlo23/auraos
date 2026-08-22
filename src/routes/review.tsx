@@ -75,7 +75,10 @@ function ReviewBridgePage() {
           >
             Anleitung
           </a>
-          <Link to="/lokal/audit" className="rounded-2xl border border-border/50 px-5 py-3 text-sm font-semibold">
+          <Link
+            to="/lokal/audit"
+            className="rounded-2xl border border-border/50 px-5 py-3 text-sm font-semibold"
+          >
             Kostenloser Check
           </Link>
         </div>

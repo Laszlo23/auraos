@@ -32,12 +32,12 @@ Live kit: https://aibusiness.fun/grants
 
 ### Form fields
 
-| Field | Value |
-|-------|--------|
-| Full name | *(your legal name)* |
-| Email | founders@aibusiness.fun |
-| Telegram | *(optional)* |
-| Company | Aura OS / aibusiness.fun |
+| Field               | Value                                                                                                                                                                                                                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Full name           | _(your legal name)_                                                                                                                                                                                                                                                                     |
+| Email               | founders@aibusiness.fun                                                                                                                                                                                                                                                                 |
+| Telegram            | _(optional)_                                                                                                                                                                                                                                                                            |
+| Company             | Aura OS / aibusiness.fun                                                                                                                                                                                                                                                                |
 | What we're building | AI company operating system on Base. Founders provision Alchemy Light Accounts, deposit USDC, exchange via OKX DEX, and settle x402 agent payments. We need Base Gas Manager credits to sponsor UserOps for send + swap so clients never touch gas. Live: https://aibusiness.fun/wallet |
 
 ---
@@ -56,8 +56,9 @@ Hi OKX Web3 team —
 We're shipping Aura OS (https://aibusiness.fun): an AI-employee OS where every company gets an Alchemy Light Account treasury and in-app Exchange powered by the **OKX DEX aggregator** on Base (USDC ↔ ETH / WETH).
 
 Ask:
-1. Join the Developer Collective for early DEX API access + feedback loops  
-2. Builder grant or API fee subsidy while we onboard seated founders  
+
+1. Join the Developer Collective for early DEX API access + feedback loops
+2. Builder grant or API fee subsidy while we onboard seated founders
 3. Co-marketing / listing as an OKX DEX integration showcase (wallet desk + agent trading)
 
 Happy to share volume metrics, architecture, and a live demo. Reply to founders@aibusiness.fun.
@@ -68,7 +69,7 @@ Happy to share volume metrics, architecture, and a live demo. Reply to founders@
 
 ## 4) OKX / X Layer — Build-X (optional track)
 
-**Hub:** https://web3.okx.com/xlayer/build-x-series  
+**Hub:** https://web3.okx.com/xlayer/build-x-series
 
 Only if we commit to an X Layer deploy or AI Season submission. Base-first remains the default; use this for distribution upside.
 
@@ -76,8 +77,8 @@ Only if we commit to an X Layer deploy or AI Season submission. Base-first remai
 
 ## Submit checklist (human)
 
-- [ ] Alchemy Everyone Onchain Typeform  
-- [ ] Alchemy Base Gas Manager form  
-- [ ] OKX Developers Linktree apply / Discord  
-- [ ] Paste confirmation links into `/akquise` notes  
+- [ ] Alchemy Everyone Onchain Typeform
+- [ ] Alchemy Base Gas Manager form
+- [ ] OKX Developers Linktree apply / Discord
+- [ ] Paste confirmation links into `/akquise` notes
 - [ ] After Alchemy approval: set `ALCHEMY_GAS_POLICY_ID_BASE` on VPS + restart `auraos`

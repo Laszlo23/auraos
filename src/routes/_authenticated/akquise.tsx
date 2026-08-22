@@ -972,8 +972,7 @@ function AkquisePage() {
                         onClick={() => {
                           setError(null);
                           if (!senderName.trim() || !projectName.trim()) {
-                            const msg =
-                              "Add your name and project/company in Your mailbox first.";
+                            const msg = "Add your name and project/company in Your mailbox first.";
                             setError(msg);
                             toast.error(msg);
                             return;

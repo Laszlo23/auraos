@@ -421,7 +421,9 @@ export const exportSmartWalletOwnerKey = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     if (data.confirmation !== "EXPORT") {
-      throw new Error('Type EXPORT to confirm you understand this cannot be undone in the browser.');
+      throw new Error(
+        "Type EXPORT to confirm you understand this cannot be undone in the browser.",
+      );
     }
 
     const { rateLimitConsume } = await import("@/lib/rate-limit.server");

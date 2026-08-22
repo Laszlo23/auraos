@@ -18,7 +18,11 @@ export function baseBuilderCode(): string {
 }
 
 export function baseAppId(): string {
-  return process.env["BASE_APP_ID"]?.trim() || process.env["VITE_BASE_APP_ID"]?.trim() || DEFAULT_BASE_APP_ID;
+  return (
+    process.env["BASE_APP_ID"]?.trim() ||
+    process.env["VITE_BASE_APP_ID"]?.trim() ||
+    DEFAULT_BASE_APP_ID
+  );
 }
 
 export function baseBuilderConfigured(): boolean {
