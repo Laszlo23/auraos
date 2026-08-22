@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Compass, X } from "lucide-react";
+import { ensureUiLocale, t } from "@/lib/i18n";
 
 export type TourStop = { target: string; title: string; body: string };
 
@@ -13,8 +14,8 @@ type Box = { top: number; left: number; width: number; height: number };
 export function SpotlightTour({
   stops,
   storageKey,
-  ctaLabel = "New here? Take the tour",
-  replayLabel = "Replay the tour",
+  ctaLabel,
+  replayLabel,
   autoOpen = false,
 }: {
   stops: TourStop[];
@@ -23,12 +24,16 @@ export function SpotlightTour({
   replayLabel?: string;
   autoOpen?: boolean;
 }) {
+  const locale = ensureUiLocale();
   const chipKey = `${storageKey}:chip`;
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
   const [seen, setSeen] = useState(true);
   const [chipVisible, setChipVisible] = useState(false);
+
+  const defaultCtaLabel = t("tour.newHere", locale);
+  const defaultReplayLabel = t("tour.replay", locale);
 
   useEffect(() => {
     const wasSeen = localStorage.getItem(storageKey) === "1";
@@ -103,12 +108,14 @@ export function SpotlightTour({
             className="glass flex min-w-0 flex-1 items-center gap-2 rounded-2xl px-4 py-3 text-left text-[12.5px] font-semibold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
           >
             <Compass className="h-4 w-4 shrink-0 text-primary" />
-            <span className="min-w-0 truncate">{seen ? replayLabel : ctaLabel}</span>
+            <span className="min-w-0 truncate">
+              {seen ? replayLabel || defaultReplayLabel : ctaLabel || defaultCtaLabel}
+            </span>
           </button>
           <button
             type="button"
             onClick={dismissChip}
-            aria-label="Dismiss tour"
+            aria-label={t("tour.dismiss", locale)}
             className="glass grid h-auto w-11 shrink-0 place-items-center rounded-2xl text-muted-foreground shadow-[var(--shadow-glow)] transition-colors hover:text-foreground"
           >
             <X className="h-4 w-4" strokeWidth={1.75} />
@@ -148,7 +155,7 @@ export function SpotlightTour({
                 <span className="num text-[11px] tracking-[0.3em] text-primary">
                   {String(i + 1).padStart(2, "0")} / {String(stops.length).padStart(2, "0")}
                 </span>
-                <button type="button" onClick={close} aria-label="Close tour">
+                <button type="button" onClick={close} aria-label={t("tour.close", locale)}>
                   <X className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
                 </button>
               </div>
@@ -164,14 +171,15 @@ export function SpotlightTour({
                   disabled={i === 0}
                   className="flex items-center gap-1.5 rounded-2xl bg-foreground/8 px-3.5 py-2 text-[12.5px] font-medium disabled:opacity-40"
                 >
-                  <ArrowLeft className="h-3.5 w-3.5" /> Back
+                  <ArrowLeft className="h-3.5 w-3.5" /> {t("tour.back", locale)}
                 </button>
                 <button
                   type="button"
                   onClick={() => (last ? close() : setI((n) => n + 1))}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-primary px-4 py-2 text-[12.5px] font-semibold text-primary-foreground"
                 >
-                  {last ? "Got it" : "Next"} <ArrowRight className="h-3.5 w-3.5" />
+                  {last ? t("tour.gotIt", locale) : t("tour.next", locale)}{" "}
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
 

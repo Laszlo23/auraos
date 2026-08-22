@@ -548,4 +548,27 @@ export const de: MessageTree = {
     funnels: "Funnels",
     appGroup: "App",
   },
+  tour: {
+    newHere: "Neu hier? Zur Tour",
+    replay: "Tour wiederholen",
+    dismiss: "Tour schließen",
+    close: "Tour beenden",
+    back: "Zurück",
+    next: "Weiter",
+    gotIt: "Alles klar",
+    stopHeroTitle: "Fang hier an",
+    stopHeroBody:
+      "Das ist eine Firma, die du besitzt. Du gibst Anweisungen — KI-Mitarbeiter machen die Arbeit.",
+    stopStepsTitle: "So geht's",
+    stopStepsBody:
+      "Drei Schritte: Geschäft beschreiben, KI-Team wird eingestellt, sie arbeiten, während du schläfst.",
+    stopWhyTitle: "Warum es wirklich funktioniert",
+    stopWhyBody:
+      "Ein gemeinsames Gedächtnis, jede Aktion in Geld gemessen, und du gibst alles Riskante frei.",
+    stopFaqTitle: "Die ehrlichen Antworten",
+    stopFaqBody: "Öffne jede Frage hier — inklusive wie du einen Founding Seat kaufst.",
+    stopClaimTitle: "Hol deinen Seat",
+    stopClaimBody:
+      "Founding Seats sind offen für 99 $. Einmal zahlen, Firma wecken, dann optional einen Invite teilen.",
+  },
 };
