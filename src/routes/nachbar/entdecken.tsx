@@ -30,8 +30,12 @@ function boardDescription(shops: NachbarCityShop[]) {
 
 export const Route = createFileRoute("/nachbar/entdecken")({
   loader: async () => {
+    const { withTimeout } = await import("@/lib/timeout-helper");
     try {
-      return await getNachbarCityBoard();
+      return await withTimeout(getNachbarCityBoard(), 5000, {
+        shops: [] as NachbarCityShop[],
+        missions: [],
+      });
     } catch {
       return { shops: [] as NachbarCityShop[], missions: [] };
     }

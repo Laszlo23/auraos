@@ -15,6 +15,34 @@ import { renderErrorPage } from "./lib/error-page";
  */
 const startHandler = createStartHandler(defaultStreamHandler);
 
+/**
+ * Public marketing pages that can be cached for a short time.
+ * Auth'd routes (/command, /wallet, etc.) are excluded.
+ */
+const PUBLIC_MARKETING_ROUTES = [
+  "/",
+  "/lokal",
+  "/for/local",
+  "/access",
+  "/try",
+  "/pricing",
+  "/wien",
+  "/tokenomics",
+  "/whitepaper",
+  "/how-it-works",
+  "/proof",
+  "/nachbar",
+  "/team",
+  "/pitch",
+  "/blog",
+];
+
+function isPublicMarketingPage(pathname: string): boolean {
+  return PUBLIC_MARKETING_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
 function isWebRequest(value: unknown): value is Request {
   return (
     !!value &&
@@ -49,6 +77,33 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+/**
+ * Add short Cache-Control for public marketing pages to reduce SSR load.
+ * Authenticated routes and server functions are never cached.
+ */
+function addCacheHeaders(response: Response, request: Request): Response {
+  const url = new URL(request.url);
+  const isServerFn = request.headers.get("x-tsr-serverFn") === "true";
+  const isHtml = response.headers.get("content-type")?.includes("text/html");
+
+  if (isServerFn || !isHtml || response.status !== 200) {
+    return response;
+  }
+
+  if (isPublicMarketingPage(url.pathname)) {
+    const headers = new Headers(response.headers);
+    // 2 minutes browser cache, 5 minutes CDN/proxy cache
+    headers.set("Cache-Control", "public, max-age=120, s-maxage=300, stale-while-revalidate=60");
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  }
+
+  return response;
+}
+
 export default createServerEntry({
   async fetch(request) {
     // Nitro may invoke this export as middleware with a missing/invalid req.
@@ -59,7 +114,8 @@ export default createServerEntry({
 
     try {
       const response = await startHandler(request);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      return addCacheHeaders(normalized, request);
     } catch (error) {
       console.error(error);
       // Never replace serverFn JSON with a navigable HTML error page.

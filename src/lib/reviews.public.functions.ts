@@ -107,15 +107,18 @@ function asListings(value: unknown): PublicLokalListing[] {
 
 /** Public Vienna / Lokal directory (no auth). Featured shops first. */
 export const getPublicLokalDirectory = createServerFn({ method: "GET" }).handler(async () => {
+  const { withTimeout } = await import("@/lib/timeout-helper");
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: companies } = await supabaseAdmin
+    const query = supabaseAdmin
       .from("companies")
       .select(LISTING_COLS)
       .eq("is_local_business", true)
       .order("featured", { ascending: false })
       .order("local_cohort_number", { ascending: true })
       .limit(48);
+
+    const { data: companies } = await withTimeout(query, 4000, { data: null });
 
     return asListings(
       (companies ?? [])
