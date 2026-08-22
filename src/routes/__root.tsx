@@ -20,6 +20,7 @@ import { usePwa } from "@/hooks/use-pwa";
 import { OG_IMAGE, SITE_NAME, SITE_URL, VIEWPORT_CONTENT } from "@/lib/site";
 import { baseAppId } from "@/lib/base-builder";
 import { rootOrganizationGraph } from "@/lib/seo";
+import { ensureUiLocale } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -207,9 +208,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const locale = typeof window === "undefined" ? "en" : ensureUiLocale();
+
   return (
-    <html lang="en" className="dark">
+    <html lang={locale} className="dark">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function() {
+  try {
+    var cookie = document.cookie;
+    var match = cookie.match(/(?:^|;\\s*)aura\\.ui_locale=([^;]+)/);
+    var locale = match && match[1];
+    if (locale === 'de' || locale === 'en') {
+      document.documentElement.lang = locale;
+    } else {
+      var nav = navigator.language || '';
+      document.documentElement.lang = nav.toLowerCase().startsWith('de') ? 'de' : 'en';
+    }
+  } catch (e) {}
+})();
+            `.trim(),
+          }}
+        />
         <HeadContent />
       </head>
       <body className="min-h-screen antialiased">
