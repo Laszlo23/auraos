@@ -386,6 +386,7 @@ export const markReviewInviteCompleted = createServerFn({ method: "POST" })
 
 /** Paid founding Local seats left of 1000 (excludes Aura demos). */
 export const getLocalCohortScarcity = createServerFn({ method: "GET" }).handler(async () => {
+  const { withTimeout } = await import("@/lib/timeout-helper");
   const { createClient } = await import("@supabase/supabase-js");
   const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
   const key =
@@ -394,13 +395,19 @@ export const getLocalCohortScarcity = createServerFn({ method: "GET" }).handler(
     return { taken: 0, remaining: 1000, cap: 1000 };
   }
   const supabase = createClient(url, key);
-  const [{ data: taken }, { data: remaining }] = await Promise.all([
-    supabase.rpc("local_seats_sold"),
-    supabase.rpc("local_seats_remaining"),
-  ]);
-  return {
-    taken: typeof taken === "number" ? taken : 0,
-    remaining: typeof remaining === "number" ? remaining : 1000,
-    cap: 1000,
-  };
+  return withTimeout(
+    (async () => {
+      const [{ data: taken }, { data: remaining }] = await Promise.all([
+        supabase.rpc("local_seats_sold"),
+        supabase.rpc("local_seats_remaining"),
+      ]);
+      return {
+        taken: typeof taken === "number" ? taken : 0,
+        remaining: typeof remaining === "number" ? remaining : 1000,
+        cap: 1000,
+      };
+    })(),
+    5000,
+    { taken: 0, remaining: 1000, cap: 1000 },
+  );
 });
