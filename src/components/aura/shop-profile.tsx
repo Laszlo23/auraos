@@ -23,6 +23,7 @@ import {
   formatShopAddress,
   mapsEmbedUrl,
   mapsSearchUrl,
+  shopMediaUrl,
   telHref,
 } from "@/lib/lokal-shops";
 import type { PublicLocalBusiness, PublicShopGalleryItem } from "@/lib/reviews.public.functions";
@@ -85,8 +86,9 @@ function Hero({
   address: string | null;
   place: string;
 }) {
-  const atmosphere = safeHttpUrl(shop.cover_url) || ATMOSPHERE;
-  const usingCover = Boolean(safeHttpUrl(shop.cover_url));
+  const cover = shopMediaUrl(shop.cover_url) || shop.cover_url;
+  const atmosphere = safeHttpUrl(cover) || ATMOSPHERE;
+  const usingCover = Boolean(safeHttpUrl(cover));
 
   return (
     <section className="relative isolate min-h-[72svh] overflow-hidden">

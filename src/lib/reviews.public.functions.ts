@@ -1,6 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { defaultShopStory, editorialForSlug, type LokalServiceSpotlight } from "@/lib/lokal-shops";
+import {
+  defaultShopStory,
+  editorialForSlug,
+  shopMediaUrl,
+  type LokalServiceSpotlight,
+} from "@/lib/lokal-shops";
 import type { ShopCatalogItem } from "@/lib/shop-catalog.functions";
 
 export type PublicShopGalleryItem = {
@@ -89,7 +94,7 @@ function mapListing(c: Record<string, unknown>): PublicLokalListing {
     street: (c.street as string | null) ?? null,
     postal_code: (c.postal_code as string | null) ?? null,
     district: (c.district as string | null) ?? null,
-    cover_url: (c.cover_url as string | null) ?? null,
+    cover_url: shopMediaUrl((c.cover_url as string | null) ?? null),
     featured: Boolean(c.featured),
   };
 }
@@ -239,7 +244,7 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       hours_note: (company.hours_note as string | null) ?? null,
       booking_url: (company.booking_url as string | null) ?? null,
       catalog: (catalogRows ?? []) as ShopCatalogItem[],
-      cover_url: (company.cover_url as string | null) ?? null,
+      cover_url: shopMediaUrl((company.cover_url as string | null) ?? null),
       owner_display_name: (company.owner_display_name as string | null) ?? null,
       owner_avatar: editorial?.ownerAvatar ?? null,
       featured: Boolean(company.featured),
@@ -257,7 +262,7 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         .filter((row) => Boolean(row.url))
         .map((row) => ({
           id: row.id,
-          url: row.url,
+          url: shopMediaUrl(row.url) || row.url,
           caption: row.caption,
         })),
       nachbar_checkin_code: (company.nachbar_checkin_code as string | null) ?? null,

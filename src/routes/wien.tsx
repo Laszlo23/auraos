@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/aura/site-footer";
 import { isPublicShopListing, WienDirectory } from "@/components/aura/wien-directory";
 import { LOCAL_COHORT_CAP } from "@/lib/funnels";
 import { FOUNDERS } from "@/lib/legal-entity";
+import { getLocalCohortScarcity } from "@/lib/reviews.functions";
 import { getPublicLokalDirectory } from "@/lib/reviews.public.functions";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { REVIEW_APP_URL, reviewAppUrl, SITE_URL, url } from "@/lib/site";
@@ -91,7 +92,13 @@ function WienHubPage() {
   const listings = Array.isArray(data) ? data : [];
   const shops = listings.filter(isPublicShopListing);
   const live = shops.length;
-  const remaining = Math.max(0, LOCAL_COHORT_CAP - live);
+  const scarcity = useQuery({
+    queryKey: ["local-cohort-scarcity"],
+    queryFn: () => getLocalCohortScarcity(),
+    staleTime: 60_000,
+  });
+  const remaining = scarcity.data?.remaining ?? Math.max(0, LOCAL_COHORT_CAP - live);
+  const seatsTaken = scarcity.data?.taken ?? live;
 
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
@@ -184,11 +191,13 @@ function WienHubPage() {
               Echte Karten — keine Demo-Namen
             </p>
           </Panel>
-          <Panel label="Offene Plätze">
+          <Panel label="Founding Local Seats">
             <p className="num text-3xl font-semibold text-primary">
-              {remaining.toLocaleString("de-AT")}
+              {seatsTaken.toLocaleString("de-AT")} / {LOCAL_COHORT_CAP.toLocaleString("de-AT")}
             </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">Erste Kohorte, Founder-Jahr</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              {remaining.toLocaleString("de-AT")} Plätze frei · bezahlt, keine Demos
+            </p>
           </Panel>
         </div>
       </section>

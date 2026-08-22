@@ -3,7 +3,7 @@ import { Footprints, MapPin, Search, Store, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Chip, Shimmer } from "@/components/aura/primitives";
-import { formatShopAddress } from "@/lib/lokal-shops";
+import { formatShopAddress, shopMediaUrl } from "@/lib/lokal-shops";
 import { safeHttpUrl } from "@/lib/nachbar-play";
 import type { PublicLokalListing } from "@/lib/reviews.public.functions";
 import { cn } from "@/lib/utils";
@@ -20,12 +20,18 @@ export function safeShopImageUrl(raw: string | null | undefined): string | null 
   return safeHttpUrl(t);
 }
 
-const OPS_SLUGS = new Set(["aura-os", "aura-lokal", "aura-nachbar", "aura-goods"]);
+const OPS_SLUGS = new Set([
+  "aura-os",
+  "aura-lokal",
+  "aura-nachbar",
+  "aura-goods",
+  "salon-mira-test",
+]);
 
 function nicheBucket(niche: string | null): string {
   const n = (niche || "").toLowerCase();
   if (/café|cafe|kaffee|lounge|frühstück/.test(n)) return "Kaffee & Lounge";
-  if (/gasthaus|küche|beisl|gastro|restaurant|wirt/.test(n)) return "Gastro";
+  if (/gasthaus|küche|beisl|gastro|restaurant|wirt|heuriger/.test(n)) return "Gastro";
   if (/beauty|body|kosmetik|shape/.test(n)) return "Beauty";
   if (/friseur|haar|salon|pflege|barber|pion/.test(n)) return "Friseur & Pflege";
   if (/auto|fahrzeug|ankauf/.test(n)) return "Auto";
@@ -259,7 +265,7 @@ export function WienDirectory({ listings, isLoading, remaining }: Props) {
 
 function WienShopCard({ shop }: { shop: PublicLokalListing }) {
   const address = formatShopAddress(shop);
-  const cover = safeShopImageUrl(shop.cover_url);
+  const cover = safeShopImageUrl(shopMediaUrl(shop.cover_url) ?? shop.cover_url);
 
   return (
     <li>

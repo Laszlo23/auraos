@@ -173,6 +173,105 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
   },
+  "el-ey-x": {
+    story:
+      "EL EY X sitzt am Passauer Platz 2, hinter Maria am Gestade: Restaurant, Bar und Club auf drei Etagen. Küche am Abend, Club Freitag und Samstag bis in die Nacht. Arian Miad führt das Haus. Steaks, Tartare, Cocktails, Afro-House — echte Gäste, keine Fake-Sterne.",
+    services: ["Restaurant", "Bar & Cocktails", "Club", "Lounge", "Events", "Reservierung"],
+    serviceDetails: [
+      {
+        title: "Restaurant",
+        blurb: "Abendküche am Passauer Platz — international, Steaks, Tartare, asiatische Teller.",
+      },
+      {
+        title: "Bar & Cocktails",
+        blurb: "Bar im Erdgeschoß. Rein, trinken, bleiben — ohne Theater.",
+      },
+      {
+        title: "Club",
+        blurb: "Freitag und Samstag ab 22 Uhr — House, Afro House, Tanzfläche im Keller.",
+      },
+      {
+        title: "Lounge",
+        blurb: "Obere Etage für längere Runden. VIP-Tische per Nachricht.",
+      },
+      {
+        title: "Events",
+        blurb: "ELEYX SOCIETY Nights — Termine über Instagram @eleyx_vienna.",
+      },
+      {
+        title: "Reservierung",
+        blurb: "Anrufen oder office@eleyx.com — Tisch und Club vorher klären.",
+      },
+    ],
+    googleFindCopy: "EL EY X auf Google finden",
+    ownerLabel: "Geschäftsführer",
+    webLabel: "Website",
+    socials: [{ label: "Instagram", href: "https://www.instagram.com/eleyx_vienna" }],
+    howSteps: [
+      {
+        title: "Besuch",
+        body: "Passauer Platz 2, 1010 — hinter Maria am Gestade.",
+      },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar. Kein Theater." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
+  },
+  gigerl: {
+    story:
+      "Fünf Gehminuten vom Stephansdom: Gigerl ist der Stadtheurige in der Rauhensteingasse 3 — Eingang Blumenstockgasse 2. Wiener Küche, Heurigenbuffet und Wein, 75% Bio-zertifiziert. Franziska Bender führt das Haus. Kaiserschmarrn, Gulasch, Wienerschnitzel vom Bio-Kalb — echte Gäste, kein Fake-Sterne-Deal.",
+    services: [
+      "Heurigenbuffet",
+      "Wiener Küche",
+      "Bio & Regional",
+      "Wein",
+      "Kaiserschmarrn",
+      "Gastgarten",
+      "Feiern",
+    ],
+    serviceDetails: [
+      {
+        title: "Heurigenbuffet",
+        blurb:
+          "Saisonal, direkt am Buffet — Aufstriche, Wurst, Käse, Roastbeef, wie’s sich gehört.",
+      },
+      {
+        title: "Wiener Küche",
+        blurb: "Gulasch, Wienerschnitzel vom Bio-Kalb, Erdäpfelgulasch — à la carte bis 23 Uhr.",
+      },
+      {
+        title: "Bio & Regional",
+        blurb: "75% Bio-zertifiziert. Sonnberg, Höllerschmid, Gugumuck — Lieferanten mit Namen.",
+      },
+      {
+        title: "Wein",
+        blurb: "Stadtheuriger: einschenken, sitzenbleiben. Ohne Fahrt ins Umland.",
+      },
+      {
+        title: "Kaiserschmarrn",
+        blurb: "Klassisch mit Zwetschkenröster, Schoko, oder im Reindl für zwei.",
+      },
+      {
+        title: "Gastgarten",
+        blurb: "Draußen im 1. — wenn das Wetter mitspielt.",
+      },
+      {
+        title: "Feiern",
+        blurb: "Gruppen und Feiern: office@gigerl.at. Ab 25 Personen auch mittags oder sonntags.",
+      },
+    ],
+    secondStudioNote: "Eingang Blumenstockgasse 2 — gleiches Haus, kein zweites Listing.",
+    googleFindCopy: "Gigerl auf Google finden",
+    ownerLabel: "Inhaberin",
+    webLabel: "Website",
+    howSteps: [
+      {
+        title: "Besuch",
+        body: "Rauhensteingasse 3, 1010 — Eingang Blumenstockgasse 2, fünf Minuten vom Stephansdom.",
+      },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar. Kein Theater." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
+  },
   "tante-liesl": {
     story:
       "Bei Tante Liesl wird gekocht, gelacht & genossen — Servitengasse 7, mitten im Servitenviertel neben der Kirche. Traditionelle Wiener Küche mit modernem Twist: Schnitzel, Grammelknödel, Schwammerlgulasch, Sonntagsbraten. Gastgarten unter Bäumen im Sommer. Bodenständig, nachbarschaftlich, keine Fake-Sterne.",
@@ -330,6 +429,15 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     ],
   },
 };
+
+/** Same-origin shop media. Rewrites production /shops URLs so local and live both resolve. */
+export function shopMediaUrl(raw: string | null | undefined): string | null {
+  const t = String(raw || "").trim();
+  if (!t) return null;
+  const hosted = t.match(/^https?:\/\/(?:www\.)?aibusiness\.fun(\/shops\/[\w./-]+)$/i);
+  if (hosted?.[1]) return hosted[1];
+  return t;
+}
 
 export function editorialForSlug(slug: string | null | undefined): LokalShopEditorial | null {
   if (!slug) return null;
