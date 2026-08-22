@@ -20,6 +20,8 @@ import { usePwa } from "@/hooks/use-pwa";
 import { OG_IMAGE, SITE_NAME, SITE_URL, VIEWPORT_CONTENT } from "@/lib/site";
 import { baseAppId } from "@/lib/base-builder";
 import { rootOrganizationGraph } from "@/lib/seo";
+import { resolveUiLocale } from "@/lib/i18n";
+import { getCookie, getHeader } from "vinxi/http";
 
 function NotFoundComponent() {
   return (
@@ -207,8 +209,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  let locale = "en";
+  
+  if (typeof window === "undefined") {
+    try {
+      const cookieLocale = getCookie("aura.ui_locale");
+      if (cookieLocale === "de" || cookieLocale === "en") {
+        locale = cookieLocale;
+      } else {
+        const acceptLanguage = getHeader("accept-language");
+        locale = resolveUiLocale({ acceptLanguage });
+      }
+    } catch {
+      locale = "en";
+    }
+  }
+  
   return (
-    <html lang="en" className="dark">
+    <html lang={locale} className="dark">
       <head>
         <HeadContent />
       </head>

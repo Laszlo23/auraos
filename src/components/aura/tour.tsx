@@ -46,12 +46,13 @@ export function OnboardingTour() {
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
+  const [dismissed, setDismissed] = useState(false);
   const locale = ensureUiLocale();
 
   useEffect(() => {
-    if (localStorage.getItem(SEEN_KEY) === "1") return;
-    const t = setTimeout(() => setOpen(true), 1600);
-    return () => clearTimeout(t);
+    if (localStorage.getItem(SEEN_KEY) === "1") {
+      setDismissed(true);
+    }
   }, []);
 
   const measure = useCallback(() => {
@@ -77,7 +78,13 @@ export function OnboardingTour() {
 
   const close = () => {
     setOpen(false);
+    setDismissed(true);
     localStorage.setItem(SEEN_KEY, "1");
+  };
+
+  const openTour = () => {
+    setOpen(true);
+    setI(0);
   };
 
   const stop = STOPS[i]!;
@@ -88,8 +95,20 @@ export function OnboardingTour() {
   const cardTop = box && below + 190 > window.innerHeight ? Math.max(16, box.top - 200) : below;
 
   return (
-    <AnimatePresence>
-      {open && (
+    <>
+      {!dismissed && !open && (
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          onClick={openTour}
+          className="fixed bottom-6 right-6 z-40 rounded-2xl border border-white/15 bg-background/95 px-4 py-2.5 text-sm font-medium text-foreground shadow-lg backdrop-blur-md transition-colors hover:border-primary/50 hover:bg-background"
+        >
+          {t("tour.newHere", locale)}
+        </motion.button>
+      )}
+      <AnimatePresence>
+        {open && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -156,7 +175,8 @@ export function OnboardingTour() {
             </div>
           </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

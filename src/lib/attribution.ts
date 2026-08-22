@@ -188,6 +188,7 @@ export function rememberLocale(locale: UiLocale): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(LANG_KEY, locale);
+    document.cookie = `aura.ui_locale=${locale}; path=/; max-age=31536000; SameSite=Lax`;
   } catch {
     /* private mode */
   }
