@@ -210,7 +210,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   let locale = "en";
-  
+
   if (typeof window === "undefined") {
     try {
       const cookieLocale = getCookie("aura.ui_locale");
@@ -224,7 +224,7 @@ function RootShell({ children }: { children: ReactNode }) {
       locale = "en";
     }
   }
-  
+
   return (
     <html lang={locale} className="dark">
       <head>

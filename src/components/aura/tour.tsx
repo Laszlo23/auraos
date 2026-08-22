@@ -109,12 +109,12 @@ export function OnboardingTour() {
       )}
       <AnimatePresence>
         {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50"
-        >
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50"
+          >
           {/* dimmer with a cut-out over the current section */}
           <div className="absolute inset-0 bg-background/78 backdrop-blur-[2px]" onClick={close} />
           {box && (
@@ -174,9 +174,9 @@ export function OnboardingTour() {
               ))}
             </div>
           </motion.div>
-        </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
     </>
   );
 }
