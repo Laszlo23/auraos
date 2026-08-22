@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MarketingPage } from "@/components/aura/marketing-page";
 import { TryAura } from "@/components/aura/try-aura";
 import { FoundingSeatCard } from "@/components/aura/economics";
-import { OsPreview } from "@/components/aura/os-preview";
 import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/try")({
@@ -21,8 +20,7 @@ function TryPage() {
   return (
     <MarketingPage shareText="Try Aura — see the AI company before you buy the seat.">
       <TryAura standalone />
-      <OsPreview />
-      <div className="mx-auto max-w-6xl px-6 pb-20">
+      <div className="mx-auto max-w-6xl px-6 pb-20 pt-10">
         <FoundingSeatCard />
       </div>
     </MarketingPage>

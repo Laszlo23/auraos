@@ -5,7 +5,6 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
-import { FoundingSeatCard } from "@/components/aura/economics";
 import { Chip, Panel, Pulse } from "@/components/aura/primitives";
 import { ShareMoment } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -171,7 +170,6 @@ function AccessPage() {
         ) : null}
 
         <div className="mt-8 space-y-6">
-          <FoundingSeatCard />
           <MarketingWaveScarcity />
           <FoundingCohort />
         </div>

@@ -271,7 +271,8 @@ function AuthPage() {
     funnelFromLink && isFunnelId(funnelFromLink) ? funnelFromLink : peekFunnel();
   /** Explicit ?funnel= from a /for/* CTA — skips founding-seat gate. Browsing alone does not. */
   const isFunnelEntry = Boolean(funnelFromLink && funnelFromLink !== "os");
-  const isLokalEntry = entryFunnel === "local";
+  /** Founding-seat buyers must never see local pitch, even if peekFunnel() returns "local". */
+  const isLokalEntry = buyFromLink === "seat" ? false : entryFunnel === "local";
   /** Guest/patron app — never pitch founding seat or force company onboarding. */
   const isNachbarPatron = isNachbarNext(nextFromLink);
   const [invite, setInvite] = useState(inviteFromLink ?? "");
