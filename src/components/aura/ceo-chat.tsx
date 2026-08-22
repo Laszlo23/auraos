@@ -325,7 +325,9 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
         )}
       </div>
 
-      <div className={cn("rounded-3xl p-2", rail ? "glass-soft" : "glass sticky bottom-4")}>
+      <div
+        className={cn("glass rounded-3xl p-2", rail ? "glass-soft" : "sticky bottom-4 sm:bottom-4")}
+      >
         {!streaming && messages.some((m) => m.role === "assistant" && m.content.trim()) ? (
           <div className={cn("mb-2 flex flex-wrap items-center gap-2", rail ? "px-1" : "px-2")}>
             <button

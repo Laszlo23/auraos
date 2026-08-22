@@ -30,7 +30,7 @@ function CeoPage() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="flex min-h-[72vh] flex-col">
+      <div className="flex min-h-[calc(100vh-12rem)] flex-col sm:min-h-[72vh]">
         <CeoChat />
       </div>
 
