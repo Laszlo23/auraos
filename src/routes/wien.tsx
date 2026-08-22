@@ -62,8 +62,9 @@ export const Route = createFileRoute("/wien")({
     links: [{ rel: "canonical", href: url("/wien") }],
   }),
   loader: async () => {
+    const { withTimeout } = await import("@/lib/timeout-helper");
     try {
-      const rows = await getPublicLokalDirectory();
+      const rows = await withTimeout(getPublicLokalDirectory(), 5000, []);
       return { listings: Array.isArray(rows) ? rows : [] };
     } catch {
       return { listings: [] as Awaited<ReturnType<typeof getPublicLokalDirectory>> };

@@ -8,7 +8,12 @@ import { OG_IMAGE, SITE_NAME, SITE_URL, url } from "@/lib/site";
 
 export const Route = createFileRoute("/b/$slug")({
   loader: async ({ params }) => {
-    const data = await getPublicLocalBusiness({ data: { slug: params.slug } });
+    const { withTimeout } = await import("@/lib/timeout-helper");
+    const data = await withTimeout(
+      getPublicLocalBusiness({ data: { slug: params.slug } }),
+      5000,
+      null,
+    );
     if (!data) throw notFound();
     return data;
   },

@@ -175,31 +175,31 @@ function LokalLandingPage() {
         showScrollCue={tr("lokal.scrollCue")}
       >
         <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 10 }}
+          animate={{ y: 0 }}
           className="font-display text-[clamp(1.9rem,5vw,2.8rem)] font-semibold tracking-tight text-white"
         >
           {LOCAL_PRODUCT_NAME}
         </motion.p>
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 16 }}
+          animate={{ y: 0 }}
           transition={{ delay: 0.08 }}
           className="mt-3 max-w-3xl font-display text-[clamp(2.2rem,7vw,3.8rem)] font-semibold leading-[0.98] tracking-tight text-white"
         >
           {tr("lokal.hero")}
         </motion.h1>
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 12 }}
+          animate={{ y: 0 }}
           transition={{ delay: 0.16 }}
           className="mt-5 max-w-lg text-[16px] leading-relaxed text-white/75"
         >
           {tr("lokal.blurb")}
         </motion.p>
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 12 }}
+          animate={{ y: 0 }}
           transition={{ delay: 0.24 }}
           className="mt-9 flex flex-wrap gap-3"
         >

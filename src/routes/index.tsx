@@ -431,8 +431,8 @@ function Landing() {
           className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-28 sm:pb-24 sm:pt-24"
         >
           <motion.div
-            initial={{ opacity: 0, y: 12, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ y: 12, filter: "blur(8px)" }}
+            animate={{ y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             className="mb-9"
           >
@@ -443,8 +443,8 @@ function Landing() {
             <WordReveal text={t("landing.hero1")} delay={0.06} />
             <br />
             <motion.span
-              initial={{ opacity: 0, y: 22, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              initial={{ y: 22, filter: "blur(10px)" }}
+              animate={{ y: 0, filter: "blur(0px)" }}
               transition={{ duration: 1, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className="text-money inline-block"
             >
@@ -453,16 +453,16 @@ function Landing() {
           </h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 16 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.9, delay: 0.55 }}
             className="mt-7 max-w-md text-[16px] leading-relaxed text-foreground/78 sm:text-[17px]"
           >
             {t("landing.blurb")}
           </motion.p>
           <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 10 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.8, delay: 0.62 }}
             className="mt-3 max-w-lg text-[14px] font-semibold text-gold"
           >
@@ -470,8 +470,8 @@ function Landing() {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 18 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.85, delay: 0.68 }}
             className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
