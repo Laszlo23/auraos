@@ -165,7 +165,8 @@ function AccessPage() {
         </p>
         {invite ? (
           <p className="mt-3 text-[12px] text-muted-foreground">
-            {t("access.friendCode")} · <span className="font-semibold text-foreground">{invite}</span>
+            {t("access.friendCode")} ·{" "}
+            <span className="font-semibold text-foreground">{invite}</span>
           </p>
         ) : null}
 
@@ -184,8 +185,7 @@ function AccessPage() {
             onClick={() => void buySeat()}
             className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-40 sm:w-auto"
           >
-            {busy ? t("access.buyOpening") : t("access.buyCta")}{" "}
-            <ArrowRight className="h-4 w-4" />
+            {busy ? t("access.buyOpening") : t("access.buyCta")} <ArrowRight className="h-4 w-4" />
           </button>
         </Panel>
 
@@ -202,14 +202,10 @@ function AccessPage() {
 
         <Panel label={t("access.updatesLabel")} className="mt-6">
           {waitlisted ? (
-            <p className="text-[13px] text-muted-foreground">
-              {t("access.updatesJoined")}
-            </p>
+            <p className="text-[13px] text-muted-foreground">{t("access.updatesJoined")}</p>
           ) : (
             <>
-              <p className="mb-3 text-[12px] text-muted-foreground">
-                {t("access.updatesBlurb")}
-              </p>
+              <p className="mb-3 text-[12px] text-muted-foreground">{t("access.updatesBlurb")}</p>
               <div className="flex flex-wrap gap-2">
                 <input
                   type="email"

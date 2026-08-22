@@ -534,7 +534,8 @@ export const de: MessageTree = {
       "Einmal 99 $ zahlen. KI-Firma wecken. Danach bekommst du einen simplen Invite-Link zum Teilen — Freunde zahlen trotzdem 99 $; du verdienst in-app AURA.",
     friendCode: "Freundes-Code angehängt",
     buyLabel: "Jetzt kaufen",
-    buyBlurb: "Konto anlegen (oder anmelden) → Stripe 99 $ → Seat wird freigeschaltet. Das ist die ganze Tür.",
+    buyBlurb:
+      "Konto anlegen (oder anmelden) → Stripe 99 $ → Seat wird freigeschaltet. Das ist die ganze Tür.",
     buyCta: "Founding Seat kaufen — 99 $",
     buyOpening: "Öffne Stripe…",
     shareLabel: "Seat-Seite teilen",
