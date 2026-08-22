@@ -1,22 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Compass,
-  ExternalLink,
-  HeartHandshake,
-  Megaphone,
-  Star,
-  Store,
-  Users,
-} from "lucide-react";
+import { Compass, ExternalLink, HeartHandshake, Megaphone, Star, Store, Users } from "lucide-react";
 
 import { Chip, Panel } from "@/components/aura/primitives";
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { SiteFooter } from "@/components/aura/site-footer";
-import {
-  isPublicShopListing,
-  WienDirectory,
-} from "@/components/aura/wien-directory";
+import { isPublicShopListing, WienDirectory } from "@/components/aura/wien-directory";
 import { LOCAL_COHORT_CAP } from "@/lib/funnels";
 import { FOUNDERS } from "@/lib/legal-entity";
 import { getPublicLokalDirectory } from "@/lib/reviews.public.functions";
@@ -190,7 +179,9 @@ function WienHubPage() {
           </Panel>
           <Panel label="Live im Verzeichnis">
             <p className="num text-3xl font-semibold">{live}</p>
-            <p className="mt-1 text-[13px] text-muted-foreground">Echte Karten — keine Demo-Namen</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              Echte Karten — keine Demo-Namen
+            </p>
           </Panel>
           <Panel label="Offene Plätze">
             <p className="num text-3xl font-semibold text-primary">

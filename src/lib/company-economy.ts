@@ -218,9 +218,7 @@ export function agentsForMission(mission: string): string[] {
     set.add("Ledger");
   }
   if (
-    /bill|invoice|receipt|expense|bookkeep|steuer|tax.?prep|vat|mwst|vorsteuer|rechnung/.test(
-      m,
-    )
+    /bill|invoice|receipt|expense|bookkeep|steuer|tax.?prep|vat|mwst|vorsteuer|rechnung/.test(m)
   ) {
     set.add("Ledger");
   }

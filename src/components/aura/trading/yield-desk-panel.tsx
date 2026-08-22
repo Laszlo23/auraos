@@ -452,27 +452,27 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
         <Panel label="Open yield positions">
           <div className="space-y-2">
             {openPositions.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/40 px-3 py-2.5"
-                >
-                  <div>
-                    <p className="text-[13px] font-medium">{p.catalog_id}</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {p.protocol} · {p.paper ? "paper" : "live"} · principal $
-                      {Number(p.principal_usdc).toFixed(2)} · accrued $
-                      {Number(p.accrued_usdc).toFixed(4)}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={busy === p.id}
-                    onClick={() => void onClose(p.id)}
-                    className="rounded-lg border border-border/60 px-3 py-1.5 text-[11px] font-semibold"
-                  >
-                    Close
-                  </button>
+              <div
+                key={p.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/40 px-3 py-2.5"
+              >
+                <div>
+                  <p className="text-[13px] font-medium">{p.catalog_id}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {p.protocol} · {p.paper ? "paper" : "live"} · principal $
+                    {Number(p.principal_usdc).toFixed(2)} · accrued $
+                    {Number(p.accrued_usdc).toFixed(4)}
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  disabled={busy === p.id}
+                  onClick={() => void onClose(p.id)}
+                  className="rounded-lg border border-border/60 px-3 py-1.5 text-[11px] font-semibold"
+                >
+                  Close
+                </button>
+              </div>
             ))}
           </div>
         </Panel>

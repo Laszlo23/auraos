@@ -41,8 +41,7 @@ function PrivacyPage() {
     >
       <LegalSection title="1. Who we are">
         <p>
-          Controller: {LEGAL_ENTITY} ({NINTY.short}), operating {SITE_NAME} at {SITE_URL}
-          . Contact:{" "}
+          Controller: {LEGAL_ENTITY} ({NINTY.short}), operating {SITE_NAME} at {SITE_URL}. Contact:{" "}
           <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
             {SUPPORT_EMAIL}
           </a>

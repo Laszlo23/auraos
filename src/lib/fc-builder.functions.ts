@@ -191,9 +191,7 @@ export const previewFcBuilderInvite = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("fc_builder_invites")
-      .select(
-        "fid, username, display_name, credits, status, claimed_at, feedback, feedback_at",
-      )
+      .select("fid, username, display_name, credits, status, claimed_at, feedback, feedback_at")
       .eq("fid", data.fid)
       .maybeSingle();
     if (!row) return { invite: null };
@@ -258,7 +256,9 @@ export const sendFcBuilderInvite = createServerFn({ method: "POST" })
 
     const latest = await fetchLatestCastByFid(data.fid);
     const token = existing
-      ? String((existing as { claim_token?: string }).claim_token || randomBytes(12).toString("hex"))
+      ? String(
+          (existing as { claim_token?: string }).claim_token || randomBytes(12).toString("hex"),
+        )
       : randomBytes(12).toString("hex");
     const url = fcBuilderInviteUrl(data.fid, token);
     const body = fcBuilderCastBody({
@@ -365,7 +365,9 @@ export const submitFcBuilderFeedback = createServerFn({ method: "POST" })
   .validator((input: { fid: number; token: string; feedback: string }) => ({
     fid: Math.floor(Number(input.fid)),
     token: String(input.token ?? "").trim(),
-    feedback: String(input.feedback ?? "").trim().slice(0, 800),
+    feedback: String(input.feedback ?? "")
+      .trim()
+      .slice(0, 800),
   }))
   .handler(async ({ data, context }) => {
     if (!data.feedback) throw new Error("Write a note — what should we build together?");

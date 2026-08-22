@@ -13,43 +13,43 @@ Aura Local is the same organism, tailored for shops: social, customers, Review B
 
 Shipped a clearer, safer **B2B2C MVP loop** so shops and guests finish the same story without product confusion:
 
-| Who | What changed |
-|---|---|
-| **Guests (Nachbar)** | `/auth?next=/nachbar*` never pitches the $99 founding seat. First-visit “So geht’s”, pending Tresen panel, muted optional Google CTA (no reward styling). |
-| **Shops (Lokal)** | `/boost` explains three unlock paths + handles Stripe `checkout=success\|cancel`. `/bewertungen` has send how-to + guest-flow copy. `/kunden` shows empty QR states and confirm-only-in-store hints. |
-| **Bridge** | `/r/review/$token` stays Nachbar-first; Google is secondary and unpaid. |
-| **Honesty** | Confirm remains the mint gate. Docs updated so Review Boost is documented as a bridge, not a blind Google 302. |
+| Who                  | What changed                                                                                                                                                                                         |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Guests (Nachbar)** | `/auth?next=/nachbar*` never pitches the $99 founding seat. First-visit “So geht’s”, pending Tresen panel, muted optional Google CTA (no reward styling).                                            |
+| **Shops (Lokal)**    | `/boost` explains three unlock paths + handles Stripe `checkout=success\|cancel`. `/bewertungen` has send how-to + guest-flow copy. `/kunden` shows empty QR states and confirm-only-in-store hints. |
+| **Bridge**           | `/r/review/$token` stays Nachbar-first; Google is secondary and unpaid.                                                                                                                              |
+| **Honesty**          | Confirm remains the mint gate. Docs updated so Review Boost is documented as a bridge, not a blind Google 302.                                                                                       |
 
 Shop path: unlock → Sterne invites → guest bridge → Tresen confirm on `/kunden`.  
 Guest path: check-in deep link → auth as patron → wait for shop → points.
 
 ## What it is
 
-| You | Agents |
-|---|---|
+| You                                                           | Agents                                                   |
+| ------------------------------------------------------------- | -------------------------------------------------------- |
 | Own the company, approve the plan, connect channels & mailbox | Atlas (CEO), Vela, Orin, Iris, Cass, Juno, Ledger, Quant |
-| See tasks move only when the worker runs them | Draft social, research leads, execute approved tasks |
-| Send email from **your** Gmail/Outlook | Never silent-send mail |
+| See tasks move only when the worker runs them                 | Draft social, research leads, execute approved tasks     |
+| Send email from **your** Gmail/Outlook                        | Never silent-send mail                                   |
 
 Honest by default: workforce **Active** means a real queued/running task; quiet weeks stay zeros.
 
 ## Surfaces
 
-| Surface | Path | Purpose |
-|---|---|---|
-| Command center | `/console` | Missions, workforce, approvals, live activity |
-| Aura Local (DE/EN) | `/lokal` | Local-business landing (browser language + toggle) |
-| Local funnel (EN) | `/for/local` | English local / Review Boost funnel |
-| Public shop card | `/b/$slug` | Homepage + socials + review CTA |
-| Aura Nachbar | `/nachbar` | City play — check-in, stamps, missions, friends (no business required) |
-| Review invite bridge | `/r/review/$token` | Nachbar CTA + optional unpaid Google |
-| Connect | `/connect` | Socials, mailbox, wallet |
-| Channels | `/channels` | Publish, drip, reply modes |
-| Akquise | `/akquise` | Lead research + founder-approved send |
-| Week in review | `/report` | Boss-ready 7-day summary |
-| Public report | `/w/$slug` | Shareable snapshot (no login) |
-| Company passport | `/company/$slug` | Public company page |
-| FAQ | `/faq` | Product answers for founders |
+| Surface              | Path               | Purpose                                                                |
+| -------------------- | ------------------ | ---------------------------------------------------------------------- |
+| Command center       | `/console`         | Missions, workforce, approvals, live activity                          |
+| Aura Local (DE/EN)   | `/lokal`           | Local-business landing (browser language + toggle)                     |
+| Local funnel (EN)    | `/for/local`       | English local / Review Boost funnel                                    |
+| Public shop card     | `/b/$slug`         | Homepage + socials + review CTA                                        |
+| Aura Nachbar         | `/nachbar`         | City play — check-in, stamps, missions, friends (no business required) |
+| Review invite bridge | `/r/review/$token` | Nachbar CTA + optional unpaid Google                                   |
+| Connect              | `/connect`         | Socials, mailbox, wallet                                               |
+| Channels             | `/channels`        | Publish, drip, reply modes                                             |
+| Akquise              | `/akquise`         | Lead research + founder-approved send                                  |
+| Week in review       | `/report`          | Boss-ready 7-day summary                                               |
+| Public report        | `/w/$slug`         | Shareable snapshot (no login)                                          |
+| Company passport     | `/company/$slug`   | Public company page                                                    |
+| FAQ                  | `/faq`             | Product answers for founders                                           |
 
 ## Aura Nachbar (city play)
 
@@ -65,14 +65,14 @@ Entdecken → check-in (slug or /nachbar/c/$code)
          → share / invite friends
 ```
 
-| Path | Who | Notes |
-|---|---|---|
-| `/nachbar` | Public | Landing. Session-aware “Weiter spielen”. Indexed. |
-| `/nachbar/entdecken` | Public | City map, heat, missions. Indexed. |
-| `/nachbar/heute` | Signed-in guest | Daily play, one-tap check-in, rating, feedback. `noindex`. |
-| `/nachbar/c/$code` | Deep link | Remembers the visit, then Heute or `/auth?next=/nachbar/heute`. |
-| `/nachbar/freunde` · `/verdienen` · `/ich` | Signed-in guest | Invite, ledger, profile. `noindex`. |
-| `/kunden` | Shop owner | Pending check-ins for **all** owned shops + current-shop QR. |
+| Path                                       | Who             | Notes                                                           |
+| ------------------------------------------ | --------------- | --------------------------------------------------------------- |
+| `/nachbar`                                 | Public          | Landing. Session-aware “Weiter spielen”. Indexed.               |
+| `/nachbar/entdecken`                       | Public          | City map, heat, missions. Indexed.                              |
+| `/nachbar/heute`                           | Signed-in guest | Daily play, one-tap check-in, rating, feedback. `noindex`.      |
+| `/nachbar/c/$code`                         | Deep link       | Remembers the visit, then Heute or `/auth?next=/nachbar/heute`. |
+| `/nachbar/freunde` · `/verdienen` · `/ich` | Signed-in guest | Invite, ledger, profile. `noindex`.                             |
+| `/kunden`                                  | Shop owner      | Pending check-ins for **all** owned shops + current-shop QR.    |
 
 Honest rules:
 
@@ -156,16 +156,16 @@ Worker tick (scheduled posts / engagement) uses a bearer secret from the server 
 
 ## Docs
 
-| Doc | Topic |
-|---|---|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, auth vs public, mailbox, honesty rules |
-| [GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md) | First 1000 local businesses, referral flywheel |
-| [CUSTOMER_APP.md](docs/CUSTOMER_APP.md) | Patron app (Aura Nachbar): earn, onboard, UI |
-| [LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md) | Local ↔ Nachbar happy paths, fixes, backlog |
-| [grants/README.md](docs/grants/README.md) | Credits & grants kit + video script + `npm run test:grants` |
-| [social-channels.md](docs/social-channels.md) | OAuth scopes, TikTok, Farcaster |
-| [supabase.md](docs/supabase.md) | Local vs cloud DB |
-| [x-launch-drip.md](docs/x-launch-drip.md) | Scheduled posts / drip |
+| Doc                                                   | Topic                                                       |
+| ----------------------------------------------------- | ----------------------------------------------------------- |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)               | Layers, auth vs public, mailbox, honesty rules              |
+| [GO_TO_MARKET_LOKAL.md](docs/GO_TO_MARKET_LOKAL.md)   | First 1000 local businesses, referral flywheel              |
+| [CUSTOMER_APP.md](docs/CUSTOMER_APP.md)               | Patron app (Aura Nachbar): earn, onboard, UI                |
+| [LOKAL_NACHBAR_AUDIT.md](docs/LOKAL_NACHBAR_AUDIT.md) | Local ↔ Nachbar happy paths, fixes, backlog                 |
+| [grants/README.md](docs/grants/README.md)             | Credits & grants kit + video script + `npm run test:grants` |
+| [social-channels.md](docs/social-channels.md)         | OAuth scopes, TikTok, Farcaster                             |
+| [supabase.md](docs/supabase.md)                       | Local vs cloud DB                                           |
+| [x-launch-drip.md](docs/x-launch-drip.md)             | Scheduled posts / drip                                      |
 
 ## Lovable
 

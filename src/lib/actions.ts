@@ -415,14 +415,17 @@ export function useApproveTask() {
       } else if (res.workerRan) {
         toast.success("Approved — worker started. Watch the Running column for live steps.");
       } else {
-        toast.message("Approved and queued — the worker did not start. Open Worker to run it now.", {
-          action: {
-            label: "Run worker",
-            onClick: () => {
-              window.location.href = "/automation";
+        toast.message(
+          "Approved and queued — the worker did not start. Open Worker to run it now.",
+          {
+            action: {
+              label: "Run worker",
+              onClick: () => {
+                window.location.href = "/automation";
+              },
             },
           },
-        });
+        );
       }
     },
     onError: (e: Error) => toast.error(e.message || "Couldn't approve that task."),

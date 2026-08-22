@@ -91,7 +91,9 @@ export function CompanyOrg({ className }: { className?: string }) {
                 <Crown className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-[13px] font-semibold text-foreground">{t("landing.orgYouRole")}</p>
+                <p className="text-[13px] font-semibold text-foreground">
+                  {t("landing.orgYouRole")}
+                </p>
                 <p className="text-[11px] text-muted-foreground">{t("landing.orgYouHint")}</p>
               </div>
             </div>

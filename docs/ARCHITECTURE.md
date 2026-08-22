@@ -4,14 +4,14 @@ Aura OS is a TanStack Start (Vite + React) app with Supabase auth/data and serve
 
 ## Layers
 
-| Layer | Where | Role |
-|---|---|---|
-| Routes | `src/routes/` | File-based pages and API handlers |
-| UI | `src/components/aura/`, `src/components/ui/` | Shell, product surfaces, shadcn primitives in use |
-| Client hooks | `src/hooks/` | Data fetching / mutations against server fns |
+| Layer        | Where                                           | Role                                                |
+| ------------ | ----------------------------------------------- | --------------------------------------------------- |
+| Routes       | `src/routes/`                                   | File-based pages and API handlers                   |
+| UI           | `src/components/aura/`, `src/components/ui/`    | Shell, product surfaces, shadcn primitives in use   |
+| Client hooks | `src/hooks/`                                    | Data fetching / mutations against server fns        |
 | Domain logic | `src/lib/*.functions.ts`, `src/lib/*.server.ts` | Auth-gated business logic and provider integrations |
-| Server entry | `src/server/` | Shared server helpers where needed |
-| Schema | `supabase/migrations/` | Postgres + RLS |
+| Server entry | `src/server/`                                   | Shared server helpers where needed                  |
+| Schema       | `supabase/migrations/`                          | Postgres + RLS                                      |
 
 Package manager is **npm** (`package-lock.json`). Deploy uses `scripts/deploy-app.sh` → VPS `/opt/auraos`.
 

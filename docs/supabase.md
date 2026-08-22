@@ -6,11 +6,11 @@ Aura OS keeps **Postgres + Auth + Storage + RLS** on Supabase. Production uses y
 
 ## Do not buy a second Pro just to escape Lovable
 
-| Phase | Backend |
-|---|---|
-| Local Cursor | `supabase start` → `http://127.0.0.1:54321` |
-| Lovable preview | Existing managed project (manual SQL only when preview must match) |
-| Production (`aibusiness.fun`) | Managed Supabase Pro (`fjmrlnwqzjhyzerruhsq`) |
+| Phase                         | Backend                                                            |
+| ----------------------------- | ------------------------------------------------------------------ |
+| Local Cursor                  | `supabase start` → `http://127.0.0.1:54321`                        |
+| Lovable preview               | Existing managed project (manual SQL only when preview must match) |
+| Production (`aibusiness.fun`) | Managed Supabase Pro (`fjmrlnwqzjhyzerruhsq`)                      |
 
 ## Daily local workflow
 
@@ -120,14 +120,14 @@ Short version: set `X_CLIENT_ID` / `X_CLIENT_SECRET` / `WORKER_SECRET` → cron 
 
 Project: `fjmrlnwqzjhyzerruhsq` → `https://fjmrlnwqzjhyzerruhsq.supabase.co`
 
-| Piece | Value |
-|---|---|
-| App env | `/opt/auraos/.env` on the VPS |
-| Client keys | `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` |
-| Server key | `SUPABASE_SERVICE_ROLE_KEY` (dashboard → API Keys) |
-| Auth redirects | Site URL `https://aibusiness.fun`; allowlist `https://aibusiness.fun/**`, `https://aibusiness.fun/auth`, `https://www.aibusiness.fun/**` |
-| Google | Dashboard → Authentication → Providers → Google (enable + Client ID/Secret) |
-| Magic link | Works via Supabase email once Site URL / redirect allowlist include `aibusiness.fun` (see above). Invite links use `?invite=CODE` — do not use `?code=` (reserved for PKCE). |
+| Piece          | Value                                                                                                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App env        | `/opt/auraos/.env` on the VPS                                                                                                                                                |
+| Client keys    | `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY`                                                                                                                        |
+| Server key     | `SUPABASE_SERVICE_ROLE_KEY` (dashboard → API Keys)                                                                                                                           |
+| Auth redirects | Site URL `https://aibusiness.fun`; allowlist `https://aibusiness.fun/**`, `https://aibusiness.fun/auth`, `https://www.aibusiness.fun/**`                                     |
+| Google         | Dashboard → Authentication → Providers → Google (enable + Client ID/Secret)                                                                                                  |
+| Magic link     | Works via Supabase email once Site URL / redirect allowlist include `aibusiness.fun` (see above). Invite links use `?invite=CODE` — do not use `?code=` (reserved for PKCE). |
 
 Apply new SQL with MCP `apply_migration` or CLI `db push` after `supabase link`.
 Then rebuild/restart Aura OS so Vite-baked `VITE_SUPABASE_*` keys stay in sync.

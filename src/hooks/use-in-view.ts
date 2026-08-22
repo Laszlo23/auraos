@@ -8,10 +8,9 @@ export function useInView(amount = 0.15) {
 
   useEffect(() => {
     if (!node) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
-      { threshold: amount },
-    );
+    const obs = new IntersectionObserver(([entry]) => setInView(Boolean(entry?.isIntersecting)), {
+      threshold: amount,
+    });
     obs.observe(node);
     return () => obs.disconnect();
   }, [node, amount]);

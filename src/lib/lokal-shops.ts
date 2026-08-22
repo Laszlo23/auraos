@@ -34,9 +34,15 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     ],
     serviceDetails: [
       { title: "BodyShapen", blurb: "Bring Bewegung in dein Leben." },
-      { title: "The Shape-Line Slimmer", blurb: "Die ultimative Behandlung für den Zentimeterverlust." },
+      {
+        title: "The Shape-Line Slimmer",
+        blurb: "Die ultimative Behandlung für den Zentimeterverlust.",
+      },
       { title: "EMF Styler", blurb: "Muskelaufbau trifft auf Tiefenwirkung." },
-      { title: "Beckenboden Trainer", blurb: "Ein starker Beckenboden verbessert Lebensqualität und Gesundheit." },
+      {
+        title: "Beckenboden Trainer",
+        blurb: "Ein starker Beckenboden verbessert Lebensqualität und Gesundheit.",
+      },
       { title: "Körperbehandlungen", blurb: "Körperbehandlungen für dein Wohlgefühl." },
       { title: "Anti Cellulite", blurb: "Gezielte Straffung für feste Haut." },
       { title: "Kosmetik", blurb: "Bringe deine Haut zum Strahlen." },
@@ -59,20 +65,38 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       "Handelspartner",
     ],
     serviceDetails: [
-      { title: "After Shave & Cologne", blurb: "Rasur-Essentials und Colognes — vom Showroom ins Fachgeschäft." },
-      { title: "Black Edition Care Cream", blurb: "Blackberry, Pomegranate, Olive Leaf, Classic — Pflege für Hände und Gesicht." },
-      { title: "Haar-Shampoo & Conditioner", blurb: "Keratin-Linie für den modernen Mann, Salon- und Heimgrößen." },
+      {
+        title: "After Shave & Cologne",
+        blurb: "Rasur-Essentials und Colognes — vom Showroom ins Fachgeschäft.",
+      },
+      {
+        title: "Black Edition Care Cream",
+        blurb: "Blackberry, Pomegranate, Olive Leaf, Classic — Pflege für Hände und Gesicht.",
+      },
+      {
+        title: "Haar-Shampoo & Conditioner",
+        blurb: "Keratin-Linie für den modernen Mann, Salon- und Heimgrößen.",
+      },
       { title: "Aqua Wax & Clay Wax", blurb: "Styling-Wachs für Halt ohne Theater." },
       { title: "Powder Styling", blurb: "P1 Powder Wax — light control, ohne Verklebung." },
-      { title: "Fachberatung", blurb: "Termin im Showroom Seestadt. Evren erklärt die Linie persönlich." },
-      { title: "Handelspartner", blurb: "Vertrieb in Fachgeschäfte — österreichweit, echter Kontakt statt Kaltakquise-Spam." },
+      {
+        title: "Fachberatung",
+        blurb: "Termin im Showroom Seestadt. Evren erklärt die Linie persönlich.",
+      },
+      {
+        title: "Handelspartner",
+        blurb: "Vertrieb in Fachgeschäfte — österreichweit, echter Kontakt statt Kaltakquise-Spam.",
+      },
     ],
     googleFindCopy: "Pion in der Seestadt finden",
     ownerAvatar: "/crew/evreen.png",
     ownerLabel: "Vertrieb",
     webLabel: "Shop",
     howSteps: [
-      { title: "Termin", body: "Showroom in der Seestadt — vorher anschreiben, dann kommst du vorbei." },
+      {
+        title: "Termin",
+        body: "Showroom in der Seestadt — vorher anschreiben, dann kommst du vorbei.",
+      },
       { title: "Check-in", body: "QR scannen — du wirst Nachbar. Kein Theater." },
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
@@ -211,10 +235,19 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       "Abmeldung",
     ],
     serviceDetails: [
-      { title: "Autoankauf", blurb: "Gebrauchtwagen in Wien — Zustand ehrlich ansprechen, dann ein klares Angebot." },
-      { title: "Autoverkauf", blurb: "Wenn Darko ein Auto weitergibt, sollst du wissen was du kaufst." },
+      {
+        title: "Autoankauf",
+        blurb: "Gebrauchtwagen in Wien — Zustand ehrlich ansprechen, dann ein klares Angebot.",
+      },
+      {
+        title: "Autoverkauf",
+        blurb: "Wenn Darko ein Auto weitergibt, sollst du wissen was du kaufst.",
+      },
       { title: "Faire Bewertung", blurb: "Kein Höchstpreis-Geschrei. Eine Zahl, die hält." },
-      { title: "Abholung in Wien", blurb: "23 Bezirke. Termin, dann holt er den Wagen — Adresse folgt nach Claim." },
+      {
+        title: "Abholung in Wien",
+        blurb: "23 Bezirke. Termin, dann holt er den Wagen — Adresse folgt nach Claim.",
+      },
       { title: "Kaufvertrag", blurb: "Schriftlich, verständlich, fertig." },
       { title: "Abmeldung", blurb: "Zulassungsstelle und Papierkram, wenn ihr das so wollt." },
     ],
@@ -224,8 +257,14 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     ownerAvatar: "/crew/darco.png",
     ownerLabel: "Fachmann",
     howSteps: [
-      { title: "Termin", body: "Schreib oder ruf an, wenn die Nummer steht. Dann schaut er sich den Wagen an." },
-      { title: "Check-in", body: "QR scannen nach dem Termin — echter Besuch, nicht ein Sterne-Deal." },
+      {
+        title: "Termin",
+        body: "Schreib oder ruf an, wenn die Nummer steht. Dann schaut er sich den Wagen an.",
+      },
+      {
+        title: "Check-in",
+        body: "QR scannen nach dem Termin — echter Besuch, nicht ein Sterne-Deal.",
+      },
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
   },
@@ -264,7 +303,10 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     ownerLabel: "Wien",
     webLabel: "Lokal",
     howSteps: [
-      { title: "Karte", body: "Betrieb öffentlich — Leistungen und Termine, die du wirklich anbietest." },
+      {
+        title: "Karte",
+        body: "Betrieb öffentlich — Leistungen und Termine, die du wirklich anbietest.",
+      },
       { title: "Besuch", body: "Check-in und Review-Einladung nach dem echten Termin." },
       { title: "Netz", body: "Nachbar bringt Gäste. Keine Fake-Sterne." },
     ],

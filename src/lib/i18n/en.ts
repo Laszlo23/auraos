@@ -11,6 +11,17 @@ export const en: MessageTree = {
     boost: "Credits",
     signOut: "Sign out",
   },
+  pwa: {
+    installLabel: "Install app",
+    installTitle: "Put Aura OS on your home screen",
+    installChromium:
+      "One tap installs Aura OS like a native app on this phone or desktop — works offline for the shell, opens full-screen.",
+    installIos: "On iPhone: tap Share, then Add to Home Screen.",
+    installManual: "Use your browser menu → Install or Add to Dock / Home Screen.",
+    installButton: "Install Aura OS",
+    installOpening: "Opening…",
+    dismiss: "Dismiss",
+  },
   nav: {
     lokal: "Aura Local",
     nachbar: "Aura Nachbar",
@@ -110,7 +121,8 @@ export const en: MessageTree = {
     cryptoHint: "Local Seat · €99 · USDC, ETH, BTC, or SOL.",
     seatActive: "Aura Reputation active",
     seatActiveAccess: "Access unlocked — boost optional via packs.",
-    accessOnlyHint: "Access is on. Grab boost from a pack below — Visibility is a strong first step.",
+    accessOnlyHint:
+      "Access is on. Grab boost from a pack below — Visibility is a strong first step.",
     packs: "Boost packs (upsell)",
     packsBlurb: "Seat = access. Packs = credits + kickoff. That’s why €99 stays fair.",
     packRecommended: "Recommended next",
@@ -123,7 +135,8 @@ export const en: MessageTree = {
     checkoutPending: "Payment received — unlock follows in seconds. Refresh if needed.",
     checkoutCancel: "Checkout cancelled — you can restart anytime.",
     nextSteps: "Next",
-    nextStepsBlurb: "1) Save Google link + invite customers · 2) Show guest QR · 3) optional boost pack.",
+    nextStepsBlurb:
+      "1) Save Google link + invite customers · 2) Show guest QR · 3) optional boost pack.",
     goReviews: "Go to Stars",
     goGuests: "Go to Guests",
   },

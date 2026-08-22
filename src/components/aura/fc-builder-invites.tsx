@@ -47,9 +47,9 @@ export function FcBuilderInvites() {
     username: string;
     displayName: string;
   } | null>(null);
-  const [latest, setLatest] = useState<Awaited<
-    ReturnType<typeof fetchLatestCastByFidFn>
-  >["cast"] | null>(null);
+  const [latest, setLatest] = useState<
+    Awaited<ReturnType<typeof fetchLatestCastByFidFn>>["cast"] | null
+  >(null);
   const [confirm, setConfirm] = useState(false);
 
   const send = useMutation({
@@ -144,7 +144,11 @@ export function FcBuilderInvites() {
           onClick={() => void onSearch()}
           className="inline-flex items-center gap-1.5 rounded-2xl border border-border/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] disabled:opacity-50"
         >
-          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Users className="h-3.5 w-3.5" />}
+          {busy ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Users className="h-3.5 w-3.5" />
+          )}
           Find
         </button>
       </div>

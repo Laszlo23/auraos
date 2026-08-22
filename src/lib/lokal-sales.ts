@@ -1,8 +1,4 @@
-import {
-  AURA_REPUTATION_CASH_EUR,
-  AURA_REPUTATION_EUR,
-  LOCAL_SEAT_EUR,
-} from "@/lib/boost-packs";
+import { AURA_REPUTATION_CASH_EUR, AURA_REPUTATION_EUR, LOCAL_SEAT_EUR } from "@/lib/boost-packs";
 
 /** Field-sales deck for Aura Local. German a Wiener owner can hear at the counter. */
 
@@ -140,5 +136,4 @@ export const LOKAL_SALES_SLIDES: SalesSlide[] = [
   },
 ];
 
-export const LOKAL_SALES_WHATSAPP =
-  `Aura Local — echte Sterne und Nachbetreuung, ${AURA_REPUTATION_EUR} €/Monat, keine Fake-Reviews.\nCheck: ${LOKAL_SALES.auditUrl}\nStart: ${LOKAL_SALES.url}`;
+export const LOKAL_SALES_WHATSAPP = `Aura Local — echte Sterne und Nachbetreuung, ${AURA_REPUTATION_EUR} €/Monat, keine Fake-Reviews.\nCheck: ${LOKAL_SALES.auditUrl}\nStart: ${LOKAL_SALES.url}`;

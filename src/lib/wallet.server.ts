@@ -149,8 +149,7 @@ export async function isDeployed(address: string, network: AuraNetwork = activeN
 export type LightClient = Awaited<ReturnType<typeof createLightAccountAlchemyClient>>;
 
 type UserOpCall =
-  | { target: Address; data: Hex; value?: bigint }
-  | { target: Address; data: Hex; value?: bigint }[];
+  { target: Address; data: Hex; value?: bigint } | { target: Address; data: Hex; value?: bigint }[];
 
 /**
  * Send a Light Account UserOp, appending Base Builder Code (ERC-8021) to callData on Base.
@@ -179,10 +178,7 @@ async function sendAttributedUserOperation(
   // Bundler client decorator — present on Alchemy Light Account clients
   const hash = await (
     client as LightClient & {
-      sendRawUserOperation: (
-        req: unknown,
-        entryPointAddress: Address,
-      ) => Promise<Hex>;
+      sendRawUserOperation: (req: unknown, entryPointAddress: Address) => Promise<Hex>;
     }
   ).sendRawUserOperation(request, entryPoint.address);
   return { hash: String(hash) };

@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { explainNachbarError, normalizeNachbarCheckinSource, safeHttpUrl } from "@/lib/nachbar-play";
+import {
+  explainNachbarError,
+  normalizeNachbarCheckinSource,
+  safeHttpUrl,
+} from "@/lib/nachbar-play";
 
 type LooseDb = {
   from: (t: string) => any;
@@ -258,7 +262,9 @@ export const leaveNachbarFeedback = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { checkinId: string; note: string }) => ({
     checkinId: String(input.checkinId || "").trim(),
-    note: String(input.note || "").trim().slice(0, 400),
+    note: String(input.note || "")
+      .trim()
+      .slice(0, 400),
   }))
   .handler(async ({ data, context }) => {
     if (!data.checkinId) throw new Error("Check-in fehlt.");
@@ -321,12 +327,7 @@ export type NachbarCityMission = {
 
 function asCityShop(row: Record<string, unknown>): NachbarCityShop {
   const avgRaw = row.rating_avg;
-  const avg =
-    typeof avgRaw === "number"
-      ? avgRaw
-      : avgRaw != null
-        ? Number(avgRaw)
-        : null;
+  const avg = typeof avgRaw === "number" ? avgRaw : avgRaw != null ? Number(avgRaw) : null;
   return {
     id: String(row.id),
     name: String(row.name ?? ""),
@@ -356,9 +357,7 @@ async function loadNachbarCityBoard() {
       const shops = Array.isArray(raw.shops)
         ? raw.shops.map((s) => asCityShop(s as Record<string, unknown>))
         : [];
-      const missions = Array.isArray(raw.missions)
-        ? (raw.missions as NachbarCityMission[])
-        : [];
+      const missions = Array.isArray(raw.missions) ? (raw.missions as NachbarCityMission[]) : [];
       if (shops.length > 0) return { shops, missions };
     }
   } catch {
@@ -381,26 +380,27 @@ async function loadNachbarCityBoard() {
     const rows = (companies ?? []).filter(
       (c) =>
         Boolean(c.slug) &&
-        (Boolean(c.featured) ||
-          Boolean(c.local_seat_paid_at) ||
-          c.local_cohort_number != null),
+        (Boolean(c.featured) || Boolean(c.local_seat_paid_at) || c.local_cohort_number != null),
     );
     const ids = rows.map((c) => c.id);
     const db = asDb(supabaseAdmin);
-    const [{ data: checkinRows }, { data: ratingRows }, { data: missionRows }] =
-      await Promise.all([
-        ids.length
-          ? db.from("nachbar_checkins").select("company_id").in("company_id", ids).eq("status", "confirmed")
-          : Promise.resolve({ data: [] }),
-        ids.length
-          ? db.from("nachbar_ratings").select("company_id, score").in("company_id", ids)
-          : Promise.resolve({ data: [] }),
-        db
-          .from("nachbar_missions")
-          .select("id, slug, kind, title, body, grant_amount, sort_order")
-          .eq("is_active", true)
-          .order("sort_order"),
-      ]);
+    const [{ data: checkinRows }, { data: ratingRows }, { data: missionRows }] = await Promise.all([
+      ids.length
+        ? db
+            .from("nachbar_checkins")
+            .select("company_id")
+            .in("company_id", ids)
+            .eq("status", "confirmed")
+        : Promise.resolve({ data: [] }),
+      ids.length
+        ? db.from("nachbar_ratings").select("company_id, score").in("company_id", ids)
+        : Promise.resolve({ data: [] }),
+      db
+        .from("nachbar_missions")
+        .select("id, slug, kind, title, body, grant_amount, sort_order")
+        .eq("is_active", true)
+        .order("sort_order"),
+    ]);
 
     const visits = new Map<string, number>();
     for (const row of (checkinRows ?? []) as { company_id: string }[]) {

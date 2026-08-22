@@ -15,11 +15,7 @@ import { toast } from "sonner";
 
 import { Chip, Panel } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
-import {
-  getPulseDeskState,
-  placePulseBet,
-  topUpPulsePaper,
-} from "@/lib/pulse.functions";
+import { getPulseDeskState, placePulseBet, topUpPulsePaper } from "@/lib/pulse.functions";
 import { currency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -78,9 +74,7 @@ export function PulseUpDownPanel({ companyId }: { companyId: string }) {
     return Math.max(0, closes - Date.now());
   }, [state, tick]);
 
-  const progress = state
-    ? 1 - Math.min(1, Math.max(0, msToClose / (state.roundMs || 180_000)))
-    : 0;
+  const progress = state ? 1 - Math.min(1, Math.max(0, msToClose / (state.roundMs || 180_000))) : 0;
 
   const place = useMutation({
     mutationFn: () => {
@@ -109,8 +103,7 @@ export function PulseUpDownPanel({ companyId }: { companyId: string }) {
   const delta = state?.deltaPct;
   const goingUp = delta != null && delta >= 0;
   const canBet = Boolean(state?.bettingOpen && !state.myBet && !place.isPending);
-  const potential =
-    stake * (state?.payoutMult ?? 1.85);
+  const potential = stake * (state?.payoutMult ?? 1.85);
 
   return (
     <div className="space-y-4">
@@ -122,10 +115,8 @@ export function PulseUpDownPanel({ companyId }: { companyId: string }) {
             </p>
             <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
               Pick the next move. Lock before the timer hits zero — winners pay{" "}
-              <span className="font-semibold text-foreground">
-                {state?.payoutMult ?? 1.85}×
-              </span>
-              . Paper bankroll first so you can play without moving chain funds.
+              <span className="font-semibold text-foreground">{state?.payoutMult ?? 1.85}×</span>.
+              Paper bankroll first so you can play without moving chain funds.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -190,9 +181,7 @@ export function PulseUpDownPanel({ companyId }: { companyId: string }) {
                 <div className="inline-flex items-center gap-2 rounded-2xl bg-foreground/8 px-3 py-2">
                   <Timer className="h-3.5 w-3.5 text-primary" />
                   <span className="font-mono text-lg font-semibold tabular-nums">
-                    {state?.bettingOpen
-                      ? formatCountdown(msToLock)
-                      : formatCountdown(msToClose)}
+                    {state?.bettingOpen ? formatCountdown(msToLock) : formatCountdown(msToClose)}
                   </span>
                 </div>
                 <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
@@ -324,9 +313,7 @@ export function PulseUpDownPanel({ companyId }: { companyId: string }) {
               ) : (
                 <Zap className="h-4 w-4" />
               )}
-              {side
-                ? `Lock ${side.toUpperCase()} · $${stake}`
-                : "Pick UP or DOWN"}
+              {side ? `Lock ${side.toUpperCase()} · $${stake}` : "Pick UP or DOWN"}
             </button>
 
             {(state?.paperUsdc ?? 100) < 25 ? (

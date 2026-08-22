@@ -13,9 +13,7 @@ export function quidliWebhookSecret(): string | undefined {
 }
 
 export function quidliApiBase(): string {
-  return (
-    process.env["QUIDLI_API_BASE"]?.trim().replace(/\/$/, "") || "https://api.connect.quid.li"
-  );
+  return process.env["QUIDLI_API_BASE"]?.trim().replace(/\/$/, "") || "https://api.connect.quid.li";
 }
 
 export function quidliRewardTokenAddress(): string {

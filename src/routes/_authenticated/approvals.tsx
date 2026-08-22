@@ -117,7 +117,8 @@ function ApprovalsPage() {
       {social.length > 0 ? (
         <Panel label="Public replies" glow>
           <p className="mb-4 text-[13px] text-muted-foreground">
-            Preview the draft. Approve to send. The customer writes their own words — we never invent them.
+            Preview the draft. Approve to send. The customer writes their own words — we never
+            invent them.
           </p>
           <SocialReplyBulkBar count={social.length} showFreeAuto />
           <div className="mt-4 space-y-3">
@@ -173,7 +174,10 @@ function ApprovalCard({
   reject: { isPending: boolean; mutate: (id: string) => void };
 }) {
   const preview = task.description
-    ? task.description.replace(/^Draft:\s*/i, "").split("\n\nOriginal:")[0]?.trim()
+    ? task.description
+        .replace(/^Draft:\s*/i, "")
+        .split("\n\nOriginal:")[0]
+        ?.trim()
     : null;
   return (
     <div className="rounded-2xl border border-border/50 bg-foreground/[0.03] px-4 py-3">

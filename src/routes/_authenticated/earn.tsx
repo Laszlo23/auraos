@@ -271,8 +271,8 @@ function EarnPage() {
               on paid seat.
             </p>
             <p className="mt-2 text-[12px] text-muted-foreground">
-              Activated / subscribed referrals can also unlock a USDC tip to your linked X via Quidli
-              (when funded) — separate from AURA.
+              Activated / subscribed referrals can also unlock a USDC tip to your linked X via
+              Quidli (when funded) — separate from AURA.
             </p>
           </Panel>
 

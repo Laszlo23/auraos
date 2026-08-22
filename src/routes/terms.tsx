@@ -42,8 +42,8 @@ function TermsPage() {
     >
       <LegalSection title="1. Operator & agreement">
         <p>
-          {SITE_NAME} is operated by {LEGAL_ENTITY} ({NINTY.short}). By creating an
-          account, starting Stripe Checkout, or using the product, you agree to these Terms and our{" "}
+          {SITE_NAME} is operated by {LEGAL_ENTITY} ({NINTY.short}). By creating an account,
+          starting Stripe Checkout, or using the product, you agree to these Terms and our{" "}
           <Link to="/privacy" className="text-primary hover:underline">
             Privacy Policy
           </Link>

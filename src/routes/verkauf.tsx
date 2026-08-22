@@ -117,7 +117,10 @@ function VerkaufPage() {
         </h1>
         <ul className="mt-8 space-y-3">
           {slide.lines.map((line) => (
-            <li key={line} className="flex gap-3 text-[16px] leading-relaxed text-muted-foreground sm:text-[18px]">
+            <li
+              key={line}
+              className="flex gap-3 text-[16px] leading-relaxed text-muted-foreground sm:text-[18px]"
+            >
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
               <span>{line}</span>
             </li>
@@ -194,9 +197,7 @@ function VerkaufPage() {
         </div>
       </article>
 
-      <p className="sr-only">
-        Präsentation für Aura Local. {SITE_URL}/verkauf
-      </p>
+      <p className="sr-only">Präsentation für Aura Local. {SITE_URL}/verkauf</p>
     </main>
   );
 }

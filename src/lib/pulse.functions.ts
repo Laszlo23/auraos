@@ -201,7 +201,9 @@ async function lockAndSettleDue() {
             .select("pulse_paper_usdc")
             .eq("id", bet.company_id)
             .maybeSingle();
-          const bal = Number((company as { pulse_paper_usdc?: number | null } | null)?.pulse_paper_usdc ?? 0);
+          const bal = Number(
+            (company as { pulse_paper_usdc?: number | null } | null)?.pulse_paper_usdc ?? 0,
+          );
           await db
             .from("companies")
             .update({ pulse_paper_usdc: bal + payout } as never)
@@ -222,7 +224,10 @@ async function lockAndSettleDue() {
   if (current && (current as RoundRow).status === "open") {
     const locksAt = new Date((current as RoundRow).locks_at).getTime();
     if (now >= locksAt) {
-      await db.from("pulse_rounds").update({ status: "locked" } as never).eq("id", (current as RoundRow).id);
+      await db
+        .from("pulse_rounds")
+        .update({ status: "locked" } as never)
+        .eq("id", (current as RoundRow).id);
     }
   }
 }
@@ -341,9 +346,7 @@ export const getPulseDeskState = createServerFn({ method: "GET" })
             stakeUsdc: Number((myBet as BetRow).stake_usdc),
             status: (myBet as BetRow).status,
             payoutUsdc:
-              (myBet as BetRow).payout_usdc != null
-                ? Number((myBet as BetRow).payout_usdc)
-                : null,
+              (myBet as BetRow).payout_usdc != null ? Number((myBet as BetRow).payout_usdc) : null,
           }
         : null,
       recentRounds: (recentRounds ?? []).map((r) => ({
@@ -374,7 +377,11 @@ export const placePulseBet = createServerFn({ method: "POST" })
       throw new Error(`Minimum stake is $${PULSE_MIN_STAKE}.`);
     }
     if (stake > PULSE_MAX_STAKE) throw new Error(`Maximum stake is $${PULSE_MAX_STAKE}.`);
-    return { companyId: input.companyId, side: input.side, stakeUsdc: Math.round(stake * 100) / 100 };
+    return {
+      companyId: input.companyId,
+      side: input.side,
+      stakeUsdc: Math.round(stake * 100) / 100,
+    };
   })
   .handler(async ({ data, context }) => {
     const limited = rateLimitConsume(`pulse-bet:${context.userId}`, {
@@ -503,6 +510,9 @@ export const topUpPulsePaper = createServerFn({ method: "POST" })
       throw new Error("Top-up only when your Pulse bankroll is under $25.");
     }
     const next = Math.min(PULSE_SEED_BANKROLL, bal + 50);
-    await db.from("companies").update({ pulse_paper_usdc: next } as never).eq("id", data.companyId);
+    await db
+      .from("companies")
+      .update({ pulse_paper_usdc: next } as never)
+      .eq("id", data.companyId);
     return { paperUsdc: next };
   });

@@ -32,9 +32,7 @@ function KundenPage() {
     queryKey: ["owner-nachbar-checkin", company?.id],
     enabled: Boolean(company?.id),
     queryFn: () =>
-      getOwnerNachbarCheckinCode(
-        company?.id ? { data: { companyId: company.id } } : { data: {} },
-      ),
+      getOwnerNachbarCheckinCode(company?.id ? { data: { companyId: company.id } } : { data: {} }),
   });
   const pending = useQuery({
     queryKey: ["owner-nachbar-pending"],

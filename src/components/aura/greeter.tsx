@@ -316,7 +316,9 @@ export function Greeter() {
               <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
                 <Pulse /> Aura
                 {aiOnline === false ? (
-                  <span className="normal-case tracking-normal text-gold">· {t("greeter.reconnecting")}</span>
+                  <span className="normal-case tracking-normal text-gold">
+                    · {t("greeter.reconnecting")}
+                  </span>
                 ) : null}
               </span>
               <span className="mt-1.5 block text-[13px] leading-relaxed text-foreground">

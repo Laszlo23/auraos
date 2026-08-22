@@ -229,8 +229,8 @@ function NachbarHeutePage() {
         <Panel label="Wartet auf den Tresen" glow>
           <p className="text-sm font-semibold">{pendingGuest.company_name}</p>
           <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-            Dein Check-in ist angekommen. Punkte gibt’s erst, wenn jemand im Laden bestätigt —
-            am besten vor Ort, nicht von zu Hause.
+            Dein Check-in ist angekommen. Punkte gibt’s erst, wenn jemand im Laden bestätigt — am
+            besten vor Ort, nicht von zu Hause.
           </p>
           <p className="mt-2 text-[11px] text-muted-foreground">
             {nachbarStatusLabel(pendingGuest.status)}
@@ -287,8 +287,8 @@ function NachbarHeutePage() {
         <Panel label="Tresen — du bist der Laden" glow>
           <p className="text-sm font-semibold">{pendingOwn.company_name}</p>
           <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-            Dein Check-in wartet. Für die Demo: hier bestätigen. Punkte und Stempel gibt’s nur
-            für Gäste — im echten Laden bestätigt der Tresen unter Kunden.
+            Dein Check-in wartet. Für die Demo: hier bestätigen. Punkte und Stempel gibt’s nur für
+            Gäste — im echten Laden bestätigt der Tresen unter Kunden.
           </p>
           <button
             type="button"
@@ -430,11 +430,7 @@ function NachbarHeutePage() {
           </p>
           <NachbarWinShare
             shopName={lastShop}
-            stamps={
-              lastStamp
-                ? `${lastStamp.stamp_count}/${NACHBAR_STAMP_GOAL} Stempel`
-                : null
-            }
+            stamps={lastStamp ? `${lastStamp.stamp_count}/${NACHBAR_STAMP_GOAL} Stempel` : null}
             weekDone={doneCount}
           />
         </Panel>
@@ -496,7 +492,9 @@ function NachbarHeutePage() {
             {hub!.checkins.slice(0, 8).map((c) => (
               <li key={c.id} className="flex items-center justify-between text-sm">
                 <span className="min-w-0 truncate font-medium">{c.company_name}</span>
-                <span className="shrink-0 text-muted-foreground">{nachbarStatusLabel(c.status)}</span>
+                <span className="shrink-0 text-muted-foreground">
+                  {nachbarStatusLabel(c.status)}
+                </span>
               </li>
             ))}
           </ul>

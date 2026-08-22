@@ -37,9 +37,7 @@ async function resolveReferrerSocial(
     status: string;
   }[];
 
-  const x = rows.find(
-    (r) => r.provider === "x" && r.handle?.trim() && r.status !== "disconnected",
-  );
+  const x = rows.find((r) => r.provider === "x" && r.handle?.trim() && r.status !== "disconnected");
   if (x?.handle) {
     return { platform: "x", handle: x.handle.trim(), companyId: company.id as string };
   }

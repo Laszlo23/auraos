@@ -18,9 +18,24 @@ export const BRAND = {
 export const BRAND_COLORS = {
   stage: { name: "Stage", hex: "#07090E", oklch: "oklch(0.125 0.022 268)", role: "Background" },
   ink: { name: "Ink", hex: "#F4F7FF", oklch: "oklch(0.985 0.006 250)", role: "Foreground" },
-  cyan: { name: "Aura cyan", hex: "#4DE8F7", oklch: "oklch(0.86 0.155 196)", role: "Primary / intelligence" },
-  gold: { name: "Aura gold", hex: "#F4C04A", oklch: "oklch(0.86 0.165 76)", role: "Accent / revenue" },
-  austria: { name: "Austria red", hex: "#C4453A", oklch: "oklch(0.52 0.195 25)", role: "Origin bar only" },
+  cyan: {
+    name: "Aura cyan",
+    hex: "#4DE8F7",
+    oklch: "oklch(0.86 0.155 196)",
+    role: "Primary / intelligence",
+  },
+  gold: {
+    name: "Aura gold",
+    hex: "#F4C04A",
+    oklch: "oklch(0.86 0.165 76)",
+    role: "Accent / revenue",
+  },
+  austria: {
+    name: "Austria red",
+    hex: "#C4453A",
+    oklch: "oklch(0.52 0.195 25)",
+    role: "Origin bar only",
+  },
 } as const;
 
 export const BRAND_TYPE = {

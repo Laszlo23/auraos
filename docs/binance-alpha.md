@@ -4,13 +4,13 @@ Aura OS is multichain: **Base** (x402 + default prod), **BNB Smart Chain** (Bina
 
 ## What is live in code
 
-| Layer | Base | BSC (BNB) | Robinhood |
-|-------|------|-----------|-----------|
-| Alchemy Light Account + OKX DEX | yes | yes | yes (`chainIndex=4663`) |
-| Trading desk primary pair | WETH/USDC | WBNB/USDC | WETH/USDG |
-| Per-company desk switcher | yes | yes | yes |
-| x402 USDC settle (EIP-3009) | yes | no | no |
-| Genesis NFT mint | Base contract | redeploy | redeploy |
+| Layer                           | Base          | BSC (BNB) | Robinhood               |
+| ------------------------------- | ------------- | --------- | ----------------------- |
+| Alchemy Light Account + OKX DEX | yes           | yes       | yes (`chainIndex=4663`) |
+| Trading desk primary pair       | WETH/USDC     | WBNB/USDC | WETH/USDG               |
+| Per-company desk switcher       | yes           | yes       | yes                     |
+| x402 USDC settle (EIP-3009)     | yes           | no        | no                      |
+| Genesis NFT mint                | Base contract | redeploy  | redeploy                |
 
 ## Flip the desk to BSC (staging / Alpha prep)
 

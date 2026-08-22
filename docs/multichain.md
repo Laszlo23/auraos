@@ -4,12 +4,12 @@ Aura companies pick a **desk network** (`companies.desk_network`). Wallet balanc
 
 ## Supported desks
 
-| Network | Chain ID | Native | Quote stable | Primary pair | OKX DEX |
-|---------|----------|--------|--------------|--------------|---------|
-| Base | 8453 | ETH | USDC | WETH/USDC | yes |
-| BNB Smart Chain | 56 | BNB | USDC (18 dec) | WBNB/USDC | yes |
-| Robinhood Chain | 4663 | ETH | **USDG** | WETH/USDG | yes (`chainIndex=4663`) |
-| opBNB / Base Sepolia | 204 / 84532 | — | — | — | staging |
+| Network              | Chain ID    | Native | Quote stable  | Primary pair | OKX DEX                 |
+| -------------------- | ----------- | ------ | ------------- | ------------ | ----------------------- |
+| Base                 | 8453        | ETH    | USDC          | WETH/USDC    | yes                     |
+| BNB Smart Chain      | 56          | BNB    | USDC (18 dec) | WBNB/USDC    | yes                     |
+| Robinhood Chain      | 4663        | ETH    | **USDG**      | WETH/USDG    | yes (`chainIndex=4663`) |
+| opBNB / Base Sepolia | 204 / 84532 | —      | —             | —            | staging                 |
 
 ## How it works
 

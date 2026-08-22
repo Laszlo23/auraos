@@ -76,11 +76,7 @@ async function loadLiveYieldWallet(
   };
 }
 
-async function ownedCompany(
-  supabase: any,
-  userId: string,
-  companyId: string,
-) {
+async function ownedCompany(supabase: any, userId: string, companyId: string) {
   const { data } = await supabase
     .from("companies")
     .select(
@@ -313,9 +309,7 @@ export const updateYieldRisk = createServerFn({ method: "POST" })
     const { data: updated, error } = await context.supabase
       .from("companies")
       .update({
-        ...(data.maxNotionalUsdc != null
-          ? { max_yield_notional_usdc: data.maxNotionalUsdc }
-          : {}),
+        ...(data.maxNotionalUsdc != null ? { max_yield_notional_usdc: data.maxNotionalUsdc } : {}),
         ...(data.maxRiskTier != null ? { max_yield_risk_tier: data.maxRiskTier } : {}),
       })
       .eq("id", data.companyId)

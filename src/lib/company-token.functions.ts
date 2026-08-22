@@ -173,15 +173,22 @@ export const getCompanyTokenLaunch = createServerFn({ method: "GET" })
 
 export const draftCompanyToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: { name: string; symbol: string; imageUrl?: string | undefined; presetId?: string | undefined }) => {
-    if (!input?.name || !input?.symbol) throw new Error("name and symbol required");
-    return {
-      name: normalizeName(input.name),
-      symbol: normalizeSymbol(input.symbol),
-      imageUrl: input.imageUrl?.trim() || null,
-      presetId: (input.presetId || "community_standard") as CompanyTokenPresetId,
-    };
-  })
+  .validator(
+    (input: {
+      name: string;
+      symbol: string;
+      imageUrl?: string | undefined;
+      presetId?: string | undefined;
+    }) => {
+      if (!input?.name || !input?.symbol) throw new Error("name and symbol required");
+      return {
+        name: normalizeName(input.name),
+        symbol: normalizeSymbol(input.symbol),
+        imageUrl: input.imageUrl?.trim() || null,
+        presetId: (input.presetId || "community_standard") as CompanyTokenPresetId,
+      };
+    },
+  )
   .handler(async ({ data, context }) => {
     await requireSeat(context.supabase, context.userId);
     const company = await ownedCompany(context.supabase, context.userId);

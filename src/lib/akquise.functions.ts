@@ -351,7 +351,10 @@ function applySignature(body: string, signature: string) {
     }
     return `${trimmed}\n\n${signature}`;
   }
-  return trimmed.replaceAll("{{signature}}", "").replace(/\n{3,}/g, "\n\n").trimEnd();
+  return trimmed
+    .replaceAll("{{signature}}", "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
 }
 
 /** Write a personalized cold email for one lead. */
@@ -389,10 +392,14 @@ export const draftLeadEmail = createServerFn({ method: "POST" })
     const projectName = data.projectName || String(company?.name ?? "").trim();
     const senderName = data.senderName;
     if (!senderName) {
-      throw new Error("Add your name first — drafts should sign off as you, not as an anonymous agent.");
+      throw new Error(
+        "Add your name first — drafts should sign off as you, not as an anonymous agent.",
+      );
     }
     if (!projectName) {
-      throw new Error("Add your project or company name so the email can introduce what you offer.");
+      throw new Error(
+        "Add your project or company name so the email can introduce what you offer.",
+      );
     }
     const signature = buildSignature(senderName, projectName);
 
@@ -479,25 +486,23 @@ export const saveLeadDraft = createServerFn({ method: "POST" })
 /** Send a drafted email — always explicit founder action. */
 export const sendLeadEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator(
-    (input: { leadId: string; provider: string; subject?: string; body?: string }) => {
-      const provider =
-        input.provider === "microsoft_outlook"
-          ? "microsoft_outlook"
-          : input.provider === "smtp"
-            ? "smtp"
-            : "google_mail";
-      const subject =
-        typeof input.subject === "string" ? input.subject.trim().slice(0, 200) : undefined;
-      const body = typeof input.body === "string" ? input.body.trim().slice(0, 8000) : undefined;
-      return {
-        leadId: String(input.leadId),
-        provider,
-        ...(subject ? { subject } : {}),
-        ...(body ? { body } : {}),
-      };
-    },
-  )
+  .validator((input: { leadId: string; provider: string; subject?: string; body?: string }) => {
+    const provider =
+      input.provider === "microsoft_outlook"
+        ? "microsoft_outlook"
+        : input.provider === "smtp"
+          ? "smtp"
+          : "google_mail";
+    const subject =
+      typeof input.subject === "string" ? input.subject.trim().slice(0, 200) : undefined;
+    const body = typeof input.body === "string" ? input.body.trim().slice(0, 8000) : undefined;
+    return {
+      leadId: String(input.leadId),
+      provider,
+      ...(subject ? { subject } : {}),
+      ...(body ? { body } : {}),
+    };
+  })
   .handler(async ({ data, context }) => {
     const supabase = asDb(context.supabase);
     const { data: lead, error } = await supabase

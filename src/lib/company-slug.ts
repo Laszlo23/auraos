@@ -8,7 +8,12 @@ type LooseDb = {
   ) => Promise<{ data?: unknown; error: { message: string } | null }>;
 };
 
-export const PLACEHOLDER_SLUGS = new Set(["mein-betrieb", "my-shop", "untitled-company", "company"]);
+export const PLACEHOLDER_SLUGS = new Set([
+  "mein-betrieb",
+  "my-shop",
+  "untitled-company",
+  "company",
+]);
 export const PLACEHOLDER_NAMES = new Set(["Mein Betrieb", "My shop", "Untitled company"]);
 
 export async function ensureCompanySlug(
@@ -23,7 +28,11 @@ export async function ensureCompanySlug(
   const base = slugifyCompanyName(company.name);
   let candidate = base;
   for (let i = 0; i < 8; i++) {
-    const { data } = await supabase.from("companies").select("id").eq("slug", candidate).maybeSingle();
+    const { data } = await supabase
+      .from("companies")
+      .select("id")
+      .eq("slug", candidate)
+      .maybeSingle();
     if (!data || data.id === company.id) {
       await supabase.from("companies").update({ slug: candidate }).eq("id", company.id);
       return candidate;

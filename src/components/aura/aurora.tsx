@@ -58,8 +58,7 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
           backgroundImage:
             "linear-gradient(color-mix(in oklab, var(--primary) 55%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--primary) 55%, transparent) 1px, transparent 1px)",
           backgroundSize: "64px 64px",
-          maskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 40%, black 10%, transparent 72%)",
+          maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, black 10%, transparent 72%)",
           animation: "grid-drift 48s linear infinite",
         }}
       />

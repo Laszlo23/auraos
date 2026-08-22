@@ -62,8 +62,8 @@ function JobsPage() {
       {!isLoading && jobs.length === 0 ? (
         <Panel className="p-8 text-center">
           <p className="text-sm text-muted-foreground">
-            No open jobs yet. Post work from Marketplace, or run Missions until client budgets
-            land here.
+            No open jobs yet. Post work from Marketplace, or run Missions until client budgets land
+            here.
           </p>
           <a
             href="/marketplace"

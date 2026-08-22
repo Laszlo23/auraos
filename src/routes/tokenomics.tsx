@@ -105,9 +105,8 @@ function TokenomicsPage() {
             </>
           ) : (
             <>
-              No official contract address yet. Fair launch is {TOKEN_LAUNCH_DISPLAY}. Any CA in a DM
-              is a
-              scam. Official sources:{" "}
+              No official contract address yet. Fair launch is {TOKEN_LAUNCH_DISPLAY}. Any CA in a
+              DM is a scam. Official sources:{" "}
               {AURA_OFFICIAL_CA_SOURCES.map((s) => (
                 <a key={s} href={s} className="mr-2 font-semibold text-primary hover:underline">
                   {s.replace("https://", "")}

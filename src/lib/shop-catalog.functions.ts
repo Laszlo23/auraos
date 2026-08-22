@@ -46,9 +46,12 @@ function asMode(raw: string): BookingMode {
   return "request";
 }
 
-async function ownedCompanyId(supabase: {
-  from: (t: string) => any;
-}, userId: string) {
+async function ownedCompanyId(
+  supabase: {
+    from: (t: string) => any;
+  },
+  userId: string,
+) {
   const { data, error } = await supabase
     .from("companies")
     .select("id")
@@ -100,7 +103,9 @@ export const upsertShopCatalogItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: Partial<ShopCatalogItem> & { name: string }) => ({
     id: input.id?.trim() || undefined,
-    name: String(input.name || "").trim().slice(0, 80),
+    name: String(input.name || "")
+      .trim()
+      .slice(0, 80),
     kind: asKind(String(input.kind || "service")),
     description: input.description?.trim().slice(0, 400) || null,
     price_cents:
@@ -204,31 +209,44 @@ export const setShopCatalogImage = createServerFn({ method: "POST" })
   });
 
 export const requestShopBooking = createServerFn({ method: "POST" })
-  .validator((input: {
-    slug: string;
-    catalogItemId?: string;
-    customerName: string;
-    customerEmail?: string;
-    customerPhone?: string;
-    preferredAt?: string;
-    partySize?: number;
-    message?: string;
-  }) => ({
-    slug: String(input.slug || "")
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, "")
-      .slice(0, 64),
-    catalogItemId: input.catalogItemId?.trim() || undefined,
-    customerName: String(input.customerName || "").trim().slice(0, 80),
-    customerEmail: String(input.customerEmail || "").trim().slice(0, 120) || undefined,
-    customerPhone: String(input.customerPhone || "").trim().slice(0, 40) || undefined,
-    preferredAt: input.preferredAt?.trim() || undefined,
-    partySize:
-      typeof input.partySize === "number" && Number.isFinite(input.partySize)
-        ? Math.min(40, Math.max(1, Math.round(input.partySize)))
-        : undefined,
-    message: String(input.message || "").trim().slice(0, 500) || undefined,
-  }))
+  .validator(
+    (input: {
+      slug: string;
+      catalogItemId?: string;
+      customerName: string;
+      customerEmail?: string;
+      customerPhone?: string;
+      preferredAt?: string;
+      partySize?: number;
+      message?: string;
+    }) => ({
+      slug: String(input.slug || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "")
+        .slice(0, 64),
+      catalogItemId: input.catalogItemId?.trim() || undefined,
+      customerName: String(input.customerName || "")
+        .trim()
+        .slice(0, 80),
+      customerEmail:
+        String(input.customerEmail || "")
+          .trim()
+          .slice(0, 120) || undefined,
+      customerPhone:
+        String(input.customerPhone || "")
+          .trim()
+          .slice(0, 40) || undefined,
+      preferredAt: input.preferredAt?.trim() || undefined,
+      partySize:
+        typeof input.partySize === "number" && Number.isFinite(input.partySize)
+          ? Math.min(40, Math.max(1, Math.round(input.partySize)))
+          : undefined,
+      message:
+        String(input.message || "")
+          .trim()
+          .slice(0, 500) || undefined,
+    }),
+  )
   .handler(async ({ data }) => {
     if (data.customerName.length < 2) throw new Error("Name fehlt.");
     if (!data.customerEmail && !data.customerPhone) {

@@ -438,10 +438,10 @@ function ChannelsPage() {
       <Panel label="Fair-launch X drip" glow>
         <p className="text-[12px] leading-relaxed text-muted-foreground">
           Schedule ~2–3 posts/day while we grow toward fair launch ({TOKEN_LAUNCH_DISPLAY}). Each
-          tweet is a short line + watch
-          link, and when <span className="font-mono text-[11px]">media.write</span> is granted the
-          worker attaches the native MP4. Connect X with OAuth (never a password). Autopublish must
-          stay on for the worker to send them.
+          tweet is a short line + watch link, and when{" "}
+          <span className="font-mono text-[11px]">media.write</span> is granted the worker attaches
+          the native MP4. Connect X with OAuth (never a password). Autopublish must stay on for the
+          worker to send them.
         </p>
         {!xStatus?.connected ? (
           <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">
@@ -820,7 +820,9 @@ function ChannelsPage() {
                   void qc.invalidateQueries({ queryKey: ["table", "tasks"] });
                   const n = res.engagement?.ingested ?? 0;
                   notify.success(
-                    n > 0 ? `Synced — ${n} new comment${n === 1 ? "" : "s"}.` : "Synced. Inbox is current.",
+                    n > 0
+                      ? `Synced — ${n} new comment${n === 1 ? "" : "s"}.`
+                      : "Synced. Inbox is current.",
                   );
                 })
                 .catch((e) =>

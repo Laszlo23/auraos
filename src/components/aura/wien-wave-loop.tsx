@@ -15,13 +15,7 @@ const STEPS = [
  * Watch → caption → neighbor → next clip.
  * Reward follows a real share, not a recruitment ladder.
  */
-export function WienWaveLoop({
-  current,
-  className,
-}: {
-  current: SharePost;
-  className?: string;
-}) {
+export function WienWaveLoop({ current, className }: { current: SharePost; className?: string }) {
   const next = nextLoopPost(current.id);
 
   return (

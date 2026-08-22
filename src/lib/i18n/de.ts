@@ -11,6 +11,17 @@ export const de: MessageTree = {
     boost: "Guthaben",
     signOut: "Abmelden",
   },
+  pwa: {
+    installLabel: "App installieren",
+    installTitle: "Aura OS auf den Startbildschirm",
+    installChromium:
+      "Installiert Aura OS wie eine native App auf diesem Handy oder Desktop — funktioniert offline für die Oberfläche, öffnet im Vollbild.",
+    installIos: "Am iPhone: auf Teilen tippen, dann Zum Home-Bildschirm.",
+    installManual: "Im Browser-Menü → Installieren oder Zum Dock / Home-Bildschirm hinzufügen.",
+    installButton: "Aura OS installieren",
+    installOpening: "Öffnet…",
+    dismiss: "Schließen",
+  },
   nav: {
     lokal: "Aura Local",
     nachbar: "Aura Nachbar",
@@ -122,10 +133,12 @@ export const de: MessageTree = {
     peerBlurb: "Link teilen. Wenn der andere freischaltet, bekommst du Guthaben.",
     peerCta: "Einladungslink kopieren",
     checkoutSuccess: "Zahlung ok — Aura Reputation ist aktiv.",
-    checkoutPending: "Zahlung empfangen — Freischaltung folgt in Sekunden. Seite neu laden, falls nötig.",
+    checkoutPending:
+      "Zahlung empfangen — Freischaltung folgt in Sekunden. Seite neu laden, falls nötig.",
     checkoutCancel: "Checkout abgebrochen — du kannst jederzeit wieder starten.",
     nextSteps: "Als Nächstes",
-    nextStepsBlurb: "1) Google-Link + Kunden einladen · 2) QR für Gäste am Tresen zeigen · 3) optional Boost-Paket.",
+    nextStepsBlurb:
+      "1) Google-Link + Kunden einladen · 2) QR für Gäste am Tresen zeigen · 3) optional Boost-Paket.",
     goReviews: "Zu Sterne",
     goGuests: "Zu Gäste",
   },

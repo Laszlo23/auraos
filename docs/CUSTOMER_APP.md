@@ -103,21 +103,21 @@ Entry points:
 
 ## Happy path (after a haircut)
 
-1. Guest finishes appointment at Salon Mira  
-2. Scans **shop QR** on the counter (or staff taps Confirm in business Kunden)  
-3. Check-in confirmed → points land on Verdienen  
-4. Soft optional Google CTA (unpaid)  
-5. Prompt: share Freunde link — bonus when friend checks in at any cohort shop  
+1. Guest finishes appointment at Salon Mira
+2. Scans **shop QR** on the counter (or staff taps Confirm in business Kunden)
+3. Check-in confirmed → points land on Verdienen
+4. Soft optional Google CTA (unpaid)
+5. Prompt: share Freunde link — bonus when friend checks in at any cohort shop
 
 ## Earn rules (v1 intent)
 
-| Action | Patron | Shop |
-|---|---|---|
-| Welcome + first check-in | Welcome grant | Campaign / visit metric |
-| Repeat check-in (capped / week) | Small grant | Loyalty signal |
-| Friend’s first check-in | Referral grant | New guest |
-| Referred shop takes Local Seat | Larger grant | B2B growth |
-| Redeem offer in-app | Spend balance | Foot traffic |
+| Action                          | Patron         | Shop                    |
+| ------------------------------- | -------------- | ----------------------- |
+| Welcome + first check-in        | Welcome grant  | Campaign / visit metric |
+| Repeat check-in (capped / week) | Small grant    | Loyalty signal          |
+| Friend’s first check-in         | Referral grant | New guest               |
+| Referred shop takes Local Seat  | Larger grant   | B2B growth              |
+| Redeem offer in-app             | Spend balance  | Foot traffic            |
 
 Velocity caps and device binding are mandatory before public earn amounts are advertised.
 
@@ -125,47 +125,47 @@ Velocity caps and device binding are mandatory before public earn amounts are ad
 
 ### Phase A — Utility only
 
-- Spend balance on shop perks (discount, free add-on) inside Entdecken / Heute  
-- No chain withdraw in UI  
+- Spend balance on shop perks (discount, free add-on) inside Entdecken / Heute
+- No chain withdraw in UI
 
 ### Phase B — USDC (optional)
 
-- Withdraw to patron smart wallet in USDC on supported chain(s)  
-- Reuse treasury / chain config patterns from the founder OS (`treasury.functions`, `chain-config`) — **new** patron ledger, not company `token_ledger`  
-- KYC / limits / cool-downs TBD with counsel  
-- Copy must stay utility-framed: exchange of earned rewards, not speculative yield  
+- Withdraw to patron smart wallet in USDC on supported chain(s)
+- Reuse treasury / chain config patterns from the founder OS (`treasury.functions`, `chain-config`) — **new** patron ledger, not company `token_ledger`
+- KYC / limits / cool-downs TBD with counsel
+- Copy must stay utility-framed: exchange of earned rewards, not speculative yield
 
 ## Relationship to business app
 
-| Business (Lokal) | Patron (Nachbar) |
-|---|---|
+| Business (Lokal)                              | Patron (Nachbar)                              |
+| --------------------------------------------- | --------------------------------------------- |
 | Heute / Social / Kunden / Bewertungen / Boost | Heute / Entdecken / Verdienen / Freunde / Ich |
-| Sends invites, confirms visits | Receives invites, checks in, refers |
-| Pays seat + Boost packs | Earns / spends / later cash-out |
-| Google invite = unpaid reputation channel | Same: optional, never rewarded |
+| Sends invites, confirms visits                | Receives invites, checks in, refers           |
+| Pays seat + Boost packs                       | Earns / spends / later cash-out               |
+| Google invite = unpaid reputation channel     | Same: optional, never rewarded                |
 
 ## Suggested route sketch (future build)
 
-| Route | Role |
-|---|---|
-| `/nachbar` | Marketing + install |
-| `/nachbar/app` | Authenticated shell + tabs |
-| `/nachbar/c/$code` | Check-in claim |
-| `/nachbar/ref/$code` | Friend referral |
+| Route                | Role                       |
+| -------------------- | -------------------------- |
+| `/nachbar`           | Marketing + install        |
+| `/nachbar/app`       | Authenticated shell + tabs |
+| `/nachbar/c/$code`   | Check-in claim             |
+| `/nachbar/ref/$code` | Friend referral            |
 
 Keep Lokal business routes (`/heute`, `/bewertungen`, …) unchanged for owners.
 
 ## Success metrics
 
-- Check-ins per seated shop per week  
-- % of Review Boost clicks that create a Nachbar account  
-- Friend referral → check-in conversion  
-- B2B seats attributed to patron or owner invites  
-- Zero policy incidents around paid Google reviews  
+- Check-ins per seated shop per week
+- % of Review Boost clicks that create a Nachbar account
+- Friend referral → check-in conversion
+- B2B seats attributed to patron or owner invites
+- Zero policy incidents around paid Google reviews
 
 ## Related
 
-- [GO_TO_MARKET_LOKAL.md](GO_TO_MARKET_LOKAL.md)  
-- Root [README.md](../README.md) secrets policy  
-- Existing redirect: `src/routes/r.review.$token.tsx`  
+- [GO_TO_MARKET_LOKAL.md](GO_TO_MARKET_LOKAL.md)
+- Root [README.md](../README.md) secrets policy
+- Existing redirect: `src/routes/r.review.$token.tsx`
 - Public card: `src/routes/b.$slug.tsx`

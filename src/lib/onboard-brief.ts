@@ -71,9 +71,13 @@ function titleCase(s: string) {
 function inferName(raw: string): string {
   const quoted = raw.match(/[„"]([^"”]+)["”]/);
   if (quoted?.[1]) return quoted[1].trim().slice(0, 48);
-  const called = raw.match(/(?:called|named|heißt|namens)\s+([A-ZÄÖÜ][\wÄÖÜäöüß&'-]+(?:\s+[A-ZÄÖÜ][\wÄÖÜäöüß&'-]+){0,3})/i);
+  const called = raw.match(
+    /(?:called|named|heißt|namens)\s+([A-ZÄÖÜ][\wÄÖÜäöüß&'-]+(?:\s+[A-ZÄÖÜ][\wÄÖÜäöüß&'-]+){0,3})/i,
+  );
   if (called?.[1]) return called[1].trim().slice(0, 48);
-  const salon = raw.match(/\b((?:salon|studio|café|cafe|beisl|shop|store)\s+[A-ZÄÖÜ][\wÄÖÜäöüß&'-]+)/i);
+  const salon = raw.match(
+    /\b((?:salon|studio|café|cafe|beisl|shop|store)\s+[A-ZÄÖÜ][\wÄÖÜäöüß&'-]+)/i,
+  );
   if (salon?.[1]) return titleCase(salon[1]).slice(0, 48);
   return "";
 }
@@ -170,8 +174,20 @@ export function interpretBusiness(raw: string): OnboardBrief {
 export type LokalImproveGoal = "reviews" | "return" | "social" | "customers";
 
 export const LOKAL_GOALS: { id: LokalImproveGoal; title: string; body: string }[] = [
-  { id: "reviews", title: "More real Google reviews", body: "Ask after a real visit. The guest writes their own words." },
-  { id: "return", title: "More returning customers", body: "Follow up with people who already came in." },
-  { id: "social", title: "More social content", body: "Drafts for you to approve — nothing posts alone." },
+  {
+    id: "reviews",
+    title: "More real Google reviews",
+    body: "Ask after a real visit. The guest writes their own words.",
+  },
+  {
+    id: "return",
+    title: "More returning customers",
+    body: "Follow up with people who already came in.",
+  },
+  {
+    id: "social",
+    title: "More social content",
+    body: "Drafts for you to approve — nothing posts alone.",
+  },
   { id: "customers", title: "More customers", body: "Find neighbours and invite them in." },
 ];

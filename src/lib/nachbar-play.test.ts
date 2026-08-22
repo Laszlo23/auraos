@@ -57,7 +57,7 @@ describe("safeHttpUrl", () => {
     expect(safeHttpUrl("javascript:alert(1)")).toBeNull();
     expect(safeHttpUrl("data:text/html,hi")).toBeNull();
     expect(safeHttpUrl("https://user:pass@evil.test")).toBeNull();
-    expect(safeHttpUrl("https://ok.test/\")")).toBeNull();
+    expect(safeHttpUrl('https://ok.test/")')).toBeNull();
     expect(safeHttpUrl("https://ok.test/<script>")).toBeNull();
     expect(safeHttpUrl("")).toBeNull();
     expect(safeHttpUrl("x".repeat(501))).toBeNull();

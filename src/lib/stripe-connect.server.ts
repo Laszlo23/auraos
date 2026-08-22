@@ -186,7 +186,11 @@ async function createConnectMerchantAccountV2(opts: {
   displayName: string;
   contactEmail: string;
   country: string;
-}): Promise<{ account?: ConnectAccount; errorMessage?: string | undefined; errorCode?: string | undefined }> {
+}): Promise<{
+  account?: ConnectAccount;
+  errorMessage?: string | undefined;
+  errorCode?: string | undefined;
+}> {
   const country = opts.country.toLowerCase();
   const res = await stripeV2Json("/v2/core/accounts", {
     method: "POST",
