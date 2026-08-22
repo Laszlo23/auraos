@@ -545,4 +545,26 @@ export const en: MessageTree = {
     funnels: "Funnels",
     appGroup: "App",
   },
+  tour: {
+    newHere: "New here? Take the tour",
+    replay: "Replay the tour",
+    dismiss: "Dismiss tour",
+    close: "Close tour",
+    back: "Back",
+    next: "Next",
+    gotIt: "Got it",
+    stopHeroTitle: "Start here",
+    stopHeroBody: "This is a company you own. You give instructions — AI employees do the work.",
+    stopStepsTitle: "How it works",
+    stopStepsBody:
+      "Three steps: describe the business, the AI staff get hired, they work while you sleep.",
+    stopWhyTitle: "Why it actually works",
+    stopWhyBody:
+      "One shared memory, every action measured in money, and you approve anything risky.",
+    stopFaqTitle: "The honest answers",
+    stopFaqBody: "Open any question here — including how to buy a founding seat.",
+    stopClaimTitle: "Buy your seat",
+    stopClaimBody:
+      "Founding seats are open at $99. Pay once, wake the company, then share one invite if you want.",
+  },
 };
