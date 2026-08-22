@@ -1,0 +1,142 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Rsync code to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          rsync -az --delete \
+            --exclude node_modules --exclude .git --exclude .output --exclude .vinxi \
+            --exclude .env --exclude .env.local --exclude .cache --exclude coverage \
+            --exclude supabase/.temp --exclude 'public/*.mp4' --exclude yarn.lock \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o BatchMode=yes" \
+            ./ "$VPS_USER@$VPS_HOST:/opt/auraos/"
+
+      - name: Rsync media files (mp4)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          if compgen -G "public/*.mp4" > /dev/null; then
+            echo "Syncing mp4 files..."
+            rsync -az \
+              -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o BatchMode=yes" \
+              public/*.mp4 "$VPS_USER@$VPS_HOST:/opt/auraos/public/"
+          else
+            echo "No mp4 files to sync"
+          fi
+
+      - name: Build and restart on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o BatchMode=yes \
+            "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          
+          echo "==> Setting permissions"
+          chown -R aura:aura /opt/auraos
+          chmod 755 /opt/auraos /opt/auraos/public
+          chmod -R a+rX /opt/auraos/public
+          chown aura:aura /opt/auraos/.env
+          chmod 600 /opt/auraos/.env
+
+          echo "==> Updating Caddyfile"
+          if [[ -f /opt/auraos/deploy/Caddyfile ]]; then
+            cp /opt/auraos/deploy/Caddyfile /etc/caddy/Caddyfile
+            if ! grep -qF "import /etc/caddy/sites" /etc/caddy/Caddyfile; then
+              printf "\n# Aura Lokal — do not remove. OS deploys overwrite this file.\nimport /etc/caddy/sites/*\n" >> /etc/caddy/Caddyfile
+            fi
+            chmod 644 /etc/caddy/Caddyfile
+            caddy validate --config /etc/caddy/Caddyfile
+            caddy reload --config /etc/caddy/Caddyfile --force
+          fi
+
+          echo "==> Building app"
+          sudo -u aura bash -lc '
+          set -euo pipefail
+          cd /opt/auraos
+          rm -f ./server.ts ./server.js ./server.mjs
+          npm install --include=dev
+          set -a; . ./.env; set +a
+          export NITRO_PRESET=node-server
+          export NODE_ENV=production
+          npm run build
+          '
+
+          echo "==> Copying media to build output"
+          if compgen -G "/opt/auraos/public/*.mp4" >/dev/null; then
+            cp -an /opt/auraos/public/*.mp4 /opt/auraos/.output/public/ 2>/dev/null || true
+            if [[ -d /opt/auraos/public/share ]]; then
+              mkdir -p /opt/auraos/.output/public/share
+              cp -an /opt/auraos/public/share/. /opt/auraos/.output/public/share/ 2>/dev/null || true
+            fi
+          fi
+          if compgen -G "/opt/auraos/public/*.pptx" >/dev/null; then
+            cp -an /opt/auraos/public/*.pptx /opt/auraos/.output/public/ 2>/dev/null || true
+          fi
+
+          echo "==> Installing worker cron"
+          if [[ -f /opt/auraos/deploy/auraos-worker-tick.sh ]]; then
+            install -m 0755 /opt/auraos/deploy/auraos-worker-tick.sh /usr/local/bin/auraos-worker-tick
+          fi
+          if ! crontab -l 2>/dev/null | grep -q auraos-worker-tick; then
+            (crontab -l 2>/dev/null; echo '*/10 * * * * /usr/local/bin/auraos-worker-tick >>/var/log/auraos-worker-tick.log 2>&1') | crontab -
+          fi
+
+          echo "==> Updating systemd service"
+          if [[ -f /opt/auraos/deploy/auraos.service ]]; then
+            install -m 0644 /opt/auraos/deploy/auraos.service /etc/systemd/system/auraos.service
+            systemctl daemon-reload
+          fi
+
+          echo "==> Restarting auraos service"
+          systemctl restart auraos
+          sleep 3
+          systemctl is-active auraos
+          REMOTE
+
+      - name: Health check
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o BatchMode=yes \
+            "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
+          echo "==> Health check"
+          curl -sS -o /dev/null -w "Homepage: %{http_code}\n" --max-time 20 https://aibusiness.fun/ || echo "Homepage failed"
+          curl -sS -o /dev/null -w "Hero video: %{http_code}\n" --max-time 20 https://aibusiness.fun/aura-hero.mp4 || echo "Video failed"
+          systemctl status auraos --no-pager | head -20
+          REMOTE
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
