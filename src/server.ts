@@ -38,7 +38,9 @@ const PUBLIC_MARKETING_ROUTES = [
 ];
 
 function isPublicMarketingPage(pathname: string): boolean {
-  return PUBLIC_MARKETING_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+  return PUBLIC_MARKETING_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
 }
 
 function isWebRequest(value: unknown): value is Request {
