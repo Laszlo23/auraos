@@ -310,7 +310,10 @@ export const logDeskSale = createServerFn({ method: "POST" })
     });
 
     if (insertError) {
-      if (insertError.message?.includes("does not exist") || insertError.message?.includes("relation")) {
+      if (
+        insertError.message?.includes("does not exist") ||
+        insertError.message?.includes("relation")
+      ) {
         throw new Error(
           "Team Desk migration not applied. Run `supabase db push` to enable sales logging.",
         );
@@ -444,7 +447,10 @@ export const createDeskLocalBusiness = createServerFn({ method: "POST" })
         notes: data.notes,
       });
 
-      if (saleError && (saleError.message?.includes("does not exist") || saleError.message?.includes("relation"))) {
+      if (
+        saleError &&
+        (saleError.message?.includes("does not exist") || saleError.message?.includes("relation"))
+      ) {
         return {
           ok: true,
           company: comp,
