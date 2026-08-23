@@ -16,7 +16,7 @@ function asDb(client: unknown): LooseDb {
 }
 
 const COOKIE_NAME = "aura_desk";
-const MAX_AGE = 7 * 24 * 60 * 60; // 7 days
+const MAX_AGE = 7 * 24 * 60 * 60;
 
 function getSecret(): string {
   const secret = process.env["TEAM_DESK_SECRET"];
@@ -30,37 +30,52 @@ function getSecret(): string {
   throw new Error("TEAM_DESK_SECRET or TEAM_DESK_PASSWORD not configured");
 }
 
-function signCookie(displayName: string): string {
-  const secret = getSecret();
-  const exp = Math.floor(Date.now() / 1000) + MAX_AGE;
-  const payload = `${displayName}:${exp}`;
-  const sig = createHmac("sha256", secret).update(payload).digest("hex");
-  return `${payload}:${sig}`;
+function base64UrlEncode(str: string): string {
+  return Buffer.from(str, "utf8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 }
 
-function verifyCookie(value: string): { displayName: string; exp: number } | null {
+function base64UrlDecode(str: string): string {
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) base64 += "=";
+  return Buffer.from(base64, "base64").toString("utf8");
+}
+
+function signToken(displayName: string): string {
+  const secret = getSecret();
+  const exp = Math.floor(Date.now() / 1000) + MAX_AGE;
+  const payload = JSON.stringify({ displayName, exp });
+  const encoded = base64UrlEncode(payload);
+  const sig = createHmac("sha256", secret).update(encoded).digest("base64url");
+  return `${encoded}.${sig}`;
+}
+
+function verifyToken(token: string): { displayName: string; exp: number } | null {
   try {
-    const parts = value.split(":");
-    if (parts.length !== 3) return null;
-    const [displayName, expStr, sig] = parts as [string, string, string];
-    const exp = Number(expStr);
-    if (isNaN(exp) || exp < Date.now() / 1000) return null;
+    const parts = token.split(".");
+    if (parts.length !== 2) return null;
+    const [encoded, sig] = parts as [string, string];
 
     const secret = getSecret();
-    const expectedSig = createHmac("sha256", secret)
-      .update(`${displayName}:${expStr}`)
-      .digest("hex");
+    const expectedSig = createHmac("sha256", secret).update(encoded).digest("base64url");
 
     if (
       !sig ||
       !expectedSig ||
       Buffer.byteLength(sig) !== Buffer.byteLength(expectedSig) ||
-      !timingSafeEqual(Buffer.from(sig, "hex"), Buffer.from(expectedSig, "hex"))
+      !timingSafeEqual(Buffer.from(sig, "utf8"), Buffer.from(expectedSig, "utf8"))
     ) {
       return null;
     }
 
-    return { displayName, exp };
+    const payload = JSON.parse(base64UrlDecode(encoded)) as { displayName: string; exp: number };
+    if (!payload.displayName || typeof payload.exp !== "number") return null;
+    if (payload.exp < Date.now() / 1000) return null;
+
+    return payload;
   } catch {
     return null;
   }
@@ -78,12 +93,12 @@ function getCookieFromRequest(): string | null {
   }
 }
 
-function requireDeskAuth(): { displayName: string } {
-  const cookieValue = getCookieFromRequest();
-  if (!cookieValue) {
+function requireDeskAuth(tokenFromBody?: string | null): { displayName: string } {
+  const tokenCandidate = tokenFromBody || getCookieFromRequest();
+  if (!tokenCandidate) {
     throw new Error("Team Desk: Unauthorized");
   }
-  const verified = verifyCookie(cookieValue);
+  const verified = verifyToken(tokenCandidate);
   if (!verified) {
     throw new Error("Team Desk: Session expired or invalid");
   }
@@ -95,61 +110,7 @@ async function getSupabaseAdmin(): Promise<LooseDb> {
   return asDb(supabaseAdmin);
 }
 
-export const deskLogin = createServerFn({ method: "POST" })
-  .validator((input: { password: string; displayName?: string }) => ({
-    password: String(input.password || "").trim(),
-    displayName: String(input.displayName || "")
-      .trim()
-      .slice(0, 50),
-  }))
-  .handler(async ({ data }) => {
-    const envPwd = process.env["TEAM_DESK_PASSWORD"];
-    const envHash = process.env["TEAM_DESK_PASSWORD_HASH"];
-
-    if (!envPwd && !envHash) {
-      throw new Error("Team Desk password not configured");
-    }
-
-    let valid = false;
-
-    if (envPwd && envPwd.trim()) {
-      const expected = envPwd.trim();
-      const provided = data.password;
-      if (expected && provided && Buffer.byteLength(expected) === Buffer.byteLength(provided)) {
-        valid = timingSafeEqual(Buffer.from(expected, "utf8"), Buffer.from(provided, "utf8"));
-      }
-    }
-
-    if (!valid && envHash && envHash.trim()) {
-      const bcrypt = await import("bcrypt");
-      valid = await bcrypt.compare(data.password, envHash.trim());
-    }
-
-    if (!valid) {
-      await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
-      throw new Error("Falsches Passwort");
-    }
-
-    const displayName = data.displayName || "Team";
-    const cookieValue = signCookie(displayName);
-
-    const headers = getResponseHeaders();
-    headers.set(
-      "Set-Cookie",
-      `${COOKIE_NAME}=${encodeURIComponent(cookieValue)}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`,
-    );
-
-    return { ok: true, displayName };
-  });
-
-export const deskLogout = createServerFn({ method: "POST" }).handler(async () => {
-  const headers = getResponseHeaders();
-  headers.set("Set-Cookie", `${COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
-  return { ok: true };
-});
-
-export const getDeskDashboard = createServerFn({ method: "GET" }).handler(async () => {
-  const auth = requireDeskAuth();
+async function buildDashboard(displayName: string) {
   const db = await getSupabaseAdmin();
 
   const { data: allSales, error: salesError } = await db
@@ -158,24 +119,25 @@ export const getDeskDashboard = createServerFn({ method: "GET" }).handler(async 
     .order("created_at", { ascending: false })
     .limit(100);
 
-  if (salesError) throw salesError;
-
-  const sales = (allSales || []) as Array<{
-    id: string;
-    closer: string;
-    product: string;
-    amount_cents: number;
-    currency: string;
-    customer_name: string;
-    notes: string | null;
-    created_at: string;
-  }>;
+  const sales =
+    !salesError && allSales
+      ? (allSales as Array<{
+          id: string;
+          closer: string;
+          product: string;
+          amount_cents: number;
+          currency: string;
+          customer_name: string;
+          notes: string | null;
+          created_at: string;
+        }>)
+      : [];
 
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-  const mySales = sales.filter((s) => s.closer === auth.displayName);
+  const mySales = sales.filter((s) => s.closer === displayName);
   const myWeek = mySales.filter((s) => new Date(s.created_at) > weekAgo);
   const myMonth = mySales.filter((s) => new Date(s.created_at) > monthAgo);
 
@@ -216,7 +178,7 @@ export const getDeskDashboard = createServerFn({ method: "GET" }).handler(async 
   };
 
   return {
-    displayName: auth.displayName,
+    displayName,
     mySales: {
       week: myWeek.length,
       month: myMonth.length,
@@ -232,18 +194,93 @@ export const getDeskDashboard = createServerFn({ method: "GET" }).handler(async 
     leaderboard,
     recentSales: sales.slice(0, 20),
     finance,
+    migrationWarning: salesError
+      ? "Team Desk migration not applied — sales features disabled until `supabase db push`."
+      : null,
   };
+}
+
+export const deskLogin = createServerFn({ method: "POST" })
+  .validator((input: { password: string; displayName?: string }) => ({
+    password: String(input.password || "").trim(),
+    displayName: String(input.displayName || "")
+      .trim()
+      .slice(0, 50),
+  }))
+  .handler(async ({ data }) => {
+    const envPwd = process.env["TEAM_DESK_PASSWORD"];
+    const envHash = process.env["TEAM_DESK_PASSWORD_HASH"];
+
+    if (!envPwd && !envHash) {
+      throw new Error("Team Desk password not configured");
+    }
+
+    let valid = false;
+
+    if (envPwd && envPwd.trim()) {
+      const expected = envPwd.trim();
+      const provided = data.password;
+      if (expected && provided && Buffer.byteLength(expected) === Buffer.byteLength(provided)) {
+        valid = timingSafeEqual(Buffer.from(expected, "utf8"), Buffer.from(provided, "utf8"));
+      }
+    }
+
+    if (!valid && envHash && envHash.trim()) {
+      const bcrypt = await import("bcrypt");
+      valid = await bcrypt.compare(data.password, envHash.trim());
+    }
+
+    if (!valid) {
+      await new Promise((r) => setTimeout(r, 300 + Math.random() * 200));
+      throw new Error("Falsches Passwort");
+    }
+
+    const displayName = data.displayName || "Team";
+    const token = signToken(displayName);
+
+    const headers = getResponseHeaders();
+    headers.set(
+      "Set-Cookie",
+      `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${MAX_AGE}`,
+    );
+
+    const dashboard = await buildDashboard(displayName);
+
+    return { ok: true, token, dashboard };
+  });
+
+export const deskLogout = createServerFn({ method: "POST" }).handler(async () => {
+  const headers = getResponseHeaders();
+  headers.set("Set-Cookie", `${COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
+  return { ok: true };
 });
+
+export const getDeskDashboard = createServerFn({ method: "GET" })
+  .validator((input: { token?: string }) => ({
+    token:
+      String(input?.token || "")
+        .trim()
+        .slice(0, 500) || null,
+  }))
+  .handler(async ({ data }) => {
+    const auth = requireDeskAuth(data.token);
+    return buildDashboard(auth.displayName);
+  });
 
 export const logDeskSale = createServerFn({ method: "POST" })
   .validator(
     (input: {
+      token?: string;
       product: string;
       amountCents: number;
       currency?: string;
       customerName: string;
       notes?: string;
     }) => ({
+      token:
+        String(input?.token || "")
+          .trim()
+          .slice(0, 500) || null,
       product: String(input.product || "other"),
       amountCents: Math.max(0, Number(input.amountCents) || 0),
       currency: String(input.currency || "EUR")
@@ -259,11 +296,11 @@ export const logDeskSale = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const auth = requireDeskAuth();
+    const auth = requireDeskAuth(data.token);
     if (!data.customerName) throw new Error("Customer name required");
 
     const db = await getSupabaseAdmin();
-    const { error } = await db.from("team_desk_sales").insert({
+    const { error: insertError } = await db.from("team_desk_sales").insert({
       closer: auth.displayName,
       product: data.product,
       amount_cents: data.amountCents,
@@ -272,7 +309,14 @@ export const logDeskSale = createServerFn({ method: "POST" })
       notes: data.notes,
     });
 
-    if (error) throw error;
+    if (insertError) {
+      if (insertError.message?.includes("does not exist") || insertError.message?.includes("relation")) {
+        throw new Error(
+          "Team Desk migration not applied. Run `supabase db push` to enable sales logging.",
+        );
+      }
+      throw insertError;
+    }
 
     await db.from("team_desk_events").insert({
       closer: auth.displayName,
@@ -286,6 +330,7 @@ export const logDeskSale = createServerFn({ method: "POST" })
 export const createDeskLocalBusiness = createServerFn({ method: "POST" })
   .validator(
     (input: {
+      token?: string;
       name: string;
       slug?: string;
       address?: string;
@@ -299,6 +344,10 @@ export const createDeskLocalBusiness = createServerFn({ method: "POST" })
       paidSeat?: boolean;
       amountCents?: number;
     }) => ({
+      token:
+        String(input?.token || "")
+          .trim()
+          .slice(0, 500) || null,
       name: String(input.name || "")
         .trim()
         .slice(0, 200),
@@ -345,7 +394,7 @@ export const createDeskLocalBusiness = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const auth = requireDeskAuth();
+    const auth = requireDeskAuth(data.token);
     if (!data.name) throw new Error("Business name required");
 
     const db = await getSupabaseAdmin();
@@ -378,7 +427,7 @@ export const createDeskLocalBusiness = createServerFn({ method: "POST" })
 
     const comp = company as { id: string; name: string; slug: string | null };
 
-    await db.from("team_desk_events").insert({
+    const { error: eventError } = await db.from("team_desk_events").insert({
       closer: auth.displayName,
       kind: "local_business_created",
       message: `${auth.displayName} created Local business: ${comp.name}`,
@@ -386,7 +435,7 @@ export const createDeskLocalBusiness = createServerFn({ method: "POST" })
     });
 
     if (data.paidSeat && data.amountCents > 0) {
-      await db.from("team_desk_sales").insert({
+      const { error: saleError } = await db.from("team_desk_sales").insert({
         closer: auth.displayName,
         product: "local_paid_seat",
         amount_cents: data.amountCents,
@@ -394,6 +443,15 @@ export const createDeskLocalBusiness = createServerFn({ method: "POST" })
         customer_name: comp.name,
         notes: data.notes,
       });
+
+      if (saleError && (saleError.message?.includes("does not exist") || saleError.message?.includes("relation"))) {
+        return {
+          ok: true,
+          company: comp,
+          warning:
+            "Business created but sale not logged — Team Desk migration not applied. Run `supabase db push`.",
+        };
+      }
     }
 
     return { ok: true, company: comp };
