@@ -34,13 +34,24 @@ export const Route = createFileRoute("/desk")({
 
 function DeskPage() {
   const { locale } = useLocale();
+  const qc = useQueryClient();
   const t = (key: string, vars?: Record<string, string | number>) => translate(key, locale, vars);
+
+  const getStoredToken = (): string | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      return sessionStorage.getItem("aura_desk_token");
+    } catch {
+      return null;
+    }
+  };
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["desk-dashboard"],
     queryFn: async () => {
       try {
-        return await getDeskDashboard();
+        const token = getStoredToken();
+        return await getDeskDashboard({ data: { token } });
       } catch (e) {
         return null;
       }
@@ -48,6 +59,24 @@ function DeskPage() {
     retry: false,
     refetchOnWindowFocus: false,
   });
+
+  const handleLoginSuccess = (dashboard: NonNullable<DashboardData>, token: string) => {
+    try {
+      sessionStorage.setItem("aura_desk_token", token);
+    } catch {
+      /* ignore */
+    }
+    qc.setQueryData(["desk-dashboard"], dashboard);
+  };
+
+  const handleLogout = () => {
+    try {
+      sessionStorage.removeItem("aura_desk_token");
+    } catch {
+      /* ignore */
+    }
+    qc.setQueryData(["desk-dashboard"], null);
+  };
 
   if (isLoading) {
     return (
@@ -61,17 +90,17 @@ function DeskPage() {
   }
 
   if (error || !data) {
-    return <LoginScreen onSuccess={() => void refetch()} t={t} />;
+    return <LoginScreen onSuccess={handleLoginSuccess} t={t} />;
   }
 
-  return <Dashboard data={data} onLogout={() => void refetch()} t={t} />;
+  return <Dashboard data={data} onLogout={handleLogout} t={t} />;
 }
 
 function LoginScreen({
   onSuccess,
   t,
 }: {
-  onSuccess: () => void;
+  onSuccess: (dashboard: NonNullable<DashboardData>, token: string) => void;
   t: (key: string, vars?: Record<string, string | number>) => string;
 }) {
   const [password, setPassword] = useState("");
@@ -79,9 +108,10 @@ function LoginScreen({
 
   const login = useMutation({
     mutationFn: () => deskLogin({ data: { password, displayName } }),
-    onSuccess: () => {
-      toast.success(t("desk.welcome", { name: displayName || "Team" }));
-      onSuccess();
+    onSuccess: (result) => {
+      const res = result as { ok: boolean; token: string; dashboard: NonNullable<DashboardData> };
+      toast.success(t("desk.welcome", { name: res.dashboard.displayName }));
+      onSuccess(res.dashboard, res.token);
     },
     onError: (e: Error) => toast.error(e.message || t("desk.wrongPassword")),
   });
@@ -175,6 +205,8 @@ function Dashboard({
     },
   });
 
+  const migrationWarning = (data as { migrationWarning?: string | null }).migrationWarning;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[oklch(0.14_0.02_240)] to-[oklch(0.18_0.04_200)] p-6">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -192,6 +224,12 @@ function Dashboard({
             </button>
           }
         />
+
+        {migrationWarning && (
+          <div className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-white">
+            ⚠️ {migrationWarning}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2">
           <TabButton
@@ -479,10 +517,20 @@ function CreateLocalBusiness({ t }: { t: (key: string) => string }) {
   const [paidSeat, setPaidSeat] = useState(false);
   const [amountCents, setAmountCents] = useState(4900);
 
+  const getStoredToken = (): string | null => {
+    try {
+      return sessionStorage.getItem("aura_desk_token");
+    } catch {
+      return null;
+    }
+  };
+
   const create = useMutation({
-    mutationFn: () =>
-      createDeskLocalBusiness({
+    mutationFn: () => {
+      const token = getStoredToken();
+      return createDeskLocalBusiness({
         data: {
+          token,
           name,
           slug,
           address,
@@ -496,9 +544,14 @@ function CreateLocalBusiness({ t }: { t: (key: string) => string }) {
           paidSeat,
           amountCents,
         },
-      }),
-    onSuccess: () => {
+      });
+    },
+    onSuccess: (result) => {
+      const res = result as { ok: boolean; warning?: string };
       toast.success(t("desk.businessCreated"));
+      if (res.warning) {
+        toast.warning(res.warning, { duration: 5000 });
+      }
       setName("");
       setSlug("");
       setAddress("");
@@ -628,11 +681,21 @@ function LogSaleForm({ t }: { t: (key: string) => string }) {
   const [customerName, setCustomerName] = useState("");
   const [notes, setNotes] = useState("");
 
+  const getStoredToken = (): string | null => {
+    try {
+      return sessionStorage.getItem("aura_desk_token");
+    } catch {
+      return null;
+    }
+  };
+
   const logSale = useMutation({
-    mutationFn: () =>
-      logDeskSale({
-        data: { product, amountCents, currency, customerName, notes },
-      }),
+    mutationFn: () => {
+      const token = getStoredToken();
+      return logDeskSale({
+        data: { token, product, amountCents, currency, customerName, notes },
+      });
+    },
     onSuccess: () => {
       toast.success(t("desk.saleLogged"));
       setCustomerName("");
