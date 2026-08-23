@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BrandRouteImport } from './routes/brand'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as DeskRouteImport } from './routes/desk'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -36,6 +37,7 @@ import { Route as StickerRouteImport } from './routes/sticker'
 import { Route as StoryRouteImport } from './routes/story'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TischRouteImport } from './routes/tisch'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
 import { Route as TryRouteImport } from './routes/try'
 import { Route as VerkaufRouteImport } from './routes/verkauf'
@@ -100,6 +102,7 @@ import { Route as PartnersFioRouteImport } from './routes/partners.fio'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as TbShareSlugRouteImport } from './routes/tb.$shareSlug'
+import { Route as TischSlugRouteImport } from './routes/tisch_.$slug'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as VPostIdRouteImport } from './routes/v.$postId'
 import { Route as WShareSlugRouteImport } from './routes/w.$shareSlug'
@@ -167,6 +170,11 @@ const CompareRoute = CompareRouteImport.update({
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeskRoute = DeskRouteImport.update({
+  id: '/desk',
+  path: '/desk',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -267,6 +275,11 @@ const TeamRoute = TeamRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TischRoute = TischRouteImport.update({
+  id: '/tisch',
+  path: '/tisch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TokenomicsRoute = TokenomicsRouteImport.update({
@@ -591,6 +604,11 @@ const TbShareSlugRoute = TbShareSlugRouteImport.update({
   path: '/tb/$shareSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TischSlugRoute = TischSlugRouteImport.update({
+  id: '/tisch_/$slug',
+  path: '/tisch/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UHandleRoute = UHandleRouteImport.update({
   id: '/u/$handle',
   path: '/u/$handle',
@@ -780,6 +798,7 @@ export interface FileRoutesByFullPath {
   '/brand': typeof BrandRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
+  '/desk': typeof DeskRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -799,6 +818,7 @@ export interface FileRoutesByFullPath {
   '/story': typeof StoryRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
+  '/tisch': typeof TischRoute
   '/tokenomics': typeof TokenomicsRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
@@ -861,6 +881,7 @@ export interface FileRoutesByFullPath {
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
+  '/tisch/$slug': typeof TischSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
@@ -905,6 +926,7 @@ export interface FileRoutesByTo {
   '/brand': typeof BrandRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
+  '/desk': typeof DeskRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -924,6 +946,7 @@ export interface FileRoutesByTo {
   '/story': typeof StoryRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
+  '/tisch': typeof TischRoute
   '/tokenomics': typeof TokenomicsRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
@@ -986,6 +1009,7 @@ export interface FileRoutesByTo {
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
+  '/tisch/$slug': typeof TischSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
@@ -1033,6 +1057,7 @@ export interface FileRoutesById {
   '/brand': typeof BrandRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
+  '/desk': typeof DeskRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -1052,6 +1077,7 @@ export interface FileRoutesById {
   '/story': typeof StoryRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
+  '/tisch': typeof TischRoute
   '/tokenomics': typeof TokenomicsRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
@@ -1114,6 +1140,7 @@ export interface FileRoutesById {
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
+  '/tisch_/$slug': typeof TischSlugRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$postId': typeof VPostIdRoute
   '/w/$shareSlug': typeof WShareSlugRoute
@@ -1161,6 +1188,7 @@ export interface FileRouteTypes {
     | '/brand'
     | '/compare'
     | '/cookies'
+    | '/desk'
     | '/faq'
     | '/grants'
     | '/how-it-works'
@@ -1180,6 +1208,7 @@ export interface FileRouteTypes {
     | '/story'
     | '/team'
     | '/terms'
+    | '/tisch'
     | '/tokenomics'
     | '/try'
     | '/verkauf'
@@ -1242,6 +1271,7 @@ export interface FileRouteTypes {
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
+    | '/tisch/$slug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
@@ -1286,6 +1316,7 @@ export interface FileRouteTypes {
     | '/brand'
     | '/compare'
     | '/cookies'
+    | '/desk'
     | '/faq'
     | '/grants'
     | '/how-it-works'
@@ -1305,6 +1336,7 @@ export interface FileRouteTypes {
     | '/story'
     | '/team'
     | '/terms'
+    | '/tisch'
     | '/tokenomics'
     | '/try'
     | '/verkauf'
@@ -1367,6 +1399,7 @@ export interface FileRouteTypes {
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
+    | '/tisch/$slug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
@@ -1413,6 +1446,7 @@ export interface FileRouteTypes {
     | '/brand'
     | '/compare'
     | '/cookies'
+    | '/desk'
     | '/faq'
     | '/grants'
     | '/how-it-works'
@@ -1432,6 +1466,7 @@ export interface FileRouteTypes {
     | '/story'
     | '/team'
     | '/terms'
+    | '/tisch'
     | '/tokenomics'
     | '/try'
     | '/verkauf'
@@ -1494,6 +1529,7 @@ export interface FileRouteTypes {
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
+    | '/tisch_/$slug'
     | '/u/$handle'
     | '/v/$postId'
     | '/w/$shareSlug'
@@ -1541,6 +1577,7 @@ export interface RootRouteChildren {
   BrandRoute: typeof BrandRoute
   CompareRoute: typeof CompareRoute
   CookiesRoute: typeof CookiesRoute
+  DeskRoute: typeof DeskRoute
   FaqRoute: typeof FaqRoute
   GrantsRoute: typeof GrantsRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -1560,6 +1597,7 @@ export interface RootRouteChildren {
   StoryRoute: typeof StoryRoute
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
+  TischRoute: typeof TischRoute
   TokenomicsRoute: typeof TokenomicsRoute
   TryRoute: typeof TryRoute
   VerkaufRoute: typeof VerkaufRoute
@@ -1578,6 +1616,7 @@ export interface RootRouteChildren {
   RRunIdRoute: typeof RRunIdRoute
   SSlugRoute: typeof SSlugRoute
   TbShareSlugRoute: typeof TbShareSlugRoute
+  TischSlugRoute: typeof TischSlugRoute
   UHandleRoute: typeof UHandleRoute
   VPostIdRoute: typeof VPostIdRoute
   WShareSlugRoute: typeof WShareSlugRoute
@@ -1661,6 +1700,13 @@ declare module '@tanstack/react-router' {
       path: '/cookies'
       fullPath: '/cookies'
       preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desk': {
+      id: '/desk'
+      path: '/desk'
+      fullPath: '/desk'
+      preLoaderRoute: typeof DeskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -1801,6 +1847,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tisch': {
+      id: '/tisch'
+      path: '/tisch'
+      fullPath: '/tisch'
+      preLoaderRoute: typeof TischRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tokenomics': {
@@ -2251,6 +2304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TbShareSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tisch_/$slug': {
+      id: '/tisch_/$slug'
+      path: '/tisch/$slug'
+      fullPath: '/tisch/$slug'
+      preLoaderRoute: typeof TischSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$handle': {
       id: '/u/$handle'
       path: '/u/$handle'
@@ -2627,6 +2687,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrandRoute: BrandRoute,
   CompareRoute: CompareRoute,
   CookiesRoute: CookiesRoute,
+  DeskRoute: DeskRoute,
   FaqRoute: FaqRoute,
   GrantsRoute: GrantsRoute,
   HowItWorksRoute: HowItWorksRoute,
@@ -2646,6 +2707,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoryRoute: StoryRoute,
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
+  TischRoute: TischRoute,
   TokenomicsRoute: TokenomicsRoute,
   TryRoute: TryRoute,
   VerkaufRoute: VerkaufRoute,
@@ -2664,6 +2726,7 @@ const rootRouteChildren: RootRouteChildren = {
   RRunIdRoute: RRunIdRoute,
   SSlugRoute: SSlugRoute,
   TbShareSlugRoute: TbShareSlugRoute,
+  TischSlugRoute: TischSlugRoute,
   UHandleRoute: UHandleRoute,
   VPostIdRoute: VPostIdRoute,
   WShareSlugRoute: WShareSlugRoute,

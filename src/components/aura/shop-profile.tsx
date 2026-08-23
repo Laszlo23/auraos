@@ -50,6 +50,7 @@ export function ShopProfile({ shop }: { shop: PublicLocalBusiness }) {
         <div className="min-w-0 space-y-5">
           <HowItWorks slug={shop.slug} />
           <ShopGallery items={shop.gallery} shopName={shop.name} />
+          <ReviewProofs items={shop.proofs ?? []} shopName={shop.name} />
           <ShopCatalogAndBook shop={shop} />
           <NachbarProof shop={shop} checkinHref={checkinHref} />
           <Feed shop={shop} />
@@ -70,7 +71,7 @@ export function ShopProfile({ shop }: { shop: PublicLocalBusiness }) {
         </aside>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/50 bg-background/90 px-3 py-2 backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/50 bg-background/90 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
         <ActionRail shop={shop} shareUrl={shareUrl} shareText={shareText} />
       </div>
     </div>
@@ -341,6 +342,78 @@ function ShopGallery({ items, shopName }: { items: PublicShopGalleryItem[]; shop
           onKeyDown={(e) => {
             if (e.key === "Escape") setOpenIdx(null);
           }}
+        >
+          <button
+            type="button"
+            aria-label="Schließen"
+            className="absolute right-4 top-4 rounded-full border border-white/20 bg-white/10 p-2 text-white"
+            onClick={() => setOpenIdx(null)}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img
+            src={open.url}
+            alt={open.caption || shopName}
+            className="max-h-[88vh] max-w-full rounded-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          {open.caption ? (
+            <p className="absolute bottom-6 left-1/2 max-w-lg -translate-x-1/2 text-center text-sm text-white/85">
+              {open.caption}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function ReviewProofs({ items, shopName }: { items: PublicShopGalleryItem[]; shopName: string }) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  if (!items.length) return null;
+  const open = openIdx != null ? items[openIdx] : null;
+
+  return (
+    <section className="space-y-3">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+          Echte Stimmen
+        </p>
+        <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight">
+          Das haben Nachbarn geschrieben
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Screenshots echter Google-Bewertungen — keine gekauften Sterne.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {items.map((item, i) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setOpenIdx(i)}
+            className="group overflow-hidden rounded-[1.4rem] border border-border/40 bg-card/30 text-left"
+          >
+            <img
+              src={item.url}
+              alt={item.caption || `${shopName} Bewertung ${i + 1}`}
+              className="aspect-[3/4] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+              loading="lazy"
+            />
+            {item.caption ? (
+              <span className="block px-3 py-2 text-[12px] text-muted-foreground">
+                {item.caption}
+              </span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+      {open ? (
+        <div
+          role="dialog"
+          aria-modal
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setOpenIdx(null)}
         >
           <button
             type="button"

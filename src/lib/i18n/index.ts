@@ -44,7 +44,10 @@ export function ensureUiLocale(explicit?: UiLocale | null): UiLocale {
       path === "/bewertungen" ||
       path === "/kunden" ||
       path === "/social" ||
-      path === "/boost";
+      path === "/boost" ||
+      path === "/desk" ||
+      path === "/tisch" ||
+      path.startsWith("/tisch/");
     if (lokalSurface) {
       if (params.get("lang") === "en") {
         rememberLocale("en");

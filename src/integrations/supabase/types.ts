@@ -4308,6 +4308,47 @@ export type Database = {
           },
         ]
       }
+      shop_review_proofs: {
+        Row: {
+          caption: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string
+          sort_order: number
+          source: string
+        }
+        Insert: {
+          caption?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url: string
+          sort_order?: number
+          source?: string
+        }
+        Update: {
+          caption?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string
+          sort_order?: number
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_review_proofs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           auto_renew: boolean
@@ -4461,6 +4502,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_desk_events: {
+        Row: {
+          closer: string
+          created_at: string
+          id: string
+          kind: string
+          message: string
+          metadata: Json
+        }
+        Insert: {
+          closer: string
+          created_at?: string
+          id?: string
+          kind: string
+          message: string
+          metadata?: Json
+        }
+        Update: {
+          closer?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          message?: string
+          metadata?: Json
+        }
+        Relationships: []
+      }
+      team_desk_sales: {
+        Row: {
+          amount_cents: number
+          closer: string
+          created_at: string
+          currency: string
+          customer_name: string
+          id: string
+          notes: string | null
+          product: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          closer: string
+          created_at?: string
+          currency?: string
+          customer_name: string
+          id?: string
+          notes?: string | null
+          product: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          closer?: string
+          created_at?: string
+          currency?: string
+          customer_name?: string
+          id?: string
+          notes?: string | null
+          product?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       teaser_events: {
         Row: {

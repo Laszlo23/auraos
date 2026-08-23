@@ -72,6 +72,17 @@ export type PublicLocalBusiness = {
   neighbors: PublicLokalListing[];
   nachbar_rating_avg: number | null;
   nachbar_rating_count: number;
+  proofs: PublicShopGalleryItem[];
+};
+
+export type PublicTischProof = {
+  id: string;
+  url: string;
+  caption: string | null;
+  shopName: string;
+  shopSlug: string;
+  niche: string | null;
+  district: string | null;
 };
 
 const LISTING_COLS =
@@ -163,6 +174,7 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       { data: catalogRows },
       ratings,
       { data: galleryRows },
+      proofsResult,
     ] = await Promise.all([
       supabaseAdmin
         .from("channel_posts")
@@ -215,7 +227,16 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         .order("sort_order")
         .order("created_at")
         .limit(12),
+      supabaseAdmin
+        .from("shop_review_proofs" as never)
+        .select("id, image_url, caption, sort_order")
+        .eq("company_id", company.id)
+        .order("sort_order")
+        .order("created_at")
+        .limit(20),
     ]);
+
+    const proofRows = proofsResult.error ? [] : (proofsResult.data ?? []);
 
     const editorial = editorialForSlug(company.slug as string);
     const dbServices = Array.isArray(company.services)
@@ -265,6 +286,13 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
           url: shopMediaUrl(row.url) || row.url,
           caption: row.caption,
         })),
+      proofs: (proofRows as { id: string; image_url: string; caption: string | null }[])
+        .filter((row) => Boolean(row.image_url))
+        .map((row) => ({
+          id: row.id,
+          url: shopMediaUrl(row.image_url) || row.image_url,
+          caption: row.caption,
+        })),
       nachbar_checkin_code: (company.nachbar_checkin_code as string | null) ?? null,
       checkin_count: checkins.count ?? 0,
       nachbar_rating_avg: (() => {
@@ -301,4 +329,84 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
           .map((c) => mapListing(c as Record<string, unknown>)),
       ),
     };
+  });
+
+/** Recent review screenshots across Wien shops — field-sales Tisch wall. */
+export const getPublicTischNetwork = createServerFn({ method: "GET" })
+  .validator((input?: { niche?: string; excludeSlug?: string; limit?: number }) => {
+    const niche = String(input?.niche || "")
+      .trim()
+      .slice(0, 80);
+    const excludeSlug = String(input?.excludeSlug || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .slice(0, 64);
+    return {
+      niche: niche || null,
+      excludeSlug: excludeSlug || null,
+      limit: Math.min(48, Math.max(1, Number(input?.limit) || 24)),
+    };
+  })
+  .handler(async ({ data }): Promise<PublicTischProof[]> => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: rows, error } = await supabaseAdmin
+        .from("shop_review_proofs" as never)
+        .select("id, company_id, image_url, caption")
+        .order("created_at", { ascending: false })
+        .limit(80);
+      if (error || !rows) return [];
+
+      const proofs = rows as {
+        id: string;
+        company_id: string;
+        image_url: string;
+        caption: string | null;
+      }[];
+      const companyIds = [...new Set(proofs.map((row) => row.company_id))];
+      if (companyIds.length === 0) return [];
+
+      const { data: companies } = await supabaseAdmin
+        .from("companies")
+        .select("id, name, slug, niche, district, is_local_business")
+        .in("id", companyIds)
+        .eq("is_local_business", true);
+
+      const shopById = new Map(
+        (
+          (companies ?? []) as {
+            id: string;
+            name: string;
+            slug: string | null;
+            niche: string | null;
+            district: string | null;
+          }[]
+        ).map((shop) => [shop.id, shop]),
+      );
+
+      const nicheNeedle = data.niche?.toLowerCase() ?? null;
+      return proofs
+        .map((row) => {
+          const shop = shopById.get(row.company_id);
+          if (!shop?.slug || !shop.name || !row.image_url) return null;
+          return {
+            id: row.id,
+            url: shopMediaUrl(row.image_url) || row.image_url,
+            caption: row.caption,
+            shopName: shop.name,
+            shopSlug: shop.slug,
+            niche: shop.niche,
+            district: shop.district,
+          } satisfies PublicTischProof;
+        })
+        .filter((row): row is PublicTischProof => Boolean(row))
+        .filter((row) => (data.excludeSlug ? row.shopSlug !== data.excludeSlug : true))
+        .filter((row) =>
+          nicheNeedle ? (row.niche || "").toLowerCase().includes(nicheNeedle) : true,
+        )
+        .slice(0, data.limit);
+    } catch {
+      return [];
+    }
   });
