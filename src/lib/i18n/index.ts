@@ -47,7 +47,8 @@ export function ensureUiLocale(explicit?: UiLocale | null): UiLocale {
       path === "/boost" ||
       path === "/desk" ||
       path === "/tisch" ||
-      path.startsWith("/tisch/");
+      path.startsWith("/tisch/") ||
+      path === "/sale";
     if (lokalSurface) {
       if (params.get("lang") === "en") {
         rememberLocale("en");

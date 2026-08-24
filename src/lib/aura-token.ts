@@ -27,30 +27,31 @@ export type AuraAllocation = {
 };
 
 /**
- * Whole-token split of 777,777,777. Remainders from 15%/10%/5%/2% land on
- * ecosystem, private, marketing, and public so the table adds up exactly.
+ * Whole-token split of 777,777,777.
+ * Private is 256,666,632 (sale cap × 1.11). Remainders land on community.
+ * Unsold pAURA is never minted — the 33% line is a hard cap, not a guarantee.
  */
 export const AURA_ALLOCATIONS: AuraAllocation[] = [
   {
     id: "community",
     label: "Community & contributor rewards",
     labelDe: "Gemeinschaft und Mitmachen",
-    pct: 30,
-    amount: 233_333_333,
+    pct: 24,
+    amount: 186_666_699,
   },
   {
     id: "ecosystem",
     label: "Ecosystem growth & partnerships",
     labelDe: "Wachstum und Partner",
-    pct: 15,
-    amount: 116_666_667,
+    pct: 10,
+    amount: 77_777_778,
   },
   {
     id: "treasury",
     label: "Treasury",
     labelDe: "Firmenreserve",
-    pct: 15,
-    amount: 116_666_667,
+    pct: 10,
+    amount: 77_777_778,
   },
   {
     id: "team",
@@ -63,36 +64,36 @@ export const AURA_ALLOCATIONS: AuraAllocation[] = [
     id: "private",
     label: "Private / strategic sale",
     labelDe: "Privater und strategischer Verkauf",
-    pct: 10,
-    amount: 77_777_778,
+    pct: 33,
+    amount: 256_666_632,
   },
   {
     id: "liquidity",
     label: "Liquidity",
     labelDe: "Liquidität",
-    pct: 8,
-    amount: 62_222_222,
+    pct: 6,
+    amount: 46_666_667,
   },
   {
     id: "advisors",
     label: "Advisors",
     labelDe: "Berater",
-    pct: 3,
-    amount: 23_333_333,
+    pct: 2,
+    amount: 15_555_556,
   },
   {
     id: "marketing",
     label: "Marketing & acquisition",
     labelDe: "Werbung und Kundengewinnung",
-    pct: 5,
-    amount: 38_888_889,
+    pct: 2,
+    amount: 15_555_556,
   },
   {
     id: "public",
     label: "Public launch / community",
     labelDe: "Öffentlicher Start",
-    pct: 2,
-    amount: 15_555_555,
+    pct: 1,
+    amount: 7_777_778,
   },
 ];
 

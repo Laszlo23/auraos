@@ -4308,6 +4308,54 @@ export type Database = {
           },
         ]
       }
+      private_sale_cash_orders: {
+        Row: {
+          amount_usdc: number
+          closer: string
+          created_at: string
+          customer_name: string
+          id: string
+          notes: string | null
+          p_aura_amount: number
+          sent_at: string | null
+          sent_by: string | null
+          status: string
+          tx_hash: string | null
+          updated_at: string
+          wallet: string
+        }
+        Insert: {
+          amount_usdc: number
+          closer: string
+          created_at?: string
+          customer_name: string
+          id?: string
+          notes?: string | null
+          p_aura_amount: number
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string
+          tx_hash?: string | null
+          updated_at?: string
+          wallet: string
+        }
+        Update: {
+          amount_usdc?: number
+          closer?: string
+          created_at?: string
+          customer_name?: string
+          id?: string
+          notes?: string | null
+          p_aura_amount?: number
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string
+          tx_hash?: string | null
+          updated_at?: string
+          wallet?: string
+        }
+        Relationships: []
+      }
       shop_review_proofs: {
         Row: {
           caption: string | null

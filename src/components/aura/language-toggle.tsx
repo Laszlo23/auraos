@@ -18,7 +18,17 @@ export function LanguageToggle({ className }: { className?: string }) {
         <button
           key={code}
           type="button"
-          onClick={() => setLocale(code)}
+          onClick={() => {
+            try {
+              const url = new URL(window.location.href);
+              if (code === "en") url.searchParams.set("lang", "en");
+              else url.searchParams.delete("lang");
+              window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+            } catch {
+              /* ignore */
+            }
+            setLocale(code);
+          }}
           className={cn(
             "rounded-full px-2 py-1 transition-colors",
             locale === code

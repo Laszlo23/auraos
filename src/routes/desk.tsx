@@ -37,8 +37,14 @@ import {
   logDeskSale,
 } from "@/lib/desk.functions";
 import { t as translate } from "@/lib/i18n";
+import { pAuraToLaunchAura, PRIVATE_SALE_MIN_USDC, usdcToPAura } from "@/lib/private-sale";
+import {
+  listPrivateSaleCashOrders,
+  logPrivateSaleCash,
+  sendPrivateSaleCash,
+} from "@/lib/private-sale.functions";
 
-type DeskTab = "personal" | "team" | "finance" | "create" | "shops" | "log";
+type DeskTab = "personal" | "team" | "finance" | "create" | "shops" | "log" | "sale";
 
 export const Route = createFileRoute("/desk")({
   head: () => ({
@@ -280,6 +286,11 @@ function Dashboard({
             onClick={() => setActiveTab("log")}
             label={t("desk.logSale")}
           />
+          <TabButton
+            active={activeTab === "sale"}
+            onClick={() => setActiveTab("sale")}
+            label={t("desk.saleTab")}
+          />
         </div>
 
         {activeTab === "personal" && (
@@ -305,6 +316,7 @@ function Dashboard({
           <ShopsPanel t={t} openShopId={openShopId} onOpenShop={setOpenShopId} />
         )}
         {activeTab === "log" && <LogSaleForm t={t} />}
+        {activeTab === "sale" && <PrivateSalePanel t={t} />}
 
         <SalesKitSection t={t} />
       </div>
@@ -790,6 +802,9 @@ function LogSaleForm({ t }: { t: (key: string) => string }) {
               } else if (e.target.value === "local_paid_seat") {
                 setAmountCents(4900);
                 setCurrency("EUR");
+              } else if (e.target.value === "private_sale") {
+                setAmountCents(5000);
+                setCurrency("USD");
               }
             }}
             className="w-full rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-base text-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -797,6 +812,7 @@ function LogSaleForm({ t }: { t: (key: string) => string }) {
             <option value="founding_seat">{t("desk.productFounding")}</option>
             <option value="local_monthly">{t("desk.productLocalMonthly")}</option>
             <option value="local_paid_seat">{t("desk.productLocalPaid")}</option>
+            <option value="private_sale">{t("desk.productPrivateSale")}</option>
             <option value="other">{t("desk.productOther")}</option>
           </select>
         </div>
@@ -857,6 +873,7 @@ function LogSaleForm({ t }: { t: (key: string) => string }) {
 function SalesKitSection({ t }: { t: (key: string) => string }) {
   const links = [
     { label: t("desk.linkTisch"), href: "/tisch" },
+    { label: t("desk.linkSale"), href: "/sale" },
     { label: t("desk.linkVerkauf"), href: "/verkauf" },
     { label: t("desk.linkLokalAudit"), href: "/lokal/audit" },
     { label: t("desk.linkShare"), href: "/share" },
@@ -1187,6 +1204,168 @@ function ShopProofEditor({
         )}
       </div>
     </Panel>
+  );
+}
+
+function PrivateSalePanel({ t }: { t: (key: string, vars?: Record<string, string | number>) => string }) {
+  const qc = useQueryClient();
+  const [customerName, setCustomerName] = useState("");
+  const [wallet, setWallet] = useState("");
+  const [amountUsdc, setAmountUsdc] = useState(String(PRIVATE_SALE_MIN_USDC));
+  const [notes, setNotes] = useState("");
+  const usdc = Number(amountUsdc);
+  const preview = Number.isFinite(usdc) ? usdcToPAura(usdc) : 0;
+  const launch = pAuraToLaunchAura(preview);
+
+  const queue = useQuery({
+    queryKey: ["desk-private-sale"],
+    queryFn: () => listPrivateSaleCashOrders({ data: { token: getDeskToken() } }),
+  });
+
+  const logCash = useMutation({
+    mutationFn: () =>
+      logPrivateSaleCash({
+        data: {
+          token: getDeskToken(),
+          customerName,
+          wallet,
+          amountUsdc: usdc,
+          notes,
+        },
+      }),
+    onSuccess: () => {
+      toast.success(t("desk.saleLogged"));
+      setCustomerName("");
+      setWallet("");
+      setNotes("");
+      setAmountUsdc(String(PRIVATE_SALE_MIN_USDC));
+      void qc.invalidateQueries({ queryKey: ["desk-private-sale"] });
+      void qc.invalidateQueries({ queryKey: ["desk-dashboard"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const send = useMutation({
+    mutationFn: (orderId: string) =>
+      sendPrivateSaleCash({ data: { token: getDeskToken(), orderId } }),
+    onSuccess: () => {
+      toast.success(t("desk.saleSent"));
+      void qc.invalidateQueries({ queryKey: ["desk-private-sale"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const canSend = queue.data?.canSend === true;
+
+  return (
+    <div className="space-y-6">
+      <Panel label={t("desk.saleLog")}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            logCash.mutate();
+          }}
+          className="space-y-4"
+        >
+          <FormField
+            label={t("desk.customer")}
+            value={customerName}
+            onChange={setCustomerName}
+            required
+            placeholder="Max Mustermann"
+          />
+          <FormField
+            label={t("desk.saleWallet")}
+            value={wallet}
+            onChange={setWallet}
+            required
+            placeholder="0x…"
+          />
+          <FormField
+            label={t("desk.saleUsdc")}
+            value={amountUsdc}
+            onChange={setAmountUsdc}
+            type="number"
+            required
+            placeholder={String(PRIVATE_SALE_MIN_USDC)}
+          />
+          {preview > 0 ? (
+            <p className="text-[12px] text-white/70">
+              {t("desk.salePreview", {
+                paura: preview.toFixed(2),
+                launch: launch.toFixed(2),
+              })}
+            </p>
+          ) : null}
+          <FormField
+            label={t("desk.notes")}
+            value={notes}
+            onChange={setNotes}
+            placeholder={t("desk.notesPlaceholder")}
+            multiline
+          />
+          <button
+            type="submit"
+            disabled={logCash.isPending || !customerName || !wallet}
+            className="w-full rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            {logCash.isPending ? t("common.loading") : t("desk.submit")}
+          </button>
+        </form>
+      </Panel>
+
+      <Panel label={t("desk.saleQueue")}>
+        {!canSend ? <p className="mb-3 text-[12px] text-white/60">{t("desk.saleOnlyLaszlo")}</p> : null}
+        {queue.isLoading ? (
+          <Shimmer className="h-16" />
+        ) : !queue.data?.orders.length ? (
+          <p className="text-sm text-white/60">{t("desk.saleNoOrders")}</p>
+        ) : (
+          <ul className="space-y-3">
+            {queue.data.orders.map((order) => (
+              <li
+                key={order.id}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
+              >
+                <p className="font-semibold">
+                  {order.customer_name} · {order.amount_usdc} USDC · {Number(order.p_aura_amount).toFixed(2)}{" "}
+                  pAURA
+                </p>
+                <p className="mt-1 break-all font-mono text-[11px] text-white/60">{order.wallet}</p>
+                <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-white/50">
+                  {order.status === "sent"
+                    ? t("desk.saleStatusSent")
+                    : order.status === "canceled"
+                      ? t("desk.saleStatusCanceled")
+                      : t("desk.saleStatusLogged")}
+                  {order.closer ? ` · ${order.closer}` : ""}
+                </p>
+                {order.tx_hash ? (
+                  <a
+                    href={`https://basescan.org/tx/${order.tx_hash}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block font-mono text-[11px] text-primary"
+                  >
+                    {order.tx_hash}
+                  </a>
+                ) : null}
+                {canSend && order.status === "logged" ? (
+                  <button
+                    type="button"
+                    disabled={send.isPending}
+                    onClick={() => send.mutate(order.id)}
+                    className="mt-3 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                  >
+                    {send.isPending ? t("common.loading") : t("desk.saleSend")}
+                  </button>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+    </div>
   );
 }
 

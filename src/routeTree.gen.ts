@@ -32,6 +32,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProofRouteImport } from './routes/proof'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as SaleRouteImport } from './routes/sale'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as StickerRouteImport } from './routes/sticker'
 import { Route as StoryRouteImport } from './routes/story'
@@ -250,6 +251,11 @@ const ReviewRoute = ReviewRouteImport.update({
 const RoadmapRoute = RoadmapRouteImport.update({
   id: '/roadmap',
   path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaleRoute = SaleRouteImport.update({
+  id: '/sale',
+  path: '/sale',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShareRoute = ShareRouteImport.update({
@@ -813,6 +819,7 @@ export interface FileRoutesByFullPath {
   '/proof': typeof ProofRoute
   '/review': typeof ReviewRoute
   '/roadmap': typeof RoadmapRoute
+  '/sale': typeof SaleRoute
   '/share': typeof ShareRoute
   '/sticker': typeof StickerRoute
   '/story': typeof StoryRoute
@@ -941,6 +948,7 @@ export interface FileRoutesByTo {
   '/proof': typeof ProofRoute
   '/review': typeof ReviewRoute
   '/roadmap': typeof RoadmapRoute
+  '/sale': typeof SaleRoute
   '/share': typeof ShareRoute
   '/sticker': typeof StickerRoute
   '/story': typeof StoryRoute
@@ -1072,6 +1080,7 @@ export interface FileRoutesById {
   '/proof': typeof ProofRoute
   '/review': typeof ReviewRoute
   '/roadmap': typeof RoadmapRoute
+  '/sale': typeof SaleRoute
   '/share': typeof ShareRoute
   '/sticker': typeof StickerRoute
   '/story': typeof StoryRoute
@@ -1203,6 +1212,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/review'
     | '/roadmap'
+    | '/sale'
     | '/share'
     | '/sticker'
     | '/story'
@@ -1331,6 +1341,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/review'
     | '/roadmap'
+    | '/sale'
     | '/share'
     | '/sticker'
     | '/story'
@@ -1461,6 +1472,7 @@ export interface FileRouteTypes {
     | '/proof'
     | '/review'
     | '/roadmap'
+    | '/sale'
     | '/share'
     | '/sticker'
     | '/story'
@@ -1592,6 +1604,7 @@ export interface RootRouteChildren {
   ProofRoute: typeof ProofRoute
   ReviewRoute: typeof ReviewRoute
   RoadmapRoute: typeof RoadmapRoute
+  SaleRoute: typeof SaleRoute
   ShareRoute: typeof ShareRoute
   StickerRoute: typeof StickerRoute
   StoryRoute: typeof StoryRoute
@@ -1812,6 +1825,13 @@ declare module '@tanstack/react-router' {
       path: '/roadmap'
       fullPath: '/roadmap'
       preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sale': {
+      id: '/sale'
+      path: '/sale'
+      fullPath: '/sale'
+      preLoaderRoute: typeof SaleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/share': {
@@ -2702,6 +2722,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProofRoute: ProofRoute,
   ReviewRoute: ReviewRoute,
   RoadmapRoute: RoadmapRoute,
+  SaleRoute: SaleRoute,
   ShareRoute: ShareRoute,
   StickerRoute: StickerRoute,
   StoryRoute: StoryRoute,

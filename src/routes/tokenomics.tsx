@@ -154,6 +154,13 @@ function TokenomicsPage() {
               </tbody>
             </table>
           </div>
+          <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
+            Private / strategic is a hard cap of 33% including the +11% launch bonus for{" "}
+            <a href="/sale" className="text-primary underline-offset-2 hover:underline">
+              pAURA
+            </a>{" "}
+            buyers. Unsold pAURA is never minted.
+          </p>
         </section>
 
         <section className="mt-14">
