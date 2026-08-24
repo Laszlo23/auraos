@@ -384,30 +384,53 @@ export const markReviewInviteCompleted = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export type SeatScarcity = {
+  taken: number;
+  remaining: number | null;
+  cap: number;
+};
+
+async function paidSeatCounts() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const [{ data: os }, { data: local }, { data: localLeft }] = await Promise.all([
+    supabaseAdmin.rpc("founding_seats_taken"),
+    supabaseAdmin.rpc("local_seats_sold"),
+    supabaseAdmin.rpc("local_seats_remaining"),
+  ]);
+  const asN = (value: unknown) => {
+    const n = typeof value === "number" ? value : Number(value);
+    return Number.isFinite(n) ? n : 0;
+  };
+  return { osTaken: asN(os), localTaken: asN(local), localRemaining: asN(localLeft) };
+}
+
+/** Paid founding seats for marketing: $99 OS seats + paid Local seats. */
+export const getPublicSeatScarcity = createServerFn({ method: "GET" }).handler(async () => {
+  const { withTimeout } = await import("@/lib/timeout-helper");
+  return withTimeout(
+    (async () => {
+      const { osTaken, localTaken } = await paidSeatCounts();
+      const taken = Math.min(1000, osTaken + localTaken);
+      return { taken, remaining: Math.max(0, 1000 - taken), cap: 1000 } satisfies SeatScarcity;
+    })(),
+    5000,
+    { taken: 0, remaining: null, cap: 1000 } satisfies SeatScarcity,
+  );
+});
+
 /** Paid founding Local seats left of 1000 (excludes Aura demos). */
 export const getLocalCohortScarcity = createServerFn({ method: "GET" }).handler(async () => {
   const { withTimeout } = await import("@/lib/timeout-helper");
-  const { createClient } = await import("@supabase/supabase-js");
-  const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
-  const key =
-    process.env["SUPABASE_PUBLISHABLE_KEY"] || process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
-  if (!url || !key) {
-    return { taken: 0, remaining: 1000, cap: 1000 };
-  }
-  const supabase = createClient(url, key);
   return withTimeout(
     (async () => {
-      const [{ data: taken }, { data: remaining }] = await Promise.all([
-        supabase.rpc("local_seats_sold"),
-        supabase.rpc("local_seats_remaining"),
-      ]);
+      const { localTaken, localRemaining } = await paidSeatCounts();
       return {
-        taken: typeof taken === "number" ? taken : 0,
-        remaining: typeof remaining === "number" ? remaining : 1000,
+        taken: localTaken,
+        remaining: localRemaining,
         cap: 1000,
-      };
+      } satisfies SeatScarcity;
     })(),
     5000,
-    { taken: 0, remaining: 1000, cap: 1000 },
+    { taken: 0, remaining: null, cap: 1000 } satisfies SeatScarcity,
   );
 });

@@ -16,7 +16,11 @@ import { toast } from "sonner";
 
 import { LiveProof } from "@/components/aura/live-proof";
 import { Chip, Panel } from "@/components/aura/primitives";
-import { FoundingCohort, MarketingWaveScarcity } from "@/components/aura/scarcity";
+import {
+  FoundingCohort,
+  MarketingWaveScarcity,
+  useFoundingSeatScarcity,
+} from "@/components/aura/scarcity";
 import { ShareBar, ShareMoment } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useNetworkTotals, usePublicFeed } from "@/hooks/use-public";
@@ -84,6 +88,9 @@ function ProofShareCard() {
   const [copied, setCopied] = useState(false);
   const totals = useNetworkTotals();
   const feed = usePublicFeed(3);
+  const seats = useFoundingSeatScarcity();
+  const seatsLeft = seats.data?.remaining;
+  const seatsTaken = seats.data?.taken;
 
   const copyCard = async () => {
     const lines = [
@@ -109,7 +116,12 @@ function ProofShareCard() {
     <div className="rounded-3xl border border-border/50 bg-foreground/[0.03] p-6 sm:p-8">
       <div className="flex flex-wrap items-center gap-2">
         <Chip>Shareable proof card</Chip>
-        <Chip className="text-gold">Founding seats · {num(FOUNDING_SEATS_TOTAL)}</Chip>
+        <Chip className="text-gold">
+          Founding seats ·{" "}
+          {seats.isSuccess && seatsLeft != null
+            ? `${num(seatsLeft)} left · ${num(seatsTaken ?? 0)} seated`
+            : `${num(FOUNDING_SEATS_TOTAL)} cap`}
+        </Chip>
       </div>
       <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
         One card. Copy. Post.

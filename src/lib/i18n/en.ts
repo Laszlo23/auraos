@@ -53,7 +53,7 @@ export const en: MessageTree = {
     step2: "2 · Name your shop (name, city, niche)",
     step3: "3 · Unlock: €49/month or cash code",
     cashHow: "Cash: you get a code. After signup go to Credits → redeem code. Then Stars & Guests.",
-    seatsLeft: "Founding Local seats left of {cap}",
+    seatsLeft: "Founding Local seats still left of {cap}",
     scrollCue: "Scroll the story",
     wiifmCta: "What’s in it for me?",
     painTitle: "Great work. Quiet Google page.",

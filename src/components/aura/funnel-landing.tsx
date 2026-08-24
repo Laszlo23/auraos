@@ -156,7 +156,8 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
     staleTime: 60_000,
   });
 
-  const remaining = scarcity.data?.remaining ?? LOCAL_COHORT_CAP;
+  const remaining = scarcity.data?.remaining;
+  const taken = scarcity.data?.taken;
 
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
@@ -270,10 +271,11 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
               <div className="mt-8 flex flex-wrap items-end gap-6">
                 <div>
                   <p className="font-display text-5xl font-semibold tracking-tight text-gold tabular-nums">
-                    {scarcity.isLoading ? "—" : remaining}
+                    {scarcity.isFetched && remaining != null ? remaining : "—"}
                   </p>
                   <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                     seats left of {LOCAL_COHORT_CAP}
+                    {scarcity.isFetched && taken != null ? ` · ${taken} seated` : ""}
                   </p>
                 </div>
                 <a

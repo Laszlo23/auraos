@@ -3,29 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 
 import { num } from "@/lib/format";
 import { useNetworkTotals } from "@/hooks/use-public";
-import { supabase } from "@/integrations/supabase/client";
 import {
   FOUNDING_SEATS_TOTAL,
   WAVE1_CLOSES_DISPLAY,
   WAVE1_LABEL,
   WAVE1_LAUNCH_TRUST,
 } from "@/lib/marketing-scarcity";
+import { getPublicSeatScarcity } from "@/lib/reviews.functions";
 import { Meter } from "./primitives";
 
-function useFoundingSeatsTaken() {
+/** Paid founding inventory: $99 OS seats + paid Local seats. Cap stays 1000. */
+export function useFoundingSeatScarcity() {
   return useQuery({
-    queryKey: ["founding-seats-taken"],
+    queryKey: ["founding-seats-scarcity"],
     refetchInterval: 30_000,
     staleTime: 10_000,
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("founding_seats_taken");
-      if (error) {
-        console.warn("founding_seats_taken", error.message);
-        return 0;
-      }
-      const n = typeof data === "number" ? data : Number(data);
-      return Number.isFinite(n) ? n : 0;
-    },
+    queryFn: () => getPublicSeatScarcity(),
   });
 }
 
@@ -40,17 +33,24 @@ export function FoundingCohort({
   seat?: number | undefined;
   compactMode?: boolean;
 }) {
-  const { data: seatsTaken = 0, isFetched } = useFoundingSeatsTaken();
-  const taken = Math.min(FOUNDING_SEATS_TOTAL, Math.max(0, seatsTaken));
-  const remaining = Math.max(0, FOUNDING_SEATS_TOTAL - taken);
-  const pct = (taken / FOUNDING_SEATS_TOTAL) * 100;
-  const ready = isFetched;
+  const { data, isSuccess } = useFoundingSeatScarcity();
+  const cap = data?.cap ?? FOUNDING_SEATS_TOTAL;
+  const taken = data?.taken ?? 0;
+  const remaining = data?.remaining ?? 0;
+  const pct = (taken / cap) * 100;
+  const ready = isSuccess && data?.remaining != null;
 
   if (compactMode) {
     return (
       <span className="text-[11px] tracking-wide text-muted-foreground">
         Founding seats · <span className="num text-gold">{ready ? num(remaining) : "—"}</span> of{" "}
-        {num(FOUNDING_SEATS_TOTAL)} left
+        {num(cap)} left
+        {ready ? (
+          <>
+            {" "}
+            · <span className="num text-foreground">{num(taken)}</span> seated
+          </>
+        ) : null}
         {seat != null ? (
           <>
             {" "}
@@ -69,13 +69,15 @@ export function FoundingCohort({
       className="w-full max-w-sm"
     >
       <div className="mb-2 flex items-baseline justify-between gap-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-        <span>Founding seats · of {num(FOUNDING_SEATS_TOTAL)}</span>
+        <span>
+          Founding seats · {ready ? `${num(taken)} seated` : "counting…"} of {num(cap)}
+        </span>
         <span className="num text-gold">{ready ? `${num(remaining)} left` : "—"}</span>
       </div>
       <Meter value={ready ? pct : 0} tone="gold" />
       <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground/80">
-        Paid inventory only — {ready ? `${num(taken)} seated` : "counting…"}. Locked pricing.
-        Founding badge. One invite each after you seat.
+        Paid inventory only — {ready ? `${num(taken)} seated, ${num(remaining)} left` : "counting…"}.
+        Locked pricing. Founding badge. One invite each after you seat.
         {seat != null ? (
           <>
             {" "}
@@ -92,13 +94,15 @@ export function FoundingCohort({
  * No remapped “invite slot” inventory. No fixed public T-0 clock.
  */
 export function MarketingWaveScarcity({ className }: { className?: string }) {
-  const { data: seatsTaken = 0, isFetched } = useFoundingSeatsTaken();
+  const { data, isSuccess } = useFoundingSeatScarcity();
   const { data: totals } = useNetworkTotals();
 
-  const taken = Math.min(FOUNDING_SEATS_TOTAL, Math.max(0, seatsTaken));
-  const remaining = Math.max(0, FOUNDING_SEATS_TOTAL - taken);
-  const pct = (taken / FOUNDING_SEATS_TOTAL) * 100;
-  const soldOut = remaining === 0;
+  const cap = data?.cap ?? FOUNDING_SEATS_TOTAL;
+  const taken = data?.taken ?? 0;
+  const remaining = data?.remaining ?? 0;
+  const pct = (taken / cap) * 100;
+  const ready = isSuccess && data?.remaining != null;
+  const soldOut = ready && remaining === 0;
   const companies = totals?.companies;
 
   return (
@@ -114,12 +118,12 @@ export function MarketingWaveScarcity({ className }: { className?: string }) {
         <span className="num text-gold">
           {soldOut
             ? "Wave sold out"
-            : isFetched
-              ? `${num(remaining)} of ${num(FOUNDING_SEATS_TOTAL)} seats left`
+            : ready
+              ? `${num(remaining)} of ${num(cap)} left · ${num(taken)} seated`
               : "—"}
         </span>
       </div>
-      <Meter value={soldOut ? 100 : isFetched ? pct : 0} tone="gold" />
+      <Meter value={soldOut ? 100 : ready ? pct : 0} tone="gold" />
       <div className="mt-3 flex flex-col gap-2 text-[12px] text-muted-foreground/85 sm:flex-row sm:items-start sm:justify-between">
         <p className="max-w-xl leading-relaxed">
           Paid founding seats only

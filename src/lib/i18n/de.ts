@@ -54,7 +54,7 @@ export const de: MessageTree = {
     step3: "3 · Freischalten: 49 €/Monat oder Barzahlungs-Code",
     cashHow:
       "Barzahlung: Du bekommst einen Code. Nach Anmeldung unter Guthaben → Code einlösen. Dann Sterne & Gäste.",
-    seatsLeft: "Founding Local Seats frei von {cap}",
+    seatsLeft: "Founding Local Seats noch frei von {cap}",
     scrollCue: "Geschichte scrollen",
     wiifmCta: "Was bringt’s mir?",
     painTitle: "Gute Arbeit. Stille Google-Seite.",
