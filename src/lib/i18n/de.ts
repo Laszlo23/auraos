@@ -727,7 +727,8 @@ export const de: MessageTree = {
     statsLeft: "noch frei",
     statsRaised: "USDC on-chain",
     buyTitle: "Mit USDC kaufen",
-    buyHint: "Mindestens 50 USDC. Preis: 1.000.000 / 777.777.777 USDC je pAURA (~0,001286 $).",
+    buyHint:
+      "Mindestens 50 USDC. Nur Private-Sale-Preis: 1.000.000 ÷ 777.777.777 USDC je pAURA (~0,001286 $). Das ist 1 Mio. $ Sale-FDV, keine versprochene Marktkapitalisierung.",
     amount: "USDC-Betrag",
     connect: "Wallet verbinden",
     disconnect: "Trennen",
@@ -765,5 +766,10 @@ export const de: MessageTree = {
     trustHonestTitle: "Öffentlicher Geldweg",
     trustHonestBody:
       "Jeder on-chain Kauf schickt 100% USDC an eine Treasury. pAURA ist ein beschrifteter Beleg. Beim Start: 1 pAURA = 1 AURA + 11%. Jede CA per DM ist ein Betrug.",
+    buildersKicker: "Öffentlich gebaut",
+    buildersTitle: "Echte Produkte. Dann AURA.",
+    buildersLead:
+      "Zuerst Software und Kultur-Apps. Aura OS verkauft Abos. Building Culture hat schon Culture ID, Pepe-Matchdays und WM-Tipps. Wenn AURA startet, ziehen die Produkte, die BCC genutzt haben, auf AURA um. Aura OS braucht heute kein BCC. Kein automatischer BCC-Tausch ist live — Konditionen nur bei T-0 auf offiziellen Kanälen.",
+    buildersOpen: "Öffnen",
   },
 };

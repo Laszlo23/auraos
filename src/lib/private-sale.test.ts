@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
 import { AURA_ALLOCATION_TOTAL, AURA_MAX_SUPPLY } from "@/lib/aura-token";
 import {
   isPrivateSaleSender,
@@ -27,5 +28,12 @@ describe("private sale math", () => {
     expect(isPrivateSaleSender("Laszlo")).toBe(true);
     expect(isPrivateSaleSender(" laszlo ")).toBe(true);
     expect(isPrivateSaleSender("Ada")).toBe(false);
+  });
+
+  it("lists only public https product URLs", () => {
+    expect(BUILDING_CULTURE_PRODUCTS.length).toBeGreaterThanOrEqual(4);
+    for (const product of BUILDING_CULTURE_PRODUCTS) {
+      expect(product.href.startsWith("https://")).toBe(true);
+    }
   });
 });

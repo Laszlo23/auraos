@@ -16,6 +16,7 @@ import {
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { useLocale } from "@/hooks/use-locale";
+import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
 import { num } from "@/lib/format";
 import {
   BASE_USDC,
@@ -71,7 +72,7 @@ function SaleRoute() {
 }
 
 function SalePage() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const live = Route.useLoaderData();
   const [copied, setCopied] = useState(false);
 
@@ -165,6 +166,38 @@ function SalePage() {
                   {item.title}
                 </p>
                 <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{item.body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-3xl border border-primary/25 bg-foreground/[0.03] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+            {t("sale.buildersKicker")}
+          </p>
+          <h2 className="mt-2 font-display text-[clamp(1.45rem,6vw,2rem)] font-semibold leading-[1.05] tracking-tight">
+            {t("sale.buildersTitle")}
+          </h2>
+          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">{t("sale.buildersLead")}</p>
+          <ul className="mt-5 space-y-3">
+            {BUILDING_CULTURE_PRODUCTS.map((product) => (
+              <li key={product.id}>
+                <a
+                  href={product.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block rounded-2xl border border-border/40 bg-background/50 p-4 transition-colors hover:border-primary/40"
+                >
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-primary">
+                    {locale === "de" ? product.titleDe : product.title}
+                  </p>
+                  <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                    {locale === "de" ? product.blurbDe : product.blurb}
+                  </p>
+                  <p className="mt-2 break-all font-mono text-[11px] text-muted-foreground">
+                    {t("sale.buildersOpen")} · {product.href.replace(/^https?:\/\//, "")}
+                  </p>
+                </a>
               </li>
             ))}
           </ul>

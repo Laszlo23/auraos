@@ -159,7 +159,8 @@ function TokenomicsPage() {
             <a href="/sale" className="text-primary underline-offset-2 hover:underline">
               pAURA
             </a>{" "}
-            buyers. Unsold pAURA is never minted.
+            buyers. Unsold pAURA is never minted. Building Culture products that used BCC move to
+            AURA at T-0 — Aura OS stays subscription software and does not require BCC today.
           </p>
         </section>
 
