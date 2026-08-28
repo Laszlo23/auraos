@@ -8,7 +8,17 @@ function walletConnectId(): string {
   return typeof raw === "string" ? raw.trim() : "";
 }
 
-export function SaleWalletRoot({ children }: { children: ReactNode }) {
+export function SaleWalletRoot({
+  children,
+  wcName = "AURA Private Sale",
+  wcDescription = "Buy pAURA on Base before the Clanker launch",
+  wcUrl = "https://aibusiness.fun/sale",
+}: {
+  children: ReactNode;
+  wcName?: string;
+  wcDescription?: string;
+  wcUrl?: string;
+}) {
   const config = useMemo(() => {
     const projectId = walletConnectId();
     return createConfig({
@@ -16,18 +26,24 @@ export function SaleWalletRoot({ children }: { children: ReactNode }) {
       connectors: [
         injected({ shimDisconnect: true }),
         ...(projectId
-          ? [walletConnect({ projectId, showQrModal: true, metadata: {
-              name: "AURA Private Sale",
-              description: "Buy pAURA on Base before the Clanker launch",
-              url: "https://aibusiness.fun/sale",
-              icons: ["https://aibusiness.fun/favicon.ico"],
-            } })]
+          ? [
+              walletConnect({
+                projectId,
+                showQrModal: true,
+                metadata: {
+                  name: wcName,
+                  description: wcDescription,
+                  url: wcUrl,
+                  icons: ["https://aibusiness.fun/favicon.ico"],
+                },
+              }),
+            ]
           : []),
       ],
       transports: { [base.id]: http() },
       ssr: true,
     });
-  }, []);
+  }, [wcName, wcDescription, wcUrl]);
 
   return <WagmiProvider config={config}>{children}</WagmiProvider>;
 }

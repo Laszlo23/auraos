@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { PageHeader, Panel, Shimmer } from "@/components/aura/primitives";
+import { DeskTrafficPanel } from "@/components/aura/desk-traffic";
 import { useLocale } from "@/hooks/use-locale";
 import {
   addDeskReviewProof,
@@ -44,7 +45,7 @@ import {
   sendPrivateSaleCash,
 } from "@/lib/private-sale.functions";
 
-type DeskTab = "personal" | "team" | "finance" | "create" | "shops" | "log" | "sale";
+type DeskTab = "personal" | "team" | "finance" | "traffic" | "create" | "shops" | "log" | "sale";
 
 export const Route = createFileRoute("/desk")({
   head: () => ({
@@ -272,6 +273,11 @@ function Dashboard({
             label={t("desk.financeSnapshot")}
           />
           <TabButton
+            active={activeTab === "traffic"}
+            onClick={() => setActiveTab("traffic")}
+            label={t("desk.trafficTab")}
+          />
+          <TabButton
             active={activeTab === "create"}
             onClick={() => setActiveTab("create")}
             label={t("desk.createLocal")}
@@ -303,6 +309,7 @@ function Dashboard({
         )}
         {activeTab === "team" && <TeamDashboard data={data} t={t} />}
         {activeTab === "finance" && <FinanceSnapshot data={data} t={t} />}
+        {activeTab === "traffic" && <DeskTrafficPanel t={t} />}
         {activeTab === "create" && (
           <CreateLocalBusiness
             t={t}

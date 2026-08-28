@@ -1,0 +1,10 @@
+{
+  "chainId": 84532,
+  "address": "0xf49c2eb2b162a0e2e7bf0bbe9a5fce618764a3bc",
+  "txHash": "0x4a561a8593b5638cf90b16ed529fdfeb9bf18b9835417367f4145daf7a10ab2f",
+  "owner": "0x2CCf1076A9DCA4d656A156d6036Cc2066c596AF5",
+  "baseURI": "https://aibusiness.fun/api/relic/meta/",
+  "maxSupply": 7,
+  "bytecodeFingerprint": "d2c5056fb5aa",
+  "deployedAt": "2026-08-28T00:41:06.852Z"
+}

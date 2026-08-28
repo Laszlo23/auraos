@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R0RouteImport } from './routes/0'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AccessRouteImport } from './routes/access'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -138,10 +139,16 @@ import { Route as ApiPublicX402OutreachDraftRouteImport } from './routes/api/pub
 import { Route as ApiPublicX402PropertyValuationRouteImport } from './routes/api/public/x402/property-valuation'
 import { Route as ApiPublicX402QuantSignalRouteImport } from './routes/api/public/x402/quant-signal'
 import { Route as ApiPublicX402WebsiteCopyRouteImport } from './routes/api/public/x402/website-copy'
+import { Route as ApiRelicMetaTokenIdRouteImport } from './routes/api/relic/meta/$tokenId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R0Route = R0RouteImport.update({
+  id: '/0',
+  path: '/0',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -795,10 +802,16 @@ const ApiPublicX402WebsiteCopyRoute =
     path: '/api/public/x402/website-copy',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiRelicMetaTokenIdRoute = ApiRelicMetaTokenIdRouteImport.update({
+  id: '/api/relic/meta/$tokenId',
+  path: '/api/relic/meta/$tokenId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/nachbar': typeof NachbarRouteRouteWithChildren
+  '/0': typeof R0Route
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
@@ -924,10 +937,12 @@ export interface FileRoutesByFullPath {
   '/api/public/x402/property-valuation': typeof ApiPublicX402PropertyValuationRoute
   '/api/public/x402/quant-signal': typeof ApiPublicX402QuantSignalRoute
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
+  '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
   '/api/public/x402/': typeof ApiPublicX402IndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/0': typeof R0Route
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
@@ -1053,6 +1068,7 @@ export interface FileRoutesByTo {
   '/api/public/x402/property-valuation': typeof ApiPublicX402PropertyValuationRoute
   '/api/public/x402/quant-signal': typeof ApiPublicX402QuantSignalRoute
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
+  '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
   '/api/public/x402': typeof ApiPublicX402IndexRoute
 }
 export interface FileRoutesById {
@@ -1060,6 +1076,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/nachbar': typeof NachbarRouteRouteWithChildren
+  '/0': typeof R0Route
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
@@ -1185,6 +1202,7 @@ export interface FileRoutesById {
   '/api/public/x402/property-valuation': typeof ApiPublicX402PropertyValuationRoute
   '/api/public/x402/quant-signal': typeof ApiPublicX402QuantSignalRoute
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
+  '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
   '/api/public/x402/': typeof ApiPublicX402IndexRoute
 }
 export interface FileRouteTypes {
@@ -1192,6 +1210,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/nachbar'
+    | '/0'
     | '/access'
     | '/auth'
     | '/brand'
@@ -1317,10 +1336,12 @@ export interface FileRouteTypes {
     | '/api/public/x402/property-valuation'
     | '/api/public/x402/quant-signal'
     | '/api/public/x402/website-copy'
+    | '/api/relic/meta/$tokenId'
     | '/api/public/x402/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/0'
     | '/access'
     | '/auth'
     | '/brand'
@@ -1446,12 +1467,14 @@ export interface FileRouteTypes {
     | '/api/public/x402/property-valuation'
     | '/api/public/x402/quant-signal'
     | '/api/public/x402/website-copy'
+    | '/api/relic/meta/$tokenId'
     | '/api/public/x402'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/nachbar'
+    | '/0'
     | '/access'
     | '/auth'
     | '/brand'
@@ -1577,6 +1600,7 @@ export interface FileRouteTypes {
     | '/api/public/x402/property-valuation'
     | '/api/public/x402/quant-signal'
     | '/api/public/x402/website-copy'
+    | '/api/relic/meta/$tokenId'
     | '/api/public/x402/'
   fileRoutesById: FileRoutesById
 }
@@ -1584,6 +1608,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   NachbarRouteRoute: typeof NachbarRouteRouteWithChildren
+  R0Route: typeof R0Route
   AccessRoute: typeof AccessRoute
   AuthRoute: typeof AuthRoute
   BrandRoute: typeof BrandRoute
@@ -1661,6 +1686,7 @@ export interface RootRouteChildren {
   ApiPublicX402PropertyValuationRoute: typeof ApiPublicX402PropertyValuationRoute
   ApiPublicX402QuantSignalRoute: typeof ApiPublicX402QuantSignalRoute
   ApiPublicX402WebsiteCopyRoute: typeof ApiPublicX402WebsiteCopyRoute
+  ApiRelicMetaTokenIdRoute: typeof ApiRelicMetaTokenIdRoute
   ApiPublicX402IndexRoute: typeof ApiPublicX402IndexRoute
 }
 
@@ -1671,6 +1697,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/0': {
+      id: '/0'
+      path: '/0'
+      fullPath: '/0'
+      preLoaderRoute: typeof R0RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -2569,6 +2602,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicX402WebsiteCopyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/relic/meta/$tokenId': {
+      id: '/api/relic/meta/$tokenId'
+      path: '/api/relic/meta/$tokenId'
+      fullPath: '/api/relic/meta/$tokenId'
+      preLoaderRoute: typeof ApiRelicMetaTokenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2702,6 +2742,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   NachbarRouteRoute: NachbarRouteRouteWithChildren,
+  R0Route: R0Route,
   AccessRoute: AccessRoute,
   AuthRoute: AuthRoute,
   BrandRoute: BrandRoute,
@@ -2779,6 +2820,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicX402PropertyValuationRoute: ApiPublicX402PropertyValuationRoute,
   ApiPublicX402QuantSignalRoute: ApiPublicX402QuantSignalRoute,
   ApiPublicX402WebsiteCopyRoute: ApiPublicX402WebsiteCopyRoute,
+  ApiRelicMetaTokenIdRoute: ApiRelicMetaTokenIdRoute,
   ApiPublicX402IndexRoute: ApiPublicX402IndexRoute,
 }
 export const routeTree = rootRouteImport

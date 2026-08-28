@@ -245,6 +245,21 @@ function ProofShareCard() {
 function ProofPage() {
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
+      <span
+        aria-hidden
+        data-block="0"
+        data-ink="newspaper"
+        data-join="coinbase.chainid.stones"
+        data-not="77"
+        className="pointer-events-none absolute left-0 top-0 h-px w-px overflow-hidden opacity-0"
+      />
+      <div
+        hidden
+        dangerouslySetInnerHTML={{
+          __html:
+            "<!-- genesis is a newspaper. height is empty. concatenate coinbase · chainid · stones. seven, not seventy-seven. -->",
+        }}
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
