@@ -33,14 +33,34 @@ function nowApiKey(): string {
   return key;
 }
 
+/** Official NOWPayments notification servers — allow these through the firewall / Caddy. */
+export const NOWPAYMENTS_IPN_IPS = [
+  "51.89.194.21",
+  "51.75.77.69",
+  "138.201.172.58",
+  "65.21.158.36",
+] as const;
+
 function ipnSecret(): string {
   return (
     process.env["NOWPAYMENTS_IPN_SECRET"]?.trim() ||
     process.env["NOWPAYMENTS_SECRET_KEY"]?.trim() ||
-    process.env["NOWPAYMENTS_API_KEY"]?.trim() ||
     ""
   );
 }
+
+export type NowIpnPayload = {
+  payment_status?: string;
+  order_id?: string;
+  payment_id?: string | number;
+  price_amount?: number | string;
+  price_currency?: string;
+  pay_amount?: number | string;
+  actually_paid?: number | string;
+  pay_currency?: string;
+  outcome_amount?: number | string;
+  outcome_currency?: string;
+};
 
 export type NowInvoice = {
   id: string | number;
@@ -119,9 +139,52 @@ function sortObject(obj: Record<string, unknown>): Record<string, unknown> {
     }, {});
 }
 
+/**
+ * Fixed-price Local Seat: deliver only on `finished`.
+ * Do not grant on confirming / confirmed / sending / partially_paid.
+ */
 export function isPaidNowStatus(status: string | undefined): boolean {
-  const s = (status || "").toLowerCase();
-  return s === "finished" || s === "confirmed" || s === "sending";
+  return (status || "").toLowerCase() === "finished";
+}
+
+function asPositiveNumber(raw: unknown): number | null {
+  const n = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return n;
+}
+
+/**
+ * NOWPayments go-live requirement: inspect outcome_amount + outcome_currency
+ * before granting the seat. Local Seat is a €99 fixed-price product.
+ */
+export function nowIpnCoversSeat(
+  payload: NowIpnPayload,
+  expectedEur: number = LOCAL_SEAT_EUR,
+): boolean {
+  const outcomeAmount = asPositiveNumber(payload.outcome_amount);
+  const outcomeCurrency = String(payload.outcome_currency || "")
+    .trim()
+    .toLowerCase();
+  if (outcomeAmount == null || !outcomeCurrency) return false;
+
+  const priceCurrency = String(payload.price_currency || "")
+    .trim()
+    .toLowerCase();
+  const priceAmount = asPositiveNumber(payload.price_amount);
+  if (priceCurrency === "eur") {
+    if (priceAmount == null || Math.abs(priceAmount - expectedEur) > 1) return false;
+    if (outcomeCurrency === "eur" && outcomeAmount + 1e-9 < expectedEur * 0.95) return false;
+  } else if (priceCurrency && priceCurrency !== "eur") {
+    return false;
+  }
+
+  const actuallyPaid = asPositiveNumber(payload.actually_paid);
+  const payAmount = asPositiveNumber(payload.pay_amount);
+  if (actuallyPaid != null && payAmount != null && actuallyPaid + 1e-12 < payAmount * 0.95) {
+    return false;
+  }
+
+  return true;
 }
 
 export async function fulfillLocalSeatCrypto(input: {
@@ -129,6 +192,8 @@ export async function fulfillLocalSeatCrypto(input: {
   checkoutId: string;
   asset: string;
   providerPaymentId?: string | null;
+  outcomeAmount?: string | null;
+  outcomeCurrency?: string | null;
 }): Promise<{ ok: boolean; already?: boolean }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: checkout } = await supabaseAdmin
@@ -154,7 +219,12 @@ export async function fulfillLocalSeatCrypto(input: {
       paid_at: new Date().toISOString(),
       provider_payment_id: input.providerPaymentId ?? null,
       updated_at: new Date().toISOString(),
-      metadata: { asset: input.asset, fulfilled: true },
+      metadata: {
+        asset: input.asset,
+        fulfilled: true,
+        outcome_amount: input.outcomeAmount ?? null,
+        outcome_currency: input.outcomeCurrency ?? null,
+      },
     })
     .eq("id", input.checkoutId);
 

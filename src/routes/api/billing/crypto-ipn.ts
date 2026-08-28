@@ -3,7 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   fulfillLocalSeatCrypto,
   isPaidNowStatus,
+  nowIpnCoversSeat,
   verifyNowPaymentsIpn,
+  type NowIpnPayload,
 } from "@/lib/local-crypto-seat";
 
 /**
@@ -22,20 +24,22 @@ export const Route = createFileRoute("/api/billing/crypto-ipn")({
           return Response.json({ error: "Invalid signature" }, { status: 401 });
         }
 
-        let payload: {
-          payment_status?: string;
-          order_id?: string;
-          payment_id?: string | number;
-          pay_currency?: string;
-        };
+        let payload: NowIpnPayload;
         try {
-          payload = JSON.parse(raw) as typeof payload;
+          payload = JSON.parse(raw) as NowIpnPayload;
         } catch {
           return Response.json({ error: "Invalid JSON" }, { status: 400 });
         }
 
         if (!isPaidNowStatus(payload.payment_status)) {
-          return Response.json({ received: true, status: payload.payment_status });
+          return Response.json({ received: true, status: payload.payment_status ?? "unknown" });
+        }
+
+        if (!nowIpnCoversSeat(payload)) {
+          return Response.json(
+            { error: "outcome_amount / outcome_currency did not cover the seat" },
+            { status: 400 },
+          );
         }
 
         const checkoutId = String(payload.order_id || "").trim();
@@ -60,6 +64,8 @@ export const Route = createFileRoute("/api/billing/crypto-ipn")({
             checkoutId: checkout.id as string,
             asset: (checkout.asset as string) || String(payload.pay_currency || "crypto"),
             providerPaymentId: payload.payment_id != null ? String(payload.payment_id) : null,
+            outcomeAmount: payload.outcome_amount != null ? String(payload.outcome_amount) : null,
+            outcomeCurrency: payload.outcome_currency != null ? String(payload.outcome_currency) : null,
           });
           return Response.json({ received: true, paid: true });
         } catch (e) {

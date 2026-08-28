@@ -27,6 +27,24 @@ aibusiness.fun, www.aibusiness.fun {
   header @pwa Cache-Control "public, max-age=0, must-revalidate"
   header @pwa Service-Worker-Allowed "/"
 
+  # HTML/API traffic only — static assets would drown page-view counts.
+  @skip_access_log path_regexp \.(js|css|mjs|map|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico|mp4|webm)$
+  log_skip @skip_access_log
+  log_skip /assets*
+  log_skip /api*
+  log_skip /_serverFn*
+  log_skip /sw.js
+
+  log {
+    output file /var/lib/caddy/logs/aibusiness.access.log {
+      mode 0640
+      roll_size 100MiB
+      roll_keep 14
+      roll_keep_for 14d
+    }
+    format json
+  }
+
   redir /share-kit /share 308
   redir /whitepaper/de /whitepaper?lang=de 302
 
@@ -36,6 +54,13 @@ aibusiness.fun, www.aibusiness.fun {
     root * /opt/auraos/public
     file_server
   }
+
+  # NOWPayments IPN — only their notification servers (go-live checklist).
+  @cryptoIpnBlocked {
+    path /api/billing/crypto-ipn
+    not remote_ip 51.89.194.21 51.75.77.69 138.201.172.58 65.21.158.36 127.0.0.1
+  }
+  respond @cryptoIpnBlocked 403
 
   reverse_proxy 127.0.0.1:3000
 }
