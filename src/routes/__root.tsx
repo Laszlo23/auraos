@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -21,6 +22,11 @@ import { OG_IMAGE, SITE_NAME, SITE_URL, VIEWPORT_CONTENT } from "@/lib/site";
 import { baseAppId } from "@/lib/base-builder";
 import { rootOrganizationGraph } from "@/lib/seo";
 import { ensureUiLocale } from "@/lib/i18n";
+import {
+  flushQueuedGaPageViews,
+  GA_MEASUREMENT_ID,
+  trackPublicPageView,
+} from "@/lib/site-pageview";
 
 function NotFoundComponent() {
   return (
@@ -83,10 +89,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+function RouteAnalytics() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => {
+    trackPublicPageView(pathname);
+  }, [pathname]);
+  return null;
+}
+
 /** Load GA after first paint so it does not compete with LCP / fonts. */
 function DeferredAnalytics() {
   useEffect(() => {
-    const id = "G-PZMRS91Q88";
+    const id = GA_MEASUREMENT_ID;
     const boot = () => {
       if (document.getElementById("aura-gtag")) return;
       const w = window as Window & {
@@ -98,11 +112,12 @@ function DeferredAnalytics() {
         w.dataLayer!.push(args);
       };
       w.gtag("js", new Date());
-      w.gtag("config", id, { send_page_view: true });
+      w.gtag("config", id, { send_page_view: false });
       const s = document.createElement("script");
       s.id = "aura-gtag";
       s.async = true;
       s.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+      s.onload = () => flushQueuedGaPageViews();
       document.head.appendChild(s);
     };
 
@@ -275,6 +290,7 @@ function RootChrome() {
       </div>
       <Toaster position="top-center" />
       <InstallApp />
+      <RouteAnalytics />
       <DeferredAnalytics />
     </>
   );

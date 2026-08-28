@@ -14,6 +14,7 @@ import { StreamText } from "@/components/aura/stream-text";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { startFoundingSeatCheckout } from "@/lib/founding-seat";
 import { isFunnelId, type FunnelId } from "@/lib/funnels";
+import { isLokalClaimPath } from "@/lib/auth-next";
 import { isSafeNachbarPath } from "@/lib/nachbar-play";
 import { OG_IMAGE, SITE_URL } from "@/lib/site";
 
@@ -30,6 +31,7 @@ type PostAuthDest =
   | "/trading"
   | "/onboarding"
   | `/nachbar${string}`
+  | `/lokal/claim/${string}`
   | `/i/fc/${string}`
   | `/oauth/consent?${string}`;
 
@@ -65,6 +67,7 @@ function safeNextPath(next?: string): PostAuthDest {
   const consent = oauthConsentReturn(next);
   if (consent) return consent;
   if (isNachbarNext(next)) return next;
+  if (isLokalClaimPath(next)) return next as `/lokal/claim/${string}`;
   if (isBuilderInviteNext(next)) return next;
   if (next && SAFE_NEXT.has(next)) {
     return next as PostAuthDest;
@@ -213,7 +216,17 @@ function authRedirectUrl(mode?: AuthMode, next?: string) {
   if (mode) params.set("mode", mode);
   const consent = oauthConsentReturn(next);
   if (consent) params.set("next", consent);
-  else if (isNachbarNext(next)) params.set("next", next);
+  else if (isNachbarNext(next) || isLokalClaimPath(next)) params.set("next", next);
+  else if (next && SAFE_NEXT.has(next)) params.set("next", next);
+  if (typeof window !== "undefined") {
+    const cur = new URLSearchParams(window.location.search);
+    const funnel = cur.get("funnel");
+    const lang = cur.get("lang");
+    if (funnel && isFunnelId(funnel)) params.set("funnel", funnel);
+    else if (isLokalClaimPath(next)) params.set("funnel", "local");
+    if (lang === "de" || lang === "en") params.set("lang", lang);
+    else if (isLokalClaimPath(next)) params.set("lang", "de");
+  }
   const q = params.toString();
   return q ? `${origin}/auth?${q}` : `${origin}/auth`;
 }
@@ -224,6 +237,7 @@ async function resolvePostAuthPath(explicitNext?: string): Promise<PostAuthDest>
 
   // Patron app: never force company onboarding.
   if (isNachbarNext(explicitNext)) return explicitNext;
+  if (isLokalClaimPath(explicitNext)) return explicitNext as `/lokal/claim/${string}`;
   if (isBuilderInviteNext(explicitNext)) return explicitNext;
 
   if (explicitNext && explicitNext !== "/console" && SAFE_NEXT.has(explicitNext)) {
@@ -422,6 +436,11 @@ function AuthPage() {
       // Keep friend ref in storage for ensureNachbarProfile; do not burn founding invite.
       return "ok";
     }
+    if (isLokalClaimPath(nextFromLinkRef.current)) {
+      rememberFunnel("local");
+      takeStoredInvite();
+      return "ok";
+    }
     if (isFunnelEntry) {
       rememberFunnel(funnelFromLink!);
       takeStoredInvite();
@@ -535,7 +554,7 @@ function AuthPage() {
       if (!cancelledRef.current) {
         if (dest.startsWith("/oauth/consent") || dest.startsWith("/i/fc/")) {
           window.location.assign(dest);
-        } else if (isNachbarNext(dest)) {
+        } else if (isNachbarNext(dest) || isLokalClaimPath(dest)) {
           window.location.assign(dest);
         } else {
           navigate({
@@ -707,7 +726,7 @@ function AuthPage() {
             mode === "signup" ? "signup" : "signin",
             nextFromLinkRef.current,
           ),
-          queryParams: { access_type: "offline", prompt: "consent" },
+          queryParams: { prompt: "select_account" },
           skipBrowserRedirect: true,
         },
       });

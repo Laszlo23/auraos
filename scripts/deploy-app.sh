@@ -35,10 +35,23 @@ chmod 600 /opt/auraos/.env
 
 if [[ -f /opt/auraos/deploy/Caddyfile ]]; then
   cp /opt/auraos/deploy/Caddyfile /etc/caddy/Caddyfile
+  if [[ -d /opt/auraos/deploy/sites ]]; then
+    mkdir -p /etc/caddy/sites
+    cp -a /opt/auraos/deploy/sites/. /etc/caddy/sites/
+  fi
   if ! grep -qF "import /etc/caddy/sites" /etc/caddy/Caddyfile; then
     printf "\n# Aura Lokal — do not remove. OS deploys overwrite this file.\nimport /etc/caddy/sites/*\n" >> /etc/caddy/Caddyfile
   fi
   chmod 644 /etc/caddy/Caddyfile
+  install -d -o caddy -g caddy -m 0750 /var/lib/caddy/logs
+  for f in aibusiness.access.log review.access.log; do
+    if [[ ! -f "/var/lib/caddy/logs/$f" ]]; then
+      install -o caddy -g caddy -m 0640 /dev/null "/var/lib/caddy/logs/$f"
+    else
+      chown caddy:caddy "/var/lib/caddy/logs/$f"
+      chmod 0640 "/var/lib/caddy/logs/$f"
+    fi
+  done
   caddy validate --config /etc/caddy/Caddyfile
   # Direct reload — systemctl reload runs a hook that cannot write this file.
   caddy reload --config /etc/caddy/Caddyfile --force
@@ -73,6 +86,15 @@ if [[ -f /opt/auraos/deploy/auraos-worker-tick.sh ]]; then
 fi
 if ! crontab -l 2>/dev/null | grep -q auraos-worker-tick; then
   (crontab -l 2>/dev/null; echo '*/10 * * * * /usr/local/bin/auraos-worker-tick >>/var/log/auraos-worker-tick.log 2>&1') | crontab -
+fi
+if [[ -f /opt/auraos/deploy/auraos-traffic-summary.sh ]]; then
+  install -m 0755 /opt/auraos/deploy/auraos-traffic-summary.sh /usr/local/bin/auraos-traffic-summary
+  mkdir -p /opt/auraos/var
+  chmod 755 /opt/auraos/var
+  /usr/local/bin/auraos-traffic-summary || true
+fi
+if ! crontab -l 2>/dev/null | grep -q auraos-traffic-summary; then
+  (crontab -l 2>/dev/null; echo '*/15 * * * * /usr/local/bin/auraos-traffic-summary >/dev/null 2>&1') | crontab -
 fi
 if [[ -f /opt/auraos/deploy/auraos.service ]]; then
   install -m 0644 /opt/auraos/deploy/auraos.service /etc/systemd/system/auraos.service

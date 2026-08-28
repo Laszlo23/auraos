@@ -13,6 +13,7 @@ import {
   ensureNachbarProfile,
   getNachbarCityBoard,
   getNachbarHub,
+  getNachbarOwnedShop,
   leaveNachbarFeedback,
   markNachbarAr,
   rateNachbarShop,
@@ -27,6 +28,7 @@ import {
   rememberNachbarVisit,
 } from "@/lib/nachbar-play";
 import { nachbarHead } from "@/lib/nachbar-seo";
+import { glueckAufNote } from "@/lib/auth-next";
 import { NACHBAR_FRIEND_STORAGE_KEY, NACHBAR_STAMP_GOAL } from "@/lib/nachbar";
 
 export const Route = createFileRoute("/nachbar/heute")({
@@ -88,6 +90,12 @@ function NachbarHeutePage() {
     queryKey: ["nachbar-city-board"],
     queryFn: () => getNachbarCityBoard(),
     staleTime: 30_000,
+  });
+  const ownedShop = useQuery({
+    queryKey: ["nachbar-owned-shop"],
+    queryFn: () => getNachbarOwnedShop(),
+    enabled: Boolean(hub?.has_company),
+    staleTime: 60_000,
   });
 
   const checkin = useMutation({
@@ -166,7 +174,13 @@ function NachbarHeutePage() {
         data: { checkinId: latestConfirmed?.id ?? "", note },
       }),
     onSuccess: (res) => {
-      toast.success(res.granted ? "Feedback ist raus." : "Schon notiert.");
+      toast.success(
+        res.peer
+          ? "Glück auf — deine Karte steht beim Nachbarn."
+          : res.granted
+            ? "Feedback ist raus."
+            : "Schon notiert.",
+      );
       setNote("");
       void qc.invalidateQueries({ queryKey: ["nachbar-hub"] });
     },
@@ -451,6 +465,15 @@ function NachbarHeutePage() {
           <p className="text-[12px] text-muted-foreground">
             An {latestConfirmed.company_name} — kein Google-Stern.
           </p>
+          {ownedShop.data && ownedShop.data.slug !== latestConfirmed.slug ? (
+            <button
+              type="button"
+              className="mt-2 text-xs font-semibold text-primary"
+              onClick={() => setNote(glueckAufNote(ownedShop.data!))}
+            >
+              Glück auf, Nachbar — mit meiner Karte
+            </button>
+          ) : null}
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}

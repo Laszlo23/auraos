@@ -72,7 +72,16 @@ export type PublicLocalBusiness = {
   neighbors: PublicLokalListing[];
   nachbar_rating_avg: number | null;
   nachbar_rating_count: number;
+  neighbour_notes: PublicNachbarNote[];
   proofs: PublicShopGalleryItem[];
+};
+
+export type PublicNachbarNote = {
+  id: string;
+  note: string;
+  at: string;
+  from_name: string | null;
+  from_slug: string | null;
 };
 
 export type PublicTischProof = {
@@ -175,6 +184,7 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
       ratings,
       { data: galleryRows },
       proofsResult,
+      { data: noteRows },
     ] = await Promise.all([
       supabaseAdmin
         .from("channel_posts")
@@ -234,9 +244,34 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         .order("sort_order")
         .order("created_at")
         .limit(20),
+      supabaseAdmin
+        .from("nachbar_feedback" as never)
+        .select("id, note, created_at, from_company_id")
+        .eq("company_id", company.id)
+        .order("created_at", { ascending: false })
+        .limit(8),
     ]);
 
     const proofRows = proofsResult.error ? [] : (proofsResult.data ?? []);
+    const rawNotes = (noteRows ?? []) as Array<{
+      id: string;
+      note: string;
+      created_at: string;
+      from_company_id: string | null;
+    }>;
+    const fromIds = [
+      ...new Set(rawNotes.map((n) => n.from_company_id).filter((id): id is string => Boolean(id))),
+    ];
+    const fromShops = fromIds.length
+      ? ((await supabaseAdmin.from("companies").select("id, name, slug").in("id", fromIds)).data ??
+        [])
+      : [];
+    const fromById = new Map(
+      (fromShops as Array<{ id: string; name: string; slug: string | null }>).map((row) => [
+        row.id,
+        row,
+      ]),
+    );
 
     const editorial = editorialForSlug(company.slug as string);
     const dbServices = Array.isArray(company.services)
@@ -301,6 +336,18 @@ export const getPublicLocalBusiness = createServerFn({ method: "GET" })
         return Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
       })(),
       nachbar_rating_count: ((ratings.data ?? []) as { score: number }[]).length,
+      neighbour_notes: rawNotes
+        .filter((n) => (n.note || "").trim().length >= 8)
+        .map((n) => {
+          const from = n.from_company_id ? fromById.get(n.from_company_id) : null;
+          return {
+            id: n.id,
+            note: n.note.trim().slice(0, 400),
+            at: n.created_at,
+            from_name: from?.name ?? null,
+            from_slug: from?.slug ?? null,
+          };
+        }),
       invite_count: invites.count ?? 0,
       second_studio_note: editorial?.secondStudioNote ?? null,
       google_find_copy: editorial?.googleFindCopy ?? null,

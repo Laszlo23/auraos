@@ -573,6 +573,38 @@ function Feed({ shop }: { shop: PublicLocalBusiness }) {
         </p>
       </article>
 
+      {(shop.neighbour_notes ?? []).length > 0 ? (
+        <article className="rounded-[1.6rem] border border-border/40 bg-card/30 p-5 sm:p-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            Glück auf, Nachbar
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            In-app nach einem echten Besuch. Kein Google-Stern.
+          </p>
+          <ul className="mt-4 space-y-4">
+            {shop.neighbour_notes.map((n) => (
+              <li key={n.id} className="border-t border-border/30 pt-4 first:border-t-0 first:pt-0">
+                <p className="text-[15px] leading-relaxed">{n.note}</p>
+                <p className="mt-2 text-[12px] text-muted-foreground">
+                  {n.from_slug && n.from_name ? (
+                    <Link
+                      to="/b/$slug"
+                      params={{ slug: n.from_slug }}
+                      className="font-semibold text-primary"
+                    >
+                      {n.from_name}
+                    </Link>
+                  ) : (
+                    "Nachbar"
+                  )}
+                  {n.at ? ` · ${timeAgoDe(n.at)}` : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </article>
+      ) : null}
+
       {shop.recent_checkins.map((c) => (
         <article
           key={c.id}

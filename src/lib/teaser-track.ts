@@ -18,7 +18,8 @@ export type TeaserEvent =
   | "idle_drop"
   | "exit_intent"
   | "scroll_drop"
-  | "attention_nudge";
+  | "attention_nudge"
+  | "page_view";
 
 const KEY = "aura.visitor";
 
@@ -45,7 +46,7 @@ export function trackTeaser(
     .insert({
       session_id: visitorId(),
       event,
-      placement: (opts.placement ?? "unknown").slice(0, 40),
+      placement: (opts.placement ?? "unknown").slice(0, 200),
       position_pct:
         opts.positionPct === undefined
           ? null

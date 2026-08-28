@@ -272,6 +272,60 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
     ],
   },
+  "zeitwende-antiquitaeten": {
+    story:
+      "Zeitwende in der Döblinger Hauptstraße 47: An- und Verkauf von Antiquitäten und Sammlerstücken — Gemälde, altes Spielzeug, Münzen und Schmuck, Monarchie und Militaria, Glas und Porzellan, Heiligenfiguren. Karin Roth führt das Haus. Echte Besuche, keine Fake-Sterne.",
+    services: [
+      "An- und Verkauf",
+      "Gemälde",
+      "Altes Spielzeug",
+      "Münzen & Schmuck",
+      "Monarchie & Militaria",
+      "Glas & Porzellan",
+      "Heiligenfiguren",
+    ],
+    serviceDetails: [
+      {
+        title: "An- und Verkauf",
+        blurb: "Antiquitäten und Sammlerstücke — fairer Ankauf, Ladenverkauf in Döbling.",
+      },
+      {
+        title: "Gemälde",
+        blurb: "Ölbilder, Aquarelle, Zeichnungen — oft mit historischen Rahmen.",
+      },
+      {
+        title: "Altes Spielzeug",
+        blurb: "Blechspielzeug, Zinnsoldaten, Gesellschaftsspiele, Elastolin, Bastelbögen.",
+      },
+      {
+        title: "Münzen & Schmuck",
+        blurb: "Münzen, Medaillen, Schmuck und Silberwaren.",
+      },
+      {
+        title: "Monarchie & Militaria",
+        blurb: "Auszeichnungen, Urkunden, Orden, Abzeichen, Helme, Degen, Uniformen.",
+      },
+      {
+        title: "Glas & Porzellan",
+        blurb: "Zier- und Trinkgläser, Service, Vasen, Vitrinenstücke.",
+      },
+      {
+        title: "Heiligenfiguren",
+        blurb: "Christus, Maria, Heilige, Engel, Putten.",
+      },
+    ],
+    googleFindCopy: "Zeitwende auf Google finden",
+    ownerLabel: "Inhaberin",
+    webLabel: "Website",
+    howSteps: [
+      {
+        title: "Besuch",
+        body: "Döblinger Hauptstraße 47, 1190 — Antiquitätenladen in Döbling.",
+      },
+      { title: "Check-in", body: "QR scannen — du wirst Nachbar. Kein Theater." },
+      { title: "Google", body: "Optional, ohne Belohnung für Sterne." },
+    ],
+  },
   "tante-liesl": {
     story:
       "Bei Tante Liesl wird gekocht, gelacht & genossen — Servitengasse 7, mitten im Servitenviertel neben der Kirche. Traditionelle Wiener Küche mit modernem Twist: Schnitzel, Grammelknödel, Schwammerlgulasch, Sonntagsbraten. Gastgarten unter Bäumen im Sommer. Bodenständig, nachbarschaftlich, keine Fake-Sterne.",

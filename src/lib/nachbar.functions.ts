@@ -152,6 +152,33 @@ export const getNachbarHub = createServerFn({ method: "GET" })
     return asHub(data);
   });
 
+export type NachbarOwnedShop = {
+  name: string;
+  slug: string;
+  district: string | null;
+};
+
+export const getNachbarOwnedShop = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<NachbarOwnedShop | null> => {
+    const uid = String((context as { userId?: string }).userId || "");
+    if (!uid) return null;
+    const { data } = await asDb(context.supabase)
+      .from("companies")
+      .select("name, slug, district")
+      .eq("owner_id", uid)
+      .eq("is_local_business", true)
+      .not("slug", "is", null)
+      .limit(1)
+      .maybeSingle();
+    if (!data?.slug || !data?.name) return null;
+    return {
+      name: String(data.name),
+      slug: String(data.slug),
+      district: (data.district as string | null) ?? null,
+    };
+  });
+
 export const ensureNachbarProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(
@@ -273,7 +300,7 @@ export const leaveNachbarFeedback = createServerFn({ method: "POST" })
       _note: data.note,
     });
     if (error) throw rpcError(error, "Feedback nicht gespeichert.");
-    return result as { ok: boolean; granted: boolean };
+    return result as { ok: boolean; granted: boolean; peer?: boolean };
   });
 
 export const markNachbarAr = createServerFn({ method: "POST" })

@@ -35,6 +35,7 @@ function nicheBucket(niche: string | null): string {
   if (/beauty|body|kosmetik|shape/.test(n)) return "Beauty";
   if (/friseur|haar|salon|pflege|barber|pion/.test(n)) return "Friseur & Pflege";
   if (/auto|fahrzeug|ankauf/.test(n)) return "Auto";
+  if (/antiquit|kunsthandel|sammler|gebrauchtwaren/.test(n)) return "Antiquitäten";
   if (/handwerk|studio|immobil/.test(n)) return "Handwerk & Studio";
   return "Weiteres";
 }

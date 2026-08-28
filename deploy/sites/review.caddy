@@ -1,0 +1,28 @@
+review.aibusiness.fun {
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options nosniff
+    Referrer-Policy strict-origin-when-cross-origin
+    Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    -Server
+  }
+
+  @skip_access_log path_regexp \.(js|css|mjs|map|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico)$
+  log_skip @skip_access_log
+  log_skip /assets*
+  log_skip /api*
+  log_skip /_serverFn*
+
+  log {
+    output file /var/lib/caddy/logs/review.access.log {
+      mode 0640
+      roll_size 50MiB
+      roll_keep 7
+      roll_keep_for 14d
+    }
+    format json
+  }
+
+  reverse_proxy 127.0.0.1:3010
+}

@@ -103,8 +103,7 @@ function LokalClaimPage() {
               {shop.owner_display_name
                 ? `${shop.owner_display_name} — öffentlicher Eintrag`
                 : "Öffentlicher Eintrag"}
-              {shop.city ? ` in ${shop.city}` : ""}. Kein erfundenes Login — du meldest dich mit
-              deiner eigenen Mail an und holst den Laden.
+              {shop.city ? ` in ${shop.city}` : ""}. Google oder Mail — dann gehört der Laden dir.
             </p>
             {shop.slug ? (
               <Link
