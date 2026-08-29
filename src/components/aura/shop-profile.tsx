@@ -97,6 +97,11 @@ function Hero({
         src={atmosphere}
         alt={usingCover ? shop.name : ""}
         aria-hidden={!usingCover}
+        width={1600}
+        height={1000}
+        fetchPriority="high"
+        decoding="async"
+        sizes="100vw"
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div
@@ -323,7 +328,11 @@ function ShopGallery({ items, shopName }: { items: PublicShopGalleryItem[]; shop
               src={item.url}
               alt={item.caption || `${shopName} Foto ${i + 1}`}
               className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+              width={512}
+              height={352}
               loading="lazy"
+              decoding="async"
+              sizes="256px"
             />
             {item.caption ? (
               <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2.5 pt-8 text-[12px] font-medium text-white">
@@ -398,7 +407,10 @@ function ReviewProofs({ items, shopName }: { items: PublicShopGalleryItem[]; sho
               src={item.url}
               alt={item.caption || `${shopName} Bewertung ${i + 1}`}
               className="aspect-[3/4] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+              width={400}
+              height={533}
               loading="lazy"
+              decoding="async"
             />
             {item.caption ? (
               <span className="block px-3 py-2 text-[12px] text-muted-foreground">

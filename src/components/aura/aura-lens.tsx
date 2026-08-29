@@ -21,6 +21,7 @@ export function AuraLens() {
     if (!cyan || !gold) return;
 
     let raf = 0;
+    let running = false;
     let tx = window.innerWidth * 0.52;
     let ty = window.innerHeight * 0.38;
     let cx = tx;
@@ -30,6 +31,11 @@ export function AuraLens() {
     let visible = false;
 
     const tick = () => {
+      if (document.hidden) {
+        running = false;
+        raf = 0;
+        return;
+      }
       cx += (tx - cx) * 0.14;
       cy += (ty - cy) * 0.14;
       gx += (tx - 48 - gx) * 0.08;
@@ -39,25 +45,43 @@ export function AuraLens() {
       cyan.style.opacity = op;
       gold.style.transform = `translate3d(${gx - 180}px, ${gy - 180}px, 0)`;
       gold.style.opacity = visible ? "0.85" : "0";
+      const settled =
+        !visible && Math.abs(tx - cx) < 0.5 && Math.abs(ty - cy) < 0.5;
+      if (settled) {
+        running = false;
+        raf = 0;
+        return;
+      }
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
+
+    const start = () => {
+      if (running || document.hidden) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
 
     const onMove = (e: PointerEvent) => {
       tx = e.clientX;
       ty = e.clientY;
       visible = true;
+      start();
     };
     const onLeave = () => {
       visible = false;
     };
+    const onVis = () => {
+      if (!document.hidden && visible) start();
+    };
 
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("mouseleave", onLeave);
+    document.addEventListener("visibilitychange", onVis);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("mouseleave", onLeave);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, [reduced]);
 

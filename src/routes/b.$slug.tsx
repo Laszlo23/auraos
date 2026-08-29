@@ -3,8 +3,16 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ShopProfile } from "@/components/aura/shop-profile";
 import { Chip } from "@/components/aura/primitives";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { shopMediaUrl } from "@/lib/lokal-shops";
 import { getPublicLocalBusiness, type PublicLocalBusiness } from "@/lib/reviews.public.functions";
+import { absoluteAsset } from "@/lib/seo";
 import { OG_IMAGE, SITE_NAME, SITE_URL, url } from "@/lib/site";
+
+function shopShareImage(shop?: PublicLocalBusiness | null): string {
+  const raw = shopMediaUrl(shop?.cover_url) || shop?.cover_url || "";
+  if (!raw) return OG_IMAGE;
+  return absoluteAsset(raw);
+}
 
 export const Route = createFileRoute("/b/$slug")({
   loader: async ({ params }) => {
@@ -28,6 +36,7 @@ export const Route = createFileRoute("/b/$slug")({
       [shop?.name, shop?.niche, shop?.city].filter(Boolean).join(" · ") ||
       "Lokaler Betrieb auf Aura.";
     const path = `/b/${shop?.slug ?? params.slug}`;
+    const image = shopShareImage(shop);
     return {
       meta: [
         { title },
@@ -35,9 +44,12 @@ export const Route = createFileRoute("/b/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:url", content: url(path) },
-        { property: "og:image", content: shop?.cover_url || OG_IMAGE },
+        { property: "og:image", content: image },
         { property: "og:locale", content: "de_AT" },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        { name: "twitter:image", content: image },
       ],
       links: [{ rel: "canonical", href: url(path) }],
     };
@@ -61,7 +73,7 @@ function localBusinessJsonLd(shop: PublicLocalBusiness) {
     name: shop.name,
     description: shop.tagline || shop.story || undefined,
     url: shop.homepage_url || `${SITE_URL}/b/${shop.slug}`,
-    image: shop.cover_url || undefined,
+    image: shopShareImage(shop),
     telephone: shop.phone || undefined,
     email: shop.public_email || undefined,
     address,

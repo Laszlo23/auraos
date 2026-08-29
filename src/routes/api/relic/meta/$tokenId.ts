@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/relic/meta/$tokenId")({
           return Response.json({ error: "Unknown token" }, { status: 404 });
         }
 
-        const image = `${SITE_URL}/relic.png`;
+        const image = `${SITE_URL}/relic.jpg`;
 
         return Response.json(
           {

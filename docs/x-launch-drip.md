@@ -74,8 +74,9 @@ bash scripts/deploy-share-media.sh
 ```
 Connect X (OAuth)
     → Start fair-launch drip
-        → inserts channel_posts (status=scheduled, campaign_key=launch-drip-2026-08#N)
-            → worker tick every 5–15 min
+        → inserts channel_posts (status=scheduled, campaign_key=launch-drip-2026-08#YYYY-MM-DDTHH)
+            → worker tick every 10 min
+                → extendLaunchDrips (keeps ~14 days ahead — never lets the queue run dry)
                 → publishDueChannelPosts (only if Autopublish ON + X connected)
                     → POST api.twitter.com/2/tweets (text + /v/{id} link)
                 → syncSocialEngagement (mentions; reply_mode auto|draft|off)
@@ -189,6 +190,7 @@ Manual **Publish now** on Channels still posts immediately (does not require Aut
 | “Connect X first”               | OAuth not connected, or env missing `X_CLIENT_*`               |
 | “X is not configured”           | `X_CLIENT_ID` / `X_CLIENT_SECRET` empty on the server process  |
 | Posts stuck as `scheduled`      | Autopublish off, or cron not hitting tick with `WORKER_SECRET` |
+| Queue empty after ~1–2 weeks    | Old 24-slot cap; worker now auto-extends. Re-sync still works. |
 | Status `failed`                 | Row `error` column — often expired token → Reconnect X         |
 | Duplicate seed does nothing new | Expected — same `campaign_key`s already present                |
 | Watch link 404 video            | MP4 not on VPS — rerun `deploy-share-media.sh`                 |

@@ -4,6 +4,7 @@ import {
   publishDueChannelPosts,
   syncSocialEngagement,
 } from "@/lib/task-worker.server";
+import { extendLaunchDrips } from "@/lib/launch-drip.server";
 import { runTradingTick } from "@/lib/trading-worker.server";
 import { runSiteLeadsDraftTick, runSubscriptionContentTick } from "@/lib/sites-worker.server";
 
@@ -21,6 +22,12 @@ function authorizeWorker(request: Request): Response | null {
 }
 
 async function runTick(taskLimit: number) {
+  let drip = { companies: 0, created: 0, skipped: 0 };
+  try {
+    drip = await extendLaunchDrips();
+  } catch (e) {
+    console.warn("[workers/tick] drip extend failed", e instanceof Error ? e.message : e);
+  }
   const tasks = await processTaskQueue(taskLimit);
   const channels = await publishDueChannelPosts(20);
   const engagement = await syncSocialEngagement(20);
@@ -37,6 +44,7 @@ async function runTick(taskLimit: number) {
     await writeWorkerHeartbeat(supabaseAdmin as never, {
       tasks,
       channels,
+      drip,
       engagement,
       tradingOk: Boolean(trading),
       subscriptions,
@@ -47,7 +55,7 @@ async function runTick(taskLimit: number) {
     console.warn("[workers/tick] mission advance failed", e instanceof Error ? e.message : e);
   }
 
-  return { ok: true, tasks, channels, engagement, trading, subscriptions, siteLeads, missions };
+  return { ok: true, tasks, channels, drip, engagement, trading, subscriptions, siteLeads, missions };
 }
 
 export const Route = createFileRoute("/api/workers/tick")({

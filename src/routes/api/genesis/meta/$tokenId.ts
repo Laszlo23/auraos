@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/genesis/meta/$tokenId")({
           return Response.json({ error: "Unknown token" }, { status: 404 });
         }
 
-        const image = `${SITE_URL}/genesis-passport.png`;
+        const image = `${SITE_URL}/genesis-passport.jpg`;
         const external = `${SITE_URL}/wallet`;
 
         return Response.json(

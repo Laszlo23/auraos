@@ -15,6 +15,8 @@ export function HeroFilm({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoOk, setVideoOk] = useState(false);
+  const [allowVideo, setAllowVideo] = useState(false);
+  const [filmFailed, setFilmFailed] = useState(false);
   const [inView, setInView] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -36,7 +38,7 @@ export function HeroFilm({ className }: { className?: string }) {
   }, []);
 
   useEffect(() => {
-    if (videoOk || reducedMotion) return;
+    if (videoOk || reducedMotion || !filmFailed) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -85,24 +87,43 @@ export function HeroFilm({ className }: { className?: string }) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [videoOk, reducedMotion]);
+  }, [videoOk, reducedMotion, filmFailed]);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const start = () => setAllowVideo(true);
+    const ric = window.requestIdleCallback;
+    if (typeof ric === "function") {
+      const id = ric(start, { timeout: 1800 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const t = window.setTimeout(start, 1200);
+    return () => window.clearTimeout(t);
+  }, [reducedMotion]);
 
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || reducedMotion) return;
+    if (!v || reducedMotion || !allowVideo) return;
     const ok = () => setVideoOk(true);
-    const fail = () => setVideoOk(false);
+    const fail = () => {
+      setVideoOk(false);
+      setFilmFailed(true);
+    };
     v.addEventListener("loadeddata", ok);
     v.addEventListener("playing", ok);
     v.addEventListener("error", fail);
-    if (inView) void v.play().catch(() => setVideoOk(false));
-    else v.pause();
+    if (inView) {
+      void v.play().catch(() => {
+        setVideoOk(false);
+        setFilmFailed(true);
+      });
+    } else v.pause();
     return () => {
       v.removeEventListener("loadeddata", ok);
       v.removeEventListener("playing", ok);
       v.removeEventListener("error", fail);
     };
-  }, [inView, reducedMotion]);
+  }, [inView, reducedMotion, allowVideo]);
 
   return (
     <div
@@ -114,15 +135,30 @@ export function HeroFilm({ className }: { className?: string }) {
         style={{ scale: reducedMotion ? 1 : scale, opacity }}
         className="absolute inset-0 film-grade"
       >
-        {!videoOk ? <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" /> : null}
-        {!reducedMotion ? (
+        {filmFailed && !videoOk ? (
+          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+        ) : null}
+        <img
+          src={mediaPath("/aura-teaser-poster.jpg")}
+          alt="Aura OS cinematic hero still — dark operating system desk with cyan accent light"
+          title="Aura OS hero"
+          width={1920}
+          height={1080}
+          className={cn(
+            "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
+            videoOk ? "opacity-0" : "opacity-100",
+          )}
+          decoding="async"
+          fetchPriority="high"
+        />
+        {allowVideo && !reducedMotion ? (
           <video
             ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             poster={mediaPath("/aura-teaser-poster.jpg")}
             className={cn(
               "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
@@ -131,18 +167,7 @@ export function HeroFilm({ className }: { className?: string }) {
           >
             <source src={mediaPath("/aura-hero.mp4")} type="video/mp4" />
           </video>
-        ) : (
-          <img
-            src={mediaPath("/aura-teaser-poster.jpg")}
-            alt="Aura OS cinematic hero still — dark operating system desk with cyan accent light"
-            title="Aura OS hero"
-            width={1920}
-            height={1080}
-            className="absolute inset-0 h-full w-full object-cover"
-            decoding="async"
-            fetchPriority="high"
-          />
-        )}
+        ) : null}
       </motion.div>
 
       <div className="absolute inset-0 bg-background/42" />

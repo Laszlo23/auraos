@@ -5,6 +5,7 @@ import { createServerEntry } from "@tanstack/react-start/server-entry";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { withSecurityHeaders } from "./lib/security-headers";
 
 /**
  * Custom Nitro/SSR entry. Must use createServerEntry + createStartHandler directly.
@@ -62,10 +63,12 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   if (!isH3SwallowedErrorBody(body)) return response;
 
   console.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`));
-  return new Response(renderErrorPage(), {
-    status: 500,
-    headers: { "content-type": "text/html; charset=utf-8" },
-  });
+  return withSecurityHeaders(
+    new Response(renderErrorPage(), {
+      status: 500,
+      headers: { "content-type": "text/html; charset=utf-8" },
+    }),
+  );
 }
 
 function isH3SwallowedErrorBody(body: string): boolean {
@@ -115,17 +118,19 @@ export default createServerEntry({
     try {
       const response = await startHandler(request);
       const normalized = await normalizeCatastrophicSsrResponse(response);
-      return addCacheHeaders(normalized, request);
+      return withSecurityHeaders(addCacheHeaders(normalized, request));
     } catch (error) {
       console.error(error);
       // Never replace serverFn JSON with a navigable HTML error page.
       if (request.headers.get("x-tsr-serverFn") === "true") {
         throw error;
       }
-      return new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      return withSecurityHeaders(
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 });

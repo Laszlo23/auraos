@@ -202,7 +202,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "dns-prefetch", href: "https://aibusiness.fun" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
       },
       {
         rel: "stylesheet",
@@ -270,6 +270,17 @@ function RootComponent() {
   );
 }
 
+/** Pause decorative CSS while the tab is in the background — keeps the GPU quiet. */
+function PauseWhenHidden() {
+  useEffect(() => {
+    const sync = () => document.documentElement.classList.toggle("aura-paused", document.hidden);
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, []);
+  return null;
+}
+
 function RootChrome() {
   const { t } = useLocale();
 
@@ -281,6 +292,7 @@ function RootChrome() {
       >
         {t("common.skip")}
       </a>
+      <PauseWhenHidden />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AuroraField />
       <PageProgress />

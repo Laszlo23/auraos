@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { Footprints, MapPin, Search, Store, X } from "lucide-react";
+import { Footprints, MapPin, Search, Share2, Store, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Chip, Shimmer } from "@/components/aura/primitives";
 import { formatShopAddress, shopMediaUrl } from "@/lib/lokal-shops";
 import { safeHttpUrl } from "@/lib/nachbar-play";
 import type { PublicLokalListing } from "@/lib/reviews.public.functions";
+import { url } from "@/lib/site";
+import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
 /** Same-origin shop/media paths or absolute http(s). */
@@ -241,8 +243,8 @@ export function WienDirectory({ listings, isLoading, remaining }: Props) {
         </div>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
-          {filtered.map((b) => (
-            <WienShopCard key={b.slug} shop={b} />
+          {filtered.map((b, i) => (
+            <WienShopCard key={b.slug} shop={b} priority={i < 2} />
           ))}
           {remaining > 0 ? (
             <li className="flex min-h-[16rem] flex-col justify-between rounded-[1.8rem] border border-dashed border-border/50 bg-foreground/[0.02] p-5">
@@ -264,9 +266,24 @@ export function WienDirectory({ listings, isLoading, remaining }: Props) {
   );
 }
 
-function WienShopCard({ shop }: { shop: PublicLokalListing }) {
+function WienShopCard({ shop, priority = false }: { shop: PublicLokalListing; priority?: boolean }) {
   const address = formatShopAddress(shop);
   const cover = safeShopImageUrl(shopMediaUrl(shop.cover_url) ?? shop.cover_url);
+  const shareUrl = url(`/b/${shop.slug}`);
+  const shareText = `${shop.name} — echter Laden in Wien. Keine Fake-Sterne.`;
+
+  const share = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: shop.name, text: shareText, url: shareUrl });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+      trackTeaser("share", { placement: "wien-card" });
+    } catch {
+      /* cancelled */
+    }
+  };
 
   return (
     <li>
@@ -276,9 +293,13 @@ function WienShopCard({ shop }: { shop: PublicLokalListing }) {
             {cover ? (
               <img
                 src={cover}
-                alt=""
-                loading="lazy"
+                alt={shop.name}
+                width={800}
+                height={500}
+                loading={priority ? "eager" : "lazy"}
+                fetchPriority={priority ? "high" : "auto"}
                 decoding="async"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
               />
             ) : (
@@ -351,6 +372,14 @@ function WienShopCard({ shop }: { shop: PublicLokalListing }) {
                 Web
               </a>
             ) : null}
+            <button
+              type="button"
+              onClick={() => void share()}
+              className="inline-flex items-center gap-1.5 rounded-2xl border border-border/50 px-3.5 py-2 text-[12px] font-semibold"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              Teilen
+            </button>
           </div>
         </div>
       </article>

@@ -31,7 +31,8 @@ import {
   usdcToPAura,
 } from "@/lib/private-sale";
 import { getPrivateSaleLive } from "@/lib/private-sale.functions";
-import { url } from "@/lib/site";
+import { OG_CAMPAIGN, ogCampaignUrl } from "@/lib/og-campaign";
+import { pageHead } from "@/lib/seo";
 
 const TITLE = "AURA Private Sale — pAURA";
 const DESCRIPTION =
@@ -51,15 +52,14 @@ export const Route = createFileRoute("/sale")({
       paused: false,
     });
   },
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:url", content: url("/sale") },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: TITLE,
+      description: DESCRIPTION,
+      path: "/sale",
+      image: ogCampaignUrl("token"),
+      imageAlt: OG_CAMPAIGN.token.alt,
+    }),
   component: SaleRoute,
 });
 

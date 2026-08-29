@@ -164,7 +164,9 @@ export function SiteFooter({
   const { t } = useLocale();
   const columns = footerColumns(t);
   return (
-    <footer className={cn("relative z-10 border-t border-primary/10 px-6 py-10", className)}>
+    <footer
+      className={cn("cv-auto relative z-10 border-t border-primary/10 px-6 py-10", className)}
+    >
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
           {columns.map((col) => (

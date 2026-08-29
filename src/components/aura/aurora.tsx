@@ -1,9 +1,13 @@
+/**
+ * Soft stage light behind every public page.
+ * Heavy orbs / grain stay on desktop only — phones keep the same color, less GPU.
+ * Tab-hidden pause lives on `html.aura-paused` (see RootChrome).
+ */
 export function AuroraField({ intensity = 1 }: { intensity?: number }) {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div className="absolute inset-0 bg-background" />
 
-      {/* Deep radial stage */}
       <div
         className="absolute inset-0"
         style={{
@@ -13,7 +17,7 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
       />
 
       <div
-        className="animate-aurora absolute -left-[18%] -top-[28%] h-[80vh] w-[80vw] rounded-full blur-[150px]"
+        className="animate-aurora absolute -left-[18%] -top-[28%] h-[80vh] w-[80vw] rounded-full blur-[150px] max-sm:blur-[80px]"
         style={{
           background:
             "radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--primary) 48%, transparent), transparent 64%)",
@@ -21,7 +25,7 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
         }}
       />
       <div
-        className="animate-aurora absolute -right-[22%] top-[6%] h-[74vh] w-[68vw] rounded-full blur-[160px]"
+        className="animate-aurora absolute -right-[22%] top-[6%] h-[74vh] w-[68vw] rounded-full blur-[160px] max-sm:blur-[80px]"
         style={{
           background:
             "radial-gradient(circle at 60% 40%, color-mix(in oklab, var(--gold) 38%, transparent), transparent 66%)",
@@ -31,7 +35,7 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
         }}
       />
       <div
-        className="animate-aurora absolute bottom-[-32%] left-[12%] h-[74vh] w-[74vw] rounded-full blur-[170px]"
+        className="aurora-heavy animate-aurora absolute bottom-[-32%] left-[12%] h-[74vh] w-[74vw] rounded-full blur-[170px]"
         style={{
           background:
             "radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--chart-3) 46%, transparent), transparent 68%)",
@@ -41,7 +45,7 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
         }}
       />
       <div
-        className="animate-aurora absolute left-[40%] top-[40%] h-[42vh] w-[42vw] rounded-full blur-[120px]"
+        className="aurora-heavy animate-aurora absolute left-[40%] top-[40%] h-[42vh] w-[42vw] rounded-full blur-[120px]"
         style={{
           background:
             "radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--chart-5) 36%, transparent), transparent 70%)",
@@ -51,19 +55,16 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
         }}
       />
 
-      {/* Perspective grid */}
       <div
-        className="absolute inset-0 opacity-[0.07]"
+        className="aurora-grid absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage:
             "linear-gradient(color-mix(in oklab, var(--primary) 55%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--primary) 55%, transparent) 1px, transparent 1px)",
           backgroundSize: "64px 64px",
           maskImage: "radial-gradient(ellipse 70% 60% at 50% 40%, black 10%, transparent 72%)",
-          animation: "grid-drift 48s linear infinite",
         }}
       />
 
-      {/* Fine scan veil */}
       <div
         className="absolute inset-0 opacity-[0.05]"
         style={{
@@ -73,16 +74,14 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
         }}
       />
 
-      {/* Film grain */}
       <div
-        className="absolute inset-0 opacity-[0.22] mix-blend-soft-light"
+        className="aurora-heavy absolute inset-0 opacity-[0.22] mix-blend-soft-light"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")",
         }}
       />
 
-      {/* Vignette */}
       <div
         className="absolute inset-0"
         style={{

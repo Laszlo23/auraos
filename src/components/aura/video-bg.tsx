@@ -52,7 +52,7 @@ export function VideoBackdrop({
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           poster={mediaPath("/aura-teaser-poster.jpg")}
           className="h-full w-full scale-110 object-cover"
           style={{ opacity: intensity, filter: "saturate(1.15) contrast(1.05)" }}

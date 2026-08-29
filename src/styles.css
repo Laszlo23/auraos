@@ -497,6 +497,50 @@
   animation: aurora-drift 26s ease-in-out infinite;
 }
 
+.aurora-grid {
+  animation: grid-drift 48s linear infinite;
+}
+
+.aurora-paused .animate-aurora,
+.aurora-paused .aurora-grid,
+html.aura-paused .animate-aurora,
+html.aura-paused .aurora-grid,
+html.aura-paused .ticker-track,
+html.aura-paused .aura-orbit-spin,
+html.aura-paused .aura-orbit-spin-rev,
+html.aura-paused .aura-pulse-core,
+html.aura-paused .aura-pulse-halo {
+  animation-play-state: paused !important;
+}
+
+@keyframes ticker-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.ticker-track {
+  animation: ticker-x 28s linear infinite;
+}
+
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+@media (max-width: 640px) {
+  .aurora-heavy {
+    display: none;
+  }
+
+  .aurora-grid {
+    animation: none;
+  }
+}
+
 @utility animate-breathe {
   animation: breathe 2.6s ease-in-out infinite;
 }
@@ -785,7 +829,10 @@
   .aura-orbit-spin-rev,
   .aura-pulse-core,
   .aura-pulse-halo,
-  .animate-float {
+  .animate-float,
+  .animate-aurora,
+  .aurora-grid,
+  .ticker-track {
     animation: none !important;
   }
 }

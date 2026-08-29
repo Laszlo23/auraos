@@ -1,0 +1,30 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  DRIP_HORIZON_MS,
+  DRIP_MAX_SLOTS,
+  buildLaunchDripSchedule,
+} from "@/lib/x-launch-campaign";
+
+describe("buildLaunchDripSchedule", () => {
+  it("fills the two-week horizon instead of stopping after a one-week burst", () => {
+    const from = Date.parse("2026-08-28T10:00:00+02:00");
+    const slots = buildLaunchDripSchedule(from);
+    const keys = slots.map((s) => s.campaignKey);
+    const last = Date.parse(slots.at(-1)!.scheduledAt);
+
+    expect(slots.length).toBeGreaterThan(24);
+    expect(slots.length).toBeLessThanOrEqual(DRIP_MAX_SLOTS);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(last - from).toBeGreaterThan(10 * 24 * 60 * 60 * 1000);
+    expect(last - from).toBeLessThanOrEqual(DRIP_HORIZON_MS + 36e5);
+  });
+
+  it("skips CEST hours already past today", () => {
+    const from = Date.parse("2026-08-28T15:00:00+02:00");
+    const slots = buildLaunchDripSchedule(from);
+    expect(slots[0]?.campaignKey).toContain("2026-08-28T18");
+    expect(slots.some((s) => s.campaignKey.includes("2026-08-28T09"))).toBe(false);
+    expect(slots.some((s) => s.campaignKey.includes("2026-08-28T13"))).toBe(false);
+  });
+});

@@ -4,8 +4,10 @@ import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 /** Stable campaign id for fair-launch drip (rolling schedule — no fixed T-0 clock). */
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
 
-/** How far ahead to schedule when no public T-0 date is published. */
-const DRIP_HORIZON_MS = 14 * 24 * 60 * 60 * 1000;
+/** How far ahead to keep scheduled when no public T-0 date is published. */
+export const DRIP_HORIZON_MS = 14 * 24 * 60 * 60 * 1000;
+/** 14 days × 3 slots, plus a small buffer so a cap can never starve the queue again. */
+export const DRIP_MAX_SLOTS = 48;
 
 export type LaunchDripSlot = {
   /** Unique per company via DB unique index on (company_id, campaign_key). */
@@ -162,6 +164,7 @@ function clipBody(sharePostId: string, lineIndex: number): string {
  * Build the fair-launch X drip: ~2–3 posts/day for the next ~14 days
  * (until an official 48h T-0 announce lands), skipping quiet hours (before 07:00 CEST).
  * Idempotent keys: launch-drip-2026-08#YYYY-MM-DDTHH
+ * Worker re-runs this on each tick so the horizon never runs dry.
  */
 export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDripSlot[] {
   const endMs = fromMs + DRIP_HORIZON_MS;
@@ -172,7 +175,7 @@ export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDrip
   let cursor = fromMs;
   const lastDay = cestDateParts(endMs);
 
-  while (cursor <= endMs + 36e5 && slots.length < 24) {
+  while (cursor <= endMs + 36e5 && slots.length < DRIP_MAX_SLOTS) {
     const day = cestDateParts(cursor);
     for (const hour of SLOT_HOURS_CEST) {
       // Skip hours already past today.

@@ -82,7 +82,7 @@ export function AppBootLoader() {
     if (busy) {
       if (timer.current) window.clearTimeout(timer.current);
       // First paint cold boot: show sooner; later navs only if stuck.
-      const delay = booted.current ? 450 : 80;
+      const delay = booted.current ? 450 : 320;
       timer.current = window.setTimeout(() => setShow(true), delay);
       return () => {
         if (timer.current) window.clearTimeout(timer.current);

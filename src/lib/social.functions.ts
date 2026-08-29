@@ -792,8 +792,8 @@ export const startLaunchDripCampaign = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { SOCIAL_AGENTS } = await import("@/lib/social-oauth.server");
-    const { buildLaunchDripSchedule, LAUNCH_DRIP_CAMPAIGN, launchDripSummary } =
+    const { seedLaunchDripSlots } = await import("@/lib/launch-drip.server");
+    const { LAUNCH_DRIP_CAMPAIGN, launchDripSummary, buildLaunchDripSchedule } =
       await import("@/lib/x-launch-campaign");
 
     const { data: company } = await supabaseAdmin
@@ -814,33 +814,7 @@ export const startLaunchDripCampaign = createServerFn({ method: "POST" })
       throw new Error("Connect X on Channels first (OAuth — no password).");
     }
 
-    const slots = buildLaunchDripSchedule();
-    if (!slots.length) throw new Error("No drip slots to schedule.");
-
-    let created = 0;
-    let skipped = 0;
-    for (const s of slots) {
-      const { error: oneErr } = await supabaseAdmin.from("channel_posts").insert({
-        company_id: data.companyId,
-        provider: "x",
-        body: s.body,
-        status: "scheduled",
-        scheduled_at: s.scheduledAt,
-        agent_name: SOCIAL_AGENTS.x,
-        campaign_key: s.campaignKey,
-        share_post_id: s.sharePostId,
-        media_kind: "share_clip",
-        impressions: 0,
-        likes: 0,
-        reposts: 0,
-      });
-      if (oneErr) {
-        if (oneErr.code === "23505") skipped += 1;
-        else throw oneErr;
-      } else {
-        created += 1;
-      }
-    }
+    const { created, skipped } = await seedLaunchDripSlots(data.companyId);
 
     await supabaseAdmin
       .from("channel_connections")
@@ -869,7 +843,7 @@ export const startLaunchDripCampaign = createServerFn({ method: "POST" })
       ok: true as const,
       created,
       skipped,
-      summary: launchDripSummary(slots),
+      summary: launchDripSummary(buildLaunchDripSchedule()),
       posts: posts ?? [],
     };
   });

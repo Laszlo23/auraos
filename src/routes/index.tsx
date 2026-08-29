@@ -57,6 +57,7 @@ import {
 } from "@/components/aura/why-aura";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocale } from "@/hooks/use-locale";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -243,15 +244,12 @@ const TICKER_DE = [
 
 function Ticker() {
   const { locale } = useLocale();
+  const reduced = usePrefersReducedMotion();
   const base = locale === "de" ? TICKER_DE : TICKER_EN;
-  const row = [...base, ...base];
+  const row = reduced ? base : [...base, ...base];
   return (
     <div className="relative z-10 overflow-hidden border-y border-primary/12 bg-gradient-to-r from-background via-primary/[0.06] to-background py-3.5">
-      <motion.div
-        className="flex w-max gap-10 whitespace-nowrap"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ duration: 28, ease: "linear", repeat: Infinity }}
-      >
+      <div className={reduced ? "flex w-max gap-10 whitespace-nowrap" : "ticker-track flex w-max gap-10 whitespace-nowrap"}>
         {row.map((t, i) => (
           <span
             key={`${t}-${i}`}
@@ -261,7 +259,7 @@ function Ticker() {
             <span className="h-1 w-1 rotate-45 bg-primary/70" />
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -675,9 +673,11 @@ function Landing() {
         </Link>
       </section>
 
-      <ProductJourney compact />
-      <TryAura />
-      <OsPreview />
+      <div className="cv-auto">
+        <ProductJourney compact />
+        <TryAura />
+        <OsPreview />
+      </div>
       <div className="relative z-10 mx-auto max-w-6xl px-6 pb-8">
         <FoundingSeatCard />
       </div>
@@ -816,14 +816,16 @@ function Landing() {
         </div>
       </section>
 
-      <UnlockAccessBand />
+      <div className="cv-auto">
+        <UnlockAccessBand />
 
-      <ChatbotVsCompany compact />
-      <WhoItsFor />
-      <TrustControls />
-      <IntegrationsStrip />
-      <MissionCase />
-      <StackLayers />
+        <ChatbotVsCompany compact />
+        <WhoItsFor />
+        <TrustControls />
+        <IntegrationsStrip />
+        <MissionCase />
+        <StackLayers />
+      </div>
 
       {/* Fair launch — one countdown + socials (no duplicate rally column) */}
       <section

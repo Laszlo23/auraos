@@ -54,7 +54,7 @@ export function Greeter() {
   ]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
-  const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false });
+  const cursorRef = useRef<HTMLDivElement>(null);
   const [aiOnline, setAiOnline] = useState<boolean | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -79,36 +79,67 @@ export function Greeter() {
     if (!fine) return;
 
     let raf = 0;
+    let running = false;
     let targetX = 0;
     let targetY = 0;
     let curX = 0;
     let curY = 0;
     let visible = false;
 
+    const paint = () => {
+      const el = cursorRef.current;
+      if (!el) return;
+      el.style.transform = `translate3d(${curX}px, ${curY}px, 0) translate(-50%, -50%)`;
+      el.style.opacity = visible ? "1" : "0";
+    };
+
     const tick = () => {
+      if (document.hidden) {
+        running = false;
+        raf = 0;
+        return;
+      }
       curX += (targetX - curX) * 0.18;
       curY += (targetY - curY) * 0.18;
-      setCursor({ x: curX, y: curY, visible });
+      paint();
+      const settled =
+        !visible && Math.abs(targetX - curX) < 0.5 && Math.abs(targetY - curY) < 0.5;
+      if (settled) {
+        running = false;
+        raf = 0;
+        return;
+      }
       raf = window.requestAnimationFrame(tick);
     };
-    raf = window.requestAnimationFrame(tick);
+
+    const start = () => {
+      if (running || document.hidden) return;
+      running = true;
+      raf = window.requestAnimationFrame(tick);
+    };
 
     const onMove = (e: PointerEvent) => {
       targetX = e.clientX;
       targetY = e.clientY;
       visible = true;
       lastMoveRef.current = Date.now();
+      start();
     };
     const onLeave = () => {
       visible = false;
     };
+    const onVis = () => {
+      if (!document.hidden && visible) start();
+    };
 
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("mouseleave", onLeave);
+    document.addEventListener("visibilitychange", onVis);
     return () => {
       window.cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("mouseleave", onLeave);
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, [reducedMotion]);
 
@@ -293,11 +324,11 @@ export function Greeter() {
 
   return (
     <>
-      {!reducedMotion && cursor.visible ? (
+      {!reducedMotion ? (
         <div
+          ref={cursorRef}
           aria-hidden
-          className="pointer-events-none fixed z-[45] hidden h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/35 bg-primary/10 mix-blend-screen md:block"
-          style={{ left: cursor.x, top: cursor.y }}
+          className="pointer-events-none fixed left-0 top-0 z-[45] hidden h-8 w-8 rounded-full border border-primary/35 bg-primary/10 opacity-0 mix-blend-screen md:block"
         />
       ) : null}
 
