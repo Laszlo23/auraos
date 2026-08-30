@@ -34,8 +34,7 @@ dist-ssr
 *.sln
 *.sw?
 .cursor/*
-# Keep the Cloud Agent environment config + setup scripts tracked
-!.cursor/environment.json
+# Keep the Cloud Agent setup scripts tracked (referenced by the environment config)
 !.cursor/install.sh
 !.cursor/dev.sh
 !.cursor/node-env.sh
