@@ -310,7 +310,8 @@ function Landing() {
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_hood" })}
                 className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-gold underline-offset-4 hover:underline"
               >
-                {t("landing.navHood")} · {t("landing.hoodCue")} <ArrowRight className="h-3.5 w-3.5" />
+                {t("landing.navHood")} · {t("landing.hoodCue")}{" "}
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           </motion.div>

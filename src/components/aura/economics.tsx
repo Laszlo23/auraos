@@ -42,7 +42,9 @@ export function FoundingSeatCard({ className }: { className?: string }) {
         onClick={() => trackTeaser("cta_click", { placement: "seat_card_buy" })}
         className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
       >
-        {de ? `Seat kaufen — ${FOUNDING_SEAT_DISPLAY}` : `Buy founding seat — ${FOUNDING_SEAT_DISPLAY}`}{" "}
+        {de
+          ? `Seat kaufen — ${FOUNDING_SEAT_DISPLAY}`
+          : `Buy founding seat — ${FOUNDING_SEAT_DISPLAY}`}{" "}
         <ArrowRight className="h-4 w-4" />
       </Link>
     </article>

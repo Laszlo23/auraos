@@ -374,7 +374,7 @@ export const de: MessageTree = {
     claimTitle: "Seat kaufen.",
     claimTitle2: "Firma wecken.",
     claimBody:
-      "299 $ einmalig · hart auf 1000 begrenzt. Kein Invite nötig. Danach kannst du einen Invite teilen — Freunde zahlen trotzdem. The Hood NFT ist der Founding-Circle-Key — Mint-Erlöse gehen in die Launch-Liquidität.",
+      "299 $ einmalig · hart auf 1000 begrenzt. Kein Invite nötig. Danach kannst du einen Invite teilen — Freunde zahlen trotzdem. The Hood NFT ist der Founding-Circle-Key — 70% des Mints in die Launch-Liquidität, 30% an Developer-Ops (Server).",
     claimShare: "Aura OS teilen",
     wienHub: "Wien-Hub",
     nftsFunny: "Warum NFTs als Keys (lustige Ausgabe)",
@@ -728,7 +728,7 @@ export const de: MessageTree = {
     saleQueue: "Warteschlange",
     saleSend: "pAURA senden",
     saleSent: "pAURA gesendet",
-    saleLogged: "Bar-Kauf geloggt — Laszlo sendet die Token",
+    saleCashLogged: "Bar-Kauf geloggt — Laszlo sendet die Token",
     saleOnlyLaszlo: "Nur Laszlo kann pAURA für Bar-Käufe senden.",
     saleNoOrders: "Noch keine Bar-Käufe.",
     saleStatusLogged: "wartet",
@@ -746,11 +746,14 @@ export const de: MessageTree = {
     lead: "Das ist nicht der gestartete AURA. Du bekommst jetzt pAURA — ein klar beschrifteter Beleg-Token. Beim Clanker-Start: 1 pAURA = 1 AURA + 11%.",
     notAura: "Kein AURA-CA. Kein Uniswap. Kein Launch.",
     step1Title: "Heute: pAURA",
-    step1Body: "USDC auf Base zahlen. Der Contract mintet pAURA auf deine Wallet. Oder bar am Desk — Laszlo sendet danach.",
+    step1Body:
+      "USDC auf Base zahlen. Der Contract mintet pAURA auf deine Wallet. Oder bar am Desk — Laszlo sendet danach.",
     step2Title: "Warten auf T-0",
-    step2Body: "Clanker startet den echten AURA auf Base. Die offizielle Adresse kommt nur auf aibusiness.fun und X @buildingcultu3.",
+    step2Body:
+      "Clanker startet den echten AURA auf Base. Die offizielle Adresse kommt nur auf aibusiness.fun und X @buildingcultu3.",
     step3Title: "1 pAURA → 1,11 AURA",
-    step3Body: "Jeder Private-Sale-Käufer bekommt beim Tausch +11%. Unverkaufte pAURA werden nie geprägt.",
+    step3Body:
+      "Jeder Private-Sale-Käufer bekommt beim Tausch +11%. Unverkaufte pAURA werden nie geprägt.",
     statsSold: "pAURA verkauft",
     statsLeft: "noch frei",
     statsRaised: "USDC on-chain",
@@ -766,7 +769,8 @@ export const de: MessageTree = {
     buying: "Transaktion läuft…",
     youGet: "Du bekommst {paura} pAURA · bei T-0 {launch} AURA",
     cashTitle: "Bar am Desk",
-    cashBody: "Bargeld an das Team. Base-Adresse dalassen. Nur Laszlo sendet die pAURA — niemand sonst.",
+    cashBody:
+      "Bargeld an das Team. Base-Adresse dalassen. Nur Laszlo sendet die pAURA — niemand sonst.",
     projectLockTitle: "Projekt-Anteil ist in diesem Sale — dann gesperrt",
     projectLockBody:
       "3% des Supply (21.021.000 pAURA → 23.333.310 AURA) ist der Projekt-Anteil. Wir kaufen ihn über denselben Contract, frühestens 48 Stunden nach Sale-Start. Diese AURA sind 90 Tage nach T-0 gesperrt. Die anderen 30% sind für offene Käufer. Unverkauft bleibt ungemintet.",
@@ -775,7 +779,8 @@ export const de: MessageTree = {
       "Jeder on-chain Kauf schickt 100% USDC an diese laufende Sale-Treasury. Sie steckt im pAURA-Contract. AURA selbst entsteht bei T-0 aus einer neuen Wallet, mit einer neuen Launch-Treasury, sobald sie gesetzt ist.",
     launchTreasuryTitle: "AURA Launch-Treasury",
     launchTreasuryBody: "Neue Wallet für AURA nach T-0 — nicht der Private-Sale-Admin-Key.",
-    launchTreasuryPending: "Noch nicht veröffentlicht. AURA_LAUNCH_TREASURY vor T-0 auf dem VPS setzen.",
+    launchTreasuryPending:
+      "Noch nicht veröffentlicht. AURA_LAUNCH_TREASURY vor T-0 auf dem VPS setzen.",
     copy: "Adresse kopieren",
     copied: "Kopiert",
     disclaimer:

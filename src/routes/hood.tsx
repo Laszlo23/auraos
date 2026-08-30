@@ -6,13 +6,13 @@ import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mob
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useLocale } from "@/hooks/use-locale";
 import { FOUNDING_SEAT_DISPLAY, FOUNDING_SEAT_DISPLAY_DE } from "@/lib/founding-price";
-import { HOOD, HOOD_COPY, HOOD_VALUE } from "@/lib/hood";
+import { HOOD, HOOD_AGENTS, HOOD_COPY, HOOD_COURT, HOOD_VALUE } from "@/lib/hood";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, url } from "@/lib/site";
 
 const TITLE = "The Hood — founding circle NFT · mint to liquidity";
 const DESCRIPTION =
-  "1,000 Hoods for seated founders. Winning and love, not floor-price theater. 100% of mint proceeds reserved for launch liquidity. Coming to Robinhood Chain.";
+  "1,000 Hoods for seated founders. 70% of the $299 mint to launch liquidity, 30% to developer ops (servers). Coming to Robinhood Chain.";
 
 const TICKER = ["WIN", "LOVE", "LIQUIDITY", "ROBINHOOD", "1 / 1000", "FOUNDING CIRCLE"] as const;
 
@@ -108,9 +108,11 @@ function HoodPage() {
           <div className="relative overflow-hidden rounded-[2rem] border border-gold/30 shadow-[0_0_90px_-16px_oklch(0.8_0.17_85/0.65)]">
             <img
               src={HOOD.art}
-              alt="The Hood — founding circle still. Velvet, gold rain, winning and love."
+              alt="The Hood — founding circle still. Nouns noggles, CryptoPunk, velvet palace."
               width={1024}
               height={1024}
+              fetchPriority="high"
+              decoding="async"
               className="aspect-square w-full object-cover"
             />
             <div
@@ -133,7 +135,9 @@ function HoodPage() {
           </p>
           <h1 className="mt-4 font-display text-[clamp(2.6rem,8vw,4.6rem)] font-semibold leading-[0.94] tracking-tight">
             {de ? HOOD_COPY.titleDe : HOOD_COPY.title}
-            <span className="mt-2 block text-gold">{de ? HOOD_COPY.title2De : HOOD_COPY.title2}</span>
+            <span className="mt-2 block text-gold">
+              {de ? HOOD_COPY.title2De : HOOD_COPY.title2}
+            </span>
           </h1>
           <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-foreground/80">
             {de ? HOOD_COPY.leadDe : HOOD_COPY.lead}
@@ -172,14 +176,84 @@ function HoodPage() {
           </p>
           <p className="mt-3 max-w-3xl font-display text-[clamp(1.4rem,3.4vw,2.1rem)] font-semibold leading-tight">
             {de
-              ? "Jeder Dollar aus dem Hood-Mint geht in die Launch-Liquidität. Kein zweites Treasury. Kein Team-Spend."
-              : "Every dollar from the Hood mint goes into launch liquidity. No second treasury. No team spend."}
+              ? "70% jedes 299-$-Mints gehen in die Launch-Liquidität. 30% an Developer-Ops — Server, Infra, Desk."
+              : "70% of each $299 mint goes to launch liquidity. 30% to developer ops — servers, infra, the desk."}
           </p>
           <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
             {de
-              ? "Das ist Policy, kein LP-Share-Token und keine Rendite-Garantie. Founding Members finanzieren das Buch, das den Launch trägt."
-              : "This is policy — not an LP-share token and not a return promise. Founding members fund the book that carries the launch."}
+              ? "Das ist Policy, kein LP-Share-Token und keine Rendite-Garantie. 209,30 $ ins Buch, 89,70 $ halten die Lichter an."
+              : "This is policy — not an LP-share token and not a return promise. $209.30 to the book, $89.70 keeps the lights on."}
           </p>
+        </div>
+      </section>
+
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pb-14 sm:px-6">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+          {de ? "Der Hof" : "The court"}
+        </p>
+        <h2 className="mt-2 font-display text-[clamp(1.6rem,4vw,2.4rem)] font-semibold tracking-tight">
+          {de ? "Könige, Queen, Chaos." : "Kings, queen, chaos."}
+        </h2>
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {HOOD_COURT.map((row) => (
+            <figure
+              key={row.id}
+              className="overflow-hidden rounded-[1.4rem] border border-gold/20 bg-foreground/[0.03]"
+            >
+              <img
+                src={row.art}
+                alt={`${row.en} — Hood court. Noggles, palace, punk.`}
+                width={800}
+                height={800}
+                loading="lazy"
+                decoding="async"
+                className="aspect-square w-full object-cover"
+              />
+              <figcaption className="px-3 py-3">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-gold">
+                  {de ? row.de : row.en}
+                </p>
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  {de ? row.deRole : row.enRole}
+                </p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <section className="relative z-10 mx-auto max-w-6xl px-5 pb-14 sm:px-6">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+          {de ? "Die Firma" : "The company"}
+        </p>
+        <h2 className="mt-2 font-display text-[clamp(1.6rem,4vw,2.4rem)] font-semibold tracking-tight">
+          {de ? "Das ganze AI-Team. Noggles on." : "The whole AI team. Noggles on."}
+        </h2>
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {HOOD_AGENTS.map((row) => (
+            <figure
+              key={row.id}
+              className="overflow-hidden rounded-[1.4rem] border border-gold/20 bg-foreground/[0.03]"
+            >
+              <img
+                src={row.art}
+                alt={`${row.name} — ${row.enRole}. Hood court portrait.`}
+                width={800}
+                height={800}
+                loading="lazy"
+                decoding="async"
+                className="aspect-square w-full object-cover"
+              />
+              <figcaption className="px-3 py-3">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-gold">
+                  {row.name}
+                </p>
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  {de ? row.deRole : row.enRole}
+                </p>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
@@ -221,8 +295,8 @@ function HoodPage() {
         share={{
           url: `${SITE_URL}${HOOD.path}`,
           text: de
-            ? "The Hood — Founding Circle. Mint geht in die Liquidität."
-            : "The Hood — founding circle. Mint goes to liquidity.",
+            ? "The Hood — Founding Circle. 70% Mint in die Liquidität, 30% Ops."
+            : "The Hood — founding circle. 70% mint to liquidity, 30% to ops.",
           placement: "hood",
         }}
       />

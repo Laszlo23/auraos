@@ -94,7 +94,7 @@ export function GenesisPassport({
           <div className="overflow-hidden rounded-[1.35rem] border border-gold/25 bg-foreground/[0.04] shadow-[0_0_40px_-12px_oklch(0.75_0.12_85/0.45)]">
             <img
               src={GENESIS_ART}
-              alt="The Hood — founding circle art. Winning and love. Mint to liquidity."
+              alt="The Hood — noggles, CryptoPunk, velvet palace. Mint to liquidity."
               title="The Hood"
               width={800}
               height={800}
@@ -111,8 +111,9 @@ export function GenesisPassport({
         <div>
           <p className="text-[13px] leading-relaxed text-muted-foreground">
             The Hood is the founding-circle key — not an investment and not the AURA launch token.
-            100% of this mint is reserved for launch liquidity. Coming to Robinhood Chain when that
-            contract is published. Pay, then claim a server-gated mint to your smart wallet.
+            70% of this $299 mint is reserved for launch liquidity. 30% pays developer ops — servers
+            and infra. Coming to Robinhood Chain when that contract is published. Pay, then claim a
+            server-gated mint to your smart wallet.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="glass-soft rounded-2xl p-4">

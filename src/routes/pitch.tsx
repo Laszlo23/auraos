@@ -41,7 +41,7 @@ const SECTIONS = [
   {
     kicker: "03 · Genesis key",
     title: "Private sale: NFT as a hotel key",
-    body: "The Hood is the founding-circle NFT — buy with Stripe or USDC after you are seated. 100% of mint proceeds are reserved for launch liquidity. It gates desk perks and proves you are in the first 1,000. Coming to Robinhood Chain. Not an investment product.",
+    body: "The Hood is the founding-circle NFT — buy with Stripe or USDC after you are seated. Of each $299 mint: 70% to launch liquidity, 30% to developer ops (servers). It gates desk perks and proves you are in the first 1,000. Coming to Robinhood Chain. Not an investment product.",
   },
   {
     kicker: "04 · Next 90 days",

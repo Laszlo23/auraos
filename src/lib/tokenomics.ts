@@ -56,7 +56,7 @@ export const TOKENOMICS = {
   notToken: [
     "Subscriptions (core revenue)",
     "Founding seats ($299 one-time unlock)",
-    "The Hood NFT (founding-circle utility — mint reserved for launch liquidity, not equity)",
+    "The Hood NFT (founding-circle utility — 70% mint to launch liquidity, 30% to ops, not equity)",
     "Company compute budgets (AURA ledger for work, separate from market token narrative)",
     "BCC or any other community ticker (Aura OS does not run on BCC)",
   ],

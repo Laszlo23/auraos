@@ -290,8 +290,8 @@ function TokenomicsPage() {
             ))}
           </div>
           <p className="mt-4 text-[12.5px] text-muted-foreground">
-            Founding seats ($299 one-time) unlock the cohort. The Hood mint is separate — 100% reserved
-            for launch liquidity. Seats ≠ equity and ≠ the market token.
+            Founding seats ($299 one-time) unlock the cohort. The Hood mint is separate — 70% to
+            launch liquidity, 30% to developer ops (servers). Seats ≠ equity and ≠ the market token.
           </p>
         </section>
 

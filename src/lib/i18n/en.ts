@@ -372,7 +372,7 @@ export const en: MessageTree = {
     claimTitle: "Buy the seat.",
     claimTitle2: "Wake the company.",
     claimBody:
-      "$299 one-time · hard-capped at 1000. No invite required. After you're in, share one invite if you want — friends still pay. The Hood NFT is the founding-circle key — mint proceeds go to launch liquidity.",
+      "$299 one-time · hard-capped at 1000. No invite required. After you're in, share one invite if you want — friends still pay. The Hood NFT is the founding-circle key — 70% of the mint to launch liquidity, 30% to developer ops (servers).",
     claimShare: "Share Aura OS",
     wienHub: "Wien hub",
     nftsFunny: "Why NFTs as keys (funny edition)",
@@ -724,7 +724,7 @@ export const en: MessageTree = {
     saleQueue: "Queue",
     saleSend: "Send pAURA",
     saleSent: "pAURA sent",
-    saleLogged: "Cash buy logged — Laszlo sends the tokens",
+    saleCashLogged: "Cash buy logged — Laszlo sends the tokens",
     saleOnlyLaszlo: "Only Laszlo can send pAURA for cash buys.",
     saleNoOrders: "No cash buys yet.",
     saleStatusLogged: "waiting",
@@ -742,9 +742,11 @@ export const en: MessageTree = {
     lead: "This is not launched AURA. You receive pAURA now — a labeled receipt token. At the Clanker launch: 1 pAURA = 1 AURA + 11%.",
     notAura: "No AURA CA. No Uniswap. No launch.",
     step1Title: "Today: pAURA",
-    step1Body: "Pay USDC on Base. The contract mints pAURA to your wallet. Or pay cash at Desk — Laszlo sends after.",
+    step1Body:
+      "Pay USDC on Base. The contract mints pAURA to your wallet. Or pay cash at Desk — Laszlo sends after.",
     step2Title: "Wait for T-0",
-    step2Body: "Clanker launches real AURA on Base. The official address is published only on aibusiness.fun and X @buildingcultu3.",
+    step2Body:
+      "Clanker launches real AURA on Base. The official address is published only on aibusiness.fun and X @buildingcultu3.",
     step3Title: "1 pAURA → 1.11 AURA",
     step3Body: "Every private-sale buyer gets +11% at the swap. Unsold pAURA is never minted.",
     statsSold: "pAURA sold",
@@ -762,7 +764,8 @@ export const en: MessageTree = {
     buying: "Transaction pending…",
     youGet: "You get {paura} pAURA · at T-0 {launch} AURA",
     cashTitle: "Cash at Desk",
-    cashBody: "Pay the team in cash. Leave your Base address. Only Laszlo sends the pAURA — nobody else.",
+    cashBody:
+      "Pay the team in cash. Leave your Base address. Only Laszlo sends the pAURA — nobody else.",
     projectLockTitle: "Project take is in this sale — then locked",
     projectLockBody:
       "3% of supply (21,021,000 pAURA → 23,333,310 AURA) is the project slice. We buy it through this same contract, earliest 48 hours after the sale opened. Those AURA lock for 90 days after T-0. The other 30% is for open buyers. Unsold stays unminted.",

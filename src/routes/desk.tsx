@@ -1241,7 +1241,7 @@ function PrivateSalePanel({ t }: { t: (key: string, vars?: Record<string, string
         },
       }),
     onSuccess: () => {
-      toast.success(t("desk.saleLogged"));
+      toast.success(t("desk.saleCashLogged"));
       setCustomerName("");
       setWallet("");
       setNotes("");

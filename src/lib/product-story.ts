@@ -165,7 +165,7 @@ export const SEAT_BENEFITS: LocaleCopy[] = [
   { en: "Approval controls", de: "Freigabe-Kontrolle" },
   { en: "Proof-of-work system", de: "Proof-of-Work" },
   { en: "Founding badge + The Hood mint", de: "Founding-Badge + The Hood Mint" },
-  { en: "Hood mint reserved for launch liquidity", de: "Hood-Mint für Launch-Liquidität" },
+  { en: "Hood mint: 70% liquidity, 30% ops", de: "Hood-Mint: 70% Liquidität, 30% Ops" },
   { en: "1 referral invite", de: "1 Weiterempfehlungs-Invite" },
   { en: "Founding cohort access", de: "Zugang zur Founding-Kohorte" },
   { en: "Concierge review queue", de: "Concierge-Review-Warteschlange" },

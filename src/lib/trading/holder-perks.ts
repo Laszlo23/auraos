@@ -165,7 +165,7 @@ export function buildHolderPerks(opts: {
     nftRoadmap: [
       {
         title: "The Hood (ERC-721)",
-        body: "Founding-circle key. 100% of mint proceeds reserved for T-0 liquidity. Unlocks Core perks plus badge, early presets, and Arena multiplier.",
+        body: "Founding-circle key. 70% of the $299 mint to T-0 liquidity, 30% to developer ops (servers). Unlocks Core perks plus badge, early presets, and Arena multiplier.",
       },
       {
         title: "Robinhood Chain",
