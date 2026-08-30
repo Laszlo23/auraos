@@ -36,6 +36,7 @@ function footerColumns(t: (key: string) => string) {
       title: t("footer.ecosystem"),
       links: [
         { to: "/tokenomics", label: "AURA" },
+        { to: "/hood", label: "The Hood" },
         { to: "/tokenomics", label: "Tokenomics" },
         { to: "/lightpaper", label: "Lightpaper" },
         { to: "/whitepaper", label: "Whitepaper" },

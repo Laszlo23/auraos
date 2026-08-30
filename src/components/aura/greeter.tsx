@@ -42,6 +42,12 @@ function spendNudgeBudget() {
   }
 }
 
+/** Nudge cards cover the phone. Keep them on md+ only. */
+function desktopNudgeOk(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(min-width: 768px)").matches;
+}
+
 export function Greeter() {
   const { t, locale } = useLocale();
   const navigate = useNavigate();
@@ -148,6 +154,7 @@ export function Greeter() {
     if (open) return;
 
     const show = (reason: NudgeReason, event: "idle_drop" | "exit_intent" | "scroll_drop") => {
+      if (!desktopNudgeOk()) return;
       if (nudgeBudgetLeft() <= 0) return;
       spendNudgeBudget();
       setNudgeReason(reason);
@@ -199,7 +206,7 @@ export function Greeter() {
     }
     if (seen) return;
     const t = setTimeout(() => {
-      if (nudgeBudgetLeft() <= 0) return;
+      if (!desktopNudgeOk() || nudgeBudgetLeft() <= 0) return;
       setNudgeReason("hello");
       setNudge(true);
     }, 4200);
@@ -342,7 +349,7 @@ export function Greeter() {
               exit={{ opacity: 0, y: 8, filter: "blur(6px)" }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               onClick={launch}
-              className="glass pointer-events-auto max-w-[17rem] rounded-2xl px-4 py-3 text-left shadow-[var(--shadow-glow)]"
+              className="glass pointer-events-auto hidden max-w-[17rem] rounded-2xl px-4 py-3 text-left shadow-[var(--shadow-glow)] md:block"
             >
               <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
                 <Pulse /> Aura

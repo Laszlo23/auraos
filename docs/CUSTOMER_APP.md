@@ -32,7 +32,7 @@ After check-in, UI may show a soft Google CTA (muted styling, not earn-gold):
 
 ## Auth note (critical)
 
-`/auth?next=/nachbar/*` is the **patron path**: no founding-seat $99 checkout, no company onboarding. Friend `ref` codes on Nachbar links are patronage invites, not OS founding invites.
+`/auth?next=/nachbar/*` is the **patron path**: no founding-seat $299 checkout, no company onboarding. Friend `ref` codes on Nachbar links are patronage invites, not OS founding invites.
 
 ## Look and feel
 

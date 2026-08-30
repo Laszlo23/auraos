@@ -36,12 +36,12 @@ const SECTIONS = [
   {
     kicker: "02 · Access",
     title: "Founding seats open",
-    body: "Paid founding seats (hard cap 1000) at $99 — no invite required to buy. After purchase you get one invite to share. Token launch stays separate from company compute.",
+    body: "Paid founding seats (hard cap 1000) at $299 — no invite required to buy. After purchase you get one invite to share. Token launch stays separate from company compute.",
   },
   {
     kicker: "03 · Genesis key",
     title: "Private sale: NFT as a hotel key",
-    body: "Genesis Passport is a utility membership NFT — buy with Stripe or USDC after you are seated. It gates perks and proves access to your smart wallet room. Not an investment product.",
+    body: "The Hood is the founding-circle NFT — buy with Stripe or USDC after you are seated. 100% of mint proceeds are reserved for launch liquidity. It gates desk perks and proves you are in the first 1,000. Coming to Robinhood Chain. Not an investment product.",
   },
   {
     kicker: "04 · Next 90 days",
@@ -97,7 +97,7 @@ function PitchPage() {
             search={{}}
             className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
           >
-            Buy founding seat — $99
+            Buy founding seat — $299
           </Link>
           <a
             href="#decks"

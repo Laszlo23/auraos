@@ -31,7 +31,8 @@ export function HolderAdvantages({ perks }: { perks: HolderPerks | undefined }) 
       </div>
       <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">
         Hold {perks.symbol} in your subscription balance for clear desk boosts — never opaque
-        pay-to-win. Genesis Passport perks activate after you buy and mint (Wallet).
+        pay-to-win. Hood perks activate after you buy and mint (Wallet). Mint proceeds go to launch
+        liquidity.
       </p>
       <ul className="mt-4 space-y-2">
         {perks.perks.map((p) => (

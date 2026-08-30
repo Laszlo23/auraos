@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 
 import { useLocale } from "@/hooks/use-locale";
+import { FOUNDING_SEAT_DISPLAY, FOUNDING_SEAT_DISPLAY_DE } from "@/lib/founding-price";
 import {
   ECONOMICS_LAYERS,
   PRICING_TIERS,
@@ -21,7 +22,7 @@ export function FoundingSeatCard({ className }: { className?: string }) {
         {de ? "Founding Seat" : "Founding seat"}
       </p>
       <h3 className="mt-2 font-display text-[clamp(1.8rem,4vw,2.6rem)] leading-tight">
-        $99{" "}
+        {FOUNDING_SEAT_DISPLAY}{" "}
         <span className="text-[1.1rem] text-muted-foreground">{de ? "einmalig" : "one time"}</span>
       </h3>
       <p className="mt-3 text-[14px] font-semibold">{de ? "Du bekommst:" : "You get:"}</p>
@@ -41,7 +42,8 @@ export function FoundingSeatCard({ className }: { className?: string }) {
         onClick={() => trackTeaser("cta_click", { placement: "seat_card_buy" })}
         className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
       >
-        {de ? "Seat kaufen — $99" : "Buy founding seat — $99"} <ArrowRight className="h-4 w-4" />
+        {de ? `Seat kaufen — ${FOUNDING_SEAT_DISPLAY}` : `Buy founding seat — ${FOUNDING_SEAT_DISPLAY}`}{" "}
+        <ArrowRight className="h-4 w-4" />
       </Link>
     </article>
   );
@@ -121,8 +123,8 @@ export function PricingTable() {
       </div>
       <p className="mt-4 max-w-2xl text-[13px] text-muted-foreground">
         {de
-          ? "Founding Seat = 99 $ einmalig. Abo = laufend. AURA = Ökosystem-Schicht, nicht nötig zum Betrieb."
-          : "Founding seat = $99 one-time. Subscription = ongoing. AURA = ecosystem layer, not required to operate."}
+          ? `Founding Seat = ${FOUNDING_SEAT_DISPLAY_DE} einmalig. Abo = laufend. AURA = Ökosystem-Schicht, nicht nötig zum Betrieb.`
+          : `Founding seat = ${FOUNDING_SEAT_DISPLAY} one-time. Subscription = ongoing. AURA = ecosystem layer, not required to operate.`}
       </p>
     </section>
   );

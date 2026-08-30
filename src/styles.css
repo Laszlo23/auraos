@@ -526,6 +526,26 @@ html.aura-paused .aura-pulse-halo {
   animation: ticker-x 28s linear infinite;
 }
 
+@keyframes hood-glow {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+.hood-glow {
+  animation: hood-glow 5.6s ease-in-out infinite;
+}
+
+.hood-frame {
+  isolation: isolate;
+}
+
 .cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: auto 720px;
@@ -833,6 +853,10 @@ html.aura-paused .aura-pulse-halo {
   .animate-aurora,
   .aurora-grid,
   .ticker-track {
+    animation: none !important;
+  }
+
+  .hood-glow {
     animation: none !important;
   }
 }

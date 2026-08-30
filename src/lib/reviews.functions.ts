@@ -404,7 +404,7 @@ async function paidSeatCounts() {
   return { osTaken: asN(os), localTaken: asN(local), localRemaining: asN(localLeft) };
 }
 
-/** Paid founding seats for marketing: $99 OS seats + paid Local seats. */
+/** Paid founding seats for marketing: $299 OS seats + paid Local seats. */
 export const getPublicSeatScarcity = createServerFn({ method: "GET" }).handler(async () => {
   const { withTimeout } = await import("@/lib/timeout-helper");
   return withTimeout(

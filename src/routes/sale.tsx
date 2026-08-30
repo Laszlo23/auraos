@@ -14,8 +14,10 @@ import {
 } from "wagmi";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
+import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mobile-menu";
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { useLocale } from "@/hooks/use-locale";
+import { auraLaunchTreasuryAddress } from "@/lib/aura-token";
 import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
 import { num } from "@/lib/format";
 import {
@@ -107,16 +109,17 @@ function SalePage() {
       />
       <header className="relative border-b border-border/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center gap-3 px-5 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             {t("sale.kicker")}
           </p>
           <LanguageToggle className="ml-auto" />
           <Link
             to="/tokenomics"
-            className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+            className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:inline"
           >
             {t("sale.tokenomics")}
           </Link>
+          <PublicMobileMenu items={publicPrimaryNav(t)} hideFrom="sm" />
         </div>
       </header>
 
@@ -228,6 +231,13 @@ function SalePage() {
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{t("sale.cashBody")}</p>
         </section>
 
+        <section className="rounded-2xl border border-gold/30 bg-gold/[0.06] p-4">
+          <h2 className="font-display text-lg font-semibold">{t("sale.projectLockTitle")}</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {t("sale.projectLockBody")}
+          </p>
+        </section>
+
         <section className="rounded-2xl border border-border/40 p-4">
           <h2 className="font-display text-lg font-semibold">{t("sale.treasuryTitle")}</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
@@ -248,6 +258,27 @@ function SalePage() {
           >
             {copied ? t("sale.copied") : t("sale.copy")}
           </button>
+        </section>
+
+        <section className="rounded-2xl border border-border/40 p-4">
+          <h2 className="font-display text-lg font-semibold">{t("sale.launchTreasuryTitle")}</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {t("sale.launchTreasuryBody")}
+          </p>
+          {auraLaunchTreasuryAddress() ? (
+            <a
+              href={privateSaleBasescan(`/address/${auraLaunchTreasuryAddress()}`)}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 block break-all font-mono text-[12px] text-primary"
+            >
+              {auraLaunchTreasuryAddress()}
+            </a>
+          ) : (
+            <p className="mt-3 font-mono text-[12px] text-muted-foreground">
+              {t("sale.launchTreasuryPending")}
+            </p>
+          )}
         </section>
 
         <p className="text-[12px] leading-relaxed text-muted-foreground">{t("sale.disclaimer")}</p>

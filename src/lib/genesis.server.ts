@@ -63,8 +63,8 @@ export function genesisContractAddress(): Address | null {
 }
 
 export function genesisPriceUsdc(): number {
-  const n = Number(process.env["GENESIS_NFT_PRICE_USDC"] ?? 99);
-  return Number.isFinite(n) && n > 0 ? n : 99;
+  const n = Number(process.env["GENESIS_NFT_PRICE_USDC"] ?? 299);
+  return Number.isFinite(n) && n > 0 ? n : 299;
 }
 
 export function genesisMaxSupply(): number {

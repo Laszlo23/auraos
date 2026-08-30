@@ -164,15 +164,16 @@ export const SEAT_BENEFITS: LocaleCopy[] = [
   { en: "Mission system", de: "Missionssystem" },
   { en: "Approval controls", de: "Freigabe-Kontrolle" },
   { en: "Proof-of-work system", de: "Proof-of-Work" },
-  { en: "Founding badge", de: "Founding-Badge" },
+  { en: "Founding badge + The Hood mint", de: "Founding-Badge + The Hood Mint" },
+  { en: "Hood mint reserved for launch liquidity", de: "Hood-Mint für Launch-Liquidität" },
   { en: "1 referral invite", de: "1 Weiterempfehlungs-Invite" },
   { en: "Founding cohort access", de: "Zugang zur Founding-Kohorte" },
   { en: "Concierge review queue", de: "Concierge-Review-Warteschlange" },
 ];
 
 export const SEAT_NOT_INCLUDED: LocaleCopy = {
-  en: "Subscriptions and compute are separate. $99 is the one-time unlock — not unlimited AI forever.",
-  de: "Abos und Compute sind extra. 99 $ ist der einmalige Unlock — nicht unbegrenzt KI für immer.",
+  en: "Subscriptions and compute are separate. $299 is the one-time unlock — not unlimited AI forever.",
+  de: "Abos und Compute sind extra. 299 $ ist der einmalige Unlock — nicht unbegrenzt KI für immer.",
 };
 
 export const PRICING_TIERS = TOKENOMICS.subscriptions.map((s) => ({

@@ -427,7 +427,7 @@ function AuthPage() {
 
   /**
    * Seat gate: paid founding seat (or legacy company).
-   * Open sale — send new accounts to $99 Stripe checkout. Invite is optional attribution.
+   * Open sale — send new accounts to $299 Stripe checkout. Invite is optional attribution.
    * Nachbar patrons and funnel entries skip this entirely.
    */
   async function ensureSeatOrCheckout(user: User): Promise<"ok" | "need_invite" | "checkout"> {
@@ -523,7 +523,7 @@ function AuthPage() {
         setNeedsInviteToContinue(true);
         setMode("signup");
         setMagicCreatesUser(true);
-        toast.message("Complete $99 founding-seat checkout to open your company.");
+        toast.message("Complete $299 founding-seat checkout to open your company.");
         return false;
       }
 
@@ -773,7 +773,7 @@ function AuthPage() {
   const subtitle =
     mode === "signup"
       ? needsInviteToContinue
-        ? "Your account is ready — pay $99 to unlock your founding seat."
+        ? "Your account is ready — pay $299 to unlock your founding seat."
         : isNachbarPatron
           ? "Konto anlegen — dann Check-in und Punkte. Kein Firmenkauf."
           : isLokalEntry
@@ -1015,14 +1015,14 @@ function AuthPage() {
                 className="space-y-3"
               >
                 <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                  You&apos;re signed in. Pay $99 once — seat unlocks after Stripe. No invite needed.
+                  You&apos;re signed in. Pay $299 once — seat unlocks after Stripe. No invite needed.
                 </p>
                 <button
                   type="submit"
                   disabled={busy}
                   className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
                 >
-                  {busy ? "Opening Stripe…" : "Buy founding seat — $99"}
+                  {busy ? "Opening Stripe…" : "Buy founding seat — $299"}
                 </button>
               </form>
             ) : (
@@ -1050,7 +1050,7 @@ function AuthPage() {
                       <span className="font-semibold uppercase tracking-[0.14em] text-primary">
                         {refFromLink}
                       </span>{" "}
-                      — next step is $99 checkout.
+                      — next step is $299 checkout.
                     </span>
                   </div>
                 ) : mode === "signup" && isLokalEntry ? (
@@ -1063,7 +1063,7 @@ function AuthPage() {
                   </p>
                 ) : mode === "signup" && buyFromLink === "seat" ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                    After signup we open Stripe for your $99 founding seat.
+                    After signup we open Stripe for your $299 founding seat.
                   </p>
                 ) : null}
 
@@ -1166,7 +1166,7 @@ function AuthPage() {
                         <Link to="/cookies" className="text-primary hover:underline">
                           Cookies
                         </Link>
-                        . Founding seats are paid via Stripe Checkout ($99 one-time).
+                        . Founding seats are paid via Stripe Checkout ($299 one-time).
                       </>
                     )}
                   </p>

@@ -28,8 +28,9 @@ export type AuraAllocation = {
 
 /**
  * Whole-token split of 777,777,777.
- * Private is 256,666,632 (sale cap × 1.11). Remainders land on community.
- * Unsold pAURA is never minted — the 33% line is a hard cap, not a guarantee.
+ * Private sale is still 33% after the +11% bonus (256,666,632):
+ * 30% open buyers + 3% project take bought through the same pAURA sale.
+ * Unsold pAURA is never minted — those lines are hard caps, not guarantees.
  */
 export const AURA_ALLOCATIONS: AuraAllocation[] = [
   {
@@ -62,10 +63,17 @@ export const AURA_ALLOCATIONS: AuraAllocation[] = [
   },
   {
     id: "private",
-    label: "Private / strategic sale",
-    labelDe: "Privater und strategischer Verkauf",
-    pct: 33,
-    amount: 256_666_632,
+    label: "Private sale (open buyers)",
+    labelDe: "Private Sale (offene Käufer)",
+    pct: 30,
+    amount: 233_333_322,
+  },
+  {
+    id: "project_sale",
+    label: "Private sale (project, locked)",
+    labelDe: "Private Sale (Projekt, gesperrt)",
+    pct: 3,
+    amount: 23_333_310,
   },
   {
     id: "liquidity",
@@ -110,6 +118,86 @@ export const AURA_TEAM_VESTING = {
   noteDe:
     "12 Monate Sperrfrist, danach 36 Monate schrittweise Freigabe. Beim Start bekommt das Team nichts frei.",
 } as const;
+
+/** Project buys this pAURA slice after the sale has been live ~2 days, then locks the AURA. */
+export const AURA_PROJECT_SALE_LOCK = {
+  buyAfterHours: 48,
+  lockDaysAfterT0: 90,
+  note: "Project buys its 3% private-sale slice through the same pAURA contract, earliest 48 hours after the sale opened. Those AURA lock for 90 days after T-0. Publicly verifiable. Not free team tokens.",
+  noteDe:
+    "Das Projekt kauft seinen 3%-Anteil über denselben pAURA-Contract, frühestens 48 Stunden nach Sale-Start. Diese AURA sind 90 Tage nach T-0 gesperrt. Öffentlich prüfbar. Keine freien Team-Token.",
+} as const;
+
+export const AURA_LOCKS = [
+  {
+    id: "team",
+    label: "Team & founders",
+    labelDe: "Team und Gründer",
+    lock: AURA_TEAM_VESTING.note,
+    lockDe: AURA_TEAM_VESTING.noteDe,
+  },
+  {
+    id: "project_sale",
+    label: "Project private-sale take",
+    labelDe: "Projekt-Anteil aus dem Private Sale",
+    lock: AURA_PROJECT_SALE_LOCK.note,
+    lockDe: AURA_PROJECT_SALE_LOCK.noteDe,
+  },
+  {
+    id: "liquidity",
+    label: "Launch liquidity",
+    labelDe: "Start-Liquidität",
+    lock: "Launch LP is locked in the Clanker / Uniswap v4 pool at T-0 — not sitting in a team wallet.",
+    lockDe:
+      "Die Start-LP liegt bei T-0 im Clanker- / Uniswap-v4-Pool — nicht in einer Team-Wallet.",
+  },
+] as const;
+
+/**
+ * T-0 ops. Do not invent a CA, deployer, or treasury address.
+ * Set AURA_LAUNCH_TREASURY / VITE_AURA_LAUNCH_TREASURY on the VPS when the new wallet exists.
+ */
+export const AURA_LAUNCH_OPS = {
+  deployer:
+    "AURA is created at T-0 from a new empty wallet — not the private-sale admin wallet and not the live sale treasury. Official CA only on aibusiness.fun and X @buildingcultu3.",
+  deployerDe:
+    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet — nicht die Private-Sale-Admin-Wallet und nicht die laufende Sale-Treasury. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3.",
+  treasury:
+    "Launch treasury is a new wallet, published when set. Today's pAURA USDC still goes to the live sale contract treasury (immutable on that contract). Changing the sale destination requires a new sale contract.",
+  treasuryDe:
+    "Die Launch-Treasury ist eine neue Wallet, veröffentlicht sobald sie gesetzt ist. Heutige pAURA-USDC gehen weiter an die laufende Sale-Contract-Treasury (dort unveränderlich). Ein anderes Sale-Ziel braucht einen neuen Sale-Contract.",
+} as const;
+
+export function readConfiguredBaseAddress(
+  ...candidates: Array<string | undefined>
+): `0x${string}` | null {
+  for (const raw of candidates) {
+    const value = raw?.trim() ?? "";
+    if (/^0x[a-fA-F0-9]{40}$/.test(value)) return value as `0x${string}`;
+  }
+  return null;
+}
+
+/** New AURA launch treasury. Null until set on the VPS — never invent one. */
+export function auraLaunchTreasuryAddress(): `0x${string}` | null {
+  const fromProc =
+    typeof process !== "undefined"
+      ? process.env["AURA_LAUNCH_TREASURY"] || process.env["VITE_AURA_LAUNCH_TREASURY"] || ""
+      : "";
+  const fromVite =
+    typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    typeof import.meta.env["VITE_AURA_LAUNCH_TREASURY"] === "string"
+      ? String(import.meta.env["VITE_AURA_LAUNCH_TREASURY"])
+      : "";
+  return readConfiguredBaseAddress(fromProc, fromVite);
+}
+
+export function allocationById(id: string): AuraAllocation {
+  const row = AURA_ALLOCATIONS.find((a) => a.id === id);
+  if (!row) throw new Error(`Unknown AURA allocation: ${id}`);
+  return row;
+}
 
 export const AURA_BUY_PLAN = {
   headline: "No contract address until T-0. Buy only on the published Base pair.",

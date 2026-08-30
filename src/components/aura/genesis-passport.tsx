@@ -10,10 +10,10 @@ import {
   getGenesisStatus,
   markGenesisPaidFromX402,
 } from "@/lib/genesis.functions";
+import { HOOD } from "@/lib/hood";
 import { mediaPath } from "@/lib/site";
 
-const GENESIS_ART = mediaPath("/genesis-passport.webp");
-const GENESIS_ART_FALLBACK = mediaPath("/genesis-passport.jpg");
+const GENESIS_ART = mediaPath(HOOD.art);
 
 /** Genesis = Founding Company Passport — utility NFT, not an investment / not token launch. */
 export function GenesisPassport({
@@ -38,11 +38,11 @@ export function GenesisPassport({
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("genesis") === "success") {
-      toast.success("Payment received — claim your passport mint when ready.");
+      toast.success("Payment received — claim your Hood mint when ready.");
       void qc.invalidateQueries({ queryKey: ["genesis-status"] });
     }
     if (params.get("genesis") === "cancel") {
-      toast.message("Genesis checkout canceled");
+      toast.message("Hood checkout canceled");
     }
   }, [qc]);
 
@@ -66,7 +66,7 @@ export function GenesisPassport({
   const claim = useMutation({
     mutationFn: () => claimGenesisNft(),
     onSuccess: async (res) => {
-      toast.success(res.already ? "Already minted onchain" : "Genesis Passport minted");
+      toast.success(res.already ? "Already minted onchain" : "The Hood minted");
       await qc.invalidateQueries({ queryKey: ["genesis-status"] });
       await qc.invalidateQueries({ queryKey: ["holder-perks"] });
     },
@@ -88,33 +88,31 @@ export function GenesisPassport({
   const metaUrl = tokenId != null ? `/api/genesis/meta/${tokenId}` : "/api/genesis/meta/1";
 
   return (
-    <Panel label="Genesis · Founding Company Passport" delay={0.06} glow={minted}>
+    <Panel label="The Hood · founding circle" delay={0.06} glow={minted}>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,220px)_1fr]">
         <div className="mx-auto w-full max-w-[220px]">
           <div className="overflow-hidden rounded-[1.35rem] border border-gold/25 bg-foreground/[0.04] shadow-[0_0_40px_-12px_oklch(0.75_0.12_85/0.45)]">
-            <picture>
-              <source srcSet={GENESIS_ART} type="image/webp" />
-              <img
-                src={GENESIS_ART_FALLBACK}
-                alt="Aura Genesis Passport official seal — founding company membership art"
-                title="Aura Genesis Passport seal"
-                width={800}
-                height={800}
-                loading="lazy"
-                decoding="async"
-                className="aspect-square w-full object-cover"
-              />
-            </picture>
+            <img
+              src={GENESIS_ART}
+              alt="The Hood — founding circle art. Winning and love. Mint to liquidity."
+              title="The Hood"
+              width={800}
+              height={800}
+              loading="lazy"
+              decoding="async"
+              className="aspect-square w-full object-cover"
+            />
           </div>
-          <p className="mt-2 text-center text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            Official seal art
+          <p className="mt-2 text-center text-[10px] uppercase tracking-[0.18em] text-gold/80">
+            Official Hood art
           </p>
         </div>
 
         <div>
           <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Membership utility for founding companies — not an investment product and not part of
-            the token launch. Pay first, then claim a server-gated mint to your smart wallet.
+            The Hood is the founding-circle key — not an investment and not the AURA launch token.
+            100% of this mint is reserved for launch liquidity. Coming to Robinhood Chain when that
+            contract is published. Pay, then claim a server-gated mint to your smart wallet.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="glass-soft rounded-2xl p-4">
@@ -145,7 +143,7 @@ export function GenesisPassport({
                 <p className="mt-2 text-[12px] text-muted-foreground">Loading…</p>
               ) : (
                 <p className="mt-2 text-[12px] text-muted-foreground">
-                  {status?.priceUsdc ?? 99} USDC · cap {status?.maxSupply ?? 1000}
+                  {status?.priceUsdc ?? 299} USDC · cap {status?.maxSupply ?? 1000}
                   {status?.contract
                     ? ` · ${status.contract.slice(0, 8)}…`
                     : " · contract pending deploy"}

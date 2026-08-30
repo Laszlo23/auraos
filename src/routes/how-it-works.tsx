@@ -60,7 +60,7 @@ function HowItWorksPage() {
           to="/access"
           className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
         >
-          {de ? "Seat — $99" : "Founding seat — $99"}
+          {de ? "Seat — $299" : "Founding seat — $299"}
         </Link>
       </section>
     </MarketingPage>

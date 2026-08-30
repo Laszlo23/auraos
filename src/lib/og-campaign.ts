@@ -6,8 +6,8 @@ import { SITE_URL } from "@/lib/site";
  */
 export const OG_CAMPAIGN = {
   home: {
-    path: "/og/home.jpg",
-    alt: "Own the company. AI works. You keep the upside.",
+    path: "/og/nexus.jpg",
+    alt: "Aura OS — neon nexus lockup. Own the company. AI works.",
   },
   wien: {
     path: "/og/wien.jpg",
@@ -23,7 +23,11 @@ export const OG_CAMPAIGN = {
   },
   access: {
     path: "/og/access.jpg",
-    alt: "Take the seat. You're the owner. Founding $99.",
+    alt: "Take the seat. You're the owner. Founding $299.",
+  },
+  hood: {
+    path: "/og/hood.jpg",
+    alt: "The Hood. Founding circle. Mint to liquidity. Coming to Robinhood Chain.",
   },
   nachbar: {
     path: "/og/nachbar.jpg",

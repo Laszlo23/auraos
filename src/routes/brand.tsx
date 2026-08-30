@@ -18,16 +18,21 @@ export const Route = createFileRoute("/brand")({
       description:
         "Official Aura OS logo, colors, type, and usage. Download the mark and lockup. Keep the CI honest.",
       path: "/brand",
-      image: BRAND_ASSETS.appIconPng,
-      imageAlt: "Aura OS mark — cyan core, gold approval tick",
-      imageWidth: 512,
-      imageHeight: 512,
+      image: BRAND_ASSETS.nexusOg,
+      imageAlt: "Aura OS Nexus lockup — neon lime circuit mark",
+      imageWidth: 1200,
+      imageHeight: 630,
     }),
   component: BrandPage,
 });
 
 const DOWNLOADS = [
-  { href: BRAND_ASSETS.logoPng, label: "Logo PNG", hint: "Dark lockup · save this" },
+  { href: BRAND_ASSETS.nexus, label: "Nexus lockup", hint: "Campaign still · 16:9" },
+  { href: BRAND_ASSETS.nexusMark, label: "Nexus mark", hint: "Square 1024" },
+  { href: BRAND_ASSETS.nexusOg, label: "Nexus OG", hint: "1200 × 630 share card" },
+  { href: BRAND_ASSETS.hood, label: "The Hood still", hint: "Founding circle · 1:1" },
+  { href: BRAND_ASSETS.hoodOg, label: "The Hood OG", hint: "1200 × 630 share card" },
+  { href: BRAND_ASSETS.logoPng, label: "Logo PNG", hint: "Dark lockup · product" },
   { href: BRAND_ASSETS.logoSvg, label: "Logo SVG", hint: "Same lockup, vector" },
   { href: BRAND_ASSETS.markPng, label: "Mark PNG", hint: "512 × 512 icon" },
   { href: BRAND_ASSETS.mark, label: "Mark SVG", hint: "Transparent vector" },
@@ -90,13 +95,28 @@ function BrandPage() {
           approval — nothing spends without it.
         </p>
         <a
-          href={BRAND_ASSETS.logoPng}
-          download="aura-os-logo.png"
+          href={BRAND_ASSETS.nexus}
+          download="aura-os-nexus.jpg"
           className="cta-liquid cta-magnetic mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
           <ArrowDownToLine className="h-4 w-4" />
-          Download logo PNG
+          Download Nexus lockup
         </a>
+
+        <Panel
+          label="Nexus campaign"
+          className="mt-12 overflow-hidden"
+          bodyClassName="p-0"
+          motif={false}
+        >
+          <img
+            src={BRAND_ASSETS.nexus}
+            alt="Aura OS Nexus — neon lime circuit mark and wordmark"
+            width={1365}
+            height={768}
+            className="aspect-video w-full object-cover"
+          />
+        </Panel>
 
         <div className="mt-12 grid gap-4 lg:grid-cols-2">
           <Panel label="Living mark" glow className="min-h-[220px]">
@@ -142,7 +162,7 @@ function BrandPage() {
           Tokens live as oklch in <span className="font-mono text-[12px]">styles.css</span>. Hex is
           for SVG, print, and partners.
         </p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Object.values(BRAND_COLORS).map((c) => (
             <div key={c.hex} className="glass overflow-hidden rounded-2xl">
               <div className="h-20" style={{ background: c.hex }} />

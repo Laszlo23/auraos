@@ -17,7 +17,7 @@ Package manager is **npm** (`package-lock.json`). Deploy uses `scripts/deploy-ap
 
 ## Founding seats vs compute vs sites vs token launch
 
-- **Founding seat** — one-time $99 Stripe payment (`STRIPE_PRICE_FOUNDING_SEAT`, `kind=founding_seat`). Hard cap **1000**. Grants `founding_seats` + **exactly one** outbound invite (`invite_codes.kind=founding_invite`). Invitee still pays; invite is the right to buy. Free multi-use AURORA/ATLAS/QUANT and whitelist free mints are frozen.
+- **Founding seat** — one-time $299 Stripe payment (`STRIPE_PRICE_FOUNDING_SEAT`, `kind=founding_seat`). Hard cap **1000**. Grants `founding_seats` + **exactly one** outbound invite (`invite_codes.kind=founding_invite`). Invitee still pays; invite is the right to buy. Free multi-use AURORA/ATLAS/QUANT and whitelist free mints are frozen.
 - **AURA compute billing** — recurring founder plans on `/billing` (`STRIPE_PRICE_*` starter/company/scale). Separate from the seat.
 - **Site products** — end-customer checkout on `/s/$slug` (`kind=site_product`).
 - **Growth rewards** — in-app AURA on paid invite conversions (ledger → company reserve). Not cash, not token-launch proceeds.
@@ -26,7 +26,7 @@ Package manager is **npm** (`package-lock.json`). Deploy uses `scripts/deploy-ap
 
 **x402 payTo:** production requires a live USDC receiver. Set `X402_PAY_TO` to the platform treasury (same as `OKX_PAYOUT_ADDRESS` is fine). If `X402_PAY_TO` is empty, the runtime falls back to `OKX_PAYOUT_ADDRESS` and logs a warning. Simulated settlement is never allowed in production. `scripts/deploy-app.sh` does **not** sync `.env` — set both on the VPS.
 
-**Genesis Passport NFT:** optional ERC-721 utility for seated founders (not an investment, not token launch). Pay via Stripe (`kind=genesis_nft`) or mark paid after verified settlement → server-gated mint/claim. Env: `GENESIS_NFT_CONTRACT`, `GENESIS_MINTER_KEY` (server-only), `GENESIS_NFT_PRICE_USDC`.
+**The Hood NFT:** optional ERC-721 founding-circle utility for seated founders (not an investment, not token launch). 100% of mint proceeds reserved for launch liquidity. Pay via Stripe (`kind=genesis_nft`) or mark paid after verified settlement → server-gated mint/claim. Env: `GENESIS_NFT_CONTRACT`, `GENESIS_MINTER_KEY` (server-only), `GENESIS_NFT_PRICE_USDC`. Coming to Robinhood Chain when that contract is published.
 
 One-invite Earn UI: `/earn`. Local/niche fields + opt-in `network_backlink` strip on published landings. Concierge: `founder_reviews` queue after first publish.
 

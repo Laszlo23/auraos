@@ -161,7 +161,7 @@ function EarnPage() {
       <PageHeader
         eyebrow="Growth engine"
         title="Your only invite."
-        description="Each seated founder gets one invite — the right for a friend to buy a $99 founding seat. You earn in-app AURA (company compute reserve) on paid conversions — not cash, and not part of the token launch."
+        description="Each seated founder gets one invite — the right for a friend to buy a $299 founding seat. You earn in-app AURA (company compute reserve) on paid conversions — not cash, and not part of the token launch."
         actions={
           <button
             onClick={() => void onClaim()}
@@ -195,7 +195,7 @@ function EarnPage() {
                   </p>
                 ) : (
                   <p className="mb-3 text-[13px] text-muted-foreground">
-                    Share once. They still pay $99 — your invite is attribution, not a gate.
+                    Share once. They still pay $299 — your invite is attribution, not a gate.
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-3">

@@ -142,8 +142,8 @@ export function buildHolderPerks(opts: {
     },
     {
       id: "genesis",
-      label: "Genesis NFT perks",
-      description: "Vanity badge, x402 fee rebate, season score multiplier — when minted.",
+      label: "Hood NFT perks",
+      description: "Founding-circle badge, x402 fee rebate, season score multiplier — when minted.",
       active: hasGenesisNft,
     },
   ];
@@ -164,8 +164,12 @@ export function buildHolderPerks(opts: {
     perks,
     nftRoadmap: [
       {
-        title: "Genesis pass (ERC-721)",
-        body: "One NFT unlocks Core perks plus vanity badge, early presets, and a weekly Arena multiplier.",
+        title: "The Hood (ERC-721)",
+        body: "Founding-circle key. 100% of mint proceeds reserved for T-0 liquidity. Unlocks Core perks plus badge, early presets, and Arena multiplier.",
+      },
+      {
+        title: "Robinhood Chain",
+        body: "Same circle, next chain — when the Hood contract is published there. Official CA only on aibusiness.fun.",
       },
       {
         title: "Onchain AURA",
@@ -173,7 +177,7 @@ export function buildHolderPerks(opts: {
       },
       {
         title: "Fee rebates",
-        body: "Genesis holders get a rebate on paid x402 Quant signal calls.",
+        body: "Hood holders get a rebate on paid x402 Quant signal calls.",
       },
     ],
   };

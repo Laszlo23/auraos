@@ -55,8 +55,8 @@ export const TOKENOMICS = {
   ],
   notToken: [
     "Subscriptions (core revenue)",
-    "Founding seats ($99 one-time unlock)",
-    "Genesis Passport NFT (utility membership key — not equity)",
+    "Founding seats ($299 one-time unlock)",
+    "The Hood NFT (founding-circle utility — mint reserved for launch liquidity, not equity)",
     "Company compute budgets (AURA ledger for work, separate from market token narrative)",
     "BCC or any other community ticker (Aura OS does not run on BCC)",
   ],

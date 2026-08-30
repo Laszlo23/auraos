@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { genesisMaxSupply, genesisPriceUsdc } from "@/lib/genesis.server";
+import { HOOD } from "@/lib/hood";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 /**
@@ -19,25 +20,27 @@ export const Route = createFileRoute("/api/genesis/meta/$tokenId")({
           return Response.json({ error: "Unknown token" }, { status: 404 });
         }
 
-        const image = `${SITE_URL}/genesis-passport.jpg`;
-        const external = `${SITE_URL}/wallet`;
+        const image = `${SITE_URL}${HOOD.art}`;
+        const external = `${SITE_URL}${HOOD.path}`;
 
         return Response.json(
           {
-            name: `Aura Genesis Passport #${tokenId}`,
+            name: `${HOOD.name} #${tokenId}`,
             description:
-              "Founding Company Passport for Aura OS — utility membership for seated founders. Official seal art. Not an investment product and not part of any token launch.",
+              "The Hood — founding-circle utility for seated Aura OS founders. 100% of mint proceeds reserved for launch liquidity. Not an investment product and not part of any token launch. Coming to Robinhood Chain when that contract is published.",
             image,
             external_url: external,
             background_color: "07090e",
             attributes: [
-              { trait_type: "Collection", value: "Aura Genesis" },
-              { trait_type: "Edition", value: "Founding Passport" },
-              { trait_type: "Artwork", value: "Aura Genesis Passport seal" },
+              { trait_type: "Collection", value: HOOD.collection },
+              { trait_type: "Edition", value: "Founding Hood" },
+              { trait_type: "Artwork", value: "The Hood — winning and love" },
+              { trait_type: "Proceeds", value: "Launch liquidity" },
               { trait_type: "Token ID", value: tokenId, display_type: "number" },
               { trait_type: "Max Supply", value: max, display_type: "number" },
               { trait_type: "Price USDC", value: genesisPriceUsdc(), display_type: "number" },
-              { trait_type: "Utility", value: "Desk perks · seat signal" },
+              { trait_type: "Utility", value: "Desk perks · founding circle" },
+              { trait_type: "Chains", value: "Base now · Robinhood Chain next" },
               { trait_type: "Issuer", value: SITE_NAME },
             ],
           },

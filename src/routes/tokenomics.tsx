@@ -2,17 +2,22 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download } from "lucide-react";
 
 import { Chip, Panel } from "@/components/aura/primitives";
+import { PublicMobileMenu } from "@/components/aura/public-mobile-menu";
 import { SiteFooter } from "@/components/aura/site-footer";
 import {
   AURA_ALLOCATIONS,
   AURA_BUY_PLAN,
+  AURA_LAUNCH_OPS,
+  AURA_LOCKS,
   AURA_MAX_SUPPLY_DISPLAY,
   AURA_OFFICIAL_CA_SOURCES,
   AURA_TEAM_VESTING,
   AURA_TOKEN_CA,
   auraCaLive,
+  auraLaunchTreasuryAddress,
   formatAuraAmount,
 } from "@/lib/aura-token";
+import { PRIVATE_SALE_TREASURY, privateSaleBasescan } from "@/lib/private-sale";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
@@ -58,7 +63,7 @@ function TokenomicsPage() {
           >
             ← Home
           </Link>
-          <nav className="ml-auto flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em]">
+          <nav className="ml-auto hidden flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em] md:flex">
             <Link to="/wien" className="text-muted-foreground hover:text-foreground">
               Wien
             </Link>
@@ -75,6 +80,18 @@ function TokenomicsPage() {
               Decks
             </Link>
           </nav>
+          <PublicMobileMenu
+            className="ml-auto md:ml-0"
+            hideFrom="md"
+            items={[
+              { to: "/wien", label: "Wien" },
+              { to: "/lightpaper", label: "Lightpaper" },
+              { to: "/roadmap", label: "Roadmap" },
+              { to: "/whitepaper", label: "Whitepaper" },
+              { to: "/pitch", label: "Decks" },
+              { to: "/sale", label: "Private sale" },
+            ]}
+          />
         </div>
       </header>
 
@@ -155,12 +172,74 @@ function TokenomicsPage() {
             </table>
           </div>
           <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
-            Private / strategic is a hard cap of 33% including the +11% launch bonus for{" "}
+            Private sale is a hard cap of 33% including the +11% launch bonus: 30% open{" "}
             <a href="/sale" className="text-primary underline-offset-2 hover:underline">
               pAURA
             </a>{" "}
-            buyers. Unsold pAURA is never minted. Building Culture products that used BCC move to
-            AURA at T-0 — Aura OS stays subscription software and does not require BCC today.
+            buyers, 3% project take bought through the same sale after 48 hours and locked for 90
+            days after T-0. Unsold pAURA is never minted. Building Culture products that used BCC
+            move to AURA at T-0 — Aura OS stays subscription software and does not require BCC
+            today.
+          </p>
+        </section>
+
+        <section className="mt-14">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Locks
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            Nothing free to dump
+          </h2>
+          <ul className="mt-5 space-y-3">
+            {AURA_LOCKS.map((row) => (
+              <li key={row.id} className="rounded-2xl border border-border/40 bg-card/20 px-5 py-4">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.16em]">{row.label}</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{row.lock}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mt-14">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Launch wallets
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            New deployer. New treasury.
+          </h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <Panel label="Token create">
+              <p className="text-[14px] leading-relaxed">{AURA_LAUNCH_OPS.deployer}</p>
+            </Panel>
+            <Panel label="Launch treasury">
+              <p className="text-[14px] leading-relaxed">{AURA_LAUNCH_OPS.treasury}</p>
+              {auraLaunchTreasuryAddress() ? (
+                <a
+                  href={privateSaleBasescan(`/address/${auraLaunchTreasuryAddress()}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 block break-all font-mono text-[12px] text-primary"
+                >
+                  {auraLaunchTreasuryAddress()}
+                </a>
+              ) : (
+                <p className="mt-3 font-mono text-[12px] text-muted-foreground">
+                  Not published yet — set AURA_LAUNCH_TREASURY on the VPS.
+                </p>
+              )}
+            </Panel>
+          </div>
+          <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
+            Today&apos;s pAURA USDC still forwards to the live sale contract treasury{" "}
+            <a
+              href={privateSaleBasescan(`/address/${PRIVATE_SALE_TREASURY}`)}
+              target="_blank"
+              rel="noreferrer"
+              className="break-all font-mono text-primary"
+            >
+              {PRIVATE_SALE_TREASURY}
+            </a>
+            . That address is immutable on the current sale contract.
           </p>
         </section>
 
@@ -211,7 +290,8 @@ function TokenomicsPage() {
             ))}
           </div>
           <p className="mt-4 text-[12.5px] text-muted-foreground">
-            Founding seats ($99 one-time) unlock the cohort. Seats ≠ equity and ≠ the market token.
+            Founding seats ($299 one-time) unlock the cohort. The Hood mint is separate — 100% reserved
+            for launch liquidity. Seats ≠ equity and ≠ the market token.
           </p>
         </section>
 

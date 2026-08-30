@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/wallet")({
       {
         name: "description",
         content:
-          "Your on-chain treasury: live balances, receive, send, exchange via OKX DEX, badges, and Genesis Passport.",
+          "Your on-chain treasury: live balances, receive, send, exchange via OKX DEX, badges, and The Hood.",
       },
       { property: "og:title", content: "Wallet — Aura OS" },
       {

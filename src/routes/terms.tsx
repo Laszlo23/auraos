@@ -99,7 +99,7 @@ function TermsPage() {
         <p>
           A founding seat is a one-time digital product: paid access to wake and operate one
           founding company on {SITE_NAME}. The listed price is{" "}
-          <strong className="text-foreground">$99 USD</strong> unless we publish a different price
+          <strong className="text-foreground">$299 USD</strong> unless we publish a different price
           before you pay. Seats are capped (currently 1000). Purchase does not grant equity, tokens,
           or investment rights. Token fair launch (if any) is a separate event and not part of the
           founding-seat product.

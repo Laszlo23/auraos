@@ -142,8 +142,8 @@ const FAQS: { q: string; a: ReactNode }[] = [
     q: "How do I get in?",
     a: (
       <>
-        Buy a founding seat for $99 (1000 seats). No invite required. After you&apos;re seated you
-        get one invite link to share — friends still pay $99. See{" "}
+        Buy a founding seat for $299 (1000 seats). No invite required. After you&apos;re seated you
+        get one invite link to share — friends still pay $299. See{" "}
         <Link to="/access" className="text-primary hover:underline">
           /access
         </Link>

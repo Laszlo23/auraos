@@ -39,11 +39,11 @@ export const X402_CATALOG: X402Endpoint[] = [
   },
   {
     slug: "genesis-passport",
-    name: "Genesis Passport",
+    name: "The Hood",
     description:
-      "Founding-company utility NFT entitlement (pay USDC via x402). Claim mint on Wallet after settle. Not an investment; not token launch.",
+      "Founding-circle Hood NFT (pay USDC via x402). Seated founders only. 100% of mint reserved for launch liquidity. Claim on Wallet after settle. Not an investment; not token launch.",
     path: "/api/public/x402/genesis-passport",
-    price_usdc: 99,
+    price_usdc: 299,
     network: "base",
     input: `{ "company_id": "<uuid>" }`,
   },

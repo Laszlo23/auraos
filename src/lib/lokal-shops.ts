@@ -427,7 +427,7 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     services: ["AI company OS", "Founding seat", "Missionen", "Proof", "Workforce"],
     serviceDetails: [
       { title: "AI company OS", blurb: "Eine Firma wecken, nicht ein Chatfenster öffnen." },
-      { title: "Founding seat", blurb: "$99 einmalig. Abo und Compute extra." },
+      { title: "Founding seat", blurb: "$299 einmalig. Abo und Compute extra." },
       { title: "Missionen", blurb: "Du gibst das Ziel. Der CEO zerlegt. Du genehmigst." },
       { title: "Proof", blurb: "Zeitstempel, Ergebnis, Kosten — kein Demo-Theater." },
       { title: "Workforce", blurb: "Atlas, Vela, Juno, Orin, Ledger — echte Rollen." },

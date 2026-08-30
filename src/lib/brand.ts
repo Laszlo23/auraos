@@ -36,6 +36,12 @@ export const BRAND_COLORS = {
     oklch: "oklch(0.52 0.195 25)",
     role: "Origin bar only",
   },
+  nexus: {
+    name: "Nexus lime",
+    hex: "#39FF14",
+    oklch: "oklch(0.88 0.29 140)",
+    role: "Campaign lockup only",
+  },
 } as const;
 
 export const BRAND_TYPE = {
@@ -55,6 +61,12 @@ export const BRAND_ASSETS = {
   appIcon: "/brand/aura-app-icon.svg",
   appIconPng: "/brand/aura-app-icon.png",
   favicon: "/favicon.svg",
+  nexus: "/brand/aura-nexus.jpg",
+  nexusMark: "/brand/aura-nexus-mark.jpg",
+  nexusOg: "/og/nexus.jpg",
+  hood: "/brand/aura-hood.jpg",
+  hoodToken: "/hood.jpg",
+  hoodOg: "/og/hood.jpg",
 } as const;
 
 export const BRAND_RULES = {
@@ -63,6 +75,8 @@ export const BRAND_RULES = {
   do: [
     "Use the living PulseOrbit in product chrome (header, hero).",
     "Use the static mark on favicons, social, press, and slides.",
+    "Use the Nexus lockup for campaign, launch, and Open Graph — not in-app chrome.",
+    "Use The Hood still for founding-circle, mint, and Robinhood Chain campaign — not as the product mark.",
     "Put cyan on intelligence / live / approve. Gold on money / seats / scarcity.",
     "Keep the gold tick — it is the human approval break in the ring.",
   ],

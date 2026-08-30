@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
+import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mobile-menu";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { useLocale } from "@/hooks/use-locale";
@@ -44,13 +45,22 @@ export function MarketingPage({
               {t("landing.navPricing")}
             </Link>
           </nav>
-          <LanguageToggle className="ml-auto sm:ml-0" />
+          <LanguageToggle className="ml-auto hidden sm:inline-flex" />
           <Link
             to="/access"
             className="rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
           >
-            $99
+            $299
           </Link>
+          <PublicMobileMenu items={publicPrimaryNav(t)} hideFrom="sm">
+            <LanguageToggle className="self-start" />
+            <Link
+              to="/access"
+              className="rounded-2xl bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+            >
+              $299
+            </Link>
+          </PublicMobileMenu>
         </div>
       </header>
       {children}

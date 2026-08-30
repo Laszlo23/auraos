@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-/** Start Stripe Checkout for the $99 founding seat (auth required). */
+/** Start Stripe Checkout for the founding seat (auth required). */
 export async function startFoundingSeatCheckout(invite?: string | null): Promise<string> {
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;

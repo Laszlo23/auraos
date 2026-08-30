@@ -3,15 +3,22 @@ import { AURA_MAX_SUPPLY } from "@/lib/aura-token";
 export const PAURA_NAME = "AURA Private Sale";
 export const PAURA_SYMBOL = "pAURA";
 
+/** Immutable treasury on the live pAURA contract. Sale USDC still goes here. */
 export const PRIVATE_SALE_TREASURY = "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1" as const;
 export const BASE_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as const;
 /** Live Base pAURA sale — public CA, not a secret. */
 export const PRIVATE_SALE_CONTRACT_LIVE = "0x25f42e74ce4697a29d9f252981fb9efa35aee55c" as const;
 
-/** Whole pAURA that can be minted (33% of AURA after +11% bonus). */
+/** Whole pAURA that can be minted (33% of AURA after +11% bonus). On-chain SALE_CAP. */
 export const PRIVATE_SALE_CAP_WHOLE = 231_231_200;
+/** Open-buyer slice of the cap. pAURA must be a multiple of 100 so ×1.11 stays whole. */
+export const PRIVATE_SALE_OPEN_PAURA = 210_210_200;
+/** Project take bought after 48h, then locked 90 days after T-0. */
+export const PRIVATE_SALE_PROJECT_PAURA = 21_021_000;
 /** AURA reserved at T-0 if the cap sells out (cap × 1.11). */
 export const PRIVATE_SALE_LAUNCH_AURA = 256_666_632;
+export const PRIVATE_SALE_OPEN_LAUNCH_AURA = 233_333_322;
+export const PRIVATE_SALE_PROJECT_LAUNCH_AURA = 23_333_310;
 export const PRIVATE_SALE_BONUS_BPS = 1100;
 export const PRIVATE_SALE_MIN_USDC = 50;
 export const PRIVATE_SALE_FDV_USDC = 1_000_000;

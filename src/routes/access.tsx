@@ -31,12 +31,12 @@ export const Route = createFileRoute("/access")({
       { title: "Founding seats — Aura OS" },
       {
         name: "description",
-        content: "Buy a founding seat. $99 one-time · 1000 companies · live Stripe checkout.",
+        content: "Buy a founding seat. $299 one-time · 1000 companies · live Stripe checkout.",
       },
       { property: "og:title", content: "Founding seats — Aura OS" },
       {
         property: "og:description",
-        content: "Paid founding seats are open. $99 unlocks your AI company on Aura OS.",
+        content: "Paid founding seats are open. $299 unlocks your AI company on Aura OS.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/access` },
@@ -192,7 +192,7 @@ function AccessPage() {
         <Panel label={t("access.shareLabel")} className="mt-8">
           <ShareMoment
             url={`${SITE_URL}/access`}
-            text={`Aura OS founding seats — $99, hard-capped at ${num(FOUNDING_SEATS_TOTAL)}. Live checkout.`}
+            text={`Aura OS founding seats — $299, hard-capped at ${num(FOUNDING_SEATS_TOTAL)}. Live checkout.`}
             title="Aura OS founding seats"
             placement="access_share"
             label="Share founding seats"

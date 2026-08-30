@@ -90,7 +90,7 @@ const X_LINES: Record<string, string[]> = {
   ],
   "auraos-bedroom": [
     "Not a bot. A desk. Quant scans. You approve. Sleep is allowed.",
-    "Risk meters before size. Founder approval before live fire. $99 seat.",
+    "Risk meters before size. Founder approval before live fire. $299 seat.",
     "Most people still trade alone. Aura founders hire Quant into a company they own.",
   ],
   aprove: [
@@ -152,7 +152,7 @@ function clipBody(sharePostId: string, lineIndex: number): string {
   const line = lines[lineIndex % lines.length]!;
   const url = shareWatchUrl(sharePostId);
   const seat = `${SITE_URL}/access`;
-  const body = `${line}\n\n${url}\nSeat $99 → ${seat}`;
+  const body = `${line}\n\n${url}\nSeat $299 → ${seat}`;
   if (body.length <= 280) return body;
   const short = `${line}\n\n${url}`;
   if (short.length <= 280) return short;

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { FOUNDING_SEAT_CENTS } from "@/lib/founding-price";
 import { funnelPlanById, isFunnelPlanId } from "@/lib/funnel-plans";
 import { planById } from "@/lib/plans";
 import { cycleWindow } from "@/lib/subscription";
@@ -165,7 +166,7 @@ export const Route = createFileRoute("/api/billing/webhook")({
               _user_id: userId,
               _stripe_session_id: session.id,
               ...(inviteCode ? { _invite_code: inviteCode } : {}),
-              _amount_cents: session.amount_total ?? 9900,
+              _amount_cents: session.amount_total ?? FOUNDING_SEAT_CENTS,
               ...(typeof session.payment_intent === "string"
                 ? { _payment_intent: session.payment_intent }
                 : {}),

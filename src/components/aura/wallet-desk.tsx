@@ -57,11 +57,11 @@ import {
 import type { HolderPerks } from "@/lib/trading/holder-perks";
 import { NATIVE_ETH, WETH_ADDRESSES } from "@/lib/trading/tokens";
 import { currency } from "@/lib/format";
+import { HOOD } from "@/lib/hood";
 import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-const GENESIS_ART = mediaPath("/genesis-passport.webp");
-const GENESIS_ART_JPG = mediaPath("/genesis-passport.jpg");
+const HOOD_ART = mediaPath(HOOD.art);
 
 export function WalletDesk({
   seat,
@@ -516,19 +516,16 @@ export function WalletDesk({
                 : "border-border/50 bg-foreground/5 text-muted-foreground",
             )}
           >
-            <picture>
-              <source srcSet={GENESIS_ART} type="image/webp" />
-              <img
-                src={GENESIS_ART_JPG}
-                alt=""
-                title="Aura Genesis Passport"
-                width={22}
-                height={22}
-                decoding="async"
-                className="h-[22px] w-[22px] rounded-full object-cover"
-              />
-            </picture>
-            {genesisMinted ? "Genesis Passport" : "Genesis available"}
+            <img
+              src={HOOD_ART}
+              alt=""
+              title="The Hood"
+              width={22}
+              height={22}
+              decoding="async"
+              className="h-[22px] w-[22px] rounded-full object-cover"
+            />
+            {genesisMinted ? "The Hood" : "Hood available"}
           </span>
           {perks?.perks
             .filter((p) => p.active)

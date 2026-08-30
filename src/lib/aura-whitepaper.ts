@@ -1,8 +1,11 @@
 import {
   AURA_ALLOCATIONS,
+  AURA_LAUNCH_OPS,
   AURA_MAX_SUPPLY_DISPLAY,
   AURA_MAX_SUPPLY_DISPLAY_DE,
+  AURA_PROJECT_SALE_LOCK,
   AURA_TEAM_VESTING,
+  allocationById,
   formatAuraAmount,
 } from "@/lib/aura-token";
 
@@ -202,7 +205,7 @@ export const AURA_WHITEPAPER: WpSection[] = [
       },
       {
         kind: "p",
-        text: `Team (${formatAuraAmount(93_333_333)} AURA): ${AURA_TEAM_VESTING.note} Private / strategic tokens carry defined lockups. Liquidity management should be transparent; locks, when used, publicly verifiable. No promise of price stability. Treasury wallets should be identifiable whenever legally possible.`,
+        text: `Team (${formatAuraAmount(allocationById("team").amount)} AURA): ${AURA_TEAM_VESTING.note} Project private-sale take (${formatAuraAmount(allocationById("project_sale").amount)} AURA): ${AURA_PROJECT_SALE_LOCK.note} ${AURA_LAUNCH_OPS.deployer} ${AURA_LAUNCH_OPS.treasury} Liquidity management should be transparent; locks, when used, publicly verifiable. No promise of price stability.`,
       },
       {
         kind: "notice",
@@ -507,7 +510,7 @@ export const AURA_WHITEPAPER_DE: WpSection[] = [
       },
       {
         kind: "p",
-        text: `Team (${formatAuraAmount(93_333_333, "de")} AURA): ${AURA_TEAM_VESTING.noteDe} Wer privat oder strategisch kauft, hat festgelegte Sperren. Wie die Handelbarkeit geführt wird, soll man nachlesen können. Sperren, wenn es sie gibt, öffentlich prüfbar. Niemand verspricht einen festen Preis. Die Wallets der Firmenreserve sollen erkennbar sein, soweit das Recht das zulässt.`,
+        text: `Team (${formatAuraAmount(allocationById("team").amount, "de")} AURA): ${AURA_TEAM_VESTING.noteDe} Projekt-Anteil aus dem Private Sale (${formatAuraAmount(allocationById("project_sale").amount, "de")} AURA): ${AURA_PROJECT_SALE_LOCK.noteDe} ${AURA_LAUNCH_OPS.deployerDe} ${AURA_LAUNCH_OPS.treasuryDe} Wie die Handelbarkeit geführt wird, soll man nachlesen können. Sperren, wenn es sie gibt, öffentlich prüfbar. Niemand verspricht einen festen Preis.`,
       },
       {
         kind: "notice",

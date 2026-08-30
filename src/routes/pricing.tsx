@@ -8,9 +8,9 @@ import { pageHead } from "@/lib/seo";
 export const Route = createFileRoute("/pricing")({
   head: () =>
     pageHead({
-      title: "Pricing — founding seat $99 + Aura OS subscriptions",
+      title: "Pricing — founding seat $299 + Aura OS subscriptions",
       description:
-        "Founding seat is $99 one-time. Subscriptions start at €49 / month. AURA is an optional ecosystem layer — not required to run the company.",
+        "Founding seat is $299 one-time. Subscriptions start at €49 / month. AURA is an optional ecosystem layer — not required to run the company.",
       path: "/pricing",
     }),
   component: PricingPage,
@@ -20,7 +20,7 @@ function PricingPage() {
   const { locale } = useLocale();
   const de = locale === "de";
   return (
-    <MarketingPage shareText="Aura OS pricing — $99 founding seat, subscriptions separate.">
+    <MarketingPage shareText="Aura OS pricing — $299 founding seat, subscriptions separate.">
       <section className="mx-auto max-w-6xl px-6 pt-16">
         <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
           {de ? "Preise" : "Pricing"}

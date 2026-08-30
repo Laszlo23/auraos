@@ -20,7 +20,7 @@ Utility membership NFT for seated Aura founders — **not** an investment produc
 GENESIS_NFT_CONTRACT=0x…
 VITE_GENESIS_NFT_CONTRACT=0x…   # read-only for UI/explorer
 GENESIS_MINTER_KEY=0x…          # server-only, 32-byte hex
-GENESIS_NFT_PRICE_USDC=99
+GENESIS_NFT_PRICE_USDC=299
 GENESIS_NFT_MAX_SUPPLY=1000
 STRIPE_PRICE_GENESIS_NFT=price_…  # optional fiat path
 ```

@@ -12,7 +12,7 @@ import {
 import { getPublicSeatScarcity } from "@/lib/reviews.functions";
 import { Meter } from "./primitives";
 
-/** Paid founding inventory: $99 OS seats + paid Local seats. Cap stays 1000. */
+/** Paid founding inventory: $299 OS seats + paid Local seats. Cap stays 1000. */
 export function useFoundingSeatScarcity() {
   return useQuery({
     queryKey: ["founding-seats-scarcity"],

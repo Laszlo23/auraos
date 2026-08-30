@@ -2,11 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { FOUNDING_SEAT_CENTS } from "@/lib/founding-price";
 import { SITE_URL } from "@/lib/site";
 import { assertStripeChargesEnabled } from "@/lib/stripe-account";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
-
-const FOUNDING_SEAT_PRICE_CENTS = 9900;
 
 function accessTokenFromRequest(request: Request): string | null {
   const auth = request.headers.get("authorization") ?? request.headers.get("Authorization");
@@ -136,7 +135,7 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
           return Response.json({
             url: session.url,
             id: session.id,
-            amount_cents: FOUNDING_SEAT_PRICE_CENTS,
+            amount_cents: FOUNDING_SEAT_CENTS,
           });
         } catch (e) {
           return Response.json(

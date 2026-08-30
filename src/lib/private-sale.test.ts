@@ -1,18 +1,34 @@
 import { describe, expect, it } from "vitest";
 
 import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
-import { AURA_ALLOCATION_TOTAL, AURA_MAX_SUPPLY } from "@/lib/aura-token";
+import { AURA_ALLOCATION_TOTAL, AURA_MAX_SUPPLY, allocationById } from "@/lib/aura-token";
 import {
   isPrivateSaleSender,
   pAuraToLaunchAura,
   PRIVATE_SALE_CAP_WHOLE,
   PRIVATE_SALE_LAUNCH_AURA,
+  PRIVATE_SALE_OPEN_LAUNCH_AURA,
+  PRIVATE_SALE_OPEN_PAURA,
+  PRIVATE_SALE_PROJECT_LAUNCH_AURA,
+  PRIVATE_SALE_PROJECT_PAURA,
   usdcToPAura,
 } from "@/lib/private-sale";
 
 describe("private sale math", () => {
   it("keeps allocations exact", () => {
     expect(AURA_ALLOCATION_TOTAL).toBe(AURA_MAX_SUPPLY);
+  });
+
+  it("splits the 33% private cap into open buyers and a locked project take", () => {
+    expect(PRIVATE_SALE_OPEN_PAURA + PRIVATE_SALE_PROJECT_PAURA).toBe(PRIVATE_SALE_CAP_WHOLE);
+    expect(pAuraToLaunchAura(PRIVATE_SALE_OPEN_PAURA)).toBe(PRIVATE_SALE_OPEN_LAUNCH_AURA);
+    expect(pAuraToLaunchAura(PRIVATE_SALE_PROJECT_PAURA)).toBe(PRIVATE_SALE_PROJECT_LAUNCH_AURA);
+    expect(PRIVATE_SALE_OPEN_LAUNCH_AURA + PRIVATE_SALE_PROJECT_LAUNCH_AURA).toBe(
+      PRIVATE_SALE_LAUNCH_AURA,
+    );
+    expect(allocationById("private").amount).toBe(PRIVATE_SALE_OPEN_LAUNCH_AURA);
+    expect(allocationById("project_sale").amount).toBe(PRIVATE_SALE_PROJECT_LAUNCH_AURA);
+    expect(allocationById("private").pct + allocationById("project_sale").pct).toBe(33);
   });
 
   it("prices 50 USDC at the $1M FDV formula", () => {

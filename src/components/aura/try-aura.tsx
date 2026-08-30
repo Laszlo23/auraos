@@ -153,7 +153,7 @@ export function TryAura({ standalone = false }: { standalone?: boolean }) {
                   onClick={() => trackTeaser("cta_click", { placement: "try_wake_seat" })}
                   className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
                 >
-                  {de ? "Firma wecken — $99" : "Wake your company — $99"}{" "}
+                  {de ? "Firma wecken — $299" : "Wake your company — $299"}{" "}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <button
@@ -175,8 +175,8 @@ export function TryAura({ standalone = false }: { standalone?: boolean }) {
             </p>
             <p className="mt-2 text-[15px] leading-relaxed">
               {de
-                ? "Founding Seat $99 einmalig. Abo und Compute extra. Kein Fake-Umsatz in diesem Walkthrough."
-                : "Founding seat $99 one-time. Subscription and compute stay separate. This walkthrough invents no revenue."}
+                ? "Founding Seat $299 einmalig. Abo und Compute extra. Kein Fake-Umsatz in diesem Walkthrough."
+                : "Founding seat $299 one-time. Subscription and compute stay separate. This walkthrough invents no revenue."}
             </p>
             {!standalone ? (
               <Link
