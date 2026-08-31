@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { glueckAufNote, isLokalClaimPath } from "@/lib/auth-next";
+import { glueckAufNote, isLokalClaimPath, looksLikeInviteCode } from "@/lib/auth-next";
 
 describe("isLokalClaimPath", () => {
   it("allows live claim tokens and rejects junk", () => {
@@ -8,6 +8,17 @@ describe("isLokalClaimPath", () => {
     expect(isLokalClaimPath("/lokal/claim/short")).toBe(false);
     expect(isLokalClaimPath("/lokal/claim/../../etc")).toBe(false);
     expect(isLokalClaimPath("/nachbar/heute")).toBe(false);
+  });
+});
+
+describe("looksLikeInviteCode", () => {
+  it("accepts short founder codes and rejects PKCE-length strings", () => {
+    expect(looksLikeInviteCode("INVAB12")).toBe(true);
+    expect(looksLikeInviteCode("LOOK")).toBe(true);
+    expect(looksLikeInviteCode("wave_1")).toBe(true);
+    expect(looksLikeInviteCode("ab")).toBe(false);
+    expect(looksLikeInviteCode("a".repeat(40))).toBe(false);
+    expect(looksLikeInviteCode("pkce.token.with.dots")).toBe(false);
   });
 });
 

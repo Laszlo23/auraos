@@ -67,6 +67,8 @@ export const BRAND_ASSETS = {
   hood: "/brand/aura-hood.jpg",
   hoodToken: "/hood.jpg",
   hoodOg: "/og/hood.jpg",
+  /** Square collection image for marketplaces (OpenSea / Basescan). */
+  hoodCollection: "/collection/hood.jpg",
 } as const;
 
 export const BRAND_RULES = {

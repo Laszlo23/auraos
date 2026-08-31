@@ -27,7 +27,7 @@ export const OG_CAMPAIGN = {
   },
   hood: {
     path: "/og/hood.jpg",
-    alt: "The Hood. Nouns noggles. Velvet palace. 70% mint to liquidity, 30% ops. Coming to Robinhood Chain.",
+    alt: "The Hood. Founding circle. 70% mint to liquidity, 30% ops. Mint opens 15 September 2026.",
   },
   nachbar: {
     path: "/og/nachbar.jpg",

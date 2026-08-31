@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { fulfillFoundingSeatCrypto, nowIpnCoversFoundingSeat } from "@/lib/founding-crypto-seat";
 import {
   fulfillLocalSeatCrypto,
   isPaidNowStatus,
@@ -35,6 +36,47 @@ export const Route = createFileRoute("/api/billing/crypto-ipn")({
           return Response.json({ received: true, status: payload.payment_status ?? "unknown" });
         }
 
+        const checkoutId = String(payload.order_id || "").trim();
+        if (!checkoutId) {
+          return Response.json({ error: "Missing order_id" }, { status: 400 });
+        }
+
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const db = supabaseAdmin as unknown as { from: (t: string) => any };
+
+        const { data: founding } = await db
+          .from("founding_crypto_checkouts")
+          .select("id, user_id, asset, status")
+          .eq("id", checkoutId)
+          .maybeSingle();
+
+        if (founding) {
+          if (!nowIpnCoversFoundingSeat(payload)) {
+            return Response.json(
+              { error: "outcome_amount / outcome_currency did not cover the founding seat" },
+              { status: 400 },
+            );
+          }
+          try {
+            await fulfillFoundingSeatCrypto({
+              checkoutId: founding.id as string,
+              userId: founding.user_id as string,
+              asset: (founding.asset as string) || String(payload.pay_currency || "crypto"),
+              providerPaymentId: payload.payment_id != null ? String(payload.payment_id) : null,
+              outcomeAmount: payload.outcome_amount != null ? String(payload.outcome_amount) : null,
+              outcomeCurrency:
+                payload.outcome_currency != null ? String(payload.outcome_currency) : null,
+            });
+            return Response.json({ received: true, paid: true, kind: "founding" });
+          } catch (e) {
+            console.error("[crypto-ipn] founding", e instanceof Error ? e.message : e);
+            return Response.json(
+              { error: e instanceof Error ? e.message : "fulfill_failed" },
+              { status: 500 },
+            );
+          }
+        }
+
         if (!nowIpnCoversSeat(payload)) {
           return Response.json(
             { error: "outcome_amount / outcome_currency did not cover the seat" },
@@ -42,12 +84,6 @@ export const Route = createFileRoute("/api/billing/crypto-ipn")({
           );
         }
 
-        const checkoutId = String(payload.order_id || "").trim();
-        if (!checkoutId) {
-          return Response.json({ error: "Missing order_id" }, { status: 400 });
-        }
-
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: checkout } = await supabaseAdmin
           .from("local_crypto_checkouts")
           .select("id, company_id, asset, status")
@@ -65,9 +101,10 @@ export const Route = createFileRoute("/api/billing/crypto-ipn")({
             asset: (checkout.asset as string) || String(payload.pay_currency || "crypto"),
             providerPaymentId: payload.payment_id != null ? String(payload.payment_id) : null,
             outcomeAmount: payload.outcome_amount != null ? String(payload.outcome_amount) : null,
-            outcomeCurrency: payload.outcome_currency != null ? String(payload.outcome_currency) : null,
+            outcomeCurrency:
+              payload.outcome_currency != null ? String(payload.outcome_currency) : null,
           });
-          return Response.json({ received: true, paid: true });
+          return Response.json({ received: true, paid: true, kind: "local" });
         } catch (e) {
           console.error("[crypto-ipn]", e instanceof Error ? e.message : e);
           return Response.json(

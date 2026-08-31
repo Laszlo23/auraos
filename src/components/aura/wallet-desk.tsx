@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { HoodPortrait } from "@/components/aura/hood-portrait";
 import { Chip, Panel } from "@/components/aura/primitives";
 import { Counter } from "@/components/aura/counter";
 import { DeskChainSwitcher } from "@/components/aura/desk-chain-switcher";
@@ -57,11 +58,7 @@ import {
 import type { HolderPerks } from "@/lib/trading/holder-perks";
 import { NATIVE_ETH, WETH_ADDRESSES } from "@/lib/trading/tokens";
 import { currency } from "@/lib/format";
-import { HOOD } from "@/lib/hood";
-import { mediaPath } from "@/lib/site";
 import { cn } from "@/lib/utils";
-
-const HOOD_ART = mediaPath(HOOD.art);
 
 export function WalletDesk({
   seat,
@@ -516,16 +513,17 @@ export function WalletDesk({
                 : "border-border/50 bg-foreground/5 text-muted-foreground",
             )}
           >
-            <img
-              src={HOOD_ART}
-              alt=""
-              title="The Hood"
-              width={22}
-              height={22}
-              decoding="async"
-              className="h-[22px] w-[22px] rounded-full object-cover"
+            <HoodPortrait
+              tokenId={genesis.data?.tokenId ?? seat ?? 1}
+              size="chip"
+              foil={false}
+              className="h-[22px] w-[22px] border-gold/40"
             />
-            {genesisMinted ? "The Hood" : "Hood available"}
+            {genesisMinted
+              ? "The Hood"
+              : genesis.data?.mintOpen
+                ? "Hood available"
+                : "Hood mint soon"}
           </span>
           {perks?.perks
             .filter((p) => p.active)

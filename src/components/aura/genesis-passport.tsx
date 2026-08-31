@@ -3,17 +3,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { HoodEarlyPassGate } from "@/components/aura/hood-early-pass";
+import { HoodMintCountdown } from "@/components/aura/hood-mint-countdown";
+import { HoodPortrait } from "@/components/aura/hood-portrait";
+import { HoodWalletMint } from "@/components/aura/hood-wallet-mint";
 import { Chip, Panel } from "@/components/aura/primitives";
 import {
   claimGenesisNft,
   createGenesisCheckout,
   getGenesisStatus,
   markGenesisPaidFromX402,
+  recordHoodWalletMint,
 } from "@/lib/genesis.functions";
-import { HOOD } from "@/lib/hood";
-import { mediaPath } from "@/lib/site";
-
-const GENESIS_ART = mediaPath(HOOD.art);
+import { resolveHoodTraits } from "@/lib/hood-traits";
+import { hoodMintIsOpen } from "@/lib/hood-mint";
 
 /** Genesis = Founding Company Passport — utility NFT, not an investment / not token launch. */
 export function GenesisPassport({
@@ -33,12 +36,14 @@ export function GenesisPassport({
   });
 
   const [busy, setBusy] = useState(false);
+  const [autoClaimed, setAutoClaimed] = useState(false);
+  const [earlyUnlocked, setEarlyUnlocked] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("genesis") === "success") {
-      toast.success("Payment received — claim your Hood mint when ready.");
+      toast.success("Payment received — claiming your Hood…");
       void qc.invalidateQueries({ queryKey: ["genesis-status"] });
     }
     if (params.get("genesis") === "cancel") {
@@ -73,6 +78,16 @@ export function GenesisPassport({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Paid + wallet ready → claim without a second click.
+  useEffect(() => {
+    if (autoClaimed) return;
+    if (!status?.canClaim) return;
+    setAutoClaimed(true);
+    claim.mutate();
+    // Intentionally omit `claim` — mutate once when canClaim flips true.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status?.canClaim, autoClaimed]);
+
   const onBuy = async () => {
     setBusy(true);
     try {
@@ -84,36 +99,30 @@ export function GenesisPassport({
 
   const st = status?.status ?? "none";
   const minted = st === "minted" || Boolean(status?.ownsOnchain);
-  const tokenId = status?.tokenId ?? seat ?? null;
-  const metaUrl = tokenId != null ? `/api/genesis/meta/${tokenId}` : "/api/genesis/meta/1";
+  const tokenId = status?.tokenId ?? seat ?? 1;
+  const traits = resolveHoodTraits(tokenId);
+  const metaUrl = `/api/genesis/meta/${tokenId}`;
+  const showWalletMint =
+    !minted &&
+    Boolean(status?.escrowConfigured) &&
+    (Boolean(status?.mintOpen) || earlyUnlocked || hoodMintIsOpen());
 
   return (
     <Panel label="The Hood · founding circle" delay={0.06} glow={minted}>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,220px)_1fr]">
         <div className="mx-auto w-full max-w-[220px]">
-          <div className="overflow-hidden rounded-[1.35rem] border border-gold/25 bg-foreground/[0.04] shadow-[0_0_40px_-12px_oklch(0.75_0.12_85/0.45)]">
-            <img
-              src={GENESIS_ART}
-              alt="The Hood — noggles, CryptoPunk, velvet palace. Mint to liquidity."
-              title="The Hood"
-              width={800}
-              height={800}
-              loading="lazy"
-              decoding="async"
-              className="aspect-square w-full object-cover"
-            />
-          </div>
+          <HoodPortrait tokenId={tokenId} size="passport" />
           <p className="mt-2 text-center text-[10px] uppercase tracking-[0.18em] text-gold/80">
-            Official Hood art
+            {traits.character.name} · {traits.seal.label}
+            {minted ? ` · #${tokenId}` : " · preview"}
           </p>
         </div>
 
         <div>
           <p className="text-[13px] leading-relaxed text-muted-foreground">
             The Hood is the founding-circle key — not an investment and not the AURA launch token.
-            70% of this $299 mint is reserved for launch liquidity. 30% pays developer ops — servers
-            and infra. Coming to Robinhood Chain when that contract is published. Pay, then claim a
-            server-gated mint to your smart wallet.
+            Mint with your wallet in one flow: connect → approve $299 USDC → mint. 70% goes on-chain
+            into the launch escrow. Card / x402 still work if you prefer.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="glass-soft rounded-2xl p-4">
@@ -131,7 +140,7 @@ export function GenesisPassport({
                 {minted ? (
                   <Chip tone="gold">Minted</Chip>
                 ) : st === "paid" ? (
-                  <Chip tone="primary">Paid — claim mint</Chip>
+                  <Chip tone="primary">Paid — minting…</Chip>
                 ) : st === "pending" ? (
                   <Chip>Checkout pending</Chip>
                 ) : (
@@ -153,27 +162,62 @@ export function GenesisPassport({
             </div>
           </div>
 
+          {showWalletMint || (!minted && !status?.mintOpen) ? (
+            <div className="mt-5 space-y-4">
+              {!status?.mintOpen ? (
+                <HoodEarlyPassGate locale="en" onUnlocked={setEarlyUnlocked} />
+              ) : null}
+              {showWalletMint ? (
+                <HoodWalletMint
+                  compact
+                  earlyUnlocked={earlyUnlocked}
+                  onMinted={(opts) => {
+                    void recordHoodWalletMint({
+                      data: {
+                        wallet: opts.wallet,
+                        tokenId: opts.tokenId,
+                        txHash: opts.txHash,
+                      },
+                    })
+                      .then(async () => {
+                        await qc.invalidateQueries({ queryKey: ["genesis-status"] });
+                        await qc.invalidateQueries({ queryKey: ["holder-perks"] });
+                      })
+                      .catch(() => {
+                        /* on-chain mint already succeeded */
+                      });
+                  }}
+                />
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="mt-5 flex flex-wrap gap-2">
+            {!minted && !status?.mintOpen && st !== "paid" ? (
+              <div className="w-full">
+                <HoodMintCountdown locale="en" showSocials={false} />
+              </div>
+            ) : null}
             {!minted && status?.canCheckout && status.stripeConfigured ? (
               <button
                 type="button"
                 disabled={busy || checkout.isPending}
                 onClick={() => void onBuy()}
-                className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-[12px] font-semibold text-primary-foreground disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-2xl border border-border/60 px-4 py-2.5 text-[12px] font-semibold disabled:opacity-40"
               >
                 {(busy || checkout.isPending) && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                Buy with card (${status.priceUsdc}) — Stripe
+                Or pay with card (${status.priceUsdc})
               </button>
             ) : null}
 
-            {!minted && status?.canCheckout && !status.stripeConfigured ? (
+            {!minted && status?.canCheckout && !status.stripeConfigured && !showWalletMint ? (
               <p className="text-[12px] text-muted-foreground">
                 Fiat checkout needs <span className="font-mono">STRIPE_PRICE_GENESIS_NFT</span>. You
                 can still pay via x402 (genesis-passport) then confirm below.
               </p>
             ) : null}
 
-            {!minted && st !== "paid" ? (
+            {!minted && status?.mintOpen && st !== "paid" ? (
               <button
                 type="button"
                 disabled={confirmX402.isPending}
@@ -185,23 +229,26 @@ export function GenesisPassport({
               </button>
             ) : null}
 
-            {status?.canClaim ? (
+            {status?.canClaim && claim.isPending ? (
+              <p className="inline-flex items-center gap-2 text-[12px] text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Claiming mint to your wallet…
+              </p>
+            ) : null}
+
+            {status?.canClaim && !claim.isPending && claim.isError ? (
               <button
                 type="button"
-                disabled={claim.isPending}
                 onClick={() => claim.mutate()}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gold/90 px-4 py-2.5 text-[12px] font-semibold text-background disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gold/90 px-4 py-2.5 text-[12px] font-semibold text-background"
               >
-                {claim.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                Claim mint to wallet
+                Retry claim mint
               </button>
             ) : null}
 
             {st === "paid" && !status?.mintConfigured ? (
               <p className="w-full text-[12px] text-muted-foreground">
-                Payment recorded. Mint unlocks when{" "}
-                <span className="font-mono">GENESIS_NFT_CONTRACT</span> +{" "}
-                <span className="font-mono">GENESIS_MINTER_KEY</span> are set (Sepolia first).
+                Payment recorded. Use wallet mint above, or set{" "}
+                <span className="font-mono">GENESIS_MINTER_KEY</span> for server claim.
               </p>
             ) : null}
 
@@ -229,9 +276,9 @@ export function GenesisPassport({
           {status?.error ? (
             <p className="mt-3 text-[12px] text-destructive">{status.error}</p>
           ) : null}
-          {!status?.wallet && !isLoading ? (
+          {!status?.wallet && !isLoading && !showWalletMint ? (
             <p className="mt-3 text-[12px] text-muted-foreground">
-              Create your smart wallet above before claiming the mint.
+              Connect any Base wallet above to mint, or create your smart wallet first.
             </p>
           ) : null}
         </div>

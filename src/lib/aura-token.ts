@@ -98,8 +98,8 @@ export const AURA_ALLOCATIONS: AuraAllocation[] = [
   },
   {
     id: "public",
-    label: "Public launch / community",
-    labelDe: "Öffentlicher Start",
+    label: "Hood launch gifts (locked 90d)",
+    labelDe: "Hood-Startgeschenke (90 Tage gesperrt)",
     pct: 1,
     amount: 7_777_778,
   },
@@ -150,6 +150,14 @@ export const AURA_LOCKS = [
     lock: "Launch LP is locked in the Clanker / Uniswap v4 pool at T-0 — not sitting in a team wallet.",
     lockDe:
       "Die Start-LP liegt bei T-0 im Clanker- / Uniswap-v4-Pool — nicht in einer Team-Wallet.",
+  },
+  {
+    id: "hood_gifts",
+    label: "Hood launch gifts",
+    labelDe: "Hood-Startgeschenke",
+    lock: "Each Hood is owed 7,777 AURA plus any AURA the Hood USDC book buys on the official pair. Locked 90 days after T-0. No admin clawback. 70% of each $299 mint is trapped in AuraLaunchEscrow until that buy.",
+    lockDe:
+      "Jeder Hood bekommt 7.777 AURA plus AURA, die das Hood-USDC-Buch auf dem offiziellen Paar kauft. 90 Tage nach T-0 gesperrt. Kein Admin-Clawback. 70% jedes 299-$-Mints bleiben im AuraLaunchEscrow bis zu diesem Kauf.",
   },
 ] as const;
 

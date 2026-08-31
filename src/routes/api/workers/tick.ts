@@ -55,7 +55,17 @@ async function runTick(taskLimit: number) {
     console.warn("[workers/tick] mission advance failed", e instanceof Error ? e.message : e);
   }
 
-  return { ok: true, tasks, channels, drip, engagement, trading, subscriptions, siteLeads, missions };
+  return {
+    ok: true,
+    tasks,
+    channels,
+    drip,
+    engagement,
+    trading,
+    subscriptions,
+    siteLeads,
+    missions,
+  };
 }
 
 export const Route = createFileRoute("/api/workers/tick")({

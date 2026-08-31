@@ -72,19 +72,11 @@ Confirm in Studio → Authentication → URL Configuration, or rely on config.to
 
 Fix: either start Docker + `npm run db:start`, **or** point `.env.local` at the cloud project (current default when Docker is off). Restart `npm run dev` after changing env.
 
-**Google sign-in (production):**
+**Sign-in (production):** wallet (SIWE) or magic link. Password remains as a fallback.
 
-1. Supabase Dashboard → Authentication → Providers → Google must be **enabled** with Client ID + Secret.
-2. In Google Cloud Console → Credentials → OAuth client
-   `573598326867-nhc2piqe668qa4t6t26pqllrik85vj88.apps.googleusercontent.com`,
-   add Authorized redirect URI:
-   `https://fjmrlnwqzjhyzerruhsq.supabase.co/auth/v1/callback`
-3. Authorized JavaScript origins should include `https://aibusiness.fun` (and localhost for local).
-4. Supabase Site URL / redirect allowlist must include `https://aibusiness.fun/**`.
+Google OAuth was removed from the app UI. Dashboard Google config is unused; do not point users at `/~oauth/initiate` (Lovable Cloud-only, 404s on `aibusiness.fun`).
 
-If step 2 is missing, Google shows `redirect_uri_mismatch`. Email/password and magic link still work.
-
-Do **not** use Lovable’s `/~oauth/initiate` broker on the VPS — that route is Cloud-only and 404s on `aibusiness.fun`.
+Wallet login uses `wallet_identities` + a short-lived SIWE nonce. Magic-link / PKCE still returns to `/auth`.
 
 Cloud password auth health check:
 

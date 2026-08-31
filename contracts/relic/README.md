@@ -6,7 +6,7 @@ Numbered collectible: **Aura Relic #n / 7** on Base. Not AURA, not pAURA, not an
 
 - No public `mint()`. Only `MINTER_ROLE`.
 - `MAX_SUPPLY` is an immutable 7 (no admin raise).
-- `pause` on admin.
+- `pause` on admin. Residual risk on the live contract: admin can still change `baseURI` or pause. Do not raise anything; freeze URI by never calling `setBaseURI` again. Relics are not the fair-launch desk — Hood USDC + locked AURA live in `contracts/launch/`.
 - App never puts `RELIC_MINTER_KEY` or `RELIC_ANSWER_HASH` in `VITE_*` env.
 - The claim phrase is **not** in this repo. Hash it off-box and set `RELIC_ANSWER_HASH` on the server only.
 

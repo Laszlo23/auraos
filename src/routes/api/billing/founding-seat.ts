@@ -111,7 +111,9 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
         if (inviteMeta) params.set("metadata[invite_code]", inviteMeta);
         params.set("line_items[0][price]", priceId);
         params.set("line_items[0][quantity]", "1");
-        if (user.email) params.set("customer_email", user.email);
+        if (user.email && !user.email.toLowerCase().endsWith("@siwe.aibusiness.fun")) {
+          params.set("customer_email", user.email);
+        }
 
         try {
           // Prefer Checkout ToS checkbox when Dashboard public details include Terms URL.

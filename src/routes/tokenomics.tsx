@@ -22,6 +22,7 @@ import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
 import { TOKEN_DISCLAIMER, TOKENOMICS } from "@/lib/tokenomics";
+import { LAUNCH_PROOF, launchEscrowAddress, launchGiftLockAddress } from "@/lib/aura-launch";
 
 const TITLE = "AURA tokenomics — 777,777,777 supply, product first";
 const DESCRIPTION =
@@ -180,6 +181,61 @@ function TokenomicsPage() {
             days after T-0. Unsold pAURA is never minted. Building Culture products that used BCC
             move to AURA at T-0 — Aura OS stays subscription software and does not require BCC
             today.
+          </p>
+        </section>
+
+        <section className="mt-14">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Hood desk
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            {LAUNCH_PROOF.title}
+          </h2>
+          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
+            {LAUNCH_PROOF.lead}
+          </p>
+          <ul className="mt-5 space-y-3">
+            {LAUNCH_PROOF.bullets.map((row) => (
+              <li key={row.id} className="rounded-2xl border border-border/40 bg-card/20 px-5 py-4">
+                <p className="text-[13px] leading-relaxed text-muted-foreground">{row.en}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <p className="break-all font-mono text-[12px] text-muted-foreground">
+              Escrow{" "}
+              {launchEscrowAddress() ? (
+                <a
+                  href={privateSaleBasescan(`/address/${launchEscrowAddress()}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary"
+                >
+                  {launchEscrowAddress()}
+                </a>
+              ) : (
+                <span>— not deployed yet</span>
+              )}
+            </p>
+            <p className="break-all font-mono text-[12px] text-muted-foreground">
+              Gift lock{" "}
+              {launchGiftLockAddress() ? (
+                <a
+                  href={privateSaleBasescan(`/address/${launchGiftLockAddress()}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary"
+                >
+                  {launchGiftLockAddress()}
+                </a>
+              ) : (
+                <span>— not deployed yet</span>
+              )}
+            </p>
+          </div>
+          <p className="mt-3 text-[12.5px] text-muted-foreground">
+            Source: <span className="font-mono">contracts/launch/</span> · 7,777 AURA × 1,000 Hoods
+            = 7,777,000 of the 1% public slice. Remainder 778 is dust in that same line.
           </p>
         </section>
 

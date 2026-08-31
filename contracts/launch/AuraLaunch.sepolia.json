@@ -1,0 +1,22 @@
+{
+  "chainId": 84532,
+  "network": "base-sepolia",
+  "passport": "0xaF4F45370C9158d664D00481f1c14eD1e04364fd",
+  "escrow": "0x07c7101FC42C2FEf3bc84C6ABAb400B8116dC647",
+  "gifts": "0x9455d5933B8bb4F15A413914A4e89694aa672D88",
+  "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "ops": "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1",
+  "owner": "0x2CCf1076A9DCA4d656A156d6036Cc2066c596AF5",
+  "verified": {
+    "launchDesk": "0x07c7101FC42C2FEf3bc84C6ABAb400B8116dC647",
+    "giftDesk": "0x07c7101FC42C2FEf3bc84C6ABAb400B8116dC647",
+    "maxSupply": 1000,
+    "name": "Aura Genesis Passport"
+  },
+  "explorers": {
+    "passport": "https://sepolia.basescan.org/address/0xaF4F45370C9158d664D00481f1c14eD1e04364fd",
+    "escrow": "https://sepolia.basescan.org/address/0x07c7101FC42C2FEf3bc84C6ABAb400B8116dC647",
+    "gifts": "https://sepolia.basescan.org/address/0x9455d5933B8bb4F15A413914A4e89694aa672D88"
+  },
+  "deployedAt": "2026-08-31T15:35:53.169Z"
+}

@@ -71,11 +71,36 @@ describe("trading sizing & arena", () => {
     expect(high).toBeGreaterThan(low);
   });
 
+  it("applies Hood season score multiplier", () => {
+    const plain = scoreDeskWeek({ realizedPnl: 100, maxDrawdownPct: 0, tradeCount: 4 });
+    const hood = scoreDeskWeek({
+      realizedPnl: 100,
+      maxDrawdownPct: 0,
+      tradeCount: 4,
+      hoodMultiplier: 1.1,
+    });
+    expect(hood).toBeCloseTo(plain * 1.1, 4);
+  });
+
   it("maps AURA tiers", () => {
     expect(buildHolderPerks({ auraBalance: 0 }).tier).toBe("none");
     expect(buildHolderPerks({ auraBalance: 50 }).tier).toBe("spark");
     expect(buildHolderPerks({ auraBalance: 1500 }).notionalBoostPct).toBe(15);
     expect(buildHolderPerks({ auraBalance: 4000 }).strategySlotBonus).toBe(1);
     expect(buildHolderPerks({ auraBalance: 100, hasGenesisNft: true }).tier).toBe("genesis");
+  });
+
+  it("gives Genesis extras without 3,000 AURA", () => {
+    const perks = buildHolderPerks({ auraBalance: 50, hasGenesisNft: true });
+    expect(perks.notionalBoostPct).toBe(35);
+    expect(perks.strategySlotBonus).toBe(2);
+    expect(perks.questXpBoostPct).toBe(35);
+    expect(perks.x402RebateBps).toBe(2500);
+    expect(perks.seasonScoreMultiplier).toBe(1.1);
+    expect(perks.perks.find((p) => p.id === "season")?.active).toBe(true);
+    expect(perks.perks.find((p) => p.id === "x402")?.active).toBe(true);
+    expect(perks.perks.find((p) => p.id === "arena")).toBeUndefined();
+    expect(perks.perks.find((p) => p.id === "hold-to-earn")?.active).toBe(false);
+    expect(perks.nftRoadmap.some((n) => /hold-to-earn/i.test(n.title))).toBe(true);
   });
 });

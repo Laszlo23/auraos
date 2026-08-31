@@ -20,12 +20,20 @@ export type HolderPerks = {
   strategySlotBonus: number;
   arenaEntryDiscountPct: number;
   questXpBoostPct: number;
+  x402RebateBps: number;
+  seasonScoreMultiplier: number;
   hasGenesisNft: boolean;
   genesisNftContract: string | null;
   perks: HolderPerk[];
   /** Transparent roadmap for the future Genesis NFT. */
   nftRoadmap: { title: string; body: string }[];
 };
+
+/** Hood holders: 25% off paid catalog slugs except the Hood mint itself. */
+export const HOOD_X402_REBATE_BPS = 2500;
+/** Weekly Trading Arena score multiplier for minted Hood holders. */
+export const HOOD_SEASON_SCORE_MULTIPLIER = 1.1;
+export const HOOD_X402_REBATE_EXCLUDED = ["genesis-passport"] as const;
 
 const TIERS: {
   id: HolderTierId;
@@ -74,6 +82,16 @@ export function resolveHolderTier(auraBalance: number, hasGenesisNft: boolean): 
   return tier;
 }
 
+export function hoodX402PriceUsdc(priceUsdc: number, slug: string, hasHood: boolean): number {
+  if (
+    !hasHood ||
+    HOOD_X402_REBATE_EXCLUDED.includes(slug as (typeof HOOD_X402_REBATE_EXCLUDED)[number])
+  ) {
+    return priceUsdc;
+  }
+  return Math.round(priceUsdc * (1 - HOOD_X402_REBATE_BPS / 10_000) * 1_000_000) / 1_000_000;
+}
+
 export function buildHolderPerks(opts: {
   auraBalance: number;
   hasGenesisNft?: boolean;
@@ -105,6 +123,8 @@ export function buildHolderPerks(opts: {
     base.arenaEntryDiscountPct + genesisExtras.arenaEntryDiscountPct,
   );
   const questXpBoostPct = base.questXpBoostPct + genesisExtras.questXpBoostPct;
+  const x402RebateBps = hasGenesisNft ? HOOD_X402_REBATE_BPS : 0;
+  const seasonScoreMultiplier = hasGenesisNft ? HOOD_SEASON_SCORE_MULTIPLIER : 1;
 
   const next =
     tier === "none" ? TIERS[0] : tier === "spark" ? TIERS[1] : tier === "charge" ? TIERS[2] : null;
@@ -119,7 +139,7 @@ export function buildHolderPerks(opts: {
     {
       id: "quest_xp",
       label: `+${questXpBoostPct || 10}% quest XP`,
-      description: "Faster founder XP on trading quests.",
+      description: "Faster founder XP on desk quests.",
       active: questXpBoostPct > 0,
     },
     {
@@ -135,16 +155,29 @@ export function buildHolderPerks(opts: {
       active: strategySlotBonus > 0,
     },
     {
-      id: "arena",
-      label: `${arenaEntryDiscountPct || 25}% Arena discount`,
-      description: "Cheaper weekly Trading Arena entry (when fees apply).",
-      active: arenaEntryDiscountPct > 0,
+      id: "season",
+      label: "+10% season score",
+      description: "Founding-circle multiplier on the weekly Trading Arena score.",
+      active: hasGenesisNft,
+    },
+    {
+      id: "x402",
+      label: "25% x402 rebate",
+      description: "25% off paid desk x402 calls. The Hood mint stays $299.",
+      active: hasGenesisNft,
     },
     {
       id: "genesis",
-      label: "Hood NFT perks",
-      description: "Founding-circle badge, x402 fee rebate, season score multiplier — when minted.",
+      label: "Founding-circle badge",
+      description: "The Hood on your desk — unique 4-layer passport.",
       active: hasGenesisNft,
+    },
+    {
+      id: "hold-to-earn",
+      label: "Hold-to-earn",
+      description:
+        "Founding-circle cut of desk, catalog, and x402 fees while the Hood sits in your wallet. Ships with the mint — not a fixed APY.",
+      active: false,
     },
   ];
 
@@ -159,25 +192,27 @@ export function buildHolderPerks(opts: {
     strategySlotBonus,
     arenaEntryDiscountPct,
     questXpBoostPct,
+    x402RebateBps,
+    seasonScoreMultiplier,
     hasGenesisNft,
     genesisNftContract: opts.genesisNftContract ?? null,
     perks,
     nftRoadmap: [
       {
-        title: "The Hood (ERC-721)",
-        body: "Founding-circle key. 70% of the $299 mint to T-0 liquidity, 30% to developer ops (servers). Unlocks Core perks plus badge, early presets, and Arena multiplier.",
+        title: "The Hood — first 1,000 only",
+        body: "Capped founding circle. Extra perks never expand past these thousand. 70% of the $299 mint to T-0 liquidity, 30% to ops.",
+      },
+      {
+        title: "Hold-to-earn while you hold",
+        body: "A share of real desk, catalog, and x402 fees, claimable only by the current owner. Sell the Hood, the stream walks. Not a fixed APY.",
+      },
+      {
+        title: "7,777 AURA + desk genesis",
+        body: "Gift lock 90 days after T-0. Extra strategy slot, +10% season score, quest XP, 25% x402 rebate, founding badge.",
       },
       {
         title: "Robinhood Chain",
         body: "Same circle, next chain — when the Hood contract is published there. Official CA only on aibusiness.fun.",
-      },
-      {
-        title: "Onchain AURA",
-        body: "In-app AURA migrates 1:1 to Base when the ERC-20 ships — holder tiers keep working.",
-      },
-      {
-        title: "Fee rebates",
-        body: "Hood holders get a rebate on paid x402 Quant signal calls.",
       },
     ],
   };

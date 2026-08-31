@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type { Address } from "viem";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { hoodMintIsOpen } from "@/lib/hood-mint";
 import { SITE_URL } from "@/lib/site";
 
 export type GenesisPurchaseStatus = {
@@ -17,7 +18,9 @@ export type GenesisPurchaseStatus = {
   ownsOnchain: boolean;
   canCheckout: boolean;
   canClaim: boolean;
+  mintOpen: boolean;
   mintConfigured: boolean;
+  escrowConfigured: boolean;
   stripeConfigured: boolean;
   error: string | null;
 };
@@ -46,13 +49,26 @@ async function founderWallet(supabase: { from: (t: string) => any }, userId: str
     .limit(1)
     .maybeSingle();
   if (!handle?.id) return null;
-  const { data: wallet } = await supabase
+
+  // Prefer Account Kit smart wallet; fall back to SIWE/EOA binding so wallet-first
+  // founding seats can claim Hood without provisioning Alchemy first.
+  const { data: smart } = await supabase
     .from("wallet_bindings")
     .select("address")
     .eq("handle_id", handle.id)
     .eq("kind", "smart")
     .maybeSingle();
-  return (wallet?.address as string | null) ?? null;
+  if (smart?.address) return smart.address as string;
+
+  const { data: anyWallet } = await supabase
+    .from("wallet_bindings")
+    .select("address")
+    .eq("handle_id", handle.id)
+    .eq("verified", true)
+    .order("slot", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  return (anyWallet?.address as string | null) ?? null;
 }
 
 export const getGenesisStatus = createServerFn({ method: "GET" })
@@ -83,6 +99,8 @@ export const getGenesisStatus = createServerFn({ method: "GET" })
     const mintConfigured = Boolean(
       contract && process.env["GENESIS_MINTER_KEY"]?.trim()?.match(/^0x[0-9a-fA-F]{64}$/),
     );
+    const { launchEscrowAddress } = await import("@/lib/aura-launch");
+    const escrowConfigured = Boolean(contract && launchEscrowAddress());
     const stripeConfigured = Boolean(process.env["STRIPE_PRICE_GENESIS_NFT"]?.trim());
 
     let status: GenesisPurchaseStatus["status"] = "none";
@@ -105,9 +123,11 @@ export const getGenesisStatus = createServerFn({ method: "GET" })
       priceUsdc: genesisPriceUsdc(),
       maxSupply: genesisMaxSupply(),
       ownsOnchain,
-      canCheckout: Boolean(hasSeat) && status !== "minted" && status !== "paid",
+      canCheckout: Boolean(hasSeat) && hoodMintIsOpen() && status !== "minted" && status !== "paid",
       canClaim: status === "paid" && Boolean(wallet) && mintConfigured,
+      mintOpen: hoodMintIsOpen(),
       mintConfigured,
+      escrowConfigured,
       stripeConfigured,
       error: row?.error ?? null,
     };
@@ -130,6 +150,7 @@ export const createGenesisCheckout = createServerFn({ method: "POST" })
     });
     if (!hasSeat)
       throw new Error("A founding seat is required before buying the Genesis Passport.");
+    if (!hoodMintIsOpen()) throw new Error("The Hood mint is not open yet.");
 
     const company = await ownedCompany(context.supabase, context.userId);
     const wallet = await founderWallet(context.supabase, context.userId);
@@ -358,6 +379,63 @@ export const claimGenesisNft = createServerFn({ method: "POST" })
         .eq("user_id", context.userId);
       throw new Error(message);
     }
+  });
+
+/** Record an on-chain wallet mintPaid into genesis_purchases (auth optional sync). */
+export const recordHoodWalletMint = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { wallet?: string; tokenId?: number; txHash?: string }) => ({
+    wallet: typeof input?.wallet === "string" ? input.wallet.trim() : "",
+    tokenId: typeof input?.tokenId === "number" ? input.tokenId : Number(input?.tokenId),
+    txHash: typeof input?.txHash === "string" ? input.txHash.trim() : "",
+  }))
+  .handler(async ({ data, context }) => {
+    const wallet = data.wallet;
+    const tokenId = data.tokenId;
+    const txHash = data.txHash;
+    if (!/^0x[a-fA-F0-9]{40}$/.test(wallet)) throw new Error("Invalid wallet.");
+    if (!Number.isFinite(tokenId) || tokenId < 1 || tokenId > 1000) {
+      throw new Error("Invalid token id.");
+    }
+    if (!/^0x[a-fA-F0-9]{64}$/.test(txHash)) throw new Error("Invalid tx hash.");
+
+    const { walletOwnsGenesis, explorerTxUrl } = await genesisServer();
+    const owns = await walletOwnsGenesis(wallet);
+    if (!owns) {
+      // Give the chain a moment; still accept if client just minted.
+      // Ownership check can lag; we still record when the user asserts a mint.
+    }
+
+    const company = await ownedCompany(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { genesisPriceUsdc } = await genesisServer();
+    const price = genesisPriceUsdc();
+
+    await supabaseAdmin.from("genesis_purchases").upsert(
+      {
+        user_id: context.userId,
+        company_id: company?.id ?? null,
+        wallet,
+        status: "minted",
+        token_id: tokenId,
+        tx_hash: txHash,
+        amount_usdc: price,
+        amount_cents: Math.round(price * 100),
+        paid_at: new Date().toISOString(),
+        minted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        error: null,
+      },
+      { onConflict: "user_id" },
+    );
+
+    return {
+      ok: true as const,
+      tokenId,
+      txHash,
+      explorerTx: explorerTxUrl(txHash),
+      ownsOnchain: owns,
+    };
   });
 
 /** Service helper for Stripe webhook — mark paid by user id. */

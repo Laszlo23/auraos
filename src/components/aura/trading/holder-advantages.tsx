@@ -31,8 +31,8 @@ export function HolderAdvantages({ perks }: { perks: HolderPerks | undefined }) 
       </div>
       <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">
         Hold {perks.symbol} in your subscription balance for clear desk boosts — never opaque
-        pay-to-win. Hood perks activate after you buy and mint (Wallet). Mint proceeds go to launch
-        liquidity.
+        pay-to-win. The first 1,000 Hoods also get hold-to-earn from real desk fees while the NFT
+        sits in the wallet. Of each $299 mint: 70% to launch liquidity, 30% to developer ops.
       </p>
       <ul className="mt-4 space-y-2">
         {perks.perks.map((p) => (

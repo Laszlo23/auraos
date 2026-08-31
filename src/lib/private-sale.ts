@@ -199,7 +199,7 @@ export function isBaseAddress(value: string): value is `0x${string}` {
 export function privateSaleContractAddress(): `0x${string}` | null {
   const fromProc =
     typeof process !== "undefined"
-      ? (process.env["PRIVATE_SALE_CONTRACT"] || process.env["VITE_PRIVATE_SALE_CONTRACT"] || "")
+      ? process.env["PRIVATE_SALE_CONTRACT"] || process.env["VITE_PRIVATE_SALE_CONTRACT"] || ""
       : "";
   const fromVite =
     typeof import.meta !== "undefined" &&

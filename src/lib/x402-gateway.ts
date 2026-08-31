@@ -19,6 +19,7 @@ import {
 } from "./chain-config";
 import { isProdRuntime, resolveX402PayTo } from "./x402-config";
 import { genesisPriceUsdc } from "./genesis.server";
+import { hoodX402PriceUsdc } from "./trading/holder-perks";
 
 const DEV_PAY_TO = "0x000000000000000000000000000000000000dEaD" as const;
 
@@ -48,15 +49,20 @@ const config = () => {
 
 const atomic = (usdc: number) => Math.round(usdc * 1_000_000).toString();
 
-export function paymentRequirements(ep: X402Endpoint, resource: string) {
+export function paymentRequirements(
+  ep: X402Endpoint,
+  resource: string,
+  opts?: { hoodRebate?: boolean },
+) {
   const { payTo, network } = config();
   const net = network as X402SettleNetwork;
   const assetAddr = USDC_ADDRESSES[net];
   const meta = USDC_META[net];
+  const priceUsdc = hoodX402PriceUsdc(ep.price_usdc, ep.slug, Boolean(opts?.hoodRebate));
   return {
     scheme: "exact",
     network: net,
-    maxAmountRequired: atomic(ep.price_usdc),
+    maxAmountRequired: atomic(priceUsdc),
     resource,
     description: ep.description,
     mimeType: "application/json",
@@ -65,6 +71,13 @@ export function paymentRequirements(ep: X402Endpoint, resource: string) {
     asset: assetAddr,
     extra: { name: meta.name, version: meta.version },
   };
+}
+
+export async function companyHasHoodMint(companyId: string | null): Promise<boolean> {
+  if (!companyId) return false;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { loadHasGenesisNft } = await import("@/lib/trading/holder-perks.server");
+  return loadHasGenesisNft(supabaseAdmin, { companyId });
 }
 
 const json = (body: unknown, init?: ResponseInit) =>
@@ -81,9 +94,14 @@ const json = (body: unknown, init?: ResponseInit) =>
 
 export const jsonResponse = json;
 
-export function paymentRequired(ep: X402Endpoint, resource: string, error: string) {
+export function paymentRequired(
+  ep: X402Endpoint,
+  resource: string,
+  error: string,
+  opts?: { hoodRebate?: boolean },
+) {
   return json(
-    { x402Version: 1, error, accepts: [paymentRequirements(ep, resource)] },
+    { x402Version: 1, error, accepts: [paymentRequirements(ep, resource, opts)] },
     { status: 402 },
   );
 }
@@ -94,7 +112,7 @@ export function corsPreflight() {
     headers: {
       "access-control-allow-origin": "*",
       "access-control-allow-methods": "GET,POST,OPTIONS",
-      "access-control-allow-headers": "content-type,x-payment",
+      "access-control-allow-headers": "content-type,x-payment,x-aura-company",
       "access-control-max-age": "86400",
     },
   });
@@ -249,6 +267,10 @@ export async function withPayment(
   const raw = request.headers.get("x-aura-company");
   const companyId = raw && /^[0-9a-f-]{36}$/i.test(raw) ? raw : null;
 
+  const hoodRebate = await companyHasHoodMint(companyId);
+  const priceUsdc = hoodX402PriceUsdc(ep.price_usdc, ep.slug, hoodRebate);
+  const reqOpts = { hoodRebate };
+
   if (!live && !allowDev) {
     return json(
       {
@@ -260,16 +282,16 @@ export async function withPayment(
     );
   }
 
-  if (!header) return paymentRequired(ep, resource, "X-PAYMENT header is required");
+  if (!header) return paymentRequired(ep, resource, "X-PAYMENT header is required", reqOpts);
 
   let payload: Record<string, unknown>;
   try {
     payload = JSON.parse(atob(header)) as Record<string, unknown>;
   } catch {
-    return paymentRequired(ep, resource, "X-PAYMENT must be base64-encoded JSON");
+    return paymentRequired(ep, resource, "X-PAYMENT must be base64-encoded JSON", reqOpts);
   }
 
-  const requirements = paymentRequirements(ep, resource);
+  const requirements = paymentRequirements(ep, resource, reqOpts);
   let payer: string | null =
     typeof (payload as { payload?: { authorization?: { from?: string } } }).payload?.authorization
       ?.from === "string"
@@ -284,14 +306,14 @@ export async function withPayment(
       await logCall({
         slug,
         payer,
-        amount: ep.price_usdc,
+        amount: priceUsdc,
         network,
         tx: null,
         status: "rejected",
         latency: Date.now() - started,
         companyId,
       });
-      return paymentRequired(ep, resource, verified.reason || "payment_invalid");
+      return paymentRequired(ep, resource, verified.reason || "payment_invalid", reqOpts);
     }
     payer = verified.payer ?? payer;
   }
@@ -326,7 +348,7 @@ export async function withPayment(
   await logCall({
     slug,
     payer,
-    amount: ep.price_usdc,
+    amount: priceUsdc,
     network,
     tx,
     status,
@@ -340,7 +362,7 @@ export async function withPayment(
     network,
     payer,
     mode: live ? "live" : "dev",
-    split: splitRevenue(ep.price_usdc),
+    split: splitRevenue(priceUsdc),
   };
   return json(result, { headers: { "x-payment-response": btoa(JSON.stringify(receipt)) } });
 }

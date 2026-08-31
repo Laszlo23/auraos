@@ -9,7 +9,8 @@ import { Chip, Panel, Pulse } from "@/components/aura/primitives";
 import { ShareMoment } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
-import { startFoundingSeatCheckout } from "@/lib/founding-seat";
+import { CRYPTO_SEAT_ASSETS, type CryptoSeatAsset } from "@/lib/boost-packs";
+import { startFoundingCryptoCheckout, startFoundingSeatCheckout } from "@/lib/founding-seat";
 import { FOUNDING_SEATS_TOTAL } from "@/lib/marketing-scarcity";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { LAUNCH_SHARE_TEXT, SITE_URL } from "@/lib/site";
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/access")({
       { title: "Founding seats — Aura OS" },
       {
         name: "description",
-        content: "Buy a founding seat. $299 one-time · 1000 companies · live Stripe checkout.",
+        content: "Buy a founding seat. $299 one-time · 1000 companies · card or crypto.",
       },
       { property: "og:title", content: "Founding seats — Aura OS" },
       {
@@ -55,6 +56,8 @@ function AccessPage() {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [waitlisted, setWaitlisted] = useState(false);
+  const [cryptoOpen, setCryptoOpen] = useState(false);
+  const [asset, setAsset] = useState<CryptoSeatAsset>("usdc");
 
   useEffect(() => {
     if (inviteFromLink) setInvite(inviteFromLink.toUpperCase());
@@ -64,22 +67,42 @@ function AccessPage() {
     if (seat === "cancel") toast.message(t("access.checkoutCancel"));
   }, [seat, t]);
 
-  const buySeat = async () => {
-    // Friend code from ?invite= is attribution only — never blocks checkout.
+  const goAuth = (attribution: string | null) => {
+    navigate({
+      to: "/auth",
+      search: {
+        mode: "signup",
+        buy: "seat",
+        ...(attribution ? { invite: attribution } : {}),
+      },
+    });
+  };
+
+  const resolveAttribution = async (): Promise<string | null> => {
     let attribution = invite.trim().toUpperCase() || null;
+    if (attribution) {
+      const { data: ok, error } = await supabase.rpc("check_invite_code", { _code: attribution });
+      if (error) console.warn("check_invite_code", error.message);
+      if (!ok) {
+        setInvite("");
+        attribution = null;
+      }
+    }
+    return attribution;
+  };
+
+  const buySeat = async (rail: "card" | "crypto" = "card") => {
     setBusy(true);
     try {
-      if (attribution) {
-        const { data: ok, error } = await supabase.rpc("check_invite_code", { _code: attribution });
-        if (error) console.warn("check_invite_code", error.message);
-        if (!ok) {
-          setInvite("");
-          attribution = null;
-        }
-      }
-
+      const attribution = await resolveAttribution();
       trackTeaser("cta_click", {
-        placement: attribution ? "access_invite_buy" : "access_open_buy",
+        placement: attribution
+          ? rail === "crypto"
+            ? "access_invite_crypto"
+            : "access_invite_buy"
+          : rail === "crypto"
+            ? "access_open_crypto"
+            : "access_open_buy",
       });
 
       const {
@@ -91,19 +114,15 @@ function AccessPage() {
           navigate({ to: "/console" });
           return;
         }
-        const url = await startFoundingSeatCheckout(attribution);
+        const url =
+          rail === "crypto"
+            ? await startFoundingCryptoCheckout({ invite: attribution, asset })
+            : await startFoundingSeatCheckout(attribution);
         window.location.href = url;
         return;
       }
 
-      navigate({
-        to: "/auth",
-        search: {
-          mode: "signup",
-          buy: "seat",
-          ...(attribution ? { invite: attribution } : {}),
-        },
-      });
+      goAuth(attribution);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not start checkout");
     } finally {
@@ -179,14 +198,54 @@ function AccessPage() {
           <p className="mb-4 text-[13px] leading-relaxed text-muted-foreground">
             {t("access.buyBlurb")}
           </p>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void buySeat()}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-40 sm:w-auto"
-          >
-            {busy ? t("access.buyOpening") : t("access.buyCta")} <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void buySeat("card")}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-40"
+            >
+              {busy ? t("access.buyOpening") : t("access.buyCta")}{" "}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setCryptoOpen((v) => !v)}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border/60 px-5 py-3.5 text-sm font-semibold disabled:opacity-40"
+            >
+              {t("access.buyCryptoCta")}
+            </button>
+          </div>
+          {cryptoOpen ? (
+            <div className="mt-4 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {CRYPTO_SEAT_ASSETS.map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setAsset(a)}
+                    className={`rounded-2xl border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] ${
+                      asset === a
+                        ? "border-primary/50 bg-primary/14 text-primary"
+                        : "border-border bg-foreground/5 text-muted-foreground"
+                    }`}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void buySeat("crypto")}
+                className="rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary disabled:opacity-40"
+              >
+                {busy ? t("access.buyOpening") : t("access.buyCryptoGo")}
+              </button>
+            </div>
+          ) : null}
         </Panel>
 
         <Panel label={t("access.shareLabel")} className="mt-8">

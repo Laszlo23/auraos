@@ -544,13 +544,8 @@ export const applyTradingPreset = createServerFn({ method: "POST" })
     if (!preset) throw new Error("Unknown preset");
 
     const quant = await ensureQuant(context.supabase, data.companyId);
-    const { data: sub } = await context.supabase
-      .from("subscriptions")
-      .select("tokens_remaining")
-      .eq("company_id", data.companyId)
-      .maybeSingle();
-    const { buildHolderPerks } = await import("@/lib/trading/holder-perks");
-    const perks = buildHolderPerks({ auraBalance: Number(sub?.tokens_remaining ?? 0) });
+    const { loadUserHolderPerks } = await import("@/lib/trading/holder-perks.server");
+    const perks = await loadUserHolderPerks(context.supabase, context.userId, data.companyId);
     const slotCap = 3 + perks.strategySlotBonus;
 
     const { data: existing } = await context.supabase
@@ -569,7 +564,7 @@ export const applyTradingPreset = createServerFn({ method: "POST" })
         .eq("status", "approved");
       if ((count ?? 0) >= slotCap) {
         throw new Error(
-          `Strategy slot full (${slotCap}). Hold more AURA for Core tier, or pause an approved strategy.`,
+          `Strategy slot full (${slotCap}). Hold more AURA for Core, mint the Hood, or pause an approved strategy.`,
         );
       }
       const { data: row, error } = await context.supabase
@@ -744,55 +739,11 @@ export const getHolderPerks = createServerFn({ method: "GET" })
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle();
+    const { loadUserHolderPerks } = await import("@/lib/trading/holder-perks.server");
     if (!company) {
-      const { buildHolderPerks } = await import("@/lib/trading/holder-perks");
-      return buildHolderPerks({ auraBalance: 0 });
+      return loadUserHolderPerks(context.supabase, context.userId);
     }
-    const { data: sub } = await context.supabase
-      .from("subscriptions")
-      .select("tokens_remaining")
-      .eq("company_id", company.id)
-      .maybeSingle();
-    const { buildHolderPerks } = await import("@/lib/trading/holder-perks");
-    const nftContract =
-      process.env["VITE_GENESIS_NFT_CONTRACT"] ?? process.env["GENESIS_NFT_CONTRACT"] ?? null;
-    let hasGenesisNft = false;
-    try {
-      const { data: handle } = await context.supabase
-        .from("handles")
-        .select("id")
-        .eq("user_id", context.userId)
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (handle?.id) {
-        const { data: wallet } = await context.supabase
-          .from("wallet_bindings")
-          .select("address")
-          .eq("handle_id", handle.id)
-          .eq("kind", "smart")
-          .maybeSingle();
-        if (wallet?.address) {
-          const { walletOwnsGenesis } = await import("@/lib/genesis.server");
-          hasGenesisNft = await walletOwnsGenesis(wallet.address);
-        }
-      }
-      if (!hasGenesisNft) {
-        const { data: purchase } = await context.supabase
-          .from("genesis_purchases")
-          .select("status")
-          .eq("user_id", context.userId)
-          .maybeSingle();
-        if (purchase?.status === "minted") hasGenesisNft = true;
-      }
-    } catch (err) {
-      console.warn("[holder-perks] genesis check", err);
-    }
-    return buildHolderPerks({
-      auraBalance: Number(sub?.tokens_remaining ?? 0),
-      hasGenesisNft,
-      genesisNftContract: nftContract,
-    });
+    return loadUserHolderPerks(context.supabase, context.userId, company.id);
   });
 
 /** Live market quote for the Trading Desk (poll from client). */

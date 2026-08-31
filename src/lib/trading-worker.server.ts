@@ -43,24 +43,16 @@ function quoteScale(network: AuraNetwork): number {
 async function companyNotionalBoost(db: Admin, companyId: string): Promise<number> {
   const { data: company } = await db
     .from("companies")
-    .select("quant_boost_until, quant_boost_pct, owner_id")
+    .select("quant_boost_until, quant_boost_pct")
     .eq("id", companyId)
     .maybeSingle();
   let boost = 0;
   if (company?.quant_boost_until && new Date(company.quant_boost_until).getTime() > Date.now()) {
     boost += Number(company.quant_boost_pct ?? 10);
   }
-  // Holder tier boost from AURA balance
-  if (company?.owner_id) {
-    const { data: sub } = await db
-      .from("subscriptions")
-      .select("tokens_remaining")
-      .eq("company_id", companyId)
-      .maybeSingle();
-    const aura = Number(sub?.tokens_remaining ?? 0);
-    if (aura >= 3000) boost += 25;
-    else if (aura >= 1200) boost += 15;
-  }
+  const { loadCompanyHolderPerks } = await import("@/lib/trading/holder-perks.server");
+  const perks = await loadCompanyHolderPerks(db, companyId);
+  boost += perks.notionalBoostPct;
   return boost;
 }
 

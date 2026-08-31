@@ -108,8 +108,7 @@ export function Greeter() {
       curX += (targetX - curX) * 0.18;
       curY += (targetY - curY) * 0.18;
       paint();
-      const settled =
-        !visible && Math.abs(targetX - curX) < 0.5 && Math.abs(targetY - curY) < 0.5;
+      const settled = !visible && Math.abs(targetX - curX) < 0.5 && Math.abs(targetY - curY) < 0.5;
       if (settled) {
         running = false;
         raf = 0;

@@ -372,7 +372,7 @@ export const en: MessageTree = {
     claimTitle: "Buy the seat.",
     claimTitle2: "Wake the company.",
     claimBody:
-      "$299 one-time · hard-capped at 1000. No invite required. After you're in, share one invite if you want — friends still pay. The Hood NFT is the founding-circle key — 70% of the mint to launch liquidity, 30% to developer ops (servers).",
+      "$299 one-time · hard-capped at 1000. The first 1,000 get The Hood: extra desk perks and hold-to-earn from real product fees as long as you hold the NFT. 70% of the mint to launch liquidity, 30% to ops. Later members get the OS — not this pack.",
     claimShare: "Share Aura OS",
     wienHub: "Wien hub",
     nftsFunny: "Why NFTs as keys (funny edition)",
@@ -467,7 +467,7 @@ export const en: MessageTree = {
       "Buy open — $299 one-time, capped at 1000 companies. No invite needed to purchase. After you're in, you get one invite link to share (friends still pay). Token launch is separate.",
     faq4q: "What do I actually get as a founding member?",
     faq4a:
-      "A paid company seat, a founding badge, one invite to pass on, in-app AURA growth rewards on paid conversions, and a concierge page-review queue. Compute billing and token launch stay separate.",
+      "A paid company seat, The Hood (first 1,000 only), hold-to-earn from real desk/catalog/x402 fees while you hold, 7,777 AURA locked after T-0, genesis desk perks, a founding badge, and one invite to pass on. Not a fixed APY. Compute billing stays separate.",
     liveKicker: "Live beta",
     liveTitle: "Numbers from the live database — including zeros.",
     liveBody:
@@ -533,14 +533,16 @@ export const en: MessageTree = {
   access: {
     title: "Buy a founding seat.",
     subtitle: "Own your AI company.",
-    priceTag: "$299 one-time · {total} seats · real Stripe checkout",
+    priceTag: "$299 one-time · {total} seats · card or crypto",
     blurb:
-      "Pay $299 once. Wake your AI company. After you're in, you get one simple invite link to share — friends still pay $299; you earn in-app AURA.",
+      "Pay $299 once — card or crypto. Wake your AI company. After you're in, you get one simple invite link to share — friends still pay $299; you earn in-app AURA.",
     friendCode: "Friend code attached",
     buyLabel: "Buy now",
-    buyBlurb: "Create an account (or sign in) → Stripe $299 → seat unlocks. That's the whole door.",
-    buyCta: "Buy founding seat — $299",
-    buyOpening: "Opening Stripe…",
+    buyBlurb: "Wallet or magic link → $299 card or crypto → seat unlocks. That's the whole door.",
+    buyCta: "Card — $299",
+    buyCryptoCta: "Crypto — $299",
+    buyCryptoGo: "Pay with crypto",
+    buyOpening: "Opening checkout…",
     shareLabel: "Share the seat page",
     updatesLabel: "Just want updates",
     updatesBlurb: "Optional email list. Buying a seat does not require this.",
@@ -549,7 +551,7 @@ export const en: MessageTree = {
     updatesJoined: "You're on the list. Seats are already open — buy above anytime.",
     checkoutCancel: "Checkout canceled — you can buy anytime.",
     home: "Home",
-    openTag: "Open · $299 Stripe",
+    openTag: "Open · $299",
     foundingLive: "Founding cohort · live",
   },
   footer: {

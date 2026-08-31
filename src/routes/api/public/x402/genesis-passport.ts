@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { corsPreflight, jsonResponse, withPayment } from "@/lib/x402-gateway";
 import { genesisPriceUsdc } from "@/lib/genesis.server";
+import { formatHoodMintOpens, hoodMintIsOpen } from "@/lib/hood-mint";
 
 export const Route = createFileRoute("/api/public/x402/genesis-passport")({
   server: {
@@ -17,6 +18,15 @@ export const Route = createFileRoute("/api/public/x402/genesis-passport")({
           { status: 405 },
         ),
       POST: async ({ request }) => {
+        if (!hoodMintIsOpen()) {
+          return jsonResponse(
+            {
+              error: "mint_not_open",
+              opens_at: formatHoodMintOpens("en"),
+            },
+            { status: 403 },
+          );
+        }
         const body = (await request.json().catch(() => ({}))) as { company_id?: unknown };
         const companyId =
           typeof body.company_id === "string" ? body.company_id.trim().slice(0, 64) : "";

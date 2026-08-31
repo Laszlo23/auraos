@@ -1,10 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel, Shimmer } from "@/components/aura/primitives";
+import { issueHoodGiveawayBatch, listHoodGiveawayCodes } from "@/lib/hood-giveaway.functions";
 import { getOpsDashboard, triggerOpsTick, type OpsDashboard } from "@/lib/ops.functions";
+import { issuePreviewPassBatch, listPreviewPasses } from "@/lib/preview-pass.functions";
+import { PREVIEW_PASS_CODE, previewPassShareUrl } from "@/lib/preview-pass";
+import { displayUserLabel } from "@/lib/siwe-display";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/ops")({
   head: () => ({
@@ -15,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/ops")({
 
 function OpsPage() {
   const qc = useQueryClient();
+  const [issuedCodes, setIssuedCodes] = useState<string[]>([]);
+  const [issuedPreview, setIssuedPreview] = useState<string[]>([]);
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["ops-dashboard"],
     queryFn: async (): Promise<OpsDashboard> =>
@@ -22,6 +30,38 @@ function OpsPage() {
     retry: false,
     staleTime: 15_000,
     refetchInterval: 30_000,
+  });
+
+  const hoodCodes = useQuery({
+    queryKey: ["ops-hood-giveaway"],
+    queryFn: () => listHoodGiveawayCodes(),
+    staleTime: 15_000,
+  });
+
+  const previewCodes = useQuery({
+    queryKey: ["ops-preview-passes"],
+    queryFn: () => listPreviewPasses(),
+    staleTime: 15_000,
+  });
+
+  const issuePreview = useMutation({
+    mutationFn: () => issuePreviewPassBatch({ data: { count: 6 } }),
+    onSuccess: (res) => {
+      setIssuedPreview(res.codes);
+      toast.success(`Issued ${res.codes.length} preview codes — copy the links.`);
+      void qc.invalidateQueries({ queryKey: ["ops-preview-passes"] });
+    },
+    onError: (e: Error) => toast.error(e.message || "Could not issue preview codes"),
+  });
+
+  const issueHood = useMutation({
+    mutationFn: () => issueHoodGiveawayBatch({ data: { count: 6 } }),
+    onSuccess: (res) => {
+      setIssuedCodes(res.codes);
+      toast.success(`Issued ${res.codes.length} Hood codes — copy them now.`);
+      void qc.invalidateQueries({ queryKey: ["ops-hood-giveaway"] });
+    },
+    onError: (e: Error) => toast.error(e.message || "Could not issue Hood codes"),
   });
 
   const tick = useMutation({
@@ -73,7 +113,7 @@ function OpsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Platform ops"
-        description={`Signed in as ${data.email}`}
+        description={`Signed in as ${displayUserLabel(data.email)}`}
         actions={
           <div className="flex flex-wrap gap-2">
             <button
@@ -106,6 +146,98 @@ function OpsPage() {
         <Stat label="Spins today" value={String(data.spinsToday)} />
         <Stat label="Chain stamp pending" value={String(data.pendingChainSpins)} />
       </div>
+
+      <Panel label="Preview pass · testers">
+        <p className="mb-3 text-[13px] text-muted-foreground">
+          Complimentary OS access. Does not take a founding seat. Share the standing{" "}
+          <span className="font-mono text-foreground">{PREVIEW_PASS_CODE}</span> link, or issue
+          one-time codes.
+        </p>
+        <div className="mb-3 rounded-2xl border border-primary/30 bg-primary/8 px-3.5 py-3">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+            Share this
+          </p>
+          <p className="break-all font-mono text-[12px] text-foreground">
+            {previewCodes.data?.shareUrl ?? previewPassShareUrl()}
+          </p>
+        </div>
+        <button
+          type="button"
+          disabled={issuePreview.isPending}
+          onClick={() => issuePreview.mutate()}
+          className="rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary disabled:opacity-50"
+        >
+          {issuePreview.isPending ? "Issuing…" : "Issue 6 one-time codes"}
+        </button>
+        {issuedPreview.length > 0 ? (
+          <ul className="mt-4 space-y-1 font-mono text-[12px]">
+            {issuedPreview.map((c) => (
+              <li key={c}>
+                <span className="text-foreground">{c}</span>{" "}
+                <span className="text-muted-foreground">{previewPassShareUrl(c)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {(previewCodes.data?.codes ?? []).length > 0 ? (
+          <ul className="mt-4 space-y-1.5 text-[12px]">
+            {previewCodes.data!.codes.map((row) => (
+              <li key={row.code} className="flex flex-wrap justify-between gap-2 font-mono">
+                <span>{row.code}</span>
+                <span className="text-muted-foreground">
+                  {row.uses}/{row.max_uses}
+                  {row.active ? "" : " · off"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Panel>
+
+      <Panel label="Hood giveaway · 6 codes">
+        <p className="mb-3 text-[13px] text-muted-foreground">
+          One-time Hood mint links. Recipients connect a wallet and claim. Does not grant a founding
+          seat.
+        </p>
+        <button
+          type="button"
+          disabled={issueHood.isPending}
+          onClick={() => issueHood.mutate()}
+          className="rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary disabled:opacity-50"
+        >
+          {issueHood.isPending ? "Issuing…" : "Issue 6 Hood codes"}
+        </button>
+        {issuedCodes.length > 0 ? (
+          <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/8 px-3.5 py-3">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+              Copy these now
+            </p>
+            <ul className="space-y-1 font-mono text-[12px]">
+              {issuedCodes.map((c) => (
+                <li key={c}>
+                  <span className="text-foreground">{c}</span>{" "}
+                  <span className="text-muted-foreground">
+                    {SITE_URL}/hood/claim/{c}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {(hoodCodes.data?.codes ?? []).length > 0 ? (
+          <ul className="mt-4 space-y-1.5 text-[12px]">
+            {hoodCodes.data!.codes.map((row) => (
+              <li key={row.code} className="flex flex-wrap justify-between gap-2 font-mono">
+                <span>{row.code}</span>
+                <span className="text-muted-foreground">
+                  {row.status}
+                  {row.token_id != null ? ` · #${row.token_id}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Panel>
 
       <Panel label="Stuck missions · no update &gt; 30m">
         {data.stuckMissions.length === 0 ? (

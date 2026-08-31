@@ -56,7 +56,7 @@ export const TOKENOMICS = {
   notToken: [
     "Subscriptions (core revenue)",
     "Founding seats ($299 one-time unlock)",
-    "The Hood NFT (founding-circle utility — 70% mint to launch liquidity, 30% to ops, not equity)",
+    "The Hood NFT (first 1,000 only — extra perks + hold-to-earn from real desk fees while held, 70% mint USDC trapped on-chain to buy the fair-launch pool, 30% to immutable ops, 7,777 AURA gift locked 90 days, not equity, not a fixed APY)",
     "Company compute budgets (AURA ledger for work, separate from market token narrative)",
     "BCC or any other community ticker (Aura OS does not run on BCC)",
   ],
@@ -118,7 +118,7 @@ export const WHITEPAPER_SECTIONS = [
   {
     id: "token",
     title: "7. Token & fair launch",
-    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No contract address until T-0.`,
+    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Each Hood NFT locks 7,777 AURA for 90 days after T-0; 70% of the $299 mint USDC is trapped on-chain and can only buy the official pair (price moves, gifts stay locked). Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No AURA contract address until T-0.`,
   },
   {
     id: "desks",
@@ -138,7 +138,7 @@ export const WHITEPAPER_SECTIONS = [
   {
     id: "roadmap",
     title: "11. Roadmap",
-    body: `Phase 1 — working product (live). Phase 2 — commercial validation. Phase 3 — scale 100→1,000 companies + marketplace. Phase 4 — autonomous network. 90-day mission: prove paying companies and settled revenue (1–10 → 10–50 → 50–100+), not feature theater.`,
+    body: `Phase 1 — working product (live): OS desk, Aura Local, Nachbar. Phase 2 — The Hood (first 1,000 only): extra perks + hold-to-earn from real desk/catalog/x402 fees while the NFT is held; then commercial validation. Phase 3 — scale 100→1,000 companies + marketplace; first 1,000 stay the founding yield. Phase 4 — autonomous network. 90-day mission: prove paying companies and settled revenue (1–10 → 10–50 → 50–100+), not feature theater. Hold-to-earn is usage-linked, not a fixed APY.`,
   },
   {
     id: "disclaimer",
@@ -186,7 +186,7 @@ export const WHITEPAPER_SECTIONS_DE = [
   {
     id: "token",
     title: "7. Der Token und der öffentliche Start",
-    body: `AURA ist zum Mitmachen da: Belohnung, Fortschritt, ausgewählte Nutzung in der App, Wirtschaft zwischen Firmen und Programmen, Anreize am Marktplatz, später Mitreden. Höchstens 777.777.777 AURA. Plan für den öffentlichen Start (${TOKEN_LAUNCH_DISPLAY_DE}): 3.000 € gezielter erster Kauf plus 3.000 € auf 30 begrenzte Handelsprogramme. Ziel bis 500.000 $ Umsatz im Handel — ein Ziel, keine Garantie. Kein Scheinhandel, kein Handel mit sich selbst, kein Kreis. Vor dem Start gibt es keine Vertragsadresse.`,
+    body: `AURA ist zum Mitmachen da: Belohnung, Fortschritt, ausgewählte Nutzung in der App, Wirtschaft zwischen Firmen und Programmen, Anreize am Marktplatz, später Mitreden. Höchstens 777.777.777 AURA. Jeder Hood sperrt 7.777 AURA für 90 Tage nach T-0; 70% der 299-$ Mint-USDC bleiben on-chain und können nur das offizielle Paar kaufen (Preis bewegt sich, Gifts bleiben gesperrt). Plan für den öffentlichen Start (${TOKEN_LAUNCH_DISPLAY_DE}): 3.000 € gezielter erster Kauf plus 3.000 € auf 30 begrenzte Handelsprogramme. Ziel bis 500.000 $ Umsatz im Handel — ein Ziel, keine Garantie. Kein Scheinhandel, kein Handel mit sich selbst, kein Kreis. Vor dem Start gibt es keine AURA-Vertragsadresse.`,
   },
   {
     id: "desks",
@@ -206,7 +206,7 @@ export const WHITEPAPER_SECTIONS_DE = [
   {
     id: "roadmap",
     title: "11. Der Fahrplan",
-    body: `Phase 1 — das Produkt läuft. Phase 2 — jemand zahlt. Phase 3 — von 100 auf 1.000 Firmen und der Marktplatz. Phase 4 — ein Netz, das sich selbst trägt. In 90 Tagen: zahlende Firmen und Umsatz im Buch (1–10, dann 10–50, dann 50–100 und mehr). Keine Show aus Funktionen.`,
+    body: `Phase 1 — das Produkt läuft: OS-Desk, Aura Local, Nachbar. Phase 2 — The Hood (nur die ersten 1.000): Extra-Perks plus Hold-to-earn aus echten Desk-/Katalog-/x402-Gebühren, solange das NFT gehalten wird; dann jemand der zahlt. Phase 3 — von 100 auf 1.000 Firmen und der Marktplatz; die ersten 1.000 bleiben der Founding-Yield. Phase 4 — ein Netz, das sich selbst trägt. In 90 Tagen: zahlende Firmen und Umsatz im Buch (1–10, dann 10–50, dann 50–100 und mehr). Hold-to-earn folgt Nutzung, kein festes APY.`,
   },
   {
     id: "disclaimer",

@@ -8,13 +8,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { captureAttribution, peekFunnel, rememberFunnel, rememberLocale } from "@/lib/attribution";
 import { trackTeaser } from "@/lib/teaser-track";
 import { trackAppEvent } from "@/lib/app-track";
+import { AuthWalletPanel } from "@/components/aura/auth-wallet";
 import { AuraLogo } from "@/components/aura/aura-logo";
+import { FoundingPayPanel } from "@/components/aura/founding-pay";
 import { Pulse } from "@/components/aura/primitives";
+import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { StreamText } from "@/components/aura/stream-text";
 import { SiteFooter } from "@/components/aura/site-footer";
-import { startFoundingSeatCheckout } from "@/lib/founding-seat";
 import { isFunnelId, type FunnelId } from "@/lib/funnels";
-import { isLokalClaimPath } from "@/lib/auth-next";
+import { isLokalClaimPath, looksLikeInviteCode } from "@/lib/auth-next";
+import { FOUNDING_SEAT_DISPLAY } from "@/lib/founding-price";
+import { HOOD } from "@/lib/hood";
 import { isSafeNachbarPath } from "@/lib/nachbar-play";
 import { OG_IMAGE, SITE_URL } from "@/lib/site";
 
@@ -79,11 +83,6 @@ function isNewUser(user: User): boolean {
   const created = Date.parse(user.created_at);
   if (Number.isNaN(created)) return false;
   return Date.now() - created < NEW_USER_WINDOW_MS;
-}
-
-/** Short founder invite codes — not Supabase PKCE `code` values (long opaque strings). */
-function looksLikeInviteCode(value: string): boolean {
-  return /^[A-Za-z0-9_]{3,32}$/.test(value.trim());
 }
 
 function defaultAuthMode(opts: {
@@ -155,8 +154,20 @@ export const Route = createFileRoute("/auth")({
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/auth` }],
   }),
-  component: AuthPage,
+  component: AuthRoute,
 });
+
+function AuthRoute() {
+  return (
+    <SaleWalletRoot
+      wcName="Aura OS"
+      wcDescription="Sign in to Aura OS with your wallet"
+      wcUrl="https://aibusiness.fun/auth"
+    >
+      <AuthPage />
+    </SaleWalletRoot>
+  );
+}
 
 const REF_KEY = "aura:ref";
 const INVITE_KEY = "aura:invite";
@@ -308,6 +319,8 @@ function AuthPage() {
   );
   /** Signed in without a seat — show checkout CTA (invite optional). */
   const [needsInviteToContinue, setNeedsInviteToContinue] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [walletBound, setWalletBound] = useState(false);
 
   const finishingRef = useRef(false);
   const postAuthDoneRef = useRef(false);
@@ -430,7 +443,9 @@ function AuthPage() {
    * Open sale — send new accounts to $299 Stripe checkout. Invite is optional attribution.
    * Nachbar patrons and funnel entries skip this entirely.
    */
-  async function ensureSeatOrCheckout(user: User): Promise<"ok" | "need_invite" | "checkout"> {
+  async function ensureSeatOrCheckout(
+    user: User,
+  ): Promise<"ok" | "preview" | "need_invite" | "checkout"> {
     if (isNachbarPatron || isNachbarNext(nextFromLinkRef.current)) {
       takeStoredInvite();
       // Keep friend ref in storage for ensureNachbarProfile; do not burn founding invite.
@@ -478,17 +493,24 @@ function AuthPage() {
       if (inviteOk || refOk) {
         rememberInvite(code);
       }
-      // Invalid invite: still allow open checkout without burning a bad code.
+
+      // Preview passes grant OS access without $299. Wave / founding invites still pay.
+      const { data: redeemed, error: redeemErr } = await supabase.rpc("redeem_invite_code", {
+        _code: code,
+      });
+      if (redeemErr && !/paid_seat_required/i.test(redeemErr.message)) {
+        console.warn("redeem_invite_code", redeemErr.message);
+      }
+      if (redeemed) {
+        const { data: nowHasSeat } = await supabase.rpc("user_has_company_seat", {
+          _uid: user.id,
+        });
+        if (nowHasSeat) return "preview";
+      }
     }
 
-    try {
-      const url = await startFoundingSeatCheckout(code);
-      window.location.href = url;
-      return "checkout";
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not start founding seat checkout");
-      return "need_invite";
-    }
+    // Show card / crypto pay panel — do not auto-redirect to Stripe.
+    return "need_invite";
   }
 
   async function finishPostAuth(reason: "mount" | "signed_in" | "submit") {
@@ -524,6 +546,14 @@ function AuthPage() {
         setMode("signup");
         setMagicCreatesUser(true);
         toast.message("Complete $299 founding-seat checkout to open your company.");
+        return false;
+      }
+      if (gate === "preview") {
+        toast.success("Preview access — look around. This is not a founding seat.");
+      }
+      if (gate !== "ok" && gate !== "preview") {
+        const _exhaustive: never = gate;
+        void _exhaustive;
         return false;
       }
 
@@ -704,55 +734,14 @@ function AuthPage() {
     }
   }
 
-  async function google() {
-    // Optional invite attribution; open sale does not require a code.
-    if (mode === "signup") {
-      try {
-        if (!(await passGate())) return;
-      } catch {
-        toast.error("Could not validate invite — clear it and continue.");
-        return;
-      }
-    }
-    rememberRef(refFromLink);
-    rememberInvite(invite.trim().toUpperCase() || undefined);
-    setBusy(true);
-    try {
-      // VPS / custom host: use Supabase Google OAuth (Lovable's /~oauth/initiate is Cloud-only).
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: authRedirectUrl(
-            mode === "signup" ? "signup" : "signin",
-            nextFromLinkRef.current,
-          ),
-          queryParams: { prompt: "select_account" },
-          skipBrowserRedirect: true,
-        },
-      });
-      if (error) {
-        const lower = error.message.toLowerCase();
-        if (lower.includes("provider is not enabled") || lower.includes("unsupported provider")) {
-          throw new Error(
-            "Google sign-in is not enabled on this project yet. Use email + password or a magic link for now.",
-          );
-        }
-        throw error;
-      }
-      if (!data.url) {
-        throw new Error("Google sign-in did not return a redirect URL.");
-      }
-      window.location.assign(data.url);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Google sign-in failed. Try email instead.");
-      setBusy(false);
-    }
-  }
+  const isFoundingPath = buyFromLink === "seat" || needsInviteToContinue;
+  const showFoundingMagic =
+    !showPassword && mode === "signup" && isFoundingPath && !isNachbarPatron && !isLokalEntry;
 
   const title =
     mode === "signup"
       ? needsInviteToContinue
-        ? "One more step"
+        ? "Claim your seat"
         : isNachbarPatron
           ? "Nachbar-Konto"
           : isLokalEntry
@@ -773,7 +762,7 @@ function AuthPage() {
   const subtitle =
     mode === "signup"
       ? needsInviteToContinue
-        ? "Your account is ready — pay $299 to unlock your founding seat."
+        ? "Pay $299 once — card or crypto. Wallet optional, but it makes the Hood mint easy."
         : isNachbarPatron
           ? "Konto anlegen — dann Check-in und Punkte. Kein Firmenkauf."
           : isLokalEntry
@@ -832,11 +821,21 @@ function AuthPage() {
               </h1>
               <p className="mt-7 max-w-md text-base leading-relaxed text-muted-foreground">
                 {isNachbarPatron
-                  ? "Freunde-Code bleibt gespeichert. Nach dem Login: Check-in am Tresen — Punkte erst nach Bestätigung. Google optional, ohne Belohnung."
+                  ? "Freunde-Code bleibt gespeichert. Nach dem Login: Check-in am Tresen — Punkte erst nach Bestätigung. Wallet oder Magic Link."
                   : isLokalEntry
                     ? "Konto anlegen → Betrieb benennen → Aura Reputation freischalten. Dann Google-Bewertungen von echten Kunden anfragen."
-                    : "Eight autonomous employees. One shared memory. A business that keeps working while you sleep — and tells you what it decided when you wake up."}
+                    : isFoundingPath
+                      ? "Wallet or magic link. Then $299 — card or crypto. One thousand seats. The Hood is the circle."
+                      : "Eight autonomous employees. One shared memory. A business that keeps working while you sleep — and tells you what it decided when you wake up."}
               </p>
+
+              {isFoundingPath ? (
+                <img
+                  src={HOOD.art}
+                  alt="The Hood"
+                  className="mt-10 h-36 w-36 rounded-3xl object-cover shadow-[var(--shadow-glow)]"
+                />
+              ) : null}
 
               <div className="glass mt-10 max-w-md rounded-3xl p-5">
                 <p className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -845,7 +844,9 @@ function AuthPage() {
                     ? "Aura Nachbar"
                     : isLokalEntry
                       ? "Aura Reputation"
-                      : "Atlas · Chief Executive"}
+                      : isFoundingPath
+                        ? "The Hood · founding circle"
+                        : "Atlas · Chief Executive"}
                 </p>
                 <p className="text-sm leading-relaxed text-foreground/90">
                   <StreamText
@@ -854,7 +855,9 @@ function AuthPage() {
                         ? "Kein Firmenkauf. Kein Founding Seat. Nur Check-in und Punkte."
                         : isLokalEntry
                           ? "49 €/Monat oder Barzahlungs-Code — dann Sterne und Gäste."
-                          : "Got it. I'm on it — your company is ready when you are."
+                          : isFoundingPath
+                            ? "Sign. Pay. Wake the company. One thousand seats."
+                            : "Got it. I'm on it — your company is ready when you are."
                     }
                   />
                 </p>
@@ -883,31 +886,14 @@ function AuthPage() {
             <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
 
             {mode !== "forgot" && mode !== "reset" && mode !== "magic" && !needsInviteToContinue ? (
-              <button
-                type="button"
-                onClick={() => void google()}
-                className="mt-7 flex w-full items-center justify-center gap-2.5 rounded-2xl border border-border bg-foreground/6 py-3 text-sm font-medium transition-colors hover:bg-foreground/10"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden>
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.05l3.66 2.84c.87-2.6 3.3-4.14 6.16-4.14Z"
-                  />
-                </svg>
-                {isLokalEntry ? "Weiter mit Google" : "Continue with Google"}
-              </button>
+              <div className="mt-7">
+                <AuthWalletPanel
+                  mode="login"
+                  busy={busy}
+                  onBusy={setBusy}
+                  label={isLokalEntry ? "Mit Wallet weiter" : "Continue with wallet"}
+                />
+              </div>
             ) : null}
 
             {mode !== "forgot" && mode !== "reset" && mode !== "magic" && !needsInviteToContinue ? (
@@ -992,39 +978,67 @@ function AuthPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMode(magicCreatesUser ? "signup" : "signin")}
+                  onClick={() => {
+                    if (magicCreatesUser && isFoundingPath) setShowPassword(true);
+                    setMode(magicCreatesUser ? "signup" : "signin");
+                  }}
                   className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
                 >
                   Prefer password?
                 </button>
               </form>
             ) : needsInviteToContinue ? (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void (async () => {
-                    setBusy(true);
-                    try {
-                      if (!(await passGate())) return;
-                      await finishPostAuth("submit");
-                    } finally {
-                      setBusy(false);
-                    }
-                  })();
-                }}
-                className="space-y-3"
-              >
-                <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                  You&apos;re signed in. Pay $299 once — seat unlocks after Stripe. No invite needed.
-                </p>
+              <div className="space-y-5">
+                {!walletBound ? (
+                  <div>
+                    <p className="mb-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                      Bind wallet
+                    </p>
+                    <AuthWalletPanel
+                      mode="bind"
+                      busy={busy}
+                      onBusy={setBusy}
+                      onBound={() => setWalletBound(true)}
+                      label="Connect wallet"
+                    />
+                    <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground/70">
+                      <span className="h-px flex-1 bg-border" /> then{" "}
+                      <span className="h-px flex-1 bg-border" />
+                    </div>
+                  </div>
+                ) : (
+                  <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-2.5 text-[12px] text-muted-foreground">
+                    Wallet bound. Pay below to unlock the seat.
+                  </p>
+                )}
+                <FoundingPayPanel
+                  invite={invite.trim().toUpperCase() || peekStoredInvite()}
+                  busy={busy}
+                  onBusy={setBusy}
+                />
+              </div>
+            ) : showFoundingMagic ? (
+              <div className="space-y-3">
                 <button
-                  type="submit"
+                  type="button"
                   disabled={busy}
-                  className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                  onClick={() => {
+                    setMagicCreatesUser(true);
+                    setMode("magic");
+                  }}
+                  className="w-full rounded-2xl border border-border bg-foreground/6 py-3 text-sm font-medium hover:bg-foreground/10 disabled:opacity-60"
                 >
-                  {busy ? "Opening Stripe…" : "Buy founding seat — $299"}
+                  Email me a magic link
                 </button>
-              </form>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setShowPassword(true)}
+                  className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Prefer password?
+                </button>
+              </div>
             ) : (
               <form onSubmit={(e) => void submitPassword(e)} className="space-y-3">
                 {mode === "signup" && isNachbarPatron ? (
@@ -1063,7 +1077,7 @@ function AuthPage() {
                   </p>
                 ) : mode === "signup" && buyFromLink === "seat" ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                    After signup we open Stripe for your $299 founding seat.
+                    After signup we open $299 checkout — card or crypto.
                   </p>
                 ) : null}
 
@@ -1166,7 +1180,7 @@ function AuthPage() {
                         <Link to="/cookies" className="text-primary hover:underline">
                           Cookies
                         </Link>
-                        . Founding seats are paid via Stripe Checkout ($299 one-time).
+                        . Founding seats are {FOUNDING_SEAT_DISPLAY} one-time — card or crypto.
                       </>
                     )}
                   </p>
@@ -1198,7 +1212,7 @@ function AuthPage() {
               </div>
             ) : null}
 
-            {mode === "signup" && !needsInviteToContinue ? (
+            {mode === "signup" && !needsInviteToContinue && (showPassword || !isFoundingPath) ? (
               <button
                 type="button"
                 disabled={busy}

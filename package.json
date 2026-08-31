@@ -20,6 +20,7 @@
     "test:grants": "vitest run src/lib/grant-kit.test.ts",
     "test:devices": "AURA_LIVE_SMOKE=1 vitest run src/lib/device-smoke.test.ts src/lib/device-smoke.live.test.ts",
     "ci": "npm test && npx eslint src --max-warnings 200 && npm run build",
+    "contracts:compile": "npx tsx scripts/deploy-launch.ts --compile-only",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:status": "supabase status -o pretty",

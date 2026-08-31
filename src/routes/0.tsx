@@ -6,11 +6,7 @@ import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { RELIC_TEASERS } from "@/lib/relic-campaign";
-import {
-  claimRelic,
-  getRelicVaultStatus,
-  type RelicClaimResult,
-} from "@/lib/relic.functions";
+import { claimRelic, getRelicVaultStatus, type RelicClaimResult } from "@/lib/relic.functions";
 
 export const Route = createFileRoute("/0")({
   loader: async () => {
@@ -36,11 +32,7 @@ export const Route = createFileRoute("/0")({
 
 function RelicVaultRoute() {
   return (
-    <SaleWalletRoot
-      wcName="Aura"
-      wcDescription="Base"
-      wcUrl="https://aibusiness.fun"
-    >
+    <SaleWalletRoot wcName="Aura" wcDescription="Base" wcUrl="https://aibusiness.fun">
       <RelicVaultPage />
     </SaleWalletRoot>
   );

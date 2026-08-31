@@ -1,139 +1,203 @@
 /**
- * Public roadmap — product truth + Ninty community rituals.
- * Funny on purpose. Phases match the investor deck; vibes are extra.
+ * Public product roadmap — the whole stack, plus the first 1,000 Hood extras.
+ *
+ * Hold-to-earn is a product mechanism: a share of real desk / catalog / x402
+ * fees, claimable only while the Hood sits in the wallet. Not equity. Not a
+ * fixed APY. If you sell, the stream walks with the NFT.
  */
 
 import { TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 
-export type RoadmapStatus = "live" | "brewing" | "next" | "dreaming";
+export type RoadmapKind = "build" | "hood" | "love" | "coffee" | "space" | "scale";
+export type RoadmapStatus = "live" | "brewing" | "next" | "horizon";
 
 export type RoadmapStop = {
   id: string;
   when: string;
-  title: string;
-  joke: string;
-  body: string;
   status: RoadmapStatus;
-  kind: "product" | "love" | "coffee" | "space";
+  kind: RoadmapKind;
+  title: string;
+  body: string;
 };
 
 export const ROADMAP_INTRO = {
-  eyebrow: "Roadmap · with oat milk",
-  title: "Aura OS — the love way",
+  eyebrow: "Roadmap",
+  title: "The whole nine yards.",
   subtitle:
-    "We ship product like adults and community like people who actually like each other. Coffee sessions, Spaces, and the occasional soft launch of feelings.",
+    "Aura OS is the desk. Aura Local is the street. The Hood is the first 1,000 — extra perks and a hold-to-earn stream from real product fees, for as long as the NFT sits in the wallet. Then we scale the machine, not the promises.",
+} as const;
+
+/** Exclusive circle. Cap is the Hood supply. Never expands. */
+export const FIRST_THOUSAND = {
+  eyebrow: "First 1,000",
+  eyebrowDe: "Die ersten 1.000",
+  title: "The Hood is the only founding extra.",
+  titleDe: "The Hood ist der einzige Founding-Extra.",
+  lead: "One thousand seats. That’s the circle. Later members get the OS. They do not get this pack.",
+  leadDe:
+    "Tausend Sitze. Das ist der Kreis. Spätere Mitglieder bekommen das OS. Dieses Paket nicht.",
+  holdTitle: "Hold-to-earn",
+  holdTitleDe: "Hold-to-earn",
+  holdLead:
+    "As long as the Hood is in your wallet, you stay in the founding yield: a share of real desk, catalog, and x402 fees, plus the locked AURA gift. Sell it — the stream walks with the NFT. Not a fixed APY. Not equity. Usage in, claims out.",
+  holdLeadDe:
+    "Solange der Hood in deiner Wallet sitzt, bleibst du im Founding-Yield: ein Anteil an echten Desk-, Katalog- und x402-Gebühren, plus das gesperrte AURA-Geschenk. Verkaufst du — wandert der Strom mit dem NFT. Kein festes APY. Kein Equity. Nutzung rein, Claims raus.",
+  perks: [
+    {
+      id: "hold-to-earn",
+      title: "Passive stream while you hold",
+      titleDe: "Passiver Strom, solange du hältst",
+      body: "A founding-circle cut of live product fees. Claimable only by the current owner. Transfer follows the token.",
+      bodyDe:
+        "Ein Founding-Circle-Anteil an echten Produktgebühren. Nur der aktuelle Owner kann claimen. Transfer folgt dem Token.",
+    },
+    {
+      id: "aura-gift",
+      title: "7,777 AURA, locked 90 days after T-0",
+      titleDe: "7.777 AURA, 90 Tage nach T-0 gesperrt",
+      body: "On-chain gift lock. No admin clawback. T-0 escrow buy adds pressure; leftovers stay in the lock.",
+      bodyDe:
+        "On-chain Gift-Lock. Kein Admin-Clawback. Der T-0-Escrow-Kauf drückt den Preis; Rest bleibt im Lock.",
+    },
+    {
+      id: "lp-book",
+      title: "70% of mint USDC buys official AURA",
+      titleDe: "70% der Mint-USDC kaufen offizielles AURA",
+      body: "Trapped in the launch escrow. Guardian proposes the pair, 72 hours, then anyone can execute. No owner withdraw.",
+      bodyDe:
+        "Im Launch-Escrow gefangen. Guardian schlägt das Paar vor, 72 Stunden, dann kann jeder ausführen. Kein Owner-Withdraw.",
+    },
+    {
+      id: "desk",
+      title: "Genesis desk forever",
+      titleDe: "Genesis-Desk für immer",
+      body: "Extra strategy slot, season score, quest XP, 25% x402 rebate, founding badge. Live on the trading desk today.",
+      bodyDe:
+        "Extra Strategie-Slot, Season-Score, Quest-XP, 25% x402-Rabatt, Founding-Badge. Heute schon am Handelstisch.",
+    },
+  ],
+  disclaimer:
+    "Mechanism and target — not a return promise. Amounts follow real usage. Ninty LLC / Aura OS does not sell equity through the Hood.",
+  disclaimerDe:
+    "Mechanismus und Ziel — keine Rendite-Garantie. Beträge folgen echter Nutzung. Ninty LLC / Aura OS verkauft über den Hood kein Equity.",
 } as const;
 
 export const ROADMAP_STOPS: RoadmapStop[] = [
   {
-    id: "phase-1",
+    id: "os-live",
     when: "Now",
-    title: "Working product (live)",
-    joke: "The OS already shows up to work. You can too — or don’t. Agents don’t judge… publicly.",
-    body: "Command center, AI workforce, missions, proof-of-work, memory, wallet, trading & yield infra. Phase 1 is not a slide — it’s running.",
     status: "live",
-    kind: "product",
+    kind: "build",
+    title: "Aura OS is already a desk",
+    body: "Agents, billing, catalog, x402, trading paper, identity. Companies run work here today. The Hood is a circle on top of a product — not a JPEG waiting for a product.",
   },
   {
-    id: "coffee-office",
-    when: "Weekly",
-    title: "Coffee sessions",
-    joke: "Bring a mug. Leave with a mission. Spill optional; screenshots forbidden if it’s gossip.",
-    body: "Open hangouts for founders + builders — demos, rants, and “why is my agent arguing with Ledger again?” energy. No pitch theater.",
-    status: "live",
-    kind: "coffee",
-  },
-  {
-    id: "love-spaces",
-    when: "Biweekly",
-    title: "Love Spaces",
-    joke: "Audio rooms where we talk product, tokens, and why autonomy still needs a human with a heart.",
-    body: "Live Spaces on X / community rooms: roadmap teasers, agent war stories, fair-launch Q&A. Soft voices. Sharp questions.",
+    id: "vienna-street",
+    when: "Now → autumn",
     status: "brewing",
-    kind: "space",
+    kind: "build",
+    title: "Aura Local + Nachbar, Vienna first",
+    body: "The street layer: local shops, neighbors, Glück auf. Prove the OS next to real people before we sell the planet a story.",
+  },
+  {
+    id: "hood-circle",
+    when: "Mint window",
+    status: "next",
+    kind: "hood",
+    title: "The Hood — first 1,000 only",
+    body: "Capped NFT. Extra perks never expand past these thousand. Hold-to-earn from real fees for as long as you hold. Gift lock + launch escrow on Base.",
   },
   {
     id: "fair-launch",
     when: TOKEN_LAUNCH_DISPLAY,
-    title: "Fair launch day",
-    joke: "No surprise CA. Official channels announce T-0 48 hours ahead.",
-    body: "Ecosystem token layer goes live with the published ops plan — product subscriptions stay the business. Targets ≠ guarantees.",
     status: "next",
-    kind: "love",
+    kind: "build",
+    title: "Fair launch — no VC, no insider dump",
+    body: "AURA on Base via Clanker. Escrowed Hood USDC buys the official pair. Gift AURA unlocks after 90 days. Same rules for everyone who shows up.",
   },
   {
-    id: "phase-2",
-    when: "Next",
-    title: "Commercial validation",
-    joke: "Fewer features. More invoices that clear.",
-    body: "First paying companies, settled revenue, retention, case studies. The 90-day mission is proof — not roadmap fan fiction.",
+    id: "ninety-days",
+    when: "T+90",
     status: "next",
-    kind: "product",
+    kind: "build",
+    title: "Commercial proof, not vibes",
+    body: "Paying companies, live catalog, x402 volume, hold-to-earn that can actually pay because the desk is used. If the numbers are thin, we say so.",
   },
   {
-    id: "coffee-tour",
-    when: "Seasonal",
-    title: "City coffee tour",
-    joke: "Vienna first. Then wherever the espresso and the founders agree.",
-    body: "IRL pop-ups: laptop-optional meetups, sticky-note roadmaps, and one sacred rule — no slide decks longer than a cortado lasts.",
-    status: "dreaming",
-    kind: "coffee",
+    id: "hundred-companies",
+    when: "After proof",
+    status: "horizon",
+    kind: "scale",
+    title: "100 companies, then DACH",
+    body: "Vienna → Austria → DACH. Marketplace, agent economy, more rails. The first 1,000 stay the founding yield. New seats are product seats, not a second Hood.",
   },
   {
-    id: "phase-3",
+    id: "thousand-network",
     when: "Scale",
-    title: "100 → 1,000 companies",
-    joke: "Marketplace enters the chat. Agents start networking without LinkedIn.",
-    body: "Marketplace, agent economy, advanced API. Companies hire each other’s specialists. Still: founder approvals, still: proof.",
-    status: "dreaming",
-    kind: "product",
+    status: "horizon",
+    kind: "scale",
+    title: "1,000 companies, then Europe",
+    body: "The OS as the default desk for SMEs and agents. Hold-to-earn still tracks Hood ownership. We do not mint a second “founding” collection to dilute the first.",
   },
   {
-    id: "phase-4",
-    when: "Horizon",
-    title: "Autonomous network",
-    joke: "Thousands of AI-native companies. Inter-company economy. Somehow still time for coffee.",
-    body: "Global agent marketplace + company-to-company rails. The moat is memory, orchestration, and economic truth — not a louder token.",
-    status: "dreaming",
-    kind: "product",
+    id: "autonomous",
+    when: "Far",
+    status: "horizon",
+    kind: "love",
+    title: "The network runs without us hovering",
+    body: "That’s the point of an OS. We stay for coffee. We do not stay as a bottleneck. The first 1,000 still hold the keys they bought.",
   },
 ];
 
-export const NINETY_DAY = {
-  title: "90-day mission (the serious bit)",
-  line: "More features are not the milestone. Paying companies and settled revenue are.",
-  beats: [
-    { d: "0–30", t: "1–10 paying companies" },
-    { d: "30–60", t: "10–50 customers" },
-    { d: "60–90", t: "50–100+ companies" },
-  ],
-} as const;
-
-export const LOVE_RITUALS = [
+export const ROADMAP_RITUALS = [
   {
-    id: "coffee",
-    title: "Coffee sessions",
-    blurb: "Weekly hang · mug required · ego optional",
-    cta: "Watch Discord for the next brew",
+    id: "os",
+    title: "Ship the desk",
+    when: "Every week",
+    body: "Agents, Local, billing, trading. The roadmap is a product list, not a mood board.",
   },
   {
-    id: "spaces",
-    title: "Love Spaces",
-    blurb: "Biweekly audio · roadmap + rants + Q&A",
-    cta: "Follow @buildingcultu3 for drops",
+    id: "hood",
+    title: "Protect the 1,000",
+    when: "Permanent",
+    body: "No second founding drop. Perks and hold-to-earn follow the Hood, not a spreadsheet of friends.",
   },
   {
-    id: "letters",
-    title: "Love notes from agents",
-    blurb: "Proof cards that read like postcards from the company",
-    cta: "Share a proof · steal the caption",
+    id: "honest",
+    title: "Say the number",
+    when: "Public",
+    body: "Fees, claims, companies. If hold-to-earn is quiet, the page is quiet. Atlas would yell otherwise.",
   },
 ] as const;
 
-/** Funny chart: vibes vs features (illustrative, not metrics). */
+export const ROADMAP_BEATS = [
+  {
+    week: "W0–2",
+    title: "Desk + Local",
+    detail: "OS live. Vienna street layer. Hood art and escrow ready.",
+  },
+  {
+    week: "W3–4",
+    title: "The Hood",
+    detail: "Mint the 1,000. Desk perks on. Hold-to-earn wired to real fees.",
+  },
+  {
+    week: "T-0",
+    title: "Fair launch",
+    detail: "AURA pair. Escrow buy. Gift lock starts the 90-day clock.",
+  },
+  {
+    week: "T+90",
+    title: "Proof",
+    detail: "Companies paying. Claims from usage. Unlock the gift. Publish the tape.",
+  },
+] as const;
+
 export const VIBES_CHART = [
-  { label: "Q2", features: 40, vibes: 55, love: 30 },
-  { label: "Now", features: 72, vibes: 68, love: 70 },
-  { label: "Launch", features: 78, vibes: 88, love: 92 },
-  { label: "Scale", features: 90, vibes: 85, love: 95 },
+  { label: "OS", features: 86, vibes: 40, love: 48 },
+  { label: "Local", features: 70, vibes: 62, love: 58 },
+  { label: "Hood", features: 74, vibes: 80, love: 72 },
+  { label: "T-0", features: 82, vibes: 70, love: 64 },
+  { label: "T+90", features: 90, vibes: 58, love: 70 },
+  { label: "1k cos", features: 94, vibes: 50, love: 66 },
 ] as const;

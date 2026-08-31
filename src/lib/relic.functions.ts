@@ -14,15 +14,7 @@ export type RelicVaultStatus = {
 
 export type RelicClaimResult = {
   ok: boolean;
-  code:
-    | "ok"
-    | "wrong"
-    | "sealed"
-    | "taken"
-    | "unarmed"
-    | "rate"
-    | "bad_wallet"
-    | "mint_failed";
+  code: "ok" | "wrong" | "sealed" | "taken" | "unarmed" | "rate" | "bad_wallet" | "mint_failed";
   tokenId: number | null;
   txHash: string | null;
   explorerTx: string | null;
@@ -82,7 +74,9 @@ async function db(): Promise<LooseDb> {
 
 async function dbMinted(): Promise<number> {
   const supabase = await db();
-  const { count } = await supabase.from("relic_claims").select("id", { count: "exact", head: true });
+  const { count } = await supabase
+    .from("relic_claims")
+    .select("id", { count: "exact", head: true });
   return typeof count === "number" ? count : 0;
 }
 
@@ -91,10 +85,7 @@ async function vaultSnapshot(): Promise<RelicVaultStatus> {
     await relicServer();
   const chainMinted = await onchainRelicMinted();
   const tableMinted = await dbMinted();
-  const minted = Math.min(
-    RELIC_MAX_SUPPLY,
-    Math.max(chainMinted ?? 0, tableMinted),
-  );
+  const minted = Math.min(RELIC_MAX_SUPPLY, Math.max(chainMinted ?? 0, tableMinted));
   const remaining = Math.max(0, RELIC_MAX_SUPPLY - minted);
   return {
     remaining,
@@ -131,9 +122,7 @@ export const claimRelic = createServerFn({ method: "POST" })
     phrase: String(input?.phrase ?? "").slice(0, 500),
   }))
   .handler(async ({ data }): Promise<RelicClaimResult> => {
-    const fail = async (
-      code: RelicClaimResult["code"],
-    ): Promise<RelicClaimResult> => {
+    const fail = async (code: RelicClaimResult["code"]): Promise<RelicClaimResult> => {
       const snap = await vaultSnapshot().catch((): RelicVaultStatus => ({
         remaining: RELIC_MAX_SUPPLY,
         minted: 0,

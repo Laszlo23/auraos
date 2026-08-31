@@ -1,0 +1,160 @@
+import { mediaPath } from "@/lib/site";
+import { resolveHoodTraits, type HoodSealId } from "@/lib/hood-traits";
+import { cn } from "@/lib/utils";
+
+export type HoodPortraitSize = "hero" | "passport" | "chip" | "tile";
+
+function SealMark({ id, className }: { id: HoodSealId; className?: string }) {
+  const common = {
+    viewBox: "0 0 80 56",
+    className,
+    "aria-hidden": true as const,
+  };
+  switch (id) {
+    case "crown":
+      return (
+        <svg {...common}>
+          <path d="M12 44 V22 L28 34 L40 12 L52 34 L68 22 V44 Z" fill="currentColor" />
+        </svg>
+      );
+    case "rose":
+      return (
+        <svg {...common}>
+          <circle cx="40" cy="22" r="12" fill="currentColor" />
+          <circle cx="32" cy="28" r="8" fill="currentColor" opacity="0.7" />
+          <rect x="38" y="30" width="4" height="14" rx="2" fill="#3dcf8e" />
+        </svg>
+      );
+    case "ledger":
+      return (
+        <svg {...common}>
+          <rect x="24" y="10" width="32" height="30" rx="3" fill="currentColor" />
+          <rect x="28" y="18" width="24" height="2" fill="#07090e" opacity="0.45" />
+          <rect x="28" y="24" width="18" height="2" fill="#07090e" opacity="0.45" />
+        </svg>
+      );
+    case "rail":
+      return (
+        <svg {...common}>
+          <rect x="12" y="30" width="56" height="6" rx="2" fill="currentColor" />
+          <rect x="16" y="14" width="5" height="22" fill="currentColor" />
+          <rect x="38" y="14" width="5" height="22" fill="currentColor" />
+          <rect x="60" y="14" width="5" height="22" fill="currentColor" />
+        </svg>
+      );
+    default: {
+      const _exhaustive: never = id;
+      return _exhaustive;
+    }
+  }
+}
+
+const SIZE: Record<HoodPortraitSize, string> = {
+  hero: "rounded-[2rem]",
+  passport: "rounded-[1.35rem]",
+  chip: "rounded-full",
+  tile: "rounded-[1.4rem]",
+};
+
+export function HoodPortrait({
+  tokenId,
+  size = "passport",
+  className,
+  foil = true,
+}: {
+  tokenId: number;
+  size?: HoodPortraitSize;
+  className?: string;
+  foil?: boolean;
+}) {
+  const traits = resolveHoodTraits(tokenId);
+  const compact = size === "chip";
+
+  return (
+    <div
+      className={cn(
+        "hood-frame group relative overflow-hidden border border-gold/30 bg-[#07090e]",
+        SIZE[size],
+        foil && !compact && "shadow-[0_0_90px_-16px_oklch(0.8_0.17_85/0.65)]",
+        className,
+      )}
+    >
+      <div aria-hidden className="absolute inset-0" style={{ background: traits.background.css }} />
+      <img
+        src={mediaPath(traits.character.art)}
+        alt={`${traits.character.name} — The Hood #${traits.tokenId}`}
+        width={800}
+        height={800}
+        decoding="async"
+        className={cn(
+          "relative z-[1] aspect-square w-full object-cover",
+          compact
+            ? "scale-110"
+            : "scale-[1.04] [mask-image:radial-gradient(ellipse_78%_78%_at_50%_42%,#000_58%,transparent_86%)]",
+        )}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[2] bg-[linear-gradient(180deg,transparent_48%,oklch(0.1_0.02_80/0.72))]"
+      />
+      {!compact ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[4] flex items-end justify-between gap-3 p-3 sm:p-4">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/90">
+              {traits.character.name}
+            </p>
+            <p className="mt-0.5 text-[11px] text-foreground/80">{traits.character.role}</p>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl border border-gold/30 bg-[#07090e]/70 px-2 py-1.5 text-gold backdrop-blur-sm">
+            <SealMark id={traits.seal.id} className="h-5 w-7" />
+            <span className="num text-[11px] font-semibold">#{traits.tokenId}</span>
+          </div>
+        </div>
+      ) : (
+        <div
+          aria-hidden
+          className="absolute inset-0 z-[4] rounded-full ring-1 ring-inset ring-gold/40"
+        />
+      )}
+      {foil && !compact ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[5] opacity-0 transition duration-700 group-hover:opacity-100"
+          style={{
+            background:
+              "linear-gradient(115deg, transparent 30%, oklch(0.9 0.12 85 / 0.18) 46%, transparent 62%)",
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+export function HoodStillFrame({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "hood-frame overflow-hidden rounded-[1.4rem] border border-gold/20 bg-foreground/[0.03]",
+        className,
+      )}
+    >
+      <img
+        src={mediaPath(src)}
+        alt={alt}
+        width={800}
+        height={800}
+        loading="lazy"
+        decoding="async"
+        className="aspect-square w-full object-cover"
+      />
+    </div>
+  );
+}

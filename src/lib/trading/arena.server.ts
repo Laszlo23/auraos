@@ -69,17 +69,21 @@ export function scoreDeskWeek(opts: {
   realizedPnl: number;
   maxDrawdownPct: number;
   tradeCount: number;
+  hoodMultiplier?: number;
 }): number {
   if (opts.tradeCount < 1) return 0;
   const ddPenalty = Math.min(0.85, Math.max(0, opts.maxDrawdownPct) / 100);
   const raw = opts.realizedPnl * (1 - ddPenalty);
-  // Mild participation bonus so desks that actually trade outrank zeros
-  return Number((raw + Math.min(opts.tradeCount, 10) * 0.25).toFixed(4));
+  const base = raw + Math.min(opts.tradeCount, 10) * 0.25;
+  const mult = Number.isFinite(opts.hoodMultiplier) ? Math.max(1, Number(opts.hoodMultiplier)) : 1;
+  return Number((base * mult).toFixed(4));
 }
 
 export async function recomputeTradingArena(db: Admin) {
   const season = await ensureActiveTradingSeason(db);
   const { data: companies } = await db.from("companies").select("id, name").limit(200);
+  const { loadHasGenesisNft } = await import("@/lib/trading/holder-perks.server");
+  const { HOOD_SEASON_SCORE_MULTIPLIER } = await import("@/lib/trading/holder-perks");
 
   const rows: {
     season_id: string;
@@ -138,10 +142,12 @@ export async function recomputeTradingArena(db: Admin) {
       if (peak > 0) maxDd = Math.max(maxDd, ((peak - equity) / Math.max(peak, 1)) * 100);
     }
 
+    const hooded = await loadHasGenesisNft(db, { companyId: c.id });
     const score = scoreDeskWeek({
       realizedPnl: realized,
       maxDrawdownPct: maxDd,
       tradeCount,
+      hoodMultiplier: hooded ? HOOD_SEASON_SCORE_MULTIPLIER : 1,
     });
 
     rows.push({

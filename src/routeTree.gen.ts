@@ -113,12 +113,14 @@ import { Route as AuthenticatedMissionsIdRouteImport } from './routes/_authentic
 import { Route as ApiBillingCheckoutRouteImport } from './routes/api/billing/checkout'
 import { Route as ApiBillingCryptoCheckoutRouteImport } from './routes/api/billing/crypto-checkout'
 import { Route as ApiBillingCryptoIpnRouteImport } from './routes/api/billing/crypto-ipn'
+import { Route as ApiBillingFoundingCryptoRouteImport } from './routes/api/billing/founding-crypto'
 import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing/founding-seat'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
 import { Route as ApiWebhooksQuidliRouteImport } from './routes/api/webhooks/quidli'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
+import { Route as HoodClaimCodeRouteImport } from './routes/hood_.claim.$code'
 import { Route as IFcFidRouteImport } from './routes/i.fc.$fid'
 import { Route as LokalClaimTokenRouteImport } from './routes/lokal_.claim.$token'
 import { Route as NachbarCCodeRouteImport } from './routes/nachbar/c.$code'
@@ -126,6 +128,7 @@ import { Route as NachbarRefCodeRouteImport } from './routes/nachbar/ref.$code'
 import { Route as OauthMailboxReturnRouteImport } from './routes/oauth/mailbox.return'
 import { Route as OauthSocialReturnRouteImport } from './routes/oauth/social.return'
 import { Route as RReviewTokenRouteImport } from './routes/r.review.$token'
+import { Route as ApiGenesisArtTokenIdRouteImport } from './routes/api/genesis/art/$tokenId'
 import { Route as ApiGenesisMetaTokenIdRouteImport } from './routes/api/genesis/meta/$tokenId'
 import { Route as ApiOauthSocialCallbackRouteImport } from './routes/api/oauth/social/callback'
 import { Route as ApiOauthSocialStartRouteImport } from './routes/api/oauth/social/start'
@@ -664,6 +667,12 @@ const ApiBillingCryptoIpnRoute = ApiBillingCryptoIpnRouteImport.update({
   path: '/api/billing/crypto-ipn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBillingFoundingCryptoRoute =
+  ApiBillingFoundingCryptoRouteImport.update({
+    id: '/api/billing/founding-crypto',
+    path: '/api/billing/founding-crypto',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiBillingFoundingSeatRoute = ApiBillingFoundingSeatRouteImport.update({
   id: '/api/billing/founding-seat',
   path: '/api/billing/founding-seat',
@@ -692,6 +701,11 @@ const ApiWebhooksQuidliRoute = ApiWebhooksQuidliRouteImport.update({
 const ApiWorkersTickRoute = ApiWorkersTickRouteImport.update({
   id: '/api/workers/tick',
   path: '/api/workers/tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HoodClaimCodeRoute = HoodClaimCodeRouteImport.update({
+  id: '/hood_/claim/$code',
+  path: '/hood/claim/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IFcFidRoute = IFcFidRouteImport.update({
@@ -727,6 +741,11 @@ const OauthSocialReturnRoute = OauthSocialReturnRouteImport.update({
 const RReviewTokenRoute = RReviewTokenRouteImport.update({
   id: '/r/review/$token',
   path: '/r/review/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenesisArtTokenIdRoute = ApiGenesisArtTokenIdRouteImport.update({
+  id: '/api/genesis/art/$tokenId',
+  path: '/api/genesis/art/$tokenId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGenesisMetaTokenIdRoute = ApiGenesisMetaTokenIdRouteImport.update({
@@ -918,12 +937,14 @@ export interface FileRoutesByFullPath {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
   '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
+  '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/hood/claim/$code': typeof HoodClaimCodeRoute
   '/i/fc/$fid': typeof IFcFidRoute
   '/lokal/claim/$token': typeof LokalClaimTokenRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
@@ -931,6 +952,7 @@ export interface FileRoutesByFullPath {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/genesis/art/$tokenId': typeof ApiGenesisArtTokenIdRoute
   '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
@@ -1050,12 +1072,14 @@ export interface FileRoutesByTo {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
   '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
+  '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/hood/claim/$code': typeof HoodClaimCodeRoute
   '/i/fc/$fid': typeof IFcFidRoute
   '/lokal/claim/$token': typeof LokalClaimTokenRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
@@ -1063,6 +1087,7 @@ export interface FileRoutesByTo {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/genesis/art/$tokenId': typeof ApiGenesisArtTokenIdRoute
   '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
@@ -1185,12 +1210,14 @@ export interface FileRoutesById {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
   '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
+  '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
+  '/hood_/claim/$code': typeof HoodClaimCodeRoute
   '/i/fc/$fid': typeof IFcFidRoute
   '/lokal_/claim/$token': typeof LokalClaimTokenRoute
   '/nachbar/c/$code': typeof NachbarCCodeRoute
@@ -1198,6 +1225,7 @@ export interface FileRoutesById {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/genesis/art/$tokenId': typeof ApiGenesisArtTokenIdRoute
   '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
   '/api/oauth/social/start': typeof ApiOauthSocialStartRoute
@@ -1320,12 +1348,14 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/crypto-checkout'
     | '/api/billing/crypto-ipn'
+    | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
+    | '/hood/claim/$code'
     | '/i/fc/$fid'
     | '/lokal/claim/$token'
     | '/nachbar/c/$code'
@@ -1333,6 +1363,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/genesis/art/$tokenId'
     | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
@@ -1452,12 +1483,14 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/crypto-checkout'
     | '/api/billing/crypto-ipn'
+    | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
+    | '/hood/claim/$code'
     | '/i/fc/$fid'
     | '/lokal/claim/$token'
     | '/nachbar/c/$code'
@@ -1465,6 +1498,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/genesis/art/$tokenId'
     | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
@@ -1586,12 +1620,14 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/crypto-checkout'
     | '/api/billing/crypto-ipn'
+    | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
     | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
+    | '/hood_/claim/$code'
     | '/i/fc/$fid'
     | '/lokal_/claim/$token'
     | '/nachbar/c/$code'
@@ -1599,6 +1635,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/genesis/art/$tokenId'
     | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
     | '/api/oauth/social/start'
@@ -1675,17 +1712,20 @@ export interface RootRouteChildren {
   ApiBillingCheckoutRoute: typeof ApiBillingCheckoutRoute
   ApiBillingCryptoCheckoutRoute: typeof ApiBillingCryptoCheckoutRoute
   ApiBillingCryptoIpnRoute: typeof ApiBillingCryptoIpnRoute
+  ApiBillingFoundingCryptoRoute: typeof ApiBillingFoundingCryptoRoute
   ApiBillingFoundingSeatRoute: typeof ApiBillingFoundingSeatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
   ApiWebhooksQuidliRoute: typeof ApiWebhooksQuidliRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
+  HoodClaimCodeRoute: typeof HoodClaimCodeRoute
   IFcFidRoute: typeof IFcFidRoute
   LokalClaimTokenRoute: typeof LokalClaimTokenRoute
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
   OauthSocialReturnRoute: typeof OauthSocialReturnRoute
   RReviewTokenRoute: typeof RReviewTokenRoute
+  ApiGenesisArtTokenIdRoute: typeof ApiGenesisArtTokenIdRoute
   ApiGenesisMetaTokenIdRoute: typeof ApiGenesisMetaTokenIdRoute
   ApiOauthSocialCallbackRoute: typeof ApiOauthSocialCallbackRoute
   ApiOauthSocialStartRoute: typeof ApiOauthSocialStartRoute
@@ -2433,6 +2473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBillingCryptoIpnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/billing/founding-crypto': {
+      id: '/api/billing/founding-crypto'
+      path: '/api/billing/founding-crypto'
+      fullPath: '/api/billing/founding-crypto'
+      preLoaderRoute: typeof ApiBillingFoundingCryptoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/billing/founding-seat': {
       id: '/api/billing/founding-seat'
       path: '/api/billing/founding-seat'
@@ -2473,6 +2520,13 @@ declare module '@tanstack/react-router' {
       path: '/api/workers/tick'
       fullPath: '/api/workers/tick'
       preLoaderRoute: typeof ApiWorkersTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hood_/claim/$code': {
+      id: '/hood_/claim/$code'
+      path: '/hood/claim/$code'
+      fullPath: '/hood/claim/$code'
+      preLoaderRoute: typeof HoodClaimCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/i/fc/$fid': {
@@ -2522,6 +2576,13 @@ declare module '@tanstack/react-router' {
       path: '/r/review/$token'
       fullPath: '/r/review/$token'
       preLoaderRoute: typeof RReviewTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/genesis/art/$tokenId': {
+      id: '/api/genesis/art/$tokenId'
+      path: '/api/genesis/art/$tokenId'
+      fullPath: '/api/genesis/art/$tokenId'
+      preLoaderRoute: typeof ApiGenesisArtTokenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/genesis/meta/$tokenId': {
@@ -2817,17 +2878,20 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBillingCheckoutRoute: ApiBillingCheckoutRoute,
   ApiBillingCryptoCheckoutRoute: ApiBillingCryptoCheckoutRoute,
   ApiBillingCryptoIpnRoute: ApiBillingCryptoIpnRoute,
+  ApiBillingFoundingCryptoRoute: ApiBillingFoundingCryptoRoute,
   ApiBillingFoundingSeatRoute: ApiBillingFoundingSeatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
   ApiWebhooksQuidliRoute: ApiWebhooksQuidliRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
+  HoodClaimCodeRoute: HoodClaimCodeRoute,
   IFcFidRoute: IFcFidRoute,
   LokalClaimTokenRoute: LokalClaimTokenRoute,
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,
   OauthSocialReturnRoute: OauthSocialReturnRoute,
   RReviewTokenRoute: RReviewTokenRoute,
+  ApiGenesisArtTokenIdRoute: ApiGenesisArtTokenIdRoute,
   ApiGenesisMetaTokenIdRoute: ApiGenesisMetaTokenIdRoute,
   ApiOauthSocialCallbackRoute: ApiOauthSocialCallbackRoute,
   ApiOauthSocialStartRoute: ApiOauthSocialStartRoute,

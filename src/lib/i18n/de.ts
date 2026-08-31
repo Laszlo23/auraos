@@ -374,7 +374,7 @@ export const de: MessageTree = {
     claimTitle: "Seat kaufen.",
     claimTitle2: "Firma wecken.",
     claimBody:
-      "299 $ einmalig · hart auf 1000 begrenzt. Kein Invite nötig. Danach kannst du einen Invite teilen — Freunde zahlen trotzdem. The Hood NFT ist der Founding-Circle-Key — 70% des Mints in die Launch-Liquidität, 30% an Developer-Ops (Server).",
+      "299 $ einmalig · hart auf 1000 begrenzt. Die ersten 1.000 bekommen The Hood: Extra-Desk-Perks und Hold-to-earn aus echten Produktgebühren, solange du das NFT hältst. 70% des Mints in die Launch-Liquidität, 30% an Ops. Spätere Mitglieder bekommen das OS — nicht dieses Paket.",
     claimShare: "Aura OS teilen",
     wienHub: "Wien-Hub",
     nftsFunny: "Warum NFTs als Keys (lustige Ausgabe)",
@@ -470,7 +470,7 @@ export const de: MessageTree = {
       "Offen kaufen — 299 $ einmalig, gedeckelt auf 1000 Firmen. Kein Invite zum Kauf. Danach bekommst du einen Invite-Link (Freunde zahlen trotzdem). Token-Launch ist getrennt.",
     faq4q: "Was bekomme ich als Founding Member wirklich?",
     faq4a:
-      "Einen bezahlten Firmen-Seat, ein Founding-Badge, einen Invite zum Weitergeben, in-app AURA bei bezahlten Conversions, und eine Concierge-Page-Review-Queue. Compute-Billing und Token-Launch bleiben getrennt.",
+      "Einen bezahlten Firmen-Seat, The Hood (nur die ersten 1.000), Hold-to-earn aus echten Desk-/Katalog-/x402-Gebühren solange du hältst, 7.777 AURA nach T-0 gesperrt, Genesis-Desk-Perks, ein Founding-Badge und einen Invite. Kein festes APY. Compute-Billing bleibt getrennt.",
     liveKicker: "Live-Beta",
     liveTitle: "Zahlen aus der Live-Datenbank — auch Nullen.",
     liveBody:
@@ -536,15 +536,17 @@ export const de: MessageTree = {
   access: {
     title: "Founding Seat kaufen.",
     subtitle: "Besitz deine KI-Firma.",
-    priceTag: "299 $ einmalig · {total} Seats · echter Stripe-Checkout",
+    priceTag: "299 $ einmalig · {total} Seats · Karte oder Crypto",
     blurb:
-      "Einmal 299 $ zahlen. KI-Firma wecken. Danach bekommst du einen simplen Invite-Link zum Teilen — Freunde zahlen trotzdem 299 $; du verdienst in-app AURA.",
+      "Einmal 299 $ — Karte oder Crypto. KI-Firma wecken. Danach bekommst du einen simplen Invite-Link zum Teilen — Freunde zahlen trotzdem 299 $; du verdienst in-app AURA.",
     friendCode: "Freundes-Code angehängt",
     buyLabel: "Jetzt kaufen",
     buyBlurb:
-      "Konto anlegen (oder anmelden) → Stripe 299 $ → Seat wird freigeschaltet. Das ist die ganze Tür.",
-    buyCta: "Founding Seat kaufen — 299 $",
-    buyOpening: "Öffne Stripe…",
+      "Wallet oder Magic Link → 299 $ Karte oder Crypto → Seat wird freigeschaltet. Das ist die ganze Tür.",
+    buyCta: "Karte — 299 $",
+    buyCryptoCta: "Crypto — 299 $",
+    buyCryptoGo: "Mit Crypto zahlen",
+    buyOpening: "Öffne Checkout…",
     shareLabel: "Seat-Seite teilen",
     updatesLabel: "Nur Updates",
     updatesBlurb: "Optionale E-Mail-Liste. Kaufen braucht das nicht.",
@@ -553,7 +555,7 @@ export const de: MessageTree = {
     updatesJoined: "Du stehst auf der Liste. Seats sind schon offen — kaufe oben jederzeit.",
     checkoutCancel: "Checkout abgebrochen — du kannst jederzeit kaufen.",
     home: "Home",
-    openTag: "Offen · 299 $ Stripe",
+    openTag: "Offen · 299 $",
     foundingLive: "Founding Cohort · live",
   },
   footer: {

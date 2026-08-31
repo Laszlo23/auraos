@@ -140,7 +140,10 @@ function SalePage() {
             { n: "02", title: t("sale.step2Title"), body: t("sale.step2Body") },
             { n: "03", title: t("sale.step3Title"), body: t("sale.step3Body") },
           ].map((step) => (
-            <li key={step.n} className="rounded-2xl border border-border/40 bg-foreground/[0.03] p-4">
+            <li
+              key={step.n}
+              className="rounded-2xl border border-border/40 bg-foreground/[0.03] p-4"
+            >
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
                 {step.n} · {step.title}
               </p>
@@ -156,7 +159,9 @@ function SalePage() {
           <h2 className="mt-2 font-display text-[clamp(1.45rem,6vw,2rem)] font-semibold leading-[1.05] tracking-tight">
             {t("sale.trustTitle")}
           </h2>
-          <p className="mt-3 text-[14px] leading-relaxed text-foreground/85">{t("sale.trustLead")}</p>
+          <p className="mt-3 text-[14px] leading-relaxed text-foreground/85">
+            {t("sale.trustLead")}
+          </p>
           <ul className="mt-5 space-y-4">
             {[
               { title: t("sale.trustFairTitle"), body: t("sale.trustFairBody") },
@@ -164,11 +169,16 @@ function SalePage() {
               { title: t("sale.trustSupplyTitle"), body: t("sale.trustSupplyBody") },
               { title: t("sale.trustHonestTitle"), body: t("sale.trustHonestBody") },
             ].map((item) => (
-              <li key={item.title} className="rounded-2xl border border-gold/20 bg-background/40 p-4">
+              <li
+                key={item.title}
+                className="rounded-2xl border border-gold/20 bg-background/40 p-4"
+              >
                 <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-gold">
                   {item.title}
                 </p>
-                <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{item.body}</p>
+                <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                  {item.body}
+                </p>
               </li>
             ))}
           </ul>
@@ -181,7 +191,9 @@ function SalePage() {
           <h2 className="mt-2 font-display text-[clamp(1.45rem,6vw,2rem)] font-semibold leading-[1.05] tracking-tight">
             {t("sale.buildersTitle")}
           </h2>
-          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">{t("sale.buildersLead")}</p>
+          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
+            {t("sale.buildersLead")}
+          </p>
           <ul className="mt-5 space-y-3">
             {BUILDING_CULTURE_PRODUCTS.map((product) => (
               <li key={product.id}>
@@ -213,10 +225,14 @@ function SalePage() {
         </div>
 
         {stats.saleClosed ? (
-          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">{t("sale.closed")}</p>
+          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">
+            {t("sale.closed")}
+          </p>
         ) : null}
         {stats.paused ? (
-          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">{t("sale.paused")}</p>
+          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">
+            {t("sale.paused")}
+          </p>
         ) : null}
         {!contract ? (
           <p className="rounded-2xl border border-border/40 px-4 py-3 text-sm text-muted-foreground">
@@ -228,7 +244,9 @@ function SalePage() {
 
         <section className="rounded-2xl border border-border/40 p-4">
           <h2 className="font-display text-lg font-semibold">{t("sale.cashTitle")}</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{t("sale.cashBody")}</p>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {t("sale.cashBody")}
+          </p>
         </section>
 
         <section className="rounded-2xl border border-gold/30 bg-gold/[0.06] p-4">

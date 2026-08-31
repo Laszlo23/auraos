@@ -266,7 +266,13 @@ export function WienDirectory({ listings, isLoading, remaining }: Props) {
   );
 }
 
-function WienShopCard({ shop, priority = false }: { shop: PublicLokalListing; priority?: boolean }) {
+function WienShopCard({
+  shop,
+  priority = false,
+}: {
+  shop: PublicLokalListing;
+  priority?: boolean;
+}) {
   const address = formatShopAddress(shop);
   const cover = safeShopImageUrl(shopMediaUrl(shop.cover_url) ?? shop.cover_url);
   const shareUrl = url(`/b/${shop.slug}`);

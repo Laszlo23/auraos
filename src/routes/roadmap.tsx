@@ -1,23 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "motion/react";
-import { Coffee, Heart, Radio, Sparkles } from "lucide-react";
+import { Coffee, Crown, Globe, Hammer, Heart, Radio } from "lucide-react";
 
 import { SiteFooter } from "@/components/aura/site-footer";
 import {
-  LOVE_RITUALS,
-  NINETY_DAY,
+  FIRST_THOUSAND,
+  ROADMAP_BEATS,
   ROADMAP_INTRO,
+  ROADMAP_RITUALS,
   ROADMAP_STOPS,
   VIBES_CHART,
+  type RoadmapKind,
   type RoadmapStatus,
-  type RoadmapStop,
 } from "@/lib/roadmap";
 import { OG_IMAGE, SITE_URL, SOCIAL_LINKS, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-const TITLE = "Aura OS roadmap — the love way (coffee & Spaces)";
+const TITLE = "Aura OS roadmap — the whole stack, first 1,000 Hood extras";
 const DESCRIPTION =
-  "Funny, honest roadmap: live product, fair launch, 90-day proof mission, plus coffee sessions and Love Spaces. Ninty energy.";
+  "Full product roadmap: OS desk, Aura Local, Hood hold-to-earn for the first 1,000, fair launch, 90-day proof, then DACH and Europe.";
 
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
@@ -40,19 +41,23 @@ const STATUS_LABEL: Record<RoadmapStatus, string> = {
   live: "Live",
   brewing: "Brewing",
   next: "Next up",
-  dreaming: "Dreaming",
+  horizon: "Horizon",
 };
 
-function kindIcon(kind: RoadmapStop["kind"]) {
+function kindIcon(kind: RoadmapKind) {
   switch (kind) {
+    case "build":
+      return Hammer;
+    case "hood":
+      return Crown;
+    case "scale":
+      return Globe;
     case "coffee":
       return Coffee;
     case "space":
       return Radio;
     case "love":
       return Heart;
-    case "product":
-      return Sparkles;
     default: {
       const _exhaustive: never = kind;
       return _exhaustive;
@@ -159,7 +164,7 @@ function OrbitLove({ className }: { className?: string }) {
         className="fill-muted-foreground"
         style={{ fontSize: 9, letterSpacing: "0.18em" }}
       >
-        LOVE ORBIT
+        1 / 1000
       </text>
     </svg>
   );
@@ -263,7 +268,6 @@ function LegendDot({ className, label, x }: { className: string; label: string; 
 
 function RoadmapPage() {
   const reduce = useReducedMotion();
-  const xLink = SOCIAL_LINKS.find((s) => s.id === "x");
   const discord = SOCIAL_LINKS.find((s) => s.id === "discord");
 
   return (
@@ -295,6 +299,9 @@ function RoadmapPage() {
             <Link to="/whitepaper" className="text-muted-foreground hover:text-foreground">
               Whitepaper
             </Link>
+            <Link to="/hood" className="text-muted-foreground hover:text-foreground">
+              The Hood
+            </Link>
           </nav>
         </div>
       </header>
@@ -306,8 +313,8 @@ function RoadmapPage() {
             {ROADMAP_INTRO.eyebrow} · {TOKEN_LAUNCH_DISPLAY}
           </p>
           <motion.h1
-            className="mt-4 font-display text-[clamp(2.6rem,9vw,4.4rem)] font-semibold leading-[0.95] tracking-tight"
-            initial={reduce ? false : { opacity: 0, y: 16 }}
+            className="mt-4 font-display text-[clamp(2.6rem,9vw,4.4rem)] font-semibold leading-[0.95] tracking-tight text-foreground"
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
           >
@@ -315,7 +322,7 @@ function RoadmapPage() {
           </motion.h1>
           <motion.p
             className="mt-5 max-w-xl text-[16px] leading-relaxed text-muted-foreground"
-            initial={reduce ? false : { opacity: 0, y: 12 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.08 }}
           >
@@ -323,28 +330,30 @@ function RoadmapPage() {
           </motion.p>
           <motion.div
             className="mt-8 flex flex-wrap gap-3"
-            initial={reduce ? false : { opacity: 0, y: 10 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.16 }}
           >
+            <Link
+              to="/hood"
+              className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
+            >
+              First 1,000 — The Hood →
+            </Link>
+            <Link
+              to="/access"
+              className="rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
+            >
+              Founding seat
+            </Link>
             {discord ? (
               <a
                 href={discord.href}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
-              >
-                Join coffee sessions →
-              </a>
-            ) : null}
-            {xLink ? (
-              <a
-                href={xLink.href}
-                target="_blank"
-                rel="noreferrer"
                 className="rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
               >
-                Catch Love Spaces
+                Discord
               </a>
             ) : null}
           </motion.div>
@@ -355,16 +364,56 @@ function RoadmapPage() {
         </div>
       </section>
 
-      {/* Love rituals strip */}
+      <section className="relative mx-auto max-w-5xl px-6 py-10">
+        <div className="rounded-[1.8rem] border border-primary/30 bg-primary/[0.06] px-6 py-8 sm:px-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+            {FIRST_THOUSAND.eyebrow}
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            {FIRST_THOUSAND.title}
+          </h2>
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+            {FIRST_THOUSAND.lead}
+          </p>
+          <div className="mt-8 rounded-2xl border border-border/50 bg-background/60 px-5 py-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              {FIRST_THOUSAND.holdTitle}
+            </p>
+            <p className="mt-2 max-w-2xl text-[14.5px] leading-relaxed text-foreground/90">
+              {FIRST_THOUSAND.holdLead}
+            </p>
+          </div>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+            {FIRST_THOUSAND.perks.map((perk) => (
+              <li key={perk.id} className="border-t border-border/40 pt-4">
+                <h3 className="font-display text-lg font-semibold tracking-tight">{perk.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
+                  {perk.body}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 text-[12px] leading-relaxed text-muted-foreground">
+            {FIRST_THOUSAND.disclaimer}
+          </p>
+          <Link
+            to="/hood"
+            className="mt-6 inline-flex rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
+          >
+            See The Hood →
+          </Link>
+        </div>
+      </section>
+
       <section className="relative mx-auto max-w-5xl px-6 py-10">
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          Community rituals
+          How we stay honest
         </p>
         <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-          Coffee. Spaces. Love notes.
+          Ship. Protect the 1,000. Publish the tape.
         </h2>
         <ul className="mt-8 grid gap-8 border-t border-border/40 pt-8 sm:grid-cols-3">
-          {LOVE_RITUALS.map((r, i) => (
+          {ROADMAP_RITUALS.map((r, i) => (
             <motion.li
               key={r.id}
               initial={reduce ? false : { opacity: 0, y: 14 }}
@@ -374,9 +423,9 @@ function RoadmapPage() {
               className="border-l border-border/50 pl-4"
             >
               <h3 className="font-display text-lg font-semibold tracking-tight">{r.title}</h3>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">{r.blurb}</p>
+              <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">{r.body}</p>
               <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
-                {r.cta}
+                {r.when}
               </p>
             </motion.li>
           ))}
@@ -389,7 +438,7 @@ function RoadmapPage() {
           The path
         </p>
         <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-          Stops on the love highway
+          OS. Street. Hood. Launch. Scale.
         </h2>
         <ol className="relative mt-12 space-y-0">
           <div
@@ -415,7 +464,7 @@ function RoadmapPage() {
                       "border-amber-500/40 bg-amber-500/10 text-amber-500",
                     stop.status === "next" &&
                       "border-foreground/30 bg-foreground/5 text-foreground",
-                    stop.status === "dreaming" &&
+                    stop.status === "horizon" &&
                       "border-border bg-background text-muted-foreground",
                   )}
                 >
@@ -431,7 +480,7 @@ function RoadmapPage() {
                       stop.status === "live" && "text-primary",
                       stop.status === "brewing" && "text-amber-500",
                       stop.status === "next" && "text-foreground",
-                      stop.status === "dreaming" && "text-muted-foreground",
+                      stop.status === "horizon" && "text-muted-foreground",
                     )}
                   >
                     {STATUS_LABEL[stop.status]}
@@ -441,9 +490,6 @@ function RoadmapPage() {
                   <h3 className="font-display text-xl font-semibold tracking-tight">
                     {stop.title}
                   </h3>
-                  <p className="mt-1 text-[14px] italic leading-relaxed text-muted-foreground">
-                    {stop.joke}
-                  </p>
                   <p className="mt-2 text-[14.5px] leading-relaxed text-muted-foreground/90">
                     {stop.body}
                   </p>
@@ -460,10 +506,10 @@ function RoadmapPage() {
           Cool graphix™
         </p>
         <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-          Features climb. Love climbs faster.
+          The desk gets denser. The circle stays 1,000.
         </h2>
         <p className="mt-2 max-w-lg text-[14px] text-muted-foreground">
-          Illustrative doodle — not a forecast, not a KPI, not your therapist.
+          Illustrative doodle — not a forecast. Features, street energy, founding love.
         </p>
         <div className="mt-8 overflow-x-auto border-y border-border/40 py-6">
           <VibesGraph className="mx-auto h-auto w-full min-w-[320px] max-w-xl" />
@@ -473,34 +519,37 @@ function RoadmapPage() {
       {/* 90-day */}
       <section className="relative mx-auto max-w-5xl px-6 py-14">
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-          Serious mode
+          Near term
         </p>
         <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-          {NINETY_DAY.title}
+          Desk, Hood, T-0, proof.
         </h2>
         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          {NINETY_DAY.line}
+          The whole nine yards starts here. Later seats get the OS. They do not get a second Hood.
         </p>
-        <div className="mt-8 grid gap-6 sm:grid-cols-3">
-          {NINETY_DAY.beats.map((b) => (
-            <div key={b.d} className="border-t border-border/50 pt-4">
-              <p className="font-display text-3xl font-semibold tracking-tight">{b.d}</p>
-              <p className="mt-2 text-[14px] text-muted-foreground">{b.t}</p>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          {ROADMAP_BEATS.map((b) => (
+            <div key={b.week} className="border-t border-border/50 pt-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                {b.week}
+              </p>
+              <p className="mt-2 font-display text-2xl font-semibold tracking-tight">{b.title}</p>
+              <p className="mt-2 text-[14px] text-muted-foreground">{b.detail}</p>
             </div>
           ))}
         </div>
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
-            to="/whitepaper"
+            to="/hood"
             className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
           >
-            Whitepaper →
+            The Hood →
           </Link>
           <Link
-            to="/pitch"
+            to="/whitepaper"
             className="rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
           >
-            Investor deck
+            Whitepaper
           </Link>
           <Link
             to="/access"
@@ -514,7 +563,7 @@ function RoadmapPage() {
       <SiteFooter
         share={{
           url: `${SITE_URL}/roadmap`,
-          text: "Aura OS roadmap — the love way. Coffee sessions, Spaces, and shipping with receipts.",
+          text: "Aura OS roadmap — the whole stack. First 1,000 Hood extras + hold-to-earn.",
           placement: "roadmap",
         }}
       />

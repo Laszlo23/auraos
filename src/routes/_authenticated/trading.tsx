@@ -202,7 +202,7 @@ function TradingPage() {
     setBurst((n) => n + 1);
     setToastXp({ label, amount: xp });
     setTimeout(() => setToastXp(null), 2400);
-    award.mutate({ amount: xp, quest });
+    award.mutate({ amount, quest });
   };
 
   const open = trades.filter((t) => t.status === "open");

@@ -76,8 +76,8 @@ export function FoundingCohort({
       </div>
       <Meter value={ready ? pct : 0} tone="gold" />
       <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground/80">
-        Paid inventory only — {ready ? `${num(taken)} seated, ${num(remaining)} left` : "counting…"}.
-        Locked pricing. Founding badge. One invite each after you seat.
+        Paid inventory only — {ready ? `${num(taken)} seated, ${num(remaining)} left` : "counting…"}
+        . Locked pricing. Founding badge. One invite each after you seat.
         {seat != null ? (
           <>
             {" "}

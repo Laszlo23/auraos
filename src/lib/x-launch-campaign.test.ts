@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  DRIP_HORIZON_MS,
-  DRIP_MAX_SLOTS,
-  buildLaunchDripSchedule,
-} from "@/lib/x-launch-campaign";
+import { DRIP_HORIZON_MS, DRIP_MAX_SLOTS, buildLaunchDripSchedule } from "@/lib/x-launch-campaign";
 
 describe("buildLaunchDripSchedule", () => {
   it("fills the two-week horizon instead of stopping after a one-week burst", () => {

@@ -1,11 +1,7 @@
 import { createHmac } from "node:crypto";
 import { afterEach, describe, expect, it } from "vitest";
 
-import {
-  isPaidNowStatus,
-  nowIpnCoversSeat,
-  verifyNowPaymentsIpn,
-} from "./local-crypto-seat";
+import { isPaidNowStatus, nowIpnCoversSeat, verifyNowPaymentsIpn } from "./local-crypto-seat";
 
 function sign(body: string, secret: string): string {
   const parsed = JSON.parse(body) as Record<string, unknown>;

@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/hooks/use-aura";
+import { getHolderPerks } from "@/lib/trading.functions";
+import type { HolderPerks } from "@/lib/trading/holder-perks";
 
 export type Progress = {
   id: string;
@@ -68,6 +70,12 @@ export function useAwardXp() {
   const qc = useQueryClient();
   const { data: company } = useCompany();
   const { data: progress } = useProgress();
+  const perksQ = useQuery({
+    queryKey: ["holder-perks"],
+    queryFn: () => getHolderPerks(),
+    staleTime: 30_000,
+    enabled: Boolean(company?.id),
+  });
   return useMutation({
     mutationFn: async ({ amount, quest }: { amount: number; quest?: string | undefined }) => {
       if (!company || !progress) return null;
@@ -76,14 +84,17 @@ export function useAwardXp() {
         if (quests.has(quest)) return null;
         quests.add(quest);
       }
-      const xp = progress.xp + amount;
+      const cached = perksQ.data ?? qc.getQueryData<HolderPerks>(["holder-perks"]) ?? null;
+      const boostPct = cached?.questXpBoostPct ?? 0;
+      const awarded = Math.round(amount * (1 + boostPct / 100));
+      const xp = progress.xp + awarded;
       const { level } = levelFromXp(xp);
       const { error } = await supabase
         .from("founder_progress")
         .update({ xp, level, completed_quests: Array.from(quests) })
         .eq("company_id", company.id);
       if (error) throw error;
-      return { xp, level, leveled: level > progress.level };
+      return { xp, level, awarded, leveled: level > progress.level };
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["progress"] }),
   });

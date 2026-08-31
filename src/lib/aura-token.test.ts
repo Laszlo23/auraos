@@ -20,11 +20,16 @@ describe("AURA tokenomics", () => {
     expect(AURA_TOKEN_CA).toBeNull();
   });
 
-  it("locks team, project sale, and launch LP", () => {
+  it("locks team, project sale, launch LP, and Hood gifts", () => {
     expect(allocationById("team").amount).toBe(93_333_333);
     expect(AURA_PROJECT_SALE_LOCK.buyAfterHours).toBe(48);
     expect(AURA_PROJECT_SALE_LOCK.lockDaysAfterT0).toBe(90);
-    expect(AURA_LOCKS.map((row) => row.id)).toEqual(["team", "project_sale", "liquidity"]);
+    expect(AURA_LOCKS.map((row) => row.id)).toEqual([
+      "team",
+      "project_sale",
+      "liquidity",
+      "hood_gifts",
+    ]);
     expect(AURA_LAUNCH_OPS.deployer).toMatch(/new empty wallet/i);
     expect(AURA_LAUNCH_OPS.treasury).toMatch(/new wallet/i);
   });

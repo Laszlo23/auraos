@@ -1214,7 +1214,11 @@ function ShopProofEditor({
   );
 }
 
-function PrivateSalePanel({ t }: { t: (key: string, vars?: Record<string, string | number>) => string }) {
+function PrivateSalePanel({
+  t,
+}: {
+  t: (key: string, vars?: Record<string, string | number>) => string;
+}) {
   const qc = useQueryClient();
   const [customerName, setCustomerName] = useState("");
   const [wallet, setWallet] = useState("");
@@ -1322,7 +1326,9 @@ function PrivateSalePanel({ t }: { t: (key: string, vars?: Record<string, string
       </Panel>
 
       <Panel label={t("desk.saleQueue")}>
-        {!canSend ? <p className="mb-3 text-[12px] text-white/60">{t("desk.saleOnlyLaszlo")}</p> : null}
+        {!canSend ? (
+          <p className="mb-3 text-[12px] text-white/60">{t("desk.saleOnlyLaszlo")}</p>
+        ) : null}
         {queue.isLoading ? (
           <Shimmer className="h-16" />
         ) : !queue.data?.orders.length ? (
@@ -1335,8 +1341,8 @@ function PrivateSalePanel({ t }: { t: (key: string, vars?: Record<string, string
                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
               >
                 <p className="font-semibold">
-                  {order.customer_name} · {order.amount_usdc} USDC · {Number(order.p_aura_amount).toFixed(2)}{" "}
-                  pAURA
+                  {order.customer_name} · {order.amount_usdc} USDC ·{" "}
+                  {Number(order.p_aura_amount).toFixed(2)} pAURA
                 </p>
                 <p className="mt-1 break-all font-mono text-[11px] text-white/60">{order.wallet}</p>
                 <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-white/50">

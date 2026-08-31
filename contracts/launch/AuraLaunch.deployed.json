@@ -1,0 +1,23 @@
+{
+  "chainId": 8453,
+  "network": "base",
+  "passport": "0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2",
+  "escrow": "0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
+  "gifts": "0xB428138f62F48eb7514d6F24CAc63D04890b74ab",
+  "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "ops": "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1",
+  "txs": {
+    "setGiftDesk": "0x5d0e6bee028a33e10772459fe29001ccbb9eb4666d7409a1634dc9af2b26d11e"
+  },
+  "owner": "0x2CCf1076A9DCA4d656A156d6036Cc2066c596AF5",
+  "verified": {
+    "launchDesk": "0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
+    "giftDesk": "0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8"
+  },
+  "explorers": {
+    "passport": "https://basescan.org/address/0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2",
+    "escrow": "https://basescan.org/address/0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
+    "gifts": "https://basescan.org/address/0xB428138f62F48eb7514d6F24CAc63D04890b74ab"
+  },
+  "deployedAt": "2026-08-31T15:41:28.023Z"
+}

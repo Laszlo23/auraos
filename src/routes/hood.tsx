@@ -1,20 +1,36 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 
+import { HoodEarlyPassGate } from "@/components/aura/hood-early-pass";
+import { HoodMintCountdown } from "@/components/aura/hood-mint-countdown";
+import { HoodPortrait, HoodStillFrame } from "@/components/aura/hood-portrait";
+import { HoodWalletMint } from "@/components/aura/hood-wallet-mint";
 import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mobile-menu";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useLocale } from "@/hooks/use-locale";
 import { FOUNDING_SEAT_DISPLAY, FOUNDING_SEAT_DISPLAY_DE } from "@/lib/founding-price";
 import { HOOD, HOOD_AGENTS, HOOD_COPY, HOOD_COURT, HOOD_VALUE } from "@/lib/hood";
+import { HOOD_EARLY_COPY, HOOD_EARLY_SUPPORTER_CAP } from "@/lib/hood-early";
+import { FIRST_THOUSAND } from "@/lib/roadmap";
+import { hoodMintIsOpen } from "@/lib/hood-mint";
+import { resolveHoodTraits } from "@/lib/hood-traits";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, url } from "@/lib/site";
 
-const TITLE = "The Hood — founding circle NFT · mint to liquidity";
+const TITLE = "The Hood — first 1,000 extras + hold-to-earn";
 const DESCRIPTION =
-  "1,000 Hoods for seated founders. 70% of the $299 mint to launch liquidity, 30% to developer ops (servers). Coming to Robinhood Chain.";
+  "Only the first 1,000 members get Hood extras: hold-to-earn from real desk fees while you hold, 7,777 AURA locked, 70% mint to launch liquidity.";
 
-const TICKER = ["WIN", "LOVE", "LIQUIDITY", "ROBINHOOD", "1 / 1000", "FOUNDING CIRCLE"] as const;
+const TICKER = [
+  "NOT LAUNCHED YET",
+  "STILL DEBUGGING",
+  "THE HOOD",
+  "1 / 1000",
+  "NOBODY IS CHARGING YOU",
+  "ATLAS WOULD YELL",
+] as const;
 
 export const Route = createFileRoute("/hood")({
   head: () => ({
@@ -36,6 +52,15 @@ function HoodPage() {
   const { t, locale } = useLocale();
   const de = locale === "de";
   const price = de ? FOUNDING_SEAT_DISPLAY_DE : FOUNDING_SEAT_DISPLAY;
+  const [previewId, setPreviewId] = useState(1);
+  const [earlyUnlocked, setEarlyUnlocked] = useState(false);
+  useEffect(() => {
+    const tick = window.setInterval(() => {
+      setPreviewId((n) => (n % 12) + 1);
+    }, 3200);
+    return () => window.clearInterval(tick);
+  }, []);
+  const preview = resolveHoodTraits(previewId);
 
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-[#07090e] text-foreground">
@@ -105,23 +130,9 @@ function HoodPage() {
             aria-hidden
             className="hood-glow pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(circle,oklch(0.82_0.16_85/0.45),transparent_68%)]"
           />
-          <div className="relative overflow-hidden rounded-[2rem] border border-gold/30 shadow-[0_0_90px_-16px_oklch(0.8_0.17_85/0.65)]">
-            <img
-              src={HOOD.art}
-              alt="The Hood — founding circle still. Nouns noggles, CryptoPunk, velvet palace."
-              width={1024}
-              height={1024}
-              fetchPriority="high"
-              decoding="async"
-              className="aspect-square w-full object-cover"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_62%,oklch(0.12_0.02_80/0.55))]"
-            />
-          </div>
+          <HoodPortrait tokenId={previewId} size="hero" className="relative w-full" />
           <p className="relative mt-4 text-center text-[10px] font-semibold uppercase tracking-[0.28em] text-gold/85">
-            {HOOD.collection} · 1 / {HOOD.maxSupply}
+            {HOOD.collection} · #{preview.tokenId} / {HOOD.maxSupply} · {preview.character.name}
           </p>
         </motion.div>
 
@@ -133,6 +144,14 @@ function HoodPage() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-gold">
             {de ? HOOD_COPY.kickerDe : HOOD_COPY.kicker}
           </p>
+          <div className="mt-4 rounded-[1.4rem] border border-gold/35 bg-[#07090e]/70 px-4 py-3.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
+              {de ? HOOD_COPY.wipDe : HOOD_COPY.wip}
+            </p>
+            <p className="mt-2 text-[14px] leading-relaxed text-foreground/85">
+              {de ? HOOD_COPY.smileDe : HOOD_COPY.smile}
+            </p>
+          </div>
           <h1 className="mt-4 font-display text-[clamp(2.6rem,8vw,4.6rem)] font-semibold leading-[0.94] tracking-tight">
             {de ? HOOD_COPY.titleDe : HOOD_COPY.title}
             <span className="mt-2 block text-gold">
@@ -146,25 +165,50 @@ function HoodPage() {
             {de ? HOOD_COPY.robinhoodDe : HOOD_COPY.robinhood}
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8">
+            <HoodMintCountdown locale={de ? "de" : "en"} />
+          </div>
+          <div className="mt-6 space-y-4">
+            <HoodEarlyPassGate locale={de ? "de" : "en"} onUnlocked={setEarlyUnlocked} />
+            {(hoodMintIsOpen() || earlyUnlocked) && (
+              <HoodWalletMint locale={de ? "de" : "en"} earlyUnlocked={earlyUnlocked} />
+            )}
+          </div>
+          <p className="mt-4 text-[12px] leading-relaxed text-muted-foreground">
+            {de ? HOOD_EARLY_COPY.leadDe : HOOD_EARLY_COPY.lead} Cap {HOOD_EARLY_SUPPORTER_CAP}.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link
               to="/access"
-              className="inline-flex items-center gap-2 rounded-2xl bg-gold px-5 py-3 text-sm font-semibold text-background shadow-[0_0_32px_-10px_oklch(0.82_0.16_85/0.8)]"
+              className="inline-flex items-center gap-2 rounded-2xl border border-gold/40 bg-foreground/[0.04] px-5 py-3 text-sm font-semibold"
             >
               {de ? `Founding Seat ${price}` : `Founding seat ${price}`}{" "}
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              to="/wallet"
-              className="inline-flex items-center gap-2 rounded-2xl border border-gold/40 bg-foreground/[0.04] px-5 py-3 text-sm font-semibold"
-            >
-              {de ? `Hood minten · ${price}` : `Mint the Hood · ${price}`}
-            </Link>
+            {hoodMintIsOpen() || earlyUnlocked ? (
+              <a
+                href="#hood-early"
+                className="inline-flex items-center gap-2 rounded-2xl border border-gold/40 bg-foreground/[0.04] px-5 py-3 text-sm font-semibold"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                {de ? `Early Mint · ${price}` : `Early mint · ${price}`}
+              </a>
+            ) : (
+              <Link
+                to="/tokenomics"
+                className="inline-flex items-center gap-2 rounded-2xl border border-gold/40 bg-foreground/[0.04] px-5 py-3 text-sm font-semibold"
+              >
+                {de ? "Tokenomics lesen" : "Read tokenomics"}
+              </Link>
+            )}
           </div>
           <p className="mt-3 text-[12px] text-muted-foreground">
             {de
-              ? "Seat schaltet die Firma frei. Hood-Mint nur für seated Founder. Utility — kein Equity, kein AURA-CA."
-              : "Seat wakes the company. Hood mint is for seated founders only. Utility — not equity, not an AURA CA."}
+              ? "Wallet-Mint mit Early Pass oder am Drop-Tag. Seat weckt die Firma. Utility — kein Equity, kein AURA-CA."
+              : "Wallet mint with early pass or on drop day. Seat wakes the company. Utility — not equity, not an AURA CA."}
           </p>
         </motion.div>
       </section>
@@ -181,8 +225,8 @@ function HoodPage() {
           </p>
           <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
             {de
-              ? "Das ist Policy, kein LP-Share-Token und keine Rendite-Garantie. 209,30 $ ins Buch, 89,70 $ halten die Lichter an."
-              : "This is policy — not an LP-share token and not a return promise. $209.30 to the book, $89.70 keeps the lights on."}
+              ? "Das steht im Contract, nicht nur in der Policy. 209,30 $ bleiben im Escrow und kaufen bei T-0 AURA in die Hood-Sperre. 89,70 $ halten die Lichter an. Kein LP-Share-Token, keine Rendite-Garantie."
+              : "That's in the contract, not just a policy. $209.30 stays in escrow and buys AURA into the Hood lock at T-0. $89.70 keeps the lights on. Not an LP-share token, not a return promise."}
           </p>
         </div>
       </section>
@@ -196,19 +240,8 @@ function HoodPage() {
         </h2>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {HOOD_COURT.map((row) => (
-            <figure
-              key={row.id}
-              className="overflow-hidden rounded-[1.4rem] border border-gold/20 bg-foreground/[0.03]"
-            >
-              <img
-                src={row.art}
-                alt={`${row.en} — Hood court. Noggles, palace, punk.`}
-                width={800}
-                height={800}
-                loading="lazy"
-                decoding="async"
-                className="aspect-square w-full object-cover"
-              />
+            <figure key={row.id} className="overflow-hidden rounded-[1.4rem] border border-gold/20">
+              <HoodStillFrame src={row.art} alt={`${row.en} — Hood court portrait.`} />
               <figcaption className="px-3 py-3">
                 <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-gold">
                   {de ? row.de : row.en}
@@ -227,22 +260,14 @@ function HoodPage() {
           {de ? "Die Firma" : "The company"}
         </p>
         <h2 className="mt-2 font-display text-[clamp(1.6rem,4vw,2.4rem)] font-semibold tracking-tight">
-          {de ? "Das ganze AI-Team. Noggles on." : "The whole AI team. Noggles on."}
+          {de ? "Das ganze AI-Team. Im Kreis." : "The whole AI team. In the circle."}
         </h2>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {HOOD_AGENTS.map((row) => (
-            <figure
-              key={row.id}
-              className="overflow-hidden rounded-[1.4rem] border border-gold/20 bg-foreground/[0.03]"
-            >
-              <img
+            <figure key={row.id} className="overflow-hidden rounded-[1.4rem] border border-gold/20">
+              <HoodStillFrame
                 src={row.art}
                 alt={`${row.name} — ${row.enRole}. Hood court portrait.`}
-                width={800}
-                height={800}
-                loading="lazy"
-                decoding="async"
-                className="aspect-square w-full object-cover"
               />
               <figcaption className="px-3 py-3">
                 <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-gold">
@@ -258,8 +283,34 @@ function HoodPage() {
       </section>
 
       <section className="relative z-10 mx-auto max-w-6xl px-5 pb-12 sm:px-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          {de ? "Was du bekommst" : "What founders get"}
+        <div className="rounded-[1.8rem] border border-gold/30 bg-gold/[0.06] px-6 py-7 sm:px-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+            {de ? FIRST_THOUSAND.eyebrowDe : FIRST_THOUSAND.eyebrow}
+          </p>
+          <h2 className="mt-2 font-display text-[clamp(1.6rem,4vw,2.4rem)] font-semibold tracking-tight">
+            {de ? FIRST_THOUSAND.titleDe : FIRST_THOUSAND.title}
+          </h2>
+          <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+            {de ? FIRST_THOUSAND.leadDe : FIRST_THOUSAND.lead}
+          </p>
+          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-foreground/90">
+            <span className="font-semibold text-gold">
+              {de ? FIRST_THOUSAND.holdTitleDe : FIRST_THOUSAND.holdTitle}.{" "}
+            </span>
+            {de ? FIRST_THOUSAND.holdLeadDe : FIRST_THOUSAND.holdLead}
+          </p>
+          <p className="mt-4 text-[12px] leading-relaxed text-muted-foreground">
+            {de ? FIRST_THOUSAND.disclaimerDe : FIRST_THOUSAND.disclaimer}
+          </p>
+          <Link
+            to="/roadmap"
+            className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.14em] text-gold"
+          >
+            {de ? "Ganzer Fahrplan" : "The whole roadmap"} <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        <p className="mt-10 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          {de ? "Was du bekommst" : "What the first 1,000 get"}
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {HOOD_VALUE.map((row) => (

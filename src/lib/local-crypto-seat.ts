@@ -155,11 +155,12 @@ function asPositiveNumber(raw: unknown): number | null {
 
 /**
  * NOWPayments go-live requirement: inspect outcome_amount + outcome_currency
- * before granting the seat. Local Seat is a €99 fixed-price product.
+ * before granting a fixed-price product.
  */
-export function nowIpnCoversSeat(
+export function nowIpnCoversAmount(
   payload: NowIpnPayload,
-  expectedEur: number = LOCAL_SEAT_EUR,
+  expected: number,
+  currency: "eur" | "usd",
 ): boolean {
   const outcomeAmount = asPositiveNumber(payload.outcome_amount);
   const outcomeCurrency = String(payload.outcome_currency || "")
@@ -171,10 +172,10 @@ export function nowIpnCoversSeat(
     .trim()
     .toLowerCase();
   const priceAmount = asPositiveNumber(payload.price_amount);
-  if (priceCurrency === "eur") {
-    if (priceAmount == null || Math.abs(priceAmount - expectedEur) > 1) return false;
-    if (outcomeCurrency === "eur" && outcomeAmount + 1e-9 < expectedEur * 0.95) return false;
-  } else if (priceCurrency && priceCurrency !== "eur") {
+  if (priceCurrency === currency) {
+    if (priceAmount == null || Math.abs(priceAmount - expected) > 1) return false;
+    if (outcomeCurrency === currency && outcomeAmount + 1e-9 < expected * 0.95) return false;
+  } else if (priceCurrency && priceCurrency !== currency) {
     return false;
   }
 
@@ -185,6 +186,14 @@ export function nowIpnCoversSeat(
   }
 
   return true;
+}
+
+/** Local Seat is a €99 fixed-price product. */
+export function nowIpnCoversSeat(
+  payload: NowIpnPayload,
+  expectedEur: number = LOCAL_SEAT_EUR,
+): boolean {
+  return nowIpnCoversAmount(payload, expectedEur, "eur");
 }
 
 export async function fulfillLocalSeatCrypto(input: {

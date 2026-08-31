@@ -35,12 +35,18 @@ export const HOOD = {
 export const HOOD_COPY = {
   kicker: "The Hood · founding circle",
   kickerDe: "The Hood · Founding Circle",
+  wip: "Not launched yet. Still debugging.",
+  wipDe: "Noch nicht gelauncht. Wir debuggen noch.",
+  smile:
+    "The mint is tying its shoes. The Knight is practicing looking expensive. Nobody is taking your money — Atlas would yell.",
+  smileDe:
+    "Der Mint bindet sich erst die Schuhe. Der Knight übt, teuer auszusehen. Niemand nimmt dir Geld — Atlas würde schreien.",
   title: "Wear the win.",
   title2: "Give it to the pool.",
   titleDe: "Trag den Sieg.",
   title2De: "Gib ihn in den Pool.",
-  lead: `A 1,000-piece circle for seated founders. Noggles on. Punk in the palace. Of each ${FOUNDING_SEAT_DISPLAY} mint: 70% (${PRICE_REMAINDER_DISPLAY}) to launch liquidity, 30% (${PRICE_OPS_DISPLAY}) to developer ops — servers, infra, keeping the desk on.`,
-  leadDe: `Ein Kreis aus 1.000 Stücken für seated Founder. Noggles auf. Punk im Palast. Von jedem ${FOUNDING_SEAT_DISPLAY_DE}-Mint: 70% (${PRICE_REMAINDER_DISPLAY_DE}) in die Launch-Liquidität, 30% (${PRICE_OPS_DISPLAY_DE}) an Developer-Ops — Server, Infra, Desk am Leben.`,
+  lead: `A 1,000-piece founding circle. Each Hood is a unique portrait — court, agents, seal. Of each ${FOUNDING_SEAT_DISPLAY} mint: 70% (${PRICE_REMAINDER_DISPLAY}) to launch liquidity, 30% (${PRICE_OPS_DISPLAY}) to developer ops — servers, infra, keeping the desk on.`,
+  leadDe: `Ein Kreis aus 1.000 Stücken. Jeder Hood ist ein eigenes Portrait — Hof, Agents, Siegel. Von jedem ${FOUNDING_SEAT_DISPLAY_DE}-Mint: 70% (${PRICE_REMAINDER_DISPLAY_DE}) in die Launch-Liquidität, 30% (${PRICE_OPS_DISPLAY_DE}) an Developer-Ops — Server, Infra, Desk am Leben.`,
   robinhood:
     "The Hood is coming to Robinhood Chain too. Until a Hood contract is published there, mint stays on Base. Official CA only on aibusiness.fun — never in a DM.",
   robinhoodDe:
@@ -154,18 +160,38 @@ export const HOOD_AGENTS = [
 
 export const HOOD_VALUE = [
   {
+    id: "yield",
+    en: "Hold-to-earn",
+    de: "Hold-to-earn",
+    enBody:
+      "As long as this Hood sits in your wallet, you stay in the founding yield: a share of real desk, catalog, and x402 fees. Sell it — the stream walks with the NFT. Not a fixed APY. Not equity.",
+    deBody:
+      "Solange dieser Hood in deiner Wallet sitzt, bleibst du im Founding-Yield: ein Anteil an echten Desk-, Katalog- und x402-Gebühren. Verkaufst du — wandert der Strom mit dem NFT. Kein festes APY. Kein Equity.",
+  },
+  {
     id: "circle",
-    en: "Founding circle",
-    de: "Founding Circle",
-    enBody: "Seat number on the passport. You are in the first 1,000 — not a waitlist theater.",
-    deBody: "Seat-Nummer auf dem Pass. Du bist in den ersten 1.000 — kein Waitlist-Theater.",
+    en: "First 1,000 only",
+    de: "Nur die ersten 1.000",
+    enBody:
+      "Seat number on the passport. Extra perks never expand past these thousand. Later members get the OS — not this pack.",
+    deBody:
+      "Seat-Nummer auf dem Pass. Extra-Perks wachsen nie über diese Tausend. Spätere Mitglieder bekommen das OS — nicht dieses Paket.",
   },
   {
     id: "lp",
     en: "70% → liquidity",
     de: "70% → Liquidität",
-    enBody: `${PRICE_REMAINDER_DISPLAY} of each mint is reserved for the T-0 liquidity book. Policy — not an LP-share token, not a return promise.`,
-    deBody: `${PRICE_REMAINDER_DISPLAY_DE} jedes Mints sind für das T-0-Liquiditätsbuch reserviert. Policy — kein LP-Share-Token, keine Rendite-Garantie.`,
+    enBody: `${PRICE_REMAINDER_DISPLAY} of each mint is trapped in AuraLaunchEscrow on Base. It can only buy AURA on the committed fair-launch pair — then those tokens lock to the Hood for 90 days. Not an LP-share token, not a return promise.`,
+    deBody: `${PRICE_REMAINDER_DISPLAY_DE} jedes Mints bleiben im AuraLaunchEscrow auf Base. Sie können nur AURA auf dem festgelegten Fair-Launch-Paar kaufen — danach 90 Tage an den Hood gesperrt. Kein LP-Share-Token, keine Rendite-Garantie.`,
+  },
+  {
+    id: "early",
+    en: "Early 333 · password",
+    de: "Early 333 · Passwort",
+    enBody:
+      "Before the public drop, 333 early-supporter mints open with an invite password. Rate-limited. Password never ships in the frontend bundle. Same $299 USDC desk.",
+    deBody:
+      "Vor dem öffentlichen Drop öffnen 333 Early-Supporter-Mints mit Invite-Passwort. Rate-limited. Passwort nie im Frontend-Bundle. Derselbe 299-$-USDC-Desk.",
   },
   {
     id: "ops",
@@ -175,11 +201,22 @@ export const HOOD_VALUE = [
     deBody: `${PRICE_OPS_DISPLAY_DE} jedes Mints zahlen Developer-Ops: Server, Infra, Aura OS am Laufen. Keine versteckte zweite Treasury-Story.`,
   },
   {
+    id: "gift",
+    en: "7,777 AURA locked",
+    de: "7.777 AURA gesperrt",
+    enBody:
+      "Each Hood is a claim on 7,777 AURA plus whatever the escrow buys on the official pair at T-0. Locked 90 days. Gift codes still seed the book — we pay the $209.30 LP slice.",
+    deBody:
+      "Jeder Hood ist ein Anspruch auf 7.777 AURA plus das, was das Escrow bei T-0 auf dem offiziellen Paar kauft. 90 Tage gesperrt. Gift-Codes füllen das Buch trotzdem — wir zahlen die 209,30-$ LP-Scheibe.",
+  },
+  {
     id: "desk",
     en: "Desk perks",
     de: "Desk-Vorteile",
-    enBody: "Genesis tier on Quant: extra strategy slot, Arena discount, quest XP, x402 rebate.",
-    deBody: "Genesis-Stufe am Quant: extra Strategie-Slot, Arena-Rabatt, Quest-XP, x402-Rabatt.",
+    enBody:
+      "Genesis tier on Quant: extra strategy slot, +10% season score, quest XP, 25% x402 rebate.",
+    deBody:
+      "Genesis-Stufe am Quant: extra Strategie-Slot, +10% Season-Score, Quest-XP, 25% x402-Rabatt.",
   },
   {
     id: "robinhood",

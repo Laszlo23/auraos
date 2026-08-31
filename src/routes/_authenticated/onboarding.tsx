@@ -12,6 +12,7 @@ import { useLocale } from "@/hooks/use-locale";
 import { useAwardXp, useCompleteOnboarding } from "@/hooks/use-progress";
 import { useAdvanceReferral, useProvisionSmartWallet } from "@/hooks/use-earn";
 import { useClaimHandle, useMyHandle } from "@/hooks/use-identity";
+import { syncSiweWalletBinding } from "@/lib/siwe.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { peekFunnel, rememberFunnel } from "@/lib/attribution";
 import { bootstrapFunnelCompany, bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
@@ -151,6 +152,11 @@ function Onboarding() {
         }
       }
       if (handleId) await provisionWallet.mutateAsync(handleId);
+      try {
+        await syncSiweWalletBinding();
+      } catch {
+        /* later */
+      }
     } catch {
       /* later */
     }

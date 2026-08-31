@@ -4,6 +4,7 @@ import { paymentRequirements, getEndpoint } from "@/lib/x402-gateway";
 import { planById, PLANS, TOKEN_SYMBOL } from "@/lib/plans";
 import { splitRevenue } from "@/lib/x402-catalog";
 import { cycleWindow, daysLeft } from "@/lib/subscription";
+import { hoodX402PriceUsdc } from "@/lib/trading/holder-perks";
 
 describe("plans", () => {
   it("resolves known plans and falls back safely", () => {
@@ -41,5 +42,27 @@ describe("x402 catalog gateway", () => {
   it("splits revenue across platform owner treasury", () => {
     const split = splitRevenue(1);
     expect(split.platform_fee + split.owner_share + split.treasury_share).toBeCloseTo(1, 5);
+  });
+
+  it("rebates 25% on catalog slugs for Hood holders, not the mint", () => {
+    const ep = getEndpoint("quant-signal");
+    expect(ep).toBeTruthy();
+    expect(hoodX402PriceUsdc(ep!.price_usdc, "quant-signal", true)).toBeCloseTo(
+      ep!.price_usdc * 0.75,
+      6,
+    );
+    expect(hoodX402PriceUsdc(299, "genesis-passport", true)).toBe(299);
+    const discounted = paymentRequirements(
+      ep!,
+      "https://aibusiness.fun/api/public/x402/quant-signal",
+      {
+        hoodRebate: true,
+      },
+    );
+    const full = paymentRequirements(ep!, "https://aibusiness.fun/api/public/x402/quant-signal");
+    expect(Number(discounted.maxAmountRequired)).toBe(
+      Math.round(ep!.price_usdc * 0.75 * 1_000_000),
+    );
+    expect(Number(full.maxAmountRequired)).toBeGreaterThan(Number(discounted.maxAmountRequired));
   });
 });

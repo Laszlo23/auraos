@@ -93,20 +93,23 @@ export async function fetchGa4Traffic(days = 14): Promise<Ga4Report> {
   }
   try {
     const token = await accessToken(sa);
-    const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${id}:runReport`, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${token}`,
-        "content-type": "application/json",
+    const res = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${id}:runReport`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
+          dimensions: [{ name: "pagePath" }],
+          metrics: [{ name: "screenPageViews" }, { name: "sessions" }],
+          limit: 25,
+          orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
+        }),
       },
-      body: JSON.stringify({
-        dateRanges: [{ startDate: `${days}daysAgo`, endDate: "today" }],
-        dimensions: [{ name: "pagePath" }],
-        metrics: [{ name: "screenPageViews" }, { name: "sessions" }],
-        limit: 25,
-        orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
-      }),
-    });
+    );
     const json = (await res.json()) as {
       error?: { message?: string };
       rows?: Array<{

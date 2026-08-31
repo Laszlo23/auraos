@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { genesisMaxSupply, genesisPriceUsdc } from "@/lib/genesis.server";
 import { HOOD } from "@/lib/hood";
+import { hoodTraitAttributes, resolveHoodTraits } from "@/lib/hood-traits";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 /**
@@ -20,7 +21,8 @@ export const Route = createFileRoute("/api/genesis/meta/$tokenId")({
           return Response.json({ error: "Unknown token" }, { status: 404 });
         }
 
-        const image = `${SITE_URL}${HOOD.art}`;
+        const traits = resolveHoodTraits(tokenId);
+        const image = `${SITE_URL}/api/genesis/art/${tokenId}`;
         const external = `${SITE_URL}${HOOD.path}`;
 
         return Response.json(
@@ -34,7 +36,7 @@ export const Route = createFileRoute("/api/genesis/meta/$tokenId")({
             attributes: [
               { trait_type: "Collection", value: HOOD.collection },
               { trait_type: "Edition", value: "Founding Hood" },
-              { trait_type: "Artwork", value: "The Hood — noggles, punk, palace" },
+              ...hoodTraitAttributes(traits),
               { trait_type: "Proceeds", value: "70% launch LP · 30% developer ops" },
               { trait_type: "Token ID", value: tokenId, display_type: "number" },
               { trait_type: "Max Supply", value: max, display_type: "number" },

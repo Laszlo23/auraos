@@ -45,8 +45,7 @@ export function AuraLens() {
       cyan.style.opacity = op;
       gold.style.transform = `translate3d(${gx - 180}px, ${gy - 180}px, 0)`;
       gold.style.opacity = visible ? "0.85" : "0";
-      const settled =
-        !visible && Math.abs(tx - cx) < 0.5 && Math.abs(ty - cy) < 0.5;
+      const settled = !visible && Math.abs(tx - cx) < 0.5 && Math.abs(ty - cy) < 0.5;
       if (settled) {
         running = false;
         raf = 0;

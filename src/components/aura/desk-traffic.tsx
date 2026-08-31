@@ -47,7 +47,11 @@ function PathTable({
   );
 }
 
-export function DeskTrafficPanel({ t }: { t: (key: string, vars?: Record<string, string | number>) => string }) {
+export function DeskTrafficPanel({
+  t,
+}: {
+  t: (key: string, vars?: Record<string, string | number>) => string;
+}) {
   const { data, isLoading, error } = useQuery({
     queryKey: ["desk-traffic"],
     queryFn: async () => {
@@ -79,7 +83,9 @@ function TrafficBody({
       <div className="grid gap-4 sm:grid-cols-3">
         <Panel label={t("desk.trafficPageViews")}>
           <p className="num text-3xl font-semibold text-white">{data.pageViews}</p>
-          <p className="mt-1 text-xs text-white/50">{t("desk.trafficWindow", { days: data.days })}</p>
+          <p className="mt-1 text-xs text-white/50">
+            {t("desk.trafficWindow", { days: data.days })}
+          </p>
         </Panel>
         <Panel label={t("desk.trafficSessions")}>
           <p className="num text-3xl font-semibold text-white">{data.sessions}</p>
