@@ -94,12 +94,6 @@ function HoodPage() {
             >
               Tokenomics
             </Link>
-            <Link
-              to="/sale"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
-            >
-              {t("landing.navSale")}
-            </Link>
           </nav>
           <Link
             to="/access"

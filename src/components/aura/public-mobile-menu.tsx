@@ -40,7 +40,6 @@ export function publicPrimaryNav(t: (key: string) => string): PublicNavItem[] {
     { to: "/pricing", label: t("landing.navPricing") },
     { to: "/tokenomics", label: t("landing.navTokenomics") },
     { to: "/hood", label: t("landing.navHood") },
-    { to: "/sale", label: t("landing.navSale") },
     { to: "/wien", label: t("landing.navWien") },
   ];
 }

@@ -90,7 +90,6 @@ function TokenomicsPage() {
               { to: "/roadmap", label: "Roadmap" },
               { to: "/whitepaper", label: "Whitepaper" },
               { to: "/pitch", label: "Decks" },
-              { to: "/sale", label: "Private sale" },
             ]}
           />
         </div>
@@ -173,10 +172,7 @@ function TokenomicsPage() {
             </table>
           </div>
           <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
-            Private sale is a hard cap of 33% including the +11% launch bonus: 30% open{" "}
-            <a href="/sale" className="text-primary underline-offset-2 hover:underline">
-              pAURA
-            </a>{" "}
+            Private sale is a hard cap of 33% including the +11% launch bonus: 30% open pAURA
             buyers, 3% project take bought through the same sale after 48 hours and locked for 90
             days after T-0. Unsold pAURA is never minted. Building Culture products that used BCC
             move to AURA at T-0 — Aura OS stays subscription software and does not require BCC
