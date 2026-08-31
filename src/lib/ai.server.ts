@@ -2,12 +2,13 @@
  * Unified AI gateway for Aura OS (post-Lovable).
  *
  * Cheap-first OpenAI-compatible chain:
- *   FreeLLM (stacked free tiers) → Moonshot → Gemini → Groq → xAI → OpenAI → Lovable
+ *   Gemini → Moonshot → Groq → FreeLLM → OpenAI → Lovable → xAI
  *
  * FreeLLMAPI (https://github.com/tashfeenahmed/freellmapi) aggregates free-tier
  * providers behind one /v1 endpoint with model=auto routing. Keep paid keys as
  * fallbacks when the free pool is rate-limited.
  *
+ * xAI stays last — soft-fail on credit/billing so chat still works elsewhere.
  * Set FREELLM_API_KEY + FREELLM_BASE_URL (e.g. http://127.0.0.1:3001/v1).
  * Optional AI_PROVIDER_ORDER overrides try order.
  */
@@ -23,13 +24,13 @@ type Provider = {
 };
 
 const DEFAULT_ORDER: AiProviderName[] = [
-  "freellm",
-  "moonshot",
   "gemini",
+  "moonshot",
   "groq",
-  "xai",
+  "freellm",
   "openai",
   "lovable",
+  "xai",
 ];
 
 function env(...keys: string[]): string | undefined {
@@ -66,7 +67,7 @@ function buildProviders(): Record<AiProviderName, Provider | null> {
             "Content-Type": "application/json",
             Authorization: `Bearer ${geminiKey}`,
           },
-          model: env("GEMINI_MODEL", "AI_CHAT_MODEL") ?? "gemini-flash-latest",
+          model: env("GEMINI_MODEL", "AI_CHAT_MODEL") ?? "gemini-3.6-flash",
         }
       : null,
     groq: groqKey
@@ -77,7 +78,7 @@ function buildProviders(): Record<AiProviderName, Provider | null> {
             "Content-Type": "application/json",
             Authorization: `Bearer ${groqKey}`,
           },
-          model: env("GROQ_MODEL", "AI_CHAT_MODEL") ?? "llama-3.1-8b-instant",
+          model: env("GROQ_MODEL", "AI_CHAT_MODEL") ?? "openai/gpt-oss-20b",
         }
       : null,
     moonshot: moonshotKey
@@ -167,7 +168,7 @@ export function aiConfigured(): boolean {
 }
 
 export function aiConfigHint(): string {
-  return "Prefer FreeLLMAPI (FREELLM_API_KEY + FREELLM_BASE_URL=http://127.0.0.1:3001/v1, model=auto). Fallbacks: GEMINI_API_KEY, GROQ_API_KEY, MOONSHOT_API_KEY, XAI_API_KEY.";
+  return "Prefer GEMINI_API_KEY (gemini-3.6-flash). Fallbacks: MOONSHOT_API_KEY, GROQ_API_KEY, FREELLM_API_KEY + FREELLM_BASE_URL, OPENAI_API_KEY. XAI_API_KEY is last-resort when credits remain.";
 }
 
 export function aiProviderNames(): AiProviderName[] {
@@ -217,14 +218,18 @@ function messageText(choice: {
   message?: {
     content?: string | null;
     reasoning_content?: string | null;
+    reasoning?: string | null;
   };
 }): string | null {
   const msg = choice.message;
   if (!msg) return null;
   const content = typeof msg.content === "string" ? msg.content.trim() : "";
   if (content) return content;
-  // Kimi / reasoning models may put the answer only in reasoning_content.
-  const reasoning = typeof msg.reasoning_content === "string" ? msg.reasoning_content.trim() : "";
+  // Kimi / Groq gpt-oss may put the answer only in reasoning(_content).
+  const reasoningContent =
+    typeof msg.reasoning_content === "string" ? msg.reasoning_content.trim() : "";
+  if (reasoningContent) return reasoningContent;
+  const reasoning = typeof msg.reasoning === "string" ? msg.reasoning.trim() : "";
   return reasoning || null;
 }
 
@@ -356,9 +361,17 @@ export async function aiChatStream(opts: {
               if (!payload || payload === "[DONE]") continue;
               try {
                 const event = JSON.parse(payload) as {
-                  choices?: { delta?: { content?: string } }[];
+                  choices?: {
+                    delta?: {
+                      content?: string;
+                      reasoning_content?: string;
+                      reasoning?: string;
+                    };
+                  }[];
                 };
-                const delta = event.choices?.[0]?.delta?.content;
+                const deltaObj = event.choices?.[0]?.delta;
+                const delta =
+                  deltaObj?.content || deltaObj?.reasoning_content || deltaObj?.reasoning;
                 if (delta) controller.enqueue(encoder.encode(delta));
               } catch {
                 /* partial frame */
@@ -428,8 +441,17 @@ export async function aiJson(
       lastError = `ai_${res.status}`;
       continue;
     }
-    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    const raw = (data.choices?.[0]?.message?.content ?? "").replace(/```json|```/g, "").trim();
+    const data = (await res.json()) as {
+      choices?: {
+        message?: {
+          content?: string | null;
+          reasoning_content?: string | null;
+          reasoning?: string | null;
+        };
+      }[];
+    };
+    const text = data.choices?.[0] ? messageText(data.choices[0]) : null;
+    const raw = (text ?? "").replace(/```json|```/g, "").trim();
     const meta = { served_by: p.name, generated_at: new Date().toISOString() };
     try {
       return { ...(JSON.parse(raw) as Record<string, unknown>), ...meta };

@@ -33,7 +33,9 @@ App products / permissions:
 
 - Pages: `pages_show_list`, `pages_manage_posts`, `pages_read_engagement`, `pages_manage_engagement`
 - Instagram: `instagram_basic`, `instagram_content_publish`, `instagram_manage_comments`
-- Often: `business_management`
+- Optional: set `META_BUSINESS_SCOPE=1` for `business_management` (usually needs App Review)
+- Switch the Meta app to **Live** (or add users as Testers) — Development mode only works for admins/testers
+- Valid OAuth redirect: `{OAUTH_REDIRECT_BASE}/api/oauth/social/callback`
 
 **Publish behavior**
 
@@ -65,6 +67,7 @@ Env: `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`
 4. Register the shared redirect URI above.
 5. Drop keys into VPS `.env` and restart the app (or redeploy).
 6. Until scopes are approved, Connect may work but publish will error with a clear message.
+7. Redirect URI must match exactly (prod + local if you test locally).
 
 Publishing is **video-only**. From Channels:
 

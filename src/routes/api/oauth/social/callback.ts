@@ -17,6 +17,11 @@ export const Route = createFileRoute("/api/oauth/social/callback")({
         const url = new URL(request.url);
         const code = url.searchParams.get("code");
         const state = url.searchParams.get("state");
+        const oauthError = url.searchParams.get("error");
+        const oauthErrorDescription =
+          url.searchParams.get("error_description") ||
+          url.searchParams.get("error_reason") ||
+          url.searchParams.get("error_message");
         const base = redirectBase(request);
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -26,6 +31,17 @@ export const Route = createFileRoute("/api/oauth/social/callback")({
             : `${base}/channels?oauth=error&message=${encodeURIComponent(msg)}`;
           return Response.redirect(dest, 302);
         };
+
+        if (oauthError) {
+          const detail = oauthErrorDescription
+            ? decodeURIComponent(oauthErrorDescription.replace(/\+/g, " "))
+            : oauthError;
+          // Drop one-time state if present so retries don't collide.
+          if (state) {
+            await supabaseAdmin.from("social_oauth_states").delete().eq("state", state);
+          }
+          return fail(`Provider denied access: ${detail}`);
+        }
 
         if (!code || !state) return fail("Missing OAuth code");
 

@@ -284,6 +284,17 @@ function ChannelsPage() {
                       Reconnect LinkedIn to pick up{" "}
                       <span className="font-mono">w_member_social</span>.
                     </p>
+                  ) : s.id === "meta" && state?.available && !state.connected ? (
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      Needs a Facebook Page in the consent dialog. Meta app must be Live (or you a
+                      Tester). Link IG Business on the Page for Reels.
+                    </p>
+                  ) : s.id === "tiktok" && state?.available && !state.connected ? (
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      Needs Login Kit + Content Posting API with{" "}
+                      <span className="font-mono">video.upload</span> /{" "}
+                      <span className="font-mono">video.publish</span> approved.
+                    </p>
                   ) : s.id === "meta" && state?.connected && !state.has_instagram ? (
                     <p className="mt-2 text-[11px] text-muted-foreground">
                       Facebook Page only — link an IG Business account on the Page for Reels.

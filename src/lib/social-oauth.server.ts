@@ -135,19 +135,19 @@ export function authorizeUrl(
       url.searchParams.set("client_id", process.env["META_APP_ID"]!);
       url.searchParams.set("redirect_uri", opts.redirectUri);
       url.searchParams.set("state", opts.state);
-      url.searchParams.set(
-        "scope",
-        [
-          "pages_show_list",
-          "pages_manage_posts",
-          "pages_read_engagement",
-          "pages_manage_engagement",
-          "instagram_basic",
-          "instagram_manage_comments",
-          "instagram_content_publish",
-          "business_management",
-        ].join(","),
-      );
+      // Page + IG publish scopes. business_management is optional — it often
+      // forces Facebook Login for Business / App Review and blocks non-testers.
+      const scopes = [
+        "pages_show_list",
+        "pages_manage_posts",
+        "pages_read_engagement",
+        "pages_manage_engagement",
+        "instagram_basic",
+        "instagram_manage_comments",
+        "instagram_content_publish",
+      ];
+      if (process.env["META_BUSINESS_SCOPE"] === "1") scopes.push("business_management");
+      url.searchParams.set("scope", scopes.join(","));
       return url.toString();
     }
     case "tiktok": {
@@ -318,56 +318,78 @@ async function exchangeMeta(code: string, redirectUri: string): Promise<SocialTo
   );
   const me = (await meRes.json()) as { id?: string; name?: string };
 
-  // Prefer a Page token (needed for posting + Instagram)
-  let pageToken = userToken;
-  let metaPageId: string | null = null;
-  let metaPageName: string | null = null;
-  let igUserId: string | null = null;
+  let grantedScopes: string | null = null;
+  const permsRes = await fetch(
+    `https://graph.facebook.com/v21.0/me/permissions?access_token=${encodeURIComponent(userToken)}`,
+  );
+  if (permsRes.ok) {
+    const perms = (await permsRes.json()) as {
+      data?: Array<{ permission?: string; status?: string }>;
+    };
+    grantedScopes =
+      perms.data
+        ?.filter((p) => p.status === "granted" && p.permission)
+        .map((p) => p.permission!)
+        .join(",") || null;
+  }
+
+  // Prefer a Page token (needed for posting + Instagram). Pick IG-linked page first.
   const pagesRes = await fetch(
     `https://graph.facebook.com/v21.0/me/accounts?fields=id,name,access_token,instagram_business_account&access_token=${encodeURIComponent(userToken)}`,
   );
-  if (pagesRes.ok) {
-    const pages = (await pagesRes.json()) as {
-      data?: Array<{
-        id: string;
-        name: string;
-        access_token: string;
-        instagram_business_account?: { id: string };
-      }>;
-    };
-    const page = pages.data?.[0];
-    if (page) {
-      pageToken = page.access_token;
-      metaPageId = page.id;
-      metaPageName = page.name;
-      igUserId = page.instagram_business_account?.id ?? null;
-    }
+  const pages = pagesRes.ok
+    ? ((await pagesRes.json()) as {
+        data?: Array<{
+          id: string;
+          name: string;
+          access_token: string;
+          instagram_business_account?: { id: string };
+        }>;
+      })
+    : { data: [] };
+  const pageList = pages.data ?? [];
+  const page =
+    pageList.find((p) => p.instagram_business_account?.id) ?? pageList[0] ?? null;
+
+  if (!page?.access_token) {
+    throw new Error(
+      "Meta connected, but no Facebook Page was granted. Create/select a Page in the Facebook dialog (and link an IG Business account for Reels), then try again.",
+    );
   }
 
+  const igUserId = page.instagram_business_account?.id ?? null;
+
   return {
-    accessToken: pageToken,
+    accessToken: page.access_token,
     // Keep long-lived user token so we can re-mint Page tokens before expiry.
     refreshToken: userToken,
     expiresAt: llJson.expires_in
       ? new Date(Date.now() + llJson.expires_in * 1000).toISOString()
       : null,
-    scopes: null,
+    scopes: grantedScopes,
     externalUserId: me.id ?? null,
-    handle: metaPageName ? `${metaPageName}${igUserId ? " · IG" : ""}` : (me.name ?? null),
-    metaPageId,
-    metaPageName,
+    handle: `${page.name}${igUserId ? " · IG" : ""}`,
+    metaPageId: page.id,
+    metaPageName: page.name,
     igUserId,
   };
 }
 
 async function exchangeTikTok(code: string, redirectUri: string): Promise<SocialTokens> {
+  // Docs: authorization code "should be URL decoded" before exchange.
+  let authCode = code;
+  try {
+    authCode = decodeURIComponent(code);
+  } catch {
+    authCode = code;
+  }
   const tokenRes = await fetch("https://open.tiktokapis.com/v2/oauth/token/", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded", "Cache-Control": "no-cache" },
     body: new URLSearchParams({
       client_key: process.env["TIKTOK_CLIENT_KEY"]!,
       client_secret: process.env["TIKTOK_CLIENT_SECRET"]!,
-      code,
+      code: authCode,
       grant_type: "authorization_code",
       redirect_uri: redirectUri,
     }),
@@ -384,11 +406,13 @@ async function exchangeTikTok(code: string, redirectUri: string): Promise<Social
     message?: string;
   };
   if (!tokenRes.ok || !tokenJson.access_token) {
-    throw new Error(
+    const detail =
       tokenJson.error_description ||
-        tokenJson.message ||
-        tokenJson.error ||
-        "TikTok token exchange failed",
+      tokenJson.message ||
+      tokenJson.error ||
+      "TikTok token exchange failed";
+    throw new Error(
+      `${detail} — confirm Login Kit + Content Posting API, redirect URI, and video.upload/video.publish scopes in TikTok for Developers.`,
     );
   }
 
