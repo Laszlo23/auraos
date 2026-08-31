@@ -12,7 +12,7 @@ import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mob
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useLocale } from "@/hooks/use-locale";
 import { FOUNDING_SEAT_DISPLAY, FOUNDING_SEAT_DISPLAY_DE } from "@/lib/founding-price";
-import { HOOD, HOOD_COPY, HOOD_COURT, HOOD_VALUE } from "@/lib/hood";
+import { HOOD, HOOD_COPY, HOOD_COURT, HOOD_LEGENDS, HOOD_VALUE } from "@/lib/hood";
 import { HOOD_EARLY_COPY, HOOD_EARLY_SUPPORTER_CAP } from "@/lib/hood-early";
 import { FIRST_THOUSAND } from "@/lib/roadmap";
 import { hoodMintIsOpen } from "@/lib/hood-mint";
@@ -24,8 +24,12 @@ const TITLE = "The Hood — first 1,000 extras + hold-to-earn";
 const DESCRIPTION =
   "Only the first 1,000 members get Hood extras: hold-to-earn from real desk fees while you hold, 7,777 AURA in your wallet at T-0, 70% mint to launch liquidity.";
 
-/** Featured court only — keep the page light. */
-const FEATURED_COURT = HOOD_COURT.slice(0, 4);
+/** Mix core court with legends so the page shows real visual variety. */
+const FEATURED_COURT = [
+  HOOD_COURT[0],
+  HOOD_COURT[1],
+  ...HOOD_LEGENDS.filter((r) => ["phantom", "courier", "raider", "muse"].includes(r.id)),
+].filter(Boolean).slice(0, 6);
 
 /** Core value props in the first scroll — skip desk/robinhood clutter. */
 const FEATURED_VALUE = HOOD_VALUE.filter((row) =>

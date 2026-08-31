@@ -42,6 +42,23 @@ function SealMark({ id, className }: { id: HoodSealId; className?: string }) {
           <rect x="60" y="14" width="5" height="22" fill="currentColor" />
         </svg>
       );
+    case "eye":
+      return (
+        <svg {...common}>
+          <ellipse cx="40" cy="26" rx="22" ry="12" fill="currentColor" />
+          <circle cx="40" cy="26" r="6" fill="#07090e" />
+          <circle cx="42" cy="24" r="2" fill="#f6f1e4" />
+        </svg>
+      );
+    case "flame":
+      return (
+        <svg {...common}>
+          <path
+            d="M40 8 C52 20 56 28 56 36 C56 46 48 52 40 52 C32 52 24 46 24 36 C24 28 28 20 40 8 Z"
+            fill="currentColor"
+          />
+        </svg>
+      );
     default: {
       const _exhaustive: never = id;
       return _exhaustive;
@@ -49,11 +66,46 @@ function SealMark({ id, className }: { id: HoodSealId; className?: string }) {
   }
 }
 
+/** Colored noggles overlay — trait colors actually show on the portrait. */
+function NogglesOverlay({
+  fill,
+  stem,
+  className,
+}: {
+  fill: string;
+  stem: string;
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 200 80"
+      className={className}
+      aria-hidden
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <rect x="28" y="28" width="58" height="34" rx="8" fill={fill} opacity="0.92" />
+      <rect x="114" y="28" width="58" height="34" rx="8" fill={fill} opacity="0.92" />
+      <rect x="86" y="38" width="28" height="10" rx="3" fill={stem} />
+      <rect x="22" y="36" width="10" height="18" rx="3" fill={stem} />
+      <rect x="168" y="36" width="10" height="18" rx="3" fill={stem} />
+      <rect x="38" y="36" width="20" height="18" rx="4" fill="#07090e" opacity="0.35" />
+      <rect x="124" y="36" width="20" height="18" rx="4" fill="#07090e" opacity="0.35" />
+    </svg>
+  );
+}
+
 const SIZE: Record<HoodPortraitSize, string> = {
   hero: "rounded-[2rem]",
   passport: "rounded-[1.35rem]",
   chip: "rounded-full",
   tile: "rounded-[1.4rem]",
+};
+
+const RARITY_RING: Record<string, string> = {
+  Legendary: "ring-2 ring-gold/70 shadow-[0_0_40px_-8px_oklch(0.85_0.16_85/0.8)]",
+  Rare: "ring-1 ring-violet-400/50",
+  Uncommon: "ring-1 ring-emerald-400/40",
+  Common: "",
 };
 
 export function HoodPortrait({
@@ -69,12 +121,17 @@ export function HoodPortrait({
 }) {
   const traits = resolveHoodTraits(tokenId);
   const compact = size === "chip";
+  const frameRadius = compact ? "rounded-full" : traits.frame.radiusClass;
+  const frameBorder = compact ? "border border-gold/40" : traits.frame.borderClass;
 
   return (
     <div
       className={cn(
-        "hood-frame group relative overflow-hidden border border-gold/30 bg-[#07090e]",
+        "hood-frame group relative overflow-hidden bg-[#07090e]",
+        frameRadius,
+        frameBorder,
         SIZE[size],
+        RARITY_RING[traits.rarity],
         foil && !compact && "shadow-[0_0_90px_-16px_oklch(0.8_0.17_85/0.65)]",
         className,
       )}
@@ -86,6 +143,7 @@ export function HoodPortrait({
         width={800}
         height={800}
         decoding="async"
+        style={{ filter: traits.mood.filter }}
         className={cn(
           "relative z-[1] aspect-square w-full object-cover",
           compact
@@ -95,7 +153,19 @@ export function HoodPortrait({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[2] bg-[linear-gradient(180deg,transparent_48%,oklch(0.1_0.02_80/0.72))]"
+        className="pointer-events-none absolute inset-0 z-[2]"
+        style={{ background: traits.mood.wash }}
+      />
+      {!compact ? (
+        <NogglesOverlay
+          fill={traits.noggles.fill}
+          stem={traits.noggles.stem}
+          className="pointer-events-none absolute left-1/2 top-[34%] z-[3] h-[18%] w-[58%] -translate-x-1/2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
+        />
+      ) : null}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[3] bg-[linear-gradient(180deg,transparent_48%,oklch(0.1_0.02_80/0.72))]"
       />
       {!compact ? (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[4] flex items-end justify-between gap-3 p-3 sm:p-4">
@@ -104,6 +174,9 @@ export function HoodPortrait({
               {traits.character.name}
             </p>
             <p className="mt-0.5 text-[11px] text-foreground/80">{traits.character.role}</p>
+            <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+              {traits.rarity} · {traits.mood.label}
+            </p>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-gold/30 bg-[#07090e]/70 px-2 py-1.5 text-gold backdrop-blur-sm">
             <SealMark id={traits.seal.id} className="h-5 w-7" />
