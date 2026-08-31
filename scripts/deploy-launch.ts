@@ -1,7 +1,13 @@
 /**
- * Compile + deploy Hood passport, gift lock, and launch escrow.
- * Usage: npx tsx scripts/deploy-launch.ts [--sepolia]
+ * Compile + deploy Hood Launch Desk v2 (passport + AuraHoodGiftDrop + escrow).
+ * Instant AURA claim at T-0 — replaces the superseded 90-day gift lock desk.
+ *
+ * Usage: npx tsx scripts/deploy-launch.ts [--sepolia] [--compile-only]
  * Key: GENESIS_MINTER_KEY or PRIVATE_SALE_DEPLOYER_KEY or PRIVATE_KEY (never printed).
+ *
+ * After deploy: point GENESIS_NFT_CONTRACT / LAUNCH_ESCROW_CONTRACT /
+ * LAUNCH_GIFT_LOCK_CONTRACT (and VITE_ mirrors) at the new addresses.
+ * If v1 passport minted any Hoods, run scripts/migrate-hood-v1.ts first.
  */
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -52,7 +58,7 @@ function findImports(importPath: string) {
 function compile() {
   const files = [
     "contracts/launch/IAuraLaunch.sol",
-    "contracts/launch/AuraHoodGiftLock.sol",
+    "contracts/launch/AuraHoodGiftDrop.sol",
     "contracts/launch/AuraLaunchEscrow.sol",
     "contracts/genesis/GenesisPassport.sol",
   ];
@@ -127,15 +133,15 @@ async function main() {
   const sepolia = process.argv.includes("--sepolia");
   const contracts = compile();
   const passportArt = artifact(contracts, "contracts/genesis/GenesisPassport.sol", "GenesisPassport");
-  const lockArt = artifact(contracts, "contracts/launch/AuraHoodGiftLock.sol", "AuraHoodGiftLock");
+  const dropArt = artifact(contracts, "contracts/launch/AuraHoodGiftDrop.sol", "AuraHoodGiftDrop");
   const deskArt = artifact(contracts, "contracts/launch/AuraLaunchEscrow.sol", "AuraLaunchEscrow");
 
   if (compileOnly) {
     process.stdout.write(
       [
-        "Launch contracts compiled",
+        "Launch Desk v2 contracts compiled",
         `GenesisPassport ${passportArt.evm.bytecode.object.length / 2} bytes`,
-        `AuraHoodGiftLock ${lockArt.evm.bytecode.object.length / 2} bytes`,
+        `AuraHoodGiftDrop ${dropArt.evm.bytecode.object.length / 2} bytes`,
         `AuraLaunchEscrow ${deskArt.evm.bytecode.object.length / 2} bytes`,
         "",
       ].join("\n"),
@@ -148,7 +154,6 @@ async function main() {
   const transport = http(rpcFor(sepolia));
   const publicClient = createPublicClient({ chain, transport });
   const wallet = createWalletClient({ account, chain, transport });
-  // Mainnet always uses Base USDC unless LAUNCH_USDC is explicitly overridden for that network.
   const usdc = (
     sepolia
       ? process.env["LAUNCH_USDC"]?.trim() || BASE_SEPOLIA_USDC
@@ -157,8 +162,8 @@ async function main() {
   const ops = (process.env["LAUNCH_OPS"]?.trim() || PRIVATE_SALE_TREASURY) as Hex;
 
   const fees = await publicClient.estimateFeesPerGas();
-  const maxFeePerGas = (fees.maxFeePerGas ?? 1_000_000n) * 5n;
-  const maxPriorityFeePerGas = (fees.maxPriorityFeePerGas ?? 100_000n) * 5n;
+  const maxFeePerGas = (fees.maxFeePerGas ?? 1_000_000n) * 15n;
+  const maxPriorityFeePerGas = (fees.maxPriorityFeePerGas ?? 100_000n) * 15n;
   const fee = { maxFeePerGas, maxPriorityFeePerGas };
 
   const passportHash = await wallet.deployContract({
@@ -171,15 +176,15 @@ async function main() {
   const passport = passportReceipt.contractAddress;
   if (!passport) throw new Error("Passport deploy produced no address");
 
-  const lockHash = await wallet.deployContract({
-    abi: lockArt.abi as never,
-    bytecode: `0x${lockArt.evm.bytecode.object}` as Hex,
+  const dropHash = await wallet.deployContract({
+    abi: dropArt.abi as never,
+    bytecode: `0x${dropArt.evm.bytecode.object}` as Hex,
     args: [passport],
     ...fee,
   });
-  const lockReceipt = await publicClient.waitForTransactionReceipt({ hash: lockHash });
-  const gifts = lockReceipt.contractAddress;
-  if (!gifts) throw new Error("Gift lock deploy produced no address");
+  const dropReceipt = await publicClient.waitForTransactionReceipt({ hash: dropHash });
+  const gifts = dropReceipt.contractAddress;
+  if (!gifts) throw new Error("Gift drop deploy produced no address");
 
   const deskHash = await wallet.deployContract({
     abi: deskArt.abi as never,
@@ -202,7 +207,7 @@ async function main() {
 
   const setGiftDeskHash = await wallet.writeContract({
     address: gifts,
-    abi: lockArt.abi as never,
+    abi: dropArt.abi as never,
     functionName: "setDesk",
     args: [escrow],
     ...fee,
@@ -220,7 +225,11 @@ async function main() {
     join(outDir, outFile),
     JSON.stringify(
       {
+        deskVersion: 2,
+        giftContract: "AuraHoodGiftDrop",
+        lockDays: 0,
         chainId: chain.id,
+        network: sepolia ? "base-sepolia" : "base",
         passport,
         escrow,
         gifts,
@@ -228,13 +237,24 @@ async function main() {
         ops,
         txs: {
           passport: passportHash,
-          gifts: lockHash,
+          gifts: dropHash,
           escrow: deskHash,
           setLaunchDesk: setDeskHash,
           setGiftDesk: setGiftDeskHash,
         },
         owner: account.address,
         bytecodeFingerprint: fingerprint,
+        explorers: {
+          passport: sepolia
+            ? `https://sepolia.basescan.org/address/${passport}`
+            : `https://basescan.org/address/${passport}`,
+          escrow: sepolia
+            ? `https://sepolia.basescan.org/address/${escrow}`
+            : `https://basescan.org/address/${escrow}`,
+          gifts: sepolia
+            ? `https://sepolia.basescan.org/address/${gifts}`
+            : `https://basescan.org/address/${gifts}`,
+        },
         deployedAt: new Date().toISOString(),
       },
       null,
@@ -244,15 +264,16 @@ async function main() {
 
   process.stdout.write(
     [
-      `Aura launch desk deployed on ${chain.name}`,
+      `Aura Launch Desk v2 (instant AURA) deployed on ${chain.name}`,
       `passport ${passport}`,
       `escrow   ${escrow}`,
-      `gifts    ${gifts}`,
+      `gifts    ${gifts} (AuraHoodGiftDrop)`,
       `usdc     ${usdc}`,
       `ops      ${ops}`,
       "",
       "Set GENESIS_NFT_CONTRACT, LAUNCH_ESCROW_CONTRACT, LAUNCH_GIFT_LOCK_CONTRACT",
-      "and the VITE_ mirrors. Fund the minter with USDC before minting.",
+      "(env name kept; value is GiftDrop) and the VITE_ mirrors.",
+      "Fund the minter with USDC before minting. See contracts/launch/README.md.",
       "",
     ].join("\n"),
   );

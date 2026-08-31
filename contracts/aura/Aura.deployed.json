@@ -1,0 +1,9 @@
+{
+  "status": "pending",
+  "note": "Filled by scripts/aura-t0.ts after a real deploy. Never invent a CA here.",
+  "chainId": null,
+  "aura": null,
+  "lpSink": null,
+  "redeem": null,
+  "pair": null
+}

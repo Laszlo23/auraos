@@ -470,7 +470,7 @@ export const de: MessageTree = {
       "Offen kaufen — 299 $ einmalig, gedeckelt auf 1000 Firmen. Kein Invite zum Kauf. Danach bekommst du einen Invite-Link (Freunde zahlen trotzdem). Token-Launch ist getrennt.",
     faq4q: "Was bekomme ich als Founding Member wirklich?",
     faq4a:
-      "Einen bezahlten Firmen-Seat, The Hood (nur die ersten 1.000), Hold-to-earn aus echten Desk-/Katalog-/x402-Gebühren solange du hältst, 7.777 AURA nach T-0 gesperrt, Genesis-Desk-Perks, ein Founding-Badge und einen Invite. Kein festes APY. Compute-Billing bleibt getrennt.",
+      "Einen bezahlten Firmen-Seat, The Hood (nur die ersten 1.000), Hold-to-earn aus echten Desk-/Katalog-/x402-Gebühren solange du hältst, 7.777 AURA ab T-0 claimbar, Genesis-Desk-Perks, ein Founding-Badge und einen Invite. Kein festes APY. Compute-Billing bleibt getrennt.",
     liveKicker: "Live-Beta",
     liveTitle: "Zahlen aus der Live-Datenbank — auch Nullen.",
     liveBody:
@@ -745,17 +745,17 @@ export const de: MessageTree = {
   sale: {
     kicker: "pAURA · Private Sale · Base",
     title: "AURA kaufen, bevor der Token startet",
-    lead: "Das ist nicht der gestartete AURA. Du bekommst jetzt pAURA — ein klar beschrifteter Beleg-Token. Beim Clanker-Start: 1 pAURA = 1 AURA + 11%.",
+    lead: "Das ist nicht der gestartete AURA. Du bekommst jetzt pAURA — ein klar beschrifteter Beleg-Token. Bei T-0: 1 pAURA = 1 AURA + 11%.",
     notAura: "Kein AURA-CA. Kein Uniswap. Kein Launch.",
     step1Title: "Heute: pAURA",
     step1Body:
       "USDC auf Base zahlen. Der Contract mintet pAURA auf deine Wallet. Oder bar am Desk — Laszlo sendet danach.",
     step2Title: "Warten auf T-0",
     step2Body:
-      "Clanker startet den echten AURA auf Base. Die offizielle Adresse kommt nur auf aibusiness.fun und X @buildingcultu3.",
+      "Wir starten echten AURA auf Base über Uniswap v2. Die offizielle Adresse kommt nur auf aibusiness.fun und X @buildingcultu3.",
     step3Title: "1 pAURA → 1,11 AURA",
     step3Body:
-      "Jeder Private-Sale-Käufer bekommt beim Tausch +11%. Unverkaufte pAURA werden nie geprägt.",
+      "Jeder Private-Sale-Käufer bekommt beim Redeem +11%. Unverkaufte pAURA werden nie geprägt.",
     statsSold: "pAURA verkauft",
     statsLeft: "noch frei",
     statsRaised: "USDC on-chain",
@@ -795,13 +795,13 @@ export const de: MessageTree = {
     trustKicker: "Warum das kein Rug ist",
     trustTitle: "Fair Launch. Gesperrte Liquidität. Kein geheimes Mint.",
     trustLead:
-      "AURA startet auf Clanker bei T-0 — ein öffentliches Base-Paar, kein heimlicher CA in Telegram. Wir bauen einen unruggable Token: fixer Supply, gesperrte LP, Team gesperrt, offizielle Adresse nur auf unserer Site und X.",
-    trustFairTitle: "Fair Launch über Clanker",
+      "AURA startet auf Uniswap v2 bei T-0 — ein öffentliches Base-Paar, kein heimlicher CA in Telegram. Wir bauen einen unruggable Token: fixer Supply, LP in AuraLpSink, Team gesperrt, offizielle Adresse nur auf unserer Site und X.",
+    trustFairTitle: "Fair Launch über Uniswap v2",
     trustFairBody:
-      "T-0 kommt 48 Stunden vorher auf aibusiness.fun und X @buildingcultu3. AURA entsteht aus einer neuen, leeren Wallet über Clanker, mit einem Uniswap-v4-Pool. Dieselbe CA für alle. Offizielle Adresse nur auf unserer Site und X.",
+      "T-0 kommt 48 Stunden vorher auf aibusiness.fun und X @buildingcultu3. AURA entsteht aus einer neuen, leeren Wallet und wird auf Uniswap v2 (Base) gepaart. Dieselbe CA für alle. Offizielle Adresse nur auf unserer Site und X.",
     trustLockTitle: "Liquidität bei T-0 gesperrt",
     trustLockBody:
-      "Die Launch-LP liegt im Clanker- / Uniswap-v4-Pool — nicht in einer Team-Wallet, die wir abziehen können. Das Gegenteil von Honeypot oder Rug.",
+      "Die Launch-LP geht an AuraLpSink (kein Withdraw) auf dem offiziellen Uni-v2-Paar — nicht in eine Team-Wallet, die wir abziehen können. Das Gegenteil von Honeypot oder Rug.",
     trustSupplyTitle: "777.777.777. Das ist die Decke.",
     trustSupplyBody:
       "Der offizielle AURA-Supply ist fest. Dieser Sale mintet keinen AURA. Unverkaufte pAURA wird nie geprägt. Team: 12 Monate Cliff, dann 36 Monate Vesting. Projekt-Anteil aus dem Private Sale: Kauf nach 48 Stunden, 90 Tage nach T-0 gesperrt. Beim Start nichts frei zum Dump.",

@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 /**
  * AURA Private Sale receipt token (pAURA).
- * Not the launched AURA. At Clanker T-0, 1 pAURA is intended to convert to 1.11 AURA.
+ * Not the launched AURA. At T-0, 1 pAURA converts to 1.11 AURA via AuraPauraRedeem.
  * USDC on Base is forwarded 100% to the immutable treasury. Cash credits are owner-only.
  */
 

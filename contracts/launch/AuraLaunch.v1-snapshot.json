@@ -1,0 +1,10 @@
+{
+  "deskVersion": 1,
+  "superseded": true,
+  "chainId": 8453,
+  "passport": "0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2",
+  "totalMinted": 0,
+  "holders": [],
+  "snapshottedAt": "2026-08-31T17:56:33.169Z",
+  "migrateNote": "No v1 Hoods minted — cut over to Desk v2 with no holder migration."
+}

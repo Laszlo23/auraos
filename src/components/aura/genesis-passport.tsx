@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { HoodAuraClaim } from "@/components/aura/hood-aura-claim";
 import { HoodEarlyPassGate } from "@/components/aura/hood-early-pass";
 import { HoodMintCountdown } from "@/components/aura/hood-mint-countdown";
 import { HoodPortrait } from "@/components/aura/hood-portrait";
@@ -191,6 +192,10 @@ export function GenesisPassport({
               ) : null}
             </div>
           ) : null}
+
+          <div className="mt-5">
+            <HoodAuraClaim />
+          </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {!minted && !status?.mintOpen && st !== "paid" ? (

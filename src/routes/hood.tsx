@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { HoodEarlyPassGate } from "@/components/aura/hood-early-pass";
 import { HoodMintCountdown } from "@/components/aura/hood-mint-countdown";
 import { HoodPortrait, HoodStillFrame } from "@/components/aura/hood-portrait";
+import { HoodAuraClaim } from "@/components/aura/hood-aura-claim";
 import { HoodWalletMint } from "@/components/aura/hood-wallet-mint";
 import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mobile-menu";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -21,7 +22,7 @@ import { SITE_URL, url } from "@/lib/site";
 
 const TITLE = "The Hood — first 1,000 extras + hold-to-earn";
 const DESCRIPTION =
-  "Only the first 1,000 members get Hood extras: hold-to-earn from real desk fees while you hold, 7,777 AURA locked, 70% mint to launch liquidity.";
+  "Only the first 1,000 members get Hood extras: hold-to-earn from real desk fees while you hold, 7,777 AURA in your wallet at T-0, 70% mint to launch liquidity.";
 
 const TICKER = [
   "NOT LAUNCHED YET",
@@ -167,6 +168,7 @@ function HoodPage() {
             {(hoodMintIsOpen() || earlyUnlocked) && (
               <HoodWalletMint locale={de ? "de" : "en"} earlyUnlocked={earlyUnlocked} />
             )}
+            <HoodAuraClaim locale={de ? "de" : "en"} />
           </div>
           <p className="mt-4 text-[12px] leading-relaxed text-muted-foreground">
             {de ? HOOD_EARLY_COPY.leadDe : HOOD_EARLY_COPY.lead} Cap {HOOD_EARLY_SUPPORTER_CAP}.

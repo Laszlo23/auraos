@@ -6,7 +6,7 @@ export const AURA_MAX_SUPPLY = 777_777_777;
 export const AURA_MAX_SUPPLY_DISPLAY = "777,777,777";
 export const AURA_MAX_SUPPLY_DISPLAY_DE = "777.777.777";
 
-/** Official Base CA — null until T-0. Never invent one. */
+/** Official Base CA — null until T-0. Prefer auraTokenAddress() after env is set. Never invent one. */
 export const AURA_TOKEN_CA: `0x${string}` | null = null;
 export const AURA_PAIR_URL: string | null = null;
 export const AURA_OFFICIAL_CA_SOURCES = [
@@ -15,7 +15,20 @@ export const AURA_OFFICIAL_CA_SOURCES = [
 ] as const;
 
 export function auraCaLive(): boolean {
-  return Boolean(AURA_TOKEN_CA);
+  if (AURA_TOKEN_CA) return true;
+  if (typeof process !== "undefined") {
+    const env = process.env["AURA_TOKEN_CA"] || process.env["VITE_AURA_TOKEN_CA"] || "";
+    if (/^0x[a-fA-F0-9]{40}$/.test(env.trim())) return true;
+  }
+  if (
+    typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    typeof import.meta.env["VITE_AURA_TOKEN_CA"] === "string" &&
+    /^0x[a-fA-F0-9]{40}$/.test(String(import.meta.env["VITE_AURA_TOKEN_CA"]).trim())
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export type AuraAllocation = {
@@ -98,8 +111,8 @@ export const AURA_ALLOCATIONS: AuraAllocation[] = [
   },
   {
     id: "public",
-    label: "Hood launch gifts (locked 90d)",
-    labelDe: "Hood-Startgeschenke (90 Tage gesperrt)",
+    label: "Hood launch gifts (claim at T-0)",
+    labelDe: "Hood-Startgeschenke (Claim ab T-0)",
     pct: 1,
     amount: 7_777_778,
   },
@@ -147,17 +160,17 @@ export const AURA_LOCKS = [
     id: "liquidity",
     label: "Launch liquidity",
     labelDe: "Start-Liquidität",
-    lock: "Launch LP is locked in the Clanker / Uniswap v4 pool at T-0 — not sitting in a team wallet.",
+    lock: "Launch LP is sent to AuraLpSink on the official Uniswap v2 USDC/AURA pair at T-0 — no withdraw, not a team wallet.",
     lockDe:
-      "Die Start-LP liegt bei T-0 im Clanker- / Uniswap-v4-Pool — nicht in einer Team-Wallet.",
+      "Die Start-LP geht bei T-0 an AuraLpSink auf dem offiziellen Uniswap-v2-USDC/AURA-Paar — kein Withdraw, keine Team-Wallet.",
   },
   {
     id: "hood_gifts",
     label: "Hood launch gifts",
     labelDe: "Hood-Startgeschenke",
-    lock: "Each Hood is owed 7,777 AURA plus any AURA the Hood USDC book buys on the official pair. Locked 90 days after T-0. No admin clawback. 70% of each $299 mint is trapped in AuraLaunchEscrow until that buy.",
+    lock: "Each Hood is owed 7,777 unlocked AURA plus any AURA the Hood USDC book buys on the official pair. Claim into your wallet at T-0. No admin clawback. 70% of each $299 mint is trapped in AuraLaunchEscrow until that buy.",
     lockDe:
-      "Jeder Hood bekommt 7.777 AURA plus AURA, die das Hood-USDC-Buch auf dem offiziellen Paar kauft. 90 Tage nach T-0 gesperrt. Kein Admin-Clawback. 70% jedes 299-$-Mints bleiben im AuraLaunchEscrow bis zu diesem Kauf.",
+      "Jeder Hood bekommt 7.777 freigeschaltete AURA plus AURA, die das Hood-USDC-Buch auf dem offiziellen Paar kauft. Claim in die Wallet ab T-0. Kein Admin-Clawback. 70% jedes 299-$-Mints bleiben im AuraLaunchEscrow bis zu diesem Kauf.",
   },
 ] as const;
 
@@ -216,7 +229,7 @@ export const AURA_BUY_PLAN = {
     },
     {
       t: "T-0 on Base",
-      d: "Clanker deploys AURA with a Uniswap v4 pool. Official CA is published on aibusiness.fun and X @buildingcultu3 only.",
+      d: "We deploy AURA from a new empty wallet and seed a Uniswap v2 USDC/AURA pair. LP goes to AuraLpSink (no withdraw). Official CA is published on aibusiness.fun and X @buildingcultu3 only.",
     },
     {
       t: "First official buy",

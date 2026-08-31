@@ -1,0 +1,23 @@
+{
+  "deskVersion": 1,
+  "superseded": true,
+  "supersededBy": "Launch Desk v2 — AuraHoodGiftDrop (instant claim at T-0)",
+  "reason": "v1 gift lock has LOCK_DAYS=90 immutable; passport setLaunchDesk is once-only",
+  "chainId": 8453,
+  "network": "base",
+  "passport": "0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2",
+  "escrow": "0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
+  "gifts": "0xB428138f62F48eb7514d6F24CAc63D04890b74ab",
+  "giftContract": "AuraHoodGiftLock",
+  "lockDays": 90,
+  "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "ops": "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1",
+  "owner": "0x2CCf1076A9DCA4d656A156d6036Cc2066c596AF5",
+  "explorers": {
+    "passport": "https://basescan.org/address/0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2",
+    "escrow": "https://basescan.org/address/0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
+    "gifts": "https://basescan.org/address/0xB428138f62F48eb7514d6F24CAc63D04890b74ab"
+  },
+  "deployedAt": "2026-08-31T15:41:28.023Z",
+  "archivedAt": "2026-08-31T19:50:00.000Z"
+}

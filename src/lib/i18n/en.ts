@@ -467,7 +467,7 @@ export const en: MessageTree = {
       "Buy open — $299 one-time, capped at 1000 companies. No invite needed to purchase. After you're in, you get one invite link to share (friends still pay). Token launch is separate.",
     faq4q: "What do I actually get as a founding member?",
     faq4a:
-      "A paid company seat, The Hood (first 1,000 only), hold-to-earn from real desk/catalog/x402 fees while you hold, 7,777 AURA locked after T-0, genesis desk perks, a founding badge, and one invite to pass on. Not a fixed APY. Compute billing stays separate.",
+      "A paid company seat, The Hood (first 1,000 only), hold-to-earn from real desk/catalog/x402 fees while you hold, 7,777 AURA claimable at T-0, genesis desk perks, a founding badge, and one invite to pass on. Not a fixed APY. Compute billing stays separate.",
     liveKicker: "Live beta",
     liveTitle: "Numbers from the live database — including zeros.",
     liveBody:
@@ -741,16 +741,16 @@ export const en: MessageTree = {
   sale: {
     kicker: "pAURA · Private sale · Base",
     title: "Buy AURA before the token launches",
-    lead: "This is not launched AURA. You receive pAURA now — a labeled receipt token. At the Clanker launch: 1 pAURA = 1 AURA + 11%.",
+    lead: "This is not launched AURA. You receive pAURA now — a labeled receipt token. At T-0: 1 pAURA = 1 AURA + 11%.",
     notAura: "No AURA CA. No Uniswap. No launch.",
     step1Title: "Today: pAURA",
     step1Body:
       "Pay USDC on Base. The contract mints pAURA to your wallet. Or pay cash at Desk — Laszlo sends after.",
     step2Title: "Wait for T-0",
     step2Body:
-      "Clanker launches real AURA on Base. The official address is published only on aibusiness.fun and X @buildingcultu3.",
+      "We launch real AURA on Base via Uniswap v2. The official address is published only on aibusiness.fun and X @buildingcultu3.",
     step3Title: "1 pAURA → 1.11 AURA",
-    step3Body: "Every private-sale buyer gets +11% at the swap. Unsold pAURA is never minted.",
+    step3Body: "Every private-sale buyer gets +11% at redeem. Unsold pAURA is never minted.",
     statsSold: "pAURA sold",
     statsLeft: "still left",
     statsRaised: "USDC on-chain",
@@ -789,13 +789,13 @@ export const en: MessageTree = {
     trustKicker: "Why this is not a rug",
     trustTitle: "Fair launch. Locked liquidity. No hidden mint.",
     trustLead:
-      "AURA launches on Clanker at T-0 — a public Base pair, not a stealth CA in a Telegram. We are building an unruggable token: fixed supply, locked LP, team locked, official address only on our site and X.",
-    trustFairTitle: "Fair launch on Clanker",
+      "AURA launches on Uniswap v2 at T-0 — a public Base pair, not a stealth CA in a Telegram. We are building an unruggable token: fixed supply, LP in AuraLpSink, team locked, official address only on our site and X.",
+    trustFairTitle: "Fair launch on Uniswap v2",
     trustFairBody:
-      "T-0 is announced 48 hours ahead on aibusiness.fun and X @buildingcultu3. AURA is created from a new empty wallet via Clanker, with a Uniswap v4 pool. Same CA for everyone. Official address only on our site and X.",
+      "T-0 is announced 48 hours ahead on aibusiness.fun and X @buildingcultu3. AURA is created from a new empty wallet and paired on Uniswap v2 (Base). Same CA for everyone. Official address only on our site and X.",
     trustLockTitle: "Liquidity locked at T-0",
     trustLockBody:
-      "Launch LP is locked in the Clanker / Uniswap v4 pool — not sitting in a team wallet we can pull. That is the opposite of a honeypot or a rug.",
+      "Launch LP is sent to AuraLpSink (no withdraw) on the official Uni v2 pair — not sitting in a team wallet we can pull. That is the opposite of a honeypot or a rug.",
     trustSupplyTitle: "777,777,777. That is the ceiling.",
     trustSupplyBody:
       "Official AURA supply is fixed. This sale does not mint AURA. Unsold pAURA is never minted. Team: 12-month cliff, then 36-month vest. Project private-sale take: bought after 48 hours, locked 90 days after T-0. Nothing free to dump at T-0.",

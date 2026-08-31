@@ -1,23 +1,30 @@
 {
+  "deskVersion": 2,
+  "giftContract": "AuraHoodGiftDrop",
+  "lockDays": 0,
+  "status": "deployed",
   "chainId": 8453,
   "network": "base",
-  "passport": "0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2",
-  "escrow": "0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
-  "gifts": "0xB428138f62F48eb7514d6F24CAc63D04890b74ab",
+  "passport": "0x28eab56b26d4020d0fe985aae96bc2a8dd98d99b",
+  "escrow": "0x09aab7435ebf3e4b3763a1462279ab093d1268f8",
+  "gifts": "0x09D20a80abcf7f23baa5138C2115AEbC846716C9",
   "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   "ops": "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1",
-  "txs": {
-    "setGiftDesk": "0x5d0e6bee028a33e10772459fe29001ccbb9eb4666d7409a1634dc9af2b26d11e"
-  },
   "owner": "0x2CCf1076A9DCA4d656A156d6036Cc2066c596AF5",
   "verified": {
-    "launchDesk": "0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
-    "giftDesk": "0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8"
+    "launchDesk": "0x09aab7435ebf3e4b3763a1462279ab093d1268f8",
+    "giftDesk": "0x09aab7435ebf3e4b3763a1462279ab093d1268f8",
+    "lockDays": 0
+  },
+  "txs": {
+    "setLaunchDesk": "0x7a0b1c0a80b6cfd77f1156a6a85ed6e2d8adedd78e991975068f454da2702b42",
+    "setGiftDesk": "0x09fe42978e7ffee2e6d898a02909d17deb1daa67afd57554ee99c5288e61473c"
   },
   "explorers": {
-    "passport": "https://basescan.org/address/0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2",
-    "escrow": "https://basescan.org/address/0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8",
-    "gifts": "https://basescan.org/address/0xB428138f62F48eb7514d6F24CAc63D04890b74ab"
+    "passport": "https://basescan.org/address/0x28eab56b26d4020d0fe985aae96bc2a8dd98d99b",
+    "escrow": "https://basescan.org/address/0x09aab7435ebf3e4b3763a1462279ab093d1268f8",
+    "gifts": "https://basescan.org/address/0x09D20a80abcf7f23baa5138C2115AEbC846716C9"
   },
-  "deployedAt": "2026-08-31T15:41:28.023Z"
+  "deployedAt": "2026-08-31T17:59:11.439Z",
+  "v1Superseded": "contracts/launch/AuraLaunch.v1-superseded.json"
 }

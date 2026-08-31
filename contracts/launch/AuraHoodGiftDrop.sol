@@ -2,12 +2,10 @@
 pragma solidity ^0.8.24;
 
 /**
- * DEPRECATED — Launch Desk v1 (90-day lock). Do not deploy for new desks.
- * Superseded by AuraHoodGiftDrop (instant claim at T-0). Kept for source history
- * of the live Base v1 gift lock CA.
- *
- * Locked AURA gifts for each Hood. No clawback. No owner withdraw.
- * 7,777 AURA per Hood, claimable 90 days after T-0. Buy-pressure bonuses vest the same.
+ * Instant AURA gifts for each Hood (Launch Desk v2).
+ * 7,777 AURA per Hood + buy-pressure bonuses.
+ * Claimable by the current Hood owner as soon as T-0 binds AURA — no lock.
+ * No clawback. No owner withdraw.
  */
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -15,12 +13,13 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 
 import {IAuraHood, IAuraHoodGiftLock} from "./IAuraLaunch.sol";
 
-contract AuraHoodGiftLock is IAuraHoodGiftLock, ReentrancyGuard {
+contract AuraHoodGiftDrop is IAuraHoodGiftLock, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     IAuraHood public immutable HOOD;
     uint256 public constant GIFT_PER_HOOD = 7_777 ether;
-    uint256 public constant LOCK_DAYS = 90;
+    /// Instant after T-0. Kept for ABI parity with the superseded 90-day gift lock.
+    uint256 public constant LOCK_DAYS = 0;
 
     address public desk;
     IERC20 public aura;
@@ -38,7 +37,6 @@ contract AuraHoodGiftLock is IAuraHoodGiftLock, ReentrancyGuard {
     error Taken();
     error NotAllocated();
     error AlreadyClaimed();
-    error StillLocked();
     error NotHoodOwner();
     error Unbound();
 
@@ -86,8 +84,7 @@ contract AuraHoodGiftLock is IAuraHoodGiftLock, ReentrancyGuard {
     }
 
     function unlocksAt() public view returns (uint64) {
-        if (t0 == 0) return 0;
-        return t0 + uint64(LOCK_DAYS * 1 days);
+        return t0;
     }
 
     function pending(uint256 tokenId) public view returns (uint256) {
@@ -99,7 +96,6 @@ contract AuraHoodGiftLock is IAuraHoodGiftLock, ReentrancyGuard {
         if (!allocated[tokenId]) revert NotAllocated();
         if (claimed[tokenId]) revert AlreadyClaimed();
         if (address(aura) == address(0) || t0 == 0) revert Unbound();
-        if (block.timestamp < unlocksAt()) revert StillLocked();
         if (HOOD.ownerOf(tokenId) != msg.sender) revert NotHoodOwner();
 
         claimed[tokenId] = true;

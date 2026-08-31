@@ -56,7 +56,7 @@ export const TOKENOMICS = {
   notToken: [
     "Subscriptions (core revenue)",
     "Founding seats ($299 one-time unlock)",
-    "The Hood NFT (first 1,000 only — extra perks + hold-to-earn from real desk fees while held, 70% mint USDC trapped on-chain to buy the fair-launch pool, 30% to immutable ops, 7,777 AURA gift locked 90 days, not equity, not a fixed APY)",
+    "The Hood NFT (first 1,000 only — extra perks + hold-to-earn from real desk fees while held, 70% mint USDC trapped on-chain to buy the fair-launch pool, 30% to immutable ops, 7,777 AURA gift claimable at T-0 into your wallet, not equity, not a fixed APY)",
     "Company compute budgets (AURA ledger for work, separate from market token narrative)",
     "BCC or any other community ticker (Aura OS does not run on BCC)",
   ],
@@ -118,7 +118,7 @@ export const WHITEPAPER_SECTIONS = [
   {
     id: "token",
     title: "7. Token & fair launch",
-    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Each Hood NFT locks 7,777 AURA for 90 days after T-0; 70% of the $299 mint USDC is trapped on-chain and can only buy the official pair (price moves, gifts stay locked). Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No AURA contract address until T-0.`,
+    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Each Hood NFT claims 7,777 unlocked AURA at T-0 (+ escrow buy bonus); 70% of the $299 mint USDC is trapped on-chain and can only buy the official pair. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No AURA contract address until T-0.`,
   },
   {
     id: "desks",
@@ -186,7 +186,7 @@ export const WHITEPAPER_SECTIONS_DE = [
   {
     id: "token",
     title: "7. Der Token und der öffentliche Start",
-    body: `AURA ist zum Mitmachen da: Belohnung, Fortschritt, ausgewählte Nutzung in der App, Wirtschaft zwischen Firmen und Programmen, Anreize am Marktplatz, später Mitreden. Höchstens 777.777.777 AURA. Jeder Hood sperrt 7.777 AURA für 90 Tage nach T-0; 70% der 299-$ Mint-USDC bleiben on-chain und können nur das offizielle Paar kaufen (Preis bewegt sich, Gifts bleiben gesperrt). Plan für den öffentlichen Start (${TOKEN_LAUNCH_DISPLAY_DE}): 3.000 € gezielter erster Kauf plus 3.000 € auf 30 begrenzte Handelsprogramme. Ziel bis 500.000 $ Umsatz im Handel — ein Ziel, keine Garantie. Kein Scheinhandel, kein Handel mit sich selbst, kein Kreis. Vor dem Start gibt es keine AURA-Vertragsadresse.`,
+    body: `AURA ist zum Mitmachen da: Belohnung, Fortschritt, ausgewählte Nutzung in der App, Wirtschaft zwischen Firmen und Programmen, Anreize am Marktplatz, später Mitreden. Höchstens 777.777.777 AURA. Jeder Hood claimt 7.777 freigeschaltete AURA ab T-0 (+ Escrow-Buy-Bonus); 70% der 299-$ Mint-USDC bleiben on-chain und können nur das offizielle Paar kaufen. Plan für den öffentlichen Start (${TOKEN_LAUNCH_DISPLAY_DE}): 3.000 € gezielter erster Kauf plus 3.000 € auf 30 begrenzte Handelsprogramme. Ziel bis 500.000 $ Umsatz im Handel — ein Ziel, keine Garantie. Kein Scheinhandel, kein Handel mit sich selbst, kein Kreis. Vor dem Start gibt es keine AURA-Vertragsadresse.`,
   },
   {
     id: "desks",

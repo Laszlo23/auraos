@@ -2,9 +2,9 @@
 pragma solidity ^0.8.24;
 
 /**
- * Hood mint desk. 70% of each $299 USDC is trapped here until T-0.
- * Then it can only buy AURA on the committed fair-launch pair and lock those
- * tokens in AuraHoodGiftLock. No owner withdraw. No rescue of USDC.
+ * Hood mint desk (Launch Desk v2). 70% of each $299 USDC is trapped here until T-0.
+ * Then it can only buy AURA on the committed fair-launch pair; those tokens go to
+ * AuraHoodGiftDrop for instant claim by the Hood owner. No owner withdraw. No rescue of USDC.
  *
  * Gift mints still seed the book: the sponsor pays the $209.30 LP slice.
  */
@@ -112,7 +112,7 @@ contract AuraLaunchEscrow is AccessControl, ReentrancyGuard {
         return USDC.balanceOf(address(this));
     }
 
-    /// Public: pay $299 USDC, 70% trapped here, 30% to immutable ops, Hood + locked gift.
+    /// Public: pay $299 USDC, 70% trapped here, 30% to immutable ops, Hood + instant gift.
     function mintPaid(address to, uint256 tokenId) external nonReentrant {
         _collectPaid(msg.sender, tokenId);
         _mint(to, tokenId, false);

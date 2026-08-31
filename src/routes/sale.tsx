@@ -14,6 +14,7 @@ import {
 } from "wagmi";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
+import { PauraRedeemPanel } from "@/components/aura/paura-redeem";
 import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mobile-menu";
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { useLocale } from "@/hooks/use-locale";
@@ -38,7 +39,7 @@ import { pageHead } from "@/lib/seo";
 
 const TITLE = "AURA Private Sale — pAURA";
 const DESCRIPTION =
-  "Buy pAURA on Base before AURA launches. 1 pAURA becomes 1.11 AURA at Clanker T-0.";
+  "Buy pAURA on Base before AURA launches. 1 pAURA becomes 1.11 AURA at Uniswap v2 T-0.";
 
 export const Route = createFileRoute("/sale")({
   loader: async () => {
@@ -134,6 +135,8 @@ function SalePage() {
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t("sale.lead")}</p>
         </header>
+
+        <PauraRedeemPanel locale={locale === "de" ? "de" : "en"} />
 
         <ol className="space-y-4">
           {[

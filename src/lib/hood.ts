@@ -181,8 +181,8 @@ export const HOOD_VALUE = [
     id: "lp",
     en: "70% → liquidity",
     de: "70% → Liquidität",
-    enBody: `${PRICE_REMAINDER_DISPLAY} of each mint is trapped in AuraLaunchEscrow on Base. It can only buy AURA on the committed fair-launch pair — then those tokens lock to the Hood for 90 days. Not an LP-share token, not a return promise.`,
-    deBody: `${PRICE_REMAINDER_DISPLAY_DE} jedes Mints bleiben im AuraLaunchEscrow auf Base. Sie können nur AURA auf dem festgelegten Fair-Launch-Paar kaufen — danach 90 Tage an den Hood gesperrt. Kein LP-Share-Token, keine Rendite-Garantie.`,
+    enBody: `${PRICE_REMAINDER_DISPLAY} of each mint is trapped in AuraLaunchEscrow on Base. It can only buy AURA on the committed fair-launch pair — then those tokens go to the Hood gift drop for instant claim at T-0. Not an LP-share token, not a return promise.`,
+    deBody: `${PRICE_REMAINDER_DISPLAY_DE} jedes Mints bleiben im AuraLaunchEscrow auf Base. Sie können nur AURA auf dem festgelegten Fair-Launch-Paar kaufen — danach in den Hood-Gift-Drop für sofortigen Claim ab T-0. Kein LP-Share-Token, keine Rendite-Garantie.`,
   },
   {
     id: "early",
@@ -202,12 +202,12 @@ export const HOOD_VALUE = [
   },
   {
     id: "gift",
-    en: "7,777 AURA locked",
-    de: "7.777 AURA gesperrt",
+    en: "7,777 AURA at T-0",
+    de: "7.777 AURA ab T-0",
     enBody:
-      "Each Hood is a claim on 7,777 AURA plus whatever the escrow buys on the official pair at T-0. Locked 90 days. Gift codes still seed the book — we pay the $209.30 LP slice.",
+      "Each Hood is a claim on 7,777 unlocked AURA plus whatever the escrow buys on the official pair. Claim into your wallet at T-0. Gift codes still seed the book — we pay the $209.30 LP slice.",
     deBody:
-      "Jeder Hood ist ein Anspruch auf 7.777 AURA plus das, was das Escrow bei T-0 auf dem offiziellen Paar kauft. 90 Tage gesperrt. Gift-Codes füllen das Buch trotzdem — wir zahlen die 209,30-$ LP-Scheibe.",
+      "Jeder Hood ist ein Anspruch auf 7.777 freigeschaltete AURA plus das, was das Escrow auf dem offiziellen Paar kauft. Claim in deine Wallet ab T-0. Gift-Codes füllen das Buch trotzdem — wir zahlen die 209,30-$ LP-Scheibe.",
   },
   {
     id: "desk",

@@ -39,9 +39,9 @@ export const FIRST_THOUSAND = {
   holdTitle: "Hold-to-earn",
   holdTitleDe: "Hold-to-earn",
   holdLead:
-    "As long as the Hood is in your wallet, you stay in the founding yield: a share of real desk, catalog, and x402 fees, plus the locked AURA gift. Sell it — the stream walks with the NFT. Not a fixed APY. Not equity. Usage in, claims out.",
+    "As long as the Hood is in your wallet, you stay in the founding yield: a share of real desk, catalog, and x402 fees, plus the AURA gift you claim at T-0. Sell it — the stream walks with the NFT. Not a fixed APY. Not equity. Usage in, claims out.",
   holdLeadDe:
-    "Solange der Hood in deiner Wallet sitzt, bleibst du im Founding-Yield: ein Anteil an echten Desk-, Katalog- und x402-Gebühren, plus das gesperrte AURA-Geschenk. Verkaufst du — wandert der Strom mit dem NFT. Kein festes APY. Kein Equity. Nutzung rein, Claims raus.",
+    "Solange der Hood in deiner Wallet sitzt, bleibst du im Founding-Yield: ein Anteil an echten Desk-, Katalog- und x402-Gebühren, plus das AURA-Geschenk, das du ab T-0 claimst. Verkaufst du — wandert der Strom mit dem NFT. Kein festes APY. Kein Equity. Nutzung rein, Claims raus.",
   perks: [
     {
       id: "hold-to-earn",
@@ -53,11 +53,11 @@ export const FIRST_THOUSAND = {
     },
     {
       id: "aura-gift",
-      title: "7,777 AURA, locked 90 days after T-0",
-      titleDe: "7.777 AURA, 90 Tage nach T-0 gesperrt",
-      body: "On-chain gift lock. No admin clawback. T-0 escrow buy adds pressure; leftovers stay in the lock.",
+      title: "7,777 AURA in your wallet at T-0",
+      titleDe: "7.777 AURA in deiner Wallet ab T-0",
+      body: "On-chain gift drop. Claim unlocked AURA the moment the market executes. Escrow buy adds bonus pressure. No admin clawback.",
       bodyDe:
-        "On-chain Gift-Lock. Kein Admin-Clawback. Der T-0-Escrow-Kauf drückt den Preis; Rest bleibt im Lock.",
+        "On-chain Gift-Drop. Claim freigeschaltete AURA sobald der Markt ausgeführt ist. Escrow-Kauf gibt Bonus-Druck. Kein Admin-Clawback.",
     },
     {
       id: "lp-book",
@@ -105,7 +105,7 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     status: "next",
     kind: "hood",
     title: "The Hood — first 1,000 only",
-    body: "Capped NFT. Extra perks never expand past these thousand. Hold-to-earn from real fees for as long as you hold. Gift lock + launch escrow on Base.",
+    body: "Capped NFT. Extra perks never expand past these thousand. Hold-to-earn from real fees for as long as you hold. Instant AURA gift drop + launch escrow on Base.",
   },
   {
     id: "fair-launch",
@@ -113,7 +113,7 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     status: "next",
     kind: "build",
     title: "Fair launch — no VC, no insider dump",
-    body: "AURA on Base via Clanker. Escrowed Hood USDC buys the official pair. Gift AURA unlocks after 90 days. Same rules for everyone who shows up.",
+    body: "AURA on Base via Uniswap v2 — LP in AuraLpSink. Escrowed Hood USDC buys the official pair. Hood owners claim unlocked AURA at T-0. Same rules for everyone who shows up.",
   },
   {
     id: "ninety-days",

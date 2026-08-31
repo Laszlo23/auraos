@@ -15,6 +15,7 @@ interface IAuraHood {
     function MAX_SUPPLY() external view returns (uint256);
 }
 
+/// Shared desk → gift surface. Implemented by AuraHoodGiftDrop (v2) and legacy AuraHoodGiftLock (v1).
 interface IAuraHoodGiftLock {
     function allocate(uint256 tokenId) external;
     function bindAura(address token) external;
@@ -22,12 +23,12 @@ interface IAuraHoodGiftLock {
 }
 
 interface IAuraMarketAdapter {
-    /// Spend `usdcAmount` already sitting on the adapter. Send bought AURA to `giftLock`.
+    /// Spend `usdcAmount` already sitting on the adapter. Send bought AURA to `gifts`.
     function buyUsdcForAura(
         address usdc,
         address aura,
         uint256 usdcAmount,
-        address giftLock
+        address gifts
     ) external returns (uint256 auraOut);
 }
 

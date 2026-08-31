@@ -30,7 +30,7 @@ describe("Aura launch desk", () => {
     expect(HOOD_LP_USDC_UNITS).toBe(209_300_000n);
     expect(HOOD_OPS_USDC_UNITS).toBe(89_700_000n);
     expect(HOOD_LP_USDC_UNITS + HOOD_OPS_USDC_UNITS).toBe(HOOD_PRICE_USDC_UNITS);
-    expect(HOOD_GIFT_LOCK_DAYS).toBe(90);
+    expect(HOOD_GIFT_LOCK_DAYS).toBe(0);
     expect(LAUNCH_MARKET_TIMELOCK_HOURS).toBe(72);
     expect(LAUNCH_OPS_DEFAULT).toMatch(/^0x[a-fA-F0-9]{40}$/);
     expect(() => assertLaunchMath()).not.toThrow();

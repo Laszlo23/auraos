@@ -11,7 +11,7 @@ function walletConnectId(): string {
 export function SaleWalletRoot({
   children,
   wcName = "AURA Private Sale",
-  wcDescription = "Buy pAURA on Base before the Clanker launch",
+  wcDescription = "Buy pAURA on Base before the Uniswap v2 launch",
   wcUrl = "https://aibusiness.fun/sale",
 }: {
   children: ReactNode;

@@ -208,7 +208,7 @@ export function buildHolderPerks(opts: {
       },
       {
         title: "7,777 AURA + desk genesis",
-        body: "Gift lock 90 days after T-0. Extra strategy slot, +10% season score, quest XP, 25% x402 rebate, founding badge.",
+        body: "Claim 7,777 AURA (+ buy bonus) into your wallet at T-0. Extra strategy slot, +10% season score, quest XP, 25% x402 rebate, founding badge.",
       },
       {
         title: "Robinhood Chain",
