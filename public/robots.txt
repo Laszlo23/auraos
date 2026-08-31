@@ -1,3 +1,4 @@
+<!-- robots.txt -->
 User-agent: Googlebot
 Allow: /
 Disallow: /api/
@@ -79,6 +80,11 @@ Disallow: /nachbar/verdienen
 Disallow: /nachbar/freunde
 Disallow: /nachbar/ich
 
+# Crawl-delay for bots
+Crawl-delay: 1
+
+# Sitemap
 Sitemap: https://aibusiness.fun/sitemap.xml
+
 # For AI agents / LLM crawlers
 # https://aibusiness.fun/llms.txt

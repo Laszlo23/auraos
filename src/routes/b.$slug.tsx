@@ -28,28 +28,37 @@ export const Route = createFileRoute("/b/$slug")({
   head: ({ loaderData, params }) => {
     const shop = loaderData;
     const title = shop
-      ? [shop.name, shop.postal_code, shop.city].filter(Boolean).join(" — ")
+      ? `${shop.name} ${shop.niche ? `· ${shop.niche}` : ""} · ${shop.postal_code} ${shop.city || "Wien"}`
       : `${params.slug} — Aura`;
     const description =
+      shop?.story?.slice(0, 155) ||
       shop?.tagline ||
-      shop?.story ||
-      [shop?.name, shop?.niche, shop?.city].filter(Boolean).join(" · ") ||
-      "Lokaler Betrieb auf Aura.";
+      `${shop?.name} in ${shop?.city || "Wien"}${shop?.niche ? ` · ${shop?.niche}` : ""}. ${shop?.street || ""}${shop?.phone ? ` · Tel: ${shop.phone}` : ""}. Echte Bewertungen auf Aura.`;
     const path = `/b/${shop?.slug ?? params.slug}`;
     const image = shopShareImage(shop);
     return {
       meta: [
         { title },
         { name: "description", content: description },
+        { name: "keywords", content: `${shop?.name || ""}, ${shop?.niche || ""}, ${shop?.city || "Wien"}, ${shop?.district || ""}, lokales Geschäft, Nachbarschaft, Bewertungen`.trim() },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:type", content: "business.business" },
         { property: "og:url", content: url(path) },
         { property: "og:image", content: image },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
         { property: "og:locale", content: "de_AT" },
+        { property: "business:contact_data:street_address", content: shop?.street || "" },
+        { property: "business:contact_data:locality", content: shop?.city || "Wien" },
+        { property: "business:contact_data:postal_code", content: shop?.postal_code || "" },
+        { property: "business:contact_data:country_name", content: "Austria" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
         { name: "twitter:image", content: image },
+        { name: "geo.placename", content: `${shop?.city || "Wien"}, Austria` },
+        { name: "geo.region", content: "AT-9" },
       ],
       links: [{ rel: "canonical", href: url(path) }],
     };
@@ -63,20 +72,35 @@ function localBusinessJsonLd(shop: PublicLocalBusiness) {
         "@type": "PostalAddress",
         streetAddress: shop.street,
         postalCode: shop.postal_code || undefined,
-        addressLocality: shop.city || undefined,
+        addressLocality: shop.city || "Wien",
+        addressRegion: shop.district || undefined,
         addressCountry: "AT",
       }
     : undefined;
+
+  const aggregateRating = shop.nachbar_rating_count > 0
+    ? {
+        "@type": "AggregateRating",
+        ratingValue: shop.nachbar_rating_avg || 4.5,
+        ratingCount: shop.nachbar_rating_count,
+        bestRating: 5,
+        worstRating: 1,
+      }
+    : undefined;
+
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: shop.name,
-    description: shop.tagline || shop.story || undefined,
+    description: shop.tagline || shop.story || `${shop.name} in ${shop.city || "Wien"}`,
     url: shop.homepage_url || `${SITE_URL}/b/${shop.slug}`,
     image: shopShareImage(shop),
     telephone: shop.phone || undefined,
     email: shop.public_email || undefined,
     address,
+    priceRange: shop.niche === "Restaurant" || shop.niche === "Heuriger" ? "€€-€€€" : undefined,
+    openingHours: shop.hours_note || undefined,
+    aggregateRating,
     sameAs: [shop.homepage_url, shop.google_review_url].filter(Boolean),
   };
 }

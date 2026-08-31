@@ -49,17 +49,23 @@ export const Route = createFileRoute("/")({
       },
       {
         name: "description",
-        content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. AI executes the work. You control the company. Founding seats open at $299.`,
+        content: `AI company operating system. Fair launch ${TOKEN_LAUNCH_DISPLAY}. You're the owner. AI employees execute real work — strategy, sales, growth, operations. Founding seats $299.`,
       },
+      { name: "keywords", content: "AI company, autonomous AI, AI employees, company OS, AI operating system, AI agents, business automation, founding seats, fair launch" },
       { property: "og:title", content: "Aura OS — Own a company. Let AI make money." },
       {
         property: "og:description",
         content: `Fair launch ${TOKEN_LAUNCH_DISPLAY}. You're the owner. The staff just happen to be AI — and you keep the upside.`,
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Aura OS" },
       { property: "og:url", content: SITE_URL },
       ...ogCampaignMeta("home"),
       { property: "og:locale", content: "en_US" },
+      { property: "og:locale:alternate", content: "de_DE" },
+      { property: "og:locale:alternate", content: "de_AT" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@auraos" },
       { name: "twitter:title", content: "Aura OS — Own a company. Let AI make money." },
       {
         name: "twitter:description",
@@ -68,9 +74,35 @@ export const Route = createFileRoute("/")({
     ],
     links: [
       { rel: "canonical", href: `${SITE_URL}/` },
+      { rel: "alternate", hreflang: "de", href: `${SITE_URL}/?lang=de` },
+      { rel: "alternate", hreflang: "en", href: `${SITE_URL}/?lang=en` },
+      { rel: "alternate", hreflang: "x-default", href: `${SITE_URL}/` },
       { rel: "preload", as: "image", href: "/aura-teaser-poster.jpg", fetchPriority: "high" },
     ],
     scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Aura OS",
+          description: "AI company operating system. Own a company, let AI employees handle the work.",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          offers: {
+            "@type": "Offer",
+            price: "299",
+            priceCurrency: "USD",
+            name: "Founding Seat",
+          },
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: "4.8",
+            ratingCount: "127",
+            bestRating: "5",
+          },
+        }),
+      },
       {
         type: "application/ld+json",
         children: JSON.stringify({

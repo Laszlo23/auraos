@@ -54,13 +54,47 @@ export const Route = createFileRoute("/wien")({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },
+      { name: "keywords", content: "Wien, Lokale Betriebe, Nachbarschaft, Wiener Geschäfte, Bewertungen, Check-in, Community, 1000 Betriebe, Aura Wien" },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
+      { property: "og:type", content: "website" },
       { property: "og:url", content: url("/wien") },
       ...ogCampaignMeta("wien"),
       { property: "og:locale", content: "de_AT" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: TITLE },
+      { name: "twitter:description", content: DESCRIPTION },
+      { name: "geo.placename", content: "Wien, Austria" },
+      { name: "geo.region", content: "AT-9" },
     ],
     links: [{ rel: "canonical", href: url("/wien") }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: TITLE,
+          description: DESCRIPTION,
+          url: url("/wien"),
+          inLanguage: "de-AT",
+          isPartOf: {
+            "@type": "WebSite",
+            name: "Aura OS",
+            url: SITE_URL,
+          },
+          about: {
+            "@type": "City",
+            name: "Wien",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Wien",
+              addressCountry: "AT",
+            },
+          },
+        }),
+      },
+    ],
   }),
   loader: async () => {
     const { withTimeout } = await import("@/lib/timeout-helper");
