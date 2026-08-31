@@ -396,18 +396,15 @@ function BuyCard({ disabled }: { disabled: boolean }) {
       ) : null}
 
       {!isConnected ? (
-        <div className="mt-5 flex flex-col gap-2">
-          {connectors.map((connector) => (
-            <button
-              key={connector.uid}
-              type="button"
-              disabled={connecting}
-              onClick={() => connect({ connector })}
-              className="rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              {t("sale.connect")} · {connector.name}
-            </button>
-          ))}
+        <div className="mt-5">
+          <button
+            type="button"
+            disabled={connecting}
+            onClick={() => connect({ connector: connectors[0] })}
+            className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            {connecting ? t("sale.connecting") : t("sale.connect")}
+          </button>
         </div>
       ) : (
         <div className="mt-5 space-y-2">
