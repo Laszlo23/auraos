@@ -51,7 +51,11 @@ export const Route = createFileRoute("/")({
         name: "description",
         content: `AI company operating system. Fair launch ${TOKEN_LAUNCH_DISPLAY}. You're the owner. AI employees execute real work — strategy, sales, growth, operations. Founding seats $299.`,
       },
-      { name: "keywords", content: "AI company, autonomous AI, AI employees, company OS, AI operating system, AI agents, business automation, founding seats, fair launch" },
+      {
+        name: "keywords",
+        content:
+          "AI company, autonomous AI, AI employees, company OS, AI operating system, AI agents, business automation, founding seats, fair launch",
+      },
       { property: "og:title", content: "Aura OS — Own a company. Let AI make money." },
       {
         property: "og:description",
@@ -86,7 +90,8 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
           name: "Aura OS",
-          description: "AI company operating system. Own a company, let AI employees handle the work.",
+          description:
+            "AI company operating system. Own a company, let AI employees handle the work.",
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web",
           offers: {

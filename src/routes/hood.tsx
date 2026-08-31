@@ -29,7 +29,9 @@ const FEATURED_COURT = [
   HOOD_COURT[0],
   HOOD_COURT[1],
   ...HOOD_LEGENDS.filter((r) => ["phantom", "courier", "raider", "muse"].includes(r.id)),
-].filter(Boolean).slice(0, 6);
+]
+  .filter(Boolean)
+  .slice(0, 6);
 
 /** Core value props in the first scroll — skip desk/robinhood clutter. */
 const FEATURED_VALUE = HOOD_VALUE.filter((row) =>

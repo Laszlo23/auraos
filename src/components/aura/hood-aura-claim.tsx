@@ -161,7 +161,13 @@ function HoodAuraClaimInner({
           onClick={() => primary && connect({ connector: primary, chainId: base.id })}
           className="inline-flex h-10 items-center justify-center rounded-md bg-foreground px-4 text-[13px] font-medium text-background disabled:opacity-50"
         >
-          {connecting ? <Loader2 className="h-4 w-4 animate-spin" /> : de ? "Wallet verbinden" : "Connect wallet"}
+          {connecting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : de ? (
+            "Wallet verbinden"
+          ) : (
+            "Connect wallet"
+          )}
         </button>
       ) : chainId !== base.id ? (
         <button
@@ -170,7 +176,13 @@ function HoodAuraClaimInner({
           onClick={() => switchChain({ chainId: base.id })}
           className="inline-flex h-10 items-center justify-center rounded-md bg-foreground px-4 text-[13px] font-medium text-background"
         >
-          {switching ? <Loader2 className="h-4 w-4 animate-spin" /> : de ? "Zu Base wechseln" : "Switch to Base"}
+          {switching ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : de ? (
+            "Zu Base wechseln"
+          ) : (
+            "Switch to Base"
+          )}
         </button>
       ) : (
         <div className="space-y-2">
@@ -206,7 +218,13 @@ function HoodAuraClaimInner({
                     toast.success(de ? `Hood #${id} Claim gesendet` : `Hood #${id} claim sent`);
                   } catch (err) {
                     setClaimingId(null);
-                    toast.error(err instanceof Error ? err.message : de ? "Claim fehlgeschlagen" : "Claim failed");
+                    toast.error(
+                      err instanceof Error
+                        ? err.message
+                        : de
+                          ? "Claim fehlgeschlagen"
+                          : "Claim failed",
+                    );
                   }
                 }}
               />
@@ -298,7 +316,13 @@ function ClaimRow({
         onClick={onClaim}
         className="inline-flex h-9 items-center justify-center rounded-md bg-foreground px-3 text-[12px] font-medium text-background disabled:opacity-40"
       >
-        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : de ? "AURA claimen" : "Claim AURA"}
+        {busy ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : de ? (
+          "AURA claimen"
+        ) : (
+          "Claim AURA"
+        )}
       </button>
     </div>
   );

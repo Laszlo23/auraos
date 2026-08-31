@@ -40,7 +40,11 @@ export const Route = createFileRoute("/b/$slug")({
       meta: [
         { title },
         { name: "description", content: description },
-        { name: "keywords", content: `${shop?.name || ""}, ${shop?.niche || ""}, ${shop?.city || "Wien"}, ${shop?.district || ""}, lokales Geschäft, Nachbarschaft, Bewertungen`.trim() },
+        {
+          name: "keywords",
+          content:
+            `${shop?.name || ""}, ${shop?.niche || ""}, ${shop?.city || "Wien"}, ${shop?.district || ""}, lokales Geschäft, Nachbarschaft, Bewertungen`.trim(),
+        },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "business.business" },
@@ -78,15 +82,16 @@ function localBusinessJsonLd(shop: PublicLocalBusiness) {
       }
     : undefined;
 
-  const aggregateRating = shop.nachbar_rating_count > 0
-    ? {
-        "@type": "AggregateRating",
-        ratingValue: shop.nachbar_rating_avg || 4.5,
-        ratingCount: shop.nachbar_rating_count,
-        bestRating: 5,
-        worstRating: 1,
-      }
-    : undefined;
+  const aggregateRating =
+    shop.nachbar_rating_count > 0
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: shop.nachbar_rating_avg || 4.5,
+          ratingCount: shop.nachbar_rating_count,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined;
 
   return {
     "@context": "https://schema.org",

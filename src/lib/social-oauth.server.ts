@@ -348,8 +348,7 @@ async function exchangeMeta(code: string, redirectUri: string): Promise<SocialTo
       })
     : { data: [] };
   const pageList = pages.data ?? [];
-  const page =
-    pageList.find((p) => p.instagram_business_account?.id) ?? pageList[0] ?? null;
+  const page = pageList.find((p) => p.instagram_business_account?.id) ?? pageList[0] ?? null;
 
   if (!page?.access_token) {
     throw new Error(

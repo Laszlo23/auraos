@@ -77,12 +77,7 @@ function NogglesOverlay({
   className?: string;
 }) {
   return (
-    <svg
-      viewBox="0 0 200 80"
-      className={className}
-      aria-hidden
-      preserveAspectRatio="xMidYMid meet"
-    >
+    <svg viewBox="0 0 200 80" className={className} aria-hidden preserveAspectRatio="xMidYMid meet">
       <rect x="28" y="28" width="58" height="34" rx="8" fill={fill} opacity="0.92" />
       <rect x="114" y="28" width="58" height="34" rx="8" fill={fill} opacity="0.92" />
       <rect x="86" y="38" width="28" height="10" rx="3" fill={stem} />

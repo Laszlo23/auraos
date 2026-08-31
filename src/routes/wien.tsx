@@ -54,7 +54,11 @@ export const Route = createFileRoute("/wien")({
     meta: [
       { title: TITLE },
       { name: "description", content: DESCRIPTION },
-      { name: "keywords", content: "Wien, Lokale Betriebe, Nachbarschaft, Wiener Geschäfte, Bewertungen, Check-in, Community, 1000 Betriebe, Aura Wien" },
+      {
+        name: "keywords",
+        content:
+          "Wien, Lokale Betriebe, Nachbarschaft, Wiener Geschäfte, Bewertungen, Check-in, Community, 1000 Betriebe, Aura Wien",
+      },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
