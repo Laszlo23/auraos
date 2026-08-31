@@ -170,22 +170,30 @@ export function HeroFilm({ className }: { className?: string }) {
         ) : null}
       </motion.div>
 
-      <div className="absolute inset-0 bg-background/42" />
-      <div className="absolute inset-0 bg-[radial-gradient(90%_70%_at_28%_42%,transparent_0%,color-mix(in_oklab,var(--background)_55%,transparent)_55%,var(--background)_92%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_0%,transparent_30%,var(--background)_95%)] opacity-80" />
-      <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-b from-transparent via-background/75 to-background" />
+      <div className="absolute inset-0 bg-background/48" />
+      <div className="absolute inset-0 bg-[radial-gradient(88%_68%_at_30%_40%,transparent_0%,color-mix(in_oklab,var(--background)_62%,transparent)_52%,var(--background)_94%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_0%,transparent_22%,var(--background)_96%)] opacity-90" />
+      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent via-background/80 to-background" />
       {/* Living film edge — cyan/gold hairline that reads as OS chrome */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent opacity-80"
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent opacity-90"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--primary)_26%,transparent),transparent_70%)] blur-2xl"
+        className="absolute inset-x-[12%] bottom-[18%] h-px bg-gradient-to-r from-transparent via-gold/35 to-transparent opacity-70"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 bottom-1/4 h-64 w-64 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold)_18%,transparent),transparent_70%)] blur-2xl"
+        className="pointer-events-none absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--primary)_32%,transparent),transparent_70%)] blur-2xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 bottom-1/4 h-72 w-72 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold)_24%,transparent),transparent_70%)] blur-2xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-6 rounded-[2rem] border border-white/[0.06] shadow-[inset_0_0_80px_oklch(0_0_0_/_0.35)] sm:inset-10"
       />
     </div>
   );

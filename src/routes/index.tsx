@@ -8,9 +8,11 @@ import {
   ChartNoAxesCombined,
   ChevronDown,
   CircleDollarSign,
+  Coins,
   Play,
   Rocket,
   Sparkles,
+  Store,
   Workflow,
   type LucideIcon,
 } from "lucide-react";
@@ -168,53 +170,53 @@ function Landing() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden">
+    <main className="stage-atmosphere relative min-h-screen overflow-x-hidden">
       <BootCurtain />
       <AuraLens />
-      <header className="fixed inset-x-0 top-0 z-30 bg-background/28 backdrop-blur-2xl">
+      <header className="fixed inset-x-0 top-0 z-30 border-b border-white/[0.04] bg-background/35 backdrop-blur-2xl">
         <div className="austria-bar" aria-hidden />
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3 sm:px-6">
           <PulseOrbit size="sm" className="min-w-0" />
           <nav aria-label="Primary" className="ml-auto hidden items-center gap-4 lg:flex">
             <Link
               to="/"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("landing.navOs")}
             </Link>
             <Link
               to="/lokal"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("landing.navLokal")}
             </Link>
             <Link
               to="/how-it-works"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("landing.navHow")}
             </Link>
             <Link
               to="/try"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("landing.navTry")}
             </Link>
             <Link
               to="/proof"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("landing.navProof")}
             </Link>
             <Link
               to="/pricing"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               {t("landing.navPricing")}
             </Link>
             <Link
               to="/hood"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gold hover:text-gold/80"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gold transition-colors hover:text-gold/80"
             >
               {t("landing.navHood")}
             </Link>
@@ -224,7 +226,7 @@ function Landing() {
             to="/auth"
             search={{ mode: "signup" }}
             onClick={() => trackTeaser("cta_click", { placement: "landing_header_start" })}
-            className="cta-liquid cta-magnetic ml-auto shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_28px_-10px_var(--glow)] sm:ml-0"
+            className="cta-liquid cta-magnetic ml-auto shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_32px_-8px_var(--glow)] sm:ml-0"
           >
             {t("landing.navStart")}
           </Link>
@@ -241,7 +243,7 @@ function Landing() {
               to="/auth"
               search={{ mode: "signup" }}
               onClick={() => trackTeaser("cta_click", { placement: "landing_menu_start" })}
-              className="rounded-2xl bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+              className="cta-liquid rounded-2xl bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
             >
               {t("landing.navStart")}
             </Link>
@@ -255,7 +257,7 @@ function Landing() {
           </PublicMobileMenu>
         </div>
         <div
-          className="h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent"
+          className="h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent"
           aria-hidden
         />
       </header>
@@ -271,12 +273,12 @@ function Landing() {
             initial={{ y: 12, filter: "blur(8px)" }}
             animate={{ y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-9"
+            className="mb-8"
           >
             <PulseOrbit size="hero" />
           </motion.div>
 
-          <h1 className="display-hero max-w-4xl text-[clamp(3rem,11vw,6.6rem)]">
+          <h1 className="display-hero max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_8px_40px_oklch(0_0_0_/_0.55)]">
             <WordReveal text={t("landing.hero1")} delay={0.06} />
             <br />
             <motion.span
@@ -293,7 +295,7 @@ function Landing() {
             initial={{ y: 16 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.9, delay: 0.55 }}
-            className="mt-7 max-w-md text-[16px] leading-relaxed text-foreground/78 sm:text-[17px]"
+            className="mt-7 max-w-md text-[16px] leading-relaxed text-foreground/82 sm:text-[17px]"
           >
             {t("landing.blurb")}
           </motion.p>
@@ -301,7 +303,7 @@ function Landing() {
             initial={{ y: 10 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.8, delay: 0.62 }}
-            className="mt-3 max-w-lg text-[14px] font-semibold text-gold"
+            className="mt-3 max-w-lg text-[13px] font-semibold uppercase tracking-[0.14em] text-gold"
           >
             {t("landing.categoryLine")}
           </motion.p>
@@ -316,7 +318,7 @@ function Landing() {
               <Link
                 to="/access"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
-                className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+                className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-9 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
               >
                 {t("landing.buy")} <ArrowRight className="h-4 w-4" />
               </Link>
@@ -326,9 +328,9 @@ function Landing() {
                   trackTeaser("open", { placement: "hero" });
                   setTeaserOpen(true);
                 }}
-                className="group flex items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-background/25 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/35 hover:bg-foreground/[0.07]"
+                className="group flex items-center justify-center gap-2.5 rounded-2xl border border-white/12 bg-background/35 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/40 hover:bg-foreground/[0.08]"
               >
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/15 text-primary transition-transform group-hover:scale-110">
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/18 text-primary shadow-[0_0_20px_-6px_var(--glow)] transition-transform group-hover:scale-110">
                   <Play className="h-3 w-3 fill-current" />
                 </span>
                 {t("landing.watch")}
@@ -338,14 +340,14 @@ function Landing() {
               <Link
                 to="/try"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_try" })}
-                className="inline-flex items-center gap-1.5 text-[14px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                className="inline-flex items-center gap-1.5 text-[14px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
               >
                 {t("landing.tryCta")} <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <Link
                 to="/hood"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_hood" })}
-                className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-gold underline-offset-4 hover:underline"
+                className="jewel inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[13px] font-semibold text-gold underline-offset-4 transition-colors hover:bg-gold/15"
               >
                 {t("landing.navHood")} · {t("landing.hoodCue")}{" "}
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -356,7 +358,7 @@ function Landing() {
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            className="mt-16 flex items-center gap-2 text-[10px] uppercase tracking-[0.34em] text-muted-foreground/75"
+            className="mt-16 flex items-center gap-2 text-[10px] uppercase tracking-[0.34em] text-muted-foreground/70"
           >
             <ChevronDown className="h-3.5 w-3.5" /> {t("landing.howCue")}
           </motion.div>
@@ -380,14 +382,16 @@ function Landing() {
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_os" })}
             className="glass hover-lift group rounded-[1.65rem] p-6"
           >
-            <p className="text-2xl" aria-hidden>
-              🚀
-            </p>
-            <h3 className="mt-4 text-xl font-semibold">{t("landing.audienceOsTitle")}</h3>
+            <span className="icon-well" aria-hidden>
+              <Rocket className="h-4 w-4" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.audienceOsTitle")}
+            </h3>
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
               {t("landing.audienceOsBody")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
               {t("landing.audienceOsCta")} <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>
@@ -396,14 +400,16 @@ function Landing() {
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_lokal" })}
             className="glass hover-lift group rounded-[1.65rem] p-6"
           >
-            <p className="text-2xl" aria-hidden>
-              🏪
-            </p>
-            <h3 className="mt-4 text-xl font-semibold">{t("landing.audienceLokalTitle")}</h3>
+            <span className="icon-well" aria-hidden>
+              <Store className="h-4 w-4" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.audienceLokalTitle")}
+            </h3>
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
               {t("landing.audienceLokalBody")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
               {t("landing.audienceLokalCta")} <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>
@@ -412,14 +418,16 @@ function Landing() {
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_aura" })}
             className="glass hover-lift group rounded-[1.65rem] p-6"
           >
-            <p className="text-2xl" aria-hidden>
-              🪙
-            </p>
-            <h3 className="mt-4 text-xl font-semibold">{t("landing.audienceAuraTitle")}</h3>
+            <span className="icon-well-gold" aria-hidden>
+              <Coins className="h-4 w-4" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.audienceAuraTitle")}
+            </h3>
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
               {t("landing.audienceAuraBody")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gold transition-transform group-hover:translate-x-0.5">
               {t("landing.audienceAuraCta")} <ArrowRight className="h-3.5 w-3.5" />
             </span>
           </Link>
@@ -427,7 +435,7 @@ function Landing() {
         <Link
           to="/nachbar"
           onClick={() => trackTeaser("cta_click", { placement: "landing_audience_nachbar" })}
-          className="mt-4 flex items-center justify-between rounded-[1.4rem] border border-border/40 px-5 py-4"
+          className="glass-soft mt-4 flex items-center justify-between rounded-[1.4rem] px-5 py-4 transition-colors hover:border-primary/30"
         >
           <span>
             <span className="block text-sm font-semibold">Aura Nachbar</span>
@@ -446,7 +454,7 @@ function Landing() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
             {t("landing.howCue")}
           </p>
-          <h2 className="mt-3 font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
+          <h2 className="display-hero mt-3 text-[clamp(1.9rem,5.2vw,3.2rem)]">
             {t("landing.howTitle")}
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
@@ -461,17 +469,17 @@ function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ delay: i * 0.07, duration: 0.55 }}
-              className="glass relative rounded-3xl px-4 py-5"
+              className="glass hover-lift relative rounded-3xl px-4 py-5"
             >
               {i < LOOP.length - 1 ? (
                 <span
                   aria-hidden
-                  className="absolute -right-2 top-1/2 z-[1] hidden -translate-y-1/2 text-primary/50 sm:block"
+                  className="absolute -right-2 top-1/2 z-[1] hidden -translate-y-1/2 text-primary/55 sm:block"
                 >
                   →
                 </span>
               ) : null}
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/12 text-primary">
+              <span className="icon-well" aria-hidden>
                 <l.icon className="h-4 w-4" />
               </span>
               <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
@@ -486,13 +494,13 @@ function Landing() {
           <Link
             to="/access"
             onClick={() => trackTeaser("cta_click", { placement: "landing_how_earn" })}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="cta-liquid cta-magnetic inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
           >
             {t("landing.howSeatsCta")} <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             to="/how-it-works"
-            className="text-[13px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="text-[13px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
           >
             {t("landing.seeHow")}
           </Link>
@@ -505,13 +513,15 @@ function Landing() {
       {/* Fair launch — one countdown + socials (no duplicate rally column) */}
       <section
         id="fair-launch"
-        className="relative z-10 border-y border-primary/10 bg-gradient-to-b from-primary/[0.06] to-transparent"
+        className="relative z-10 border-y border-primary/12 bg-gradient-to-b from-primary/[0.08] via-transparent to-gold/[0.04]"
       >
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <h2 className="font-display text-[clamp(2rem,6vw,3.2rem)] leading-[0.98] tracking-tight">
+          <h2 className="display-hero text-[clamp(2rem,6vw,3.2rem)]">
             {t("landing.launchTitle")}
-            <span className="mt-1 flex items-center gap-3 text-primary">
-              <Rocket className="h-7 w-7 shrink-0 sm:h-8 sm:w-8" aria-hidden />
+            <span className="mt-2 flex items-center gap-3 text-primary">
+              <span className="icon-well shrink-0" aria-hidden>
+                <Rocket className="h-4 w-4" />
+              </span>
               {t("landing.launchLine")}
             </span>
           </h2>
@@ -531,10 +541,10 @@ function Landing() {
         className="relative z-10 mx-auto grid max-w-6xl scroll-mt-20 gap-6 px-6 pb-24 pt-8 lg:grid-cols-[1.05fr_1fr]"
       >
         <div className="flex flex-col justify-center">
-          <h2 className="font-display text-[clamp(2rem,7vw,3.4rem)] leading-[0.98] tracking-tight">
+          <h2 className="display-hero text-[clamp(2rem,7vw,3.4rem)]">
             {t("landing.claimTitle")}
             <br />
-            <span className="text-gold">{t("landing.claimTitle2")}</span>
+            <span className="text-money">{t("landing.claimTitle2")}</span>
           </h2>
           <p className="mt-5 max-w-md text-[14px] leading-relaxed text-muted-foreground">
             {t("landing.claimBody")}
@@ -587,7 +597,7 @@ function Landing() {
             <Link
               to="/access"
               onClick={() => trackTeaser("cta_click", { placement: "landing_claim_buy" })}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-opacity hover:opacity-90"
+              className="cta-liquid cta-magnetic mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
             >
               {t("landing.unlockCta")} <ArrowRight className="h-3.5 w-3.5" />
             </Link>
