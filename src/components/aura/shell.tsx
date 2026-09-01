@@ -247,15 +247,21 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
         <button
           type="button"
           onClick={toggleSimple}
-          title={simple ? "Show every surface" : "Show only the essentials"}
-          aria-label={simple ? "Show every surface" : "Show only the essentials"}
+          title={
+            simple
+              ? "Show all features (advanced mode)"
+              : "Hide advanced features (simple mode - recommended)"
+          }
+          aria-label={simple ? "Show all features" : "Show only essential features"}
           className={cn(
-            "glass-soft flex items-center justify-center gap-2 rounded-2xl py-2 text-xs transition-colors",
-            simple ? "text-muted-foreground hover:text-foreground" : "text-primary",
+            "glass-soft flex items-center justify-center gap-2 rounded-2xl py-2.5 text-xs font-semibold transition-colors",
+            simple
+              ? "text-muted-foreground hover:text-foreground"
+              : "bg-primary/10 text-primary hover:bg-primary/15",
           )}
         >
           <Layers3 className="h-4 w-4" aria-hidden />
-          {!collapsed && (simple ? "More" : "Less")}
+          {!collapsed && (simple ? "Show All Features" : "Simple Mode")}
         </button>
 
         <button
@@ -308,7 +314,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                 strokeWidth={1.9}
               />
               <span className="truncate font-display text-[13px] font-medium tracking-[-0.01em] md:text-sm md:font-normal md:tracking-normal">
-                Ask the company anything…
+                Ask your AI team anything…
               </span>
               <kbd className="ml-auto hidden items-center gap-1 rounded-lg bg-foreground/8 px-1.5 py-0.5 font-mono text-[10px] sm:flex">
                 <CommandIcon className="h-3 w-3" />K
@@ -502,10 +508,10 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                 ))}
                 <button
                   onClick={toggleSimple}
-                  className="glass-soft flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-display text-[12px] font-semibold tracking-wide text-muted-foreground"
+                  className="glass-soft flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-display text-[12px] font-semibold tracking-wide text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Layers3 className="h-[18px] w-[18px]" strokeWidth={1.85} />
-                  {simple ? "Show everything" : "Back to simple mode"}
+                  {simple ? "Show All Features" : "Back to Simple Mode"}
                 </button>
               </motion.div>
             </motion.div>
@@ -562,11 +568,11 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
       <CommandDialog open={paletteOpen} onOpenChange={setPaletteOpen}>
         <CommandInput
           placeholder={
-            simple ? "Search your menu…" : "Search anything — including advanced sections…"
+            simple ? "Search features…" : "Search all features — including advanced sections…"
           }
         />
         <CommandList>
-          <CommandEmpty>Nothing matched. Try the CEO.</CommandEmpty>
+          <CommandEmpty>No results found. Try asking your AI team instead.</CommandEmpty>
           {visibleGroups.map((group) => (
             <CommandGroup key={group} heading={group}>
               {visibleNav
