@@ -1,0 +1,16 @@
+{
+  "name": "Aura OS",
+  "install": "./.cursor/install.sh",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "./.cursor/dev.sh"
+    }
+  ],
+  "ports": [
+    {
+      "name": "vite",
+      "port": 8080
+    }
+  ]
+}
