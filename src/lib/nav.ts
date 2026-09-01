@@ -149,6 +149,16 @@ export const NAV: NavItem[] = [
     core: true,
   },
   {
+    to: "/quest",
+    label: "Quest",
+    plain: "Quests",
+    hint: "Daily missions, streaks, REP, and badges — one world progression",
+    icon: Target,
+    group: "Company",
+    live: true,
+    core: true,
+  },
+  {
     to: "/arena",
     label: "Arena",
     plain: "Contest",

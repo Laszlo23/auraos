@@ -22,6 +22,8 @@ describe("public roadmap", () => {
     expect(ids).toEqual([
       "os-live",
       "vienna-street",
+      "aura-quest",
+      "aura-scouts",
       "hood-circle",
       "fair-launch",
       "robinhood-chain",

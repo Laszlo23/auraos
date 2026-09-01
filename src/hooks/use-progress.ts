@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/hooks/use-aura";
+import { awardProgress } from "@/lib/progress/award";
+import { questByKey } from "@/lib/progress/registry";
 import { getHolderPerks } from "@/lib/trading.functions";
 import type { HolderPerks } from "@/lib/trading/holder-perks";
 
@@ -81,24 +83,33 @@ export function useAwardXp(options?: { enabled?: boolean }) {
   return useMutation({
     mutationFn: async ({ amount, quest }: { amount: number; quest?: string | undefined }) => {
       if (!enabled || !company || !progress) return null;
-      const quests = new Set(progress.completed_quests ?? []);
-      if (quest) {
-        if (quests.has(quest)) return null;
-        quests.add(quest);
-      }
+      if (quest && (progress.completed_quests ?? []).includes(quest)) return null;
+
       const cached = perksQ.data ?? qc.getQueryData<HolderPerks>(["holder-perks"]) ?? null;
       const boostPct = cached?.questXpBoostPct ?? 0;
-      const awarded = Math.round(amount * (1 + boostPct / 100));
-      const xp = progress.xp + awarded;
-      const { level } = levelFromXp(xp);
-      const { error } = await supabase
-        .from("founder_progress")
-        .update({ xp, level, completed_quests: Array.from(quests) })
-        .eq("company_id", company.id);
-      if (error) throw error;
-      return { xp, level, awarded, leveled: level > progress.level };
+      const baseXp = quest ? (questByKey(quest)?.xp ?? amount) : amount;
+      const awarded = Math.round(baseXp * (1 + boostPct / 100));
+
+      const result = await awardProgress({
+        eventKey: quest ?? "quest:custom",
+        xp: awarded,
+        companyId: company.id,
+        idempotencyKey: quest ? `${quest}:${company.id}` : undefined,
+      });
+      if (result.duplicate) return null;
+
+      return {
+        xp: result.xp,
+        level: result.level,
+        awarded,
+        leveled: result.level > progress.level,
+      };
     },
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["progress"] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["progress"] });
+      void qc.invalidateQueries({ queryKey: ["user-progress"] });
+      void qc.invalidateQueries({ queryKey: ["achievements"] });
+    },
   });
 }
 

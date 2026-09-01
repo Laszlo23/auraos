@@ -78,6 +78,7 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedOpsRouteImport } from './routes/_authenticated/ops'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedProofsRouteImport } from './routes/_authenticated/proofs'
+import { Route as AuthenticatedQuestRouteImport } from './routes/_authenticated/quest'
 import { Route as AuthenticatedReportRouteImport } from './routes/_authenticated/report'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -105,6 +106,7 @@ import { Route as NachbarIchRouteImport } from './routes/nachbar/ich'
 import { Route as NachbarVerdienenRouteImport } from './routes/nachbar/verdienen'
 import { Route as OauthConsentRouteImport } from './routes/oauth/consent'
 import { Route as PartnersFioRouteImport } from './routes/partners.fio'
+import { Route as PortalSlugRouteImport } from './routes/portal.$slug'
 import { Route as RRunIdRouteImport } from './routes/r.$runId'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as TbShareSlugRouteImport } from './routes/tb.$shareSlug'
@@ -496,6 +498,11 @@ const AuthenticatedProofsRoute = AuthenticatedProofsRouteImport.update({
   path: '/proofs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedQuestRoute = AuthenticatedQuestRouteImport.update({
+  id: '/quest',
+  path: '/quest',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReportRoute = AuthenticatedReportRouteImport.update({
   id: '/report',
   path: '/report',
@@ -629,6 +636,11 @@ const OauthConsentRoute = OauthConsentRouteImport.update({
 const PartnersFioRoute = PartnersFioRouteImport.update({
   id: '/partners/fio',
   path: '/partners/fio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalSlugRoute = PortalSlugRouteImport.update({
+  id: '/portal/$slug',
+  path: '/portal/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RRunIdRoute = RRunIdRouteImport.update({
@@ -933,6 +945,7 @@ export interface FileRoutesByFullPath {
   '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/proofs': typeof AuthenticatedProofsRoute
+  '/quest': typeof AuthenticatedQuestRoute
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -958,6 +971,7 @@ export interface FileRoutesByFullPath {
   '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/partners/fio': typeof PartnersFioRoute
+  '/portal/$slug': typeof PortalSlugRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
@@ -1073,6 +1087,7 @@ export interface FileRoutesByTo {
   '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/proofs': typeof AuthenticatedProofsRoute
+  '/quest': typeof AuthenticatedQuestRoute
   '/report': typeof AuthenticatedReportRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -1098,6 +1113,7 @@ export interface FileRoutesByTo {
   '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/partners/fio': typeof PartnersFioRoute
+  '/portal/$slug': typeof PortalSlugRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
@@ -1216,6 +1232,7 @@ export interface FileRoutesById {
   '/_authenticated/ops': typeof AuthenticatedOpsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/proofs': typeof AuthenticatedProofsRoute
+  '/_authenticated/quest': typeof AuthenticatedQuestRoute
   '/_authenticated/report': typeof AuthenticatedReportRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -1241,6 +1258,7 @@ export interface FileRoutesById {
   '/nachbar/verdienen': typeof NachbarVerdienenRoute
   '/oauth/consent': typeof OauthConsentRoute
   '/partners/fio': typeof PartnersFioRoute
+  '/portal/$slug': typeof PortalSlugRoute
   '/r/$runId': typeof RRunIdRoute
   '/s/$slug': typeof SSlugRoute
   '/tb/$shareSlug': typeof TbShareSlugRoute
@@ -1359,6 +1377,7 @@ export interface FileRouteTypes {
     | '/ops'
     | '/products'
     | '/proofs'
+    | '/quest'
     | '/report'
     | '/sales'
     | '/settings'
@@ -1384,6 +1403,7 @@ export interface FileRouteTypes {
     | '/nachbar/verdienen'
     | '/oauth/consent'
     | '/partners/fio'
+    | '/portal/$slug'
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
@@ -1499,6 +1519,7 @@ export interface FileRouteTypes {
     | '/ops'
     | '/products'
     | '/proofs'
+    | '/quest'
     | '/report'
     | '/sales'
     | '/settings'
@@ -1524,6 +1545,7 @@ export interface FileRouteTypes {
     | '/nachbar/verdienen'
     | '/oauth/consent'
     | '/partners/fio'
+    | '/portal/$slug'
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
@@ -1641,6 +1663,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ops'
     | '/_authenticated/products'
     | '/_authenticated/proofs'
+    | '/_authenticated/quest'
     | '/_authenticated/report'
     | '/_authenticated/sales'
     | '/_authenticated/settings'
@@ -1666,6 +1689,7 @@ export interface FileRouteTypes {
     | '/nachbar/verdienen'
     | '/oauth/consent'
     | '/partners/fio'
+    | '/portal/$slug'
     | '/r/$runId'
     | '/s/$slug'
     | '/tb/$shareSlug'
@@ -1764,6 +1788,7 @@ export interface RootRouteChildren {
   MShareSlugRoute: typeof MShareSlugRoute
   OauthConsentRoute: typeof OauthConsentRoute
   PartnersFioRoute: typeof PartnersFioRoute
+  PortalSlugRoute: typeof PortalSlugRoute
   RRunIdRoute: typeof RRunIdRoute
   SSlugRoute: typeof SSlugRoute
   TbShareSlugRoute: typeof TbShareSlugRoute
@@ -2293,6 +2318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProofsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/quest': {
+      id: '/_authenticated/quest'
+      path: '/quest'
+      fullPath: '/quest'
+      preLoaderRoute: typeof AuthenticatedQuestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/report': {
       id: '/_authenticated/report'
       path: '/report'
@@ -2480,6 +2512,13 @@ declare module '@tanstack/react-router' {
       path: '/partners/fio'
       fullPath: '/partners/fio'
       preLoaderRoute: typeof PartnersFioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/$slug': {
+      id: '/portal/$slug'
+      path: '/portal/$slug'
+      fullPath: '/portal/$slug'
+      preLoaderRoute: typeof PortalSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/r/$runId': {
@@ -2838,6 +2877,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOpsRoute: typeof AuthenticatedOpsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedProofsRoute: typeof AuthenticatedProofsRoute
+  AuthenticatedQuestRoute: typeof AuthenticatedQuestRoute
   AuthenticatedReportRoute: typeof AuthenticatedReportRoute
   AuthenticatedSalesRoute: typeof AuthenticatedSalesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
@@ -2881,6 +2921,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOpsRoute: AuthenticatedOpsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedProofsRoute: AuthenticatedProofsRoute,
+  AuthenticatedQuestRoute: AuthenticatedQuestRoute,
   AuthenticatedReportRoute: AuthenticatedReportRoute,
   AuthenticatedSalesRoute: AuthenticatedSalesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
@@ -2971,6 +3012,7 @@ const rootRouteChildren: RootRouteChildren = {
   MShareSlugRoute: MShareSlugRoute,
   OauthConsentRoute: OauthConsentRoute,
   PartnersFioRoute: PartnersFioRoute,
+  PortalSlugRoute: PortalSlugRoute,
   RRunIdRoute: RRunIdRoute,
   SSlugRoute: SSlugRoute,
   TbShareSlugRoute: TbShareSlugRoute,

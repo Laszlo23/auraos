@@ -176,6 +176,12 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
     }),
   ]);
 
+  try {
+    await supabase.rpc("merge_signup_growth_progress");
+  } catch (err) {
+    console.warn("[createEmptyCompany] merge signup growth", err);
+  }
+
   takeFunnel();
   rememberLocale(uiLocale);
   return company;

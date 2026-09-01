@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Flame, Target, Sparkles, ArrowUpRight } from "lucide-react";
+import { Flame, Target, Sparkles, ArrowUpRight, Gamepad2 } from "lucide-react";
 
 import { Panel } from "@/components/aura/primitives";
 import { DailyWheel } from "@/components/aura/wheel";
@@ -121,6 +121,14 @@ export function DailyEngagementStrip({
           ) : (
             <p className="text-[12px] text-muted-foreground">All company quests complete — nice.</p>
           )}
+
+          <Link
+            to="/quest"
+            className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+          >
+            <Gamepad2 className="h-3 w-3" />
+            AURA Quest hub <ArrowUpRight className="h-3 w-3" />
+          </Link>
         </div>
 
         <div className="flex justify-center lg:justify-end">

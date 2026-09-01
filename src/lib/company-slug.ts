@@ -54,5 +54,20 @@ export async function publishLocalListing(
   if (error) {
     console.warn("[publishLocalListing] check-in code", error.message);
   }
+
+  const label = company.name?.trim() || slug;
+  const { error: portalErr } = await supabase.from("aura_portals").upsert(
+    {
+      company_id: company.id,
+      slug,
+      label,
+      active: true,
+    },
+    { onConflict: "company_id" },
+  );
+  if (portalErr) {
+    console.warn("[publishLocalListing] portal", portalErr.message);
+  }
+
   return slug;
 }

@@ -33,6 +33,16 @@ export const en: MessageTree = {
     kunden: "Guests",
     bewertungen: "Stars",
     boost: "Credits",
+    quest: "AURA Quest",
+  },
+  progress: {
+    rep: "REP",
+    repHint: "Contribution currency — earned from verified check-ins, missions, and scout work.",
+    repNotProduct:
+      "Not the same as Aura Reputation (the Local SaaS product) or your company ops score.",
+  },
+  localProduct: {
+    reputationName: "Aura Reputation",
   },
   lokal: {
     title: "Aura Local — real reviews & follow-up",

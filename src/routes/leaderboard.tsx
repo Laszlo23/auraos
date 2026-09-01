@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Coins, Trophy } from "lucide-react";
+import { Coins, Trophy, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Chip, Panel, Pulse } from "@/components/aura/primitives";
 import { ShareBar } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useLeaderboard, useMilestones, useSeason } from "@/hooks/use-contest";
+import { supabase } from "@/integrations/supabase/client";
 import { num } from "@/lib/format";
 import { TOKEN_SYMBOL } from "@/lib/plans";
 import { daysLeft } from "@/lib/subscription";
@@ -40,6 +42,23 @@ function LeaderboardPage() {
   const { data: season } = useSeason();
   const { data: board = [] } = useLeaderboard(season?.id, 50);
   const { data: feed = [] } = useMilestones({ limit: 15 });
+  const { data: vienna = [] } = useQuery({
+    queryKey: ["vienna-leaderboard-public"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("vienna_city_leaderboard", { _limit: 15 });
+      if (error) throw error;
+      return (data ?? []) as {
+        user_id: string;
+        display_name: string;
+        xp: number;
+        rep: number;
+        level: number;
+        is_scout: boolean;
+        businesses_onboarded: number;
+      }[];
+    },
+  });
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-5 py-14 md:px-8 md:py-20">
@@ -77,6 +96,32 @@ function LeaderboardPage() {
           />
         </div>
       </header>
+
+      {vienna.length > 0 ? (
+        <Panel label="Vienna · AURA World" className="mb-6" glow>
+          <p className="mb-4 px-5 pt-4 text-[12px] text-muted-foreground">
+            Top builders by contribution REP — Scouts, connectors, and city explorers.
+          </p>
+          {vienna.map((row, i) => (
+            <div
+              key={row.user_id}
+              className="flex flex-wrap items-center gap-3 border-t border-border/40 px-5 py-3.5 first:border-t-0"
+            >
+              <span className="num w-7 shrink-0 text-[13px] text-muted-foreground">{i + 1}</span>
+              <Users className="h-4 w-4 shrink-0 text-primary" />
+              <div className="min-w-[140px] flex-1">
+                <p className="truncate text-sm font-semibold">{row.display_name}</p>
+                <p className="text-[12px] text-muted-foreground">
+                  Lv {row.level}
+                  {row.is_scout ? ` · Scout · ${row.businesses_onboarded} onboarded` : ""}
+                </p>
+              </div>
+              <Chip tone="gold">{row.rep} REP</Chip>
+              <span className="num text-[12px] text-muted-foreground">{row.xp} XP</span>
+            </div>
+          ))}
+        </Panel>
+      ) : null}
 
       <div className="grid gap-5 lg:grid-cols-[1.3fr_1fr]">
         <Panel label="Standings" bodyClassName="p-0" glow>

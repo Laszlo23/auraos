@@ -176,7 +176,7 @@ export function buildHolderPerks(opts: {
       id: "hold-to-earn",
       label: "Hold-to-earn",
       description:
-        "Founding-circle cut of desk, catalog, and x402 fees while the Hood sits in your wallet. Ships with the mint — not a fixed APY.",
+        "Founding-circle cut of desk, catalog, and x402 fees while the Hood sits in your wallet. Coming at T-0 after external audit — not live yet. Not a fixed APY.",
       active: false,
     },
   ];
@@ -204,7 +204,7 @@ export function buildHolderPerks(opts: {
       },
       {
         title: "Hold-to-earn while you hold",
-        body: "A share of real desk, catalog, and x402 fees, claimable only by the current owner. Sell the Hood, the stream walks. Not a fixed APY.",
+        body: "A share of real desk, catalog, and x402 fees, claimable only by the current owner — after external audit at T-0. Sell the Hood, the stream walks. Not a fixed APY.",
       },
       {
         title: "7,777 AURA + desk genesis",

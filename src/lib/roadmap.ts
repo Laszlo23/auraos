@@ -97,7 +97,23 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     status: "brewing",
     kind: "build",
     title: "Aura Local + Nachbar, Vienna first",
-    body: "The street layer: local shops, neighbors, Glück auf. Prove the OS next to real people before we sell the planet a story.",
+    body: "The street layer: local shops, neighbors, Glück auf. Portals at /portal/$slug, map on Nachbar entdecken. Prove the OS next to real people before we sell the planet a story.",
+  },
+  {
+    id: "aura-quest",
+    when: "Now",
+    status: "live",
+    kind: "build",
+    title: "AURA Quest — unified progression",
+    body: "One XP bar, contribution REP, streaks, and badges across OS + Local + Nachbar. Server-enforced awards — no client-side XP gaming. Tokenomics stay off day one.",
+  },
+  {
+    id: "aura-scouts",
+    when: "Autumn",
+    status: "brewing",
+    kind: "build",
+    title: "Aura Scouts — Vienna density",
+    body: "Scout role, verified local seat attribution, Vienna REP leaderboard. Connectors earn when businesses they brought pay — not when they click a link.",
   },
   {
     id: "hood-circle",
@@ -105,7 +121,7 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     status: "next",
     kind: "hood",
     title: "The Hood — first 1,000 only",
-    body: "Capped NFT. Extra perks never expand past these thousand. Hold-to-earn from real fees for as long as you hold. Instant AURA gift drop + launch escrow on Base.",
+    body: "Capped NFT. Extra perks never expand past these thousand. Hold-to-earn ships after external audit + fee-split contract — not before. Instant AURA gift drop + launch escrow on Base.",
   },
   {
     id: "fair-launch",
@@ -129,7 +145,7 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     status: "next",
     kind: "build",
     title: "Commercial proof, not vibes",
-    body: "Paying companies, live catalog, x402 volume, hold-to-earn that can actually pay because the desk is used. If the numbers are thin, we say so.",
+    body: "Paying companies, live catalog, x402 volume, hold-to-earn claims only after the mechanism is audited and live. If the numbers are thin, we say so.",
   },
   {
     id: "hundred-companies",
@@ -187,7 +203,7 @@ export const ROADMAP_BEATS = [
   {
     week: "W3–4",
     title: "The Hood",
-    detail: "Mint the 1,000. Desk perks on. Hold-to-earn wired to real fees.",
+    detail: "Mint the 1,000. Desk perks on. Hold-to-earn after audit — fee-split contract, not marketing copy.",
   },
   {
     week: "T-0",
