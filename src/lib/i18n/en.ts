@@ -612,6 +612,9 @@ export const en: MessageTree = {
   changelog: {
     joinDiscord: "Join Discord",
     seeRoadmap: "Full roadmap →",
+    releases: "releases",
+    latest: "Latest",
+    latestBadge: "Latest ship",
   },
   tour: {
     newHere: "New here? Take the tour",

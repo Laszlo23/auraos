@@ -19,7 +19,7 @@ import {
   PublicMobileMenu,
   publicNavMore,
   publicNavPrimary,
-} from "@/components/aura/public-mobile-menu";
+} from "@/components/aura/public-site-header";
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { useLocale } from "@/hooks/use-locale";
 import { auraLaunchTreasuryAddress } from "@/lib/aura-token";

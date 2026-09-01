@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download } from "lucide-react";
 
 import { Chip, Panel } from "@/components/aura/primitives";
-import { PublicMobileMenu } from "@/components/aura/public-mobile-menu";
+import { PublicMobileMenu } from "@/components/aura/public-site-header";
 import { SiteFooter } from "@/components/aura/site-footer";
 import {
   AURA_ALLOCATIONS,

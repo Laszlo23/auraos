@@ -60,11 +60,6 @@ export function publicNavMore(t: (key: string) => string): PublicNavItem[] {
   ];
 }
 
-/** @deprecated Use publicNavPrimary + publicNavMore */
-export function publicPrimaryNav(t: (key: string) => string): PublicNavItem[] {
-  return [...publicNavPrimary(t), ...publicNavMore(t)];
-}
-
 const HIDE_FROM_CLASS = {
   sm: "sm:hidden",
   md: "md:hidden",

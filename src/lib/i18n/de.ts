@@ -616,6 +616,9 @@ export const de: MessageTree = {
   changelog: {
     joinDiscord: "Discord beitreten",
     seeRoadmap: "Roadmap →",
+    releases: "Releases",
+    latest: "Neueste",
+    latestBadge: "Gerade live",
   },
   tour: {
     newHere: "Neu hier? Zur Tour",

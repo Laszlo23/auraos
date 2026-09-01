@@ -15,6 +15,8 @@ export type ChangelogEntry = {
   tags: ChangelogTag[];
 };
 
+export const CHANGELOG_TAGS: ChangelogTag[] = ["feature", "improvement", "fix", "infra"];
+
 export const CHANGELOG_INTRO = {
   eyebrow: "Build log",
   title: "What we shipped.",
@@ -29,66 +31,48 @@ export const CHANGELOG_TAG_LABEL: Record<ChangelogTag, string> = {
   infra: "Infra",
 };
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
-    id: "2026-09-01-changelog",
+    id: "2026-09-01-growth-nav",
     date: "2026-09-01",
-    title: "Public build log",
-    summary: "Changelog page for the community — footer only, updated as we ship.",
+    title: "Founder starter & mobile nav",
+    summary:
+      "Three instant-reward quests for sign-ups with zero customers, plus a tighter public hamburger menu.",
     items: [
-      "New /changelog page with a timeline of releases",
-      "Linked from the footer Community section — not in the main nav",
+      "Growth starter on console and auth — follow X, join Discord, first move (+500 XP total)",
+      "Celebrate burst and XP toast fire immediately after each task",
+      "Mobile nav: Lucide icons, compact rows, gradient hairlines, social icons pinned at bottom",
+      "Public build log at /changelog (footer only)",
     ],
-    tags: ["feature"],
+    tags: ["feature", "improvement"],
   },
   {
-    id: "2026-09-01-nav",
+    id: "2026-09-01-creator",
     date: "2026-09-01",
-    title: "Cleaner public navigation",
-    summary: "Less noise in the header; secondary pages moved under More.",
+    title: "Creator NFT platform",
+    summary: "Robinhood Chain collections, branded mint pages, and the builders funnel.",
     items: [
-      "Desktop nav trimmed to four primary links plus a More menu",
-      "Mobile menu grouped into Main and Explore sections",
-      "Shared PublicSiteHeader across landing and marketing pages",
-    ],
-    tags: ["improvement"],
-  },
-  {
-    id: "2026-09-01-creator-design",
-    date: "2026-09-01",
-    title: "Creator studio design pass",
-    summary: "Web3-native creator hub, mint pages, and builders funnel landing.",
-    items: [
-      "Creator studio hero, stack showcase, and holographic drop preview",
-      "Public mint pages with ticker, stats, and mint terminal UI",
-      "Procedural cover art API at /api/creator/art/$slug",
-      "Dedicated /for/builders funnel page with creator visuals",
-    ],
-    tags: ["improvement", "feature"],
-  },
-  {
-    id: "2026-09-01-creator-platform",
-    date: "2026-09-01",
-    title: "Creator NFT platform (phase 1)",
-    summary: "Robinhood Chain collections, branded mint pages, and primary sales desk.",
-    items: [
-      "Creator hub at /creator — draft collections, deploy flow, collection cards",
-      "Public storefronts at /c/your-slug with USDG or ETH wallet mint",
-      "AuraCreatorCollection + MintDesk + Factory contracts (Robinhood Chain)",
-      "Supabase nft_collections schema and on-chain metadata API",
-      "Builders funnel defaults desk to Robinhood; free tier: 1 collection, 100 supply",
+      "Creator hub — draft collections, deploy flow, collection cards",
+      "Public storefronts at /c/your-slug with wallet mint (USDG or ETH)",
+      "AuraCreatorCollection, MintDesk, and Factory contracts on Robinhood Chain",
+      "Procedural cover art and on-chain metadata API routes",
+      "/for/builders funnel with creator visuals; free tier 1 collection / 100 supply",
     ],
     tags: ["feature", "infra"],
   },
   {
-    id: "2026-08-look-feel",
-    date: "2026-08-28",
-    title: "Look-and-feel step-up",
-    summary: "Site-wide visual polish — glass, motion, and marketing surfaces.",
+    id: "2026-09-01-visual",
+    date: "2026-09-01",
+    title: "Luxury visual upgrade",
+    summary: "Classic luxury × cinematic polish across Hood, marketing, and the app shell.",
     items: [
-      "Refined hero, funnel visuals, and authenticated shell chrome",
-      "Stronger typography and CTA treatments across public pages",
+      "Editorial design tokens, hood panels, Instrument Serif accents",
+      "Unified Hood mint stage; MarketingLayout and HoodShell primitives",
+      "PublicSiteHeader + SiteFooter refresh; four primary links + More menu on desktop",
+      "Removed broken noggles glasses overlay from Hood portrait art",
     ],
     tags: ["improvement"],
   },
@@ -105,6 +89,18 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     tags: ["feature", "infra"],
   },
 ];
+
+export function latestChangelogEntry(entries = CHANGELOG_ENTRIES): ChangelogEntry | undefined {
+  return [...entries].sort((a, b) => b.date.localeCompare(a.date))[0];
+}
+
+export function isValidChangelogEntry(entry: ChangelogEntry): boolean {
+  if (!entry.id.trim() || !entry.title.trim() || !entry.summary.trim()) return false;
+  if (!ISO_DATE.test(entry.date)) return false;
+  if (entry.items.length === 0 || entry.tags.length === 0) return false;
+  if (entry.items.some((item) => !item.trim())) return false;
+  return entry.tags.every((tag) => CHANGELOG_TAGS.includes(tag));
+}
 
 export function changelogByMonth(entries = CHANGELOG_ENTRIES): Map<string, ChangelogEntry[]> {
   const map = new Map<string, ChangelogEntry[]>();

@@ -12,6 +12,7 @@ import {
   changelogByMonth,
   formatChangelogDate,
   formatChangelogMonth,
+  latestChangelogEntry,
   type ChangelogTag,
 } from "@/lib/changelog";
 import { useLocale } from "@/hooks/use-locale";
@@ -79,6 +80,7 @@ function ChangelogPage() {
   const loc = locale === "de" ? "de" : "en";
   const byMonth = changelogByMonth(CHANGELOG_ENTRIES);
   const months = [...byMonth.keys()].sort((a, b) => b.localeCompare(a));
+  const latest = latestChangelogEntry();
   const discord = SOCIAL_LINKS.find((s) => s.id === "discord");
 
   return (
@@ -93,11 +95,9 @@ function ChangelogPage() {
       />
 
       <section className="relative mx-auto max-w-3xl px-6 pb-6 pt-14 sm:pt-20">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">
-          {CHANGELOG_INTRO.eyebrow}
-        </p>
+        <p className="label-luxury-gold">{CHANGELOG_INTRO.eyebrow}</p>
         <motion.h1
-          className="display-hero mt-4 text-[clamp(2.4rem,8vw,3.6rem)] leading-[0.95]"
+          className="display-editorial mt-4 text-[clamp(2.4rem,8vw,3.6rem)] leading-[0.95] font-semibold tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -112,6 +112,17 @@ function ChangelogPage() {
         >
           {CHANGELOG_INTRO.subtitle}
         </motion.p>
+        {latest ? (
+          <motion.p
+            className="num mt-5 text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground"
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            {CHANGELOG_ENTRIES.length} {t("changelog.releases")} · {t("changelog.latest")}{" "}
+            {formatChangelogDate(latest.date, loc)}
+          </motion.p>
+        ) : null}
         <motion.div
           className="mt-8 flex flex-wrap gap-3"
           initial={reduce ? false : { opacity: 0 }}
@@ -150,62 +161,73 @@ function ChangelogPage() {
                   aria-hidden
                   className="absolute bottom-2 left-[7px] top-2 w-px bg-gradient-to-b from-primary/50 via-border/60 to-transparent"
                 />
-                {entries.map((entry, i) => (
-                  <motion.li
-                    key={entry.id}
-                    className="relative pl-10 pb-10 last:pb-0"
-                    initial={reduce ? false : { opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-20px" }}
-                    transition={{ delay: Math.min(i * 0.04, 0.2) }}
-                  >
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border border-primary/40 bg-primary/15"
+                {entries.map((entry, i) => {
+                  const isLatest = entry.id === latest?.id;
+                  return (
+                    <motion.li
+                      key={entry.id}
+                      className={cn(
+                        "relative pl-10 pb-10 last:pb-0",
+                        isLatest && "rounded-2xl bg-primary/[0.04] pb-10 pl-10 pr-3 pt-2 -ml-1",
+                      )}
+                      initial={reduce ? false : { opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-20px" }}
+                      transition={{ delay: Math.min(i * 0.04, 0.2) }}
                     >
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    </span>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <time
-                        dateTime={entry.date}
-                        className="text-[11px] font-medium text-muted-foreground"
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-1.5 flex h-4 w-4 items-center justify-center rounded-full border border-primary/40 bg-primary/15"
                       >
-                        {formatChangelogDate(entry.date, loc)}
-                      </time>
-                      {entry.tags.map((tag) => {
-                        const Icon = tagIcon(tag);
-                        return (
-                          <span
-                            key={tag}
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1",
-                              tagTone(tag),
-                            )}
-                          >
-                            <Icon className="h-3 w-3" />
-                            {CHANGELOG_TAG_LABEL[tag]}
-                          </span>
-                        );
-                      })}
-                    </div>
-                    <h3 className="mt-2 font-display text-xl font-semibold tracking-tight">
-                      {entry.title}
-                    </h3>
-                    <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
-                      {entry.summary}
-                    </p>
-                    <ul className="mt-4 space-y-2 border-l border-border/30 pl-4">
-                      {entry.items.map((item) => (
-                        <li
-                          key={item}
-                          className="text-[13px] leading-relaxed text-foreground/85 before:mr-2 before:text-primary before:content-['·']"
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <time
+                          dateTime={entry.date}
+                          className="text-[11px] font-medium text-muted-foreground"
                         >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.li>
-                ))}
+                          {formatChangelogDate(entry.date, loc)}
+                        </time>
+                        {isLatest ? (
+                          <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary ring-1 ring-primary/25">
+                            {t("changelog.latestBadge")}
+                          </span>
+                        ) : null}
+                        {entry.tags.map((tag) => {
+                          const Icon = tagIcon(tag);
+                          return (
+                            <span
+                              key={tag}
+                              className={cn(
+                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ring-1",
+                                tagTone(tag),
+                              )}
+                            >
+                              <Icon className="h-3 w-3" />
+                              {CHANGELOG_TAG_LABEL[tag]}
+                            </span>
+                          );
+                        })}
+                      </div>
+                      <h3 className="mt-2 font-display text-xl font-semibold tracking-tight">
+                        {entry.title}
+                      </h3>
+                      <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
+                        {entry.summary}
+                      </p>
+                      <ul className="mt-4 space-y-2 border-l border-border/30 pl-4">
+                        {entry.items.map((item) => (
+                          <li
+                            key={item}
+                            className="text-[13px] leading-relaxed text-foreground/85 before:mr-2 before:text-primary before:content-['·']"
+                          >
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </motion.li>
+                  );
+                })}
               </ol>
             </div>
           );
