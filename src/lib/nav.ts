@@ -310,9 +310,12 @@ export const NAV: NavItem[] = [
   {
     to: "/community",
     label: "Community",
-    hint: "Company journal plus public founder rooms",
+    plain: "Squads",
+    hint: "Form a crew, run shared tasks, climb the squad board — the room everyone checks",
     icon: MessagesSquare,
-    group: "System",
+    group: "Company",
+    live: true,
+    core: true,
   },
   {
     to: "/earn",

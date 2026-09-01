@@ -49,6 +49,30 @@ export const REP_EARN_RULES: RepRule[] = [
     label: "Daily wheel",
     hint: "Showed up and spun",
   },
+  {
+    eventKey: "squad:created",
+    rep: 15,
+    label: "Founded a squad",
+    hint: "Started a crew others can join",
+  },
+  {
+    eventKey: "squad:joined",
+    rep: 12,
+    label: "Joined a squad",
+    hint: "Teamed up with other founders",
+  },
+  {
+    eventKey: "squad:task",
+    rep: 8,
+    label: "Squad task closed",
+    hint: "Completed a shared crew task",
+  },
+  {
+    eventKey: "squad:post",
+    rep: 5,
+    label: "Squad update",
+    hint: "Posted progress to your crew",
+  },
 ];
 
 export type QuestMission = {
@@ -117,6 +141,24 @@ const BASE_QUESTS = [
     glyph: "🟣",
     xp: 120,
     rep: 10,
+    cadence: "once",
+  },
+  {
+    key: "squad:created",
+    label: "Found a squad",
+    hint: "Start a crew of 2–8 founders on Community",
+    glyph: "👥",
+    xp: 100,
+    rep: 15,
+    cadence: "once",
+  },
+  {
+    key: "squad:joined",
+    label: "Join a squad",
+    hint: "Enter a 6-character invite code on Community",
+    glyph: "🤝",
+    xp: 80,
+    rep: 12,
     cadence: "once",
   },
 ];

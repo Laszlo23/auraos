@@ -10,6 +10,7 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 | **AURA LOCAL** | MVP live | `/lokal`, `/heute`, `/kunden`, `docs/GO_TO_MARKET_LOKAL.md` |
 | **AURA VIENNA / Nachbar** | Live | `/wien`, `/nachbar/*` |
 | **AURA QUEST** | **Live (Phase A)** | `/quest`, `src/lib/progress/`, `award_progress` RPC |
+| **AURA Community Squads** | **Live** | `/community`, `aura_squads`, shared tasks + world pulse |
 | **AURA SCOUTS** | MVP (Vienna) | `join_aura_scout`, `attribute_scout_business`, leaderboard |
 | **AURA PORTALS** | MVP | `/portal/$slug`, `aura_portals` table |
 | **AURA STREET** | Brewing | Extend `/nachbar/entdecken` — map mode Phase D |

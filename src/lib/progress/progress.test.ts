@@ -33,6 +33,12 @@ describe("quest registry", () => {
   it("defines REP only for verified events", () => {
     expect(repForEvent("portal:checkin")).toBe(5);
     expect(repForEvent("scout:business")).toBe(25);
+    expect(repForEvent("squad:task")).toBe(8);
     expect(REP_EARN_RULES.every((r) => r.rep > 0)).toBe(true);
+  });
+
+  it("includes squad collaboration quests", () => {
+    expect(QUEST_REGISTRY.some((q) => q.key === "squad:created")).toBe(true);
+    expect(QUEST_REGISTRY.some((q) => q.key === "squad:joined")).toBe(true);
   });
 });

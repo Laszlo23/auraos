@@ -1,19 +1,35 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Check, ExternalLink, Heart, MessageCircle, Pin, Send, Sparkles } from "lucide-react";
+import {
+  Check,
+  Copy,
+  ExternalLink,
+  Flame,
+  Gamepad2,
+  Heart,
+  Plus,
+  Send,
+  Sparkles,
+  Trophy,
+  Users,
+  Zap,
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { PageHeader, Panel, Chip, Pulse, DataRow } from "@/components/aura/primitives";
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
-import { FoundingCohort } from "@/components/aura/scarcity";
-import { COMMUNITY_QUESTS, QuestTrail } from "@/components/aura/quests";
-import { LaunchCountdown } from "@/components/aura/launch-countdown";
-import { VideoBackdrop } from "@/components/aura/video-bg";
-import { useCompany, useCompanyTable } from "@/hooks/use-aura";
-import { useAwardXp, useProgress } from "@/hooks/use-progress";
-import { useNetworkTotals } from "@/hooks/use-public";
-import { supabase } from "@/integrations/supabase/client";
+import { Chip, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
+import { QuestTrail, COMMUNITY_QUESTS } from "@/components/aura/quests";
+import {
+  useCommunityHub,
+  useCompleteSquadTask,
+  useCreateSquad,
+  useCreateSquadTask,
+  useJoinSquad,
+  usePostSquadUpdate,
+} from "@/hooks/use-community-hub";
+import { useProgress } from "@/hooks/use-progress";
+import { usePublicFeed, useNetworkTotals } from "@/hooks/use-public";
+import { useUserProgress } from "@/hooks/use-user-progress";
 import { SOCIAL_LINKS } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { num, timeAgo } from "@/lib/format";
@@ -22,310 +38,459 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/community")({
   head: () => ({
     meta: [
-      { title: "Community — founders running AI companies | Aura OS" },
+      { title: "Community — squads, shared wins, live pulse | Aura OS" },
       {
         name: "description",
         content:
-          "Trade playbooks with founders whose companies run themselves. Join Discord, Telegram, X and Farcaster before fair launch.",
+          "Form a squad, run shared tasks together, and show up on the world pulse. Gamified crew play across Aura OS.",
       },
-      { property: "og:title", content: "Aura OS Community" },
+      { property: "og:title", content: "Aura Community — work together" },
       {
         property: "og:description",
-        content: "Founders and agents sharing what actually compounds.",
+        content: "Small crews. Shared tasks. Squad XP everyone can see.",
       },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CommunityPage,
+  component: CommunityHubPage,
 });
 
-type Post = {
-  id: string;
-  author_name: string;
-  author_role: string | null;
-  avatar: string | null;
-  topic: string;
-  body: string;
-  likes: number;
-  replies: number;
-  pinned: boolean;
-  created_at: string;
-};
-
-const TOPICS = ["all", "playbooks", "signals", "trading", "design", "general"];
-
-function CommunityPage() {
-  const { data: company } = useCompany();
+function CommunityHubPage() {
+  const { data: hub, isLoading } = useCommunityHub();
+  const { data: network } = useNetworkTotals({ refetchInterval: 20_000 });
+  const { data: publicFeed = [] } = usePublicFeed(12, { refetchInterval: 15_000 });
   const { data: progress } = useProgress();
-  const qc = useQueryClient();
-  const { data: posts = [] } = useCompanyTable<Post>("community_posts", {
-    orderBy: "created_at",
-    ascending: false,
-  });
-  const award = useAwardXp();
-  const { data: network } = useNetworkTotals();
-  const companiesOnline = network?.companies ?? 0;
-  const [topic, setTopic] = useState("all");
-  const [draft, setDraft] = useState("");
+  const { data: userProg } = useUserProgress();
+
+  const createSquad = useCreateSquad();
+  const joinSquad = useJoinSquad();
+  const postUpdate = usePostSquadUpdate();
+  const createTask = useCreateSquadTask();
+  const completeTask = useCompleteSquadTask();
+
+  const [squadName, setSquadName] = useState("");
+  const [joinCode, setJoinCode] = useState("");
+  const [postBody, setPostBody] = useState("");
+  const [shareWorld, setShareWorld] = useState(true);
+  const [taskTitle, setTaskTitle] = useState("");
   const [burst, setBurst] = useState(0);
-  const [toast, setToast] = useState<{ label: string; amount: number } | null>(null);
-  const [liked, setLiked] = useState<Set<string>>(new Set());
-  const done = new Set(progress?.completed_quests ?? []);
+  const [xpToast, setXpToast] = useState<{ label: string; amount: number } | null>(null);
 
-  const visible = posts
-    .filter((p) => topic === "all" || p.topic === topic)
-    .sort((a, b) => Number(b.pinned) - Number(a.pinned));
+  const squad = hub?.my_squad ?? null;
+  const done = new Set([
+    ...(progress?.completed_quests ?? []),
+    ...(userProg?.completed_quests ?? []),
+  ]);
+  const openTasks = (hub?.tasks ?? []).filter((t) => t.status === "open");
+  const doneTasks = (hub?.tasks ?? []).filter((t) => t.status === "done");
 
-  const pop = (label: string, amount: number, quest?: string) => {
-    if (quest && done.has(quest)) return;
+  const pop = (label: string, amount: number) => {
     setBurst((n) => n + 1);
-    setToast({ label, amount });
-    setTimeout(() => setToast(null), 2400);
-    award.mutate({ amount, quest });
+    setXpToast({ label, amount });
+    setTimeout(() => setXpToast(null), 2400);
   };
 
-  const confirmSocial = (questKey: string, label: string, xp: number, socialId: string) => {
-    trackTeaser("social_join", { placement: `${socialId}:community`.slice(0, 40) });
-    pop(label, xp, questKey);
+  const copyInvite = async () => {
+    if (!squad?.invite_code) return;
+    const url = `${window.location.origin}/community?join=${squad.invite_code}`;
+    await navigator.clipboard.writeText(
+      `Join my Aura squad "${squad.name}" — code ${squad.invite_code}\n${url}`,
+    );
+    toast.success("Invite copied — send it to your crew");
   };
 
-  const like = async (post: Post) => {
-    if (liked.has(post.id)) return;
-    setLiked((s) => new Set(s).add(post.id));
-    await supabase
-      .from("community_posts")
-      .update({ likes: post.likes + 1 })
-      .eq("id", post.id);
-    await qc.invalidateQueries({ queryKey: ["table", "community_posts"] });
-    pop("Signal sent", 60, "community:first-like");
+  const handleCreate = async () => {
+    if (squadName.trim().length < 2) return;
+    try {
+      const res = await createSquad.mutateAsync({ name: squadName.trim() });
+      setSquadName("");
+      pop("Squad founded", 100);
+      toast.success(`${res.name} is live — invite code ${res.invite_code}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not create squad");
+    }
   };
 
-  const publish = async () => {
-    if (!company || draft.trim().length < 4) return;
-    await supabase.from("community_posts").insert({
-      company_id: company.id,
-      author_name: company.name,
-      author_role: "Founder",
-      avatar: company.emoji,
-      topic: topic === "all" ? "general" : topic,
-      body: draft.trim(),
-    });
-    setDraft("");
-    await qc.invalidateQueries({ queryKey: ["table", "community_posts"] });
-    pop("Posted to your company journal", 120, "community:first-post");
+  const handleJoin = async () => {
+    if (joinCode.trim().length < 6) return;
+    try {
+      const res = await joinSquad.mutateAsync(joinCode);
+      setJoinCode("");
+      pop("Joined the crew", 80);
+      toast.success(`Welcome to ${res.name}`);
+    } catch (e) {
+      const msg = String(e instanceof Error ? e.message : e);
+      if (msg.includes("already_in_squad")) toast.error("You are already in a squad");
+      else if (msg.includes("squad_full")) toast.error("That squad is full (max 8)");
+      else toast.error("Invalid or expired invite code");
+    }
+  };
+
+  const handlePost = async () => {
+    if (!squad || postBody.trim().length < 2) return;
+    try {
+      await postUpdate.mutateAsync({
+        squadId: squad.id,
+        body: postBody.trim(),
+        shareWorld,
+      });
+      setPostBody("");
+      pop(shareWorld ? "Shared with the world" : "Posted to squad", 35);
+    } catch {
+      toast.error("Could not post");
+    }
+  };
+
+  const handleAddTask = async () => {
+    if (!squad || taskTitle.trim().length < 2) return;
+    try {
+      await createTask.mutateAsync({ squadId: squad.id, title: taskTitle.trim() });
+      setTaskTitle("");
+      toast.success("Task added — anyone in the squad can close it");
+    } catch {
+      toast.error("Could not add task");
+    }
+  };
+
+  const handleComplete = async (taskId: string, xp: number) => {
+    try {
+      await completeTask.mutateAsync(taskId);
+      pop("Squad task done", xp);
+    } catch {
+      toast.error("Task already closed");
+    }
   };
 
   return (
-    <div className="space-y-8">
-      <VideoBackdrop intensity={0.22} />
+    <div className="space-y-8 pb-12">
       <Celebrate trigger={burst} />
-      <XpToast label={toast?.label ?? ""} amount={toast?.amount ?? 0} show={Boolean(toast)} />
+      <XpToast label={xpToast?.label ?? ""} amount={xpToast?.amount ?? 0} show={Boolean(xpToast)} />
 
       <PageHeader
-        eyebrow="Your company"
-        title="Journal"
-        description="Notes stay inside this company. Rally founders on Discord, Telegram, X and Farcaster — those are the public rooms."
+        eyebrow="AURA Community"
+        title="Work together. Level up together."
+        description="Form a squad of 2–8 founders, run shared tasks, and show wins on the live pulse — the room everyone checks."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Chip tone="gold">
-              <Pulse tone="gold" /> {num(companiesOnline)} companies online
+              <Pulse tone="gold" /> {num(network?.companies ?? 0)} companies live
             </Chip>
-            <Chip>
-              <LaunchCountdown variant="compact" showSocials={false} placement="community" />
-            </Chip>
+            <Link
+              to="/quest"
+              className="inline-flex items-center gap-1.5 rounded-2xl border border-primary/30 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+            >
+              <Gamepad2 className="h-3.5 w-3.5" /> Quest hub
+            </Link>
+            <Link
+              to="/leaderboard"
+              className="inline-flex items-center gap-1.5 rounded-2xl border border-border/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-primary"
+            >
+              <Trophy className="h-3.5 w-3.5" /> Standings
+            </Link>
           </div>
         }
       />
 
-      <Panel label="Rally the network" glow>
-        <p className="mb-4 text-[12px] leading-relaxed text-muted-foreground">
-          Open each channel, then confirm — honor system XP for growing the cohort before T-0.
-        </p>
-        <div className="grid gap-2.5 sm:grid-cols-2">
-          {SOCIAL_LINKS.map((s) => {
-            const earned = done.has(s.questKey);
-            return (
-              <div
-                key={s.id}
-                className={cn(
-                  "flex flex-col gap-3 rounded-2xl px-3.5 py-3 sm:flex-row sm:items-center",
-                  earned ? "bg-primary/10" : "bg-foreground/5",
-                )}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold">{s.hint}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {s.label} · +{s.xp} XP
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <div className="space-y-6">
+          {!squad && !isLoading ? (
+            <Panel label="Start or join a squad" glow>
+              <p className="mb-5 text-[13px] leading-relaxed text-muted-foreground">
+                Squads are small crews — plan missions, close tasks, earn squad XP. Everyone sees
+                the top crews on the leaderboard. You can only be in one squad at a time.
+              </p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-border/50 bg-background/40 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Found a crew
                   </p>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <a
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      trackTeaser("social_join", {
-                        placement: `${s.id}:community_open`.slice(0, 40),
-                      })
-                    }
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-border/50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
-                  >
-                    Open <ExternalLink className="h-3 w-3" />
-                  </a>
+                  <input
+                    value={squadName}
+                    onChange={(e) => setSquadName(e.target.value)}
+                    placeholder="Vienna builders, Hood crew…"
+                    className="mt-3 w-full rounded-xl border border-border/50 bg-transparent px-3 py-2.5 text-[14px] outline-none focus:border-primary/50"
+                  />
                   <button
                     type="button"
-                    disabled={earned}
-                    onClick={() => confirmSocial(s.questKey, s.hint, s.xp, s.id)}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary/14 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary transition-opacity hover:opacity-80 disabled:opacity-50"
+                    disabled={createSquad.isPending || squadName.trim().length < 2}
+                    onClick={() => void handleCreate()}
+                    className="mt-3 w-full rounded-2xl bg-primary py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground disabled:opacity-40"
                   >
-                    {earned ? (
-                      <>
-                        <Check className="h-3 w-3" /> Done
-                      </>
-                    ) : (
-                      "Confirm"
-                    )}
+                    Create squad · +100 XP
                   </button>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </Panel>
-
-      <Panel label="Founder challenge" glow>
-        <QuestTrail quests={COMMUNITY_QUESTS} completed={done} />
-      </Panel>
-
-      <div className="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
-        <div className="space-y-4">
-          <Panel label="Say something" glow>
-            <div className="flex gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary/14 text-primary">
-                {company?.emoji ?? "◎"}
-              </span>
-              <div className="min-w-0 flex-1">
-                <textarea
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  rows={2}
-                  placeholder="What did your company teach you this week?"
-                  className="w-full resize-none bg-transparent text-[14px] leading-relaxed outline-none placeholder:text-muted-foreground/60"
-                />
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="text-[11px] text-muted-foreground">
-                    Posting to{" "}
-                    <span className="text-primary">{topic === "all" ? "general" : topic}</span>
-                  </span>
+                <div className="rounded-2xl border border-border/50 bg-background/40 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Join with code
+                  </p>
+                  <input
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    placeholder="6-char code"
+                    maxLength={6}
+                    className="mt-3 w-full rounded-xl border border-border/50 bg-transparent px-3 py-2.5 font-mono text-[14px] uppercase tracking-[0.2em] outline-none focus:border-primary/50"
+                  />
                   <button
-                    onClick={publish}
-                    disabled={draft.trim().length < 4}
-                    className="ml-auto flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+                    type="button"
+                    disabled={joinSquad.isPending || joinCode.trim().length < 6}
+                    onClick={() => void handleJoin()}
+                    className="mt-3 w-full rounded-2xl border border-primary/40 bg-primary/10 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary disabled:opacity-40"
                   >
-                    <Send className="h-3.5 w-3.5" /> Share
+                    Join squad · +80 XP
                   </button>
                 </div>
               </div>
-            </div>
-          </Panel>
+            </Panel>
+          ) : null}
 
-          <div className="flex flex-wrap gap-2">
-            {TOPICS.map((t) => (
-              <button
-                key={t}
-                onClick={() => setTopic(t)}
-                className={cn(
-                  "rounded-full px-3.5 py-1.5 text-[11px] uppercase tracking-[0.18em] transition-colors",
-                  topic === t
-                    ? "bg-primary/14 text-primary"
-                    : "bg-foreground/5 text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
-          {visible.map((post, i) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Panel bodyClassName="p-5" className="p-5">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-foreground/6 text-primary">
-                    {post.avatar ?? "◎"}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold">{post.author_name}</p>
-                      <span className="text-[11px] text-muted-foreground">{post.author_role}</span>
-                      <span className="text-[11px] text-muted-foreground/60">
-                        · {timeAgo(post.created_at)}
-                      </span>
-                      {post.pinned ? (
-                        <Chip tone="gold" className="ml-auto">
-                          <Pin className="h-3 w-3" /> pinned
-                        </Chip>
-                      ) : null}
-                    </div>
-                    <p className="mt-2.5 text-[14px] leading-relaxed">{post.body}</p>
-                    <div className="mt-3.5 flex items-center gap-5 text-[12px] text-muted-foreground">
-                      <button
-                        onClick={() => like(post)}
-                        className={cn(
-                          "flex items-center gap-1.5 transition-colors hover:text-primary",
-                          liked.has(post.id) && "text-primary",
-                        )}
-                      >
-                        <Heart
-                          className={cn("h-3.5 w-3.5", liked.has(post.id) && "fill-current")}
-                        />
-                        <span className="num">{post.likes + (liked.has(post.id) ? 1 : 0)}</span>
-                      </button>
-                      <span className="flex items-center gap-1.5">
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        <span className="num">{post.replies}</span>
-                      </span>
-                      <Chip className="ml-auto">{post.topic}</Chip>
-                    </div>
+          {squad ? (
+            <>
+              <Panel label="Your squad" glow>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold tracking-tight">
+                      {squad.emoji} {squad.name}
+                    </h2>
+                    <p className="mt-1 text-[12px] text-muted-foreground">
+                      {squad.member_count}/8 members · {num(squad.squad_xp)} squad XP · you are{" "}
+                      {squad.role}
+                    </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => void copyInvite()}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-gold/40 bg-gold/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    {squad.invite_code}
+                  </button>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {(hub?.members ?? []).map((m) => (
+                    <div
+                      key={m.user_id}
+                      className="flex items-center gap-2 rounded-2xl border border-border/40 px-3 py-2"
+                      title={`Lv ${m.level} · ${m.rep} REP`}
+                    >
+                      <span className="text-lg">{m.avatar}</span>
+                      <div>
+                        <p className="text-[12px] font-semibold">{m.display_name}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Lv {m.level}
+                          {m.role === "owner" ? " · captain" : ""}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </Panel>
-            </motion.div>
-          ))}
+
+              <Panel label="Shared tasks">
+                <p className="mb-3 text-[12px] text-muted-foreground">
+                  Anyone in the squad can add or complete a task — first to close it earns XP for
+                  everyone&apos;s standing.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    value={taskTitle}
+                    onChange={(e) => setTaskTitle(e.target.value)}
+                    placeholder="Ship weekly report, review proofs, onboard a local…"
+                    className="min-w-0 flex-1 rounded-xl border border-border/50 bg-transparent px-3 py-2 text-[13px] outline-none focus:border-primary/50"
+                  />
+                  <button
+                    type="button"
+                    disabled={createTask.isPending || taskTitle.trim().length < 2}
+                    onClick={() => void handleAddTask()}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-primary px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground disabled:opacity-40"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add
+                  </button>
+                </div>
+                <ul className="mt-4 space-y-2">
+                  {openTasks.length === 0 ? (
+                    <li className="text-[12px] text-muted-foreground">
+                      No open tasks — add one above to get the crew moving.
+                    </li>
+                  ) : (
+                    openTasks.map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex items-center justify-between gap-3 rounded-2xl border border-border/50 px-3 py-2.5"
+                      >
+                        <span className="text-[13px]">{t.title}</span>
+                        <button
+                          type="button"
+                          onClick={() => void handleComplete(t.id, t.xp_reward)}
+                          className="shrink-0 rounded-xl bg-primary/14 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary"
+                        >
+                          Done · +{t.xp_reward} XP
+                        </button>
+                      </li>
+                    ))
+                  )}
+                  {doneTasks.slice(0, 4).map((t) => (
+                    <li
+                      key={t.id}
+                      className="flex items-center gap-2 rounded-xl px-2 py-1 text-[12px] text-muted-foreground line-through opacity-70"
+                    >
+                      <Check className="h-3 w-3 text-primary" /> {t.title}
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+
+              <Panel label="Squad channel">
+                <textarea
+                  value={postBody}
+                  onChange={(e) => setPostBody(e.target.value)}
+                  rows={2}
+                  placeholder="What are we building this week? Drop blockers, wins, links…"
+                  className="w-full resize-none rounded-xl border border-border/40 bg-transparent px-3 py-2.5 text-[14px] leading-relaxed outline-none focus:border-primary/40"
+                />
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <label className="flex cursor-pointer items-center gap-2 text-[11px] text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={shareWorld}
+                      onChange={(e) => setShareWorld(e.target.checked)}
+                      className="rounded border-border"
+                    />
+                    Share to world pulse
+                  </label>
+                  <button
+                    type="button"
+                    disabled={postUpdate.isPending || postBody.trim().length < 2}
+                    onClick={() => void handlePost()}
+                    className="ml-auto inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground disabled:opacity-40"
+                  >
+                    <Send className="h-3.5 w-3.5" /> Post
+                  </button>
+                </div>
+                <ul className="mt-5 space-y-3 border-t border-border/40 pt-4">
+                  {(hub?.posts ?? []).map((p) => (
+                    <li key={p.id} className="flex gap-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-foreground/6">
+                        {p.author_avatar}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12px] font-semibold">
+                          {p.author_name}
+                          <span className="ml-2 font-normal text-muted-foreground">
+                            {timeAgo(p.created_at)}
+                          </span>
+                          {p.share_world ? (
+                            <Chip className="ml-2 inline-flex py-0 text-[9px]">World</Chip>
+                          ) : null}
+                        </p>
+                        <p className="mt-1 text-[13px] leading-relaxed">{p.body}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+            </>
+          ) : null}
         </div>
 
-        <div className="space-y-4">
-          <Panel label="Your standing" delay={0.08} glow>
-            <div className="space-y-1">
-              <DataRow label="Level" value={progress?.level ?? 1} tone="primary" />
-              <DataRow label="XP" value={progress?.xp ?? 0} />
-              <DataRow label="Streak" value={`${progress?.streak_days ?? 1} days`} tone="gold" />
-              <DataRow label="Seat" value={`#${progress?.seat_number ?? "—"}`} />
+        <div className="space-y-6">
+          <Panel label="Top squads" glow delay={0.02}>
+            <ul className="space-y-2">
+              {(hub?.top_squads ?? []).length === 0 ? (
+                <li className="text-[12px] text-muted-foreground">
+                  Be the first crew on the board — create a squad.
+                </li>
+              ) : (
+                (hub?.top_squads ?? []).map((s, i) => (
+                  <li
+                    key={s.id}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border px-3 py-2.5",
+                      squad?.id === s.id ? "border-gold/40 bg-gold/5" : "border-border/40",
+                    )}
+                  >
+                    <span className="num w-5 text-[12px] text-muted-foreground">{i + 1}</span>
+                    <span className="text-lg">{s.emoji}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-semibold">{s.name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {s.member_count} members
+                      </p>
+                    </div>
+                    <Chip tone="gold">{num(s.squad_xp)} XP</Chip>
+                  </li>
+                ))
+              )}
+            </ul>
+          </Panel>
+
+          <Panel label="World pulse" delay={0.04}>
+            <p className="mb-3 text-[11px] text-muted-foreground">
+              Squad wins shared publicly + live network activity.
+            </p>
+            <ul className="max-h-[280px] space-y-3 overflow-y-auto pr-1">
+              {(hub?.world_pulse ?? []).map((p) => (
+                <li key={p.id} className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">
+                  <p className="text-[11px] font-semibold text-primary">
+                    {p.squad_emoji} {p.squad_name}
+                  </p>
+                  <p className="mt-0.5 text-[12px]">
+                    <span className="font-medium">{p.author_name}:</span> {p.body}
+                  </p>
+                  <p className="mt-1 text-[10px] text-muted-foreground">{timeAgo(p.created_at)}</p>
+                </li>
+              ))}
+              {publicFeed.slice(0, 6).map((row) => (
+                <li key={row.id} className="border-b border-border/30 pb-2 text-[12px] last:border-0">
+                  <span className="text-muted-foreground">
+                    {row.handle ? `@${row.handle}` : "Network"}
+                  </span>
+                  <span className="mx-1">·</span>
+                  {row.title ?? row.kind}
+                  <span className="ml-1 text-[10px] text-muted-foreground">
+                    {row.created_at ? timeAgo(row.created_at) : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+
+          <Panel label="Grow the network" delay={0.06}>
+            <QuestTrail quests={COMMUNITY_QUESTS.slice(0, 4)} completed={done} />
+            <div className="mt-4 grid gap-2">
+              {SOCIAL_LINKS.slice(0, 2).map((s) => (
+                <a
+                  key={s.id}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackTeaser("social_join", { placement: `community:${s.id}` })}
+                  className="flex items-center justify-between rounded-xl border border-border/40 px-3 py-2 text-[12px] hover:border-primary/30"
+                >
+                  {s.label}
+                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                </a>
+              ))}
             </div>
           </Panel>
 
-          <Panel label="Founding cohort" delay={0.12}>
-            <FoundingCohort seat={progress?.seat_number} />
-            <button
-              onClick={() => pop("Seat claimed", 180, "community:cohort-join")}
-              disabled={done.has("community:cohort-join")}
-              className="mt-4 w-full rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary transition-opacity hover:opacity-80 disabled:opacity-50"
-            >
-              {done.has("community:cohort-join") ? "Seat claimed" : "Claim your founding seat"}
-            </button>
-          </Panel>
-
-          <Panel label="Network signal" delay={0.16}>
-            <div className="flex items-start gap-3">
-              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-              <p className="text-[13px] leading-relaxed text-muted-foreground">
-                Connect your channels early so agents can draft posts and replies for you to approve
-                — that is how companies compound reach. Fair launch is on the public clock.
+          <Panel label="Why squads?" delay={0.08}>
+            <div className="space-y-3 text-[12px] leading-relaxed text-muted-foreground">
+              <p className="flex items-start gap-2">
+                <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                Two founders ship faster than one — shared tasks keep accountability honest.
+              </p>
+              <p className="flex items-start gap-2">
+                <Zap className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                Squad XP climbs the public board. REP from quests still lives on your profile.
+              </p>
+              <p className="flex items-start gap-2">
+                <Flame className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                Post with &quot;world pulse&quot; on — that is the feed everyone wants to scroll.
+              </p>
+              <p className="flex items-start gap-2">
+                <Heart className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                Vienna scouts and local shops: squad up before you hit the street.
               </p>
             </div>
           </Panel>
