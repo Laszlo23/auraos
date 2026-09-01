@@ -10,8 +10,9 @@ export const issueWalletChallenge = createServerFn({ method: "POST" })
     const { challengeMessage } = await import("./identity.server");
     const { data: wallet, error } = await context.supabase
       .from("wallet_bindings")
-      .select("id, address, handle_id, handles(handle)")
+      .select("id, address, handle_id, user_id, handles(handle)")
       .eq("id", data.walletId)
+      .eq("user_id", context.userId)
       .maybeSingle();
     if (error) throw error;
     if (!wallet) throw new Error("Wallet slot not found.");
@@ -35,8 +36,9 @@ export const confirmWalletBinding = createServerFn({ method: "POST" })
     const { challengeMessage, verifyWalletSignature } = await import("./identity.server");
     const { data: wallet, error } = await context.supabase
       .from("wallet_bindings")
-      .select("id, address, verify_nonce, handles(handle)")
+      .select("id, address, verify_nonce, user_id, handles(handle)")
       .eq("id", data.walletId)
+      .eq("user_id", context.userId)
       .maybeSingle();
     if (error) throw error;
     if (!wallet?.verify_nonce) throw new Error("Request a new signing challenge first.");

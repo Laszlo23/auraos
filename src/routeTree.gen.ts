@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AccessRouteImport } from './routes/access'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BrandRouteImport } from './routes/brand'
+import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DeskRouteImport } from './routes/desk'
@@ -61,6 +62,7 @@ import { Route as AuthenticatedChannelsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated/community'
 import { Route as AuthenticatedConnectRouteImport } from './routes/_authenticated/connect'
 import { Route as AuthenticatedConsoleRouteImport } from './routes/_authenticated/console'
+import { Route as AuthenticatedCreatorRouteImport } from './routes/_authenticated/creator'
 import { Route as AuthenticatedCustomersRouteImport } from './routes/_authenticated/customers'
 import { Route as AuthenticatedEarnRouteImport } from './routes/_authenticated/earn'
 import { Route as AuthenticatedFilesRouteImport } from './routes/_authenticated/files'
@@ -89,6 +91,7 @@ import { Route as ApiCeoRouteImport } from './routes/api/ceo'
 import { Route as BSlugRouteImport } from './routes/b.$slug'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as CSlugRouteImport } from './routes/c.$slug'
 import { Route as CompanySlugRouteImport } from './routes/company.$slug'
 import { Route as EmbedPostIdRouteImport } from './routes/embed.$postId'
 import { Route as ForFunnelRouteImport } from './routes/for.$funnel'
@@ -128,6 +131,7 @@ import { Route as NachbarRefCodeRouteImport } from './routes/nachbar/ref.$code'
 import { Route as OauthMailboxReturnRouteImport } from './routes/oauth/mailbox.return'
 import { Route as OauthSocialReturnRouteImport } from './routes/oauth/social.return'
 import { Route as RReviewTokenRouteImport } from './routes/r.review.$token'
+import { Route as ApiCreatorArtSlugRouteImport } from './routes/api/creator/art/$slug'
 import { Route as ApiGenesisArtTokenIdRouteImport } from './routes/api/genesis/art/$tokenId'
 import { Route as ApiGenesisMetaTokenIdRouteImport } from './routes/api/genesis/meta/$tokenId'
 import { Route as ApiOauthSocialCallbackRouteImport } from './routes/api/oauth/social/callback'
@@ -144,6 +148,7 @@ import { Route as ApiPublicX402PropertyValuationRouteImport } from './routes/api
 import { Route as ApiPublicX402QuantSignalRouteImport } from './routes/api/public/x402/quant-signal'
 import { Route as ApiPublicX402WebsiteCopyRouteImport } from './routes/api/public/x402/website-copy'
 import { Route as ApiRelicMetaTokenIdRouteImport } from './routes/api/relic/meta/$tokenId'
+import { Route as ApiCreatorMetaSlugTokenIdRouteImport } from './routes/api/creator/meta/$slug.$tokenId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -172,6 +177,11 @@ const AuthRoute = AuthRouteImport.update({
 const BrandRoute = BrandRouteImport.update({
   id: '/brand',
   path: '/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareRoute = CompareRouteImport.update({
@@ -405,6 +415,11 @@ const AuthenticatedConsoleRoute = AuthenticatedConsoleRouteImport.update({
   path: '/console',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCreatorRoute = AuthenticatedCreatorRouteImport.update({
+  id: '/creator',
+  path: '/creator',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCustomersRoute = AuthenticatedCustomersRouteImport.update({
   id: '/customers',
   path: '/customers',
@@ -544,6 +559,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CSlugRoute = CSlugRouteImport.update({
+  id: '/c/$slug',
+  path: '/c/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompanySlugRoute = CompanySlugRouteImport.update({
@@ -743,6 +763,11 @@ const RReviewTokenRoute = RReviewTokenRouteImport.update({
   path: '/r/review/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCreatorArtSlugRoute = ApiCreatorArtSlugRouteImport.update({
+  id: '/api/creator/art/$slug',
+  path: '/api/creator/art/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGenesisArtTokenIdRoute = ApiGenesisArtTokenIdRouteImport.update({
   id: '/api/genesis/art/$tokenId',
   path: '/api/genesis/art/$tokenId',
@@ -832,6 +857,12 @@ const ApiRelicMetaTokenIdRoute = ApiRelicMetaTokenIdRouteImport.update({
   path: '/api/relic/meta/$tokenId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCreatorMetaSlugTokenIdRoute =
+  ApiCreatorMetaSlugTokenIdRouteImport.update({
+    id: '/api/creator/meta/$slug/$tokenId',
+    path: '/api/creator/meta/$slug/$tokenId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -840,6 +871,7 @@ export interface FileRoutesByFullPath {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/changelog': typeof ChangelogRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
@@ -885,6 +917,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof AuthenticatedCommunityRoute
   '/connect': typeof AuthenticatedConnectRoute
   '/console': typeof AuthenticatedConsoleRoute
+  '/creator': typeof AuthenticatedCreatorRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/earn': typeof AuthenticatedEarnRoute
   '/files': typeof AuthenticatedFilesRoute
@@ -912,6 +945,7 @@ export interface FileRoutesByFullPath {
   '/api/ceo': typeof ApiCeoRoute
   '/b/$slug': typeof BSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/c/$slug': typeof CSlugRoute
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
@@ -952,6 +986,7 @@ export interface FileRoutesByFullPath {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/creator/art/$slug': typeof ApiCreatorArtSlugRoute
   '/api/genesis/art/$tokenId': typeof ApiGenesisArtTokenIdRoute
   '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
@@ -968,6 +1003,7 @@ export interface FileRoutesByFullPath {
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
   '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
   '/api/public/x402/': typeof ApiPublicX402IndexRoute
+  '/api/creator/meta/$slug/$tokenId': typeof ApiCreatorMetaSlugTokenIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -975,6 +1011,7 @@ export interface FileRoutesByTo {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/changelog': typeof ChangelogRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
@@ -1020,6 +1057,7 @@ export interface FileRoutesByTo {
   '/community': typeof AuthenticatedCommunityRoute
   '/connect': typeof AuthenticatedConnectRoute
   '/console': typeof AuthenticatedConsoleRoute
+  '/creator': typeof AuthenticatedCreatorRoute
   '/customers': typeof AuthenticatedCustomersRoute
   '/earn': typeof AuthenticatedEarnRoute
   '/files': typeof AuthenticatedFilesRoute
@@ -1047,6 +1085,7 @@ export interface FileRoutesByTo {
   '/api/ceo': typeof ApiCeoRoute
   '/b/$slug': typeof BSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/c/$slug': typeof CSlugRoute
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
@@ -1087,6 +1126,7 @@ export interface FileRoutesByTo {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/creator/art/$slug': typeof ApiCreatorArtSlugRoute
   '/api/genesis/art/$tokenId': typeof ApiGenesisArtTokenIdRoute
   '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
@@ -1103,6 +1143,7 @@ export interface FileRoutesByTo {
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
   '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
   '/api/public/x402': typeof ApiPublicX402IndexRoute
+  '/api/creator/meta/$slug/$tokenId': typeof ApiCreatorMetaSlugTokenIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1113,6 +1154,7 @@ export interface FileRoutesById {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/changelog': typeof ChangelogRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
@@ -1158,6 +1200,7 @@ export interface FileRoutesById {
   '/_authenticated/community': typeof AuthenticatedCommunityRoute
   '/_authenticated/connect': typeof AuthenticatedConnectRoute
   '/_authenticated/console': typeof AuthenticatedConsoleRoute
+  '/_authenticated/creator': typeof AuthenticatedCreatorRoute
   '/_authenticated/customers': typeof AuthenticatedCustomersRoute
   '/_authenticated/earn': typeof AuthenticatedEarnRoute
   '/_authenticated/files': typeof AuthenticatedFilesRoute
@@ -1185,6 +1228,7 @@ export interface FileRoutesById {
   '/api/ceo': typeof ApiCeoRoute
   '/b/$slug': typeof BSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/c/$slug': typeof CSlugRoute
   '/company/$slug': typeof CompanySlugRoute
   '/embed/$postId': typeof EmbedPostIdRoute
   '/for/$funnel': typeof ForFunnelRoute
@@ -1225,6 +1269,7 @@ export interface FileRoutesById {
   '/oauth/mailbox/return': typeof OauthMailboxReturnRoute
   '/oauth/social/return': typeof OauthSocialReturnRoute
   '/r/review/$token': typeof RReviewTokenRoute
+  '/api/creator/art/$slug': typeof ApiCreatorArtSlugRoute
   '/api/genesis/art/$tokenId': typeof ApiGenesisArtTokenIdRoute
   '/api/genesis/meta/$tokenId': typeof ApiGenesisMetaTokenIdRoute
   '/api/oauth/social/callback': typeof ApiOauthSocialCallbackRoute
@@ -1241,6 +1286,7 @@ export interface FileRoutesById {
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
   '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
   '/api/public/x402/': typeof ApiPublicX402IndexRoute
+  '/api/creator/meta/$slug/$tokenId': typeof ApiCreatorMetaSlugTokenIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1251,6 +1297,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/changelog'
     | '/compare'
     | '/cookies'
     | '/desk'
@@ -1296,6 +1343,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/connect'
     | '/console'
+    | '/creator'
     | '/customers'
     | '/earn'
     | '/files'
@@ -1323,6 +1371,7 @@ export interface FileRouteTypes {
     | '/api/ceo'
     | '/b/$slug'
     | '/blog/$slug'
+    | '/c/$slug'
     | '/company/$slug'
     | '/embed/$postId'
     | '/for/$funnel'
@@ -1363,6 +1412,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/creator/art/$slug'
     | '/api/genesis/art/$tokenId'
     | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
@@ -1379,6 +1429,7 @@ export interface FileRouteTypes {
     | '/api/public/x402/website-copy'
     | '/api/relic/meta/$tokenId'
     | '/api/public/x402/'
+    | '/api/creator/meta/$slug/$tokenId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1386,6 +1437,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/changelog'
     | '/compare'
     | '/cookies'
     | '/desk'
@@ -1431,6 +1483,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/connect'
     | '/console'
+    | '/creator'
     | '/customers'
     | '/earn'
     | '/files'
@@ -1458,6 +1511,7 @@ export interface FileRouteTypes {
     | '/api/ceo'
     | '/b/$slug'
     | '/blog/$slug'
+    | '/c/$slug'
     | '/company/$slug'
     | '/embed/$postId'
     | '/for/$funnel'
@@ -1498,6 +1552,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/creator/art/$slug'
     | '/api/genesis/art/$tokenId'
     | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
@@ -1514,6 +1569,7 @@ export interface FileRouteTypes {
     | '/api/public/x402/website-copy'
     | '/api/relic/meta/$tokenId'
     | '/api/public/x402'
+    | '/api/creator/meta/$slug/$tokenId'
   id:
     | '__root__'
     | '/'
@@ -1523,6 +1579,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/changelog'
     | '/compare'
     | '/cookies'
     | '/desk'
@@ -1568,6 +1625,7 @@ export interface FileRouteTypes {
     | '/_authenticated/community'
     | '/_authenticated/connect'
     | '/_authenticated/console'
+    | '/_authenticated/creator'
     | '/_authenticated/customers'
     | '/_authenticated/earn'
     | '/_authenticated/files'
@@ -1595,6 +1653,7 @@ export interface FileRouteTypes {
     | '/api/ceo'
     | '/b/$slug'
     | '/blog/$slug'
+    | '/c/$slug'
     | '/company/$slug'
     | '/embed/$postId'
     | '/for/$funnel'
@@ -1635,6 +1694,7 @@ export interface FileRouteTypes {
     | '/oauth/mailbox/return'
     | '/oauth/social/return'
     | '/r/review/$token'
+    | '/api/creator/art/$slug'
     | '/api/genesis/art/$tokenId'
     | '/api/genesis/meta/$tokenId'
     | '/api/oauth/social/callback'
@@ -1651,6 +1711,7 @@ export interface FileRouteTypes {
     | '/api/public/x402/website-copy'
     | '/api/relic/meta/$tokenId'
     | '/api/public/x402/'
+    | '/api/creator/meta/$slug/$tokenId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1661,6 +1722,7 @@ export interface RootRouteChildren {
   AccessRoute: typeof AccessRoute
   AuthRoute: typeof AuthRoute
   BrandRoute: typeof BrandRoute
+  ChangelogRoute: typeof ChangelogRoute
   CompareRoute: typeof CompareRoute
   CookiesRoute: typeof CookiesRoute
   DeskRoute: typeof DeskRoute
@@ -1694,6 +1756,7 @@ export interface RootRouteChildren {
   ApiCeoRoute: typeof ApiCeoRoute
   BSlugRoute: typeof BSlugRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  CSlugRoute: typeof CSlugRoute
   CompanySlugRoute: typeof CompanySlugRoute
   EmbedPostIdRoute: typeof EmbedPostIdRoute
   ForFunnelRoute: typeof ForFunnelRoute
@@ -1725,6 +1788,7 @@ export interface RootRouteChildren {
   OauthMailboxReturnRoute: typeof OauthMailboxReturnRoute
   OauthSocialReturnRoute: typeof OauthSocialReturnRoute
   RReviewTokenRoute: typeof RReviewTokenRoute
+  ApiCreatorArtSlugRoute: typeof ApiCreatorArtSlugRoute
   ApiGenesisArtTokenIdRoute: typeof ApiGenesisArtTokenIdRoute
   ApiGenesisMetaTokenIdRoute: typeof ApiGenesisMetaTokenIdRoute
   ApiOauthSocialCallbackRoute: typeof ApiOauthSocialCallbackRoute
@@ -1741,6 +1805,7 @@ export interface RootRouteChildren {
   ApiPublicX402WebsiteCopyRoute: typeof ApiPublicX402WebsiteCopyRoute
   ApiRelicMetaTokenIdRoute: typeof ApiRelicMetaTokenIdRoute
   ApiPublicX402IndexRoute: typeof ApiPublicX402IndexRoute
+  ApiCreatorMetaSlugTokenIdRoute: typeof ApiCreatorMetaSlugTokenIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1785,6 +1850,13 @@ declare module '@tanstack/react-router' {
       path: '/brand'
       fullPath: '/brand'
       preLoaderRoute: typeof BrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare': {
@@ -2109,6 +2181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConsoleRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/creator': {
+      id: '/_authenticated/creator'
+      path: '/creator'
+      fullPath: '/creator'
+      preLoaderRoute: typeof AuthenticatedCreatorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/customers': {
       id: '/_authenticated/customers'
       path: '/customers'
@@ -2303,6 +2382,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$slug': {
+      id: '/c/$slug'
+      path: '/c/$slug'
+      fullPath: '/c/$slug'
+      preLoaderRoute: typeof CSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/company/$slug': {
@@ -2578,6 +2664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RReviewTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/creator/art/$slug': {
+      id: '/api/creator/art/$slug'
+      path: '/api/creator/art/$slug'
+      fullPath: '/api/creator/art/$slug'
+      preLoaderRoute: typeof ApiCreatorArtSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/genesis/art/$tokenId': {
       id: '/api/genesis/art/$tokenId'
       path: '/api/genesis/art/$tokenId'
@@ -2690,6 +2783,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRelicMetaTokenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/creator/meta/$slug/$tokenId': {
+      id: '/api/creator/meta/$slug/$tokenId'
+      path: '/api/creator/meta/$slug/$tokenId'
+      fullPath: '/api/creator/meta/$slug/$tokenId'
+      preLoaderRoute: typeof ApiCreatorMetaSlugTokenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2722,6 +2822,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCommunityRoute: typeof AuthenticatedCommunityRoute
   AuthenticatedConnectRoute: typeof AuthenticatedConnectRoute
   AuthenticatedConsoleRoute: typeof AuthenticatedConsoleRoute
+  AuthenticatedCreatorRoute: typeof AuthenticatedCreatorRoute
   AuthenticatedCustomersRoute: typeof AuthenticatedCustomersRoute
   AuthenticatedEarnRoute: typeof AuthenticatedEarnRoute
   AuthenticatedFilesRoute: typeof AuthenticatedFilesRoute
@@ -2764,6 +2865,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCommunityRoute: AuthenticatedCommunityRoute,
   AuthenticatedConnectRoute: AuthenticatedConnectRoute,
   AuthenticatedConsoleRoute: AuthenticatedConsoleRoute,
+  AuthenticatedCreatorRoute: AuthenticatedCreatorRoute,
   AuthenticatedCustomersRoute: AuthenticatedCustomersRoute,
   AuthenticatedEarnRoute: AuthenticatedEarnRoute,
   AuthenticatedFilesRoute: AuthenticatedFilesRoute,
@@ -2827,6 +2929,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessRoute: AccessRoute,
   AuthRoute: AuthRoute,
   BrandRoute: BrandRoute,
+  ChangelogRoute: ChangelogRoute,
   CompareRoute: CompareRoute,
   CookiesRoute: CookiesRoute,
   DeskRoute: DeskRoute,
@@ -2860,6 +2963,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCeoRoute: ApiCeoRoute,
   BSlugRoute: BSlugRoute,
   BlogSlugRoute: BlogSlugRoute,
+  CSlugRoute: CSlugRoute,
   CompanySlugRoute: CompanySlugRoute,
   EmbedPostIdRoute: EmbedPostIdRoute,
   ForFunnelRoute: ForFunnelRoute,
@@ -2891,6 +2995,7 @@ const rootRouteChildren: RootRouteChildren = {
   OauthMailboxReturnRoute: OauthMailboxReturnRoute,
   OauthSocialReturnRoute: OauthSocialReturnRoute,
   RReviewTokenRoute: RReviewTokenRoute,
+  ApiCreatorArtSlugRoute: ApiCreatorArtSlugRoute,
   ApiGenesisArtTokenIdRoute: ApiGenesisArtTokenIdRoute,
   ApiGenesisMetaTokenIdRoute: ApiGenesisMetaTokenIdRoute,
   ApiOauthSocialCallbackRoute: ApiOauthSocialCallbackRoute,
@@ -2907,6 +3012,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicX402WebsiteCopyRoute: ApiPublicX402WebsiteCopyRoute,
   ApiRelicMetaTokenIdRoute: ApiRelicMetaTokenIdRoute,
   ApiPublicX402IndexRoute: ApiPublicX402IndexRoute,
+  ApiCreatorMetaSlugTokenIdRoute: ApiCreatorMetaSlugTokenIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

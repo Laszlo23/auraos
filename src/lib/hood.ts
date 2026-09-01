@@ -48,9 +48,9 @@ export const HOOD_COPY = {
   lead: `A 1,000-piece founding circle. Each Hood is a unique portrait — court, legends, agents, colored noggles, mood, and seal. Of each ${FOUNDING_SEAT_DISPLAY} mint: 70% (${PRICE_REMAINDER_DISPLAY}) to launch liquidity, 30% (${PRICE_OPS_DISPLAY}) to developer ops — servers, infra, keeping the desk on.`,
   leadDe: `Ein Kreis aus 1.000 Stücken. Jeder Hood ist ein eigenes Portrait — Hof, Legenden, Agents, Noggles, Mood und Siegel. Von jedem ${FOUNDING_SEAT_DISPLAY_DE}-Mint: 70% (${PRICE_REMAINDER_DISPLAY_DE}) in die Launch-Liquidität, 30% (${PRICE_OPS_DISPLAY_DE}) an Developer-Ops — Server, Infra, Desk am Leben.`,
   robinhood:
-    "The Hood is coming to Robinhood Chain too. Until a Hood contract is published there, mint stays on Base. Official CA only on aibusiness.fun — never in a DM.",
+    "Creator collections mint on Robinhood Chain. The Hood founding NFT stays on Base — your membership key. Official CA only on aibusiness.fun — never in a DM.",
   robinhoodDe:
-    "The Hood kommt auch auf Robinhood Chain. Bis dort ein Hood-Contract veröffentlicht ist, bleibt der Mint auf Base. Offizielle CA nur auf aibusiness.fun — nie per DM.",
+    "Creator-Collections minten auf Robinhood Chain. Der Hood-Founding-NFT bleibt auf Base — dein Membership-Key. Offizielle CA nur auf aibusiness.fun — nie per DM.",
 } as const;
 
 export const HOOD_COURT = [

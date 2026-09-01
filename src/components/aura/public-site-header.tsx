@@ -1,9 +1,24 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, Menu, X } from "lucide-react";
+import {
+  ChevronDown,
+  Coins,
+  Crown,
+  Hammer,
+  Landmark,
+  Menu,
+  ShieldCheck,
+  Sparkles,
+  Store,
+  Tag,
+  X,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { PulseOrbit } from "@/components/aura/pulse-orbit";
+import { SocialBrandIcon } from "@/components/aura/social-brand-icons";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +27,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useLocale } from "@/hooks/use-locale";
+import { SOCIAL_LINKS } from "@/lib/site";
+import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
 export type PublicNavItem = {
@@ -60,6 +77,109 @@ const HIDE_FROM_MQ = {
   lg: "(min-width: 1024px)",
 } as const;
 
+const NAV_ICONS: Record<string, LucideIcon> = {
+  "/how-it-works": Sparkles,
+  "/pricing": Tag,
+  "/for/builders": Hammer,
+  "/hood": Crown,
+  "/try": Zap,
+  "/lokal": Store,
+  "/proof": ShieldCheck,
+  "/tokenomics": Coins,
+  "/wien": Landmark,
+};
+
+function NavHairline({ className }: { className?: string }) {
+  return (
+    <div className={cn("relative mx-4 h-px shrink-0", className)} aria-hidden>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-border/70 to-transparent" />
+      <div className="absolute inset-x-[18%] inset-y-0 bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+    </div>
+  );
+}
+
+function NavSectionRule() {
+  return (
+    <div className="my-1.5 flex items-center gap-3 px-4" aria-hidden>
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/35 to-transparent" />
+      <span className="text-[8px] text-gold/50">◆</span>
+      <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gold/35 to-transparent" />
+    </div>
+  );
+}
+
+function MobileNavRow({
+  item,
+  active,
+  onClick,
+}: {
+  item: PublicNavItem;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const Icon = NAV_ICONS[item.to] ?? Sparkles;
+  const gold = item.accent === "gold";
+
+  return (
+    <Link
+      to={item.to}
+      {...(item.hash ? { hash: item.hash } : {})}
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium tracking-tight transition-colors",
+        active
+          ? "bg-primary/12 text-foreground"
+          : gold
+            ? "text-gold hover:bg-gold/10"
+            : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
+      )}
+    >
+      <span
+        className={cn(
+          "grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition-colors",
+          active
+            ? "border-primary/30 bg-primary/10 text-primary"
+            : gold
+              ? "border-gold/25 bg-gold/10 text-gold"
+              : "border-border/40 bg-foreground/[0.04] text-muted-foreground",
+        )}
+      >
+        <Icon className="h-4 w-4" strokeWidth={1.85} />
+      </span>
+      <span className="font-semibold">{item.label}</span>
+    </Link>
+  );
+}
+
+function MobileSocialBar({ onNavigate }: { onNavigate?: () => void }) {
+  const { t } = useLocale();
+
+  return (
+    <div className="shrink-0 border-t border-border/40 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+      <p className="label-luxury mb-3 text-[10px] text-muted-foreground">{t("footer.community")}</p>
+      <div className="flex items-center gap-2">
+        {SOCIAL_LINKS.map((s) => (
+          <a
+            key={s.id}
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={s.hint}
+            onClick={() => {
+              trackTeaser("social_join", { placement: `${s.id}:mobile-nav`.slice(0, 40) });
+              onNavigate?.();
+            }}
+            className="grid h-10 w-10 place-items-center rounded-xl border border-border/45 bg-foreground/[0.04] text-muted-foreground transition-colors hover:border-primary/35 hover:bg-primary/10 hover:text-primary"
+          >
+            <SocialBrandIcon id={s.id} />
+            <span className="sr-only">{s.label}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function NavLink({
   item,
   active,
@@ -76,7 +196,7 @@ function NavLink({
       to={item.to}
       {...(item.hash ? { hash: item.hash } : {})}
       onClick={onClick}
-        className={cn(
+      className={cn(
         "rounded-xl px-3 py-2 text-sm font-medium transition-colors",
         item.accent === "gold"
           ? active
@@ -222,51 +342,52 @@ export function PublicMobileMenu({
         </div>
         <nav
           aria-label={t("common.menu")}
-          className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden pt-1"
         >
-          <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            {t("landing.navSectionMain")}
-          </p>
-          {primary.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              onClick={() => setOpen(false)}
-              className={cn(
-                "rounded-2xl px-4 py-3 text-[15px] font-semibold tracking-tight transition-colors",
-                pathname === item.to
-                  ? "bg-primary/12 text-foreground"
-                  : item.accent === "gold"
-                    ? "text-gold hover:bg-gold/10"
-                    : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-          {secondary.length > 0 ? (
-            <>
-              <p className="mt-4 px-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                {t("landing.navSectionExplore")}
-              </p>
-              {secondary.map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "rounded-2xl px-4 py-3 text-[15px] font-medium tracking-tight transition-colors",
-                    pathname === item.to
-                      ? "bg-primary/12 text-foreground"
-                      : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
-                  )}
-                >
-                  {item.label}
-                </Link>
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-3">
+            <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              {t("landing.navSectionMain")}
+            </p>
+            <div className="flex flex-col">
+              {primary.map((item, i) => (
+                <div key={item.to}>
+                  <MobileNavRow
+                    item={item}
+                    active={pathname === item.to}
+                    onClick={() => setOpen(false)}
+                  />
+                  {i < primary.length - 1 ? <NavHairline /> : null}
+                </div>
               ))}
-            </>
-          ) : null}
-          {children ? <div className="mt-6 flex flex-col gap-3 px-1">{children}</div> : null}
+            </div>
+            {secondary.length > 0 ? (
+              <>
+                <NavSectionRule />
+                <p className="px-2 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  {t("landing.navSectionExplore")}
+                </p>
+                <div className="flex flex-col">
+                  {secondary.map((item, i) => (
+                    <div key={item.to}>
+                      <MobileNavRow
+                        item={item}
+                        active={pathname === item.to}
+                        onClick={() => setOpen(false)}
+                      />
+                      {i < secondary.length - 1 ? <NavHairline /> : null}
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : null}
+            {children ? (
+              <>
+                <NavSectionRule />
+                <div className="flex flex-col gap-2 px-1 pt-1">{children}</div>
+              </>
+            ) : null}
+          </div>
+          <MobileSocialBar onNavigate={() => setOpen(false)} />
         </nav>
       </DialogContent>
     </Dialog>
@@ -313,7 +434,10 @@ export function PublicSiteHeader({
     >
       <div className="austria-bar" aria-hidden />
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-5 py-2.5 sm:gap-3 sm:px-6 sm:py-3">
-        <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90">
+        <Link
+          to="/"
+          className="flex min-w-0 shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90"
+        >
           <PulseOrbit size="sm" />
           <span className="hidden font-display text-sm font-semibold tracking-tight text-foreground/95 sm:inline">
             Aura OS
@@ -372,7 +496,7 @@ export function PublicSiteHeader({
                   <button
                     type="button"
                     onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
-                    className="rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold"
+                    className="rounded-xl border border-border/50 px-3 py-2 text-sm font-semibold"
                   >
                     {t("landing.signIn")}
                   </button>
@@ -381,7 +505,7 @@ export function PublicSiteHeader({
                   <a
                     href={ctaLink.href}
                     onClick={onCtaClick}
-                    className="cta-liquid rounded-2xl bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                    className="cta-liquid rounded-xl bg-primary px-3 py-2.5 text-center text-sm font-semibold text-primary-foreground"
                   >
                     {ctaLink.label}
                   </a>
@@ -390,7 +514,7 @@ export function PublicSiteHeader({
                     to={ctaLink.to!}
                     {...(ctaLink.search ? { search: ctaLink.search } : {})}
                     onClick={onCtaClick}
-                    className="cta-liquid rounded-2xl bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                    className="cta-liquid rounded-xl bg-primary px-3 py-2.5 text-center text-sm font-semibold text-primary-foreground"
                   >
                     {ctaLink.label}
                   </Link>

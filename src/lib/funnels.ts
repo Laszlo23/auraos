@@ -3,7 +3,7 @@ import type { LandingTemplateId } from "@/lib/sites/templates";
 import type { FunnelPlanId } from "@/lib/funnel-plans";
 import { BIB_PLANS, OUTCOME_PLANS } from "@/lib/funnel-plans";
 
-export type FunnelId = "os" | "agencies" | "sales" | "start" | "realty" | "local";
+export type FunnelId = "os" | "agencies" | "sales" | "start" | "realty" | "local" | "builders";
 
 export type FunnelBillingKind = "aura_tokens" | "outcome_sub" | "bib";
 
@@ -12,7 +12,7 @@ export type FunnelBootstrap = {
   /** Skip trading/commerce/studio picker when set. */
   skipProductPicker: boolean;
   /** Maps to bootstrapOnboardingProduct when product picker is used; funnel bootstrap overrides. */
-  defaultProduct?: "trading" | "commerce" | "studio";
+  defaultProduct?: "trading" | "commerce" | "studio" | "creator";
   missionGoal: string | null;
   akquiseTemplate: AkquiseTemplateId | null;
   siteTemplate: LandingTemplateId | null;
@@ -88,6 +88,18 @@ const LOCAL_NAV = [
   "/ceo",
   "/tasks",
   "/report",
+  "/settings",
+];
+
+const BUILDERS_NAV = [
+  "/console",
+  "/creator",
+  "/missions",
+  "/agents",
+  "/channels",
+  "/identity",
+  "/marketplace",
+  "/billing",
   "/settings",
 ];
 
@@ -247,9 +259,42 @@ export const FUNNELS: Record<FunnelId, FunnelDef> = {
       markLocalBusiness: true,
     },
   },
+  builders: {
+    id: "builders",
+    slug: "builders",
+    audience: "Web3 builders & NFT artists",
+    headline: "Launch your collection. Run your drop on Robinhood Chain.",
+    subhead:
+      "Create an ERC-721 collection, mint page, and primary sales desk in USDG or ETH — AI agents handle drop marketing while you keep creative control.",
+    cta: "Start creating",
+    billingKind: "aura_tokens",
+    planIds: [],
+    navCore: BUILDERS_NAV,
+    mobileTabs: ["/console", "/creator", "/missions", "/channels"],
+    bootstrap: {
+      agents: ["Atlas", "Vela", "Orin", "Iris"],
+      skipProductPicker: true,
+      defaultProduct: "creator",
+      missionGoal: "Launch my first NFT collection on Robinhood Chain and promote the mint page.",
+      akquiseTemplate: null,
+      siteTemplate: null,
+      strategy:
+        "Creator hub: deploy collection on Robinhood Chain, branded mint storefront, Content Studio for drop threads.",
+      productName: "NFT Collection",
+      productDescription: "Your Robinhood Chain collection with primary mint desk.",
+      productPrice: 0,
+    },
+  },
 };
 
-export const PUBLIC_FUNNEL_SLUGS = ["agencies", "sales", "start", "realty", "local"] as const;
+export const PUBLIC_FUNNEL_SLUGS = [
+  "agencies",
+  "sales",
+  "start",
+  "realty",
+  "local",
+  "builders",
+] as const;
 
 export type PublicFunnelSlug = (typeof PUBLIC_FUNNEL_SLUGS)[number];
 
@@ -260,12 +305,20 @@ export function isFunnelId(v: unknown): v is FunnelId {
     v === "sales" ||
     v === "start" ||
     v === "realty" ||
-    v === "local"
+    v === "local" ||
+    v === "builders"
   );
 }
 
 export function isPublicFunnelSlug(v: unknown): v is PublicFunnelSlug {
-  return v === "agencies" || v === "sales" || v === "start" || v === "realty" || v === "local";
+  return (
+    v === "agencies" ||
+    v === "sales" ||
+    v === "start" ||
+    v === "realty" ||
+    v === "local" ||
+    v === "builders"
+  );
 }
 
 export function funnelById(id: FunnelId): FunnelDef {

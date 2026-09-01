@@ -37,7 +37,21 @@ Create an Alchemy app + Gas Manager policy on **Robinhood Chain** (`robinhood-ma
 - Stable is **USDG** (`0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`), not Circle USDC.
 - WETH: `0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73`.
 - Genesis NFT mint remains Base until a Robinhood contract ships.
+- **Creator NFT collections** deploy and mint on Robinhood Chain only (`creatorNetwork()`).
 - Account Kit: viem `robinhood` chain + Alchemy RPC URLs (not a stock `@account-kit/infra` export yet).
+
+## Creator NFT env
+
+```bash
+CREATOR_NETWORK=robinhood
+CREATOR_FACTORY_RH=0x...
+CREATOR_FACTORY_RH_TESTNET=0x...
+CREATOR_OPS_WALLET_RH=0x...
+CREATOR_PLATFORM_FEE_BPS=1000
+CREATOR_STABLE_RH=0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168
+```
+
+Deploy factory: `npm run contracts:deploy:creator`
 
 ## Account Kit upgrade watch
 

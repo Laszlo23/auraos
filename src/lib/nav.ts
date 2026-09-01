@@ -270,8 +270,17 @@ export const NAV: NavItem[] = [
   },
 
   {
+    to: "/creator",
+    label: "Creator",
+    hint: "Launch NFT collections on Robinhood Chain",
+    icon: Layers,
+    group: "System",
+    live: true,
+  },
+  {
     to: "/marketplace",
-    label: "Marketplace",
+    label: "Agent Store",
+    plain: "Agent Store",
     hint: "Hire agents, publish & earn royalties",
     icon: Store,
     group: "System",

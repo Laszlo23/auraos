@@ -84,7 +84,7 @@ function TokenomicsPage() {
           <PublicMobileMenu
             className="ml-auto md:ml-0"
             hideFrom="md"
-            items={[
+            primary={[
               { to: "/wien", label: "Wien" },
               { to: "/lightpaper", label: "Lightpaper" },
               { to: "/roadmap", label: "Roadmap" },

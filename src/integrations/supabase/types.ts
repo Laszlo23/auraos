@@ -3387,19 +3387,28 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          founder_goal: string | null
           full_name: string | null
+          growth_quests: string[]
+          growth_xp: number
           id: string
         }
         Insert: {
           created_at?: string
           email?: string | null
+          founder_goal?: string | null
           full_name?: string | null
+          growth_quests?: string[]
+          growth_xp?: number
           id: string
         }
         Update: {
           created_at?: string
           email?: string | null
+          founder_goal?: string | null
           full_name?: string | null
+          growth_quests?: string[]
+          growth_xp?: number
           id?: string
         }
         Relationships: []
@@ -5891,6 +5900,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      award_signup_growth: {
+        Args: { _amount: number; _quest: string }
+        Returns: Json
+      }
       ensure_referral_code: {
         Args: never
         Returns: {
@@ -5996,6 +6009,7 @@ export type Database = {
       redeem_invite_code: { Args: { _code: string }; Returns: boolean }
       redeem_local_seat_code: { Args: { _code: string }; Returns: Json }
       referral_code_valid: { Args: { _code: string }; Returns: boolean }
+      save_founder_goal: { Args: { _goal: string }; Returns: Json }
       settle_wheel_spin: {
         Args: {
           _chain_network: string

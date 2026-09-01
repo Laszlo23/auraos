@@ -20,7 +20,7 @@ import { TOKEN_SYMBOL } from "@/lib/plans";
 export const Route = createFileRoute("/_authenticated/marketplace")({
   head: () => ({
     meta: [
-      { title: "Marketplace — Aura OS" },
+      { title: "Marketplace — Agent Store — Aura OS" },
       {
         name: "description",
         content: "Hire AI employees, publish your own agents for royalties, or use the catalog.",

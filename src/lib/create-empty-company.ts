@@ -72,9 +72,14 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
     .from("companies")
     .insert({
       owner_id: ownerId,
-      name: funnel === "local" ? lokalDefaultName : "Untitled company",
+      name:
+        funnel === "local"
+          ? lokalDefaultName
+          : funnel === "builders"
+            ? "My collection"
+            : "Untitled company",
       tagline: null,
-      emoji: "◎",
+      emoji: funnel === "builders" ? "◈" : "◎",
       credits: 0,
       runway_days: 0,
       mrr: 0,
@@ -82,6 +87,7 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
       autonomy: 0,
       entry_funnel: funnel,
       ui_locale: uiLocale,
+      desk_network: funnel === "builders" ? "robinhood" : undefined,
       ...(funnel === "local" ? { is_local_business: true, network_backlink: true } : {}),
       trading_paper: true,
       trading_armed: false,

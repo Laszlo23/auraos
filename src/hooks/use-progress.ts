@@ -30,11 +30,12 @@ export function levelFromXp(xp: number) {
   return { level, into: remaining, needed: xpForLevel(level) };
 }
 
-export function useProgress() {
+export function useProgress(options?: { enabled?: boolean }) {
   const { data: company } = useCompany();
+  const enabled = options?.enabled !== false && Boolean(company?.id);
   return useQuery({
     queryKey: ["progress", company?.id],
-    enabled: Boolean(company?.id),
+    enabled,
     staleTime: 15_000,
     queryFn: async (): Promise<Progress> => {
       const { data, error } = await supabase
@@ -66,19 +67,20 @@ export function useProgress() {
   });
 }
 
-export function useAwardXp() {
+export function useAwardXp(options?: { enabled?: boolean }) {
   const qc = useQueryClient();
   const { data: company } = useCompany();
-  const { data: progress } = useProgress();
+  const enabled = options?.enabled !== false && Boolean(company?.id);
+  const { data: progress } = useProgress({ enabled });
   const perksQ = useQuery({
     queryKey: ["holder-perks"],
     queryFn: () => getHolderPerks(),
     staleTime: 30_000,
-    enabled: Boolean(company?.id),
+    enabled,
   });
   return useMutation({
     mutationFn: async ({ amount, quest }: { amount: number; quest?: string | undefined }) => {
-      if (!company || !progress) return null;
+      if (!enabled || !company || !progress) return null;
       const quests = new Set(progress.completed_quests ?? []);
       if (quest) {
         if (quests.has(quest)) return null;

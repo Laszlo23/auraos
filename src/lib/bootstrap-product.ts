@@ -7,7 +7,7 @@ import { createRevenueMission } from "@/lib/revenue-mission.functions";
 import { publishLocalListing } from "@/lib/company-slug";
 import { defaultContentFor, slugifyBrand } from "@/lib/sites/templates";
 
-export type OnboardingProductId = "trading" | "commerce" | "studio";
+export type OnboardingProductId = "trading" | "commerce" | "studio" | "creator";
 
 const PRODUCT_META: Record<
   OnboardingProductId,
@@ -36,6 +36,14 @@ const PRODUCT_META: Record<
     emoji: "❖",
     price: 29,
   },
+  creator: {
+    name: "NFT Creator Studio",
+    description:
+      "Deploy ERC-721 on Robinhood Chain, primary mint desk, and branded /c/slug storefront.",
+    strategy: "Primary product: Creator collections on Robinhood Chain with drop marketing agents.",
+    emoji: "◈",
+    price: 0,
+  },
 };
 
 /**
@@ -48,7 +56,7 @@ export async function bootstrapOnboardingProduct(
   companyName: string,
 ) {
   const id = (
-    ["trading", "commerce", "studio"].includes(productId) ? productId : "commerce"
+    ["trading", "commerce", "studio", "creator"].includes(productId) ? productId : "commerce"
   ) as OnboardingProductId;
   const meta = PRODUCT_META[id];
 

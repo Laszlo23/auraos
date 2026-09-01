@@ -20,6 +20,9 @@ import {
   Users,
   Workflow,
   X,
+  Gem,
+  Hexagon,
+  Sparkles,
 } from "lucide-react";
 
 import { mediaPath } from "@/lib/site";
@@ -895,6 +898,82 @@ export function storyForFunnel(id: FunnelId): FunnelStory {
         ],
         closeTitle: "Open your local hub.",
         closeBody: "Join Review Boost. Start asking for the stars you already earned.",
+      };
+    case "builders":
+      return {
+        image: AGENTS_IMAGE,
+        imageAlt: "Digital art and NFT collection launch on Robinhood Chain",
+        accentLabel: "Creators",
+        wash: "linear-gradient(108deg, oklch(0.13 0.04 280 / 0.95) 0%, oklch(0.15 0.05 260 / 0.82) 45%, oklch(0.2 0.06 85 / 0.38) 100%), linear-gradient(0deg, oklch(0.1 0.02 280 / 0.85) 0%, transparent 44%)",
+        hook: "Your drop. Your brand. Robinhood Chain.",
+        scrollCue: "See the mint flow",
+        painTitle: "Launching a collection shouldn’t mean wiring five tools.",
+        painBody:
+          "Aura gives you the contract deploy, branded mint page, USDG checkout, and agent marketing — one studio.",
+        painItems: [
+          { bad: "DIY contracts & metadata hosts", good: "Factory deploy + on-chain metadata API" },
+          { bad: "Generic mint widgets", good: "Branded /c/your-slug storefront" },
+        ],
+        wiifmTitle: "What's in it for you",
+        wiifmSub: "Ship the drop — agents handle the noise.",
+        wiifm: [
+          {
+            icon: Gem,
+            title: "Own the art",
+            payoff: "ERC-721 + EIP-2981 royalties on Robinhood Chain.",
+          },
+          {
+            icon: Hexagon,
+            title: "Mint desk",
+            payoff: "Primary sales in USDG or ETH — 90% to you, 10% platform.",
+          },
+          {
+            icon: Sparkles,
+            title: "Promote",
+            payoff: "Content Studio drafts drop threads while you create.",
+          },
+        ],
+        beats: [
+          {
+            no: "01",
+            kicker: "Design",
+            line: "Name your collection.",
+            body: "Slug, supply, price, payout wallet — save a draft in minutes.",
+            icon: Gem,
+            tone: "primary",
+          },
+          {
+            no: "02",
+            kicker: "Deploy",
+            line: "One click on Robinhood.",
+            body: "Factory mints your ERC-721 + primary desk in a single transaction.",
+            icon: Hexagon,
+            tone: "muted",
+          },
+          {
+            no: "03",
+            kicker: "Drop",
+            line: "Share /c/your-slug.",
+            body: "Collectors connect wallet, approve USDG, mint — you get paid.",
+            icon: Sparkles,
+            tone: "gold",
+          },
+        ],
+        conceptsTitle: "Creator stack",
+        concepts: [
+          { icon: Gem, title: "Collect", hint: "721 + royalties on RH." },
+          { icon: Hexagon, title: "Mint", hint: "USDG or ETH primary desk." },
+          { icon: Sparkles, title: "Grow", hint: "Agents promote your drop." },
+        ],
+        trustTitle: "Built for creators",
+        trustItems: [
+          "Robinhood Chain — not Base",
+          "You set price & payout wallet",
+          "Branded mint page per collection",
+          "Free tier: 1 collection, 100 supply",
+        ],
+        closeTitle: "Launch your first drop.",
+        closeBody: "Create a collection, deploy on Robinhood Chain, share your mint link tonight.",
       };
     case "os":
       return {

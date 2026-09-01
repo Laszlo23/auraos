@@ -85,6 +85,7 @@ export const PRODUCT_AGENT_MAP: Record<string, string[]> = {
   trading: ["Quant", "Yield", "Ledger"],
   commerce: ["Iris", "Vela", "Juno", "Ledger"],
   studio: ["Vela", "Orin", "Iris"],
+  creator: ["Vela", "Orin", "Iris", "Atlas"],
 };
 
 type Db = { from: (t: string) => any };

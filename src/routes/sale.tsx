@@ -15,7 +15,11 @@ import {
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { PauraRedeemPanel } from "@/components/aura/paura-redeem";
-import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mobile-menu";
+import {
+  PublicMobileMenu,
+  publicNavMore,
+  publicNavPrimary,
+} from "@/components/aura/public-mobile-menu";
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { useLocale } from "@/hooks/use-locale";
 import { auraLaunchTreasuryAddress } from "@/lib/aura-token";
@@ -121,7 +125,7 @@ function SalePage() {
           >
             {t("sale.tokenomics")}
           </Link>
-          <PublicMobileMenu items={publicPrimaryNav(t)} hideFrom="sm" />
+          <PublicMobileMenu primary={publicNavPrimary(t)} more={publicNavMore(t)} hideFrom="sm" />
         </div>
       </header>
 

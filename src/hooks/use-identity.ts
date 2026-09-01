@@ -239,6 +239,15 @@ export function useBindWallet() {
       address: string;
       chain?: string;
     }) => {
+      const { data: ownedHandle, error: handleError } = await supabase
+        .from("handles")
+        .select("id")
+        .eq("id", values.handleId)
+        .eq("user_id", userId!)
+        .maybeSingle();
+      if (handleError) throw handleError;
+      if (!ownedHandle) throw new Error("You do not own this handle.");
+
       const { data, error } = await supabase
         .from("wallet_bindings")
         .upsert(

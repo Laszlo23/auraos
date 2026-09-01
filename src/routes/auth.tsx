@@ -11,6 +11,7 @@ import { trackAppEvent } from "@/lib/app-track";
 import { AuthWalletPanel } from "@/components/aura/auth-wallet";
 import { AuraLogo } from "@/components/aura/aura-logo";
 import { FoundingPayPanel } from "@/components/aura/founding-pay";
+import { GrowthStarterTrack } from "@/components/aura/growth-starter";
 import { Pulse } from "@/components/aura/primitives";
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { StreamText } from "@/components/aura/stream-text";
@@ -989,6 +990,7 @@ function AuthPage() {
               </form>
             ) : needsInviteToContinue ? (
               <div className="space-y-5">
+                <GrowthStarterTrack variant="signup" customers={0} />
                 {!walletBound ? (
                   <div>
                     <p className="mb-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">

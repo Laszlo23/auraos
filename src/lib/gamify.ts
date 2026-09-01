@@ -67,6 +67,31 @@ export const COMPANY_QUESTS: Quest[] = [
   },
 ];
 
+/** Three quick wins for new sign-ups with zero customers — instant XP after each tap. */
+export const GROWTH_STARTER_QUESTS: Quest[] = [
+  {
+    key: "growth:follow-x",
+    label: "Follow the build",
+    hint: "Follow @buildingcultu3 on X",
+    glyph: "⌁",
+    xp: 100,
+  },
+  {
+    key: "growth:join-discord",
+    label: "Join founders",
+    hint: "Enter the Discord — playbooks, launches, no spam",
+    glyph: "◈",
+    xp: 150,
+  },
+  {
+    key: "growth:first-mission",
+    label: "First move",
+    hint: "One sentence for what your company should do first",
+    glyph: "▲",
+    xp: 250,
+  },
+];
+
 /** Money-making loop — the trading desk is the first product that pays. */
 export const TRADING_QUESTS: Quest[] = [
   {

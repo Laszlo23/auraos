@@ -22,6 +22,7 @@ import { DailyEngagementStrip } from "@/components/aura/daily-engagement-strip";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
 import { FirstWin } from "@/components/aura/first-win";
+import { GrowthStarterTrack } from "@/components/aura/growth-starter";
 import { StartHere } from "@/components/aura/start-here";
 import { StreamText } from "@/components/aura/stream-text";
 import { QuestTrail } from "@/components/aura/quests";
@@ -250,6 +251,13 @@ function Home() {
 
         {showMilestone ? (
           <FocusCard eyebrow="Next" title="Get energy on the right win">
+            {customers <= 0 ? (
+              <GrowthStarterTrack
+                variant="company"
+                hasMission={missions.length > 0}
+                customers={customers}
+              />
+            ) : null}
             <ActivationChallenge
               revenue={lifetime}
               customers={customers}
@@ -406,6 +414,14 @@ function Home() {
           completedQuests={progress?.completed_quests ?? []}
           awaitingApproval={awaiting.length}
         />
+
+        {customers <= 0 ? (
+          <GrowthStarterTrack
+            variant="company"
+            hasMission={missions.length > 0}
+            customers={customers}
+          />
+        ) : null}
 
         <SiteGrowthStrip />
 

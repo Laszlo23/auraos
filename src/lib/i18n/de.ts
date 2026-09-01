@@ -516,6 +516,23 @@ export const de: MessageTree = {
     teaserTitle: "Teaser ansehen",
     teaserBody: "Hochkant, Ton aus, für den Feed gebaut.",
   },
+  growth: {
+    panelLabel: "Gründer-Start",
+    eyebrow: "Erste 3 Siege",
+    title: "Drei Taps. Drei Belohnungen.",
+    body: "Du bist früh dabei — erledige diese schnellen Wins und sieh XP sofort nach jedem Schritt.",
+    step: "Schritt",
+    nextUp: "Jetzt erledigen",
+    openX: "X öffnen",
+    openDiscord: "Discord öffnen",
+    confirmDone: "Erledigt — Belohnung",
+    createMission: "Erste Mission anlegen",
+    goalPlaceholder: "z. B. 10 qualifizierte Leads für mein Angebot",
+    saveGoal: "Speichern & XP holen",
+    rewardFollow: "Build gefolgt",
+    rewardDiscord: "Bei den Gründern",
+    rewardMission: "Erster Move gesetzt",
+  },
   greeter: {
     opening:
       "Ich bin Aura — die Intelligenz an der Tür. Frag mich alles über eine Firma, die komplett von KI geführt wird, oder ich zeig dir in dreißig Sekunden rum.",

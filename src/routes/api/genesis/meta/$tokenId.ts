@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/genesis/meta/$tokenId")({
               { trait_type: "Max Supply", value: max, display_type: "number" },
               { trait_type: "Price USDC", value: genesisPriceUsdc(), display_type: "number" },
               { trait_type: "Utility", value: "Desk perks · founding circle" },
-              { trait_type: "Chains", value: "Base now · Robinhood Chain next" },
+              { trait_type: "Chains", value: "Base (Hood) · Creator drops on Robinhood Chain" },
               { trait_type: "Issuer", value: SITE_NAME },
             ],
           },

@@ -292,6 +292,42 @@ export function gasSponsorshipEnabled(network: AuraNetwork = activeNetwork()): b
   return Boolean(gasPolicyId(network) && alchemyRpcUrl({ network }));
 }
 
+/** Creator NFT collections always deploy and mint on Robinhood Chain. */
+export type CreatorNetwork = "robinhood" | "robinhood-testnet";
+
+export function creatorNetwork(): CreatorNetwork {
+  const raw = process.env["CREATOR_NETWORK"] || "robinhood";
+  const resolved = resolveNetwork(raw);
+  if (resolved === "robinhood-testnet") return "robinhood-testnet";
+  return "robinhood";
+}
+
+export function creatorChainId(): number {
+  return chainId(creatorNetwork());
+}
+
+export function creatorStableAddress(): `0x${string}` {
+  return USDC_ADDRESSES[creatorNetwork()];
+}
+
+export function creatorStableDecimals(): number {
+  return USDC_DECIMALS[creatorNetwork()];
+}
+
+export function creatorStableSymbol(): string {
+  return stableSymbol(creatorNetwork());
+}
+
+export function creatorExplorerUrl(): string {
+  return explorerBaseUrl(creatorNetwork());
+}
+
+/** Default desk network for a signup funnel. */
+export function defaultDeskNetworkForFunnel(funnel: string): AuraNetwork {
+  if (funnel === "builders") return creatorNetwork();
+  return "base";
+}
+
 /**
  * Native gas buffer left on the smart wallet when spending "max" ETH.
  * Without Alchemy Gas Manager this used to be 0.001 ETH (~$3 on Base) and looked like a fee.
