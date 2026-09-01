@@ -113,7 +113,15 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     status: "next",
     kind: "build",
     title: "Fair launch — no VC, no insider dump",
-    body: "AURA on Base via Uniswap v2 — LP in AuraLpSink. Escrowed Hood USDC buys the official pair. Hood owners claim unlocked AURA at T-0. Same rules for everyone who shows up.",
+    body: "AURA on Base via Uniswap v2 — LP in AuraLpSink. Escrowed Hood USDC buys the official pair. Hood owners claim unlocked AURA at T-0. Treasury publishes a TSLA-anchored reference basket for Quant ops. Same rules for everyone who shows up.",
+  },
+  {
+    id: "robinhood-chain",
+    when: "Now → T-0",
+    status: "brewing",
+    kind: "build",
+    title: "Robinhood Chain — creator mints live",
+    body: "Creator collections and USDG desk on Robinhood Chain today. Multichain Quant (Base · BSC · Robinhood). Hood + AURA fair launch stay on Base until Robinhood contracts ship — then the same 1,000 circle extends rails, not dilution.",
   },
   {
     id: "ninety-days",

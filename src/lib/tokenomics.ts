@@ -118,7 +118,7 @@ export const WHITEPAPER_SECTIONS = [
   {
     id: "token",
     title: "7. Token & fair launch",
-    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Each Hood NFT claims 7,777 unlocked AURA at T-0 (+ escrow buy bonus); 70% of the $299 mint USDC is trapped on-chain and can only buy the official pair. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No AURA contract address until T-0.`,
+    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Each Hood NFT claims 7,777 unlocked AURA at T-0 (+ escrow buy bonus); 70% of the $299 mint USDC is trapped on-chain and can only buy the official pair. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. After T-0 the treasury publishes a reference basket — TSLA as primary anchor, plus Musk-orbit public equities — that Quant uses for market-ops transparency (not redemption, not wrapped stock). Robinhood Chain: creator mints and USDG desk live; Hood and T-0 remain on Base until Robinhood contracts publish. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No AURA contract address until T-0.`,
   },
   {
     id: "desks",
@@ -233,7 +233,7 @@ export const LIGHTPAPER = {
     },
     {
       h: "Fair launch",
-      p: `${TOKEN_LAUNCH_DISPLAY}. €6k initial market-ops plan (€3k buy + €3k across 30 capped agents). No contract address until T-0. Volume targets are not guarantees.`,
+      p: `${TOKEN_LAUNCH_DISPLAY}. €6k initial market-ops plan (€3k buy + €3k across 30 capped agents). Robinhood Chain for creator mints; T-0 on Base. Treasury publishes a TSLA-anchored reference basket after launch — not redemption, not wrapped stock.`,
     },
     {
       h: "Control",

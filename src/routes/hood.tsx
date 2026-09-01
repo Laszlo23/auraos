@@ -28,7 +28,7 @@ const FEATURED_COURT = [
   .slice(0, 6);
 
 const FEATURED_VALUE = HOOD_VALUE.filter((row) =>
-  ["hold-to-earn", "circle", "lp", "gift"].includes(row.id),
+  ["hold-to-earn", "circle", "lp", "gift", "robinhood"].includes(row.id),
 );
 
 export const Route = createFileRoute("/hood")({
@@ -81,6 +81,9 @@ function HoodPage() {
             {de
               ? "1.000 Sitze. 7.777 AURA ab T-0. Jeder Mint stärkt nur das offizielle Paar."
               : "1,000 seats. 7,777 AURA at T-0. Every mint strengthens only the official pair."}
+          </p>
+          <p className="mt-4 rounded-2xl border border-gold/25 bg-gold/5 px-4 py-3 text-[13px] leading-relaxed text-foreground/88">
+            {de ? HOOD_COPY.robinhoodDe : HOOD_COPY.robinhood}
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a

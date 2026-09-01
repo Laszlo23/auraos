@@ -24,6 +24,7 @@ describe("public roadmap", () => {
       "vienna-street",
       "hood-circle",
       "fair-launch",
+      "robinhood-chain",
       "ninety-days",
       "hundred-companies",
       "thousand-network",

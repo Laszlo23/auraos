@@ -7,6 +7,8 @@ Aura OS is operated by Ninty LLC. Aura OS is a separate product from any BCC tok
 ## Product
 
 - Home: https://aibusiness.fun/
+- Robinhood Chain + treasury reference peg: https://aibusiness.fun/tokenomics#robinhood · https://aibusiness.fun/tokenomics#reference-peg
+- Creator mints (Robinhood Chain): https://aibusiness.fun/for/builders
 - How it works: https://aibusiness.fun/how-it-works
 - Try Aura: https://aibusiness.fun/try
 - Why Aura / compare: https://aibusiness.fun/compare

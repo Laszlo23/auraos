@@ -48,9 +48,9 @@ export const HOOD_COPY = {
   lead: `A 1,000-piece founding circle. Each Hood is a unique portrait — court, legends, agents, colored noggles, mood, and seal. Of each ${FOUNDING_SEAT_DISPLAY} mint: 70% (${PRICE_REMAINDER_DISPLAY}) to launch liquidity, 30% (${PRICE_OPS_DISPLAY}) to developer ops — servers, infra, keeping the desk on.`,
   leadDe: `Ein Kreis aus 1.000 Stücken. Jeder Hood ist ein eigenes Portrait — Hof, Legenden, Agents, Noggles, Mood und Siegel. Von jedem ${FOUNDING_SEAT_DISPLAY_DE}-Mint: 70% (${PRICE_REMAINDER_DISPLAY_DE}) in die Launch-Liquidität, 30% (${PRICE_OPS_DISPLAY_DE}) an Developer-Ops — Server, Infra, Desk am Leben.`,
   robinhood:
-    "Creator collections mint on Robinhood Chain. The Hood founding NFT stays on Base — your membership key. Official CA only on aibusiness.fun — never in a DM.",
+    "We’re on Robinhood Chain for creator mints and the multichain desk. The Hood founding NFT stays on Base until the Robinhood contract ships — your membership key. Official CA only on aibusiness.fun — never in a DM.",
   robinhoodDe:
-    "Creator-Collections minten auf Robinhood Chain. Der Hood-Founding-NFT bleibt auf Base — dein Membership-Key. Offizielle CA nur auf aibusiness.fun — nie per DM.",
+    "Creator-Mints und Multichain-Desk laufen auf Robinhood Chain. Der Hood-Founding-NFT bleibt auf Base, bis der Robinhood-Contract da ist — dein Membership-Key. Offizielle CA nur auf aibusiness.fun — nie per DM.",
 } as const;
 
 export const HOOD_COURT = [
@@ -322,8 +322,9 @@ export const HOOD_VALUE = [
     id: "robinhood",
     en: "Robinhood Chain",
     de: "Robinhood Chain",
-    enBody: "Same circle, next chain — when the Hood contract is published. No surprise CA.",
+    enBody:
+      "Creator mints live on Robinhood today. Hood + AURA fair launch on Base until the Robinhood contracts publish — same circle, next chain, no surprise CA.",
     deBody:
-      "Derselbe Kreis, nächste Chain — wenn der Hood-Contract da ist. Keine Überraschungs-CA.",
+      "Creator-Mints laufen heute auf Robinhood. Hood + AURA-Fair-Launch auf Base, bis die Robinhood-Contracts da sind — derselbe Kreis, nächste Chain, keine Überraschungs-CA.",
   },
 ] as const;

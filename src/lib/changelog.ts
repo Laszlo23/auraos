@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-01-robinhood-peg",
+    date: "2026-09-01",
+    title: "Robinhood Chain + TSLA reference peg",
+    summary:
+      "Public messaging for multichain momentum: Robinhood creator mints live, treasury reference basket anchored on TSLA.",
+    items: [
+      "Tokenomics — Robinhood Chain section + TSLA / Musk-orbit reference peg table with disclaimers",
+      "Homepage momentum strip → /tokenomics#robinhood",
+      "Roadmap stop for Robinhood; Hood page surfaces chain commitment",
+      "Week in review fix for Local accounts + mobile GPU trim",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-01-growth-nav",
     date: "2026-09-01",
     title: "Founder starter & mobile nav",

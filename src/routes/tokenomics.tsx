@@ -21,12 +21,21 @@ import { PRIVATE_SALE_TREASURY, privateSaleBasescan } from "@/lib/private-sale";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
+import {
+  loc,
+  REFERENCE_PEG_DISCLAIMER,
+  REFERENCE_PEG_LEAD,
+  ROBINHOOD_CHAIN_POINTS,
+  ROBINHOOD_MOMENTUM,
+  TREASURY_REFERENCE_BASKET,
+} from "@/lib/robinhood-momentum";
+import { useLocale } from "@/hooks/use-locale";
 import { TOKEN_DISCLAIMER, TOKENOMICS } from "@/lib/tokenomics";
 import { LAUNCH_PROOF, launchEscrowAddress, launchGiftLockAddress } from "@/lib/aura-launch";
 
 const TITLE = "AURA tokenomics — 777,777,777 supply, product first";
 const DESCRIPTION =
-  "Fixed maximum supply 777,777,777 AURA. Subscriptions are the Aura OS business. Fair launch plan, allocation table, and how to buy only after the official Base CA is published.";
+  "Fixed maximum supply 777,777,777 AURA. Robinhood Chain creator mints live. Treasury reference peg: TSLA anchor + Musk-orbit equities (transparency only). Fair launch on Base.";
 
 export const Route = createFileRoute("/tokenomics")({
   head: () => ({
@@ -45,6 +54,8 @@ export const Route = createFileRoute("/tokenomics")({
 });
 
 function TokenomicsPage() {
+  const { locale } = useLocale();
+
   return (
     <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
       <div
@@ -177,6 +188,77 @@ function TokenomicsPage() {
             days after T-0. Unsold pAURA is never minted. Building Culture products that used BCC
             move to AURA at T-0 — Aura OS stays subscription software and does not require BCC
             today.
+          </p>
+        </section>
+
+        <section id="robinhood" className="mt-14 scroll-mt-24">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
+            Robinhood Chain
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            Multichain momentum
+          </h2>
+          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
+            {loc(locale, ROBINHOOD_MOMENTUM)}
+          </p>
+          <ul className="mt-5 space-y-3">
+            {ROBINHOOD_CHAIN_POINTS.map((row) => (
+              <li key={row.title.en} className="rounded-2xl border border-border/40 bg-card/20 px-5 py-4">
+                <p className="text-[12px] font-semibold uppercase tracking-[0.16em]">
+                  {loc(locale, row.title)}
+                </p>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                  {loc(locale, row.body)}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-[13px]">
+            <Link to="/for/builders" className="font-semibold text-primary hover:underline">
+              Creator studio →
+            </Link>
+            {" · "}
+            <Link to="/roadmap" className="font-semibold text-primary hover:underline">
+              Roadmap →
+            </Link>
+          </p>
+        </section>
+
+        <section id="reference-peg" className="mt-14 scroll-mt-24">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+            Treasury reference
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+            Momentum peg · TSLA anchor
+          </h2>
+          <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
+            {loc(locale, REFERENCE_PEG_LEAD)}
+          </p>
+          <div className="mt-5 overflow-x-auto rounded-2xl border border-border/40">
+            <table className="w-full min-w-[24rem] text-left text-[13px]">
+              <thead className="bg-foreground/[0.03] text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2.5 font-semibold">Reference</th>
+                  <th className="px-4 py-2.5 text-right font-semibold">Weight</th>
+                  <th className="px-4 py-2.5 font-semibold">Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                {TREASURY_REFERENCE_BASKET.map((row) => (
+                  <tr key={row.id} className="border-t border-border/30">
+                    <td className="px-4 py-2.5">
+                      <span className="font-semibold">{row.symbol}</span>
+                      <span className="ml-2 text-muted-foreground">{loc(locale, row.label)}</span>
+                    </td>
+                    <td className="num px-4 py-2.5 text-right">{row.weightPct}%</td>
+                    <td className="px-4 py-2.5 text-muted-foreground">{loc(locale, row.role)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[12.5px] leading-relaxed text-muted-foreground">
+            {loc(locale, REFERENCE_PEG_DISCLAIMER)}
           </p>
         </section>
 

@@ -28,6 +28,7 @@ import { Greeter } from "@/components/aura/greeter";
 import { OnboardingTour } from "@/components/aura/tour";
 import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import { ShareMoment } from "@/components/aura/share";
+import { RobinhoodMomentumStrip } from "@/components/aura/robinhood-momentum-strip";
 import { PublicSiteHeader } from "@/components/aura/public-site-header";
 import { WienStoryStrip } from "@/components/aura/wien-story-strip";
 import { trackTeaser } from "@/lib/teaser-track";
@@ -211,6 +212,15 @@ function Landing() {
           >
             {t("landing.categoryLine")}
           </motion.p>
+
+          <motion.div
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.75, delay: 0.66 }}
+            className="mt-5 max-w-xl"
+          >
+            <RobinhoodMomentumStrip />
+          </motion.div>
 
           <motion.div
             initial={{ y: 18 }}
