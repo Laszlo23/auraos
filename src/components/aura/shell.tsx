@@ -202,11 +202,23 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   .map((item) => {
                     const active = pathname === item.to;
                     const Icon = item.icon;
+                    const shortcut =
+                      item.to === "/ceo"
+                        ? "C"
+                        : item.to === "/approvals"
+                          ? "A"
+                          : item.to === "/proofs"
+                            ? "P"
+                            : null;
                     return (
                       <Link
                         key={item.to}
                         to={item.to}
-                        title={item.hint ?? item.label}
+                        title={
+                          shortcut
+                            ? `${item.hint ?? item.label} (⌘${shortcut})`
+                            : (item.hint ?? item.label)
+                        }
                         className={cn(
                           "group relative flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-colors",
                           active
@@ -306,7 +318,8 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              aria-label="Open command palette"
+              aria-label="Open command palette (Cmd+K)"
+              title="Search features or ask your AI team (⌘K)"
               className="glass-soft flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl px-3.5 py-2 text-left text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               <Sparkle
@@ -323,6 +336,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
 
             <Link
               to="/billing"
+              title={`${compact(sub?.tokens_remaining ?? 0)} ${TOKEN_SYMBOL} remaining — Top up credits`}
               className="hidden shrink-0 items-center gap-2 rounded-2xl bg-gold/12 px-3 py-1.5 text-xs text-gold transition-opacity hover:opacity-80 sm:flex"
             >
               <span className="num font-semibold">{compact(sub?.tokens_remaining ?? 0)}</span>
@@ -355,6 +369,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
 
             <Link
               to="/ceo"
+              title="Give instructions to your AI team"
               className="cta-liquid flex shrink-0 items-center gap-2 rounded-2xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_24px_-8px_var(--glow)] transition-opacity hover:opacity-90"
             >
               <Plus className="h-3.5 w-3.5" /> Instruct
@@ -518,7 +533,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
           )}
         </AnimatePresence>
 
-        <nav className="glass fixed inset-x-3 bottom-3 z-30 flex items-end justify-around gap-0.5 rounded-[1.85rem] px-2 pb-2.5 pt-2.5 md:hidden">
+        <nav className="glass fixed inset-x-3 bottom-3 z-30 flex items-end justify-around gap-0.5 rounded-[1.85rem] px-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.2)] md:hidden">
           {mobileTabs.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.to;
@@ -527,7 +542,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-1.5 transition-colors",
+                  "relative flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-2xl px-1 py-2 transition-colors",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
@@ -538,11 +553,11 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                     className="absolute inset-0 rounded-2xl bg-gradient-to-b from-primary/20 to-primary/8 ring-1 ring-primary/30"
                   />
                 )}
-                <Icon className="relative h-[22px] w-[22px]" strokeWidth={active ? 2.2 : 1.9} />
+                <Icon className="relative h-[24px] w-[24px]" strokeWidth={active ? 2.2 : 1.9} />
                 <span
                   className={cn(
-                    "relative max-w-full truncate font-display text-[9px] font-semibold uppercase leading-none tracking-[0.12em]",
-                    active ? "text-primary" : "text-muted-foreground/85",
+                    "relative max-w-full truncate font-display text-[10px] font-semibold uppercase leading-none tracking-[0.1em]",
+                    active ? "text-primary" : "text-muted-foreground/90",
                   )}
                 >
                   {navLabel(item, simple)}
@@ -553,12 +568,12 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={() => setSheetOpen(true)}
             className={cn(
-              "relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-1.5 transition-colors",
+              "relative flex min-w-0 flex-1 flex-col items-center gap-1.5 rounded-2xl px-1 py-2 transition-colors",
               sheetOpen ? "text-primary" : "text-muted-foreground",
             )}
           >
-            <Grip className="h-[22px] w-[22px]" strokeWidth={sheetOpen ? 2.2 : 1.9} />
-            <span className="relative font-display text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-muted-foreground/85">
+            <Grip className="h-[24px] w-[24px]" strokeWidth={sheetOpen ? 2.2 : 1.9} />
+            <span className="relative font-display text-[10px] font-semibold uppercase leading-none tracking-[0.1em] text-muted-foreground/90">
               More
             </span>
           </button>
@@ -580,7 +595,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                 .map((item) => (
                   <CommandItem
                     key={item.to}
-                    value={`${item.label} ${item.plain ?? ""} ${item.hint ?? ""}`}
+                    value={`${item.label} ${item.plain ?? ""} ${item.hint ?? ""} ${item.keywords ?? ""}`}
                     onSelect={() => {
                       setPaletteOpen(false);
                       navigate({ to: item.to });
