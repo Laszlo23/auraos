@@ -33,19 +33,6 @@ function sealMarkup(id: HoodSealId, accent: string): string {
   }
 }
 
-function nogglesMarkup(fill: string, stem: string): string {
-  return `
-  <g transform="translate(220 248)" opacity="0.95">
-    <rect x="0" y="0" width="110" height="64" rx="14" fill="${fill}" />
-    <rect x="150" y="0" width="110" height="64" rx="14" fill="${fill}" />
-    <rect x="110" y="22" width="40" height="16" rx="4" fill="${stem}" />
-    <rect x="-14" y="16" width="16" height="28" rx="4" fill="${stem}" />
-    <rect x="258" y="16" width="16" height="28" rx="4" fill="${stem}" />
-    <rect x="22" y="16" width="40" height="32" rx="8" fill="#07090e" opacity="0.35" />
-    <rect x="172" y="16" width="40" height="32" rx="8" fill="#07090e" opacity="0.35" />
-  </g>`;
-}
-
 function characterDataUri(artPath: string): string | null {
   try {
     const rel = artPath.replace(/^\//, "");
@@ -73,8 +60,7 @@ export function renderHoodPassportSvg(tokenId: number): string {
 
   const portraitBlock = portrait
     ? `<image href="${portrait}" x="180" y="150" width="440" height="440" preserveAspectRatio="xMidYMid slice" opacity="0.98" />
-  <rect x="180" y="150" width="440" height="440" fill="url(#vignette)" />
-  ${nogglesMarkup(traits.noggles.fill, traits.noggles.stem)}`
+  <rect x="180" y="150" width="440" height="440" fill="url(#vignette)" />`
     : `<circle cx="400" cy="360" r="160" fill="${traits.background.accent}" opacity="0.18" />
   <text x="400" y="370" text-anchor="middle" fill="#f6f1e4" font-family="Georgia, serif" font-size="42">${name}</text>`;
 

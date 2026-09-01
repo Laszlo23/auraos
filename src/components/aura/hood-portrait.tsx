@@ -66,29 +66,6 @@ function SealMark({ id, className }: { id: HoodSealId; className?: string }) {
   }
 }
 
-/** Colored noggles overlay — trait colors actually show on the portrait. */
-function NogglesOverlay({
-  fill,
-  stem,
-  className,
-}: {
-  fill: string;
-  stem: string;
-  className?: string;
-}) {
-  return (
-    <svg viewBox="0 0 200 80" className={className} aria-hidden preserveAspectRatio="xMidYMid meet">
-      <rect x="28" y="28" width="58" height="34" rx="8" fill={fill} opacity="0.92" />
-      <rect x="114" y="28" width="58" height="34" rx="8" fill={fill} opacity="0.92" />
-      <rect x="86" y="38" width="28" height="10" rx="3" fill={stem} />
-      <rect x="22" y="36" width="10" height="18" rx="3" fill={stem} />
-      <rect x="168" y="36" width="10" height="18" rx="3" fill={stem} />
-      <rect x="38" y="36" width="20" height="18" rx="4" fill="#07090e" opacity="0.35" />
-      <rect x="124" y="36" width="20" height="18" rx="4" fill="#07090e" opacity="0.35" />
-    </svg>
-  );
-}
-
 const SIZE: Record<HoodPortraitSize, string> = {
   hero: "rounded-[2rem]",
   passport: "rounded-[1.35rem]",
@@ -154,13 +131,6 @@ export function HoodPortrait({
         className="pointer-events-none absolute inset-0 z-[2]"
         style={{ background: traits.mood.wash }}
       />
-      {!compact ? (
-        <NogglesOverlay
-          fill={traits.noggles.fill}
-          stem={traits.noggles.stem}
-          className="pointer-events-none absolute left-1/2 top-[34%] z-[3] h-[18%] w-[58%] -translate-x-1/2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]"
-        />
-      ) : null}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-[3] bg-[linear-gradient(180deg,transparent_48%,oklch(0.1_0.02_80/0.72))]"
