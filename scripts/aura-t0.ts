@@ -19,14 +19,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import solc from "solc";
-import {
-  createPublicClient,
-  createWalletClient,
-  http,
-  parseEther,
-  type Abi,
-  type Hex,
-} from "viem";
+import { createPublicClient, createWalletClient, http, parseEther, type Abi, type Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
 
@@ -158,8 +151,7 @@ async function main() {
   const sepolia = args.includes("--sepolia");
   const doPropose = args.includes("--propose");
   const usdcIdx = args.indexOf("--usdc-liquidity");
-  const usdcLiquidity =
-    usdcIdx >= 0 && args[usdcIdx + 1] ? BigInt(args[usdcIdx + 1]!) : 0n;
+  const usdcLiquidity = usdcIdx >= 0 && args[usdcIdx + 1] ? BigInt(args[usdcIdx + 1]!) : 0n;
 
   const compiled = compile();
   console.log("compiled AuraToken, AuraPauraRedeem, AuraLpSink, AuraCliffVesting");
@@ -378,10 +370,7 @@ async function main() {
 
   const outDir = join(ROOT, "contracts/aura");
   mkdirSync(outDir, { recursive: true });
-  const artifactPath = join(
-    outDir,
-    sepolia ? "Aura.sepolia.json" : "Aura.deployed.json",
-  );
+  const artifactPath = join(outDir, sepolia ? "Aura.sepolia.json" : "Aura.deployed.json");
   const payload = {
     chainId: chain.id,
     network: sepolia ? "base-sepolia" : "base",

@@ -20,9 +20,7 @@ function collectSources() {
   while (queue.length) {
     const path = queue.pop()!;
     if (sources[path]) continue;
-    const abs = path.startsWith("contracts/")
-      ? join(ROOT, path)
-      : join(ROOT, "node_modules", path);
+    const abs = path.startsWith("contracts/") ? join(ROOT, path) : join(ROOT, "node_modules", path);
     if (!existsSync(abs)) throw new Error(`Missing ${path}`);
     const content = readFileSync(abs, "utf8");
     sources[path] = { content };

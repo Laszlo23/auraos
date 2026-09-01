@@ -52,11 +52,7 @@ async function main() {
   loadDotenv();
   const sepolia = process.argv.includes("--sepolia");
   const chain = sepolia ? baseSepolia : base;
-  const key = (
-    process.env["GENESIS_MINTER_KEY"] ||
-    process.env["PRIVATE_KEY"] ||
-    ""
-  ).trim() as Hex;
+  const key = (process.env["GENESIS_MINTER_KEY"] || process.env["PRIVATE_KEY"] || "").trim() as Hex;
   const account = privateKeyToAccount(key);
   const publicClient = createPublicClient({ chain, transport: http(rpcFor(sepolia)) });
   const wallet = createWalletClient({ account, chain, transport: http(rpcFor(sepolia)) });

@@ -21,6 +21,7 @@ This repository is configured to automatically deploy to production (aibusiness.
 Add these secrets in **GitHub repo → Settings → Secrets and variables → Actions → New repository secret**:
 
 ### 1. `VPS_SSH_KEY`
+
 Private SSH key with access to the VPS. Generate or use existing:
 
 ```bash
@@ -37,11 +38,13 @@ ssh-copy-id -i ~/.ssh/auraos_deploy.pub root@186.240.156.50
 ```
 
 ### 2. `VPS_HOST`
+
 ```
 186.240.156.50
 ```
 
 ### 3. `VPS_USER`
+
 ```
 root
 ```
@@ -49,9 +52,11 @@ root
 ## Testing the Workflow
 
 ### Manual Trigger
+
 Go to **Actions → Deploy to Production → Run workflow** to test deployment without pushing code.
 
 ### Test with a Commit
+
 ```bash
 # Make a trivial change to test
 git commit --allow-empty -m "test: trigger deployment"
@@ -59,6 +64,7 @@ git push origin main
 ```
 
 ### Monitor
+
 - GitHub Actions: https://github.com/Laszlo23/auraos/actions
 - Check deployment logs for errors
 - Health check runs automatically at the end
@@ -73,15 +79,18 @@ git push origin main
 ## Troubleshooting
 
 **Deployment fails with "Permission denied":**
+
 - Verify `VPS_SSH_KEY` secret contains the full private key
 - Check SSH key is authorized on VPS: `cat /root/.ssh/authorized_keys`
 
 **Build fails on VPS:**
+
 - SSH to VPS and check logs: `journalctl -u auraos -n 100`
 - Verify `.env` file exists: `ls -la /opt/auraos/.env`
 - Check disk space: `df -h`
 
 **Service won't restart:**
+
 - Check systemd status: `ssh root@186.240.156.50 "systemctl status auraos"`
 - View recent logs: `ssh root@186.240.156.50 "journalctl -u auraos -n 50"`
 

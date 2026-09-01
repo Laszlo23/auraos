@@ -9,12 +9,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import solc from "solc";
-import {
-  createPublicClient,
-  createWalletClient,
-  http,
-  type Hex,
-} from "viem";
+import { createPublicClient, createWalletClient, http, type Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 
@@ -67,7 +62,10 @@ function compile() {
   const raw = solc.compile(JSON.stringify(input), { import: findImports });
   const out = JSON.parse(raw) as {
     errors?: Array<{ severity: string; formattedMessage: string }>;
-    contracts?: Record<string, Record<string, { abi: unknown; evm: { bytecode: { object: string } } }>>;
+    contracts?: Record<
+      string,
+      Record<string, { abi: unknown; evm: { bytecode: { object: string } } }>
+    >;
   };
   const errors = (out.errors ?? []).filter((e) => e.severity === "error");
   if (errors.length) {
