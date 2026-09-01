@@ -93,23 +93,3 @@ export function MarketingLayout({
     </main>
   );
 }
-
-/** @deprecated Use MarketingLayout — thin wrapper kept for existing imports. */
-export function MarketingPage({
-  children,
-  shareText,
-}: {
-  children: ReactNode;
-  shareText?: string;
-}) {
-  const { t } = useLocale();
-  return (
-    <MarketingLayout
-      cta={{ to: "/access", label: t("landing.navStart") }}
-      showSignIn={false}
-      shareText={shareText}
-    >
-      {children}
-    </MarketingLayout>
-  );
-}

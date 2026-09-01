@@ -16,6 +16,7 @@ import {
 
 import { isMoreGroup, NAV_GROUPS, navForFunnel, navLabel } from "@/lib/nav";
 import { cn } from "@/lib/utils";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
 import { useSwipeAxis } from "@/hooks/use-swipe-axis";
 import { compact } from "@/lib/format";
@@ -39,14 +40,19 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
+/** OS-wide surfaces that stay on the founder shell even for Aura Local companies. */
+const OS_SHELL_ROUTES = new Set(["/report"]);
+
 export function Shell({ children }: { children: React.ReactNode }) {
   const { data: company, isLoading } = useCompany();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const useOsShell = OS_SHELL_ROUTES.has(pathname);
 
   if (isLoading) {
     return <div className="min-h-svh bg-background">{children}</div>;
   }
 
-  if (isLocalFunnelCompany(company)) {
+  if (isLocalFunnelCompany(company) && !useOsShell) {
     return <LocalDeShell>{children}</LocalDeShell>;
   }
 
@@ -65,6 +71,18 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
   const { data: sub } = useSubscription();
   const { data: progress } = useProgress();
   const { simple, toggle: toggleSimple } = useSimpleMode();
+  const reducedMotion = usePrefersReducedMotion();
+  const [liteChrome, setLiteChrome] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const sync = () => setLiteChrome(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const skipRouteMotion = reducedMotion || liteChrome;
 
   const entryFunnel =
     company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
@@ -414,15 +432,21 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             TanStack Router updates the match immediately; Presence keeps a stale
             tree and the URL changes while the previous page stays on screen.
           */}
-          <motion.main
-            key={pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto w-full min-w-0 max-w-[1440px] px-5 pb-32 pt-7 md:px-8 md:pb-10 md:pt-9"
-          >
-            {children}
-          </motion.main>
+          {skipRouteMotion ? (
+            <main className="mx-auto w-full min-w-0 max-w-[1440px] px-5 pb-32 pt-7 md:px-8 md:pb-10 md:pt-9">
+              {children}
+            </main>
+          ) : (
+            <motion.main
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="mx-auto w-full min-w-0 max-w-[1440px] px-5 pb-32 pt-7 md:px-8 md:pb-10 md:pt-9"
+            >
+              {children}
+            </motion.main>
+          )}
 
           {railOpen && pathname !== "/ceo" && (
             <aside className="sticky top-[86px] hidden h-[calc(100vh-104px)] w-[340px] shrink-0 px-4 pb-4 xl:block">

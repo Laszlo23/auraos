@@ -17,10 +17,6 @@ export function StartHere({
   hasMission: boolean;
   hasApproval: boolean;
   hasProof: boolean;
-  /** @deprecated kept so older call sites type-check during the cutover */
-  hasConnections?: boolean;
-  hasInstructed?: boolean;
-  hasTasks?: boolean;
 }) {
   const steps: Step[] = [
     {

@@ -44,6 +44,9 @@ export function isLocalFunnelCompany(
 
 const SEAT_GATED = new Set(["/heute", "/social", "/kunden", "/bewertungen", "/akquise"]);
 
+/** Cross-product routes that must not be blocked by the local seat paywall. */
+const LOCAL_SHELL_OPEN_ROUTES = new Set(["/boost", "/report", "/settings", "/billing"]);
+
 export function LocalDeShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
@@ -103,7 +106,12 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (shellReady && !needsOnboarding && !seatPaid && pathname !== "/boost") {
+  if (
+    shellReady &&
+    !needsOnboarding &&
+    !seatPaid &&
+    !LOCAL_SHELL_OPEN_ROUTES.has(pathname)
+  ) {
     return (
       <div className="relative flex min-h-svh flex-col items-center justify-center bg-background px-6 text-center">
         <LanguageToggle className="absolute right-4 top-4" />

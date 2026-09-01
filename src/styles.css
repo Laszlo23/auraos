@@ -734,6 +734,10 @@ html.aura-paused .aura-pulse-halo {
   .aurora-grid {
     animation: none;
   }
+
+  .animate-aurora {
+    animation: none !important;
+  }
 }
 
 @utility animate-breathe {

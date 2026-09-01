@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { FoundingSeatCard, PricingTable, StackLayers } from "@/components/aura/economics";
-import { MarketingPage } from "@/components/aura/marketing-page";
+import { MarketingLayout } from "@/components/aura/marketing-layout";
 import { useLocale } from "@/hooks/use-locale";
 import { pageHead } from "@/lib/seo";
 
@@ -17,10 +17,14 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const de = locale === "de";
   return (
-    <MarketingPage shareText="Aura OS pricing — $299 founding seat, subscriptions separate.">
+    <MarketingLayout
+      cta={{ to: "/access", label: t("landing.navStart") }}
+      showSignIn={false}
+      shareText="Aura OS pricing — $299 founding seat, subscriptions separate."
+    >
       <section className="mx-auto max-w-6xl px-6 pt-16">
         <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
           {de ? "Preise" : "Pricing"}
@@ -46,6 +50,6 @@ function PricingPage() {
         </Link>
         .
       </p>
-    </MarketingPage>
+    </MarketingLayout>
   );
 }

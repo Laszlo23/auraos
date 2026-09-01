@@ -31,9 +31,6 @@ export function tradableSymbolsFor(network: AuraNetwork): TradableSymbol[] {
   return ["WETH/USDC", "ETH/USDC"];
 }
 
-/** @deprecated Prefer tradableSymbolsFor(network). */
-export const TRADABLE_SYMBOLS: TradableSymbol[] = ["WETH/USDC", "WBNB/USDC", "WETH/USDG"];
-
 export function resolvePairTokens(
   symbol: string,
   network: AuraNetwork,

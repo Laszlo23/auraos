@@ -1,7 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
-import { Chip, Pulse, Shimmer } from "@/components/aura/primitives";
+import { Chip, Pulse } from "@/components/aura/primitives";
 import { ShareBar } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { WeeklyReportView } from "@/components/aura/weekly-report-view";
@@ -9,56 +8,42 @@ import { getPublicWeeklyReport } from "@/lib/weekly-report.functions";
 import { OG_IMAGE, SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/w/$shareSlug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Week in review · Aura OS` },
-      {
-        name: "description",
-        content:
-          "A weekly report from an AI company on Aura OS — posts shipped, replies, and agent work.",
-      },
-      { property: "og:title", content: "Week in review · Aura OS" },
-      { property: "og:url", content: `${SITE_URL}/w/${params.shareSlug}` },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: OG_IMAGE },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/w/${params.shareSlug}` }],
-  }),
+  loader: async ({ params }) => {
+    const { withTimeout } = await import("@/lib/timeout-helper");
+    const data = await withTimeout(
+      getPublicWeeklyReport({ data: { slug: params.shareSlug } }),
+      5000,
+      null,
+    );
+    if (!data?.snapshot) throw notFound();
+    return data;
+  },
+  head: ({ loaderData, params }) => {
+    const snap = loaderData.snapshot;
+    const title = `${snap.companyName} · Week in review`;
+    const description =
+      snap.summary?.slice(0, 155) ||
+      `${snap.totals.postsPublished} posts, ${snap.totals.repliesSent} replies, ${snap.totals.agentActions} agent actions · ${snap.rangeLabel}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: `${SITE_URL}/w/${params.shareSlug}` },
+        { property: "og:image", content: OG_IMAGE },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: OG_IMAGE },
+      ],
+      links: [{ rel: "canonical", href: `${SITE_URL}/w/${params.shareSlug}` }],
+    };
+  },
   component: PublicWeeklyReportPage,
 });
 
 function PublicWeeklyReportPage() {
   const { shareSlug } = Route.useParams();
-  const { data, isLoading } = useQuery({
-    queryKey: ["public-weekly-report", shareSlug],
-    queryFn: () => getPublicWeeklyReport({ data: { slug: shareSlug } }),
-  });
-
-  if (isLoading) {
-    return (
-      <div className="mx-auto max-w-3xl space-y-4 p-8">
-        <Shimmer className="h-28" />
-        <Shimmer className="h-48" />
-        <Shimmer className="h-64" />
-      </div>
-    );
-  }
-
-  if (!data?.snapshot) {
-    return (
-      <main className="mx-auto max-w-lg p-12 text-center">
-        <h1 className="font-display text-2xl font-semibold">Report not found</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          This week in review is private or the link is wrong.
-        </p>
-        <Link to="/" className="mt-6 inline-block text-primary">
-          Try Aura OS
-        </Link>
-      </main>
-    );
-  }
-
+  const data = Route.useLoaderData();
   const snap = data.snapshot;
   const shareUrl =
     typeof window !== "undefined" ? window.location.href : `${SITE_URL}/w/${shareSlug}`;

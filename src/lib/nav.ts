@@ -88,6 +88,8 @@ export const NAV: NavItem[] = [
     hint: "Boss-ready summary of posts and agent work this week",
     icon: Receipt,
     group: "Company",
+    live: true,
+    core: true,
   },
   {
     to: "/missions",

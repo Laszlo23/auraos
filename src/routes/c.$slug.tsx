@@ -11,7 +11,8 @@ import {
   CreatorPoweredStrip,
   CreatorWeb3Backdrop,
 } from "@/components/aura/creator-visuals";
-import { MarketingPage } from "@/components/aura/marketing-page";
+import { MarketingLayout } from "@/components/aura/marketing-layout";
+import { useLocale } from "@/hooks/use-locale";
 import { getPublicCollection } from "@/lib/creator-collections.functions";
 import {
   collectionCoverUrl,
@@ -53,6 +54,7 @@ export const Route = createFileRoute("/c/$slug")({
 
 function CollectionMintPage() {
   const collection = Route.useLoaderData();
+  const { t } = useLocale();
   const { data } = useSuspenseQuery({
     queryKey: ["public-collection", collection.slug],
     queryFn: () => getPublicCollection({ data: { slug: collection.slug } }),
@@ -64,7 +66,11 @@ function CollectionMintPage() {
   const priceLabel = formatMintPriceFromWei(c.mint_price_wei, c.mint_asset);
 
   return (
-    <MarketingPage shareText={`Mint ${c.name} on Robinhood Chain — Aura OS`}>
+    <MarketingLayout
+      cta={{ to: "/access", label: t("landing.navStart") }}
+      showSignIn={false}
+      shareText={`Mint ${c.name} on Robinhood Chain — Aura OS`}
+    >
       <div className="relative min-h-svh overflow-hidden bg-[#07090e]">
         <CreatorWeb3Backdrop />
         <CreatorDropTicker
@@ -156,6 +162,6 @@ function CollectionMintPage() {
           <CreatorPoweredStrip />
         </section>
       </div>
-    </MarketingPage>
+    </MarketingLayout>
   );
 }

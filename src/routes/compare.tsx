@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
-import { MarketingPage } from "@/components/aura/marketing-page";
+import { MarketingLayout } from "@/components/aura/marketing-layout";
 import { ChatbotVsCompany, CompareTable, WhoItsFor } from "@/components/aura/why-aura";
 import { useLocale } from "@/hooks/use-locale";
 import { CATEGORY_LINE, loc } from "@/lib/product-story";
@@ -19,10 +19,14 @@ export const Route = createFileRoute("/compare")({
 });
 
 function ComparePage() {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const de = locale === "de";
   return (
-    <MarketingPage shareText="Why Aura — don't hire AI tools. Own an AI company.">
+    <MarketingLayout
+      cta={{ to: "/access", label: t("landing.navStart") }}
+      showSignIn={false}
+      shareText="Why Aura — don't hire AI tools. Own an AI company."
+    >
       <section className="mx-auto max-w-6xl px-6 pt-16">
         <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
           {de ? "Warum Aura?" : "Why Aura?"}
@@ -45,6 +49,6 @@ function ComparePage() {
           {de ? "So arbeitet die Firma →" : "See how the company works →"}
         </Link>
       </section>
-    </MarketingPage>
+    </MarketingLayout>
   );
 }

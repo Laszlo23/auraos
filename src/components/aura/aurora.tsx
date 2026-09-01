@@ -17,7 +17,7 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
       />
 
       <div
-        className="animate-aurora absolute -left-[18%] -top-[28%] h-[80vh] w-[80vw] rounded-full blur-[150px] max-sm:blur-[80px]"
+        className="max-sm:animate-none animate-aurora absolute -left-[18%] -top-[28%] h-[80vh] w-[80vw] rounded-full blur-[150px] max-sm:h-[55vh] max-sm:w-[70vw] max-sm:blur-[72px]"
         style={{
           background:
             "radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--primary) 48%, transparent), transparent 64%)",
@@ -25,7 +25,7 @@ export function AuroraField({ intensity = 1 }: { intensity?: number }) {
         }}
       />
       <div
-        className="animate-aurora absolute -right-[22%] top-[6%] h-[74vh] w-[68vw] rounded-full blur-[160px] max-sm:blur-[80px]"
+        className="max-sm:animate-none animate-aurora absolute -right-[22%] top-[6%] h-[74vh] w-[68vw] rounded-full blur-[160px] max-sm:h-[50vh] max-sm:w-[65vw] max-sm:blur-[72px]"
         style={{
           background:
             "radial-gradient(circle at 60% 40%, color-mix(in oklab, var(--gold) 38%, transparent), transparent 66%)",

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
-import { MarketingPage } from "@/components/aura/marketing-page";
+import { MarketingLayout } from "@/components/aura/marketing-layout";
 import { ProductJourney } from "@/components/aura/product-journey";
 import { OsPreview } from "@/components/aura/os-preview";
 import { MissionCase } from "@/components/aura/why-aura";
@@ -22,10 +22,14 @@ export const Route = createFileRoute("/how-it-works")({
 });
 
 function HowItWorksPage() {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const de = locale === "de";
   return (
-    <MarketingPage shareText="How Aura OS works — own an AI company.">
+    <MarketingLayout
+      cta={{ to: "/access", label: t("landing.navStart") }}
+      showSignIn={false}
+      shareText="How Aura OS works — own an AI company."
+    >
       <ProductJourney />
       <section className="relative z-10 mx-auto max-w-6xl px-6 pb-10">
         <h2 className="font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
@@ -63,6 +67,6 @@ function HowItWorksPage() {
           {de ? "Seat — $299" : "Founding seat — $299"}
         </Link>
       </section>
-    </MarketingPage>
+    </MarketingLayout>
   );
 }
