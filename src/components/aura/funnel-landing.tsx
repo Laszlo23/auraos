@@ -5,6 +5,13 @@ import { useEffect } from "react";
 import { Star } from "lucide-react";
 
 import {
+  CreatorChainPill,
+  CreatorFlowRail,
+  CreatorMintFrame,
+  CreatorStackShowcase,
+  CreatorWeb3Backdrop,
+} from "@/components/aura/creator-visuals";
+import {
   FunnelCloseBand,
   FunnelConceptStrip,
   FunnelHeroBleed,
@@ -15,6 +22,7 @@ import {
   storyForFunnel,
 } from "@/components/aura/funnel-visuals";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { PublicSiteHeader } from "@/components/aura/public-site-header";
 import { captureAttribution, rememberFunnel } from "@/lib/attribution";
 import { funnelPlanById } from "@/lib/funnel-plans";
 import {
@@ -36,7 +44,85 @@ export function FunnelLanding({ funnel }: { funnel: FunnelDef }) {
     return <LocalFunnelLanding funnel={funnel} />;
   }
 
+  if (funnel.id === "builders") {
+    return <BuildersFunnelLanding funnel={funnel} />;
+  }
+
   return <DefaultFunnelLanding funnel={funnel} />;
+}
+
+function BuildersFunnelLanding({ funnel }: { funnel: FunnelDef }) {
+  const href = authHrefForFunnel(funnel.id);
+  const story = storyForFunnel(funnel.id);
+
+  return (
+    <main className="hood-atmosphere relative min-h-svh overflow-x-hidden text-foreground">
+      <CreatorWeb3Backdrop />
+
+      <PublicSiteHeader cta={{ href, label: funnel.cta }} showSignIn={false} fixed />
+
+      <section className="relative z-10 mx-auto grid max-w-6xl gap-12 px-6 pb-16 pt-24 lg:grid-cols-2 lg:items-center lg:py-28">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+        >
+          <p className="label-luxury">{story.accentLabel}</p>
+          <h1 className="display-hero mt-4 text-[clamp(2.2rem,6.5vw,3.5rem)] leading-[0.95]">
+            {funnel.headline.split(". ").slice(0, 1).join(". ")}.
+            <br />
+            <span className="text-money">{funnel.headline.split(". ").slice(1).join(". ")}</span>
+          </h1>
+          <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
+            {funnel.subhead}
+          </p>
+          <div className="mt-8">
+            <CreatorFlowRail />
+          </div>
+          <a
+            href={href}
+            className="cta-liquid cta-magnetic mt-8 inline-flex rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground"
+          >
+            {funnel.cta}
+          </a>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.08 }}
+        >
+          <CreatorMintFrame
+            slug="neon-garden"
+            name="Neon Garden"
+            symbol="NEON"
+            priceLabel="10 USDG"
+          />
+        </motion.div>
+      </section>
+
+      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-8">
+        <CreatorStackShowcase />
+      </section>
+
+      <FunnelPainSection title={story.painTitle} body={story.painBody} items={story.painItems} />
+      <FunnelWiifmStrip title={story.wiifmTitle} sub={story.wiifmSub} items={story.wiifm} />
+      <FunnelStoryBeats beats={story.beats} />
+      <FunnelConceptStrip
+        eyebrow={`Aura · ${story.accentLabel}`}
+        title={story.conceptsTitle}
+        concepts={story.concepts}
+      />
+      <FunnelTrustStrip title={story.trustTitle} items={story.trustItems} />
+      <FunnelCloseBand
+        title={story.closeTitle}
+        body={story.closeBody}
+        cta={funnel.cta}
+        href={href}
+      />
+      <SiteFooter />
+    </main>
+  );
 }
 
 function DefaultFunnelLanding({ funnel }: { funnel: FunnelDef }) {
@@ -48,26 +134,8 @@ function DefaultFunnelLanding({ funnel }: { funnel: FunnelDef }) {
   const story = storyForFunnel(funnel.id);
 
   return (
-    <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
-      <header className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-black/20 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-4">
-          <Link
-            to="/"
-            className="font-display text-sm font-semibold tracking-tight text-white sm:text-base"
-          >
-            {SITE_NAME}
-          </Link>
-          <span className="hidden font-display text-sm text-white/55 sm:inline">
-            {story.accentLabel}
-          </span>
-          <a
-            href={href}
-            className="ml-auto rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
-          >
-            {funnel.cta}
-          </a>
-        </div>
-      </header>
+    <main className="stage-atmosphere relative min-h-svh overflow-x-hidden text-foreground">
+      <PublicSiteHeader cta={{ href, label: funnel.cta }} showSignIn={false} fixed />
 
       <FunnelHeroBleed
         src={story.image}
@@ -107,7 +175,7 @@ function DefaultFunnelLanding({ funnel }: { funnel: FunnelDef }) {
         >
           <a
             href={href}
-            className="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[0_16px_48px_-20px_oklch(0.55_0.12_200)] transition-transform hover:scale-[1.02]"
+          className="cta-liquid cta-magnetic rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
           >
             {funnel.cta}
           </a>
@@ -160,26 +228,8 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
   const taken = scarcity.data?.taken;
 
   return (
-    <main className="relative min-h-svh overflow-x-hidden bg-background text-foreground">
-      <header className="absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-black/20 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-4">
-          <Link
-            to="/"
-            className="font-display text-lg font-semibold tracking-tight text-white sm:text-xl"
-          >
-            {SITE_NAME}
-          </Link>
-          <span className="font-display text-lg font-medium tracking-tight text-white/60 sm:text-xl">
-            Local
-          </span>
-          <a
-            href={href}
-            className="ml-auto rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
-          >
-            {funnel.cta}
-          </a>
-        </div>
-      </header>
+    <main className="stage-atmosphere relative min-h-svh overflow-x-hidden text-foreground">
+      <PublicSiteHeader cta={{ href, label: funnel.cta }} showSignIn={false} fixed />
 
       <FunnelHeroBleed
         src={story.image}
@@ -190,7 +240,7 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-display text-[clamp(1.8rem,5vw,2.6rem)] font-semibold tracking-tight text-white"
+          className="display-hero font-display text-[clamp(1.8rem,5vw,2.6rem)] font-semibold tracking-tight text-white"
         >
           {SITE_NAME} · Local
         </motion.p>
@@ -218,7 +268,7 @@ function LocalFunnelLanding({ funnel }: { funnel: FunnelDef }) {
         >
           <a
             href={href}
-            className="rounded-2xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_12px_40px_-18px_oklch(0.55_0.12_200)] transition-transform hover:scale-[1.02]"
+            className="cta-liquid cta-magnetic rounded-2xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
           >
             {funnel.cta}
           </a>

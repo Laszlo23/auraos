@@ -189,7 +189,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
           {visibleGroups.map((group) => (
             <div key={group} className="mb-5">
               {!collapsed && (
-                <p className="mb-1.5 px-3 text-[10px] font-medium uppercase tracking-[0.24em] text-muted-foreground/70">
+                <p className="label-luxury mb-1.5 px-3 text-muted-foreground/70">
                   {simple ? "Your company" : group}
                 </p>
               )}
@@ -326,7 +326,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             <Link
               to="/nachbar/heute"
               title="Aura Nachbar — city play"
-              className="hidden shrink-0 items-center gap-2 rounded-2xl bg-gold/12 px-3 py-1.5 text-xs font-semibold text-gold transition-opacity hover:opacity-80 sm:flex"
+              className="hidden shrink-0 items-center gap-2 rounded-2xl bg-gold/12 px-3 py-1.5 text-xs font-semibold text-gold transition-opacity hover:opacity-80 xl:flex"
             >
               Nachbar
             </Link>
@@ -334,7 +334,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             <Link
               to="/community"
               title={`Level ${lvl.level} — ${lvl.into}/${lvl.needed} XP`}
-              className="hidden shrink-0 items-center gap-2 rounded-2xl bg-primary/10 px-3 py-1.5 text-xs text-primary transition-opacity hover:opacity-80 lg:flex"
+              className="hidden shrink-0 items-center gap-2 rounded-2xl bg-primary/10 px-3 py-1.5 text-xs text-primary transition-opacity hover:opacity-80 xl:flex"
             >
               <span className="num font-semibold">LV {lvl.level}</span>
               <span className="relative h-1 w-10 overflow-hidden rounded-full bg-primary/20">
@@ -512,7 +512,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
           )}
         </AnimatePresence>
 
-        <nav className="glass fixed inset-x-3 bottom-3 z-30 flex items-end justify-around gap-0.5 rounded-[1.85rem] px-2 pb-2.5 pt-2.5 md:hidden">
+        <nav className="glass-soft fixed inset-x-3 bottom-3 z-30 flex items-end justify-around gap-0.5 rounded-[1.85rem] px-2 pb-2.5 pt-2.5 md:hidden">
           {mobileTabs.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.to;
@@ -525,6 +525,9 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
+                {active ? (
+                  <span className="absolute -top-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-gold shadow-[0_0_8px_var(--gold)]" />
+                ) : null}
                 {active && (
                   <motion.span
                     layoutId="tab-active"

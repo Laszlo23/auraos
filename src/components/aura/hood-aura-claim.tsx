@@ -37,10 +37,13 @@ function preferConnector(connectors: readonly Connector[]): Connector | undefine
 export function HoodAuraClaim({
   locale = "en",
   tokenId: forcedTokenId,
+  embedded = false,
 }: {
   locale?: "en" | "de";
   /** When set, claim this Hood only. Otherwise scan balance for claimable ids. */
   tokenId?: number;
+  /** Inside mint stage details — lighter chrome */
+  embedded?: boolean;
 }) {
   return (
     <SaleWalletRoot
@@ -48,7 +51,7 @@ export function HoodAuraClaim({
       wcDescription="Claim unlocked AURA for your Hood"
       wcUrl="https://aibusiness.fun/hood"
     >
-      <HoodAuraClaimInner locale={locale} forcedTokenId={forcedTokenId} />
+      <HoodAuraClaimInner locale={locale} forcedTokenId={forcedTokenId} embedded={embedded} />
     </SaleWalletRoot>
   );
 }
@@ -56,9 +59,11 @@ export function HoodAuraClaim({
 function HoodAuraClaimInner({
   locale,
   forcedTokenId,
+  embedded,
 }: {
   locale: "en" | "de";
   forcedTokenId?: number;
+  embedded: boolean;
 }) {
   const de = locale === "de";
   const gifts = launchGiftDropAddress();
@@ -131,20 +136,26 @@ function HoodAuraClaimInner({
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border/60 bg-background/40 p-4">
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          {de ? "AURA Claim" : "AURA claim"}
-        </p>
-        <h3 className="mt-1 font-display text-lg tracking-tight">
-          {de ? "AURA in deine Wallet" : "AURA into your wallet"}
-        </h3>
-        <p className="mt-1 text-[13px] text-muted-foreground">
+    <div className={embedded ? "space-y-3" : "hood-panel space-y-3 p-4 sm:p-5"}>
+      {!embedded ? (
+        <div>
+          <p className="label-luxury-gold">{de ? "AURA Claim" : "AURA claim"}</p>
+          <h3 className="mt-1 font-display text-lg tracking-tight">
+            {de ? "AURA in deine Wallet" : "AURA into your wallet"}
+          </h3>
+          <p className="prose-narrow mt-1 text-[13px] text-muted-foreground">
+            {de
+              ? "Ab T-0: 7.777 AURA plus Buy-Bonus — sofort claimbar, kein 90-Tage-Lock."
+              : "From T-0: 7,777 AURA plus buy bonus — claim now, no 90-day lock."}
+          </p>
+        </div>
+      ) : (
+        <p className="text-[13px] text-muted-foreground">
           {de
-            ? "Ab T-0: 7.777 AURA plus Buy-Bonus — sofort claimbar, kein 90-Tage-Lock."
-            : "From T-0: 7,777 AURA plus buy bonus — claim now, no 90-day lock."}
+            ? "Ab T-0: 7.777 AURA plus Buy-Bonus — sofort claimbar."
+            : "From T-0: 7,777 AURA plus buy bonus — claim when market is live."}
         </p>
-      </div>
+      )}
 
       {!marketLive ? (
         <p className="text-[13px] text-amber-200/90">
@@ -159,7 +170,7 @@ function HoodAuraClaimInner({
           type="button"
           disabled={!primary || connecting}
           onClick={() => primary && connect({ connector: primary, chainId: base.id })}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-foreground px-4 text-[13px] font-medium text-background disabled:opacity-50"
+          className="inline-flex h-10 items-center justify-center rounded-2xl bg-gold px-4 text-[13px] font-semibold text-background disabled:opacity-50"
         >
           {connecting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -174,7 +185,7 @@ function HoodAuraClaimInner({
           type="button"
           disabled={switching}
           onClick={() => switchChain({ chainId: base.id })}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-foreground px-4 text-[13px] font-medium text-background"
+          className="inline-flex h-10 items-center justify-center rounded-2xl bg-gold px-4 text-[13px] font-semibold text-background"
         >
           {switching ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -314,7 +325,7 @@ function ClaimRow({
         type="button"
         disabled={!marketLive || claimed || amount === 0n || busy}
         onClick={onClaim}
-        className="inline-flex h-9 items-center justify-center rounded-md bg-foreground px-3 text-[12px] font-medium text-background disabled:opacity-40"
+        className="inline-flex h-9 items-center justify-center rounded-2xl bg-gold px-3 text-[12px] font-semibold text-background disabled:opacity-40"
       >
         {busy ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />

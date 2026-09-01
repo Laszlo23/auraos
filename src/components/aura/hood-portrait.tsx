@@ -108,11 +108,14 @@ export function HoodPortrait({
   size = "passport",
   className,
   foil = true,
+  showMeta = true,
 }: {
   tokenId: number;
   size?: HoodPortraitSize;
   className?: string;
   foil?: boolean;
+  /** Hide bottom overlay (e.g. hero with external caption) */
+  showMeta?: boolean;
 }) {
   const traits = resolveHoodTraits(tokenId);
   const compact = size === "chip";
@@ -122,12 +125,12 @@ export function HoodPortrait({
   return (
     <div
       className={cn(
-        "hood-frame group relative overflow-hidden bg-[#07090e]",
+        "hood-frame group relative overflow-hidden bg-hood-stage",
         frameRadius,
         frameBorder,
         SIZE[size],
         RARITY_RING[traits.rarity],
-        foil && !compact && "shadow-[0_0_90px_-16px_oklch(0.8_0.17_85/0.65)]",
+        foil && !compact && "shadow-[var(--shadow-gold)]",
         className,
       )}
     >
@@ -162,7 +165,7 @@ export function HoodPortrait({
         aria-hidden
         className="pointer-events-none absolute inset-0 z-[3] bg-[linear-gradient(180deg,transparent_48%,oklch(0.1_0.02_80/0.72))]"
       />
-      {!compact ? (
+      {!compact && showMeta ? (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[4] flex items-end justify-between gap-3 p-3 sm:p-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold/90">
@@ -173,17 +176,17 @@ export function HoodPortrait({
               {traits.rarity} · {traits.mood.label}
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-xl border border-gold/30 bg-[#07090e]/70 px-2 py-1.5 text-gold backdrop-blur-sm">
+          <div className="flex items-center gap-2 rounded-xl border border-gold/30 bg-hood-stage/70 px-2 py-1.5 text-gold backdrop-blur-sm">
             <SealMark id={traits.seal.id} className="h-5 w-7" />
             <span className="num text-[11px] font-semibold">#{traits.tokenId}</span>
           </div>
         </div>
-      ) : (
+      ) : compact ? (
         <div
           aria-hidden
           className="absolute inset-0 z-[4] rounded-full ring-1 ring-inset ring-gold/40"
         />
-      )}
+      ) : null}
       {foil && !compact ? (
         <div
           aria-hidden
@@ -221,7 +224,7 @@ export function HoodStillFrame({
         height={800}
         loading="lazy"
         decoding="async"
-        className="aspect-square w-full object-cover"
+        className="aspect-square w-full object-cover film-grade"
       />
     </div>
   );

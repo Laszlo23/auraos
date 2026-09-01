@@ -63,10 +63,15 @@
   --color-glow: var(--glow);
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
+  --color-gold-muted: var(--gold-muted);
+  --color-ivory: var(--ivory);
+  --color-ink-soft: var(--ink-soft);
+  --color-hood-stage: var(--hood-stage);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -93,6 +98,12 @@
   /* Accent 2 — warm amber (revenue) */
   --gold: oklch(0.87 0.17 76);
   --gold-foreground: oklch(0.16 0.05 60);
+  --gold-muted: oklch(0.72 0.1 76);
+
+  /* Luxury neutrals — editorial accents */
+  --ivory: oklch(0.96 0.012 85);
+  --ink-soft: oklch(0.82 0.014 258);
+  --hood-stage: oklch(0.1 0.018 268);
 
   /* Named CI aliases — keep in sync with src/lib/brand.ts */
   --aura-cyan: var(--primary);
@@ -403,6 +414,76 @@
     var(--background);
 }
 
+@utility hood-atmosphere {
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 50% -5%,
+      color-mix(in oklab, var(--gold) 28%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 40% 35% at 90% 20%,
+      color-mix(in oklab, var(--primary) 18%, transparent),
+      transparent 50%
+    ),
+    var(--hood-stage);
+}
+
+@utility label-luxury {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+@utility label-luxury-gold {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+@utility display-editorial {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+@utility luxury-reveal {
+  animation: luxury-reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes luxury-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility hood-panel {
+  border-radius: 1.4rem;
+  border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent);
+  background: color-mix(in oklab, var(--gold) 5%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-gold);
+}
+
+@utility prose-narrow {
+  max-width: 42rem;
+  line-height: 1.65;
+}
+
 @utility jewel {
   background: linear-gradient(
     165deg,
@@ -596,6 +677,48 @@ html.aura-paused .aura-pulse-halo {
 
 .hood-frame {
   isolation: isolate;
+}
+
+.creator-holo {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--primary) 55%, transparent),
+    color-mix(in oklab, var(--gold) 45%, transparent),
+    color-mix(in oklab, var(--primary) 40%, transparent)
+  );
+  background-size: 200% 200%;
+  animation: creator-holo-shift 6s ease-in-out infinite;
+}
+
+.creator-scanline {
+  animation: creator-scan 8s linear infinite;
+}
+
+@keyframes creator-holo-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes creator-scan {
+  0% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.6;
+  }
+  92% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
 }
 
 .cv-auto {

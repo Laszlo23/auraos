@@ -13,6 +13,7 @@ export function Panel({
   label,
   action,
   bodyClassName,
+  variant = "default",
   ...rest
 }: {
   className?: string | undefined;
@@ -24,6 +25,7 @@ export function Panel({
   label?: string;
   action?: ReactNode;
   bodyClassName?: string;
+  variant?: "default" | "gold";
 } & Omit<React.ComponentProps<typeof motion.div>, "children">) {
   const showMotif = motif ?? glow;
 
@@ -33,9 +35,10 @@ export function Panel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "glass hover-lift relative rounded-[1.65rem]",
+        variant === "gold" ? "hood-panel glass-soft hover-lift relative" : "glass hover-lift relative rounded-[1.65rem]",
         showMotif && "overflow-hidden",
-        glow && "shadow-[var(--shadow-glow)]",
+        glow && variant === "default" && "shadow-[var(--shadow-glow)]",
+        variant === "gold" && "shadow-[var(--shadow-gold)]",
         className,
       )}
       {...rest}
@@ -48,7 +51,7 @@ export function Panel({
               <span className="absolute inset-0 animate-breathe rounded-[1px] bg-primary/50" />
               <span className="relative h-1.5 w-1.5 rotate-45 bg-primary" />
             </span>
-            <h2 className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+            <h2 className={cn("label-luxury", variant === "gold" && "label-luxury-gold text-[10px]")}>
               {label}
             </h2>
             {action ? <div className="ml-auto flex items-center gap-2">{action}</div> : null}
@@ -103,11 +106,11 @@ export function SectionTitle({
   return (
     <div className="mb-5 flex items-end justify-between gap-6 border-b border-border/50 pb-3">
       <div className="min-w-0">
-        <h2 className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+        <h2 className="label-luxury flex items-center gap-2.5 text-muted-foreground">
           <span className="h-1.5 w-1.5 rotate-45 bg-primary/70" />
           {title}
         </h2>
-        {hint ? <p className="mt-1.5 text-[13px] text-muted-foreground/80">{hint}</p> : null}
+        {hint ? <p className="prose-narrow mt-1.5 text-[13px] text-muted-foreground/80">{hint}</p> : null}
       </div>
       {action}
     </div>
@@ -122,25 +125,23 @@ export function PageHeader({
 }: {
   eyebrow?: string;
   title: string;
-  description?: string;
+  description?: ReactNode;
   actions?: ReactNode;
 }) {
   return (
-    <header className="mb-7 flex flex-wrap items-end justify-between gap-6">
+    <header className="mb-8 flex flex-wrap items-end justify-between gap-6">
       <div className="max-w-2xl">
         {eyebrow ? (
-          <p className="mb-3 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.34em] text-primary">
+          <p className="label-luxury mb-3 flex items-center gap-2">
             <span className="h-px w-6 bg-gradient-to-r from-primary to-transparent" aria-hidden />
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="text-gradient text-[1.85rem] font-semibold leading-[1.04] md:text-[2.35rem]">
+        <h1 className="font-display text-[1.85rem] font-semibold leading-[1.04] tracking-tight md:text-[2.35rem]">
           {title}
         </h1>
         {description ? (
-          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-            {description}
-          </p>
+          <p className="prose-narrow mt-3 text-[14px] text-muted-foreground">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}

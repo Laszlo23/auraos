@@ -36,9 +36,11 @@ function writeStoredPermit(permit: string | null) {
 export function HoodEarlyPassGate({
   locale = "en",
   onUnlocked,
+  compact = false,
 }: {
   locale?: "en" | "de";
   onUnlocked?: (unlocked: boolean) => void;
+  compact?: boolean;
 }) {
   const de = locale === "de";
   const [password, setPassword] = useState("");
@@ -142,14 +144,14 @@ export function HoodEarlyPassGate({
 
   if (unlocked) {
     return (
-      <div className="rounded-[1.4rem] border border-gold/35 bg-gold/10 px-4 py-3.5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">
+      <div className={compact ? "hood-panel px-4 py-3" : "rounded-[1.4rem] border border-gold/35 bg-gold/10 px-4 py-3.5"}>
+        <p className="label-luxury-gold text-[10px] tracking-[0.22em]">
           {de ? HOOD_EARLY_COPY.kickerDe : HOOD_EARLY_COPY.kicker}
         </p>
         <p className="mt-2 text-[13px] leading-relaxed text-foreground/90">
           {de
-            ? `Freigeschaltet. Noch ${status?.slotsLeft ?? HOOD_EARLY_SUPPORTER_CAP} / ${HOOD_EARLY_SUPPORTER_CAP} Early-Slots. Mint mit Wallet unten.`
-            : `Unlocked. ${status?.slotsLeft ?? HOOD_EARLY_SUPPORTER_CAP} / ${HOOD_EARLY_SUPPORTER_CAP} early slots left. Mint with your wallet below.`}
+            ? `Freigeschaltet. Noch ${status?.slotsLeft ?? HOOD_EARLY_SUPPORTER_CAP} / ${HOOD_EARLY_SUPPORTER_CAP} Early-Slots.`
+            : `Unlocked. ${status?.slotsLeft ?? HOOD_EARLY_SUPPORTER_CAP} / ${HOOD_EARLY_SUPPORTER_CAP} early slots left.`}
         </p>
         <button
           type="button"
@@ -167,19 +169,27 @@ export function HoodEarlyPassGate({
   }
 
   return (
-    <div className="space-y-3 rounded-[1.4rem] border border-gold/30 bg-[#07090e]/70 p-4 sm:p-5">
+    <div className={compact ? "hood-panel space-y-3 p-4" : "space-y-3 rounded-[1.4rem] border border-gold/30 bg-hood-stage/70 p-4 sm:p-5"}>
       <div className="flex items-start gap-2">
         <Lock className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">
+          <p className="label-luxury-gold text-[10px] tracking-[0.22em]">
             {de ? HOOD_EARLY_COPY.kickerDe : HOOD_EARLY_COPY.kicker}
           </p>
-          <p className="mt-1.5 text-[14px] font-semibold leading-snug">
-            {de ? HOOD_EARLY_COPY.titleDe : HOOD_EARLY_COPY.title}
-          </p>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-            {de ? HOOD_EARLY_COPY.leadDe : HOOD_EARLY_COPY.lead}
-          </p>
+          {!compact ? (
+            <>
+              <p className="mt-1.5 text-[14px] font-semibold leading-snug">
+                {de ? HOOD_EARLY_COPY.titleDe : HOOD_EARLY_COPY.title}
+              </p>
+              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                {de ? HOOD_EARLY_COPY.leadDe : HOOD_EARLY_COPY.lead}
+              </p>
+            </>
+          ) : (
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              {de ? HOOD_EARLY_COPY.hintDe : HOOD_EARLY_COPY.hint}
+            </p>
+          )}
           {status?.slotsLeft != null ? (
             <p className="mt-2 font-mono text-[11px] text-gold/90">
               {status.slotsLeft} / {HOOD_EARLY_SUPPORTER_CAP} {de ? "übrig" : "left"}
@@ -211,9 +221,11 @@ export function HoodEarlyPassGate({
         {unlock.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         {de ? "Early Mint freischalten" : "Unlock early mint"}
       </button>
-      <p className="text-[11px] text-muted-foreground">
-        {de ? HOOD_EARLY_COPY.hintDe : HOOD_EARLY_COPY.hint}
-      </p>
+      {!compact ? (
+        <p className="text-[11px] text-muted-foreground">
+          {de ? HOOD_EARLY_COPY.hintDe : HOOD_EARLY_COPY.hint}
+        </p>
+      ) : null}
     </div>
   );
 }

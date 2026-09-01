@@ -9,6 +9,7 @@ import {
   ChevronDown,
   CircleDollarSign,
   Coins,
+  Palette,
   Play,
   Rocket,
   Sparkles,
@@ -17,8 +18,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { PulseOrbit } from "@/components/aura/pulse-orbit";
-import { AuraLens } from "@/components/aura/aura-lens";
 import { WordReveal } from "@/components/aura/word-reveal";
 import { Panel } from "@/components/aura/primitives";
 import { FoundingCohort } from "@/components/aura/scarcity";
@@ -29,8 +28,7 @@ import { Greeter } from "@/components/aura/greeter";
 import { OnboardingTour } from "@/components/aura/tour";
 import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import { ShareMoment } from "@/components/aura/share";
-import { LanguageToggle } from "@/components/aura/language-toggle";
-import { PublicMobileMenu, publicPrimaryNav } from "@/components/aura/public-mobile-menu";
+import { PublicSiteHeader } from "@/components/aura/public-site-header";
 import { WienStoryStrip } from "@/components/aura/wien-story-strip";
 import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
@@ -172,95 +170,10 @@ function Landing() {
   return (
     <main className="stage-atmosphere relative min-h-screen overflow-x-hidden">
       <BootCurtain />
-      <AuraLens />
-      <header className="fixed inset-x-0 top-0 z-30 border-b border-white/[0.04] bg-background/35 backdrop-blur-2xl">
-        <div className="austria-bar" aria-hidden />
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3 sm:px-6">
-          <PulseOrbit size="sm" className="min-w-0" />
-          <nav aria-label="Primary" className="ml-auto hidden items-center gap-4 lg:flex">
-            <Link
-              to="/"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("landing.navOs")}
-            </Link>
-            <Link
-              to="/lokal"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("landing.navLokal")}
-            </Link>
-            <Link
-              to="/how-it-works"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("landing.navHow")}
-            </Link>
-            <Link
-              to="/try"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("landing.navTry")}
-            </Link>
-            <Link
-              to="/proof"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("landing.navProof")}
-            </Link>
-            <Link
-              to="/pricing"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("landing.navPricing")}
-            </Link>
-            <Link
-              to="/hood"
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gold transition-colors hover:text-gold/80"
-            >
-              {t("landing.navHood")}
-            </Link>
-          </nav>
-          <LanguageToggle className="ml-auto hidden border-white/15 bg-black/20 sm:inline-flex lg:ml-0" />
-          <Link
-            to="/auth"
-            search={{ mode: "signup" }}
-            onClick={() => trackTeaser("cta_click", { placement: "landing_header_start" })}
-            className="cta-liquid cta-magnetic ml-auto shrink-0 rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_32px_-8px_var(--glow)] sm:ml-0"
-          >
-            {t("landing.navStart")}
-          </Link>
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
-            className="hidden shrink-0 rounded-2xl border border-white/10 bg-foreground/[0.05] px-4 py-2 text-xs font-semibold backdrop-blur-md transition-colors hover:border-primary/35 hover:bg-foreground/10 sm:inline-flex"
-          >
-            {t("landing.signIn")}
-          </button>
-          <PublicMobileMenu items={publicPrimaryNav(t)} hideFrom="lg">
-            <LanguageToggle className="self-start sm:hidden" />
-            <Link
-              to="/auth"
-              search={{ mode: "signup" }}
-              onClick={() => trackTeaser("cta_click", { placement: "landing_menu_start" })}
-              className="cta-liquid rounded-2xl bg-primary px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-            >
-              {t("landing.navStart")}
-            </Link>
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
-              className="rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold"
-            >
-              {t("landing.signIn")}
-            </button>
-          </PublicMobileMenu>
-        </div>
-        <div
-          className="h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent"
-          aria-hidden
-        />
-      </header>
+      <PublicSiteHeader
+        fixed
+        onCtaClick={() => trackTeaser("cta_click", { placement: "landing_header_start" })}
+      />
 
       {/* ACT 00 — one composition: brand · headline · line · CTAs · film */}
       <section className="relative z-10 flex min-h-[100svh] items-end overflow-hidden sm:items-center">
@@ -269,21 +182,12 @@ function Landing() {
           data-tour="hero"
           className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-28 sm:pb-24 sm:pt-24"
         >
-          <motion.div
-            initial={{ y: 12, filter: "blur(8px)" }}
-            animate={{ y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-8"
-          >
-            <PulseOrbit size="hero" />
-          </motion.div>
-
-          <h1 className="display-hero max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_8px_40px_oklch(0_0_0_/_0.55)]">
+          <h1 className="display-hero luxury-reveal max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_8px_40px_oklch(0_0_0_/_0.55)]">
             <WordReveal text={t("landing.hero1")} delay={0.06} />
             <br />
             <motion.span
-              initial={{ y: 22, filter: "blur(10px)" }}
-              animate={{ y: 0, filter: "blur(0px)" }}
+              initial={{ y: 22, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className="text-money inline-block"
             >
@@ -367,7 +271,7 @@ function Landing() {
 
       <section
         id="start"
-        className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-16 sm:py-20"
+        className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-24 sm:py-32"
       >
         <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
           {t("landing.audienceKicker")}
@@ -375,7 +279,7 @@ function Landing() {
         <h2 className="display-hero mt-4 max-w-3xl text-[clamp(2.2rem,6vw,3.8rem)]">
           {t("landing.audienceTitle")}
         </h2>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Link
             to="/auth"
             search={{ mode: "signup" }}
@@ -414,6 +318,24 @@ function Landing() {
             </span>
           </Link>
           <Link
+            to="/for/builders"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_builders" })}
+            className="glass hover-lift group rounded-[1.65rem] p-6"
+          >
+            <span className="icon-well" aria-hidden>
+              <Palette className="h-4 w-4" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.audienceBuildersTitle")}
+            </h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.audienceBuildersBody")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
+              {t("landing.audienceBuildersCta")} <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </Link>
+          <Link
             to="/tokenomics"
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_aura" })}
             className="glass hover-lift group rounded-[1.65rem] p-6"
@@ -448,7 +370,7 @@ function Landing() {
       {/* How it works — early, plain language */}
       <section
         id="how"
-        className="relative z-10 mx-auto max-w-6xl scroll-mt-24 px-6 py-16 sm:py-20"
+        className="relative z-10 mx-auto max-w-6xl scroll-mt-24 px-6 py-24 sm:py-32"
       >
         <div className="mb-10 max-w-2xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">

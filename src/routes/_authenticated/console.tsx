@@ -17,7 +17,7 @@ import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
 import { ExpandableCopy } from "@/components/aura/expandable-copy";
 import { FocusCard } from "@/components/aura/focus-card";
 import { FocusDeck } from "@/components/aura/focus-deck";
-import { Chip, Panel, Pulse, Shimmer } from "@/components/aura/primitives";
+import { Chip, PageHeader, Panel, Pulse, Shimmer } from "@/components/aura/primitives";
 import { DailyEngagementStrip } from "@/components/aura/daily-engagement-strip";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
@@ -345,20 +345,16 @@ function Home() {
       {/* Desktop / tablet: full stacked command surface */}
       <div className="hidden space-y-6 md:block">
         {/* 1. Company header */}
-        <section className="flex flex-wrap items-end justify-between gap-6">
-          <div className="min-w-0">
-            <p className="mb-3 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.32em] text-primary">
-              <Pulse /> Command center · {autonomyLabel(autonomy)}
-            </p>
-            <h1 className="text-gradient max-w-3xl text-3xl font-semibold leading-[1.06] md:text-4xl">
-              {running.length > 0 || focusMission?.status === "active"
-                ? "Your company is working."
-                : (company?.name ?? "Your company")}
-            </h1>
-            <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-muted-foreground">
-              You own the company. You give outcomes. Aura handles the rest.
-              {" · "}
-              Level {level}
+        <PageHeader
+          eyebrow={`Command center · ${autonomyLabel(autonomy)}`}
+          title={
+            running.length > 0 || focusMission?.status === "active"
+              ? "Your company is working."
+              : (company?.name ?? "Your company")
+          }
+          description={
+            <>
+              You own the company. You give outcomes. Aura handles the rest. · Level {level}
               {economy?.slug ? (
                 <>
                   {" · "}
@@ -371,28 +367,30 @@ function Home() {
                   </Link>
                 </>
               ) : null}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {!simple ? (
-              <>
-                <Chip tone="primary">Rep {economy?.reputation ?? "—"}</Chip>
-                <Chip tone="gold">
-                  {compact(sub?.tokens_remaining ?? 0)} {TOKEN_SYMBOL}
-                </Chip>
-                <Chip tone="primary">
-                  Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA today
-                </Chip>
-              </>
-            ) : null}
-            <Link
-              to="/ceo"
-              className="inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
-            >
-              Ask Atlas <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-        </section>
+            </>
+          }
+          actions={
+            <>
+              {!simple ? (
+                <>
+                  <Chip tone="primary">Rep {economy?.reputation ?? "—"}</Chip>
+                  <Chip tone="gold">
+                    {compact(sub?.tokens_remaining ?? 0)} {TOKEN_SYMBOL}
+                  </Chip>
+                  <Chip tone="primary">
+                    Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA today
+                  </Chip>
+                </>
+              ) : null}
+              <Link
+                to="/ceo"
+                className="inline-flex items-center gap-1 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+              >
+                Ask Atlas <ArrowUpRight className="h-3 w-3" />
+              </Link>
+            </>
+          }
+        />
 
         {/* Snapshot: actual economics only */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

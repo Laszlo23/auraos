@@ -1,5 +1,4 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useMemo } from "react";
 
 import {
   LEGAL_EMAIL,
@@ -22,48 +21,22 @@ function footerColumns(t: (key: string) => string) {
       title: t("footer.product"),
       links: [
         { to: "/", label: "Aura OS" },
-        { to: "/lokal", label: "Aura Local" },
-        { to: "/nachbar", label: "Aura Nachbar" },
         { to: "/how-it-works", label: t("footer.how") },
         { to: "/try", label: t("footer.try") },
-        { to: "/compare", label: t("footer.compare") },
-        { to: "/proof", label: t("footer.proof") },
         { to: "/pricing", label: t("footer.pricing") },
+        { to: "/proof", label: t("footer.proof") },
         { to: "/faq", label: t("footer.faq") },
       ],
     },
     {
       title: t("footer.ecosystem"),
       links: [
-        { to: "/tokenomics", label: "AURA" },
         { to: "/hood", label: "The Hood" },
         { to: "/tokenomics", label: "Tokenomics" },
-        { to: "/lightpaper", label: "Lightpaper" },
-        { to: "/whitepaper", label: "Whitepaper" },
         { to: "/roadmap", label: "Roadmap" },
-        { to: "/marketplace", label: "Marketplace" },
-      ],
-    },
-    {
-      title: t("footer.company"),
-      links: [
-        { to: "/team", label: "Team" },
-        { to: "/story", label: "Story" },
-        { to: "/blog", label: "Blog" },
-        { to: "/grants", label: "Grants" },
-        { to: "/partners/fio", label: t("footer.partners") },
-        { to: "/wien", label: "Wien" },
-      ],
-    },
-    {
-      title: t("footer.resources"),
-      links: [
-        { to: "/pitch", label: t("footer.pitch") },
-        { to: "/share", label: t("footer.shareKit") },
-        { to: "/review", label: t("footer.reviews") },
-        { to: "/brand", label: "Brand" },
-        { to: "/sticker", label: "Stickers" },
-        { to: "/", label: t("footer.waitlist"), hash: "community" },
+        { to: "/for/builders", label: "Creators" },
+        { to: "/lokal", label: "Aura Local" },
+        { to: "/marketplace", label: "Agent Store" },
       ],
     },
     {
@@ -73,82 +46,46 @@ function footerColumns(t: (key: string) => string) {
         { to: "/privacy", label: t("footer.privacy") },
         { to: "/terms", label: t("footer.terms") },
         { to: "/cookies", label: t("footer.cookies") },
+        { to: "/brand", label: "Brand" },
+        { to: "/team", label: "Team" },
       ],
     },
   ];
 }
 
 function ProductSwitcher() {
-  const { t } = useLocale();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const current = useMemo(() => {
-    const exact = PRODUCT_SURFACES.find((p) => p.href === pathname);
-    if (exact) return exact.id;
-    if (pathname.startsWith("/nachbar")) return "nachbar";
-    if (
-      pathname === "/wien" ||
-      pathname === "/review" ||
-      pathname === "/sticker" ||
-      pathname === "/story"
-    ) {
-      return "wien";
-    }
-    if (pathname.startsWith("/for/")) {
-      const slug = pathname.split("/")[2];
-      const match = PRODUCT_SURFACES.find((p) => p.href === `/for/${slug}`);
-      if (match) return match.id;
-    }
-    if (
-      pathname.startsWith("/console") ||
-      pathname.startsWith("/wallet") ||
-      pathname.startsWith("/akquise") ||
-      pathname.startsWith("/billing")
-    ) {
-      return "app";
-    }
-    return "os";
-  }, [pathname]);
+  const pills: { id: string; label: string; href: string }[] = [
+    ...PRODUCT_SURFACES.filter((p) => ["os", "lokal", "app"].includes(p.id)),
+    { id: "hood", label: "The Hood", href: "/hood" },
+    { id: "builders", label: "Creators", href: "/for/builders" },
+  ];
 
   return (
-    <label className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-        {t("footer.switch")}
-      </span>
-      <select
-        value={current}
-        aria-label="Switch between Aura products and funnels"
-        onChange={(e) => {
-          const next = PRODUCT_SURFACES.find((p) => p.id === e.target.value);
-          if (!next) return;
-          trackTeaser("cta_click", { placement: `footer_switch:${next.id}`.slice(0, 40) });
-          void navigate({ to: next.href });
-        }}
-        className="max-w-full rounded-xl border border-border/60 bg-foreground/[0.04] px-3 py-2 text-[12px] font-medium text-foreground outline-none focus:border-primary/50 sm:min-w-[16rem]"
-      >
-        <optgroup label={t("footer.products")}>
-          {PRODUCT_SURFACES.filter((p) => p.group === "product").map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label} — {p.blurb}
-            </option>
-          ))}
-        </optgroup>
-        <optgroup label={t("footer.funnels")}>
-          {PRODUCT_SURFACES.filter((p) => p.group === "funnel").map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
-          ))}
-        </optgroup>
-        <optgroup label={t("footer.appGroup")}>
-          {PRODUCT_SURFACES.filter((p) => p.group === "app").map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
-          ))}
-        </optgroup>
-      </select>
-    </label>
+    <div className="flex flex-wrap gap-2">
+      {pills.map((p) => {
+        const active = pathname === p.href || (p.id === "hood" && pathname.startsWith("/hood"));
+        return (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => {
+              trackTeaser("cta_click", { placement: `footer_switch:${p.id}`.slice(0, 40) });
+              void navigate({ to: p.href });
+            }}
+            className={cn(
+              "rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+              active
+                ? "border-primary/45 bg-primary/12 text-foreground"
+                : "border-border/50 bg-foreground/[0.04] text-muted-foreground hover:border-primary/30 hover:text-foreground",
+            )}
+          >
+            {p.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -166,10 +103,14 @@ export function SiteFooter({
   const columns = footerColumns(t);
   return (
     <footer
-      className={cn("cv-auto relative z-10 border-t border-primary/10 px-6 py-10", className)}
+      className={cn("cv-auto relative z-10 border-t border-transparent px-6 py-10", className)}
     >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent"
+        aria-hidden
+      />
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {columns.map((col) => (
             <nav key={col.title} aria-label={col.title}>
               <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -204,6 +145,14 @@ export function SiteFooter({
               {t("footer.community")}
             </p>
             <ul className="mt-3 space-y-2">
+              <li>
+                <Link
+                  to="/changelog"
+                  className="text-[13px] font-medium text-foreground transition-colors hover:text-primary"
+                >
+                  {t("footer.changelog")}
+                </Link>
+              </li>
               {SOCIAL_LINKS.map((s) => (
                 <li key={s.id}>
                   <a
@@ -224,6 +173,7 @@ export function SiteFooter({
         </div>
 
         <div className="border-t border-border/40 pt-5">
+          <p className="label-luxury mb-3 text-muted-foreground">{t("footer.switch")}</p>
           <ProductSwitcher />
         </div>
 
