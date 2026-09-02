@@ -30,6 +30,7 @@ import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
 import { COMPANY_QUESTS } from "@/lib/gamify";
 import { levelFromXp, useProgress } from "@/hooks/use-progress";
 import { useCompany, useCompanyTable, liveWorkInterval, rowsHaveLiveWork } from "@/hooks/use-aura";
+import { useSocialStatus } from "@/hooks/use-connections";
 import { useMailboxes } from "@/hooks/use-mailbox";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
 import { useSubscription } from "@/hooks/use-tokens";
@@ -132,6 +133,11 @@ function Home() {
     ascending: false,
     limit: 6,
   });
+  const { data: socialStatuses = [] } = useSocialStatus();
+  const { data: channelPosts = [] } = useCompanyTable<{ id: string; status: string }>(
+    "channel_posts",
+    { orderBy: "created_at", ascending: false, limit: 40 },
+  );
   const { data: mailboxes = [] } = useMailboxes();
   const mailboxLive = mailboxes.some((m) => m.connected);
   const { data: akquiseCampaigns = [] } = useCompanyTable<{ id: string }>("akquise_campaigns", {
@@ -153,7 +159,14 @@ function Home() {
   const awaiting = tasks.filter((t) => t.status === "pending_approval");
   const socialAwaiting = awaiting.filter((t) => Boolean(t.result?.startsWith("social-reply:")));
   const otherAwaiting = awaiting.filter((t) => !t.result?.startsWith("social-reply:"));
-  const done = tasks.filter((t) => t.status === "completed" || t.status === "done").length;
+  const doneTasks = tasks.filter((t) => t.status === "completed" || t.status === "done");
+  const done = doneTasks.length;
+  /** First-win meter: only count tasks that filed a real result string. */
+  const realResults = doneTasks.filter(
+    (t) => typeof t.result === "string" && t.result.trim().length >= 24,
+  ).length;
+  const queuedSocial = channelPosts.filter((p) => p.status === "scheduled").length;
+  const autoPublishOff = socialStatuses.some((s) => s.connected && !s.auto_publish);
   const failedCount = tasks.filter((t) => t.status === "failed").length;
   const briefing = insights.find((i) => i.kind === "thought");
   const totals = economy?.totals;
@@ -478,11 +491,26 @@ function Home() {
 
         {(simple || customers < 10) && (
           <FirstWin
-            goal={focusMission?.goal_text || "Get 10 qualified leads"}
-            completed={Math.min(customers || done, 10)}
-            target={10}
+            goal="File one real agent result — approve a task; social work must show Published or Queued on Channels"
+            completed={realResults > 0 ? 1 : 0}
+            target={1}
           />
         )}
+
+        {queuedSocial > 0 && autoPublishOff ? (
+          <Panel label="Channels · Autopublish off" glow>
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              {queuedSocial} social post{queuedSocial === 1 ? "" : "s"} queued. Turn on Autopublish
+              so the worker can send them — agents will not pretend they are live.
+            </p>
+            <Link
+              to="/channels"
+              className="mt-3 inline-flex text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+            >
+              Open Channels
+            </Link>
+          </Panel>
+        ) : null}
 
         {(simple || (lifetime === 0 && done === 0)) && (
           <StartHere

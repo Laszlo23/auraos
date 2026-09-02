@@ -12,7 +12,7 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 | **AURA QUEST** | **Live (Phase A)** | `/quest`, `src/lib/progress/`, `award_progress` RPC |
 | **AURA Community Squads** | **Live** | `/community`, `aura_squads`, shared tasks + world pulse |
 | **Public momentum** | Live | `/changelog` (2026-09-02), share kit `quest-squads`, roadmap vibes include Quest + Squads |
-| **AURA SCOUTS** | MVP (Vienna) | `join_aura_scout`, `attribute_scout_business`, leaderboard |
+| **AURA SCOUTS** | **Live (Vienna)** | `join_aura_scout`, Scout invite `/lokal?ref=`, `attribute_scout_business`, leaderboard |
 | **AURA PORTALS** | MVP | `/portal/$slug`, `aura_portals` table |
 | **AURA STREET** | Brewing | Extend `/nachbar/entdecken` — map mode Phase D |
 | **Genesis / Hood** | Partial on-chain | Cap **1,000** Hood; Genesis **777** = profile tier (`src/lib/progress/genesis.ts`) |
@@ -43,8 +43,15 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 ## Scouts (Phase B)
 
 - `aura_scouts` + `scout_attributions`
-- REP + badge when attributed local seat pays (`mark_local_seat_paid_stripe` → `attribute_scout_business`)
+- After Join Scouts: copyable `/lokal?ref=<code>` invite (founding invite or `ensure_scout_referral_code`)
+- Signup with that ref → `attribute_referral` → Local seat paid → `attribute_scout_business` → REP + Connector badge
 - Vienna leaderboard: `vienna_city_leaderboard` RPC on `/leaderboard`
+
+## Quest social loop
+
+- Community `/community` awards `community:follow-*` / join Discord/Telegram on honor-system click (idempotent)
+- `/quest` merges signup Growth Starter XP on mount via `merge_signup_growth_progress`
+- Success metric: 3 quests → level + badge without tokenomics
 
 ## Portals (Phase C)
 

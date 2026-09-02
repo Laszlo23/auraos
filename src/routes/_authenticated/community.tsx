@@ -490,13 +490,29 @@ function CommunityHubPage() {
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => trackTeaser("social_join", { placement: `community:${s.id}` })}
-                  className="flex items-center justify-between rounded-xl border border-border/40 px-3 py-2 text-[12px] hover:border-primary/30"
+                  onClick={() => {
+                    trackTeaser("social_join", { placement: `community:${s.id}` });
+                    if (done.has(s.questKey)) return;
+                    pop(s.label, s.xp);
+                    void awardProgress({
+                      eventKey: s.questKey,
+                      xp: s.xp,
+                      rep: 0,
+                      idempotencyKey: s.questKey,
+                    }).then(() => {
+                      void qc.invalidateQueries({ queryKey: ["user-progress"] });
+                      void qc.invalidateQueries({ queryKey: ["progress"] });
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center justify-between rounded-xl border px-3 py-2 text-[12px] hover:border-primary/30",
+                    done.has(s.questKey) ? "border-primary/30 bg-primary/5" : "border-border/40",
+                  )}
                 >
                   <span>
                     {s.label}
                     <span className="ml-2 text-[11px] font-normal text-muted-foreground">
-                      {s.hint} · +{s.xp} XP
+                      {done.has(s.questKey) ? "Done" : `${s.hint} · +${s.xp} XP`}
                     </span>
                   </span>
                   <ExternalLink className="h-3 w-3 text-muted-foreground" />

@@ -34,4 +34,9 @@ describe("public roadmap", () => {
       "autonomous",
     ]);
   });
+
+  it("marks Aura Scouts live with invite attribution", () => {
+    expect(ROADMAP_STOPS.find((s) => s.id === "aura-scouts")?.status).toBe("live");
+    expect(ROADMAP_STOPS.find((s) => s.id === "aura-scouts")?.body).toMatch(/lokal\?ref/i);
+  });
 });

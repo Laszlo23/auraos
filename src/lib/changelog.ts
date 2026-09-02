@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-03-success-loops",
+    date: "2026-09-03",
+    title: "Quest, Scout, and Channels loops that actually close",
+    summary:
+      "Community social quests award XP, Scouts get a tracked Local invite, Growth XP merges on /quest, and Channels/Console stay honest about live vs queued posts.",
+    items: [
+      "Community social clicks award community:* XP (idempotent) — trail lights up on /quest",
+      "Scout invite: /lokal?ref=CODE after Join Scouts; attribute_referral on Local signup → REP when seat pays",
+      "/quest merges signup Growth Starter progress on mount",
+      "Channels: Autopublish-off banner for queued posts; Recent posts show Published / Queued with live links",
+      "Console FirstWin counts filed results only; seat=success routes to onboarding",
+    ],
+    tags: ["feature", "fix"],
+  },
+  {
     id: "2026-09-02-aura-world",
     date: "2026-09-02",
     title: "AURA WORLD — Quest, Squads, Portals, Scouts",

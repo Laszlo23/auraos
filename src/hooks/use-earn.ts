@@ -74,7 +74,8 @@ export type FoundingInvite = {
 
 /* -------------------------------------------------------------- referrals */
 
-/** Single founding invite after paid seat (synced to referral_codes for share links). */
+/** Single founding invite after paid seat (synced to referral_codes for share links).
+ *  Scouts without a founding seat get a reusable Scout code via ensure_scout_referral_code. */
 export function useReferralCode() {
   const { data: userId } = useUserId();
   return useQuery({
@@ -92,11 +93,19 @@ export function useReferralCode() {
         };
       }
       const { data, error } = await supabase.rpc("ensure_referral_code");
-      if (error) {
-        if (/founding_seat_required/i.test(error.message)) return null;
-        throw error;
+      if (!error && data) {
+        return (data as unknown as ReferralCode) ?? null;
       }
-      return (data as unknown as ReferralCode) ?? null;
+      if (error && !/founding_seat_required/i.test(error.message)) throw error;
+
+      const { data: scoutCode, error: scoutErr } = await supabase.rpc(
+        "ensure_scout_referral_code" as never,
+      );
+      if (scoutErr) {
+        if (/scout_required/i.test(scoutErr.message)) return null;
+        throw scoutErr;
+      }
+      return (scoutCode as unknown as ReferralCode) ?? null;
     },
   });
 }

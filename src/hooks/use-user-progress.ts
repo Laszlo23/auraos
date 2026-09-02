@@ -152,6 +152,7 @@ export function useJoinScout() {
       void qc.invalidateQueries({ queryKey: ["user-progress"] });
       void qc.invalidateQueries({ queryKey: ["achievements"] });
       void qc.invalidateQueries({ queryKey: ["scout"] });
+      void qc.invalidateQueries({ queryKey: ["referral-code"] });
     },
   });
 }

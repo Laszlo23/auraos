@@ -637,6 +637,11 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
         publishNotes.join(" · ").slice(0, 240),
       );
       if (publishNotes.length) {
+        // Strip LLM fantasies about multi-platform publish — only Publish notes are truth.
+        resultText = resultText
+          .replace(/Published all \d+[^.]*\./gi, "")
+          .replace(/auto[-\s]?publish(?:ed|ing)?[^.]*\./gi, "")
+          .trim();
         resultText = `${resultText}\n\nPublish: ${publishNotes.join(" · ")}`;
       }
     } catch (e) {

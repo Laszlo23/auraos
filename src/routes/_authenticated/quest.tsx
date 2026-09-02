@@ -1,17 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Flame, Sparkles, Trophy } from "lucide-react";
-import { useMemo } from "react";
+import { Copy, Flame, Trophy } from "lucide-react";
+import { useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 
 import { DailyWheel } from "@/components/aura/wheel";
 import { Chip, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
+import { useReferralCode } from "@/hooks/use-earn";
 import { useProgress } from "@/hooks/use-progress";
 import {
   useAchievements,
   useJoinScout,
+  useMergeSignupGrowth,
   useUserProgress,
   userLevelRail,
 } from "@/hooks/use-user-progress";
 import { useTodaySpin } from "@/hooks/use-wheel";
+import { SITE_URL } from "@/lib/site";
 import { DAILY_QUEST_KEYS, QUEST_REGISTRY, WEEKLY_QUEST_KEYS } from "@/lib/progress/registry";
 import { REP_EARN_RULES } from "@/lib/progress/registry";
 import { cn } from "@/lib/utils";
@@ -41,6 +45,17 @@ function QuestHubPage() {
   const { data: achievements } = useAchievements();
   const { data: todaySpin } = useTodaySpin();
   const joinScout = useJoinScout();
+  const mergeGrowth = useMergeSignupGrowth();
+  const { data: referralCode } = useReferralCode();
+  const mergedOnce = useRef(false);
+
+  useEffect(() => {
+    if (mergedOnce.current || mergeGrowth.isPending || mergeGrowth.isSuccess) return;
+    mergedOnce.current = true;
+    void mergeGrowth.mutateAsync().catch(() => {
+      /* RPC may be absent on older envs — Quest still works */
+    });
+  }, [mergeGrowth]);
 
   const completed = useMemo(
     () => new Set(userProg?.completed_quests ?? companyProg?.completed_quests ?? []),
@@ -58,6 +73,24 @@ function QuestHubPage() {
     achievements?.definitions.find((d) => !achievements.unlocked.has(d.id)) ?? null;
 
   const scoutJoined = completed.has("scout:joined");
+  const scoutLink = referralCode?.code
+    ? `${SITE_URL}/lokal?ref=${encodeURIComponent(referralCode.code)}`
+    : null;
+
+  const copyScoutLink = async () => {
+    if (!scoutLink) {
+      toast.message("Join Scouts first — then your invite link appears here.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(
+        `Join Aura Local via my Scout link — when your seat pays, I earn REP for connecting you.\n${scoutLink}`,
+      );
+      toast.success("Scout invite copied");
+    } catch {
+      toast.error("Copy failed — select the link manually");
+    }
+  };
 
   return (
     <div className="mx-auto w-full max-w-[960px] space-y-6 pb-16">
@@ -171,9 +204,34 @@ function QuestHubPage() {
                 Join Scouts
               </button>
             ) : (
-              <Chip tone="gold" className="mt-4">
-                <Pulse /> Scout active
-              </Chip>
+              <div className="mt-4 space-y-3">
+                <Chip tone="gold">
+                  <Pulse /> Scout active
+                </Chip>
+                {scoutLink ? (
+                  <div className="rounded-2xl border border-border/50 bg-foreground/[0.03] px-3 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                      Your Scout invite
+                    </p>
+                    <p className="mt-1 break-all font-mono text-[12px] text-foreground">{scoutLink}</p>
+                    <button
+                      type="button"
+                      onClick={() => void copyScoutLink()}
+                      className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary/14 px-3 py-2 text-[11px] font-semibold text-primary"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                      Copy Scout link
+                    </button>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      Share with shops. Attribution lands when their Local seat pays.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-[12px] text-muted-foreground">
+                    Minting your Scout invite… open Earn if the link does not appear.
+                  </p>
+                )}
+              </div>
             )}
             <Link
               to="/leaderboard"

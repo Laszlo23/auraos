@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import {
+  getAttribution,
   peekFunnel,
   peekLocale,
   peekPeerInvite,
@@ -132,6 +133,13 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
       });
       if (peerErr) {
         console.warn("[createEmptyCompany] peer invite", peerErr.message);
+      }
+    }
+    const scoutRef = getAttribution().ref_code?.trim().toUpperCase() || "";
+    if (scoutRef) {
+      const { error: refErr } = await supabase.rpc("attribute_referral", { _code: scoutRef });
+      if (refErr) {
+        console.warn("[createEmptyCompany] scout referral", refErr.message);
       }
     }
     try {

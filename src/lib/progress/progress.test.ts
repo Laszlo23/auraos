@@ -41,4 +41,16 @@ describe("quest registry", () => {
     expect(QUEST_REGISTRY.some((q) => q.key === "squad:created")).toBe(true);
     expect(QUEST_REGISTRY.some((q) => q.key === "squad:joined")).toBe(true);
   });
+
+  it("includes community social quests", () => {
+    for (const key of [
+      "community:follow-x",
+      "community:join-discord",
+      "community:join-telegram",
+      "community:follow-farcaster",
+      "community:open-quest",
+    ]) {
+      expect(QUEST_REGISTRY.some((q) => q.key === key)).toBe(true);
+    }
+  });
 });

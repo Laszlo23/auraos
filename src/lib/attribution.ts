@@ -225,7 +225,14 @@ export function takeLocale(): UiLocale {
 
 export function authHrefForLokal(mode: "signin" | "signup" = "signup", locale?: UiLocale): string {
   const lang = locale ?? peekLocale();
-  return `/auth?funnel=local&lang=${lang}&mode=${mode}`;
+  const ref = getAttribution().ref_code?.trim().toUpperCase() || "";
+  const params = new URLSearchParams({
+    funnel: "local",
+    lang,
+    mode,
+  });
+  if (ref) params.set("ref", ref);
+  return `/auth?${params.toString()}`;
 }
 
 export function rememberPeerInvite(code: string): void {

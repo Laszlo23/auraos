@@ -109,11 +109,11 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
   },
   {
     id: "aura-scouts",
-    when: "Autumn",
-    status: "brewing",
+    when: "Now",
+    status: "live",
     kind: "build",
     title: "Aura Scouts — Vienna density",
-    body: "Scout role, verified local seat attribution, Vienna REP leaderboard. Connectors earn when businesses they brought pay — not when they click a link.",
+    body: "Scout role, copyable /lokal?ref invite, verified local seat attribution, Vienna REP leaderboard. Connectors earn when businesses they brought pay — not when they click a link.",
   },
   {
     id: "aura-squads",

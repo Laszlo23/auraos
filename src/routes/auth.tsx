@@ -573,6 +573,11 @@ function AuthPage() {
           _code: storedInvite,
         });
         if (redeemErr) console.warn("redeem_invite_code", redeemErr.message);
+        // Scout / Earn referral codes → referrals row for Local seat attribution
+        const { error: attrErr } = await supabase.rpc("attribute_referral", {
+          _code: storedInvite,
+        });
+        if (attrErr) console.warn("attribute_referral", attrErr.message);
       }
       takeStoredInvite();
       if (!patronNext) takeStoredRef();
@@ -580,7 +585,11 @@ function AuthPage() {
         trackAppEvent("signup_complete", { method: reason });
       }
 
-      const dest = await resolvePostAuthPath(nextFromLinkRef.current);
+      let dest = await resolvePostAuthPath(nextFromLinkRef.current);
+      // After founding-seat checkout, force onboarding until the company is marked onboarded.
+      if (seatFromLink === "success" && dest === "/console") {
+        dest = "/onboarding";
+      }
       postAuthDoneRef.current = true;
       if (!cancelledRef.current) {
         if (dest.startsWith("/oauth/consent") || dest.startsWith("/i/fc/")) {

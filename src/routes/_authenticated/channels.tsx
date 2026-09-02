@@ -67,6 +67,7 @@ type Post = {
   reposts: number;
   agent_name: string | null;
   created_at: string;
+  scheduled_at?: string | null;
   external_url: string | null;
   error: string | null;
 };
@@ -114,6 +115,8 @@ function ChannelsPage() {
   const xStatus = statuses.find((s) => s.provider === "x");
   const tiktokStatus = statuses.find((s) => s.provider === "tiktok");
   const metaStatus = statuses.find((s) => s.provider === "meta");
+  const scheduledWaiting = posts.filter((p) => p.status === "scheduled").length;
+  const connectedNoAuto = statuses.filter((s) => s.connected && !s.auto_publish);
 
   const [pending, setPending] = useState<string | null>(null);
   const [burst, setBurst] = useState(0);
@@ -209,6 +212,26 @@ function ChannelsPage() {
           </div>
         }
       />
+
+      {scheduledWaiting > 0 && connectedNoAuto.length > 0 ? (
+        <Panel label="Queued — Autopublish is off" glow>
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            {scheduledWaiting} post{scheduledWaiting === 1 ? "" : "s"} waiting in the queue. Turn on
+            Autopublish for{" "}
+            {connectedNoAuto.map((s) => META[s.provider as keyof typeof META]?.name ?? s.provider).join(", ")}{" "}
+            above so the worker can send them live — agents never invent a “published” receipt.
+          </p>
+        </Panel>
+      ) : null}
+
+      {connected === 0 ? (
+        <Panel label="Connect a channel first">
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            Social tasks stay honest: Connect X or Farcaster → Autopublish on → approve. Until then
+            results say queued or not connected — never a fake live link.
+          </p>
+        </Panel>
+      ) : null}
 
       {xStatus?.connected && xStatus.needsReconnect ? (
         <Panel label="Reconnect X for native video" glow>
@@ -946,13 +969,29 @@ function ChannelsPage() {
                         ? "primary"
                         : post.status === "failed"
                           ? "danger"
-                          : "neutral"
+                          : post.status === "scheduled"
+                            ? "gold"
+                            : "neutral"
                     }
                   >
-                    {post.status}
+                    {post.status === "published"
+                      ? "Published"
+                      : post.status === "scheduled"
+                        ? "Queued"
+                        : post.status === "failed"
+                          ? "Failed"
+                          : post.status}
                   </Chip>
                 </div>
                 <p className="text-[13px] leading-relaxed">{post.body}</p>
+                {post.status === "scheduled" && !post.external_url ? (
+                  <p className="mt-2 text-[11px] text-gold">
+                    Queued — turn on Autopublish for this channel to go live
+                    {post.scheduled_at
+                      ? ` · due ${timeAgo(post.scheduled_at)}`
+                      : ""}
+                  </p>
+                ) : null}
                 {post.error ? (
                   <p className="mt-2 text-[11px] text-destructive">{post.error}</p>
                 ) : null}
@@ -965,6 +1004,10 @@ function ChannelsPage() {
                   >
                     View live
                   </a>
+                ) : post.status === "published" ? (
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Published (no public URL returned by the network)
+                  </p>
                 ) : null}
               </motion.div>
             ))
