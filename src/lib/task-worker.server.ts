@@ -58,6 +58,7 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
   const { data: due } = await q;
 
   let published = 0;
+  let skipped = 0;
   const errors: string[] = [];
   for (const post of due ?? []) {
     try {
@@ -70,9 +71,15 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
         .eq("provider", provider)
         .maybeSingle();
       if (!conn || conn.status !== "connected") {
+        skipped += 1;
+        console.warn(
+          `[channels] skip ${post.id} ${provider}: connection ${conn?.status ?? "missing"}`,
+        );
         continue;
       }
       if (!conn.auto_publish) {
+        skipped += 1;
+        console.warn(`[channels] skip ${post.id} ${provider}: auto_publish off`);
         continue;
       }
 
@@ -111,13 +118,14 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       errors.push(msg);
+      console.error(`[channels] publish failed ${post.id}`, msg);
       await supabaseAdmin
         .from("channel_posts")
         .update({ status: "failed", error: msg.slice(0, 500) })
         .eq("id", post.id);
     }
   }
-  return { published, errors };
+  return { published, skipped, errors };
 }
 
 /** Pull comments/mentions and auto-reply (or draft) based on reply_mode. */

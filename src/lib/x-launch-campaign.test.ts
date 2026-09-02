@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { DRIP_HORIZON_MS, DRIP_MAX_SLOTS, buildLaunchDripSchedule } from "@/lib/x-launch-campaign";
+import {
+  DRIP_HORIZON_MS,
+  DRIP_MAX_SLOTS,
+  buildFarcasterDripSchedule,
+  buildLaunchDripSchedule,
+} from "@/lib/x-launch-campaign";
 
 describe("buildLaunchDripSchedule", () => {
   it("fills the two-week horizon instead of stopping after a one-week burst", () => {
@@ -22,5 +27,14 @@ describe("buildLaunchDripSchedule", () => {
     expect(slots[0]?.campaignKey).toContain("2026-08-28T18");
     expect(slots.some((s) => s.campaignKey.includes("2026-08-28T09"))).toBe(false);
     expect(slots.some((s) => s.campaignKey.includes("2026-08-28T13"))).toBe(false);
+  });
+
+  it("builds a Farcaster sister drip with distinct campaign keys", () => {
+    const from = Date.parse("2026-08-28T10:00:00+02:00");
+    const x = buildLaunchDripSchedule(from);
+    const fc = buildFarcasterDripSchedule(from);
+    expect(fc.length).toBe(x.length);
+    expect(fc.every((s) => s.campaignKey.startsWith("fc-drip-"))).toBe(true);
+    expect(fc[0]!.body.length).toBeLessThanOrEqual(320);
   });
 });

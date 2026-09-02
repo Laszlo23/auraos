@@ -19,7 +19,7 @@ tick() {
   local url=$1
   local out code
   out=$(mktemp)
-  code=$(curl -sS -m 120 -X POST -H "Authorization: Bearer ${WORKER_SECRET}" \
+  code=$(curl -sS -m 180 -X POST -H "Authorization: Bearer ${WORKER_SECRET}" \
     "$url" -o "$out" -w "%{http_code}" || true)
   if [[ "$code" == "200" ]]; then
     rm -f "$out"

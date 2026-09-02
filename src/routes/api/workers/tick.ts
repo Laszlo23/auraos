@@ -21,19 +21,49 @@ function authorizeWorker(request: Request): Response | null {
   return null;
 }
 
-async function runTick(taskLimit: number) {
-  let drip = { companies: 0, created: 0, skipped: 0 };
+async function safe<T>(
+  label: string,
+  fn: () => Promise<T>,
+  fallback: T,
+): Promise<T> {
   try {
-    drip = await extendLaunchDrips();
+    return await fn();
   } catch (e) {
-    console.warn("[workers/tick] drip extend failed", e instanceof Error ? e.message : e);
+    console.warn(`[workers/tick] ${label} failed`, e instanceof Error ? e.message : e);
+    return fallback;
   }
-  const tasks = await processTaskQueue(taskLimit);
-  const channels = await publishDueChannelPosts(20);
-  const engagement = await syncSocialEngagement(20);
-  const trading = await runTradingTick();
-  const subscriptions = await runSubscriptionContentTick(20);
-  const siteLeads = await runSiteLeadsDraftTick(25);
+}
+
+async function runTick(taskLimit: number) {
+  // Channels + drip first so social never waits behind trading timeouts.
+  const drip = await safe(
+    "drip",
+    () => extendLaunchDrips(),
+    { companies: 0, created: 0, skipped: 0, farcasterCreated: 0, farcasterSkipped: 0 },
+  );
+  const channels = await safe("channels", () => publishDueChannelPosts(20), {
+    published: 0,
+    skipped: 0,
+    errors: [] as string[],
+  });
+  const engagement = await safe("engagement", () => syncSocialEngagement(20), {
+    ingested: 0,
+    replied: 0,
+  });
+  const tasks = await safe("tasks", () => processTaskQueue(taskLimit), {
+    processed: 0,
+    errors: [] as string[],
+  });
+  const trading = await safe("trading", () => runTradingTick(), null);
+  const subscriptions = await safe("subscriptions", () => runSubscriptionContentTick(20), {
+    drops: 0,
+    sent: 0,
+    errors: [] as string[],
+  });
+  const siteLeads = await safe("siteLeads", () => runSiteLeadsDraftTick(25), {
+    drafted: 0,
+    errors: [] as string[],
+  });
 
   let missions = { advanced: 0, dispatched: 0 };
   try {

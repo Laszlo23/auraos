@@ -5,6 +5,8 @@
 
 import { formatMemoryContext, mergeAgentMemory } from "@/lib/agent-memory";
 import { TASK_COST } from "@/lib/task-cost";
+import { publishToProvider } from "@/lib/social-api.server";
+import { SOCIAL_AGENTS } from "@/lib/social-oauth.server";
 import { agentJson } from "@/lib/x402-ai";
 
 export type TaskStep = {
@@ -36,6 +38,40 @@ function needsWebResearch(title: string, description: string | null): boolean {
   return /research|search|find|look\s*up|competitor|market|lead|outreach|website|seo|news|price|benchmark|survey|prospect|customer|vendor|supplier|trend|analyze|analys/.test(
     t,
   );
+}
+
+/** True when this task should hit live X / Farcaster APIs — not just write a draft. */
+function isSocialPublishTask(title: string, description: string | null): boolean {
+  const t = `${title} ${description ?? ""}`.toLowerCase();
+  return (
+    /publish.*(post|tweet|cast|to x|on x|twitter|farcaster|social)|post.*(to|on|across).*(x\b|twitter|farcaster|social)|tweet|cast to farcaster|schedule.*(x|farcaster|social).*post/.test(
+      t,
+    ) && !/tracking|utm|framework|analytics only|measurement/.test(t)
+  );
+}
+
+function providersFromTask(title: string, description: string | null): Array<"x" | "farcaster"> {
+  const t = `${title} ${description ?? ""}`.toLowerCase();
+  const out: Array<"x" | "farcaster"> = [];
+  if (/\b(x|twitter|tweet)\b/.test(t)) out.push("x");
+  if (/\b(farcaster|warpcast|cast)\b/.test(t)) out.push("farcaster");
+  if (out.length === 0) {
+    // Generic "publish social" → try both connected networks
+    out.push("x", "farcaster");
+  }
+  return out;
+}
+
+/** Pull a ready-to-post caption from the LLM deliverable. */
+function extractPublishBody(resultText: string, title: string): string {
+  const quoted = resultText.match(/["“]([^"”]{20,280})["”]/);
+  if (quoted?.[1]) return quoted[1].trim().slice(0, 320);
+  const line = resultText
+    .split(/\n|·/)
+    .map((s) => s.trim())
+    .find((s) => s.length >= 24 && s.length <= 320 && !/^sources:/i.test(s));
+  if (line) return line.slice(0, 320);
+  return `${title.slice(0, 180)}\n\nhttps://aibusiness.fun`.slice(0, 280);
 }
 
 async function persistSteps(
@@ -502,6 +538,114 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
   }
 
   await persistSteps(db, task.id, steps, 88, { artifact });
+
+  // ——— Optional: live social publish (X / Farcaster) ———
+  let publishNotes: string[] = [];
+  if (isSocialPublishTask(task.title, task.description)) {
+    steps = [
+      ...steps.filter((s) => s.id !== "publish"),
+      { id: "publish", label: "Publish to connected channels", status: "running", at: nowIso() },
+    ];
+    await persistSteps(db, task.id, steps, 90, {
+      result: `${agentName} · publishing to live channels…`,
+    });
+
+    try {
+      const providers = providersFromTask(task.title, task.description);
+      const body = extractPublishBody(resultText, task.title);
+
+      for (const provider of providers) {
+        const { data: conn } = await db
+          .from("channel_connections")
+          .select("status, auto_publish, handle")
+          .eq("company_id", task.company_id)
+          .eq("provider", provider)
+          .maybeSingle();
+
+        if (!conn || conn.status !== "connected") {
+          publishNotes.push(`${provider}: skipped (not connected)`);
+          continue;
+        }
+        if (!conn.auto_publish) {
+          // Queue for the worker / Channels UI instead of silent fake "published"
+          const { error: insErr } = await db.from("channel_posts").insert({
+            company_id: task.company_id,
+            provider,
+            body,
+            status: "scheduled",
+            scheduled_at: nowIso(),
+            agent_name: SOCIAL_AGENTS[provider] ?? agentName,
+            impressions: 0,
+            likes: 0,
+            reposts: 0,
+          });
+          publishNotes.push(
+            insErr
+              ? `${provider}: queue failed (${insErr.message})`
+              : `${provider}: queued (turn on Autopublish to go live)`,
+          );
+          continue;
+        }
+
+        try {
+          const published = await publishToProvider(provider, task.company_id, body);
+          await db.from("channel_posts").insert({
+            company_id: task.company_id,
+            provider,
+            body,
+            status: "published",
+            published_at: nowIso(),
+            agent_name: SOCIAL_AGENTS[provider] ?? agentName,
+            external_post_id: published.externalPostId,
+            external_url: published.externalUrl ?? null,
+            impressions: 0,
+            likes: 0,
+            reposts: 0,
+          });
+          await db.from("activity_events").insert({
+            company_id: task.company_id,
+            agent_id: task.agent_id,
+            kind: "publish",
+            message: `${SOCIAL_AGENTS[provider] ?? agentName} published on ${provider}`,
+          });
+          publishNotes.push(
+            `${provider}: live${published.externalUrl ? ` → ${published.externalUrl}` : ""}`,
+          );
+        } catch (pubErr) {
+          const msg = pubErr instanceof Error ? pubErr.message : String(pubErr);
+          publishNotes.push(`${provider}: failed (${msg.slice(0, 120)})`);
+          await db.from("channel_posts").insert({
+            company_id: task.company_id,
+            provider,
+            body,
+            status: "failed",
+            error: msg.slice(0, 500),
+            agent_name: SOCIAL_AGENTS[provider] ?? agentName,
+            impressions: 0,
+            likes: 0,
+            reposts: 0,
+          });
+        }
+      }
+
+      steps = markStep(
+        steps,
+        "publish",
+        publishNotes.some((n) => n.includes(": live") || n.includes(": queued"))
+          ? "done"
+          : "failed",
+        publishNotes.join(" · ").slice(0, 240),
+      );
+      if (publishNotes.length) {
+        resultText = `${resultText}\n\nPublish: ${publishNotes.join(" · ")}`;
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      steps = markStep(steps, "publish", "failed", msg.slice(0, 160));
+      resultText = `${resultText}\n\nPublish failed: ${msg.slice(0, 200)}`;
+    }
+    await persistSteps(db, task.id, steps, 92, { artifact });
+  }
 
   // ——— Step 4: File + burn ———
   steps = markStep(steps, "file", "running", "Recording ledger + memory…");

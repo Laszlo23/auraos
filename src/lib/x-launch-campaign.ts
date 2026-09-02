@@ -3,6 +3,8 @@ import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 
 /** Stable campaign id for fair-launch drip (rolling schedule — no fixed T-0 clock). */
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
+/** Farcaster sister drip — same windows, cast-length copy. */
+export const FARCASTER_DRIP_CAMPAIGN = "fc-drip-2026-09";
 
 /** How far ahead to keep scheduled when no public T-0 date is published. */
 export const DRIP_HORIZON_MS = 14 * 24 * 60 * 60 * 1000;
@@ -160,6 +162,15 @@ function clipBody(sharePostId: string, lineIndex: number): string {
   return `${trimmed}…\n\n${url}`.slice(0, 280);
 }
 
+/** Farcaster cast body — shorter, embed-friendly (Neynar embeds the watch URL). */
+function farcasterCastBody(sharePostId: string, lineIndex: number): string {
+  const lines = X_LINES[sharePostId] ?? ["Aura OS — own a company. Let AI make money."];
+  const line = lines[lineIndex % lines.length]!;
+  const url = shareWatchUrl(sharePostId);
+  const body = `${line}\n\n${url}`;
+  return body.slice(0, 320);
+}
+
 /**
  * Build the fair-launch X drip: ~2–3 posts/day for the next ~14 days
  * (until an official 48h T-0 announce lands), skipping quiet hours (before 07:00 CEST).
@@ -213,6 +224,15 @@ export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDrip
   }
 
   return slots;
+}
+
+/** Same windows as X drip, Farcaster-length copy + campaign keys. */
+export function buildFarcasterDripSchedule(fromMs: number = Date.now()): LaunchDripSlot[] {
+  return buildLaunchDripSchedule(fromMs).map((s, index) => ({
+    ...s,
+    campaignKey: s.campaignKey.replace(LAUNCH_DRIP_CAMPAIGN, FARCASTER_DRIP_CAMPAIGN),
+    body: farcasterCastBody(s.sharePostId, index),
+  }));
 }
 
 export function launchDripSummary(slots: LaunchDripSlot[] = buildLaunchDripSchedule()) {
