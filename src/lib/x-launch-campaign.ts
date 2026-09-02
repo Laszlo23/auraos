@@ -235,6 +235,21 @@ export function buildFarcasterDripSchedule(fromMs: number = Date.now()): LaunchD
   }));
 }
 
+/**
+ * Slots that should already have posted between [fromMs, toMs].
+ * Used to backfill gaps when the worker was down or seeding started late.
+ */
+export function buildMissedDripSlots(
+  fromMs: number,
+  toMs: number = Date.now(),
+): LaunchDripSlot[] {
+  if (!(toMs > fromMs)) return [];
+  return buildLaunchDripSchedule(fromMs).filter((s) => {
+    const at = Date.parse(s.scheduledAt);
+    return at > fromMs && at <= toMs;
+  });
+}
+
 export function launchDripSummary(slots: LaunchDripSlot[] = buildLaunchDripSchedule()) {
   return {
     campaign: LAUNCH_DRIP_CAMPAIGN,

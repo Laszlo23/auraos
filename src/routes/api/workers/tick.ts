@@ -39,7 +39,7 @@ async function runTick(taskLimit: number) {
   const drip = await safe(
     "drip",
     () => extendLaunchDrips(),
-    { companies: 0, created: 0, skipped: 0, farcasterCreated: 0, farcasterSkipped: 0 },
+    { companies: 0, created: 0, skipped: 0, farcasterCreated: 0, farcasterSkipped: 0, catchUpCreated: 0, catchUpSkipped: 0 },
   );
   const channels = await safe("channels", () => publishDueChannelPosts(20), {
     published: 0,
