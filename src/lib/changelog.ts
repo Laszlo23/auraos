@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-02-aura-world",
+    date: "2026-09-02",
+    title: "AURA WORLD — Quest, Squads, Portals, Scouts",
+    summary:
+      "One progression layer for the whole stack: XP + contribution REP + badges, crew play on Community, Vienna portals and scout attribution.",
+    items: [
+      "AURA Quest hub at /quest — daily/weekly missions, streak, next badge (server award_progress)",
+      "Community Squads at /community — create/join 2–8 crews, shared tasks, world pulse, squad XP board",
+      "Portals at /portal/$slug + optional GPS on check-ins; Scouts + Vienna REP standings on /leaderboard",
+      "Genesis 777 = profile tier (Hood supply stays 1,000); hold-to-earn copy honest until T-0 audit",
+      "23 achievement seeds; social + community quests wired for quest/squad momentum",
+    ],
+    tags: ["feature", "infra"],
+  },
+  {
     id: "2026-09-01-robinhood-peg",
     date: "2026-09-01",
     title: "Robinhood Chain + TSLA reference peg",

@@ -24,6 +24,7 @@ describe("public roadmap", () => {
       "vienna-street",
       "aura-quest",
       "aura-scouts",
+      "aura-squads",
       "hood-circle",
       "fair-launch",
       "robinhood-chain",

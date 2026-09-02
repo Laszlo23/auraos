@@ -24,7 +24,7 @@ export const ROADMAP_INTRO = {
   eyebrow: "Roadmap",
   title: "The whole nine yards.",
   subtitle:
-    "Aura OS is the desk. Aura Local is the street. The Hood is the first 1,000 — extra perks and a hold-to-earn stream from real product fees, for as long as the NFT sits in the wallet. Then we scale the machine, not the promises.",
+    "Aura OS is the desk. Aura Local is the street. AURA Quest + Squads make the world feel alive. The Hood is the first 1,000 — extra perks and a hold-to-earn stream from real product fees after audit. Then we scale the machine, not the promises.",
 } as const;
 
 /** Exclusive circle. Cap is the Hood supply. Never expands. */
@@ -116,6 +116,14 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     body: "Scout role, verified local seat attribution, Vienna REP leaderboard. Connectors earn when businesses they brought pay — not when they click a link.",
   },
   {
+    id: "aura-squads",
+    when: "Now",
+    status: "live",
+    kind: "love",
+    title: "Community Squads — work together",
+    body: "Crews of 2–8 on /community: invite codes, shared tasks, squad XP board, world pulse. The room everyone wants to check — gamified collaboration, not a lonely journal.",
+  },
+  {
     id: "hood-circle",
     when: "Mint window",
     status: "next",
@@ -201,6 +209,12 @@ export const ROADMAP_BEATS = [
     detail: "OS live. Vienna street layer. Hood art and escrow ready.",
   },
   {
+    week: "Now",
+    title: "Quest + Squads",
+    detail:
+      "Unified XP/REP/badges. /quest hub. Community Squads + world pulse. Portals + Scouts MVP.",
+  },
+  {
     week: "W3–4",
     title: "The Hood",
     detail: "Mint the 1,000. Desk perks on. Hold-to-earn after audit — fee-split contract, not marketing copy.",
@@ -218,8 +232,10 @@ export const ROADMAP_BEATS = [
 ] as const;
 
 export const VIBES_CHART = [
-  { label: "OS", features: 86, vibes: 40, love: 48 },
-  { label: "Local", features: 70, vibes: 62, love: 58 },
+  { label: "OS", features: 88, vibes: 44, love: 52 },
+  { label: "Local", features: 72, vibes: 64, love: 60 },
+  { label: "Quest", features: 78, vibes: 72, love: 68 },
+  { label: "Squads", features: 70, vibes: 76, love: 74 },
   { label: "Hood", features: 74, vibes: 80, love: 72 },
   { label: "T-0", features: 82, vibes: 70, love: 64 },
   { label: "T+90", features: 90, vibes: 58, love: 70 },

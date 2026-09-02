@@ -84,7 +84,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     id: "x",
     label: "X",
     href: "https://x.com/buildingcultu3",
-    hint: "Follow @buildingcultu3",
+    hint: "Follow + post Quest / Squads momentum",
     questKey: "community:follow-x",
     xp: 80,
   },
@@ -92,7 +92,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     id: "discord",
     label: "Discord",
     href: "https://discord.gg/geUpHt3eSb",
-    hint: "Join the community",
+    hint: "Join — drop your squad invite code",
     questKey: "community:join-discord",
     xp: 120,
   },
@@ -100,7 +100,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     id: "telegram",
     label: "Telegram",
     href: "https://t.me/+4zFH7-2tyW0yOTBk",
-    hint: "Join the channel",
+    hint: "Join — share a world-pulse win",
     questKey: "community:join-telegram",
     xp: 120,
   },
@@ -108,14 +108,14 @@ export const SOCIAL_LINKS: SocialLink[] = [
     id: "farcaster",
     label: "Farcaster",
     href: "https://farcaster.xyz/0xleonardo",
-    hint: "Follow 0xleonardo",
+    hint: "Follow — cast your first badge",
     questKey: "community:follow-farcaster",
     xp: 80,
   },
 ];
 
 export const LAUNCH_SHARE_TEXT =
-  "Aura OS fair launch: announced 48 hours before T-0 on official channels — never by DM. Own a company. Let AI make money. Join the founding cohort and grow with us.";
+  "Aura OS just shipped AURA Quest + Community Squads — XP, REP, shared tasks, world pulse. Fair launch announced 48h before T-0 on official channels only. Own a company. Work with your crew. Grow with us.";
 
 /** Aura OS announce post — like, comment, and quote/share to earn whitelist access. */
 export const AURA_LAUNCH_POST_URL = "https://x.com/buildingcultu3/status/2086020001341870326";
@@ -170,21 +170,21 @@ export const WHITELIST_TASKS: WhitelistTask[] = [
   {
     id: "share_post",
     label: "Share or quote",
-    hint: "Repost or quote the Aura OS announce",
+    hint: "Repost or quote — Quest + Squads momentum",
     href: AURA_LAUNCH_POST_URL,
     group: "chat_or",
   },
   {
     id: "discord",
     label: "Join Discord",
-    hint: "Enter the Ninty Discord server",
+    hint: "Enter Ninty Discord — drop a squad invite",
     href: "https://discord.gg/geUpHt3eSb",
     group: "chat_or",
   },
   {
     id: "telegram",
     label: "Join Telegram",
-    hint: "Enter the Ninty Telegram group",
+    hint: "Enter Ninty Telegram — share a pulse win",
     href: "https://t.me/+4zFH7-2tyW0yOTBk",
     group: "chat_or",
   },
@@ -232,6 +232,20 @@ export const PRODUCT_SURFACES: ProductSurface[] = [
     href: "/nachbar",
     group: "product",
     blurb: "Neighborhood check-in & rewards",
+  },
+  {
+    id: "quest",
+    label: "AURA Quest",
+    href: "/quest",
+    group: "app",
+    blurb: "Daily missions, REP, badges",
+  },
+  {
+    id: "community",
+    label: "Community Squads",
+    href: "/community",
+    group: "app",
+    blurb: "Crews, shared tasks, world pulse",
   },
   {
     id: "for-local",

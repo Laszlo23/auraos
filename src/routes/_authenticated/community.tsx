@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Check,
   Copy,
@@ -30,6 +31,7 @@ import {
 import { useProgress } from "@/hooks/use-progress";
 import { usePublicFeed, useNetworkTotals } from "@/hooks/use-public";
 import { useUserProgress } from "@/hooks/use-user-progress";
+import { awardProgress } from "@/lib/progress/award";
 import { SOCIAL_LINKS } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { num, timeAgo } from "@/lib/format";
@@ -55,6 +57,7 @@ export const Route = createFileRoute("/_authenticated/community")({
 });
 
 function CommunityHubPage() {
+  const qc = useQueryClient();
   const { data: hub, isLoading } = useCommunityHub();
   const { data: network } = useNetworkTotals({ refetchInterval: 20_000 });
   const { data: publicFeed = [] } = usePublicFeed(12, { refetchInterval: 15_000 });
@@ -454,10 +457,34 @@ function CommunityHubPage() {
             </ul>
           </Panel>
 
-          <Panel label="Grow the network" delay={0.06}>
-            <QuestTrail quests={COMMUNITY_QUESTS.slice(0, 4)} completed={done} />
+          <Panel label="Social + community tasks" delay={0.06}>
+            <p className="mb-3 text-[12px] text-muted-foreground">
+              Momentum loop — open Quest, form a squad, then broadcast on X / Discord / Telegram.
+            </p>
+            <QuestTrail quests={COMMUNITY_QUESTS} completed={done} />
             <div className="mt-4 grid gap-2">
-              {SOCIAL_LINKS.slice(0, 2).map((s) => (
+              <Link
+                to="/quest"
+                onClick={() => {
+                  if (!done.has("community:open-quest")) {
+                    pop("Quest hub opened", 60);
+                    void awardProgress({
+                      eventKey: "community:open-quest",
+                      xp: 60,
+                      rep: 0,
+                      idempotencyKey: "community:open-quest",
+                    }).then(() => {
+                      void qc.invalidateQueries({ queryKey: ["user-progress"] });
+                      void qc.invalidateQueries({ queryKey: ["progress"] });
+                    });
+                  }
+                }}
+                className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-[12px] font-semibold text-primary"
+              >
+                Open AURA Quest
+                <Gamepad2 className="h-3.5 w-3.5" />
+              </Link>
+              {SOCIAL_LINKS.map((s) => (
                 <a
                   key={s.id}
                   href={s.href}
@@ -466,10 +493,22 @@ function CommunityHubPage() {
                   onClick={() => trackTeaser("social_join", { placement: `community:${s.id}` })}
                   className="flex items-center justify-between rounded-xl border border-border/40 px-3 py-2 text-[12px] hover:border-primary/30"
                 >
-                  {s.label}
+                  <span>
+                    {s.label}
+                    <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                      {s.hint} · +{s.xp} XP
+                    </span>
+                  </span>
                   <ExternalLink className="h-3 w-3 text-muted-foreground" />
                 </a>
               ))}
+              <Link
+                to="/share"
+                className="flex items-center justify-between rounded-xl border border-gold/30 bg-gold/5 px-3 py-2 text-[12px] text-gold"
+              >
+                Share kit — Quest + Squads caption
+                <ExternalLink className="h-3 w-3" />
+              </Link>
             </div>
           </Panel>
 

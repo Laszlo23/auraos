@@ -7,6 +7,9 @@ Aura OS is operated by Ninty LLC. Aura OS is a separate product from any BCC tok
 ## Product
 
 - Home: https://aibusiness.fun/
+- AURA Quest (progression): https://aibusiness.fun/quest
+- Community Squads: https://aibusiness.fun/community
+- Changelog: https://aibusiness.fun/changelog
 - Robinhood Chain + treasury reference peg: https://aibusiness.fun/tokenomics#robinhood · https://aibusiness.fun/tokenomics#reference-peg
 - Creator mints (Robinhood Chain): https://aibusiness.fun/for/builders
 - How it works: https://aibusiness.fun/how-it-works
@@ -26,6 +29,8 @@ Aura OS is operated by Ninty LLC. Aura OS is a separate product from any BCC tok
 - Team: https://aibusiness.fun/team
 - Wien: https://aibusiness.fun/wien
 - Wien shops: https://aibusiness.fun/b/aura-os · https://aibusiness.fun/b/aura-lokal · https://aibusiness.fun/b/aura-nachbar · https://aibusiness.fun/b/koerperglanz-shapeline · https://aibusiness.fun/b/pion-professional · https://aibusiness.fun/b/darko-auto-wien · https://aibusiness.fun/b/zeitwende-antiquitaeten · https://aibusiness.fun/b/gigerl · https://aibusiness.fun/b/tante-liesl · https://aibusiness.fun/b/das-melt · https://aibusiness.fun/b/el-ey-x · https://aibusiness.fun/b/cafe-vision-lounge
+- Portals: https://aibusiness.fun/portal/{slug} (per shop)
+- Leaderboard (Vienna REP): https://aibusiness.fun/leaderboard
 - Impressum: https://aibusiness.fun/impressum
 - Privacy: https://aibusiness.fun/privacy
 - Terms: https://aibusiness.fun/terms

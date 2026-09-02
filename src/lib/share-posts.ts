@@ -26,6 +26,13 @@ export type SharePost = {
 
 const CTA = `Fair launch ${TOKEN_LAUNCH_DISPLAY} → ${SITE_URL}`;
 
+const WORLD_CTA = `AURA Quest + Squads live.
+XP. REP. Shared tasks. World pulse.
+
+Quest → ${SITE_URL}/quest
+Squads → ${SITE_URL}/community
+Fair launch ${TOKEN_LAUNCH_DISPLAY} → ${SITE_URL}`;
+
 const WIEN_CTA = `Kein Urteil. Nur jetzt.
 Die kleinen Dinge. Dankbar.
 
@@ -37,6 +44,46 @@ Fair launch ${TOKEN_LAUNCH_DISPLAY} → ${SITE_URL}`;
  * Everyone can share a link (watch on Aura) or download for native upload. No login.
  */
 export const SHARE_POSTS: SharePost[] = [
+  {
+    id: "quest-squads",
+    title: "Quest + Squads live",
+    vibe: "Not a lonely dashboard. A world you play with friends.",
+    file: "1fromweek",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "TikTok", "Reels", "LinkedIn", "Discord"],
+    hook: "We just shipped AURA Quest + Community Squads.",
+    captions: [
+      `We just shipped AURA WORLD foundation.
+
+/quest — daily missions, streak, badges, contribution REP
+/community — squads of 2–8, shared tasks, world pulse
+
+Not tokenomics on day one.
+Progress you can feel with your crew.
+
+${WORLD_CTA}`,
+      `Lonely SaaS dashboards are dead.
+
+Aura OS now has:
+• Quest hub (levels + badges)
+• Community Squads (work together)
+• Portals in Wien
+• Scout attribution
+
+Bring a cofounder. Drop an invite code. Close a task.
+
+${WORLD_CTA}`,
+      `Ship with someone.
+
+Create a squad. Spin the daily wheel.
+Post a win to the world pulse.
+
+That's the momentum.
+
+${WORLD_CTA}`,
+    ],
+  },
   {
     id: "wien",
     title: "Ned in einem WeWork",
