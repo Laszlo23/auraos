@@ -165,6 +165,7 @@ export const createStrategyFromPrompt = createServerFn({ method: "POST" })
 Return JSON {"name":"...","summary":"...","honesty_note":"...","spec":{"timeframe":"1h"|"4h"|"1d","symbols":["WETH/USDC" or "WBNB/USDC"],"entry":{"type":"ma_cross"|"breakout"|"smart_money_follow","params":{}},"exit":{"stop_pct":number,"take_profit_pct":number},"sizing":{"risk_pct_equity":number,"max_notional_usdc":number}}}.
 Prefer symbols matching the active chain primary pair (${deskPrimarySymbol()}).
 Keep risk_pct_equity ≤ 1 and max_notional_usdc ≤ 500. No leverage. No shorts that need borrow.
+Never invent NFT floor strategies, OpenSea bids, Tesla/share tokens, or RWA redemption — if asked, honesty_note must refuse and summary must redirect to Base spot + walk-forward (Peg momentum / Founding desk presets).
 If the founder asks for extreme multiples (e.g. €10 → €1000 in a week), honesty_note must say that is unlikely and summary must describe a capped learning strategy — never promise the target.`,
         data.prompt,
         "summary",

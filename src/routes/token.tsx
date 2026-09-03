@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 
+import { LanguageToggle } from "@/components/aura/language-toggle";
+import { NftDeskPlaybookPanel } from "@/components/aura/nft-desk-playbook";
 import {
   PublicMobileMenu,
   publicNavMore,
@@ -11,7 +13,6 @@ import { RobinhoodMomentumStrip } from "@/components/aura/robinhood-momentum-str
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { TokenInvestorWalletStrip } from "@/components/aura/token-investor-wallet";
-import { LanguageToggle } from "@/components/aura/language-toggle";
 import { useLocale } from "@/hooks/use-locale";
 import {
   HOOD_GIFT_AURA,
@@ -176,6 +177,12 @@ function TokenInvestorPage() {
             className="inline-flex items-center justify-center gap-1.5 text-[14px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
             {de ? "Regeln lesen" : "Read rules"}
+          </a>
+          <a
+            href="#nft-desk"
+            className="inline-flex items-center justify-center gap-1.5 text-[14px] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {de ? "NFT-Desk" : "NFT desk"}
           </a>
         </div>
 
@@ -391,6 +398,11 @@ function TokenInvestorPage() {
               : "Fair launch stays on Base until Robinhood contracts ship."}
           </p>
         </section>
+
+        {/* 6. NFT desk playbook + OpenSea compat */}
+        <div className="mt-16">
+          <NftDeskPlaybookPanel />
+        </div>
       </div>
 
       <SiteFooter />

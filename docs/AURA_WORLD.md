@@ -17,6 +17,7 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 | **AURA STREET** | Brewing | Extend `/nachbar/entdecken` — map mode Phase D |
 | **Genesis / Hood** | Partial on-chain | Cap **1,000** Hood; Genesis **777** = profile tier (`src/lib/progress/genesis.ts`) |
 | **Token investor hub** | **Live** | `/token` — buy pAURA, early giveback, CA trust, RH peg; wallet strip; no OS required |
+| **NFT desk playbook** | **Live** | `/token#nft-desk` + `nft-desk-playbook.ts` — transparent strategies; OpenSea metadata compat (`/api/genesis/collection`); Quant Peg/Founding presets; **no** share-NFT / flip bot |
 | **Web3 T-0** | Phase E | Audit before deploy; hold-to-earn **not live** (`holder-perks.ts` `active: false`) |
 
 ## Progress SSOT (Phase A)

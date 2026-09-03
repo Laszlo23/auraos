@@ -132,6 +132,14 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     body: "Token-only cockpit: buy pAURA, early giveback (1.11× + Hood 7,777 gift), CA trust strip, Robinhood reference peg. No OS required. Hold-to-earn stays honest — after audit, not live. Share custody remains horizon.",
   },
   {
+    id: "nft-desk-playbook",
+    when: "Now",
+    status: "live",
+    kind: "build",
+    title: "NFT desk playbook + OpenSea compat",
+    body: "Transparent strategies on /token#nft-desk: Hood utility, creator primary sales, Quant walk-forward presets (Peg momentum / Founding desk). OpenSea hooks are metadata + optional verified URL — no flip bot, no Tesla-share NFTs. Share custody stays horizon.",
+  },
+  {
     id: "hood-circle",
     when: "Mint window",
     status: "next",

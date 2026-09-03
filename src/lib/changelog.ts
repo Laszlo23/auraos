@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-03-nft-desk",
+    date: "2026-09-03",
+    title: "Transparent NFT desk — OpenSea compat, not share theater",
+    summary:
+      "Public playbook on /token for Hood utility, hold-to-earn honesty, creator primary sales, and Quant history training — plus OpenSea metadata hooks without a flip bot or Tesla-share NFT claims.",
+    items: [
+      "/token#nft-desk: six strategies with OS vs community advantage and hard “not equity / not TSLA shares” line",
+      "OpenSea-compat: /api/genesis/collection + checklist; verified collection URL only via env (never invented)",
+      "Quant presets Peg momentum + Founding desk; agent draft prompt refuses NFT floor / RWA fills",
+      "Walk-forward remains the train/test path on Base spot history — peg is transparency, not custody",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-03-token-hub",
     date: "2026-09-03",
     title: "Token investor hub — buy without the OS",

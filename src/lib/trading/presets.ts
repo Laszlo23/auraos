@@ -1,7 +1,13 @@
 import type { StrategySpec } from "@/lib/trading/backtest.server";
 
 export type TradingPresetId =
-  "steady_eth" | "dip_buyer" | "whale_follow" | "scalp_15m" | "breakout_5m";
+  | "steady_eth"
+  | "dip_buyer"
+  | "whale_follow"
+  | "scalp_15m"
+  | "breakout_5m"
+  | "peg_momentum"
+  | "founding_desk";
 
 export type TradingPreset = {
   id: TradingPresetId;
@@ -27,6 +33,37 @@ export const TRADING_PRESETS: TradingPreset[] = [
       entry: { type: "ma_cross", params: { fast: 12, slow: 26 } },
       exit: { stop_pct: 2, take_profit_pct: 4, trailing_pct: 1.5, max_hold_hours: 72 },
       sizing: { risk_pct_equity: 0.4, max_notional_usdc: 80 },
+    },
+  },
+  {
+    id: "peg_momentum",
+    name: "Peg momentum",
+    tagline:
+      "Conservative Base spot book sized for the TSLA reference-peg narrative — not stock custody.",
+    riskLabel: "Low",
+    prompt:
+      "Peg momentum: WETH/USDC 1h MA cross 21/55, 0.35% risk, 2.5% stop, 5% take, max hold 96h. Train with walk-forward. This is Base spot only — not Tesla shares, not NFTs, not RWA fills. Peg is treasury transparency narrative.",
+    spec: {
+      timeframe: "1h",
+      symbols: ["WETH/USDC"],
+      entry: { type: "ma_cross", params: { fast: 21, slow: 55 } },
+      exit: { stop_pct: 2.5, take_profit_pct: 5, trailing_pct: 2, max_hold_hours: 96 },
+      sizing: { risk_pct_equity: 0.35, max_notional_usdc: 70 },
+    },
+  },
+  {
+    id: "founding_desk",
+    name: "Founding desk",
+    tagline: "Hood-friendly slow book — walk-forward first, small notional, sleep-friendly.",
+    riskLabel: "Low",
+    prompt:
+      "Founding desk: WETH/USDC 1h breakout lookback 30, 0.3% risk, 2% stop, 4% take, max hold 72h. Prefer after walk-forward pass. For Hood founders pairing desk perks with capped risk — not NFT flipping.",
+    spec: {
+      timeframe: "1h",
+      symbols: ["WETH/USDC"],
+      entry: { type: "breakout", params: { lookback: 30 } },
+      exit: { stop_pct: 2, take_profit_pct: 4, trailing_pct: 1.5, max_hold_hours: 72 },
+      sizing: { risk_pct_equity: 0.3, max_notional_usdc: 60 },
     },
   },
   {

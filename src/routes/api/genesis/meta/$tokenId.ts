@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/genesis/meta/$tokenId")({
           {
             name: `${HOOD.name} #${tokenId}`,
             description:
-              "The Hood — founding-circle utility for seated Aura OS founders. Of each $299 mint: 70% reserved for launch liquidity, 30% to developer ops (servers, infra). Not an investment product and not part of any token launch. Coming to Robinhood Chain when that contract is published.",
+              "The Hood — founding-circle utility for seated Aura OS founders. Desk perks today; hold-to-earn from real desk/catalog/x402 fees after external audit. Of each $299 mint: 70% reserved for launch liquidity, 30% to developer ops. Not an investment product, not equity, not a Tesla/share claim, and not part of any token launch. Coming to Robinhood Chain when that contract is published.",
             image,
             external_url: external,
             background_color: "07090e",

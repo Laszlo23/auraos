@@ -21,6 +21,8 @@ Aura OS is operated by Ninty LLC. Aura OS is a separate product from any BCC tok
 - Aura Nachbar: https://aibusiness.fun/nachbar
 - Trading + Yield desks (app, auth): https://aibusiness.fun/trading
 - Token investor hub: https://aibusiness.fun/token
+- NFT desk playbook (transparent; no share-NFT claims): https://aibusiness.fun/token#nft-desk
+- Hood collection metadata (OpenSea-compat): https://aibusiness.fun/api/genesis/collection
 - Tokenomics: https://aibusiness.fun/tokenomics
 - Private sale (pAURA): https://aibusiness.fun/sale
 - Lightpaper: https://aibusiness.fun/lightpaper

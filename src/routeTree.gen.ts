@@ -122,6 +122,7 @@ import { Route as ApiBillingCryptoIpnRouteImport } from './routes/api/billing/cr
 import { Route as ApiBillingFoundingCryptoRouteImport } from './routes/api/billing/founding-crypto'
 import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing/founding-seat'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
+import { Route as ApiGenesisCollectionRouteImport } from './routes/api/genesis/collection'
 import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
 import { Route as ApiWebhooksQuidliRouteImport } from './routes/api/webhooks/quidli'
@@ -721,6 +722,11 @@ const ApiBillingWebhookRoute = ApiBillingWebhookRouteImport.update({
   path: '/api/billing/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenesisCollectionRoute = ApiGenesisCollectionRouteImport.update({
+  id: '/api/genesis/collection',
+  path: '/api/genesis/collection',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAiHealthRoute = ApiPublicAiHealthRouteImport.update({
   id: '/api/public/ai-health',
   path: '/api/public/ai-health',
@@ -995,6 +1001,7 @@ export interface FileRoutesByFullPath {
   '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
@@ -1138,6 +1145,7 @@ export interface FileRoutesByTo {
   '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
@@ -1284,6 +1292,7 @@ export interface FileRoutesById {
   '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
+  '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
@@ -1430,6 +1439,7 @@ export interface FileRouteTypes {
     | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
+    | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
@@ -1573,6 +1583,7 @@ export interface FileRouteTypes {
     | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
+    | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
@@ -1718,6 +1729,7 @@ export interface FileRouteTypes {
     | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
+    | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
     | '/api/webhooks/quidli'
@@ -1816,6 +1828,7 @@ export interface RootRouteChildren {
   ApiBillingFoundingCryptoRoute: typeof ApiBillingFoundingCryptoRoute
   ApiBillingFoundingSeatRoute: typeof ApiBillingFoundingSeatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
+  ApiGenesisCollectionRoute: typeof ApiGenesisCollectionRoute
   ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
   ApiWebhooksQuidliRoute: typeof ApiWebhooksQuidliRoute
@@ -2639,6 +2652,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBillingWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/genesis/collection': {
+      id: '/api/genesis/collection'
+      path: '/api/genesis/collection'
+      fullPath: '/api/genesis/collection'
+      preLoaderRoute: typeof ApiGenesisCollectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ai-health': {
       id: '/api/public/ai-health'
       path: '/api/public/ai-health'
@@ -3048,6 +3068,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBillingFoundingCryptoRoute: ApiBillingFoundingCryptoRoute,
   ApiBillingFoundingSeatRoute: ApiBillingFoundingSeatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
+  ApiGenesisCollectionRoute: ApiGenesisCollectionRoute,
   ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
   ApiWebhooksQuidliRoute: ApiWebhooksQuidliRoute,
