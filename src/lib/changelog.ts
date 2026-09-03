@@ -47,8 +47,23 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
       "/quest merges signup Growth Starter progress on mount",
       "Channels: Autopublish-off banner for queued posts; Recent posts show Published / Queued with live links",
       "Console FirstWin counts filed results only; seat=success routes to onboarding",
+      "Failures panel names xai_soft_fail / freellm_unreachable so soft AI outages are obvious to retry",
     ],
     tags: ["feature", "fix"],
+  },
+  {
+    id: "2026-09-02-agent-social",
+    date: "2026-09-02",
+    title: "Agents post on X and Farcaster for real",
+    summary:
+      "Worker drip seeds Farcaster as well as X, social tasks call live publish APIs, and missed drip slots from downtime get catch-up replay.",
+    items: [
+      "Neynar env on the VPS + Farcaster drip campaign (fc-drip) alongside launch-drip X",
+      "Agent social tasks use publishToProvider — live URL, queued + Autopublish gate, or not connected",
+      "Worker tick runs channels/drip before trading; curl timeout raised so social is not starved",
+      "7-day missed X drip backfill on each tick so quiet days cannot silently drop",
+    ],
+    tags: ["fix", "infra"],
   },
   {
     id: "2026-09-02-aura-world",
