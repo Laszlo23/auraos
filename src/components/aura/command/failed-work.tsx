@@ -57,9 +57,10 @@ export function FailedWorkPanel({ tasks, agents }: Props) {
     <Panel label="Failures · honest" glow delay={0.03}>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <p className="text-[13px] text-muted-foreground">
-          Failed work stays visible. Most of these were{" "}
-          <span className="text-foreground">freellm_unreachable</span> while FreeLLM was down —
-          retry once AI is healthy again.
+          Failed work stays visible. Soft AI fails (
+          <span className="text-foreground">xai_soft_fail</span>,{" "}
+          <span className="text-foreground">freellm_unreachable</span>) usually mean the provider
+          chain was down — retry once AI is healthy again.
         </p>
         <button
           type="button"
