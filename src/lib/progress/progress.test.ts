@@ -6,7 +6,7 @@ import {
   genesisNumberFromHoodTokenId,
   isGenesisTier,
 } from "@/lib/progress/genesis";
-import { DAILY_QUEST_KEYS, QUEST_REGISTRY, REP_EARN_RULES, repForEvent } from "@/lib/progress/registry";
+import { DAILY_QUEST_KEYS, QUEST_REGISTRY, REP_EARN_RULES, WEEKLY_QUEST_KEYS, repForEvent } from "@/lib/progress/registry";
 
 describe("genesis policy", () => {
   it("keeps Hood supply at 1000 on-chain", () => {
@@ -52,5 +52,12 @@ describe("quest registry", () => {
     ]) {
       expect(QUEST_REGISTRY.some((q) => q.key === key)).toBe(true);
     }
+  });
+
+  it("includes growth digital-work quests", () => {
+    expect(repForEvent("growth:social-post")).toBe(6);
+    expect(repForEvent("growth:space-showup")).toBe(8);
+    expect(QUEST_REGISTRY.some((q) => q.key === "growth:space-showup")).toBe(true);
+    expect(WEEKLY_QUEST_KEYS).toContain("growth:social-post");
   });
 });

@@ -140,6 +140,14 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     body: "Transparent strategies on /token#nft-desk: Hood utility, creator primary sales, Quant walk-forward presets (Peg momentum / Founding desk). OpenSea hooks are metadata + optional verified URL — no flip bot, no Tesla-share NFTs. Share custody stays horizon.",
   },
   {
+    id: "growth-digital-work",
+    when: "Now",
+    status: "live",
+    kind: "love",
+    title: "Growth digital work — social + Spaces",
+    body: "Community assigns social posts, X Spaces show-up, Scout invites, and Channels publishes to a person. Proof URL optional. Quest weekly keys score the work. Maximum growth without inventing equity.",
+  },
+  {
     id: "hood-circle",
     when: "Mint window",
     status: "next",

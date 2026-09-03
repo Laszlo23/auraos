@@ -73,6 +73,24 @@ export const REP_EARN_RULES: RepRule[] = [
     label: "Squad update",
     hint: "Posted progress to your crew",
   },
+  {
+    eventKey: "growth:social-post",
+    rep: 6,
+    label: "Social growth task",
+    hint: "Closed a social / Channels growth task for the crew",
+  },
+  {
+    eventKey: "growth:space-showup",
+    rep: 8,
+    label: "Space show-up",
+    hint: "Showed up on an Aura X Space for growth",
+  },
+  {
+    eventKey: "growth:scout-share",
+    rep: 5,
+    label: "Scout invite shared",
+    hint: "Shared a Scout /lokal?ref invite into the growth loop",
+  },
 ];
 
 export type QuestMission = {
@@ -205,6 +223,33 @@ const BASE_QUESTS = [
     xp: 60,
     rep: 0,
     cadence: "once",
+  },
+  {
+    key: "growth:social-post",
+    label: "Ship a social growth task",
+    hint: "Close a social_post or Channels task on Community — paste proof URL",
+    glyph: "⌁",
+    xp: 40,
+    rep: 6,
+    cadence: "weekly",
+  },
+  {
+    key: "growth:space-showup",
+    label: "Show up on an X Space",
+    hint: "Join the live Space, drop /quest, mark the Spaces task done",
+    glyph: "◎",
+    xp: 50,
+    rep: 8,
+    cadence: "weekly",
+  },
+  {
+    key: "growth:scout-share",
+    label: "Share a Scout invite",
+    hint: "Post your /lokal?ref code — seats you bring pay into REP",
+    glyph: "🟣",
+    xp: 35,
+    rep: 5,
+    cadence: "weekly",
   },
 ];
 

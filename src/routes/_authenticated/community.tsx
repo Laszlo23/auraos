@@ -32,10 +32,16 @@ import { useProgress } from "@/hooks/use-progress";
 import { usePublicFeed, useNetworkTotals } from "@/hooks/use-public";
 import { useUserProgress } from "@/hooks/use-user-progress";
 import { awardProgress } from "@/lib/progress/award";
+import {
+  GROWTH_TASK_KIND_LABEL,
+  GROWTH_TASK_TEMPLATES,
+  type GrowthTaskKind,
+} from "@/lib/growth-digital-work";
 import { SOCIAL_LINKS } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { num, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useUserId } from "@/hooks/use-identity";
 
 export const Route = createFileRoute("/_authenticated/community")({
   head: () => ({
@@ -44,12 +50,12 @@ export const Route = createFileRoute("/_authenticated/community")({
       {
         name: "description",
         content:
-          "Form a squad, run shared tasks together, and show up on the world pulse. Gamified crew play across Aura OS.",
+          "Form a squad, assign growth digital work — social posts, X Spaces show-up, Scout invites — and show wins on the world pulse.",
       },
       { property: "og:title", content: "Aura Community — work together" },
       {
         property: "og:description",
-        content: "Small crews. Shared tasks. Squad XP everyone can see.",
+        content: "Small crews. Assignable social + Spaces tasks. Squad XP everyone can see.",
       },
     ],
   }),
@@ -75,8 +81,12 @@ function CommunityHubPage() {
   const [postBody, setPostBody] = useState("");
   const [shareWorld, setShareWorld] = useState(true);
   const [taskTitle, setTaskTitle] = useState("");
+  const [taskKind, setTaskKind] = useState<GrowthTaskKind>("custom");
+  const [assigneeId, setAssigneeId] = useState("");
+  const [proofByTask, setProofByTask] = useState<Record<string, string>>({});
   const [burst, setBurst] = useState(0);
   const [xpToast, setXpToast] = useState<{ label: string; amount: number } | null>(null);
+  const { data: myUserId } = useUserId();
 
   const squad = hub?.my_squad ?? null;
   const done = new Set([
@@ -146,20 +156,52 @@ function CommunityHubPage() {
   const handleAddTask = async () => {
     if (!squad || taskTitle.trim().length < 2) return;
     try {
-      await createTask.mutateAsync({ squadId: squad.id, title: taskTitle.trim() });
+      await createTask.mutateAsync({
+        squadId: squad.id,
+        title: taskTitle.trim(),
+        kind: taskKind,
+        assigneeUserId: assigneeId || null,
+      });
       setTaskTitle("");
-      toast.success("Task added — anyone in the squad can close it");
+      setAssigneeId("");
+      toast.success(
+        assigneeId
+          ? "Assigned — only that person can close it"
+          : "Task added — anyone in the squad can close it",
+      );
     } catch {
       toast.error("Could not add task");
     }
   };
 
+  const handleAddTemplate = async (templateId: string) => {
+    if (!squad) return;
+    const tpl = GROWTH_TASK_TEMPLATES.find((t) => t.id === templateId);
+    if (!tpl) return;
+    try {
+      await createTask.mutateAsync({
+        squadId: squad.id,
+        title: tpl.title,
+        kind: tpl.kind,
+        assigneeUserId: assigneeId || null,
+        meta: tpl.meta,
+        xpReward: tpl.xp,
+      });
+      toast.success(`Queued: ${tpl.title}`);
+    } catch {
+      toast.error("Could not add growth task");
+    }
+  };
+
   const handleComplete = async (taskId: string, xp: number) => {
     try {
-      await completeTask.mutateAsync(taskId);
-      pop("Squad task done", xp);
-    } catch {
-      toast.error("Task already closed");
+      const proof = proofByTask[taskId]?.trim();
+      await completeTask.mutateAsync({ taskId, proofUrl: proof || undefined });
+      pop("Growth task done", xp);
+    } catch (e) {
+      const msg = String(e instanceof Error ? e.message : e);
+      if (msg.includes("not_assignee")) toast.error("Assigned to someone else");
+      else toast.error("Task already closed");
     }
   };
 
@@ -171,7 +213,7 @@ function CommunityHubPage() {
       <PageHeader
         eyebrow="AURA Community"
         title="Work together. Level up together."
-        description="Form a squad of 2–8 founders, run shared tasks, and show wins on the live pulse — the room everyone checks."
+        description="Form a squad of 2–8, assign social posts and Spaces show-up to a person, close with proof, and put wins on the live pulse."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Chip tone="gold">
@@ -288,48 +330,136 @@ function CommunityHubPage() {
                 </div>
               </Panel>
 
-              <Panel label="Shared tasks">
+              <Panel label="Digital work · growth tasks">
                 <p className="mb-3 text-[12px] text-muted-foreground">
-                  Anyone in the squad can add or complete a task — first to close it earns XP for
-                  everyone&apos;s standing.
+                  Assign social posts, X Spaces show-up, Scout invites, or Channels publishes to a
+                  crew member. Closing awards squad XP + Quest REP. Paste a proof URL when you can.
                 </p>
-                <div className="flex gap-2">
+
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {GROWTH_TASK_TEMPLATES.map((tpl) => (
+                    <button
+                      key={tpl.id}
+                      type="button"
+                      disabled={createTask.isPending}
+                      onClick={() => void handleAddTemplate(tpl.id)}
+                      className="rounded-full border border-primary/30 bg-primary/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary hover:bg-primary/14 disabled:opacity-40"
+                      title={tpl.hint}
+                    >
+                      + {GROWTH_TASK_KIND_LABEL[tpl.kind]} · {tpl.xp} XP
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
                   <input
                     value={taskTitle}
                     onChange={(e) => setTaskTitle(e.target.value)}
-                    placeholder="Ship weekly report, review proofs, onboard a local…"
-                    className="min-w-0 flex-1 rounded-xl border border-border/50 bg-transparent px-3 py-2 text-[13px] outline-none focus:border-primary/50"
+                    placeholder="Custom task — or tap a template above"
+                    className="min-w-0 rounded-xl border border-border/50 bg-transparent px-3 py-2 text-[13px] outline-none focus:border-primary/50"
                   />
+                  <select
+                    value={taskKind}
+                    onChange={(e) => setTaskKind(e.target.value as GrowthTaskKind)}
+                    className="rounded-xl border border-border/50 bg-background px-2 py-2 text-[12px] outline-none"
+                  >
+                    {(Object.keys(GROWTH_TASK_KIND_LABEL) as GrowthTaskKind[]).map((k) => (
+                      <option key={k} value={k}>
+                        {GROWTH_TASK_KIND_LABEL[k]}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     disabled={createTask.isPending || taskTitle.trim().length < 2}
                     onClick={() => void handleAddTask()}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-primary px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground disabled:opacity-40"
+                    className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-primary px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground disabled:opacity-40"
                   >
                     <Plus className="h-3.5 w-3.5" /> Add
                   </button>
                 </div>
+
+                <label className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                  Assign to
+                  <select
+                    value={assigneeId}
+                    onChange={(e) => setAssigneeId(e.target.value)}
+                    className="rounded-lg border border-border/50 bg-background px-2 py-1 text-[12px] text-foreground"
+                  >
+                    <option value="">Anyone in squad</option>
+                    {(hub?.members ?? []).map((m) => (
+                      <option key={m.user_id} value={m.user_id}>
+                        {m.display_name}
+                        {m.user_id === myUserId ? " (you)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
                 <ul className="mt-4 space-y-2">
                   {openTasks.length === 0 ? (
                     <li className="text-[12px] text-muted-foreground">
-                      No open tasks — add one above to get the crew moving.
+                      No open tasks — queue a social or Spaces template to grow.
                     </li>
                   ) : (
-                    openTasks.map((t) => (
-                      <li
-                        key={t.id}
-                        className="flex items-center justify-between gap-3 rounded-2xl border border-border/50 px-3 py-2.5"
-                      >
-                        <span className="text-[13px]">{t.title}</span>
-                        <button
-                          type="button"
-                          onClick={() => void handleComplete(t.id, t.xp_reward)}
-                          className="shrink-0 rounded-xl bg-primary/14 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary"
+                    openTasks.map((t) => {
+                      const kind = (t.kind ?? "custom") as GrowthTaskKind;
+                      const assignee = (hub?.members ?? []).find(
+                        (m) => m.user_id === t.assignee_user_id,
+                      );
+                      const href =
+                        t.meta && typeof t.meta["href"] === "string"
+                          ? String(t.meta["href"])
+                          : null;
+                      const blocked =
+                        Boolean(t.assignee_user_id) &&
+                        Boolean(myUserId) &&
+                        t.assignee_user_id !== myUserId;
+                      return (
+                        <li
+                          key={t.id}
+                          className="rounded-2xl border border-border/50 px-3 py-2.5"
                         >
-                          Done · +{t.xp_reward} XP
-                        </button>
-                      </li>
-                    ))
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[13px] font-medium">{t.title}</p>
+                              <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                                {GROWTH_TASK_KIND_LABEL[kind] ?? kind}
+                                {assignee ? ` · ${assignee.display_name}` : " · open"}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              disabled={blocked || completeTask.isPending}
+                              onClick={() => void handleComplete(t.id, t.xp_reward)}
+                              className="shrink-0 rounded-xl bg-primary/14 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary disabled:opacity-40"
+                            >
+                              Done · +{t.xp_reward} XP
+                            </button>
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            {href ? (
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                              >
+                                Open kit <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : null}
+                            <input
+                              value={proofByTask[t.id] ?? ""}
+                              onChange={(e) =>
+                                setProofByTask((prev) => ({ ...prev, [t.id]: e.target.value }))
+                              }
+                              placeholder="Proof URL (post / Space link)"
+                              className="min-w-0 flex-1 rounded-lg border border-border/40 bg-transparent px-2 py-1 text-[11px] outline-none focus:border-primary/40"
+                            />
+                          </div>
+                        </li>
+                      );
+                    })
                   )}
                   {doneTasks.slice(0, 4).map((t) => (
                     <li

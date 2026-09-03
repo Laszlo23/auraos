@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import type { GrowthTaskKind } from "@/lib/growth-digital-work";
 
 export type SquadMember = {
   user_id: string;
@@ -19,6 +20,10 @@ export type SquadTask = {
   xp_reward: number;
   created_at: string;
   completed_at: string | null;
+  kind?: GrowthTaskKind | string;
+  assignee_user_id?: string | null;
+  meta?: Record<string, unknown> | null;
+  proof_url?: string | null;
 };
 
 export type SquadPost = {
@@ -156,10 +161,28 @@ export function usePostSquadUpdate() {
 export function useCreateSquadTask() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ squadId, title }: { squadId: string; title: string }) => {
+    mutationFn: async ({
+      squadId,
+      title,
+      kind = "custom",
+      assigneeUserId,
+      meta,
+      xpReward,
+    }: {
+      squadId: string;
+      title: string;
+      kind?: GrowthTaskKind | string;
+      assigneeUserId?: string | null;
+      meta?: Record<string, unknown>;
+      xpReward?: number;
+    }) => {
       const { data, error } = await supabase.rpc("create_squad_task", {
         _squad_id: squadId,
         _title: title,
+        _kind: kind,
+        _assignee_user_id: assigneeUserId ?? null,
+        _meta: meta ?? {},
+        _xp_reward: xpReward ?? null,
       });
       if (error) throw error;
       return data;
@@ -171,10 +194,13 @@ export function useCreateSquadTask() {
 export function useCompleteSquadTask() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (taskId: string) => {
-      const { data, error } = await supabase.rpc("complete_squad_task", { _task_id: taskId });
+    mutationFn: async ({ taskId, proofUrl }: { taskId: string; proofUrl?: string }) => {
+      const { data, error } = await supabase.rpc("complete_squad_task", {
+        _task_id: taskId,
+        _proof_url: proofUrl ?? null,
+      });
       if (error) throw error;
-      return data as { ok: boolean; xp: number };
+      return data as { ok: boolean; xp: number; kind?: string; growth_event?: string | null };
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["community-hub"] });

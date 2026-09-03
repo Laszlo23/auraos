@@ -10,7 +10,8 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 | **AURA LOCAL** | MVP live | `/lokal`, `/heute`, `/kunden`, `docs/GO_TO_MARKET_LOKAL.md` |
 | **AURA VIENNA / Nachbar** | Live | `/wien`, `/nachbar/*` |
 | **AURA QUEST** | **Live (Phase A)** | `/quest`, `src/lib/progress/`, `award_progress` RPC |
-| **AURA Community Squads** | **Live** | `/community`, `aura_squads`, shared tasks + world pulse |
+| **AURA Community Squads** | **Live** | `/community`, typed growth tasks (social / Spaces / scout), world pulse |
+| **Growth digital work** | **Live** | Assignable human tasks on squads → Quest `growth:*` XP/REP; templates in `growth-digital-work.ts` |
 | **Public momentum** | Live | `/changelog` (2026-09-02), share kit `quest-squads`, roadmap vibes include Quest + Squads |
 | **AURA SCOUTS** | **Live (Vienna)** | `join_aura_scout`, Scout invite `/lokal?ref=`, `attribute_scout_business`, leaderboard |
 | **AURA PORTALS** | MVP | `/portal/$slug`, `aura_portals` table |

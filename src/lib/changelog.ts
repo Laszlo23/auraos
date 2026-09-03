@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-04-growth-digital-work",
+    date: "2026-09-04",
+    title: "Growth digital work — assign social + Spaces tasks",
+    summary:
+      "Community squads can assign social posts, X Spaces show-up, Scout invites, and Channels publishes to a person — with proof URLs, Quest XP/REP, and templates for maximum growth.",
+    items: [
+      "Typed squad tasks: social_post · space_showup · scout_invite · channels_publish · custom",
+      "Assign to a squad member; optional proof URL on complete",
+      "Weekly Quest keys growth:social-post / growth:space-showup / growth:scout-share",
+      "Applied missing Quest + Squads schema on production so Community finally works end-to-end",
+    ],
+    tags: ["feature"],
+  },
+  {
     id: "2026-09-03-nft-desk",
     date: "2026-09-03",
     title: "Transparent NFT desk — OpenSea compat, not share theater",
