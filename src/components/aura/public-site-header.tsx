@@ -44,7 +44,7 @@ export function publicNavPrimary(t: (key: string) => string): PublicNavItem[] {
   return [
     { to: "/how-it-works", label: t("landing.navHow") },
     { to: "/pricing", label: t("landing.navPricing") },
-    { to: "/for/builders", label: t("landing.navBuilders") },
+    { to: "/token", label: t("landing.navToken") },
     { to: "/hood", label: t("landing.navHood"), accent: "gold" },
   ];
 }
@@ -53,9 +53,11 @@ export function publicNavPrimary(t: (key: string) => string): PublicNavItem[] {
 export function publicNavMore(t: (key: string) => string): PublicNavItem[] {
   return [
     { to: "/try", label: t("landing.navTry") },
+    { to: "/for/builders", label: t("landing.navBuilders") },
     { to: "/lokal", label: t("landing.navLokal") },
     { to: "/proof", label: t("landing.navProof") },
     { to: "/tokenomics", label: t("landing.navTokenomics") },
+    { to: "/sale", label: t("landing.navSale") },
     { to: "/wien", label: t("landing.navWien") },
   ];
 }
@@ -80,7 +82,9 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/try": Zap,
   "/lokal": Store,
   "/proof": ShieldCheck,
+  "/token": Coins,
   "/tokenomics": Coins,
+  "/sale": Tag,
   "/wien": Landmark,
 };
 

@@ -15,7 +15,6 @@ Disallow: /wallet
 Disallow: /trading
 Disallow: /earn
 Disallow: /sales
-Disallow: /sale
 Disallow: /marketing
 Disallow: /automation
 Disallow: /analytics
@@ -76,7 +75,6 @@ Disallow: /onboarding
 Disallow: /missions
 Disallow: /wallet
 Disallow: /trading
-Disallow: /sale
 Disallow: /nachbar/heute
 Disallow: /nachbar/verdienen
 Disallow: /nachbar/freunde

@@ -124,6 +124,14 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     body: "Crews of 2–8 on /community: invite codes, shared tasks, squad XP board, world pulse. The room everyone wants to check — gamified collaboration, not a lonely journal.",
   },
   {
+    id: "investor-hub",
+    when: "Now",
+    status: "live",
+    kind: "build",
+    title: "Investor hub — /token",
+    body: "Token-only cockpit: buy pAURA, early giveback (1.11× + Hood 7,777 gift), CA trust strip, Robinhood reference peg. No OS required. Hold-to-earn stays honest — after audit, not live. Share custody remains horizon.",
+  },
+  {
     id: "hood-circle",
     when: "Mint window",
     status: "next",

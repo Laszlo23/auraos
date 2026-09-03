@@ -259,6 +259,13 @@ function Landing() {
                 {t("landing.tryCta")} <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <Link
+                to="/token"
+                onClick={() => trackTeaser("cta_click", { placement: "landing_hero_token" })}
+                className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary underline-offset-4 transition-colors hover:underline"
+              >
+                {t("landing.tokenOnlyCta")}
+              </Link>
+              <Link
                 to="/hood"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_hood" })}
                 className="jewel inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[13px] font-semibold text-gold underline-offset-4 transition-colors hover:bg-gold/15"
@@ -346,7 +353,7 @@ function Landing() {
             </span>
           </Link>
           <Link
-            to="/tokenomics"
+            to="/token"
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_aura" })}
             className="glass hover-lift group rounded-[1.65rem] p-6"
           >

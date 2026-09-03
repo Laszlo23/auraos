@@ -42,6 +42,7 @@ import { Route as StoryRouteImport } from './routes/story'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TischRouteImport } from './routes/tisch'
+import { Route as TokenRouteImport } from './routes/token'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
 import { Route as TryRouteImport } from './routes/try'
 import { Route as VerkaufRouteImport } from './routes/verkauf'
@@ -314,6 +315,11 @@ const TermsRoute = TermsRouteImport.update({
 const TischRoute = TischRouteImport.update({
   id: '/tisch',
   path: '/tisch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TokenRoute = TokenRouteImport.update({
+  id: '/token',
+  path: '/token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TokenomicsRoute = TokenomicsRouteImport.update({
@@ -909,6 +915,7 @@ export interface FileRoutesByFullPath {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tisch': typeof TischRoute
+  '/token': typeof TokenRoute
   '/tokenomics': typeof TokenomicsRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
@@ -1051,6 +1058,7 @@ export interface FileRoutesByTo {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tisch': typeof TischRoute
+  '/token': typeof TokenRoute
   '/tokenomics': typeof TokenomicsRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
@@ -1196,6 +1204,7 @@ export interface FileRoutesById {
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tisch': typeof TischRoute
+  '/token': typeof TokenRoute
   '/tokenomics': typeof TokenomicsRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
@@ -1341,6 +1350,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tisch'
+    | '/token'
     | '/tokenomics'
     | '/try'
     | '/verkauf'
@@ -1483,6 +1493,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tisch'
+    | '/token'
     | '/tokenomics'
     | '/try'
     | '/verkauf'
@@ -1627,6 +1638,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/terms'
     | '/tisch'
+    | '/token'
     | '/tokenomics'
     | '/try'
     | '/verkauf'
@@ -1772,6 +1784,7 @@ export interface RootRouteChildren {
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TischRoute: typeof TischRoute
+  TokenRoute: typeof TokenRoute
   TokenomicsRoute: typeof TokenomicsRoute
   TryRoute: typeof TryRoute
   VerkaufRoute: typeof VerkaufRoute
@@ -2064,6 +2077,13 @@ declare module '@tanstack/react-router' {
       path: '/tisch'
       fullPath: '/tisch'
       preLoaderRoute: typeof TischRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/token': {
+      id: '/token'
+      path: '/token'
+      fullPath: '/token'
+      preLoaderRoute: typeof TokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tokenomics': {
@@ -2996,6 +3016,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TischRoute: TischRoute,
+  TokenRoute: TokenRoute,
   TokenomicsRoute: TokenomicsRoute,
   TryRoute: TryRoute,
   VerkaufRoute: VerkaufRoute,

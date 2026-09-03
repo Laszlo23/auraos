@@ -66,7 +66,6 @@ export const Route = createFileRoute("/sale")({
       path: "/sale",
       image: ogCampaignUrl("token"),
       imageAlt: OG_CAMPAIGN.token.alt,
-      noIndex: true,
     }),
   component: SaleRoute,
 });

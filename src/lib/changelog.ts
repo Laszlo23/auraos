@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-03-token-hub",
+    date: "2026-09-03",
+    title: "Token investor hub — buy without the OS",
+    summary:
+      "Public /token cockpit for people who only want AURA: live pAURA sale stats, early giveback math, CA trust policy, Robinhood reference peg, and an honest hold-to-earn note.",
+    items: [
+      "/token hub: Buy pAURA · Get Hood · Read rules — no Missions/Console required",
+      "Wallet strip: pAURA balance + 1.11× AURA preview + Hood gift checklist (desk / CA / claim)",
+      "Nav + homepage “Token only”; /sale indexed; robots + sitemap + llms.txt updated",
+      "Peg remains treasury reference only — not share redemption or equity",
+    ],
+    tags: ["feature"],
+  },
+  {
     id: "2026-09-03-success-loops",
     date: "2026-09-03",
     title: "Quest, Scout, and Channels loops that actually close",

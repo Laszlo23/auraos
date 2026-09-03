@@ -234,6 +234,13 @@ export const PRODUCT_SURFACES: ProductSurface[] = [
     blurb: "Neighborhood check-in & rewards",
   },
   {
+    id: "token",
+    label: "AURA Token",
+    href: "/token",
+    group: "product",
+    blurb: "Investor hub — buy pAURA without the OS",
+  },
+  {
     id: "quest",
     label: "AURA Quest",
     href: "/quest",
