@@ -32,12 +32,16 @@ This is an activation script, not a legal offer. Cash target **$12,000 gross / 9
 
 **Door:** https://aibusiness.fun/access → founding seat **$299** (checkout now uses canonical amount)
 
+**Aura Beta squad (seeded):** join link  
+https://aibusiness.fun/community?join=BETAVN  
+Code: `BETAVN`
+
 | Step | Action | Success |
 |------|--------|---------|
 | 1 | Create account + claim seat (or existing invite) | Company exists |
 | 2 | Complete onboarding | Console shows **one** “next love step” |
 | 3 | Create mission → approve → see proof | `first_mission` / `first_proof` |
-| 4 | Join **Aura Beta** squad via invite link (`/community?join=CODE`) | Auto-join works; `squad_join` |
+| 4 | Join **Aura Beta** via `?join=BETAVN` | Auto-join works; `squad_join` |
 | 5 | Close one growth task (social or Spaces) with proof URL | `growth_task_done` |
 | 6 | Join Scouts on `/quest` and copy `/lokal?ref=` | `scout_join` |
 
@@ -45,8 +49,8 @@ This is an activation script, not a legal offer. Cash target **$12,000 gross / 9
 
 ## Official growth squad ritual
 
-1. Create squad named **Aura Beta** (or join if it exists).
-2. Seed weekly templates: X post · Spaces show-up · Scout share · Discord pulse.
+1. Squad **Aura Beta** is live — invite `BETAVN` (do not recreate).
+2. Open tasks seeded: X post · Spaces show-up · Scout share · Discord pulse · Channels publish.
 3. **Weekly X Space:** host or join @buildingcultu3 — drop `/quest` in chat — mark Spaces task done.
 4. Post one world-pulse win after each Space.
 

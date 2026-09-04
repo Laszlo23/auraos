@@ -84,14 +84,23 @@ function QuestHubPage() {
       toast.message("Join Scouts first — then your invite link appears here.");
       return;
     }
+    const kit = `Join Aura Local via my Scout link — when your seat pays, I earn contribution REP for connecting you (not the €49 Aura Reputation product).\n${scoutLink}`;
     try {
-      await navigator.clipboard.writeText(
-        `Join Aura Local via my Scout link — when your seat pays, I earn REP for connecting you.\n${scoutLink}`,
-      );
-      toast.success("Scout invite copied");
+      await navigator.clipboard.writeText(kit);
+      toast.success("Scout invite kit copied");
     } catch {
       toast.error("Copy failed — select the link manually");
     }
+  };
+
+  const shareScoutOnX = () => {
+    if (!scoutLink) {
+      toast.message("Join Scouts first — then your invite link appears here.");
+      return;
+    }
+    const text = `Vienna shops: try Aura Local with my Scout invite. When your seat pays, I earn REP for connecting you.\n${scoutLink}`;
+    const href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(href, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -226,10 +235,18 @@ function QuestHubPage() {
                       className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary/14 px-3 py-2 text-[11px] font-semibold text-primary"
                     >
                       <Copy className="h-3.5 w-3.5" />
-                      Copy Scout link
+                      Copy Scout kit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => shareScoutOnX()}
+                      className="ml-2 mt-3 inline-flex items-center gap-2 rounded-xl border border-border/50 px-3 py-2 text-[11px] font-semibold text-foreground"
+                    >
+                      Share on X
                     </button>
                     <p className="mt-2 text-[11px] text-muted-foreground">
-                      Share with shops. Attribution lands when their Local seat pays.
+                      Share with shops. Attribution lands when their Local seat pays. Weekly Spaces:
+                      @buildingcultu3 — drop this link in chat.
                     </p>
                   </div>
                 ) : (
