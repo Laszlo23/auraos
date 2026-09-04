@@ -1,0 +1,8 @@
+# Aura OS / aibusiness.fun — RFC 9116 security contact
+Contact: mailto:founders@aibusiness.fun
+Expires: 2027-08-05T00:00:00.000Z
+Preferred-Languages: en, de
+Canonical: https://aibusiness.fun/.well-known/security.txt
+Policy: https://aibusiness.fun/privacy
+Acknowledgments: https://aibusiness.fun/impressum
+Hiring: https://aibusiness.fun/

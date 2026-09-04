@@ -8,9 +8,10 @@ import {
   verifyNowPaymentsIpn,
   type NowIpnPayload,
 } from "@/lib/local-crypto-seat";
+import { isDonateOrderId } from "@/lib/nowpayments-donate";
 
 /**
- * NOWPayments IPN callback for Local Seat crypto (USDC / ETH / BTC / SOL).
+ * NOWPayments IPN callback for Local Seat, Founding Seat, and open donations.
  * Config: NOWPAYMENTS_API_KEY + NOWPAYMENTS_IPN_SECRET
  */
 export const Route = createFileRoute("/api/billing/crypto-ipn")({
@@ -39,6 +40,17 @@ export const Route = createFileRoute("/api/billing/crypto-ipn")({
         const checkoutId = String(payload.order_id || "").trim();
         if (!checkoutId) {
           return Response.json({ error: "Missing order_id" }, { status: 400 });
+        }
+
+        /** Open donations — acknowledge finished IPN; no product fulfillment. */
+        if (isDonateOrderId(checkoutId)) {
+          console.info("[crypto-ipn] donation finished", {
+            order_id: checkoutId,
+            payment_id: payload.payment_id,
+            outcome_amount: payload.outcome_amount,
+            outcome_currency: payload.outcome_currency,
+          });
+          return Response.json({ received: true, paid: true, kind: "donation" });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

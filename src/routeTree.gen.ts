@@ -19,6 +19,7 @@ import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DeskRouteImport } from './routes/desk'
+import { Route as DonateRouteImport } from './routes/donate'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as HoodRouteImport } from './routes/hood'
@@ -119,6 +120,7 @@ import { Route as AuthenticatedMissionsIdRouteImport } from './routes/_authentic
 import { Route as ApiBillingCheckoutRouteImport } from './routes/api/billing/checkout'
 import { Route as ApiBillingCryptoCheckoutRouteImport } from './routes/api/billing/crypto-checkout'
 import { Route as ApiBillingCryptoIpnRouteImport } from './routes/api/billing/crypto-ipn'
+import { Route as ApiBillingDonateRouteImport } from './routes/api/billing/donate'
 import { Route as ApiBillingFoundingCryptoRouteImport } from './routes/api/billing/founding-crypto'
 import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing/founding-seat'
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
@@ -201,6 +203,11 @@ const CookiesRoute = CookiesRouteImport.update({
 const DeskRoute = DeskRouteImport.update({
   id: '/desk',
   path: '/desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonateRoute = DonateRouteImport.update({
+  id: '/donate',
+  path: '/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -706,6 +713,11 @@ const ApiBillingCryptoIpnRoute = ApiBillingCryptoIpnRouteImport.update({
   path: '/api/billing/crypto-ipn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBillingDonateRoute = ApiBillingDonateRouteImport.update({
+  id: '/api/billing/donate',
+  path: '/api/billing/donate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBillingFoundingCryptoRoute =
   ApiBillingFoundingCryptoRouteImport.update({
     id: '/api/billing/founding-crypto',
@@ -899,6 +911,7 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
+  '/donate': typeof DonateRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/hood': typeof HoodRoute
@@ -998,6 +1011,7 @@ export interface FileRoutesByFullPath {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
   '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
+  '/api/billing/donate': typeof ApiBillingDonateRoute
   '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -1043,6 +1057,7 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
+  '/donate': typeof DonateRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/hood': typeof HoodRoute
@@ -1142,6 +1157,7 @@ export interface FileRoutesByTo {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
   '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
+  '/api/billing/donate': typeof ApiBillingDonateRoute
   '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -1190,6 +1206,7 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
+  '/donate': typeof DonateRoute
   '/faq': typeof FaqRoute
   '/grants': typeof GrantsRoute
   '/hood': typeof HoodRoute
@@ -1289,6 +1306,7 @@ export interface FileRoutesById {
   '/api/billing/checkout': typeof ApiBillingCheckoutRoute
   '/api/billing/crypto-checkout': typeof ApiBillingCryptoCheckoutRoute
   '/api/billing/crypto-ipn': typeof ApiBillingCryptoIpnRoute
+  '/api/billing/donate': typeof ApiBillingDonateRoute
   '/api/billing/founding-crypto': typeof ApiBillingFoundingCryptoRoute
   '/api/billing/founding-seat': typeof ApiBillingFoundingSeatRoute
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
@@ -1337,6 +1355,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/cookies'
     | '/desk'
+    | '/donate'
     | '/faq'
     | '/grants'
     | '/hood'
@@ -1436,6 +1455,7 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/crypto-checkout'
     | '/api/billing/crypto-ipn'
+    | '/api/billing/donate'
     | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
@@ -1481,6 +1501,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/cookies'
     | '/desk'
+    | '/donate'
     | '/faq'
     | '/grants'
     | '/hood'
@@ -1580,6 +1601,7 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/crypto-checkout'
     | '/api/billing/crypto-ipn'
+    | '/api/billing/donate'
     | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
@@ -1627,6 +1649,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/cookies'
     | '/desk'
+    | '/donate'
     | '/faq'
     | '/grants'
     | '/hood'
@@ -1726,6 +1749,7 @@ export interface FileRouteTypes {
     | '/api/billing/checkout'
     | '/api/billing/crypto-checkout'
     | '/api/billing/crypto-ipn'
+    | '/api/billing/donate'
     | '/api/billing/founding-crypto'
     | '/api/billing/founding-seat'
     | '/api/billing/webhook'
@@ -1774,6 +1798,7 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   CookiesRoute: typeof CookiesRoute
   DeskRoute: typeof DeskRoute
+  DonateRoute: typeof DonateRoute
   FaqRoute: typeof FaqRoute
   GrantsRoute: typeof GrantsRoute
   HoodRoute: typeof HoodRoute
@@ -1825,6 +1850,7 @@ export interface RootRouteChildren {
   ApiBillingCheckoutRoute: typeof ApiBillingCheckoutRoute
   ApiBillingCryptoCheckoutRoute: typeof ApiBillingCryptoCheckoutRoute
   ApiBillingCryptoIpnRoute: typeof ApiBillingCryptoIpnRoute
+  ApiBillingDonateRoute: typeof ApiBillingDonateRoute
   ApiBillingFoundingCryptoRoute: typeof ApiBillingFoundingCryptoRoute
   ApiBillingFoundingSeatRoute: typeof ApiBillingFoundingSeatRoute
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
@@ -1929,6 +1955,13 @@ declare module '@tanstack/react-router' {
       path: '/desk'
       fullPath: '/desk'
       preLoaderRoute: typeof DeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donate': {
+      id: '/donate'
+      path: '/donate'
+      fullPath: '/donate'
+      preLoaderRoute: typeof DonateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -2631,6 +2664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBillingCryptoIpnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/billing/donate': {
+      id: '/api/billing/donate'
+      path: '/api/billing/donate'
+      fullPath: '/api/billing/donate'
+      preLoaderRoute: typeof ApiBillingDonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/billing/founding-crypto': {
       id: '/api/billing/founding-crypto'
       path: '/api/billing/founding-crypto'
@@ -3014,6 +3054,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   CookiesRoute: CookiesRoute,
   DeskRoute: DeskRoute,
+  DonateRoute: DonateRoute,
   FaqRoute: FaqRoute,
   GrantsRoute: GrantsRoute,
   HoodRoute: HoodRoute,
@@ -3065,6 +3106,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBillingCheckoutRoute: ApiBillingCheckoutRoute,
   ApiBillingCryptoCheckoutRoute: ApiBillingCryptoCheckoutRoute,
   ApiBillingCryptoIpnRoute: ApiBillingCryptoIpnRoute,
+  ApiBillingDonateRoute: ApiBillingDonateRoute,
   ApiBillingFoundingCryptoRoute: ApiBillingFoundingCryptoRoute,
   ApiBillingFoundingSeatRoute: ApiBillingFoundingSeatRoute,
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,

@@ -18,6 +18,10 @@ export const LEGAL_UPDATED = "August 11, 2026";
 /** Public support contact shown on Stripe Checkout / legal pages. */
 export const SUPPORT_EMAIL = LEGAL_EMAIL;
 
+/** NOWPayments donation button artwork (footer + /donate). Checkout is server-side via /api/billing/donate. */
+export const NOWPAYMENTS_DONATE_BUTTON =
+  "https://nowpayments.io/images/embeds/donation-button-black.svg";
+
 /** Absolute URL for a path on the canonical domain. */
 export const url = (path = "/") => `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 

@@ -10,11 +10,21 @@ aibusiness.fun, www.aibusiness.fun {
   header {
     Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
     X-Content-Type-Options nosniff
+    X-Frame-Options SAMEORIGIN
     Referrer-Policy strict-origin-when-cross-origin
     Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    Cross-Origin-Opener-Policy same-origin-allow-popups
     # Report-Only — keep in sync with src/lib/security-headers.ts. Does not block.
     Content-Security-Policy-Report-Only "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://twitter.com https://x.com https://platform.twitter.com https://*.twitter.com https://www.linkedin.com https://*.linkedin.com; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://accounts.google.com https://*.walletconnect.com https://*.walletconnect.org https://*.reown.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob:; worker-src 'self' blob:; manifest-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://*.g.doubleclick.net https://fonts.googleapis.com https://accounts.google.com https://*.googleapis.com https://*.gstatic.com https://*.walletconnect.com wss://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.org https://*.reown.com wss://*.reown.com https://*.g.alchemy.com https://*.alchemy.com https://mainnet.base.org https://*.base.org https://api.qrserver.com https://nowpayments.io https://*.nowpayments.io https://*.stripe.com https://app.fio.net https://*.fio.net; frame-src 'self' https://www.google.com https://maps.google.com https://accounts.google.com https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://*.walletconnect.com https://*.walletconnect.org https://*.reown.com https://nowpayments.io https://*.nowpayments.io; form-action 'self' https://accounts.google.com https://checkout.stripe.com https://nowpayments.io https://*.nowpayments.io https://app.fio.net"
     -Server
+  }
+
+  # RFC 9116 — serve even if the Node app is restarting.
+  @securityTxt path /.well-known/security.txt
+  handle @securityTxt {
+    root * /opt/auraos/public
+    header Content-Type "text/plain; charset=utf-8"
+    file_server
   }
 
   # Hashed/static assets only (not mp4 — errors must not be cached immutable).

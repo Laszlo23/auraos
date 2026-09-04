@@ -1,4 +1,4 @@
-<!-- robots.txt -->
+# robots.txt — aibusiness.fun
 User-agent: Googlebot
 Allow: /
 Disallow: /api/
