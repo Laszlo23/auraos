@@ -869,6 +869,53 @@ export const en: MessageTree = {
     showEverything: "Show everything",
     backToSimple: "Back to simple mode",
   },
+  console: {
+    map: {
+      panel: "Your OS desk",
+      intro:
+        "Everything your company can run — marketing, leads, trading, liquidity, creation, and the day-to-day loop. Tap a surface to open it. Collapse this map once you know the desk.",
+      expand: "Show map",
+      collapse: "Hide map",
+      run: {
+        title: "Run the company",
+        blurb: "Missions, approvals, agents, and proof — the operating loop.",
+      },
+      marketing: {
+        title: "Marketing",
+        blurb: "Channels, campaigns, and your public site.",
+      },
+      leads: {
+        title: "Leads",
+        blurb: "Lead hunter, pipeline, and customers.",
+      },
+      trading: {
+        title: "Trading",
+        blurb: "Grow funds with AI trading and liquidity work.",
+      },
+      liquidity: {
+        title: "Liquidity & funds",
+        blurb: "Wallet balances and product economy.",
+      },
+      creation: {
+        title: "Creation",
+        blurb: "NFTs, agent store, and products you sell.",
+      },
+      growth: {
+        title: "Growth room",
+        blurb: "Quests, squads, invites, and the arena.",
+      },
+      setup: {
+        title: "Setup",
+        blurb: "Connections, identity, knowledge, and settings.",
+      },
+      hint: {
+        social: "Social connected",
+        mailbox: "Mailbox live",
+        mailboxNeeded: "Connect mailbox for outreach",
+        funds: "Funds desk ready",
+      },
+    },
+  },
   settings: {
     eyebrow: "Identity",
     title: "How your company behaves",

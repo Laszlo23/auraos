@@ -150,7 +150,6 @@ export const OS_PRESETS: Record<OsPresetId, OsPresetDef> = {
       "/community",
       "/quest",
       "/channels",
-      "/nachbar/heute",
       "/approvals",
       "/agents",
       "/wallet",
@@ -163,7 +162,8 @@ export const OS_PRESETS: Record<OsPresetId, OsPresetDef> = {
     product: "studio",
     akquiseTemplate: null,
     knowledgeTitle: "Preset · Community",
-    knowledgeSummary: "Focus: squads, quests, and city check-ins. Grow on /quest and /community.",
+    knowledgeSummary:
+      "Focus: squads and quests inside Aura OS. City play (Aura Nachbar) is a separate app at /nachbar.",
   },
   reseller: {
     id: "reseller",

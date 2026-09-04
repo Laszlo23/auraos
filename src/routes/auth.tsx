@@ -27,6 +27,7 @@ type AuthMode = "signin" | "signup" | "forgot" | "reset" | "magic";
 
 const SAFE_NEXT = new Set([
   "/console",
+  "/heute",
   "/missions",
   "/akquise",
   "/trading",
@@ -42,6 +43,7 @@ const NEW_USER_WINDOW_MS = 2 * 60 * 1000;
 
 type PostAuthDest =
   | "/console"
+  | "/heute"
   | "/missions"
   | "/akquise"
   | "/trading"
@@ -273,12 +275,13 @@ async function resolvePostAuthPath(explicitNext?: string): Promise<PostAuthDest>
 
   const { data: companies } = await supabase
     .from("companies")
-    .select("id")
+    .select("id, entry_funnel")
     .eq("owner_id", user.id)
     .order("created_at")
     .limit(1);
 
-  const companyId = companies?.[0]?.id;
+  const company = companies?.[0] as { id: string; entry_funnel: string | null } | undefined;
+  const companyId = company?.id;
   if (!companyId) return "/onboarding";
 
   const { data: progress } = await supabase
@@ -288,6 +291,12 @@ async function resolvePostAuthPath(explicitNext?: string): Promise<PostAuthDest>
     .maybeSingle();
 
   if (!progress || !progress.onboarded) return "/onboarding";
+
+  // Aura Local stays in the Lokal shell — never dump into OS Console home.
+  if (company.entry_funnel === "local") {
+    return "/heute";
+  }
+
   return safeNextPath(explicitNext);
 }
 
@@ -598,7 +607,7 @@ function AuthPage() {
 
       let dest = await resolvePostAuthPath(nextFromLinkRef.current);
       // After founding-seat checkout, force onboarding until the company is marked onboarded.
-      if (seatFromLink === "success" && dest === "/console") {
+      if (seatFromLink === "success" && (dest === "/console" || dest === "/heute")) {
         dest = "/onboarding";
       }
       postAuthDoneRef.current = true;
@@ -609,7 +618,13 @@ function AuthPage() {
           window.location.assign(dest);
         } else {
           navigate({
-            to: dest as "/console" | "/missions" | "/akquise" | "/trading" | "/onboarding",
+            to: dest as
+              | "/console"
+              | "/heute"
+              | "/missions"
+              | "/akquise"
+              | "/trading"
+              | "/onboarding",
           });
         }
       }
@@ -808,6 +823,7 @@ function AuthPage() {
           <div className="flex h-full w-full max-w-xl flex-col justify-between xl:mr-8">
             <AuraLogo
               size="sm"
+              to={isNachbarPatron ? "/nachbar" : isLokalEntry ? "/lokal" : "/"}
               label={isNachbarPatron ? "Aura Nachbar" : isLokalEntry ? "Aura Local" : "Aura OS"}
             />
 
@@ -902,7 +918,12 @@ function AuthPage() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="glass w-full max-w-sm rounded-[2rem] p-8 shadow-[var(--shadow-glow)]"
           >
-            <AuraLogo size="xs" className="mb-5 lg:hidden" />
+            <AuraLogo
+              size="xs"
+              className="mb-5 lg:hidden"
+              to={isNachbarPatron ? "/nachbar" : isLokalEntry ? "/lokal" : "/"}
+              label={isNachbarPatron ? "Aura Nachbar" : isLokalEntry ? "Aura Local" : "Aura OS"}
+            />
             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
 

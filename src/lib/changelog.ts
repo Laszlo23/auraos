@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-05-console-desk-map",
+    date: "2026-09-05",
+    title: "Console desk map + Local / Nachbar / OS separation",
+    summary:
+      "Console opens with a clear map of Marketing, Leads, Trading, Liquidity, Creation, and the operating loop. Aura OS, Aura Lokal, and Aura Nachbar no longer leak into each other’s chrome.",
+    items: [
+      "Console: collapsible OS desk map filtered by your visible nav / preset",
+      "OS sidebar + header: Nachbar removed — city play stays at /nachbar",
+      "Lokal logo → /heute; Local post-login → /heute; auth logos stay in-funnel",
+      "Nachbar: optional Firma link only when you own a company",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-04-beta-readiness",
     date: "2026-09-04",
     title: "Beta readiness — loving onboard + $12k pulse",

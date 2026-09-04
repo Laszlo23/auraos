@@ -70,7 +70,7 @@ export function AuraLogo({
 }: {
   size?: LogoSize;
   wordmark?: boolean;
-  to?: "/" | "/console" | "/brand" | null;
+  to?: "/" | "/console" | "/brand" | "/heute" | "/nachbar" | "/nachbar/heute" | "/lokal" | null;
   className?: string;
   label?: string;
 }) {

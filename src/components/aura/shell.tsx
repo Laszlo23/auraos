@@ -201,7 +201,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   {company?.name ?? "Aura OS"}
                 </p>
                 <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Pulse /> live
+                  <Pulse /> Console
                 </p>
               </div>
             )}
@@ -314,7 +314,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   {company?.name ?? "Aura OS"}
                 </p>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                  autonomous company
+                  Aura OS · Console
                 </p>
               </div>
               <span className="ml-1 flex shrink-0 items-center gap-1.5 rounded-full bg-primary/12 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary ring-1 ring-primary/20">
@@ -346,14 +346,6 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             >
               <span className="num font-semibold">{compact(sub?.tokens_remaining ?? 0)}</span>
               {TOKEN_SYMBOL}
-            </Link>
-
-            <Link
-              to="/nachbar/heute"
-              title="Aura Nachbar — city play"
-              className="hidden shrink-0 items-center gap-2 rounded-2xl bg-gold/12 px-3 py-1.5 text-xs font-semibold text-gold transition-opacity hover:opacity-80 xl:flex"
-            >
-              Nachbar
             </Link>
 
             <Link

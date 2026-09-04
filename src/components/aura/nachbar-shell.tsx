@@ -80,7 +80,11 @@ export function NachbarShell({ children }: { children?: React.ReactNode }) {
 
       <header className="relative z-20 sticky top-0 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center gap-3 px-4 py-3">
-          <Link to="/nachbar/heute" className="font-display text-base font-semibold tracking-tight">
+          <Link
+            to="/nachbar/heute"
+            title="Aura Nachbar — Start"
+            className="font-display text-base font-semibold tracking-tight"
+          >
             Aura <span className="text-muted-foreground">Nachbar</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
@@ -93,14 +97,16 @@ export function NachbarShell({ children }: { children?: React.ReactNode }) {
                 {hub?.has_company ? (
                   <Link
                     to="/console"
-                    className="rounded-full border border-border/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+                    title="Zur Aura OS Console (Firmen-OS) — separates Produkt"
+                    className="rounded-full border border-border/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
                   >
-                    Console
+                    Firma
                   </Link>
                 ) : null}
                 <button
                   type="button"
                   aria-label="Abmelden"
+                  title="Abmelden"
                   className="rounded-full p-1.5 text-muted-foreground hover:text-foreground"
                   onClick={async () => {
                     await supabase.auth.signOut();

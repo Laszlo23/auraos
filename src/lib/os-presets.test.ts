@@ -46,6 +46,13 @@ describe("os-presets", () => {
     expect(parsed).toContain("/console");
   });
 
+  it("community preset stays inside OS (no Nachbar nav)", () => {
+    const paths = presetDefaultNav("community");
+    expect(paths).toContain("/community");
+    expect(paths).toContain("/quest");
+    expect(paths).not.toContain("/nachbar/heute");
+  });
+
   it("exposes EN/DE settings and navOs strings", () => {
     expect(t("settings.workspace", "en")).toBe("Business OS");
     expect(t("settings.presetRealty", "de")).toBe("Immobilien");

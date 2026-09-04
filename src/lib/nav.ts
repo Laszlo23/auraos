@@ -53,15 +53,6 @@ export const NAV: NavItem[] = [
     core: true,
   },
   {
-    to: "/nachbar/heute",
-    label: "Nachbar",
-    plain: "City",
-    hint: "Check in around town — no shop needed",
-    icon: Compass,
-    group: "Company",
-    core: true,
-  },
-  {
     to: "/approvals",
     label: "Approvals",
     plain: "Approvals",

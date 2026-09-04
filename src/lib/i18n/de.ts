@@ -876,6 +876,53 @@ export const de: MessageTree = {
     showEverything: "Alles zeigen",
     backToSimple: "Zurück zum einfachen Modus",
   },
+  console: {
+    map: {
+      panel: "Dein OS-Schreibtisch",
+      intro:
+        "Alles, was deine Firma fahren kann — Marketing, Leads, Trading, Liquidität, Creation und der Tagesbetrieb. Tippe eine Fläche an. Klappe die Karte zu, wenn du den Schreibtisch kennst.",
+      expand: "Karte zeigen",
+      collapse: "Karte ausblenden",
+      run: {
+        title: "Firma führen",
+        blurb: "Missionen, Freigaben, Agents und Proof — der Betriebskreislauf.",
+      },
+      marketing: {
+        title: "Marketing",
+        blurb: "Kanäle, Kampagnen und deine öffentliche Site.",
+      },
+      leads: {
+        title: "Leads",
+        blurb: "Lead Hunter, Pipeline und Kunden.",
+      },
+      trading: {
+        title: "Trading",
+        blurb: "Kapital wachsen mit KI-Trading und Liquidity.",
+      },
+      liquidity: {
+        title: "Liquidität & Funds",
+        blurb: "Wallet und Produkt-Economy.",
+      },
+      creation: {
+        title: "Creation",
+        blurb: "NFTs, Agent Store und Produkte zum Verkauf.",
+      },
+      growth: {
+        title: "Growth Room",
+        blurb: "Quests, Squads, Invites und die Arena.",
+      },
+      setup: {
+        title: "Setup",
+        blurb: "Verbindungen, Identity, Knowledge und Settings.",
+      },
+      hint: {
+        social: "Social verbunden",
+        mailbox: "Mailbox live",
+        mailboxNeeded: "Mailbox für Outreach verbinden",
+        funds: "Funds-Desk bereit",
+      },
+    },
+  },
   settings: {
     eyebrow: "Identität",
     title: "So verhält sich deine Firma",

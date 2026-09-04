@@ -22,6 +22,7 @@ import { DailyEngagementStrip } from "@/components/aura/daily-engagement-strip";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
 import { FirstWin } from "@/components/aura/first-win";
+import { OsFunctionMap } from "@/components/aura/os-function-map";
 import { StartHere } from "@/components/aura/start-here";
 import { StreamText } from "@/components/aura/stream-text";
 import { QuestTrail } from "@/components/aura/quests";
@@ -37,6 +38,8 @@ import { useSubscription } from "@/hooks/use-tokens";
 import { useApproveTask, useProposeNextActions, useRejectTask } from "@/lib/actions";
 import { autonomyLabel } from "@/lib/company-economy";
 import { getCompanyEconomy } from "@/lib/economy.functions";
+import { funnelById, isFunnelId } from "@/lib/funnels";
+import { resolveVisibleNav } from "@/lib/os-presets";
 import { listRevenueMissions } from "@/lib/revenue-mission.functions";
 import { getSiteGrowthStats } from "@/lib/sites.functions";
 import { TOKEN_SYMBOL } from "@/lib/plans";
@@ -157,6 +160,29 @@ function Home() {
   const trackedMission = useRef(false);
   const trackedProof = useRef(false);
 
+  const entryFunnel =
+    company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
+  const funnelNav = funnelById(entryFunnel);
+  const visibleNav = useMemo(
+    () =>
+      resolveVisibleNav({
+        osPreset: company?.os_preset ?? null,
+        navPrefs: company?.nav_prefs ?? null,
+        funnelNavCore: funnelNav.navCore,
+        simple,
+      }),
+    [company?.os_preset, company?.nav_prefs, funnelNav.navCore, simple],
+  );
+  const visiblePaths = useMemo(() => new Set(visibleNav.map((n) => n.to)), [visibleNav]);
+  const mapHints = useMemo(
+    () => ({
+      socialConnected: socialStatuses.some((s) => s.connected),
+      mailboxLive,
+      hasFundsHint: (sub?.tokens_remaining ?? 0) > 0 || Boolean(economy?.slug),
+    }),
+    [socialStatuses, mailboxLive, sub?.tokens_remaining, economy?.slug],
+  );
+
   const running = tasks.filter((t) => t.status === "running" || t.status === "queued");
   const awaiting = tasks.filter((t) => t.status === "pending_approval");
   const socialAwaiting = awaiting.filter((t) => Boolean(t.result?.startsWith("social-reply:")));
@@ -243,6 +269,7 @@ function Home() {
   const guideEarly = lifetime === 0 && customers === 0 && done < 3;
   const mobileLabels = [
     "Now",
+    "Desk",
     ...(showMilestone ? ["Milestone"] : []),
     "Mission",
     ...(showApprovals ? ["Approvals"] : []),
@@ -282,6 +309,10 @@ function Home() {
           <div className="mt-3">
             <SiteGrowthStrip />
           </div>
+        </FocusCard>
+
+        <FocusCard eyebrow="Desk map" title="What your OS can run">
+          <OsFunctionMap visiblePaths={visiblePaths} hints={mapHints} />
         </FocusCard>
 
         {showMilestone ? (
@@ -436,6 +467,8 @@ function Home() {
             </>
           }
         />
+
+        <OsFunctionMap visiblePaths={visiblePaths} hints={mapHints} />
 
         {/* Snapshot: actual economics only */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
