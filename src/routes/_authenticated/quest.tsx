@@ -108,7 +108,7 @@ function QuestHubPage() {
       <PageHeader
         eyebrow="AURA Quest"
         title="Your world progress"
-        lead="One XP bar, contribution REP, and badges — across OS, Local, and the city. No tokenomics required on day one."
+        description="One XP bar, contribution REP, and badges — across OS, Local, and the city. No tokenomics required on day one."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
