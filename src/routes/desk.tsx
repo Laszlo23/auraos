@@ -37,6 +37,12 @@ import {
   getDeskDashboard,
   logDeskSale,
 } from "@/lib/desk.functions";
+import {
+  BETA_12K_PROPHECIES,
+  BETA_TARGET_USD,
+  prophecyProgressPct,
+  type BetaPulseSnapshot,
+} from "@/lib/beta-pulse";
 import { t as translate } from "@/lib/i18n";
 import { pAuraToLaunchAura, PRIVATE_SALE_MIN_USDC, usdcToPAura } from "@/lib/private-sale";
 import {
@@ -537,6 +543,9 @@ function FinanceSnapshot({
   const foundingRev = data.finance.foundingRevenue / 100;
   const localRev = data.finance.localRevenue / 100;
   const total = foundingRev + localRev;
+  const pulse = (data as { betaPulse?: BetaPulseSnapshot }).betaPulse;
+  const actualUsd = pulse ? pulse.seatCashUsdCents / 100 : foundingRev + localRev * 1.08;
+  const progress = prophecyProgressPct(actualUsd);
 
   return (
     <div className="space-y-4">
@@ -556,10 +565,46 @@ function FinanceSnapshot({
         <StatCard
           icon={DollarSign}
           label={t("desk.revenueTotal")}
-          value={`~€${total.toFixed(0)}`}
+          value={`~$${actualUsd.toFixed(0)} · ${progress}% of $${BETA_TARGET_USD / 1000}k`}
           tone="primary"
         />
       </div>
+
+      {pulse ? (
+        <Panel label="Beta pulse · last 7 days">
+          <p className="mb-3 text-xs text-white/50">
+            Activation events from app_events. Plan toward ${BETA_TARGET_USD.toLocaleString()} gross
+            — not a promise.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-sm text-white/80">
+            <p>Signups · {pulse.signups7d}</p>
+            <p>Onboard done · {pulse.onboardComplete7d}</p>
+            <p>First mission · {pulse.firstMission7d}</p>
+            <p>First proof · {pulse.firstProof7d}</p>
+            <p>Squad joins · {pulse.squadJoin7d}</p>
+            <p>Scout joins · {pulse.scoutJoin7d}</p>
+            <p>Growth tasks · {pulse.growthTaskDone7d}</p>
+            <p>Seat cash ~${(pulse.seatCashUsdCents / 100).toFixed(0)}</p>
+          </div>
+          <div className="mt-4 space-y-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
+              Prophecy vs actual (90d base = ${BETA_TARGET_USD.toLocaleString()})
+            </p>
+            {BETA_12K_PROPHECIES.map((tier) => (
+              <div
+                key={tier.id}
+                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/70"
+              >
+                <span className="font-semibold text-white/90">{tier.label}</span>
+                {" · "}
+                d30 ${tier.day30Usd.toLocaleString()} · d60 ${tier.day60Usd.toLocaleString()} · d90 $
+                {tier.day90Usd.toLocaleString()}
+                <p className="mt-0.5 text-white/45">{tier.note}</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      ) : null}
 
       <Panel label={t("desk.financeNotes")}>
         <div className="space-y-2 text-sm text-white/70">

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight } from "lucide-react";
 
@@ -22,12 +22,12 @@ import { DailyEngagementStrip } from "@/components/aura/daily-engagement-strip";
 import { RevenueMissionsBand } from "@/components/aura/revenue-missions";
 import { RevenueWallet } from "@/components/aura/revenue-wallet";
 import { FirstWin } from "@/components/aura/first-win";
-import { GrowthStarterTrack } from "@/components/aura/growth-starter";
 import { StartHere } from "@/components/aura/start-here";
 import { StreamText } from "@/components/aura/stream-text";
 import { QuestTrail } from "@/components/aura/quests";
 import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
 import { COMPANY_QUESTS } from "@/lib/gamify";
+import { trackAppEvent } from "@/lib/app-track";
 import { levelFromXp, useProgress } from "@/hooks/use-progress";
 import { useCompany, useCompanyTable, liveWorkInterval, rowsHaveLiveWork } from "@/hooks/use-aura";
 import { useSocialStatus } from "@/hooks/use-connections";
@@ -154,6 +154,8 @@ function Home() {
   const approve = useApproveTask();
   const reject = useRejectTask();
   const [historyMissionId, setHistoryMissionId] = useState<string | null>(null);
+  const trackedMission = useRef(false);
+  const trackedProof = useRef(false);
 
   const running = tasks.filter((t) => t.status === "running" || t.status === "queued");
   const awaiting = tasks.filter((t) => t.status === "pending_approval");
@@ -167,6 +169,20 @@ function Home() {
   ).length;
   const queuedSocial = channelPosts.filter((p) => p.status === "scheduled").length;
   const autoPublishOff = socialStatuses.some((s) => s.connected && !s.auto_publish);
+
+  useEffect(() => {
+    if (!trackedMission.current && missions.length > 0) {
+      trackedMission.current = true;
+      trackAppEvent("first_mission", { company_id: company?.id });
+    }
+  }, [missions.length, company?.id]);
+
+  useEffect(() => {
+    if (!trackedProof.current && realResults > 0) {
+      trackedProof.current = true;
+      trackAppEvent("first_proof", { company_id: company?.id });
+    }
+  }, [realResults, company?.id]);
   const failedCount = tasks.filter((t) => t.status === "failed").length;
   const briefing = insights.find((i) => i.kind === "thought");
   const totals = economy?.totals;
@@ -219,6 +235,12 @@ function Home() {
 
   const showApprovals = socialAwaiting.length > 0 || otherAwaiting.length > 0;
   const showMilestone = lifetime <= 0 || customers <= 0;
+  const completedQuests = new Set(progress?.completed_quests ?? []);
+  const hasCrew =
+    completedQuests.has("squad:joined") ||
+    completedQuests.has("squad:created") ||
+    completedQuests.has("scout:joined");
+  const guideEarly = lifetime === 0 && customers === 0 && done < 3;
   const mobileLabels = [
     "Now",
     ...(showMilestone ? ["Milestone"] : []),
@@ -263,22 +285,24 @@ function Home() {
         </FocusCard>
 
         {showMilestone ? (
-          <FocusCard eyebrow="Next" title="Get energy on the right win">
-            {customers <= 0 ? (
-              <GrowthStarterTrack
-                variant="company"
+          <FocusCard eyebrow="Next" title="One job today">
+            {guideEarly ? (
+              <StartHere
                 hasMission={missions.length > 0}
-                customers={customers}
+                hasApproval={awaiting.length > 0 || done > 0}
+                hasProof={realResults > 0 || done > 0}
+                hasCrew={hasCrew}
               />
-            ) : null}
-            <ActivationChallenge
-              revenue={lifetime}
-              customers={customers}
-              tasksCompleted={economy?.tasksCompleted ?? done}
-              agents={economy?.agentsActive ?? agents.length}
-              actions24hApprox={events.length}
-              productHint={productHint}
-            />
+            ) : (
+              <ActivationChallenge
+                revenue={lifetime}
+                customers={customers}
+                tasksCompleted={economy?.tasksCompleted ?? done}
+                agents={economy?.agentsActive ?? agents.length}
+                actions24hApprox={events.length}
+                productHint={productHint}
+              />
+            )}
             {needsMailbox ? (
               <div className="mt-4 rounded-2xl border border-border/50 bg-foreground/[0.03] p-4">
                 <p className="text-[13px] text-muted-foreground">
@@ -428,24 +452,25 @@ function Home() {
           awaitingApproval={awaiting.length}
         />
 
-        {customers <= 0 ? (
-          <GrowthStarterTrack
-            variant="company"
+        {guideEarly ? (
+          <StartHere
             hasMission={missions.length > 0}
-            customers={customers}
+            hasApproval={awaiting.length > 0 || done > 0}
+            hasProof={realResults > 0 || done > 0}
+            hasCrew={hasCrew}
           />
-        ) : null}
+        ) : (
+          <ActivationChallenge
+            revenue={lifetime}
+            customers={customers}
+            tasksCompleted={economy?.tasksCompleted ?? done}
+            agents={economy?.agentsActive ?? agents.length}
+            actions24hApprox={events.length}
+            productHint={productHint}
+          />
+        )}
 
         <SiteGrowthStrip />
-
-        <ActivationChallenge
-          revenue={lifetime}
-          customers={customers}
-          tasksCompleted={economy?.tasksCompleted ?? done}
-          agents={economy?.agentsActive ?? agents.length}
-          actions24hApprox={events.length}
-          productHint={productHint}
-        />
 
         {needsMailbox ? (
           <Panel label="Mailbox needed" glow delay={0.01}>
@@ -489,13 +514,13 @@ function Home() {
           <RevenueMissionsBand />
         </div>
 
-        {(simple || customers < 10) && (
+        {!guideEarly && customers < 10 ? (
           <FirstWin
             goal="File one real agent result — approve a task; social work must show Published or Queued on Channels"
             completed={realResults > 0 ? 1 : 0}
             target={1}
           />
-        )}
+        ) : null}
 
         {queuedSocial > 0 && autoPublishOff ? (
           <Panel label="Channels · Autopublish off" glow>
@@ -511,28 +536,6 @@ function Home() {
             </Link>
           </Panel>
         ) : null}
-
-        {(simple || (lifetime === 0 && done === 0)) && (
-          <StartHere
-            hasMission={missions.length > 0}
-            hasApproval={awaiting.length > 0 || done > 0}
-            hasProof={done > 0}
-          />
-        )}
-
-        {lifetime === 0 && done === 0 && awaiting.length === 0 && missions.length === 0 && (
-          <Panel label="Give your company something to do" glow delay={0.01}>
-            <p className="text-[13px] leading-relaxed text-muted-foreground">
-              You hired an entire company. Tell it the first outcome — Aura will draft the plan.
-            </p>
-            <Link
-              to="/missions"
-              className="mt-4 inline-flex rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
-            >
-              Create your first mission
-            </Link>
-          </Panel>
-        )}
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <LiveCompanyActivity events={events} />

@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-04-beta-readiness",
+    date: "2026-09-04",
+    title: "Beta readiness — loving onboard + $12k pulse",
+    summary:
+      "Fixed broken Quest/Scout/Community activation, collapsed Console to one next step, instrumented the funnel, aligned seat checkout to $299 / €99, and added Desk beta pulse + prophecy toward $12k gross.",
+    items: [
+      "Prod RPCs: merge signup growth, scout attribution, Vienna leaderboard, portals",
+      "Community ?join= autofill; Quest weekly Go routes to the right surface",
+      "app_events: onboarding_complete, first_mission, first_proof, squad_join, scout_join, growth_task_done",
+      "Desk Finance: beta pulse + base/stretch/moon prophecy; seat unit prices fixed",
+      "docs/BETA_COHORT.md — 20-tester loving script",
+    ],
+    tags: ["feature", "improvement", "infra"],
+  },
+  {
     id: "2026-09-04-growth-digital-work",
     date: "2026-09-04",
     title: "Growth digital work — assign social + Spaces tasks",

@@ -176,18 +176,22 @@ export type LokalImproveGoal = "reviews" | "return" | "social" | "customers";
 export const LOKAL_GOALS: { id: LokalImproveGoal; title: string; body: string }[] = [
   {
     id: "reviews",
-    title: "More real Google reviews",
-    body: "Ask after a real visit. The guest writes their own words.",
+    title: "Mehr echte Google-Reviews",
+    body: "Nach dem Besuch fragen. Der Gast schreibt selbst.",
   },
   {
     id: "return",
-    title: "More returning customers",
-    body: "Follow up with people who already came in.",
+    title: "Mehr Stammkunden",
+    body: "Menschen nachfassen, die schon da waren.",
   },
   {
     id: "social",
-    title: "More social content",
-    body: "Drafts for you to approve — nothing posts alone.",
+    title: "Mehr Social Content",
+    body: "Entwürfe zum Freigeben — nichts postet allein.",
   },
-  { id: "customers", title: "More customers", body: "Find neighbours and invite them in." },
+  {
+    id: "customers",
+    title: "Mehr Neukunden",
+    body: "Nachbarn finden und einladen.",
+  },
 ];

@@ -7,22 +7,25 @@ import { cn } from "@/lib/utils";
 type Step = { to: string; title: string; body: string; cta: string; done: boolean };
 
 /**
- * The first five minutes. One obvious next action, in plain language.
+ * One loving next step for early founders — not five competing panels.
  */
 export function StartHere({
   hasMission,
   hasApproval,
   hasProof,
+  hasCrew = false,
 }: {
   hasMission: boolean;
   hasApproval: boolean;
   hasProof: boolean;
+  /** Squad join or Scout join counts as showing up with people. */
+  hasCrew?: boolean;
 }) {
   const steps: Step[] = [
     {
       to: "/missions",
-      title: "Give your company something to do",
-      body: "A sentence is enough. Aura turns it into a plan you can approve.",
+      title: "Give your company one job today",
+      body: "A sentence is enough. Aura drafts the plan — you stay in control.",
       cta: "Create a mission",
       done: hasMission,
     },
@@ -40,19 +43,32 @@ export function StartHere({
       cta: "View proof",
       done: hasProof,
     },
+    {
+      to: "/community",
+      title: "Show up with people",
+      body: "Join a squad for growth tasks, or Scouts on Quest for local invites. Pick one.",
+      cta: "Open Community",
+      done: hasCrew,
+    },
   ];
 
   const next = steps.find((s) => !s.done);
   if (!next) return null;
 
+  const stepIndex = steps.indexOf(next) + 1;
+
   return (
-    <Panel label="Your company is ready" glow>
+    <Panel label="Your next love step" glow>
       <p className="max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-        You own the company. Give an outcome. Aura handles the rest. You are on step{" "}
-        <span className="text-foreground">{steps.indexOf(next) + 1} of 3</span>.
+        You’re building a company. One job today — step{" "}
+        <span className="text-foreground">
+          {stepIndex} of {steps.length}
+        </span>
+        . Quest XP and Aura Reputation (€49/mo for local shops) are different things; this strip is
+        just the path to your first real win.
       </p>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((s, i) => {
           const active = s === next;
           return (
@@ -78,17 +94,11 @@ export function StartHere({
               </span>
               <p className={cn("mt-2 text-sm font-medium", s.done && "line-through")}>{s.title}</p>
               <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">{s.body}</p>
-              {!s.done && (
-                <span
-                  className={cn(
-                    "mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em]",
-                    active ? "text-primary" : "text-muted-foreground",
-                  )}
-                >
-                  {s.cta}
-                  <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              {active ? (
+                <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
+                  {s.cta} <ArrowRight className="h-3 w-3" />
                 </span>
-              )}
+              ) : null}
             </Link>
           );
         })}

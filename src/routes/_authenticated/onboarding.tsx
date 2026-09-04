@@ -25,6 +25,7 @@ import {
   type OnboardBrief,
 } from "@/lib/onboard-brief";
 import { createRevenueMission, startRevenueMission } from "@/lib/revenue-mission.functions";
+import { trackAppEvent } from "@/lib/app-track";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -130,6 +131,11 @@ function Onboarding() {
 
   const finishTo = async (dest: string) => {
     await complete.mutateAsync();
+    trackAppEvent("onboarding_complete", {
+      company_id: company?.id,
+      dest,
+      funnel: isLokal ? "local" : "founding",
+    });
     try {
       let handleId = myHandle?.id;
       if (!handleId && company?.name) {
@@ -356,7 +362,7 @@ function Onboarding() {
                 Aura Local
               </p>
               <h1 className="mt-3 font-display text-[clamp(2.2rem,7vw,3.6rem)] font-semibold leading-[1.02] tracking-tight">
-                Grow my local business
+                Deinen Betrieb wachsen lassen
               </h1>
               <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">
                 Wie heißt der Betrieb? Aura erkennt den Rest.
@@ -435,8 +441,9 @@ function Onboarding() {
                 <button
                   type="button"
                   onClick={() => {
-                    setPrompt(ONBOARD_EXAMPLES[2]);
-                    const next = interpretBusiness(ONBOARD_EXAMPLES[2]);
+                    const example = ONBOARD_EXAMPLES[2] ?? ONBOARD_EXAMPLES[0] ?? "";
+                    setPrompt(example);
+                    const next = interpretBusiness(example);
                     setBrief(next);
                     setMission(next.missions[0] ?? "");
                     setPhase(0.5 as unknown as number);
@@ -535,14 +542,10 @@ function Onboarding() {
             </section>
           ) : null}
 
-          {phase === 2 &&
-          !firstWin &&
-          brief &&
-          (isLokal || brief.local) &&
-          lokalGoal === "reviews" ? (
+          {phase === 2 && !firstWin && brief && (isLokal || brief.local) ? (
             <section>
               <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
-                {de ? "Deine Firma ist bereit." : "Your company is ready."}
+                Deine Firma ist bereit.
               </p>
               <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                 {["Geschäft", "CEO", "Mitarbeiter"].map((label) => (
@@ -557,34 +560,73 @@ function Onboarding() {
                   <span className="grid h-5 w-5 place-items-center rounded-full border border-border/50 text-[10px]">
                     0%
                   </span>
-                  Erste Review-Anfrage
+                  {LOKAL_GOALS.find((g) => g.id === lokalGoal)?.title ?? "Erstes Ziel"}
                 </li>
               </ul>
               <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight">
-                {de ? "Erste echte Review-Anfrage" : "Get your first genuine review request sent."}
+                {lokalGoal === "reviews"
+                  ? "Erste echte Review-Anfrage"
+                  : lokalGoal === "return"
+                    ? "Stammkunden zurückholen"
+                    : lokalGoal === "social"
+                      ? "Ersten Social-Entwurf freigeben"
+                      : "Nachbarn einladen"}
               </h1>
               <p className="mt-4 max-w-xl text-[15px] text-muted-foreground">
-                Besuch → Check-in → Erlaubnis → Einladung. Der Gast schreibt selbst. Aura erzeugt
-                keine Reviews.
+                {lokalGoal === "reviews"
+                  ? "Besuch → Check-in → Erlaubnis → Einladung. Der Gast schreibt selbst. Aura erzeugt keine Reviews."
+                  : lokalGoal === "return"
+                    ? "Wir starten mit Kundendaten und einer freundlichen Nachricht — du gibst jede Aussendung frei."
+                    : lokalGoal === "social"
+                      ? "Aura entwirft Posts. Nichts geht live, bevor du tippst."
+                      : "Lokale Einladungen und Scout-Links — ehrlich, ohne Fake-Zahlen."}
               </p>
               <ol className="mt-6 space-y-2 text-[14px] text-muted-foreground">
-                <li>01 Check-in-QR im Laden</li>
-                <li>02 Gast kommt — du bestätigst den Besuch</li>
-                <li>03 Aura bereitet die Einladung vor</li>
-                <li>04 Du gibst frei — der Gast schreibt auf Google</li>
+                {lokalGoal === "reviews" ? (
+                  <>
+                    <li>01 Check-in-QR im Laden</li>
+                    <li>02 Gast kommt — du bestätigst den Besuch</li>
+                    <li>03 Aura bereitet die Einladung vor</li>
+                    <li>04 Du gibst frei — der Gast schreibt auf Google</li>
+                  </>
+                ) : lokalGoal === "return" ? (
+                  <>
+                    <li>01 Kundenliste prüfen</li>
+                    <li>02 Nachricht entwerfen lassen</li>
+                    <li>03 Freigeben</li>
+                    <li>04 Wiederkommen messen</li>
+                  </>
+                ) : lokalGoal === "social" ? (
+                  <>
+                    <li>01 Channels verbinden</li>
+                    <li>02 Entwurf erzeugen</li>
+                    <li>03 Freigeben oder Autopublish</li>
+                    <li>04 Proof speichern</li>
+                  </>
+                ) : (
+                  <>
+                    <li>01 Scout- oder Einladungslink teilen</li>
+                    <li>02 Nachbarn begrüßen</li>
+                    <li>03 Check-in im Laden</li>
+                    <li>04 Sitz / Reputation anbieten</li>
+                  </>
+                )}
               </ol>
               <Primary
                 onClick={() => void finishLokalFirstWin()}
-                label={busy ? "Öffnen…" : "Reputation starten →"}
+                label={
+                  busy
+                    ? "Öffnen…"
+                    : lokalGoal === "reviews"
+                      ? "Reputation starten →"
+                      : "Zum Kundenbereich →"
+                }
                 busy={busy}
               />
             </section>
           ) : null}
 
-          {phase === 2 &&
-          !firstWin &&
-          brief &&
-          !((isLokal || brief.local) && lokalGoal === "reviews") ? (
+          {phase === 2 && !firstWin && brief && !(isLokal || brief.local) ? (
             <section>
               <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-gold">
                 {de ? "Deine Firma ist bereit." : "Your company is ready."}

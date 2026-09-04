@@ -18,6 +18,8 @@ import { useTodaySpin } from "@/hooks/use-wheel";
 import { SITE_URL } from "@/lib/site";
 import { DAILY_QUEST_KEYS, QUEST_REGISTRY, WEEKLY_QUEST_KEYS } from "@/lib/progress/registry";
 import { REP_EARN_RULES } from "@/lib/progress/registry";
+import { questActionHref } from "@/lib/progress/quest-href";
+import { trackAppEvent } from "@/lib/app-track";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/quest")({
@@ -178,7 +180,7 @@ function QuestHubPage() {
                       <p className="text-[12px] text-muted-foreground">{q.hint}</p>
                     </div>
                     <Link
-                      to="/nachbar/heute"
+                      to={questActionHref(q.key) as "/community" | "/quest" | "/nachbar/heute" | "/channels" | "/missions"}
                       className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
                     >
                       {done ? "Done" : "Go"}
@@ -198,7 +200,11 @@ function QuestHubPage() {
               <button
                 type="button"
                 disabled={joinScout.isPending}
-                onClick={() => void joinScout.mutateAsync()}
+                onClick={() => {
+                  void joinScout.mutateAsync().then(() => {
+                    trackAppEvent("scout_join", {});
+                  });
+                }}
                 className="mt-4 rounded-2xl bg-primary px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground"
               >
                 Join Scouts

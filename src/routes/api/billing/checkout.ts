@@ -6,6 +6,7 @@ import {
   AURA_REPUTATION_BOOST_GRANT,
   AURA_REPUTATION_PLAN_ID,
   LOCAL_SEAT_BOOST_GRANT,
+  LOCAL_SEAT_EUR,
   LOCAL_SEAT_PLAN_ID,
   boostPackById,
   isAuraReputationPlan,
@@ -121,15 +122,23 @@ export const Route = createFileRoute("/api/billing/checkout")({
 
         if (plan === LOCAL_SEAT_PLAN_ID) {
           const price = process.env["STRIPE_PRICE_LOCAL_SEAT"]?.trim();
-          if (!price) {
-            return Response.json({ error: "Local Seat price not configured" }, { status: 503 });
-          }
           params.set("mode", "payment");
           params.set("success_url", `${site}/boost?checkout=success`);
           params.set("cancel_url", `${site}/boost?checkout=cancel`);
           params.set("metadata[kind]", "local_seat");
           params.set("metadata[boost_grant]", String(LOCAL_SEAT_BOOST_GRANT));
-          params.set("line_items[0][price]", price);
+          // Prefer inline €99 so Dashboard Price ID drift cannot undercharge.
+          if (process.env["STRIPE_LOCAL_USE_PRICE_ID"] === "1" && price) {
+            params.set("line_items[0][price]", price);
+          } else {
+            params.set("line_items[0][price_data][currency]", "eur");
+            params.set("line_items[0][price_data][unit_amount]", String(LOCAL_SEAT_EUR * 100));
+            params.set("line_items[0][price_data][product_data][name]", "Aura Local Seat");
+            params.set(
+              "line_items[0][price_data][product_data][description]",
+              "One-time Local Seat unlock",
+            );
+          }
           params.set("line_items[0][quantity]", "1");
         } else if (isAuraReputationPlan(plan)) {
           const price = stripePriceForAuraReputation();

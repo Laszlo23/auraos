@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Check,
@@ -42,8 +42,15 @@ import { trackTeaser } from "@/lib/teaser-track";
 import { num, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useUserId } from "@/hooks/use-identity";
+import { trackAppEvent } from "@/lib/app-track";
 
 export const Route = createFileRoute("/_authenticated/community")({
+  validateSearch: (search: Record<string, unknown>): { join?: string } => {
+    const raw = search["join"];
+    if (typeof raw !== "string") return {};
+    const join = raw.trim().toUpperCase().slice(0, 6);
+    return join.length >= 6 ? { join } : {};
+  },
   head: () => ({
     meta: [
       { title: "Community — squads, shared wins, live pulse | Aura OS" },
@@ -64,7 +71,9 @@ export const Route = createFileRoute("/_authenticated/community")({
 
 function CommunityHubPage() {
   const qc = useQueryClient();
-  const { data: hub, isLoading } = useCommunityHub();
+  const navigate = useNavigate({ from: "/community" });
+  const { join: joinFromUrl } = Route.useSearch();
+  const { data: hub, isLoading, isError, error: hubError, refetch } = useCommunityHub();
   const { data: network } = useNetworkTotals({ refetchInterval: 20_000 });
   const { data: publicFeed = [] } = usePublicFeed(12, { refetchInterval: 15_000 });
   const { data: progress } = useProgress();
@@ -77,7 +86,7 @@ function CommunityHubPage() {
   const completeTask = useCompleteSquadTask();
 
   const [squadName, setSquadName] = useState("");
-  const [joinCode, setJoinCode] = useState("");
+  const [joinCode, setJoinCode] = useState(joinFromUrl ?? "");
   const [postBody, setPostBody] = useState("");
   const [shareWorld, setShareWorld] = useState(true);
   const [taskTitle, setTaskTitle] = useState("");
@@ -86,7 +95,44 @@ function CommunityHubPage() {
   const [proofByTask, setProofByTask] = useState<Record<string, string>>({});
   const [burst, setBurst] = useState(0);
   const [xpToast, setXpToast] = useState<{ label: string; amount: number } | null>(null);
+  const [joinPrefillTried, setJoinPrefillTried] = useState(false);
   const { data: myUserId } = useUserId();
+
+  const pop = (label: string, amount: number) => {
+    setBurst((n) => n + 1);
+    setXpToast({ label, amount });
+    setTimeout(() => setXpToast(null), 2400);
+  };
+
+  useEffect(() => {
+    if (!joinFromUrl || joinFromUrl.length < 6) return;
+    setJoinCode(joinFromUrl);
+  }, [joinFromUrl]);
+
+  useEffect(() => {
+    if (joinPrefillTried || !joinFromUrl || joinFromUrl.length < 6 || isLoading) return;
+    if (hub?.my_squad) {
+      void navigate({ search: {}, replace: true });
+      setJoinPrefillTried(true);
+      return;
+    }
+    setJoinPrefillTried(true);
+    void (async () => {
+      try {
+        const res = await joinSquad.mutateAsync(joinFromUrl);
+        trackAppEvent("squad_join", { invite: joinFromUrl });
+        pop("Joined the crew", 80);
+        toast.success(`Welcome to ${res.name}`);
+        void navigate({ search: {}, replace: true });
+      } catch (e) {
+        const msg = String(e instanceof Error ? e.message : e);
+        if (msg.includes("already_in_squad")) toast.message("You are already in a squad");
+        else if (msg.includes("squad_full")) toast.error("That squad is full (max 8)");
+        else toast.error("Invite code not valid — paste it below");
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot deep link join
+  }, [joinFromUrl, hub?.my_squad, isLoading, joinPrefillTried]);
 
   const squad = hub?.my_squad ?? null;
   const done = new Set([
@@ -95,12 +141,6 @@ function CommunityHubPage() {
   ]);
   const openTasks = (hub?.tasks ?? []).filter((t) => t.status === "open");
   const doneTasks = (hub?.tasks ?? []).filter((t) => t.status === "done");
-
-  const pop = (label: string, amount: number) => {
-    setBurst((n) => n + 1);
-    setXpToast({ label, amount });
-    setTimeout(() => setXpToast(null), 2400);
-  };
 
   const copyInvite = async () => {
     if (!squad?.invite_code) return;
@@ -128,6 +168,7 @@ function CommunityHubPage() {
     try {
       const res = await joinSquad.mutateAsync(joinCode);
       setJoinCode("");
+      trackAppEvent("squad_join", { invite: joinCode.trim().toUpperCase() });
       pop("Joined the crew", 80);
       toast.success(`Welcome to ${res.name}`);
     } catch (e) {
@@ -184,7 +225,7 @@ function CommunityHubPage() {
         title: tpl.title,
         kind: tpl.kind,
         assigneeUserId: assigneeId || null,
-        meta: tpl.meta,
+        meta: { ...(tpl.meta ?? {}), ...(tpl.href ? { href: tpl.href } : {}) },
         xpReward: tpl.xp,
       });
       toast.success(`Queued: ${tpl.title}`);
@@ -196,7 +237,11 @@ function CommunityHubPage() {
   const handleComplete = async (taskId: string, xp: number) => {
     try {
       const proof = proofByTask[taskId]?.trim();
-      await completeTask.mutateAsync({ taskId, proofUrl: proof || undefined });
+      await completeTask.mutateAsync({
+        taskId,
+        ...(proof ? { proofUrl: proof } : {}),
+      });
+      trackAppEvent("growth_task_done", { task_id: taskId, has_proof: Boolean(proof) });
       pop("Growth task done", xp);
     } catch (e) {
       const msg = String(e instanceof Error ? e.message : e);
@@ -237,6 +282,22 @@ function CommunityHubPage() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="space-y-6">
+          {isError ? (
+            <Panel label="Community hub unavailable" glow>
+              <p className="text-[13px] text-muted-foreground">
+                {hubError instanceof Error
+                  ? hubError.message
+                  : "Could not load squads. Retry in a moment."}
+              </p>
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="mt-3 rounded-2xl bg-primary/14 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+              >
+                Retry
+              </button>
+            </Panel>
+          ) : null}
           {!squad && !isLoading ? (
             <Panel label="Start or join a squad" glow>
               <p className="mb-5 text-[13px] leading-relaxed text-muted-foreground">
@@ -334,6 +395,7 @@ function CommunityHubPage() {
                 <p className="mb-3 text-[12px] text-muted-foreground">
                   Assign social posts, X Spaces show-up, Scout invites, or Channels publishes to a
                   crew member. Closing awards squad XP + Quest REP. Paste a proof URL when you can.
+                  Spaces check-ins are honor-system this beta — we trust you.
                 </p>
 
                 <div className="mb-4 flex flex-wrap gap-2">
@@ -590,6 +652,7 @@ function CommunityHubPage() {
           <Panel label="Social + community tasks" delay={0.06}>
             <p className="mb-3 text-[12px] text-muted-foreground">
               Momentum loop — open Quest, form a squad, then broadcast on X / Discord / Telegram.
+              Follows are honor-system this beta: tap when done — we trust you.
             </p>
             <QuestTrail quests={COMMUNITY_QUESTS} completed={done} />
             <div className="mt-4 grid gap-2">

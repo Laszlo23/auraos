@@ -25,7 +25,18 @@ import { OG_IMAGE, SITE_URL } from "@/lib/site";
 
 type AuthMode = "signin" | "signup" | "forgot" | "reset" | "magic";
 
-const SAFE_NEXT = new Set(["/console", "/missions", "/akquise", "/trading", "/onboarding"]);
+const SAFE_NEXT = new Set([
+  "/console",
+  "/missions",
+  "/akquise",
+  "/trading",
+  "/onboarding",
+  "/quest",
+  "/community",
+  "/lokal",
+  "/kunden",
+  "/channels",
+]);
 /** Accounts newer than this are treated as first-time signups for invite burn. */
 const NEW_USER_WINDOW_MS = 2 * 60 * 1000;
 

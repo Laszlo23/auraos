@@ -84,8 +84,41 @@ async function buildDashboard(displayName: string) {
   const finance = {
     foundingSeats: foundingSeats || 0,
     localPaidSeats: localPaidSeats || 0,
-    foundingRevenue: (foundingSeats || 0) * 9900,
-    localRevenue: (localPaidSeats || 0) * 4900,
+    // cents — match UI/SSOT ($299 founding, €99 local)
+    foundingRevenue: (foundingSeats || 0) * 29_900,
+    localRevenue: (localPaidSeats || 0) * 9_900,
+  };
+
+  const weekAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: appRows } = await db
+    .from("app_events")
+    .select("event")
+    .gte("created_at", weekAgoIso);
+
+  const eventCounts: Record<string, number> = {};
+  for (const row of (appRows as { event?: string }[] | null) ?? []) {
+    const ek = row.event ?? "";
+    if (!ek) continue;
+    eventCounts[ek] = (eventCounts[ek] ?? 0) + 1;
+  }
+
+  const { FOUNDING_SEAT_USD_CENTS, LOCAL_SEAT_USD_CENTS_APPROX } = await import("@/lib/beta-pulse");
+  const seatCashUsdCents =
+    (foundingSeats || 0) * FOUNDING_SEAT_USD_CENTS +
+    (localPaidSeats || 0) * LOCAL_SEAT_USD_CENTS_APPROX;
+
+  const betaPulse = {
+    signups7d: eventCounts["signup_complete"] ?? 0,
+    onboardComplete7d: eventCounts["onboarding_complete"] ?? 0,
+    firstMission7d: eventCounts["first_mission"] ?? 0,
+    firstProof7d: eventCounts["first_proof"] ?? 0,
+    squadJoin7d: eventCounts["squad_join"] ?? 0,
+    scoutJoin7d: eventCounts["scout_join"] ?? 0,
+    growthTaskDone7d: eventCounts["growth_task_done"] ?? 0,
+    foundingSeatsTotal: foundingSeats || 0,
+    localSeatsPaid: localPaidSeats || 0,
+    seatCashUsdCents,
+    asOf: new Date().toISOString(),
   };
 
   return {
@@ -105,6 +138,7 @@ async function buildDashboard(displayName: string) {
     leaderboard,
     recentSales: sales.slice(0, 20),
     finance,
+    betaPulse,
     migrationWarning: salesError
       ? "Team Desk migration not applied — sales features disabled until `supabase db push`."
       : null,

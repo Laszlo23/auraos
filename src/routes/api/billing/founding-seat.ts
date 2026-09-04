@@ -33,7 +33,8 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
       POST: async ({ request }) => {
         const secret = process.env["STRIPE_SECRET_KEY"];
         const priceId = process.env["STRIPE_PRICE_FOUNDING_SEAT"]?.trim();
-        if (!secret || !priceId) {
+        const trustPriceId = process.env["STRIPE_FOUNDING_USE_PRICE_ID"] === "1";
+        if (!secret || (trustPriceId && !priceId)) {
           return Response.json(
             { error: "Founding seat checkout is not configured" },
             { status: 503 },
@@ -109,7 +110,19 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
         params.set("metadata[kind]", "founding_seat");
         params.set("metadata[user_id]", user.id);
         if (inviteMeta) params.set("metadata[invite_code]", inviteMeta);
-        params.set("line_items[0][price]", priceId);
+        // Always charge the canonical $299 — Dashboard Price IDs have drifted to $99 before.
+        // Optional: set STRIPE_FOUNDING_USE_PRICE_ID=1 to force the env Price ID (must match cents).
+        if (trustPriceId && priceId) {
+          params.set("line_items[0][price]", priceId);
+        } else {
+          params.set("line_items[0][price_data][currency]", "usd");
+          params.set("line_items[0][price_data][unit_amount]", String(FOUNDING_SEAT_CENTS));
+          params.set("line_items[0][price_data][product_data][name]", "Aura OS Founding Seat");
+          params.set(
+            "line_items[0][price_data][product_data][description]",
+            "One-time founding seat — company OS access",
+          );
+        }
         params.set("line_items[0][quantity]", "1");
         if (user.email && !user.email.toLowerCase().endsWith("@siwe.aibusiness.fun")) {
           params.set("customer_email", user.email);
