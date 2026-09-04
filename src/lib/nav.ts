@@ -372,9 +372,33 @@ export function isMoreGroup(group: string) {
   return MORE_GROUPS.has(group);
 }
 
+import type { UiLocale } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
+
+/** Stable i18n segment for a nav path: /nachbar/heute → nachbar_heute */
+export function navI18nSegment(to: string): string {
+  return to.replace(/^\//, "").replace(/\//g, "_").replace(/-/g, "_");
+}
+
 /** Label to show given the current mode. */
 export const navLabel = (item: NavItem, simple: boolean) =>
   simple && item.plain ? item.plain : item.label;
+
+/** Localized label with EN catalog fallback via t(). */
+export function localizedNavLabel(item: NavItem, simple: boolean, locale: UiLocale): string {
+  const seg = navI18nSegment(item.to);
+  const key = simple && item.plain ? `navOs.${seg}.plain` : `navOs.${seg}.label`;
+  const translated = t(key, locale);
+  if (translated !== key) return translated;
+  return navLabel(item, simple);
+}
+
+export function localizedNavHint(item: NavItem, locale: UiLocale): string | undefined {
+  if (!item.hint) return undefined;
+  const key = `navOs.${navI18nSegment(item.to)}.hint`;
+  const translated = t(key, locale);
+  return translated !== key ? translated : item.hint;
+}
 
 /** The short list a first-time user should see. */
 export const CORE_NAV = NAV.filter((n) => n.core);

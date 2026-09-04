@@ -33,6 +33,10 @@ export type Company = {
   ui_locale?: string | null;
   local_seat_paid_at?: string | null;
   pulse_paper_usdc?: number | null;
+  /** Mutable business template (realty, service, …). */
+  os_preset?: string | null;
+  /** Explicit visible nav paths; null = preset / funnel defaults. */
+  nav_prefs?: string[] | null;
 };
 
 export function useCompany() {

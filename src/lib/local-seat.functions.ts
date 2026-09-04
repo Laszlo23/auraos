@@ -110,20 +110,27 @@ export const getLokalHub = createServerFn({ method: "GET" })
     const hasGoogle = Boolean(company.google_review_url);
     const hasInvite = inviteTotal > 0;
     const hasGuest = (guestsConfirmed ?? 0) > 0;
+    // Immobilien / lead-first shops: skip Google review gates — social + akquise matter.
+    const skipGooglePath = /immobil/i.test(company.niche || "");
+    const socialConnected = (channels ?? []).some(
+      (c: { status: string }) => c.status === "connected" || c.status === "active",
+    );
 
     const nextStep = !paid
       ? ("seat" as const)
-      : !hasGoogle
-        ? ("reviews" as const)
-        : !campaign || !hasInvite
-          ? ("reviews_start" as const)
-          : !hasGuest
-            ? ("guests" as const)
-            : !(channels ?? []).some(
-                  (c: { status: string }) => c.status === "connected" || c.status === "active",
-                )
-              ? ("social" as const)
-              : ("boost" as const);
+      : skipGooglePath
+        ? !socialConnected
+          ? ("social" as const)
+          : ("boost" as const)
+        : !hasGoogle
+          ? ("reviews" as const)
+          : !campaign || !hasInvite
+            ? ("reviews_start" as const)
+            : !hasGuest
+              ? ("guests" as const)
+              : !socialConnected
+                ? ("social" as const)
+                : ("boost" as const);
 
     return {
       company,

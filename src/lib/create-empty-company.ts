@@ -9,6 +9,29 @@ import {
 } from "@/lib/attribution";
 import { publishLocalListing } from "@/lib/company-slug";
 import { isFunnelId, type FunnelId } from "@/lib/funnels";
+import { presetDefaultNav, type OsPresetId } from "@/lib/os-presets";
+
+function presetForFunnel(funnel: FunnelId): OsPresetId | null {
+  switch (funnel) {
+    case "realty":
+      return "realty";
+    case "agencies":
+    case "sales":
+      return "service";
+    case "start":
+      return "commerce";
+    case "builders":
+      return "creator";
+    case "local":
+      return null;
+    case "os":
+      return "full";
+    default: {
+      const _exhaustive: never = funnel;
+      return _exhaustive;
+    }
+  }
+}
 
 const ATLAS_MEMORY =
   "Chief executive. Learns from every approved task. Prefer clear founder direction, compounding channels, and honest metrics over vanity numbers.";
@@ -69,6 +92,7 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
     .maybeSingle();
   if (existing) return existing;
 
+  const preset = presetForFunnel(funnel);
   const { data: company, error } = await supabase
     .from("companies")
     .insert({
@@ -90,6 +114,7 @@ export async function createEmptyCompany(ownerId: string, entryFunnel?: FunnelId
       ui_locale: uiLocale,
       desk_network: funnel === "builders" ? "robinhood" : undefined,
       ...(funnel === "local" ? { is_local_business: true, network_backlink: true } : {}),
+      ...(preset ? { os_preset: preset, nav_prefs: presetDefaultNav(preset) } : {}),
       trading_paper: true,
       trading_armed: false,
     })

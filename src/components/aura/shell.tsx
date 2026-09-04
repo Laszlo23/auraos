@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 
-import { isMoreGroup, NAV_GROUPS, navForFunnel, navLabel } from "@/lib/nav";
+import { isMoreGroup, NAV_GROUPS, localizedNavHint, localizedNavLabel } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
@@ -25,8 +25,11 @@ import { useSubscription } from "@/hooks/use-tokens";
 import { levelFromXp, useProgress } from "@/hooks/use-progress";
 import { TOKEN_SYMBOL } from "@/lib/plans";
 import { funnelById, isFunnelId } from "@/lib/funnels";
+import { resolveMobileTabs, resolveVisibleNav } from "@/lib/os-presets";
 import { trackAppEvent } from "@/lib/app-track";
 import { supabase } from "@/integrations/supabase/client";
+import { useLocale } from "@/hooks/use-locale";
+import { t } from "@/lib/i18n";
 import { Pulse } from "./primitives";
 import { PulseOrbit } from "./pulse-orbit";
 import { CeoChat } from "./ceo-chat";
@@ -84,13 +87,20 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
 
   const skipRouteMotion = reducedMotion || liteChrome;
 
+  const { locale } = useLocale();
   const entryFunnel =
     company?.entry_funnel && isFunnelId(company.entry_funnel) ? company.entry_funnel : "os";
   const funnelNav = funnelById(entryFunnel);
 
   const visibleNav = useMemo(
-    () => navForFunnel(funnelNav.navCore, simple),
-    [funnelNav.navCore, simple],
+    () =>
+      resolveVisibleNav({
+        osPreset: company?.os_preset ?? null,
+        navPrefs: company?.nav_prefs ?? null,
+        funnelNavCore: funnelNav.navCore,
+        simple,
+      }),
+    [company?.os_preset, company?.nav_prefs, funnelNav.navCore, simple],
   );
   const visibleGroups = useMemo(
     () =>
@@ -100,24 +110,17 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
     [visibleNav, simple],
   );
 
-  /** Bottom tabs: funnel preferred order, then fill from visibleNav. */
-  const mobileTabs = useMemo(() => {
-    const preferred =
-      funnelNav.mobileTabs.length > 0
-        ? funnelNav.mobileTabs
-        : (["/console", "/missions", "/approvals", "/proofs"] as const);
-    const byTo = new Map(visibleNav.map((n) => [n.to, n]));
-    const tabs: typeof visibleNav = [];
-    for (const to of preferred) {
-      const item = byTo.get(to);
-      if (item) tabs.push(item);
-    }
-    for (const n of visibleNav) {
-      if (tabs.length >= 4) break;
-      if (!tabs.some((t) => t.to === n.to)) tabs.push(n);
-    }
-    return tabs.slice(0, 4);
-  }, [visibleNav, funnelNav.mobileTabs]);
+  /** Bottom tabs: preset / funnel preferred order, then fill from visibleNav. */
+  const mobileTabs = useMemo(
+    () =>
+      resolveMobileTabs({
+        osPreset: company?.os_preset ?? null,
+        navPrefs: company?.nav_prefs ?? null,
+        funnelMobileTabs: funnelNav.mobileTabs,
+        visibleNav,
+      }),
+    [company?.os_preset, company?.nav_prefs, funnelNav.mobileTabs, visibleNav],
+  );
 
   const lvl = levelFromXp(progress?.xp ?? 0);
   const needsOnboarding = Boolean(progress && !progress.onboarded);
@@ -224,7 +227,9 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                       <Link
                         key={item.to}
                         to={item.to}
-                        title={item.hint ?? item.label}
+                        title={
+                          localizedNavHint(item, locale) ?? localizedNavLabel(item, simple, locale)
+                        }
                         className={cn(
                           "group relative flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-colors",
                           active
@@ -247,7 +252,9 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                           )}
                         />
                         {!collapsed && (
-                          <span className="relative truncate">{navLabel(item, simple)}</span>
+                          <span className="relative truncate">
+                            {localizedNavLabel(item, simple, locale)}
+                          </span>
                         )}
                         {!collapsed && item.live && (
                           <span className="relative ml-auto">
@@ -516,7 +523,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                                 strokeWidth={active ? 2.15 : 1.85}
                               />
                               <span className="w-full truncate text-center font-display text-[11px] font-semibold leading-tight tracking-[-0.01em]">
-                                {navLabel(item, simple)}
+                                {localizedNavLabel(item, simple, locale)}
                               </span>
                             </Link>
                           );
@@ -529,7 +536,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   className="glass-soft flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-display text-[12px] font-semibold tracking-wide text-muted-foreground"
                 >
                   <Layers3 className="h-[18px] w-[18px]" strokeWidth={1.85} />
-                  {simple ? "Show everything" : "Back to simple mode"}
+                  {simple ? t("shell.showEverything", locale) : t("shell.backToSimple", locale)}
                 </button>
               </motion.div>
             </motion.div>
@@ -566,7 +573,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                     active ? "text-primary" : "text-muted-foreground/85",
                   )}
                 >
-                  {navLabel(item, simple)}
+                  {localizedNavLabel(item, simple, locale)}
                 </span>
               </Link>
             );
@@ -609,10 +616,12 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   >
                     <item.icon className="mr-2 h-4 w-4 shrink-0" />
                     <span className="min-w-0">
-                      <span className="block truncate">{navLabel(item, simple)}</span>
-                      {item.hint && (
+                      <span className="block truncate">
+                        {localizedNavLabel(item, simple, locale)}
+                      </span>
+                      {localizedNavHint(item, locale) && (
                         <span className="block truncate text-[11px] text-muted-foreground">
-                          {item.hint}
+                          {localizedNavHint(item, locale)}
                         </span>
                       )}
                     </span>

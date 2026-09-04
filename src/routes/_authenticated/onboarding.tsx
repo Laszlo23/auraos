@@ -16,6 +16,8 @@ import { syncSiweWalletBinding } from "@/lib/siwe.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { peekFunnel, rememberFunnel } from "@/lib/attribution";
 import { bootstrapFunnelCompany, bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
+import { applyOsPresetToCompany } from "@/lib/apply-os-preset";
+import { inferOsPreset } from "@/lib/os-presets";
 import { funnelById, isFunnelId, type FunnelId } from "@/lib/funnels";
 import {
   interpretBusiness,
@@ -198,6 +200,13 @@ function Onboarding() {
         });
       } else {
         await bootstrapOnboardingProduct(company.id, nextBrief.product, nextBrief.name);
+        const presetId = inferOsPreset(`${nextBrief.name} ${nextBrief.industry} ${nextBrief.goal}`);
+        await applyOsPresetToCompany({
+          companyId: company.id,
+          companyName: nextBrief.name,
+          presetId,
+          bootstrap: true,
+        });
       }
       await invalidateCompany();
       pop(de ? "Firma wacht auf" : "Company waking", 150, "onboard:product");

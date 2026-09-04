@@ -1048,8 +1048,10 @@ export type Database = {
           mrr: number
           nachbar_checkin_code: string | null
           name: string
+          nav_prefs: Json | null
           network_backlink: boolean
           niche: string | null
+          os_preset: string | null
           owner_display_name: string | null
           owner_id: string
           phone: string | null
@@ -1104,8 +1106,10 @@ export type Database = {
           mrr?: number
           nachbar_checkin_code?: string | null
           name: string
+          nav_prefs?: Json | null
           network_backlink?: boolean
           niche?: string | null
+          os_preset?: string | null
           owner_display_name?: string | null
           owner_id: string
           phone?: string | null
@@ -1160,8 +1164,10 @@ export type Database = {
           mrr?: number
           nachbar_checkin_code?: string | null
           name?: string
+          nav_prefs?: Json | null
           network_backlink?: boolean
           niche?: string | null
+          os_preset?: string | null
           owner_display_name?: string | null
           owner_id?: string
           phone?: string | null
