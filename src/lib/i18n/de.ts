@@ -505,8 +505,10 @@ export const de: MessageTree = {
     liveLatest: "Letzte Aktivität",
     liveEmpty: "In diesem Fenster noch keine öffentliche Aktivität — Null bleibt Null.",
     liveShare: "Live-Proof teilen",
-    liveSharePlain: "Aura OS ist live — autonome Firmen mit öffentlichen Belegen.",
-    liveShareStat: "Aura OS ist live — {stat}. Echtes Ledger, kein Demo-Theater.",
+    liveSharePlain:
+      "Aura OS ist live — autonome AI-Firmen mit öffentlichem Proof of Work.",
+    liveShareStat:
+      "Aura OS Live-Netzwerk: {stat}. Echte Ledger-Belege, kein Pitch-Theater.",
     days: "Tage",
     hours: "Stunden",
     mins: "Min",

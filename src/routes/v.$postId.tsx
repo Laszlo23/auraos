@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Copy, Download, Link2, Linkedin, Pause, Play, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { ShareBar } from "@/components/aura/share";
+import { ShareBar, shareIntentHref } from "@/components/aura/share";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { WienWaveLoop } from "@/components/aura/wien-wave-loop";
 import {
@@ -121,21 +121,25 @@ function WatchPage() {
       /* still open */
     }
     trackTeaser("share", { placement: `watch_x:${post.id}`.slice(0, 40) });
-    window.open(
-      `https://x.com/intent/post?text=${encodeURIComponent(shareText)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+    window.open(shareIntentHref("x", { url: watchUrl, text: shareText }), "_blank", "noopener,noreferrer");
   };
 
   const postToLinkedIn = () => {
     trackTeaser("share", { placement: `watch_li:${post.id}`.slice(0, 40) });
     window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(watchUrl)}`,
+      shareIntentHref("linkedin", { url: watchUrl, text: shareText }),
       "_blank",
       "noopener,noreferrer",
     );
-    toast.message("For LinkedIn in-feed autoplay, download the MP4 and upload natively.");
+  };
+
+  const postToFacebook = () => {
+    trackTeaser("share", { placement: `watch_fb:${post.id}`.slice(0, 40) });
+    window.open(
+      shareIntentHref("facebook", { url: watchUrl, text: shareText }),
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const onDownload = async () => {
@@ -288,10 +292,17 @@ function WatchPage() {
               </button>
               <button
                 type="button"
+                onClick={postToFacebook}
+                className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-foreground/6 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em]"
+              >
+                Facebook
+              </button>
+              <button
+                type="button"
                 onClick={postToLinkedIn}
                 className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-foreground/6 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em]"
               >
-                <Linkedin className="h-3.5 w-3.5" /> LinkedIn link
+                <Linkedin className="h-3.5 w-3.5" /> LinkedIn
               </button>
               <button
                 type="button"

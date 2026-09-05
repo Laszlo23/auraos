@@ -36,6 +36,19 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-05-proof-share",
+    date: "2026-09-05",
+    title: "Readable proof on mobile + share composers that open filled",
+    summary:
+      "Proof cards are larger and visible on the Console mobile deck. Share opens X, Facebook, and LinkedIn with the caption already in the composer.",
+    items: [
+      "ProofOfWork: clearer typography; Console mobile Proof card shows real tasks",
+      "FocusCard anchors content at the top so proof isn’t centered out of view",
+      "ShareMoment: X / Facebook / LinkedIn primary buttons with prefilled text",
+    ],
+    tags: ["improvement"],
+  },
+  {
     id: "2026-09-05-console-desk-map",
     date: "2026-09-05",
     title: "Console desk map + Local / Nachbar / OS separation",

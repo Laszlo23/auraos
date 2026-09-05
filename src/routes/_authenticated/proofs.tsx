@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { ProofOfWork } from "@/components/aura/proof-of-work";
 import { Chip, PageHeader, Panel, Shimmer } from "@/components/aura/primitives";
+import { ShareMoment, buildShareText } from "@/components/aura/share";
 import { useCompanyTable } from "@/hooks/use-aura";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/proofs")({
   head: () => ({
@@ -43,6 +45,19 @@ function ProofsPage() {
     (t) => t.status === "completed" || t.status === "done" || t.status === "failed",
   );
   const running = tasks.filter((t) => t.status === "running" || t.status === "queued");
+  const executed = proven.filter((t) => t.status !== "failed").length;
+  const shareUrl = `${SITE_URL}/proofs`;
+  const top = proven.find((t) => t.status !== "failed");
+  const shareText = buildShareText({
+    headline: top
+      ? `Proof on Aura OS: ${top.title}`
+      : `${executed} verified tasks filed on Aura OS — who, cost, result. No vanity metrics.`,
+    detail: top?.result?.trim()
+      ? top.result.trim().slice(0, 180)
+      : "AI employees execute. Founders approve. The ledger keeps the receipts.",
+    url: shareUrl,
+    embedUrl: true,
+  });
 
   return (
     <div className="space-y-6">
@@ -53,10 +68,23 @@ function ProofsPage() {
       />
 
       <div className="flex flex-wrap gap-2">
-        <Chip>Executed · {proven.filter((t) => t.status !== "failed").length}</Chip>
+        <Chip>Executed · {executed}</Chip>
         <Chip tone="gold">In motion · {running.length}</Chip>
         <Chip>Verified · settled ledger only</Chip>
       </div>
+
+      {proven.length > 0 ? (
+        <Panel label="Share proof" glow>
+          <ShareMoment
+            url={shareUrl}
+            text={shareText}
+            title="Proof — Aura OS"
+            placement="proofs"
+            showKit={false}
+            label="Share"
+          />
+        </Panel>
+      ) : null}
 
       {isLoading ? <Shimmer className="h-40" /> : null}
 
@@ -65,7 +93,7 @@ function ProofsPage() {
           <h2 className="font-display text-2xl font-semibold tracking-tight">
             Your company has not filed proof yet.
           </h2>
-          <p className="mt-2 max-w-lg text-[15px] text-muted-foreground">
+          <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
             Approve a plan. When work finishes, the result lands here — not a vanity chart.
           </p>
           <Link
@@ -77,7 +105,7 @@ function ProofsPage() {
         </Panel>
       ) : null}
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {proven.map((t) => (
           <ProofOfWork
             key={t.id}

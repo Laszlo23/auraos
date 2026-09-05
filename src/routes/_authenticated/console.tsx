@@ -12,6 +12,7 @@ import { LiveCompanyActivity } from "@/components/aura/command/live-activity";
 import { MissionHistoryTimeline } from "@/components/aura/command/mission-history";
 import { deriveMissionPipeline, MissionPipeline } from "@/components/aura/command/mission-pipeline";
 import { ProofOfWorkStrip } from "@/components/aura/command/proof-strip";
+import { ProofOfWork } from "@/components/aura/proof-of-work";
 import { WorkforceBoard } from "@/components/aura/command/workforce-board";
 import { SocialReplyBulkBar } from "@/components/aura/social-reply-bulk";
 import { ExpandableCopy } from "@/components/aura/expandable-copy";
@@ -188,6 +189,9 @@ function Home() {
   const socialAwaiting = awaiting.filter((t) => Boolean(t.result?.startsWith("social-reply:")));
   const otherAwaiting = awaiting.filter((t) => !t.result?.startsWith("social-reply:"));
   const doneTasks = tasks.filter((t) => t.status === "completed" || t.status === "done");
+  const provenTasks = tasks.filter(
+    (t) => t.status === "completed" || t.status === "done" || t.status === "failed",
+  );
   const done = doneTasks.length;
   /** First-win meter: only count tasks that filed a real result string. */
   const realResults = doneTasks.filter(
@@ -392,29 +396,36 @@ function Home() {
 
         <FocusCard
           eyebrow="Proof"
-          title={briefing?.title ?? "Live company"}
+          title="Work that actually finished"
           footer={
             <Link
-              to="/ceo"
+              to="/proofs"
               className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
             >
-              Talk to Atlas <ArrowUpRight className="h-3 w-3" />
+              All proofs <ArrowUpRight className="h-3 w-3" />
             </Link>
           }
         >
-          <ExpandableCopy
-            text={
-              briefing?.body ??
-              (lifetime === 0
-                ? "Launch a mission or approve a proposal. I will not invent revenue."
-                : "No new briefing filed yet — check Live activity for what the team completed.")
-            }
-            title={briefing?.title ?? "Atlas note"}
-            maxLines={4}
-          />
-          <div className="mt-4">
-            <LiveCompanyActivity events={events} limit={6} />
-          </div>
+          {provenTasks.length === 0 ? (
+            <p className="text-[15px] leading-relaxed text-muted-foreground">
+              No proof yet. Approve a plan — completed work lands here with who, cost, and result.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {provenTasks.slice(0, 3).map((t) => (
+                  <ProofOfWork
+                    key={t.id}
+                    agentName={agents.find((a) => a.id === t.agent_id)?.name}
+                    title={t.title}
+                    status={t.status}
+                    result={t.result}
+                    completedAt={t.completed_at}
+                    createdAt={t.created_at}
+                    progress={t.progress}
+                  />
+                ))}
+            </div>
+          )}
         </FocusCard>
       </FocusDeck>
 

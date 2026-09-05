@@ -39,15 +39,15 @@ export function ProofOfWorkStrip({ tasks, agents }: Props) {
         </Link>
       }
     >
-      <p className="mb-4 text-[13px] text-muted-foreground">
+      <p className="mb-4 text-[14px] leading-relaxed text-muted-foreground">
         Who · what · when · cost · result. Only real tasks — never fabricated.
       </p>
       {proven.length === 0 ? (
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-[15px] leading-relaxed text-muted-foreground">
           No proof yet. Approve a plan and completed work will land here.
         </p>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           {proven.map((t) => (
             <ProofOfWork
               key={t.id}

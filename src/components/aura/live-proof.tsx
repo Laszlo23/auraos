@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Activity, ArrowRight, Bot, Building2, ListTodo, type LucideIcon } from "lucide-react";
 
 import { Pulse } from "@/components/aura/primitives";
-import { ShareMoment } from "@/components/aura/share";
+import { ShareMoment, buildShareText } from "@/components/aura/share";
 import { useLocale } from "@/hooks/use-locale";
 import { useNetworkTotals, usePublicFeed, type FeedRow } from "@/hooks/use-public";
 import { useInView } from "@/hooks/use-in-view";
@@ -83,9 +83,15 @@ export function LiveProof() {
     ready && !isError
       ? `${companies.toLocaleString()} companies · ${actions24h.toLocaleString()} actions · 24h`
       : null;
-  const shareText = shareStat
-    ? t("landing.liveShareStat", { stat: shareStat })
-    : t("landing.liveSharePlain");
+  const shareUrl = `${SITE_URL}/live`;
+  const shareText = buildShareText({
+    headline: shareStat
+      ? t("landing.liveShareStat", { stat: shareStat })
+      : t("landing.liveSharePlain"),
+    detail: "Own a company. AI employees execute. Public receipts — not demo theater.",
+    url: shareUrl,
+    embedUrl: true,
+  });
 
   return (
     <section ref={ref} className="relative z-10 mx-auto max-w-6xl px-6 py-10">
@@ -166,7 +172,7 @@ export function LiveProof() {
 
         <div className="mt-8 border-t border-border/40 pt-5">
           <ShareMoment
-            url={`${SITE_URL}/live`}
+            url={shareUrl}
             text={shareText}
             title="Aura OS · live network"
             placement="landing_live_proof"

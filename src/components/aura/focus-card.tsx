@@ -17,11 +17,11 @@ export function FocusCard({ eyebrow, title, children, footer, className }: Focus
   return (
     <section
       className={cn(
-        "flex h-full min-h-full snap-start snap-always flex-col justify-center py-2",
+        "flex h-full min-h-full snap-start snap-always flex-col justify-start py-2",
         className,
       )}
     >
-      <div className="glass relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-3xl p-5 shadow-[var(--shadow-float)]">
+      <div className="glass relative flex max-h-full min-h-0 flex-1 flex-col overflow-hidden rounded-3xl p-5 shadow-[var(--shadow-float)]">
         {(eyebrow || title) && (
           <header className="mb-4 shrink-0">
             {eyebrow ? (
@@ -37,7 +37,7 @@ export function FocusCard({ eyebrow, title, children, footer, className }: Focus
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {children}
         </div>
-        {footer ? <div className="mt-4 shrink-0">{footer}</div> : null}
+        {footer ? <div className="mt-4 shrink-0 border-t border-border/30 pt-3">{footer}</div> : null}
       </div>
     </section>
   );
