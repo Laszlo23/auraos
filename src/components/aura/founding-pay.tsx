@@ -41,7 +41,7 @@ export function FoundingPayPanel({
       const url = await startFoundingCryptoCheckout({ invite, asset });
       window.location.href = url;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not start crypto checkout");
+      toast.error(err instanceof Error ? err.message : "Could not start digital checkout");
       onBusy?.(false);
     }
   }
@@ -50,8 +50,8 @@ export function FoundingPayPanel({
     return (
       <div className="space-y-3">
         <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-          Pay {FOUNDING_SEAT_DISPLAY} in crypto. Seat unlocks after the payment finishes — not while
-          it is confirming.
+          Pay {FOUNDING_SEAT_DISPLAY} with a digital payment. Seat unlocks after payment finishes —
+          not while it is still confirming.
         </p>
         <div className="grid grid-cols-4 gap-2">
           {CRYPTO_SEAT_ASSETS.map((a) => (
@@ -93,7 +93,7 @@ export function FoundingPayPanel({
   return (
     <div className="space-y-3">
       <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-        You&apos;re signed in. Pay {FOUNDING_SEAT_DISPLAY} once — card or crypto. Invite is
+        You&apos;re signed in. Pay {FOUNDING_SEAT_DISPLAY} once — card or digital payment. Invite is
         optional.
       </p>
       <button
@@ -110,7 +110,7 @@ export function FoundingPayPanel({
         onClick={() => setRail("crypto")}
         className="w-full rounded-2xl border border-border bg-foreground/6 py-3 text-sm font-medium hover:bg-foreground/10 disabled:opacity-60"
       >
-        Crypto — {FOUNDING_SEAT_DISPLAY}
+        Digital payment — {FOUNDING_SEAT_DISPLAY}
       </button>
     </div>
   );

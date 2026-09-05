@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
+import { LeadDigestPanel } from "@/components/aura/lead-digest-panel";
 import { ProofOfWork } from "@/components/aura/proof-of-work";
 import { Chip, DataRow, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
@@ -758,6 +759,8 @@ function AkquisePage() {
               })}
             </div>
           </Panel>
+
+          <LeadDigestPanel />
 
           <Panel label="Pipeline">
             <div className="space-y-1">

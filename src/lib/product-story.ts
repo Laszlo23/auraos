@@ -13,8 +13,8 @@ export function loc(locale: UiLocale, copy: LocaleCopy): string {
 }
 
 export const CATEGORY_LINE: LocaleCopy = {
-  en: "Don't hire AI tools. Own an AI company.",
-  de: "Kein KI-Tool mieten. Eine KI-Firma besitzen.",
+  en: "Don't hire another tool. Own a working company.",
+  de: "Kein weiteres Tool mieten. Eine arbeitende Firma besitzen.",
 };
 
 export const CATEGORY_FLOW: LocaleCopy = {
@@ -164,8 +164,8 @@ export const SEAT_BENEFITS: LocaleCopy[] = [
   { en: "Mission system", de: "Missionssystem" },
   { en: "Approval controls", de: "Freigabe-Kontrolle" },
   { en: "Proof-of-work system", de: "Proof-of-Work" },
-  { en: "Founding badge + The Hood mint", de: "Founding-Badge + The Hood Mint" },
-  { en: "Hood mint: 70% liquidity, 30% ops", de: "Hood-Mint: 70% Liquidität, 30% Ops" },
+  { en: "Founding badge + The Hood circle", de: "Founding-Badge + The Hood Kreis" },
+  { en: "Most of each seat funds the launch book", de: "Der Großteil jedes Seats füllt das Launch-Buch" },
   { en: "1 referral invite", de: "1 Weiterempfehlungs-Invite" },
   { en: "Founding cohort access", de: "Zugang zur Founding-Kohorte" },
   { en: "Concierge review queue", de: "Concierge-Review-Warteschlange" },
@@ -225,10 +225,10 @@ export const ECONOMICS_LAYERS: { level: string; title: LocaleCopy; body: LocaleC
   },
   {
     level: "04",
-    title: { en: "AURA token", de: "AURA-Token" },
+    title: { en: "Optional later layer", de: "Optionale spätere Schicht" },
     body: {
-      en: "Optional layer. Not required to run Aura OS. Product first.",
-      de: "Optionale Schicht. Nicht nötig, um Aura OS zu betreiben. Produkt zuerst.",
+      en: "Extras after the company works. Not required to run Aura OS. Product first.",
+      de: "Extras, nachdem die Firma läuft. Nicht nötig für Aura OS. Produkt zuerst.",
     },
   },
 ];

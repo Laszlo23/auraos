@@ -8,7 +8,7 @@ import {
   ChartNoAxesCombined,
   ChevronDown,
   CircleDollarSign,
-  Coins,
+  Clock,
   Palette,
   Play,
   Rocket,
@@ -35,6 +35,7 @@ import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { LAUNCH_SHARE_TEXT, SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
+import { SAVINGS } from "@/lib/savings-story";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocale } from "@/hooks/use-locale";
@@ -286,6 +287,76 @@ function Landing() {
         </div>
       </section>
 
+      {/* Time & money — plain language, after hero (not in first viewport) */}
+      <section
+        id="savings"
+        className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-20 sm:py-28"
+      >
+        <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
+          {t("landing.saveKicker")}
+        </p>
+        <h2 className="display-hero mt-4 max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)]">
+          {t("landing.saveTitle")}
+        </h2>
+        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+          {t("landing.saveBody")}
+        </p>
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="glass rounded-[1.5rem] p-6">
+            <span className="icon-well" aria-hidden>
+              <Clock className="h-4 w-4" />
+            </span>
+            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              {t("landing.saveTimeLabel")}
+            </p>
+            <p className="mt-2 font-display text-3xl tracking-tight text-foreground">
+              {t("landing.saveTimeValue", { hours: SAVINGS.hoursPerDay })}
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+              {t("landing.saveTimeHint")}
+            </p>
+          </div>
+          <div className="glass rounded-[1.5rem] p-6">
+            <span className="icon-well" aria-hidden>
+              <CircleDollarSign className="h-4 w-4" />
+            </span>
+            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              {t("landing.saveMoneyLabel")}
+            </p>
+            <p className="mt-2 font-display text-3xl tracking-tight text-money">
+              {t("landing.saveMoneyValue", { money: SAVINGS.moneyPerDayEur })}
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+              {t("landing.saveMoneyHint", { rate: SAVINGS.hourlyValueEur })}
+            </p>
+          </div>
+          <div className="glass rounded-[1.5rem] p-6">
+            <span className="icon-well-gold" aria-hidden>
+              <ChartNoAxesCombined className="h-4 w-4" />
+            </span>
+            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              {t("landing.saveMonthLabel")}
+            </p>
+            <p className="mt-2 font-display text-3xl tracking-tight text-gold">
+              {t("landing.saveMonthValue", { month: SAVINGS.moneyPerMonthEur })}
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+              {t("landing.saveMonthHint")}
+            </p>
+          </div>
+        </div>
+        <p className="mt-6 max-w-2xl text-[12px] leading-relaxed text-muted-foreground/80">
+          {t("landing.saveDisclaimer")}
+        </p>
+        <Link
+          to="/how-it-works"
+          onClick={() => trackTeaser("cta_click", { placement: "landing_savings_how" })}
+          className="mt-6 inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary underline-offset-4 hover:underline"
+        >
+          {t("landing.saveCta")} <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </section>
+
       <section
         id="start"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-24 sm:py-32"
@@ -358,7 +429,7 @@ function Landing() {
             className="glass hover-lift group rounded-[1.65rem] p-6"
           >
             <span className="icon-well-gold" aria-hidden>
-              <Coins className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" />
             </span>
             <h3 className="mt-5 text-xl font-semibold tracking-tight">
               {t("landing.audienceAuraTitle")}

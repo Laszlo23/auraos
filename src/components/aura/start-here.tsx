@@ -64,7 +64,8 @@ export function StartHere({
         <span className="text-foreground">
           {stepIndex} of {steps.length}
         </span>
-        . Quest XP and Aura Reputation (€49/mo for local shops) are different things; this strip is
+        . Aim for a few hours back every day: missions draft the grind, you approve in minutes.
+        Quest XP and Aura Reputation (€49/mo for local shops) are different things; this strip is
         just the path to your first real win.
       </p>
 

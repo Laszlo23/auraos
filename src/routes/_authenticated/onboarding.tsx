@@ -36,7 +36,8 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
       { title: "What should Aura build? — Aura OS" },
       {
         name: "description",
-        content: "Describe your business. Aura wakes the company. You give the first mission.",
+        content:
+          "Describe your business in plain words. Aura wakes the company. You approve the work — and get hours back every day.",
       },
       { property: "og:title", content: "Wake your company | Aura OS" },
     ],

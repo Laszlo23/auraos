@@ -15,12 +15,12 @@ export const Route = createFileRoute("/donate")({
   }),
   head: () => ({
     meta: [
-      { title: `Donate crypto — ${SITE_NAME}` },
+      { title: `Support Aura — ${SITE_NAME}` },
       {
         name: "description",
-        content: `Support ${SITE_NAME} with crypto via NOWPayments. Pick an amount; pay on a hosted invoice.`,
+        content: `Chip in to keep ${SITE_NAME} shipping. Pick an amount and finish on a secure checkout.`,
       },
-      { property: "og:title", content: `Donate crypto — ${SITE_NAME}` },
+      { property: "og:title", content: `Support Aura — ${SITE_NAME}` },
       { property: "og:url", content: `${SITE_URL}/donate` },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/donate` }],
