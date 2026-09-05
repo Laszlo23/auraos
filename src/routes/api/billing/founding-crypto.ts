@@ -8,6 +8,7 @@ import {
   nowPaymentsConfigured,
   parseCryptoAsset,
 } from "@/lib/founding-crypto-seat";
+import { clientIpFromRequest, rateLimitConsume } from "@/lib/rate-limit.server";
 
 function accessTokenFromRequest(request: Request): string | null {
   const auth = request.headers.get("authorization") ?? request.headers.get("Authorization");
@@ -49,6 +50,17 @@ export const Route = createFileRoute("/api/billing/founding-crypto")({
           error: userErr,
         } = await userClient.auth.getUser();
         if (userErr || !user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+        const limited = rateLimitConsume(`founding-crypto:${user.id}:${clientIpFromRequest(request)}`, {
+          limit: 5,
+          windowMs: 10 * 60_000,
+        });
+        if (!limited.ok) {
+          return Response.json(
+            { error: "Too many checkout attempts. Try again shortly." },
+            { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+          );
+        }
 
         const body = (await request.json().catch(() => ({}))) as {
           invite?: string;

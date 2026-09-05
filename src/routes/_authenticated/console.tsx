@@ -124,6 +124,7 @@ function Home() {
   const { data: tasks = [] } = useCompanyTable<Task>("tasks", {
     orderBy: "created_at",
     ascending: false,
+    limit: 80,
     refetchInterval: liveWorkInterval(12_000),
   });
   const { data: events = [] } = useCompanyTable<Event>("activity_events", {

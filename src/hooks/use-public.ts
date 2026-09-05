@@ -14,7 +14,10 @@ export type FeedRow = {
 };
 
 /** Anonymised network-wide activity stream. Public, no login. */
-export function usePublicFeed(limit = 60, opts?: { refetchInterval?: number | false }) {
+export function usePublicFeed(
+  limit = 60,
+  opts?: { refetchInterval?: number | false | (() => number | false) },
+) {
   return useQuery({
     queryKey: ["public-feed", limit],
     refetchInterval: opts?.refetchInterval ?? 8_000,
@@ -40,7 +43,9 @@ export type NetworkTotals = {
 };
 
 /** Live network counters — real numbers, never hand-written. */
-export function useNetworkTotals(opts?: { refetchInterval?: number | false }) {
+export function useNetworkTotals(
+  opts?: { refetchInterval?: number | false | (() => number | false) },
+) {
   return useQuery({
     queryKey: ["network-totals"],
     refetchInterval: opts?.refetchInterval ?? 30_000,

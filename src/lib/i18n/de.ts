@@ -856,12 +856,16 @@ export const de: MessageTree = {
       "3% des Supply (21.021.000 pAURA → 23.333.310 AURA) ist der Projekt-Anteil. Wir kaufen ihn über denselben Contract, frühestens 48 Stunden nach Sale-Start. Diese AURA sind 90 Tage nach T-0 gesperrt. Die anderen 30% sind für offene Käufer. Unverkauft bleibt ungemintet.",
     treasuryTitle: "Wohin die Sale-USDC gehen",
     treasuryBody:
-      "Jeder on-chain Kauf schickt 100% USDC an diese laufende Sale-Treasury. Sie steckt im pAURA-Contract. AURA selbst entsteht bei T-0 aus einer neuen Wallet, mit einer neuen Launch-Treasury, sobald sie gesetzt ist.",
+      "Jeder on-chain Kauf schickt 100% USDC an diese laufende Sale-Treasury. Sie steckt im pAURA-Contract und ändert sich nur mit einem neuen Sale-CA. AURA selbst entsteht bei T-0 aus einer neuen Wallet, mit einer neuen Launch-Treasury, sobald sie gesetzt ist.",
+    railsTitle: "Platform-Rails-Wallet",
+    railsBody:
+      "Getrennt von der Sale-Treasury: x402-Settlement, optionale OKX-Referrer-Gebühren, Clanker-Platform-Fees und NOWPayments-Auszahlungen nutzen diese veröffentlichte Ops-Wallet. Sale-Käufe landen hier erst nach einem neuen Sale-Contract.",
     launchTreasuryTitle: "AURA Launch-Treasury",
     launchTreasuryBody: "Neue Wallet für AURA nach T-0 — nicht der Private-Sale-Admin-Key.",
     launchTreasuryPending:
       "Noch nicht veröffentlicht. AURA_LAUNCH_TREASURY vor T-0 auf dem VPS setzen.",
     copy: "Adresse kopieren",
+    copyRails: "Rails-Wallet kopieren",
     copied: "Kopiert",
     disclaimer:
       "Kein Anlageangebot. pAURA ist ein Beleg für die spätere AURA-Zuteilung. Supply 777.777.777. Sale-Cap 33% inkl. Bonus (30% offen + 3% Projekt, gesperrt). Unverkauft bleibt ungemintet.",
@@ -885,7 +889,7 @@ export const de: MessageTree = {
       "Der offizielle AURA-Supply ist fest. Dieser Sale mintet keinen AURA. Unverkaufte pAURA wird nie geprägt. Team: 12 Monate Cliff, dann 36 Monate Vesting. Projekt-Anteil aus dem Private Sale: Kauf nach 48 Stunden, 90 Tage nach T-0 gesperrt. Beim Start nichts frei zum Dump.",
     trustHonestTitle: "Öffentlicher Geldweg",
     trustHonestBody:
-      "Jeder on-chain Kauf schickt 100% USDC an die laufende Sale-Treasury auf dieser Seite. Launch-AURA nutzt eine neue Treasury, veröffentlicht sobald sie gesetzt ist. pAURA ist ein beschrifteter Beleg. Beim Start: 1 pAURA = 1 AURA + 11%. Jede CA per DM ist ein Betrug.",
+      "Jeder on-chain Kauf schickt 100% USDC an die laufende Sale-Treasury auf dieser Seite (TREASURY() auf Basescan prüfen). Platform-Rails (x402 / Fees / Auszahlungen) nutzen eine separat beschriftete Ops-Wallet. Launch-AURA nutzt eine neue Treasury, veröffentlicht sobald sie gesetzt ist. pAURA ist ein beschrifteter Beleg. Beim Start: 1 pAURA = 1 AURA + 11%. Jede CA per DM ist ein Betrug.",
     buildersKicker: "Öffentlich gebaut",
     buildersTitle: "Echte Produkte. Dann AURA.",
     buildersLead:

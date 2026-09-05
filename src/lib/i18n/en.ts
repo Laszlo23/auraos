@@ -849,11 +849,15 @@ export const en: MessageTree = {
       "3% of supply (21,021,000 pAURA → 23,333,310 AURA) is the project slice. We buy it through this same contract, earliest 48 hours after the sale opened. Those AURA lock for 90 days after T-0. The other 30% is for open buyers. Unsold stays unminted.",
     treasuryTitle: "Where the sale USDC goes",
     treasuryBody:
-      "Every on-chain buy forwards 100% USDC to this live sale treasury. It is baked into the pAURA contract. AURA itself is created from a new wallet at T-0, with a new launch treasury published when set.",
+      "Every on-chain buy forwards 100% USDC to this live sale treasury. It is baked into the pAURA contract and cannot change without a new sale CA. AURA itself is created from a new wallet at T-0, with a new launch treasury published when set.",
+    railsTitle: "Platform rails wallet",
+    railsBody:
+      "Separate from the sale treasury: x402 settlement, optional OKX referrer fees, Clanker platform fees, and NOWPayments withdrawals use this published ops wallet. Sale buys do not go here until a new sale contract is deployed.",
     launchTreasuryTitle: "AURA launch treasury",
     launchTreasuryBody: "New wallet for AURA after T-0 — not the private-sale admin key.",
     launchTreasuryPending: "Not published yet. Set AURA_LAUNCH_TREASURY on the VPS before T-0.",
     copy: "Copy address",
+    copyRails: "Copy rails wallet",
     copied: "Copied",
     disclaimer:
       "Not an offer to invest. pAURA is a receipt for the later AURA allocation. Supply 777,777,777. Sale cap 33% including bonus (30% open + 3% project, locked). Unsold stays unminted.",
@@ -877,7 +881,7 @@ export const en: MessageTree = {
       "Official AURA supply is fixed. This sale does not mint AURA. Unsold pAURA is never minted. Team: 12-month cliff, then 36-month vest. Project private-sale take: bought after 48 hours, locked 90 days after T-0. Nothing free to dump at T-0.",
     trustHonestTitle: "Public money path",
     trustHonestBody:
-      "Every on-chain buy sends 100% USDC to the live sale treasury on this page. Launch AURA uses a new treasury, published when set. pAURA is a labeled receipt. At launch: 1 pAURA = 1 AURA + 11%. Any CA in a DM is a scam.",
+      "Every on-chain buy sends 100% USDC to the live sale treasury on this page (verify TREASURY() on Basescan). Platform rails (x402 / fees / withdrawals) use a separately labeled ops wallet. Launch AURA uses a new treasury, published when set. pAURA is a labeled receipt. At launch: 1 pAURA = 1 AURA + 11%. Any CA in a DM is a scam.",
     buildersKicker: "Built in public",
     buildersTitle: "Real products. Then AURA.",
     buildersLead:

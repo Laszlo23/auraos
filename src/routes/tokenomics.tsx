@@ -373,7 +373,8 @@ function TokenomicsPage() {
             >
               {PRIVATE_SALE_TREASURY}
             </a>
-            . That address is immutable on the current sale contract.
+            . That address is immutable on the current sale contract. Platform rails (x402 /
+            fees / withdrawals) use a separately labeled wallet — see the private sale page.
           </p>
         </section>
 

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
+import { lazy, Suspense } from "react";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { NftDeskPlaybookPanel } from "@/components/aura/nft-desk-playbook";
@@ -10,10 +11,9 @@ import {
   publicNavPrimary,
 } from "@/components/aura/public-site-header";
 import { RobinhoodMomentumStrip } from "@/components/aura/robinhood-momentum-strip";
-import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { SiteFooter } from "@/components/aura/site-footer";
-import { TokenInvestorWalletStrip } from "@/components/aura/token-investor-wallet";
 import { useLocale } from "@/hooks/use-locale";
+import { visibleRefetchInterval } from "@/hooks/use-aura";
 import {
   HOOD_GIFT_AURA,
   HOOD_MAX_SUPPLY,
@@ -72,16 +72,14 @@ export const Route = createFileRoute("/token")({
   component: TokenInvestorRoute,
 });
 
+const TokenWalletStrip = lazy(() =>
+  import("@/components/aura/token-investor-wallet-lazy").then((m) => ({
+    default: m.TokenInvestorWalletLazy,
+  })),
+);
+
 function TokenInvestorRoute() {
-  return (
-    <SaleWalletRoot
-      wcName="AURA Token"
-      wcDescription="Investor hub — pAURA balance and Hood gift status"
-      wcUrl="https://aibusiness.fun/token"
-    >
-      <TokenInvestorPage />
-    </SaleWalletRoot>
-  );
+  return <TokenInvestorPage />;
 }
 
 function TokenInvestorPage() {
@@ -92,7 +90,7 @@ function TokenInvestorPage() {
     queryKey: ["private-sale-live", "token-hub"],
     queryFn: () => getPrivateSaleLive(),
     initialData: live,
-    refetchInterval: 20_000,
+    refetchInterval: visibleRefetchInterval(20_000),
   });
   const stats = liveQ.data ?? live;
   const ca = auraTokenAddress();
@@ -220,7 +218,15 @@ function TokenInvestorPage() {
 
         {/* Wallet strip */}
         <div className="mt-10">
-          <TokenInvestorWalletStrip locale={de ? "de" : "en"} />
+          <Suspense
+            fallback={
+              <p className="text-[13px] text-muted-foreground">
+                {de ? "Wallet wird geladen…" : "Loading wallet…"}
+              </p>
+            }
+          >
+            <TokenWalletStrip locale={de ? "de" : "en"} />
+          </Suspense>
         </div>
 
         {/* 2. Early circle giveback */}

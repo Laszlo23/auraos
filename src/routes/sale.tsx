@@ -1,45 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { parseUnits } from "viem";
-import { base } from "viem/chains";
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useReadContract,
-  useSwitchChain,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi";
+import { useQuery } from "@tanstack/react-query";
+import { lazy, Suspense, useState } from "react";
 
 import { LanguageToggle } from "@/components/aura/language-toggle";
-import { PauraRedeemPanel } from "@/components/aura/paura-redeem";
 import {
   PublicMobileMenu,
   publicNavMore,
   publicNavPrimary,
 } from "@/components/aura/public-site-header";
-import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 import { useLocale } from "@/hooks/use-locale";
 import { auraLaunchTreasuryAddress } from "@/lib/aura-token";
 import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
 import { num } from "@/lib/format";
 import {
-  BASE_USDC,
-  ERC20_ABI,
   PAURA_SYMBOL,
-  PRIVATE_SALE_ABI,
-  PRIVATE_SALE_MIN_USDC,
   PRIVATE_SALE_TREASURY,
-  pAuraToLaunchAura,
+  PLATFORM_RAILS_TREASURY,
   privateSaleBasescan,
   privateSaleContractAddress,
-  usdcToPAura,
 } from "@/lib/private-sale";
 import { getPrivateSaleLive } from "@/lib/private-sale.functions";
 import { OG_CAMPAIGN, ogCampaignUrl } from "@/lib/og-campaign";
 import { pageHead } from "@/lib/seo";
+import { visibleRefetchInterval } from "@/hooks/use-aura";
 
 const TITLE = "AURA Private Sale — pAURA";
 const DESCRIPTION =
@@ -70,33 +53,35 @@ export const Route = createFileRoute("/sale")({
   component: SaleRoute,
 });
 
+const SaleWalletIsland = lazy(() =>
+  import("@/components/aura/sale-wallet-island").then((m) => ({ default: m.SaleWalletIsland })),
+);
+
 function SaleRoute() {
-  return (
-    <SaleWalletRoot>
-      <SalePage />
-    </SaleWalletRoot>
-  );
+  return <SalePage />;
 }
 
 function SalePage() {
   const { t, locale } = useLocale();
   const live = Route.useLoaderData();
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"sale" | "rails" | null>(null);
 
   const liveQ = useQuery({
     queryKey: ["private-sale-live"],
     queryFn: () => getPrivateSaleLive(),
     initialData: live,
-    refetchInterval: 20_000,
+    refetchInterval: visibleRefetchInterval(20_000),
   });
   const stats = liveQ.data ?? live;
   const contract = privateSaleContractAddress();
 
-  const copyTreasury = async () => {
+  const copyAddress = async (which: "sale" | "rails") => {
     try {
-      await navigator.clipboard.writeText(PRIVATE_SALE_TREASURY);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
+      await navigator.clipboard.writeText(
+        which === "sale" ? PRIVATE_SALE_TREASURY : PLATFORM_RAILS_TREASURY,
+      );
+      setCopied(which);
+      window.setTimeout(() => setCopied(null), 1600);
     } catch {
       /* ignore */
     }
@@ -138,8 +123,6 @@ function SalePage() {
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t("sale.lead")}</p>
         </header>
-
-        <PauraRedeemPanel locale={locale === "de" ? "de" : "en"} />
 
         <ol className="space-y-4">
           {[
@@ -246,7 +229,18 @@ function SalePage() {
             {t("sale.notConfigured")}
           </p>
         ) : (
-          <BuyCard disabled={stats.saleClosed || stats.paused} />
+          <Suspense
+            fallback={
+              <section className="rounded-3xl border border-border/40 p-5 text-[13px] text-muted-foreground">
+                Loading wallet…
+              </section>
+            }
+          >
+            <SaleWalletIsland
+              disabled={stats.saleClosed || stats.paused}
+              locale={locale === "de" ? "de" : "en"}
+            />
+          </Suspense>
         )}
 
         <section className="rounded-2xl border border-border/40 p-4">
@@ -278,10 +272,32 @@ function SalePage() {
           </a>
           <button
             type="button"
-            onClick={() => void copyTreasury()}
+            onClick={() => void copyAddress("sale")}
             className="mt-3 rounded-2xl border border-border/50 px-4 py-2 text-xs font-semibold"
           >
-            {copied ? t("sale.copied") : t("sale.copy")}
+            {copied === "sale" ? t("sale.copied") : t("sale.copy")}
+          </button>
+        </section>
+
+        <section className="rounded-2xl border border-border/40 p-4">
+          <h2 className="font-display text-lg font-semibold">{t("sale.railsTitle")}</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {t("sale.railsBody")}
+          </p>
+          <a
+            href={privateSaleBasescan(`/address/${PLATFORM_RAILS_TREASURY}`)}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 block break-all font-mono text-[12px] text-primary"
+          >
+            {PLATFORM_RAILS_TREASURY}
+          </a>
+          <button
+            type="button"
+            onClick={() => void copyAddress("rails")}
+            className="mt-3 rounded-2xl border border-border/50 px-4 py-2 text-xs font-semibold"
+          >
+            {copied === "rails" ? t("sale.copied") : t("sale.copyRails")}
           </button>
         </section>
 
@@ -328,145 +344,5 @@ function Stat({ label, value }: { label: string; value: string }) {
       <p className="num text-lg font-semibold">{value}</p>
       <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
     </div>
-  );
-}
-
-function BuyCard({ disabled }: { disabled: boolean }) {
-  const { t } = useLocale();
-  const contract = privateSaleContractAddress();
-  const { address, isConnected, chainId } = useAccount();
-  const { connectors, connect, isPending: connecting } = useConnect();
-  const { disconnect } = useDisconnect();
-  const { switchChain, isPending: switching } = useSwitchChain();
-  const [amount, setAmount] = useState(String(PRIVATE_SALE_MIN_USDC));
-  const usdc = Number(amount);
-  const preview = useMemo(() => usdcToPAura(usdc), [usdc]);
-  const launch = useMemo(() => pAuraToLaunchAura(preview), [preview]);
-  const usdcRaw = Number.isFinite(usdc) && usdc > 0 ? parseUnits(String(usdc), 6) : 0n;
-
-  const allowance = useReadContract({
-    address: BASE_USDC,
-    abi: ERC20_ABI,
-    functionName: "allowance",
-    args: address && contract ? [address, contract] : undefined,
-    query: { enabled: Boolean(address && contract) },
-  });
-  const usdcBal = useReadContract({
-    address: BASE_USDC,
-    abi: ERC20_ABI,
-    functionName: "balanceOf",
-    args: address ? [address] : undefined,
-    query: { enabled: Boolean(address) },
-  });
-
-  const approve = useWriteContract();
-  const buy = useWriteContract();
-  const pendingHash = approve.data ?? buy.data;
-  const wait = useWaitForTransactionReceipt({ hash: pendingHash });
-
-  const needsApprove = Boolean(contract && usdcRaw > 0n && (allowance.data ?? 0n) < usdcRaw);
-  const onBase = chainId === base.id;
-  const busy = connecting || switching || approve.isPending || buy.isPending || wait.isLoading;
-
-  const run = useMutation({
-    mutationFn: async () => {
-      if (!contract) throw new Error("Contract missing");
-      if (!onBase) {
-        switchChain({ chainId: base.id });
-        return;
-      }
-      if (needsApprove) {
-        return approve.writeContractAsync({
-          address: BASE_USDC,
-          abi: ERC20_ABI,
-          functionName: "approve",
-          args: [contract, usdcRaw],
-        });
-      }
-      return buy.writeContractAsync({
-        address: contract,
-        abi: PRIVATE_SALE_ABI,
-        functionName: "buy",
-        args: [usdcRaw],
-      });
-    },
-  });
-
-  return (
-    <section className="rounded-3xl border border-primary/25 bg-foreground/[0.03] p-5">
-      <h2 className="font-display text-xl font-semibold">{t("sale.buyTitle")}</h2>
-      <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{t("sale.buyHint")}</p>
-      <p className="mt-2 text-[12px] text-muted-foreground">{t("sale.needUsdc")}</p>
-
-      <label className="mt-5 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-        {t("sale.amount")}
-      </label>
-      <input
-        type="number"
-        min={PRIVATE_SALE_MIN_USDC}
-        step="1"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        className="mt-2 w-full rounded-2xl border border-border/50 bg-background px-4 py-3 text-base"
-      />
-      {preview > 0 ? (
-        <p className="mt-2 text-[13px] text-muted-foreground">
-          {t("sale.youGet", { paura: num(Math.round(preview)), launch: num(Math.round(launch)) })}
-        </p>
-      ) : null}
-      {usdcBal.data != null ? (
-        <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-          USDC {Number(usdcBal.data) / 1e6}
-        </p>
-      ) : null}
-
-      {!isConnected ? (
-        <div className="mt-5">
-          <button
-            type="button"
-            disabled={connecting}
-            onClick={() => connect({ connector: connectors[0] })}
-            className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-          >
-            {connecting ? t("sale.connecting") : t("sale.connect")}
-          </button>
-        </div>
-      ) : (
-        <div className="mt-5 space-y-2">
-          <p className="break-all font-mono text-[11px] text-muted-foreground">{address}</p>
-          {!onBase ? (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => switchChain({ chainId: base.id })}
-              className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
-            >
-              {t("sale.switchBase")}
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled={disabled || busy || usdc < PRIVATE_SALE_MIN_USDC}
-              onClick={() => run.mutate()}
-              className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              {busy ? t("sale.buying") : needsApprove ? t("sale.approve") : t("sale.buy")}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => disconnect()}
-            className="w-full rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold"
-          >
-            {t("sale.disconnect")}
-          </button>
-        </div>
-      )}
-      {run.error ? (
-        <p className="mt-3 text-[13px] text-red-400">
-          {run.error instanceof Error ? run.error.message : "Error"}
-        </p>
-      ) : null}
-    </section>
   );
 }

@@ -3,8 +3,19 @@ import { AURA_MAX_SUPPLY } from "@/lib/aura-token";
 export const PAURA_NAME = "AURA Private Sale";
 export const PAURA_SYMBOL = "pAURA";
 
-/** Immutable treasury on the live pAURA contract. Sale USDC still goes here. */
+/**
+ * Immutable treasury on the live pAURA contract (`TREASURY()`).
+ * Every on-chain `buy` / `buyFor` sends 100% USDC here — never invent a different address.
+ * Changing the destination requires a new sale contract + CA cutover.
+ */
 export const PRIVATE_SALE_TREASURY = "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1" as const;
+
+/**
+ * Platform rails wallet (x402 payTo, OKX referrer, Clanker platform fee, NOW withdraw target).
+ * Distinct from the live sale/ops immutables until those contracts are redeployed.
+ */
+export const PLATFORM_RAILS_TREASURY =
+  "0xAC55a8674398BF050F21940EE0bB2d18BC393114" as const;
 export const BASE_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as const;
 /** Live Base pAURA sale — public CA, not a secret. */
 export const PRIVATE_SALE_CONTRACT_LIVE = "0x25f42e74ce4697a29d9f252981fb9efa35aee55c" as const;

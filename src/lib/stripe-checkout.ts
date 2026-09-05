@@ -73,3 +73,30 @@ export async function createStripeCheckoutSession(
     mode: json.mode ?? null,
   };
 }
+
+/** Refund a PaymentIntent (e.g. founding seat sold out after checkout). */
+export async function refundStripePaymentIntent(
+  secret: string,
+  paymentIntentId: string,
+  opts?: { reason?: "duplicate" | "fraudulent" | "requested_by_customer" },
+): Promise<{ id: string }> {
+  const body = new URLSearchParams();
+  body.set("payment_intent", paymentIntentId);
+  if (opts?.reason) body.set("reason", opts.reason);
+
+  const res = await fetch("https://api.stripe.com/v1/refunds", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Stripe-Version": STRIPE_API_VERSION,
+    },
+    body,
+  });
+
+  const json = (await res.json()) as { id?: string; error?: { message?: string } };
+  if (!res.ok || !json.id) {
+    throw new Error(json.error?.message || `Could not refund payment (HTTP ${res.status})`);
+  }
+  return { id: json.id };
+}

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { visibleRefetchInterval } from "@/hooks/use-aura";
 import type { GrowthTaskKind } from "@/lib/growth-digital-work";
 
 export type SquadMember = {
@@ -76,8 +77,8 @@ export type CommunityHub = {
 export function useCommunityHub() {
   return useQuery({
     queryKey: ["community-hub"],
-    staleTime: 8_000,
-    refetchInterval: 12_000,
+    staleTime: 10_000,
+    refetchInterval: visibleRefetchInterval(15_000),
     queryFn: async (): Promise<CommunityHub> => {
       const { data, error } = await supabase.rpc("get_community_hub", { _squad_limit: 12 });
       if (error) throw error;

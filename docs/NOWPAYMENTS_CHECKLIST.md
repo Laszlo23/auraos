@@ -11,7 +11,7 @@ Dashboard: [NOWPayments Settings → Payments](https://account.nowpayments.io/se
 | 1 | API key generated | **Done** | `NOWPAYMENTS_API_KEY` on VPS. `GET /v1/status` → OK. Estimate 99 EUR → USDC works. |
 | 2 | Custody enabled, if applicable | **N/A** | We take invoices, not API mass-payouts. Enable Custody in the dashboard only if you want NOW to hold/convert before you withdraw. |
 | 3 | IP addresses whitelisted, if applicable (NOW dashboard) | **N/A / optional** | Required only for **payout API**. Invoice create does not need it. If you turn payout IP-lock on, whitelist VPS `186.240.156.50`. |
-| 4 | Wallet(s) whitelisted, if applicable | **Do in dashboard** | Whitelist the Base treasury `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1` before any withdrawal. |
+| 4 | Wallet(s) whitelisted, if applicable | **Do in dashboard** | Whitelist the Base treasury `0xAC55a8674398BF050F21940EE0bB2d18BC393114` before any withdrawal. |
 | 5 | Network fees settings specified, if applicable | **Do in dashboard** | Settings → Payments → Network Fee Optimization: on (picks the cheapest wallet/route). |
 | 6 | Base currency set | **Done in API** | Local Seat invoices send `price_currency: eur`. Donations send `usd`. Set dashboard base currency to match your primary product (EUR). |
 | 7 | IPN secret key generated | **Done** | `NOWPAYMENTS_IPN_SECRET` on VPS (not the API key). HMAC-SHA512 of sorted JSON. Locally `NOWPAYMENTS_SECRET_KEY` is accepted as alias. |

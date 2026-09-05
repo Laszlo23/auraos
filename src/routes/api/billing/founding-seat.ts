@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { FOUNDING_SEAT_CENTS } from "@/lib/founding-price";
+import { clientIpFromRequest, rateLimitConsume } from "@/lib/rate-limit.server";
 import { SITE_URL } from "@/lib/site";
 import { assertStripeChargesEnabled } from "@/lib/stripe-account";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
@@ -72,6 +73,17 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
         } = await supabase.auth.getUser(token);
         if (userError || !user) {
           return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const limited = rateLimitConsume(`founding-seat:${user.id}:${clientIpFromRequest(request)}`, {
+          limit: 5,
+          windowMs: 10 * 60_000,
+        });
+        if (!limited.ok) {
+          return Response.json(
+            { error: "Too many checkout attempts. Try again shortly." },
+            { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+          );
         }
 
         const body = (await request.json().catch(() => ({}))) as { invite?: string };

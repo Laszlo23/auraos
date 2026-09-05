@@ -114,6 +114,14 @@ export function liveWorkInterval(ms = 12_000) {
     rowsHaveLiveWork(q.state.data as { status?: string }[] | undefined) ? ms : false;
 }
 
+/** Poll only while the tab is visible (pairs with refetchOnWindowFocus). */
+export function visibleRefetchInterval(ms: number) {
+  return () => {
+    if (typeof document !== "undefined" && document.hidden) return false;
+    return ms;
+  };
+}
+
 export function useCompanyTable<T = Record<string, unknown>>(
   table: TableName,
   options?: {

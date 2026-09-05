@@ -172,7 +172,29 @@ export const Route = createFileRoute("/api/billing/webhook")({
                 : {}),
             });
             if (grantError) {
+              const soldOut = /seats_sold_out/i.test(grantError.message);
               console.error("[billing/webhook] grant_founding_seat", grantError.message);
+              if (soldOut && typeof session.payment_intent === "string") {
+                try {
+                  const { refundStripePaymentIntent } = await import("@/lib/stripe-checkout");
+                  const secret = process.env["STRIPE_SECRET_KEY"];
+                  if (!secret) throw new Error("STRIPE_SECRET_KEY missing for sold-out refund");
+                  const refund = await refundStripePaymentIntent(secret, session.payment_intent, {
+                    reason: "requested_by_customer",
+                  });
+                  console.warn(
+                    "[billing/webhook] founding seat sold out — refunded",
+                    session.payment_intent,
+                    refund.id,
+                  );
+                  return Response.json({ received: true, refunded: true, reason: "seats_sold_out" });
+                } catch (refundErr) {
+                  console.error(
+                    "[billing/webhook] sold-out refund failed",
+                    refundErr instanceof Error ? refundErr.message : refundErr,
+                  );
+                }
+              }
               return Response.json({ error: grantError.message }, { status: 500 });
             }
             return Response.json({ received: true });

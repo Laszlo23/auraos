@@ -59,6 +59,7 @@ async function main() {
         name,
         symbol,
         treasury,
+        expectedTreasury: PRIVATE_SALE_TREASURY,
         treasuryMatch: treasury.toLowerCase() === PRIVATE_SALE_TREASURY.toLowerCase(),
         cap: formatUnits(cap, 18),
         remaining: formatUnits(rem, 18),
@@ -69,6 +70,12 @@ async function main() {
       2,
     ) + "\n",
   );
+  if (treasury.toLowerCase() !== PRIVATE_SALE_TREASURY.toLowerCase()) {
+    console.error(
+      `treasury mismatch: on-chain ${treasury} !== app constant ${PRIVATE_SALE_TREASURY}`,
+    );
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {

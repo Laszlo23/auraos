@@ -79,13 +79,17 @@ export const getPrivateSaleLive = createServerFn({ method: "GET" }).handler(
     if (!address) return empty;
     try {
       const client = createPublicClient({ chain: base, transport: http(rpcUrl()) });
-      const [soldRaw, remainingRaw, raisedRaw, saleClosed, paused] = await Promise.all([
-        client.readContract({ address, abi: PRIVATE_SALE_ABI, functionName: "totalSupply" }),
-        client.readContract({ address, abi: PRIVATE_SALE_ABI, functionName: "remaining" }),
-        client.readContract({ address, abi: PRIVATE_SALE_ABI, functionName: "usdcRaised" }),
-        client.readContract({ address, abi: PRIVATE_SALE_ABI, functionName: "saleClosed" }),
-        client.readContract({ address, abi: PRIVATE_SALE_ABI, functionName: "paused" }),
-      ]);
+      const results = await client.multicall({
+        allowFailure: false,
+        contracts: [
+          { address, abi: PRIVATE_SALE_ABI, functionName: "totalSupply" },
+          { address, abi: PRIVATE_SALE_ABI, functionName: "remaining" },
+          { address, abi: PRIVATE_SALE_ABI, functionName: "usdcRaised" },
+          { address, abi: PRIVATE_SALE_ABI, functionName: "saleClosed" },
+          { address, abi: PRIVATE_SALE_ABI, functionName: "paused" },
+        ],
+      });
+      const [soldRaw, remainingRaw, raisedRaw, saleClosed, paused] = results;
       return {
         configured: true,
         address,
@@ -108,7 +112,7 @@ export type PrivateSaleCashOrder = {
   wallet: string;
   amount_usdc: number;
   p_aura_amount: number;
-  status: "logged" | "sent" | "canceled";
+  status: "logged" | "sending" | "sent" | "canceled";
   tx_hash: string | null;
   closer: string;
   notes: string | null;
@@ -245,6 +249,21 @@ export const sendPrivateSaleCash = createServerFn({ method: "POST" })
     if (order.status !== "logged") throw new Error("Order is not waiting to be sent");
     if (!isBaseAddress(order.wallet)) throw new Error("Order wallet is invalid");
 
+    // Claim before chain write so a retry cannot double creditCash.
+    const { data: claimed, error: claimError } = await db
+      .from("private_sale_cash_orders")
+      .update({
+        status: "sending",
+        sent_by: auth.displayName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.orderId)
+      .eq("status", "logged")
+      .select("id")
+      .maybeSingle();
+    if (claimError) throw claimError;
+    if (!claimed) throw new Error("Order is already being sent or was completed");
+
     const contract = requireContract();
     const account = privateKeyToAccount(deployerKey());
     const transport = http(rpcUrl());
@@ -252,13 +271,27 @@ export const sendPrivateSaleCash = createServerFn({ method: "POST" })
     const wallet = createWalletClient({ account, chain: base, transport });
     const amount = parseUnits(String(order.p_aura_amount), 18);
 
-    const hash = await wallet.writeContract({
-      address: contract,
-      abi: PRIVATE_SALE_ABI,
-      functionName: "creditCash",
-      args: [order.wallet, amount],
-    });
-    await publicClient.waitForTransactionReceipt({ hash });
+    let hash: `0x${string}`;
+    try {
+      hash = await wallet.writeContract({
+        address: contract,
+        abi: PRIVATE_SALE_ABI,
+        functionName: "creditCash",
+        args: [order.wallet, amount],
+      });
+      await publicClient.waitForTransactionReceipt({ hash });
+    } catch (err) {
+      await db
+        .from("private_sale_cash_orders")
+        .update({
+          status: "logged",
+          sent_by: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", data.orderId)
+        .eq("status", "sending");
+      throw err;
+    }
 
     const { error: updateError } = await db
       .from("private_sale_cash_orders")
@@ -270,7 +303,7 @@ export const sendPrivateSaleCash = createServerFn({ method: "POST" })
         updated_at: new Date().toISOString(),
       })
       .eq("id", data.orderId)
-      .eq("status", "logged");
+      .eq("status", "sending");
     if (updateError) throw updateError;
 
     await db.from("team_desk_events").insert({

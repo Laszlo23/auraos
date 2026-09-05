@@ -28,6 +28,7 @@ import {
   useJoinSquad,
   usePostSquadUpdate,
 } from "@/hooks/use-community-hub";
+import { visibleRefetchInterval } from "@/hooks/use-aura";
 import { useProgress } from "@/hooks/use-progress";
 import { usePublicFeed, useNetworkTotals } from "@/hooks/use-public";
 import { useUserProgress } from "@/hooks/use-user-progress";
@@ -74,8 +75,10 @@ function CommunityHubPage() {
   const navigate = useNavigate({ from: "/community" });
   const { join: joinFromUrl } = Route.useSearch();
   const { data: hub, isLoading, isError, error: hubError, refetch } = useCommunityHub();
-  const { data: network } = useNetworkTotals({ refetchInterval: 20_000 });
-  const { data: publicFeed = [] } = usePublicFeed(12, { refetchInterval: 15_000 });
+  const { data: network } = useNetworkTotals({ refetchInterval: visibleRefetchInterval(25_000) });
+  const { data: publicFeed = [] } = usePublicFeed(12, {
+    refetchInterval: visibleRefetchInterval(20_000),
+  });
   const { data: progress } = useProgress();
   const { data: userProg } = useUserProgress();
 
