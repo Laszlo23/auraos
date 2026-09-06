@@ -288,6 +288,65 @@ export const en: MessageTree = {
     blurb:
       "Your AI staff draft the follow-ups, posts, and research. You approve in minutes. Hours back every day — money stays yours.",
     crew: "The Crew",
+
+    // Narrative acts
+    act1: "01 / THE HOOK",
+    act1Promise: "You're the owner. AI does the work. You keep the upside.",
+
+    act2: "02 / THE PROBLEM",
+    act2Title: "Tools don't run your company",
+    act2Body:
+      "You lose hours in tools, spreadsheets, and busywork. Photos on Instagram don't draft follow-ups or pitch leads — and you're doing a job instead of owning a business.",
+
+    act3: "03 / THE TWIST",
+    act3Title: "You don't manage software",
+    act3Subtitle: "You own an AI company",
+    act3Body:
+      "Aura OS is the operating system. You're the founder. AI employees draft pitches, book posts, follow up, qualify leads. You approve spend and outbound. They execute — and you keep the money.",
+
+    act4: "04 / THE MACHINE",
+    act4Title: "How it works",
+    act4Step1: "Claim a founding seat",
+    act4Step1Body: "$299 once. No subscription. You're an owner.",
+    act4Step2: "Your AI company wakes",
+    act4Step2Body: "Describe your business in plain words. The AI crew gets briefed.",
+    act4Step3: "They work. You approve.",
+    act4Step3Body: "Drafts, pitches, posts, follow-ups. You tap yes or no.",
+    act4Step4: "You get hours back",
+    act4Step4Body: "Every day. Real work ships. Money stays yours.",
+
+    act5: "05 / WORLDS INSIDE AURA",
+    act5Title: "The full story",
+
+    act6: "06 / FAIR LAUNCH",
+    act6Title: "Launching soon",
+    act6Body: "Token and ecosystem. No pre-mine, no VC dump. Real company, real launch.",
+
+    act7: "07 / CLAIM YOUR SEAT",
+    act7Title: "Own a company. Not another subscription.",
+    act7Body: "Founding seats $299 once. AI does the work. You approve and own the upside.",
+
+    // Chapter cards
+    chapterHood: "The Hood",
+    chapterHoodLore: "Where the crew lives. NFT collection energy, street premium.",
+    chapterHoodCta: "Enter the Hood",
+
+    chapterToken: "Token & Ecosystem",
+    chapterTokenLore: "Fair launch. Real tokenomics. No VC dump, no BS.",
+    chapterTokenCta: "Read tokenomics",
+
+    chapterLokal: "Aura Local",
+    chapterLokalLore: "Real customers, real check-ins. Local businesses, powered up.",
+    chapterLokalCta: "For local shops",
+
+    chapterTry: "Try it live",
+    chapterTryLore: "See the AI company in action. Demo before you buy.",
+    chapterTryCta: "Live demo",
+
+    chapterProof: "Social Proof",
+    chapterProofLore: "Real owners. Real companies. Real results.",
+    chapterProofCta: "See proof",
+
     buy: "Start — $299 once",
     lokalAudit: "Free reputation check",
     watch: "Watch 15s",

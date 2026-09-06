@@ -290,6 +290,66 @@ export const de: MessageTree = {
     blurb:
       "Dein KI-Team entwirft Follow-ups, Posts und Recherche. Du gibst in Minuten frei. Jeden Tag Stunden zurück — das Geld bleibt bei dir.",
     crew: "Die Crew",
+
+    // Narrative acts
+    act1: "01 / DER HOOK",
+    act1Promise: "Du bist der Owner. KI macht die Arbeit. Du behältst den Upside.",
+
+    act2: "02 / DAS PROBLEM",
+    act2Title: "Tools führen nicht deine Firma",
+    act2Body:
+      "Du verlierst Stunden in Tools, Sheets und Busywork. Fotos auf Instagram schreiben keine Follow-ups und pitchen keine Leads — und du machst einen Job statt ein Business zu besitzen.",
+
+    act3: "03 / DIE WENDE",
+    act3Title: "Du managst keine Software",
+    act3Subtitle: "Du besitzt eine KI-Firma",
+    act3Body:
+      "Aura OS ist das Betriebssystem. Du bist der Founder. KI-Mitarbeiter entwerfen Pitches, buchen Posts, followen up, qualifizieren Leads. Du genehmigst Spend und Outbound. Sie führen aus — und du behältst das Geld.",
+
+    act4: "04 / DIE MASCHINE",
+    act4Title: "So läuft's",
+    act4Step1: "Founding-Seat claimen",
+    act4Step1Body: "299 $ einmalig. Kein Abo. Du bist Owner.",
+    act4Step2: "Deine KI-Firma erwacht",
+    act4Step2Body: "Beschreib dein Business in normalen Worten. Die KI-Crew wird gebrieft.",
+    act4Step3: "Sie arbeiten. Du genehmigst.",
+    act4Step3Body: "Drafts, Pitches, Posts, Follow-ups. Du tippst Ja oder Nein.",
+    act4Step4: "Du kriegst Stunden zurück",
+    act4Step4Body: "Jeden Tag. Echte Arbeit geht raus. Geld bleibt bei dir.",
+
+    act5: "05 / WELTEN IN AURA",
+    act5Title: "Die ganze Story",
+
+    act6: "06 / FAIR LAUNCH",
+    act6Title: "Launch bald",
+    act6Body: "Token und Ökosystem. Kein Pre-Mine, kein VC-Dump. Echte Firma, echter Launch.",
+
+    act7: "07 / CLAIM DEINEN SEAT",
+    act7Title: "Eine Firma besitzen. Kein weiteres Abo.",
+    act7Body:
+      "Founding-Seats 299 $ einmalig. KI macht die Arbeit. Du genehmigst und besitzt den Upside.",
+
+    // Chapter cards
+    chapterHood: "The Hood",
+    chapterHoodLore: "Wo die Crew lebt. NFT-Collection-Energie, Street Premium.",
+    chapterHoodCta: "Hood betreten",
+
+    chapterToken: "Token & Ökosystem",
+    chapterTokenLore: "Fair Launch. Echte Tokenomics. Kein VC-Dump, kein BS.",
+    chapterTokenCta: "Tokenomics lesen",
+
+    chapterLokal: "Aura Local",
+    chapterLokalLore: "Echte Kunden, echter Check-in. Lokale Betriebe, powered up.",
+    chapterLokalCta: "Für Lokale",
+
+    chapterTry: "Live testen",
+    chapterTryLore: "Sieh die KI-Firma in Action. Demo vor dem Kauf.",
+    chapterTryCta: "Live-Demo",
+
+    chapterProof: "Social Proof",
+    chapterProofLore: "Echte Owner. Echte Firmen. Echte Ergebnisse.",
+    chapterProofCta: "Proof sehen",
+
     buy: "Start — 299 $ einmalig",
     lokalAudit: "Kostenloser Reputation-Check",
     watch: "15 Sekunden",

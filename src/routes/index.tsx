@@ -177,13 +177,22 @@ function Landing() {
         onCtaClick={() => trackTeaser("cta_click", { placement: "landing_header_start" })}
       />
 
-      {/* ACT 00 — one composition: brand · headline · line · CTAs · film */}
+      {/* ACT 01 / THE HOOK — one composition: brand · headline · line · CTAs · crew · film */}
       <section className="relative z-10 flex min-h-[100svh] items-end overflow-hidden sm:items-center">
         <HeroFilm />
         <div
           data-tour="hero"
           className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-28 sm:pb-24 sm:pt-24"
         >
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-gold"
+          >
+            {t("landing.act1")}
+          </motion.p>
+
           <h1 className="display-hero luxury-reveal max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_12px_48px_oklch(0_0_0_/_0.75)]">
             <WordReveal text={t("landing.hero1")} delay={0.06} />
             <br />
@@ -206,18 +215,8 @@ function Landing() {
             transition={{ duration: 0.9, delay: 0.55 }}
             className="mt-7 max-w-md text-[17px] font-semibold leading-relaxed text-foreground/90 sm:text-[18px]"
           >
-            {t("landing.blurb")}
+            {t("landing.act1Promise")}
           </motion.p>
-          <motion.div
-            initial={{ y: 10 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.8, delay: 0.62 }}
-            className="mt-4 inline-block rounded-full border-2 border-neon-lime/40 bg-neon-lime/10 px-5 py-2 backdrop-blur-sm"
-          >
-            <p className="text-[12px] font-black uppercase tracking-[0.16em] text-neon-lime">
-              {t("landing.categoryLine")}
-            </p>
-          </motion.div>
 
           <motion.div
             initial={{ y: 12, opacity: 0 }}
@@ -350,198 +349,62 @@ function Landing() {
         </div>
       </section>
 
-      {/* Time & money — plain language, after hero (not in first viewport) */}
+      {/* ACT 02 / THE PROBLEM — Tools don't run companies */}
       <section
-        id="savings"
+        id="problem"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-20 sm:py-28"
       >
-        <div className="inline-block rounded-full border-2 border-magma/50 bg-magma/15 px-4 py-2">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-magma">
-            {t("landing.saveKicker")}
-          </p>
-        </div>
-        <h2 className="display-hero mt-6 max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-          {t("landing.saveTitle")}
+        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-burgundy">
+          {t("landing.act2")}
+        </p>
+        <h2 className="display-hero max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          {t("landing.act2Title")}
         </h2>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          {t("landing.saveBody")}
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+          {t("landing.act2Body")}
         </p>
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          <div className="street-panel p-6">
-            <span className="icon-well-neon" aria-hidden>
-              <Clock className="h-5 w-5" />
-            </span>
-            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              {t("landing.saveTimeLabel")}
-            </p>
-            <p className="mt-2 font-display text-3xl tracking-tight text-foreground">
-              {t("landing.saveTimeValue", { hours: SAVINGS.hoursPerDay })}
-            </p>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              {t("landing.saveTimeHint")}
-            </p>
-          </div>
-          <div className="street-panel p-6">
-            <span className="icon-well-magma" aria-hidden>
-              <CircleDollarSign className="h-5 w-5" />
-            </span>
-            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              {t("landing.saveMoneyLabel")}
-            </p>
-            <p className="mt-2 font-display text-3xl tracking-tight text-money">
-              {t("landing.saveMoneyValue", { money: SAVINGS.moneyPerDayEur })}
-            </p>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              {t("landing.saveMoneyHint", { rate: SAVINGS.hourlyValueEur })}
-            </p>
-          </div>
-          <div className="street-panel p-6">
-            <span className="icon-well-gold" aria-hidden>
-              <ChartNoAxesCombined className="h-5 w-5" />
-            </span>
-            <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-              {t("landing.saveMonthLabel")}
-            </p>
-            <p className="mt-2 font-display text-3xl tracking-tight text-gold">
-              {t("landing.saveMonthValue", { month: SAVINGS.moneyPerMonthEur })}
-            </p>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              {t("landing.saveMonthHint")}
-            </p>
-          </div>
-        </div>
-        <p className="mt-6 max-w-2xl text-[12px] leading-relaxed text-muted-foreground/80">
-          {t("landing.saveDisclaimer")}
-        </p>
-        <Link
-          to="/how-it-works"
-          onClick={() => trackTeaser("cta_click", { placement: "landing_savings_how" })}
-          className="mt-6 inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary underline-offset-4 hover:underline"
-        >
-          {t("landing.saveCta")} <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
       </section>
 
+      {/* ACT 03 / THE TWIST — You own an AI company */}
       <section
-        id="start"
-        className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-24 sm:py-32"
+        id="twist"
+        className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-20 sm:py-28"
       >
-        <div className="inline-block rounded-full border-2 border-neon-lime/50 bg-neon-lime/15 px-4 py-2">
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-neon-lime">
-            {t("landing.audienceKicker")}
-          </p>
-        </div>
-        <h2 className="display-hero mt-6 max-w-3xl text-[clamp(2.2rem,6vw,3.8rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-          {t("landing.audienceTitle")}
-        </h2>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Link
-            to="/auth"
-            search={{ mode: "signup" }}
-            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_os" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.4)]"
-          >
-            <span className="icon-well-neon" aria-hidden>
-              <Rocket className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.audienceOsTitle")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.audienceOsBody")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-neon-lime transition-transform group-hover:translate-x-1">
-              {t("landing.audienceOsCta")} <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
-          <Link
-            to="/lokal"
-            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_lokal" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
-          >
-            <span className="icon-well-magma" aria-hidden>
-              <Store className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.audienceLokalTitle")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.audienceLokalBody")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
-              {t("landing.audienceLokalCta")} <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
-          <Link
-            to="/for/builders"
-            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_builders" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
-          >
-            <span className="icon-well" aria-hidden>
-              <Palette className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.audienceBuildersTitle")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.audienceBuildersBody")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-street-teal transition-transform group-hover:translate-x-1">
-              {t("landing.audienceBuildersCta")} <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
-          <Link
-            to="/token"
-            onClick={() => trackTeaser("cta_click", { placement: "landing_audience_aura" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)]"
-          >
-            <span className="icon-well-gold" aria-hidden>
-              <Sparkles className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.audienceAuraTitle")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.audienceAuraBody")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
-              {t("landing.audienceAuraCta")} <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
-        </div>
-        <Link
-          to="/nachbar"
-          onClick={() => trackTeaser("cta_click", { placement: "landing_audience_nachbar" })}
-          className="glass-soft mt-4 flex items-center justify-between rounded-[1.4rem] px-5 py-4 transition-colors hover:border-primary/30"
-        >
-          <span>
-            <span className="block text-sm font-semibold">Aura Nachbar</span>
-            <span className="block text-[13px] text-muted-foreground">{t("nachbar.hero")}</span>
+        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-magma">
+          {t("landing.act3")}
+        </p>
+        <h2 className="display-hero max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          {t("landing.act3Title")}
+          <br />
+          <span className="text-money" style={{ textShadow: "0 0 60px rgba(207, 255, 4, 0.5)" }}>
+            {t("landing.act3Subtitle")}
           </span>
-          <span className="text-sm font-semibold text-primary">{t("nachbar.ctaApp")} →</span>
-        </Link>
+        </h2>
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+          {t("landing.act3Body")}
+        </p>
       </section>
 
-      {/* How it works — early, plain language */}
+      {/* ACT 04 / THE MACHINE — How it works */}
       <section
         id="how"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-24 px-6 py-24 sm:py-32"
       >
         <div className="mb-10 max-w-2xl">
-          <div className="inline-block rounded-full border-2 border-street-teal/50 bg-street-teal/15 px-4 py-2">
-            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-street-teal">
-              {t("landing.howCue")}
-            </p>
-          </div>
-          <h2 className="display-hero mt-4 text-[clamp(1.9rem,5.2vw,3.2rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-            {t("landing.howTitle")}
-          </h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            {t("landing.howBody")}
+          <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-street-teal">
+            {t("landing.act4")}
           </p>
+          <h2 className="display-hero text-[clamp(1.9rem,5.2vw,3.2rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+            {t("landing.act4Title")}
+          </h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-4">
-          {LOOP.map((l, i) => (
+          {[
+            { step: "landing.act4Step1", body: "landing.act4Step1Body", icon: Sparkles },
+            { step: "landing.act4Step2", body: "landing.act4Step2Body", icon: Rocket },
+            { step: "landing.act4Step3", body: "landing.act4Step3Body", icon: Workflow },
+            { step: "landing.act4Step4", body: "landing.act4Step4Body", icon: CircleDollarSign },
+          ].map((l, i) => (
             <motion.div
               key={l.step}
               initial={{ opacity: 0, y: 16 }}
@@ -550,7 +413,7 @@ function Landing() {
               transition={{ delay: i * 0.07, duration: 0.55 }}
               className="street-panel relative px-4 py-5 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.3)]"
             >
-              {i < LOOP.length - 1 ? (
+              {i < 3 ? (
                 <span
                   aria-hidden
                   className="absolute -right-2 top-1/2 z-[1] hidden -translate-y-1/2 text-[24px] font-black text-neon-lime/70 sm:block"
@@ -576,14 +439,116 @@ function Landing() {
             className="boss-cta inline-flex items-center justify-center gap-3 px-8 py-4"
           >
             <Rocket className="h-5 w-5" />
-            {t("landing.howSeatsCta")}
+            {t("landing.buy")}
             <ArrowRight className="h-5 w-5" />
           </Link>
+        </div>
+      </section>
+
+      {/* ACT 05 / WORLDS INSIDE AURA — Chapter cards */}
+      <section
+        id="worlds"
+        className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-24 sm:py-32"
+      >
+        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-gold">
+          {t("landing.act5")}
+        </p>
+        <h2 className="display-hero mb-10 max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+          {t("landing.act5Title")}
+        </h2>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link
-            to="/how-it-works"
-            className="text-[13px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+            to="/hood"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_hood" })}
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)]"
           >
-            {t("landing.seeHow")}
+            <span className="icon-well-gold" aria-hidden>
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.chapterHood")}
+            </h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.chapterHoodLore")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
+              {t("landing.chapterHoodCta")} <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+
+          <Link
+            to="/token"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_token" })}
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
+          >
+            <span className="icon-well-magma" aria-hidden>
+              <CircleDollarSign className="h-5 w-5" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.chapterToken")}
+            </h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.chapterTokenLore")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
+              {t("landing.chapterTokenCta")} <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+
+          <Link
+            to="/lokal"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_lokal" })}
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
+          >
+            <span className="icon-well-neon" aria-hidden>
+              <Store className="h-5 w-5" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.chapterLokal")}
+            </h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.chapterLokalLore")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-street-teal transition-transform group-hover:translate-x-1">
+              {t("landing.chapterLokalCta")} <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+
+          <Link
+            to="/try"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_try" })}
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.4)]"
+          >
+            <span className="icon-well-neon" aria-hidden>
+              <Play className="h-5 w-5" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">{t("landing.chapterTry")}</h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.chapterTryLore")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-neon-lime transition-transform group-hover:translate-x-1">
+              {t("landing.chapterTryCta")} <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+
+          <Link
+            to="/proof"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_proof" })}
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
+          >
+            <span className="icon-well-magma" aria-hidden>
+              <ChartNoAxesCombined className="h-5 w-5" />
+            </span>
+            <h3 className="mt-5 text-xl font-semibold tracking-tight">
+              {t("landing.chapterProof")}
+            </h3>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("landing.chapterProofLore")}
+            </p>
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
+              {t("landing.chapterProofCta")} <ArrowRight className="h-4 w-4" />
+            </span>
           </Link>
         </div>
       </section>
@@ -591,23 +556,20 @@ function Landing() {
       <div className="austria-bar opacity-80" aria-hidden />
       <WienStoryStrip compact />
 
-      {/* Fair launch — one countdown + socials (no duplicate rally column) */}
+      {/* ACT 06 / FAIR LAUNCH — Launching soon */}
       <section
         id="fair-launch"
         className="relative z-10 border-y border-primary/12 bg-gradient-to-b from-primary/[0.08] via-transparent to-gold/[0.04]"
       >
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+          <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-neon-lime">
+            {t("landing.act6")}
+          </p>
           <h2 className="display-hero text-[clamp(2rem,6vw,3.2rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-            {t("landing.launchTitle")}
-            <span className="mt-3 flex items-center gap-3 text-money">
-              <span className="icon-well-neon shrink-0" aria-hidden>
-                <Rocket className="h-5 w-5" />
-              </span>
-              {t("landing.launchLine")}
-            </span>
+            {t("landing.act6Title")}
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-            {t("landing.launchBody")}
+            {t("landing.act6Body")}
           </p>
           <div className="mt-8">
             <LaunchCountdown variant="hero" placement="landing_launch" />
@@ -615,22 +577,21 @@ function Landing() {
         </div>
       </section>
 
-      {/* Finale — buy seat first */}
+      {/* ACT 07 / CLAIM YOUR SEAT — Final CTA */}
       <section
         id="claim"
         data-tour="claim"
         className="relative z-10 mx-auto grid max-w-6xl scroll-mt-20 gap-6 px-6 pb-24 pt-8 lg:grid-cols-[1.05fr_1fr]"
       >
         <div className="flex flex-col justify-center">
+          <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-gold">
+            {t("landing.act7")}
+          </p>
           <h2 className="display-hero text-[clamp(2rem,7vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-            {t("landing.claimTitle")}
-            <br />
-            <span className="text-money" style={{ textShadow: "0 0 60px rgba(207, 255, 4, 0.5)" }}>
-              {t("landing.claimTitle2")}
-            </span>
+            {t("landing.act7Title")}
           </h2>
           <p className="mt-5 max-w-md text-[14px] leading-relaxed text-muted-foreground">
-            {t("landing.claimBody")}
+            {t("landing.act7Body")}
           </p>
           <div className="mt-8">
             <FoundingCohort />
