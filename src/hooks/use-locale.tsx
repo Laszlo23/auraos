@@ -20,12 +20,7 @@ type LocaleCtx = {
 const Ctx = createContext<LocaleCtx | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<UiLocale>(() => {
-    if (typeof window === "undefined") return "en";
-    const htmlLang = document.documentElement.lang;
-    if (htmlLang === "de" || htmlLang === "en") return htmlLang;
-    return ensureUiLocale();
-  });
+  const [locale, setLocaleState] = useState<UiLocale>("en");
 
   useEffect(() => {
     const next = ensureUiLocale();

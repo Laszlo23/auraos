@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
-import { ensureUiLocale, t } from "@/lib/i18n";
+import { useLocale } from "@/hooks/use-locale";
 
 /**
  * A gentle spotlight tour for first-time visitors. It scrolls each explainer
@@ -47,7 +47,7 @@ export function OnboardingTour() {
   const [i, setI] = useState(0);
   const [box, setBox] = useState<Box | null>(null);
   const [dismissed, setDismissed] = useState(false);
-  const locale = ensureUiLocale();
+  const { locale, t } = useLocale();
 
   useEffect(() => {
     if (localStorage.getItem(SEEN_KEY) === "1") {
@@ -104,7 +104,7 @@ export function OnboardingTour() {
           onClick={openTour}
           className="fixed bottom-6 right-6 z-40 rounded-2xl border border-white/15 bg-background/95 px-4 py-2.5 text-sm font-medium text-foreground shadow-lg backdrop-blur-md transition-colors hover:border-primary/50 hover:bg-background"
         >
-          {t("tour.newHere", locale)}
+          {t("tour.newHere")}
         </motion.button>
       )}
       <AnimatePresence>
@@ -140,13 +140,13 @@ export function OnboardingTour() {
                 <span className="num text-[11px] tracking-[0.3em] text-primary">
                   {String(i + 1).padStart(2, "0")} / {String(STOPS.length).padStart(2, "0")}
                 </span>
-                <button onClick={close} aria-label={t("tour.close", locale)}>
+                <button onClick={close} aria-label={t("tour.close")}>
                   <X className="h-4 w-4 text-muted-foreground transition-colors hover:text-foreground" />
                 </button>
               </div>
-              <p className="mt-3 text-[15px] font-semibold">{t(stop.titleKey, locale)}</p>
+              <p className="mt-3 text-[15px] font-semibold">{t(stop.titleKey)}</p>
               <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-                {t(stop.bodyKey, locale)}
+                {t(stop.bodyKey)}
               </p>
 
               <div className="mt-5 flex items-center gap-2">
@@ -155,14 +155,13 @@ export function OnboardingTour() {
                   disabled={i === 0}
                   className="flex items-center gap-1.5 rounded-2xl bg-foreground/8 px-3.5 py-2 text-[12.5px] font-medium disabled:opacity-40"
                 >
-                  <ArrowLeft className="h-3.5 w-3.5" /> {t("tour.back", locale)}
+                  <ArrowLeft className="h-3.5 w-3.5" /> {t("tour.back")}
                 </button>
                 <button
                   onClick={() => (last ? close() : setI((n) => n + 1))}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-primary px-4 py-2 text-[12.5px] font-semibold text-primary-foreground"
                 >
-                  {last ? t("tour.gotIt", locale) : t("tour.next", locale)}{" "}
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  {last ? t("tour.gotIt") : t("tour.next")} <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
 
