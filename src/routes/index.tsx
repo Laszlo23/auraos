@@ -290,6 +290,63 @@ function Landing() {
           >
             <ChevronDown className="h-3.5 w-3.5" /> {t("landing.howCue")}
           </motion.div>
+
+          {/* The Crew - BAYC-style mascot strip */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.75 }}
+            className="mt-16"
+          >
+            <p className="mb-6 text-center text-[11px] font-black uppercase tracking-[0.28em] text-gold">
+              {t("landing.crew")}
+            </p>
+            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2 sm:justify-center">
+              {[
+                {
+                  src: "/brand/apes/boss-magma.png",
+                  alt: "Mascot: Magma fur ape in black suit with gold jewelry",
+                },
+                {
+                  src: "/brand/apes/beanie-gold.png",
+                  alt: "Mascot: Blue ape with black beanie and hoodie",
+                },
+                {
+                  src: "/brand/apes/nvg-lava.png",
+                  alt: "Mascot: Lava pattern ape with night vision goggles",
+                },
+                {
+                  src: "/brand/apes/xeyes-lime.png",
+                  alt: "Mascot: Neon lime fur ape with X eyes",
+                },
+                {
+                  src: "/brand/apes/straitjacket-lime.png",
+                  alt: "Mascot: Blue ape with gold glasses in straitjacket",
+                },
+                {
+                  src: "/brand/apes/varsity-teal.png",
+                  alt: "Mascot: Brown ape in lime varsity jacket and trucker cap",
+                },
+              ].map((ape, i) => (
+                <motion.div
+                  key={ape.src}
+                  initial={{ opacity: 0, scale: 0.9, rotate: -8 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.5, delay: 0.8 + i * 0.08 }}
+                  className="group relative shrink-0"
+                >
+                  <div className="relative h-32 w-32 overflow-hidden rounded-2xl border-2 border-neon-lime/40 bg-charcoal shadow-[0_0_24px_rgba(207,255,4,0.2)] transition-all hover:border-neon-lime hover:shadow-[0_0_40px_rgba(207,255,4,0.5)] sm:h-36 sm:w-36">
+                    <img
+                      src={ape.src}
+                      alt={ape.alt}
+                      className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 

@@ -287,6 +287,7 @@ export const en: MessageTree = {
     hero2: "Get your evenings back.",
     blurb:
       "Your AI staff draft the follow-ups, posts, and research. You approve in minutes. Hours back every day — money stays yours.",
+    crew: "The Crew",
     buy: "Start — $299 once",
     lokalAudit: "Free reputation check",
     watch: "Watch 15s",
@@ -519,8 +520,7 @@ export const en: MessageTree = {
     liveLatest: "Latest activity",
     liveEmpty: "No public activity in this window yet — zeros stay zeros.",
     liveShare: "Share live proof",
-    liveSharePlain:
-      "Aura OS is live — autonomous AI companies with public proof of work.",
+    liveSharePlain: "Aura OS is live — autonomous AI companies with public proof of work.",
     liveShareStat: "Aura OS live network: {stat}. Real ledger receipts, not pitch theater.",
     days: "Days",
     hours: "Hours",
@@ -942,7 +942,8 @@ export const en: MessageTree = {
   settings: {
     eyebrow: "Identity",
     title: "How your company behaves",
-    description: "Everything here changes how the agents reason — not just what the interface says.",
+    description:
+      "Everything here changes how the agents reason — not just what the interface says.",
     company: "Company",
     companyHint: "Shown to every agent in every prompt",
     name: "Name",

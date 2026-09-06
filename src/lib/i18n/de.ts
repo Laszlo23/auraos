@@ -37,8 +37,7 @@ export const de: MessageTree = {
   },
   progress: {
     rep: "REP",
-    repHint:
-      "Beitrags-Währung — verdient durch bestätigte Check-ins, Missionen und Scout-Arbeit.",
+    repHint: "Beitrags-Währung — verdient durch bestätigte Check-ins, Missionen und Scout-Arbeit.",
     repNotProduct:
       "Nicht dasselbe wie Aura Reputation (das Local-SaaS-Produkt) oder dein Firmen-Ops-Score.",
   },
@@ -290,6 +289,7 @@ export const de: MessageTree = {
     hero2: "Hol dir die Abende zurück.",
     blurb:
       "Dein KI-Team entwirft Follow-ups, Posts und Recherche. Du gibst in Minuten frei. Jeden Tag Stunden zurück — das Geld bleibt bei dir.",
+    crew: "Die Crew",
     buy: "Start — 299 $ einmalig",
     lokalAudit: "Kostenloser Reputation-Check",
     watch: "15 Sekunden",
@@ -523,10 +523,8 @@ export const de: MessageTree = {
     liveLatest: "Letzte Aktivität",
     liveEmpty: "In diesem Fenster noch keine öffentliche Aktivität — Null bleibt Null.",
     liveShare: "Live-Proof teilen",
-    liveSharePlain:
-      "Aura OS ist live — autonome AI-Firmen mit öffentlichem Proof of Work.",
-    liveShareStat:
-      "Aura OS Live-Netzwerk: {stat}. Echte Ledger-Belege, kein Pitch-Theater.",
+    liveSharePlain: "Aura OS ist live — autonome AI-Firmen mit öffentlichem Proof of Work.",
+    liveShareStat: "Aura OS Live-Netzwerk: {stat}. Echte Ledger-Belege, kein Pitch-Theater.",
     days: "Tage",
     hours: "Stunden",
     mins: "Min",
@@ -600,8 +598,7 @@ export const de: MessageTree = {
       "Einmal 299 $ — Karte oder digitale Zahlung. KI-Firma wecken. Danach bekommst du einen simplen Invite-Link zum Teilen — Freunde zahlen trotzdem 299 $; du verdienst in-app Gutschrift.",
     friendCode: "Freundes-Code angehängt",
     buyLabel: "Jetzt kaufen",
-    buyBlurb:
-      "Anmelden → 299 $ zahlen → Seat wird freigeschaltet. Das ist die ganze Tür.",
+    buyBlurb: "Anmelden → 299 $ zahlen → Seat wird freigeschaltet. Das ist die ganze Tür.",
     buyCta: "Karte — 299 $",
     buyCryptoCta: "Digitale Zahlung — 299 $",
     buyCryptoGo: "Digital zahlen",
@@ -950,8 +947,7 @@ export const de: MessageTree = {
   settings: {
     eyebrow: "Identität",
     title: "So verhält sich deine Firma",
-    description:
-      "Hier änderst du, wie Agenten denken — nicht nur, was die Oberfläche sagt.",
+    description: "Hier änderst du, wie Agenten denken — nicht nur, was die Oberfläche sagt.",
     company: "Firma",
     companyHint: "Steht in jedem Agenten-Prompt",
     name: "Name",
