@@ -329,26 +329,48 @@ export const de: MessageTree = {
     act7Body:
       "Founding-Seats 299 $ einmalig. KI macht die Arbeit. Du genehmigst und besitzt den Upside.",
 
-    // Chapter cards
+    // Chapter cards — deeper integration
     chapterHood: "The Hood",
-    chapterHoodLore: "Wo die Crew lebt. NFT-Collection-Energie, Street Premium.",
+    chapterHoodLore: "Wo die Crew lebt. Founding-Membership, exklusive Drops, Street Premium.",
+    chapterHoodFeature1: "Founding NFT Collection",
+    chapterHoodFeature2: "Exklusive Member-Perks",
+    chapterHoodFeature3: "Early Access zu Drops",
     chapterHoodCta: "Hood betreten",
 
     chapterToken: "Token & Ökosystem",
-    chapterTokenLore: "Fair Launch. Echte Tokenomics. Kein VC-Dump, kein BS.",
+    chapterTokenLore: "Fair Launch. Community-owned. Echte Tokenomics, kein VC-Dump.",
+    chapterTokenFeature1: "Fair Launch — kein Pre-Mine",
+    chapterTokenFeature2: "Community Governance",
+    chapterTokenFeature3: "Transparente Tokenomics",
     chapterTokenCta: "Tokenomics lesen",
 
     chapterLokal: "Aura Local",
-    chapterLokalLore: "Echte Kunden, echter Check-in. Lokale Betriebe, powered up.",
+    chapterLokalLore: "Echte Kunden kommen rein. KI macht Follow-ups, Reviews, Repeat Visits.",
+    chapterLokalFeature1: "Gast-Check-in & Follow-up",
+    chapterLokalFeature2: "Echte Review-Einladungen",
+    chapterLokalFeature3: "Lokales SEO & Reputation",
     chapterLokalCta: "Für Lokale",
 
     chapterTry: "Live testen",
-    chapterTryLore: "Sieh die KI-Firma in Action. Demo vor dem Kauf.",
+    chapterTryLore: "Sieh deine KI-Firma erwachen. Test Briefing, Drafts und Approval-Flow.",
+    chapterTryFeature1: "Interaktives KI-Briefing",
+    chapterTryFeature2: "Draft & Approve Workflow",
+    chapterTryFeature3: "Testen vor dem Kauf",
     chapterTryCta: "Live-Demo",
 
     chapterProof: "Social Proof",
-    chapterProofLore: "Echte Owner. Echte Firmen. Echte Ergebnisse.",
+    chapterProofLore: "Echte Founders. Echte Firmen am Shippen. Echte Ergebnisse, keine Promises.",
+    chapterProofFeature1: "Live Founder Stories",
+    chapterProofFeature2: "Echte Task Completions",
+    chapterProofFeature3: "Stunden gespart, Geld behalten",
     chapterProofCta: "Proof sehen",
+
+    chapterAccess: "Founding Seats",
+    chapterAccessLore: "Besitz einen Seat. 299 $ einmalig, kein Abo. Du bist Owner, nicht Mieter.",
+    chapterAccessFeature1: "299 $ einmalig — deins für immer",
+    chapterAccessFeature2: "Voller KI-Firmen-Access",
+    chapterAccessFeature3: "Founding Member Status",
+    chapterAccessCta: "Seat claimen",
 
     buy: "Start — 299 $ einmalig",
     lokalAudit: "Kostenloser Reputation-Check",

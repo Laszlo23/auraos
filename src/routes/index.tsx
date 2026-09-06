@@ -445,7 +445,7 @@ function Landing() {
         </div>
       </section>
 
-      {/* ACT 05 / WORLDS INSIDE AURA — Chapter cards */}
+      {/* ACT 05 / WORLDS INSIDE AURA — Deeply integrated app previews */}
       <section
         id="worlds"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-24 sm:py-32"
@@ -457,98 +457,239 @@ function Landing() {
           {t("landing.act5Title")}
         </h2>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* The Hood — Founding membership */}
           <Link
             to="/hood"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_hood" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)]"
           >
-            <span className="icon-well-gold" aria-hidden>
-              <Sparkles className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.chapterHood")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.chapterHoodLore")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
-              {t("landing.chapterHoodCta")} <ArrowRight className="h-4 w-4" />
-            </span>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <span className="icon-well-gold" aria-hidden>
+                  <Sparkles className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-gold">
+                  Collection
+                </span>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight">
+                {t("landing.chapterHood")}
+              </h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                {t("landing.chapterHoodLore")}
+              </p>
+              <ul className="mt-4 space-y-2">
+                {[
+                  t("landing.chapterHoodFeature1"),
+                  t("landing.chapterHoodFeature2"),
+                  t("landing.chapterHoodFeature3"),
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
+                    <span className="h-1 w-1 rounded-full bg-gold" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
+                {t("landing.chapterHoodCta")} <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
           </Link>
 
+          {/* Token & Ecosystem — Fair launch */}
           <Link
             to="/token"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_token" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
           >
-            <span className="icon-well-magma" aria-hidden>
-              <CircleDollarSign className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.chapterToken")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.chapterTokenLore")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
-              {t("landing.chapterTokenCta")} <ArrowRight className="h-4 w-4" />
-            </span>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <span className="icon-well-magma" aria-hidden>
+                  <CircleDollarSign className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-magma/40 bg-magma/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-magma">
+                  Fair Launch
+                </span>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight">
+                {t("landing.chapterToken")}
+              </h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                {t("landing.chapterTokenLore")}
+              </p>
+              <ul className="mt-4 space-y-2">
+                {[
+                  t("landing.chapterTokenFeature1"),
+                  t("landing.chapterTokenFeature2"),
+                  t("landing.chapterTokenFeature3"),
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
+                    <span className="h-1 w-1 rounded-full bg-magma" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
+                {t("landing.chapterTokenCta")} <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
           </Link>
 
+          {/* Aura Local — Local businesses */}
           <Link
             to="/lokal"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_lokal" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
           >
-            <span className="icon-well-neon" aria-hidden>
-              <Store className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.chapterLokal")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.chapterLokalLore")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-street-teal transition-transform group-hover:translate-x-1">
-              {t("landing.chapterLokalCta")} <ArrowRight className="h-4 w-4" />
-            </span>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <span className="icon-well-neon" aria-hidden>
+                  <Store className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-street-teal/40 bg-street-teal/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-street-teal">
+                  Local
+                </span>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight">
+                {t("landing.chapterLokal")}
+              </h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                {t("landing.chapterLokalLore")}
+              </p>
+              <ul className="mt-4 space-y-2">
+                {[
+                  t("landing.chapterLokalFeature1"),
+                  t("landing.chapterLokalFeature2"),
+                  t("landing.chapterLokalFeature3"),
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
+                    <span className="h-1 w-1 rounded-full bg-street-teal" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-street-teal transition-transform group-hover:translate-x-1">
+                {t("landing.chapterLokalCta")} <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
           </Link>
 
+          {/* Try — Interactive demo */}
           <Link
             to="/try"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_try" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.4)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.4)]"
           >
-            <span className="icon-well-neon" aria-hidden>
-              <Play className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">{t("landing.chapterTry")}</h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.chapterTryLore")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-neon-lime transition-transform group-hover:translate-x-1">
-              {t("landing.chapterTryCta")} <ArrowRight className="h-4 w-4" />
-            </span>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <span className="icon-well-neon" aria-hidden>
+                  <Play className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-neon-lime/40 bg-neon-lime/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-neon-lime">
+                  Interactive
+                </span>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight">
+                {t("landing.chapterTry")}
+              </h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                {t("landing.chapterTryLore")}
+              </p>
+              <ul className="mt-4 space-y-2">
+                {[
+                  t("landing.chapterTryFeature1"),
+                  t("landing.chapterTryFeature2"),
+                  t("landing.chapterTryFeature3"),
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
+                    <span className="h-1 w-1 rounded-full bg-neon-lime" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-neon-lime transition-transform group-hover:translate-x-1">
+                {t("landing.chapterTryCta")} <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
           </Link>
 
+          {/* Social Proof — Results */}
           <Link
             to="/proof"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_proof" })}
-            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
           >
-            <span className="icon-well-magma" aria-hidden>
-              <ChartNoAxesCombined className="h-5 w-5" />
-            </span>
-            <h3 className="mt-5 text-xl font-semibold tracking-tight">
-              {t("landing.chapterProof")}
-            </h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-              {t("landing.chapterProofLore")}
-            </p>
-            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
-              {t("landing.chapterProofCta")} <ArrowRight className="h-4 w-4" />
-            </span>
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <span className="icon-well-magma" aria-hidden>
+                  <ChartNoAxesCombined className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-magma/40 bg-magma/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-magma">
+                  Real Results
+                </span>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight">
+                {t("landing.chapterProof")}
+              </h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                {t("landing.chapterProofLore")}
+              </p>
+              <ul className="mt-4 space-y-2">
+                {[
+                  t("landing.chapterProofFeature1"),
+                  t("landing.chapterProofFeature2"),
+                  t("landing.chapterProofFeature3"),
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
+                    <span className="h-1 w-1 rounded-full bg-magma" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
+                {t("landing.chapterProofCta")} <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
+          </Link>
+
+          {/* Founding Seats — Access */}
+          <Link
+            to="/access"
+            onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_access" })}
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.5)] lg:col-span-2"
+          >
+            <div className="relative z-10">
+              <div className="flex items-start justify-between">
+                <span className="icon-well-gold" aria-hidden>
+                  <Rocket className="h-5 w-5" />
+                </span>
+                <span className="rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-gold">
+                  $299 Once
+                </span>
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight">
+                {t("landing.chapterAccess")}
+              </h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                {t("landing.chapterAccessLore")}
+              </p>
+              <ul className="mt-4 grid gap-2 sm:grid-cols-3">
+                {[
+                  t("landing.chapterAccessFeature1"),
+                  t("landing.chapterAccessFeature2"),
+                  t("landing.chapterAccessFeature3"),
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
+                    <span className="h-1 w-1 rounded-full bg-gold" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
+                {t("landing.chapterAccessCta")} <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
           </Link>
         </div>
       </section>
