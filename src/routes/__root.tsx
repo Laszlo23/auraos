@@ -223,30 +223,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
-  const locale = typeof window === "undefined" ? "en" : ensureUiLocale();
-
   return (
-    <html lang={locale} className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-(function() {
-  try {
-    var cookie = document.cookie;
-    var match = cookie.match(/(?:^|;\\s*)aura\\.ui_locale=([^;]+)/);
-    var locale = match && match[1];
-    if (locale === 'de' || locale === 'en') {
-      document.documentElement.lang = locale;
-    } else {
-      var nav = navigator.language || '';
-      document.documentElement.lang = nav.toLowerCase().startsWith('de') ? 'de' : 'en';
-    }
-  } catch (e) {}
-})();
-            `.trim(),
-          }}
-        />
         <HeadContent />
       </head>
       <body className="min-h-screen antialiased">
@@ -289,6 +268,7 @@ function RootChrome() {
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+        suppressHydrationWarning
       >
         {t("common.skip")}
       </a>

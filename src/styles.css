@@ -69,6 +69,12 @@
   --color-hood-stage: var(--hood-stage);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-neon-lime: var(--neon-lime);
+  --color-magma: var(--magma);
+  --color-magma-dark: var(--magma-dark);
+  --color-street-teal: var(--street-teal);
+  --color-burgundy: var(--burgundy);
+  --color-charcoal: var(--charcoal);
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
@@ -78,27 +84,35 @@
 :root {
   --radius: 1.2rem;
 
-  /* Dark first: deeper stage, richer chroma — cinematic OS */
-  --background: oklch(0.11 0.024 268);
+  /* BAYC-style dark: charcoal base with depth */
+  --background: oklch(0.09 0.018 268);
   --foreground: oklch(0.985 0.006 250);
 
-  --surface: oklch(0.19 0.028 268 / 68%);
-  --surface-2: oklch(0.23 0.03 268 / 55%);
+  --surface: oklch(0.15 0.022 268 / 75%);
+  --surface-2: oklch(0.19 0.025 268 / 62%);
 
-  --card: oklch(0.19 0.028 268 / 68%);
+  --card: oklch(0.15 0.022 268 / 75%);
   --card-foreground: oklch(0.985 0.006 250);
-  --popover: oklch(0.15 0.024 268);
+  --popover: oklch(0.12 0.02 268);
   --popover-foreground: oklch(0.985 0.006 250);
 
-  /* Accent 1 — electric cyan (intelligence) */
-  --primary: oklch(0.87 0.16 196);
-  --primary-foreground: oklch(0.14 0.04 230);
-  --glow: oklch(0.87 0.16 196 / 58%);
+  /* Accent 1 — electric neon lime (crypto energy) */
+  --primary: oklch(0.91 0.22 130);
+  --primary-foreground: oklch(0.12 0.04 130);
+  --glow: oklch(0.91 0.22 130 / 65%);
 
-  /* Accent 2 — warm amber (revenue) */
-  --gold: oklch(0.87 0.17 76);
-  --gold-foreground: oklch(0.16 0.05 60);
-  --gold-muted: oklch(0.72 0.1 76);
+  /* Accent 2 — magma gold (boss premium) */
+  --gold: oklch(0.82 0.19 65);
+  --gold-foreground: oklch(0.12 0.04 60);
+  --gold-muted: oklch(0.68 0.14 68);
+
+  /* BAYC Palette Extension */
+  --neon-lime: oklch(0.91 0.22 130);
+  --magma: oklch(0.68 0.21 38);
+  --magma-dark: oklch(0.42 0.18 32);
+  --street-teal: oklch(0.72 0.15 195);
+  --burgundy: oklch(0.32 0.14 18);
+  --charcoal: oklch(0.18 0.015 268);
 
   /* Luxury neutrals — editorial accents */
   --ivory: oklch(0.96 0.012 85);
@@ -340,17 +354,19 @@
 @utility text-money {
   background: linear-gradient(
     105deg,
-    var(--primary) 0%,
-    color-mix(in oklab, var(--primary) 50%, var(--gold)) 40%,
-    var(--gold) 62%,
-    color-mix(in oklab, var(--primary) 70%, white) 78%,
-    var(--primary) 100%
+    var(--neon-lime) 0%,
+    var(--gold) 35%,
+    var(--magma) 55%,
+    var(--gold) 75%,
+    var(--neon-lime) 100%
   );
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   animation: money-flow 7s ease-in-out infinite;
+  font-weight: 900;
+  text-shadow: 0 0 40px color-mix(in oklab, var(--neon-lime) 45%, transparent);
 }
 
 @utility display-hero {
@@ -402,14 +418,19 @@
 @utility stage-atmosphere {
   background:
     radial-gradient(
-      ellipse 80% 55% at 18% 12%,
-      color-mix(in oklab, var(--primary) 14%, transparent),
-      transparent 58%
+      ellipse 85% 60% at 20% 10%,
+      color-mix(in oklab, var(--neon-lime) 18%, transparent),
+      transparent 62%
     ),
     radial-gradient(
-      ellipse 55% 45% at 88% 78%,
-      color-mix(in oklab, var(--gold) 10%, transparent),
-      transparent 60%
+      ellipse 70% 50% at 85% 75%,
+      color-mix(in oklab, var(--magma) 16%, transparent),
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 50% 50%,
+      color-mix(in oklab, var(--burgundy) 25%, transparent),
+      transparent 55%
     ),
     var(--background);
 }
@@ -515,6 +536,91 @@
   background: color-mix(in oklab, var(--gold) 14%, transparent);
   color: var(--gold);
   box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 28%, transparent);
+}
+
+@utility icon-well-neon {
+  display: grid;
+  place-items: center;
+  height: 2.75rem;
+  width: 2.75rem;
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--neon-lime) 16%, transparent);
+  color: var(--neon-lime);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--neon-lime) 32%, transparent);
+}
+
+@utility icon-well-magma {
+  display: grid;
+  place-items: center;
+  height: 2.75rem;
+  width: 2.75rem;
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--magma) 18%, transparent);
+  color: var(--magma);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--magma) 35%, transparent);
+}
+
+@utility street-panel {
+  border-radius: 1.5rem;
+  border: 2px solid color-mix(in oklab, var(--neon-lime) 35%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--charcoal) 80%, transparent) 0%,
+    color-mix(in oklab, var(--burgundy) 25%, var(--charcoal)) 100%
+  );
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--neon-lime) 12%, transparent),
+    0 8px 32px -8px color-mix(in oklab, var(--neon-lime) 35%, transparent),
+    inset 0 1px 0 color-mix(in oklab, var(--neon-lime) 18%, transparent);
+}
+
+@utility boss-cta {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.2rem;
+  border: 2px solid var(--neon-lime);
+  background: linear-gradient(135deg, var(--magma-dark) 0%, var(--magma) 100%);
+  color: var(--foreground);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow:
+    0 0 32px color-mix(in oklab, var(--neon-lime) 55%, transparent),
+    0 8px 24px -6px color-mix(in oklab, var(--magma) 65%, transparent),
+    inset 0 1px 0 color-mix(in oklab, var(--neon-lime) 45%, transparent);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.boss-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 0 48px color-mix(in oklab, var(--neon-lime) 75%, transparent),
+    0 12px 36px -8px color-mix(in oklab, var(--magma) 80%, transparent),
+    inset 0 1px 0 color-mix(in oklab, var(--neon-lime) 65%, transparent);
+}
+
+.boss-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    color-mix(in oklab, var(--neon-lime) 35%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: street-shine 3s ease-in-out infinite;
+}
+
+@keyframes street-shine {
+  0%,
+  100% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(200%);
+  }
 }
 
 @utility austria-bar {

@@ -287,6 +287,88 @@ export const en: MessageTree = {
     hero2: "Get your evenings back.",
     blurb:
       "Your AI staff draft the follow-ups, posts, and research. You approve in minutes. Hours back every day — money stays yours.",
+    crew: "The Crew",
+
+    // Narrative acts
+    act1: "01 / THE HOOK",
+    act1Promise: "You're the owner. AI does the work. You keep the upside.",
+
+    act2: "02 / THE PROBLEM",
+    act2Title: "Tools don't run your company",
+    act2Body:
+      "You lose hours in tools, spreadsheets, and busywork. Photos on Instagram don't draft follow-ups or pitch leads — and you're doing a job instead of owning a business.",
+
+    act3: "03 / THE TWIST",
+    act3Title: "You don't manage software",
+    act3Subtitle: "You own an AI company",
+    act3Body:
+      "Aura OS is the operating system. You're the founder. AI employees draft pitches, book posts, follow up, qualify leads. You approve spend and outbound. They execute — and you keep the money.",
+
+    act4: "04 / THE MACHINE",
+    act4Title: "How it works",
+    act4Step1: "Claim a founding seat",
+    act4Step1Body: "$299 once. No subscription. You're an owner.",
+    act4Step2: "Your AI company wakes",
+    act4Step2Body: "Describe your business in plain words. The AI crew gets briefed.",
+    act4Step3: "They work. You approve.",
+    act4Step3Body: "Drafts, pitches, posts, follow-ups. You tap yes or no.",
+    act4Step4: "You get hours back",
+    act4Step4Body: "Every day. Real work ships. Money stays yours.",
+
+    act5: "05 / WORLDS INSIDE AURA",
+    act5Title: "The full story",
+
+    act6: "06 / FAIR LAUNCH",
+    act6Title: "Launching soon",
+    act6Body: "Token and ecosystem. No pre-mine, no VC dump. Real company, real launch.",
+
+    act7: "07 / CLAIM YOUR SEAT",
+    act7Title: "Own a company. Not another subscription.",
+    act7Body: "Founding seats $299 once. AI does the work. You approve and own the upside.",
+
+    // Chapter cards — deeper integration
+    chapterHood: "The Hood",
+    chapterHoodLore: "Where the crew lives. Founding membership, exclusive drops, street premium.",
+    chapterHoodFeature1: "Founding NFT Collection",
+    chapterHoodFeature2: "Exclusive member perks",
+    chapterHoodFeature3: "Early access to drops",
+    chapterHoodCta: "Enter the Hood",
+
+    chapterToken: "Token & Ecosystem",
+    chapterTokenLore: "Fair launch. Community-owned. Real tokenomics, no VC dump.",
+    chapterTokenFeature1: "Fair launch — no pre-mine",
+    chapterTokenFeature2: "Community governance",
+    chapterTokenFeature3: "Transparent tokenomics",
+    chapterTokenCta: "Read tokenomics",
+
+    chapterLokal: "Aura Local",
+    chapterLokalLore: "Real customers walk in. AI handles follow-ups, reviews, repeat visits.",
+    chapterLokalFeature1: "Guest check-in & follow-up",
+    chapterLokalFeature2: "Real review invitations",
+    chapterLokalFeature3: "Local SEO & reputation",
+    chapterLokalCta: "For local shops",
+
+    chapterTry: "Try it live",
+    chapterTryLore: "See your AI company wake. Test the briefing, drafts, and approval flow.",
+    chapterTryFeature1: "Interactive AI briefing",
+    chapterTryFeature2: "Draft & approve workflow",
+    chapterTryFeature3: "See it work before you buy",
+    chapterTryCta: "Live demo",
+
+    chapterProof: "Social Proof",
+    chapterProofLore: "Real founders. Real companies shipping. Real results, not promises.",
+    chapterProofFeature1: "Live founder stories",
+    chapterProofFeature2: "Real task completions",
+    chapterProofFeature3: "Hours saved, money kept",
+    chapterProofCta: "See proof",
+
+    chapterAccess: "Founding Seats",
+    chapterAccessLore: "Own a seat. $299 once, no subscription. You're an owner, not a renter.",
+    chapterAccessFeature1: "$299 once — yours forever",
+    chapterAccessFeature2: "Full AI company access",
+    chapterAccessFeature3: "Founding member status",
+    chapterAccessCta: "Claim your seat",
+
     buy: "Start — $299 once",
     lokalAudit: "Free reputation check",
     watch: "Watch 15s",
@@ -519,8 +601,7 @@ export const en: MessageTree = {
     liveLatest: "Latest activity",
     liveEmpty: "No public activity in this window yet — zeros stay zeros.",
     liveShare: "Share live proof",
-    liveSharePlain:
-      "Aura OS is live — autonomous AI companies with public proof of work.",
+    liveSharePlain: "Aura OS is live — autonomous AI companies with public proof of work.",
     liveShareStat: "Aura OS live network: {stat}. Real ledger receipts, not pitch theater.",
     days: "Days",
     hours: "Hours",
@@ -942,7 +1023,8 @@ export const en: MessageTree = {
   settings: {
     eyebrow: "Identity",
     title: "How your company behaves",
-    description: "Everything here changes how the agents reason — not just what the interface says.",
+    description:
+      "Everything here changes how the agents reason — not just what the interface says.",
     company: "Company",
     companyHint: "Shown to every agent in every prompt",
     name: "Name",

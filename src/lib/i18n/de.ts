@@ -37,8 +37,7 @@ export const de: MessageTree = {
   },
   progress: {
     rep: "REP",
-    repHint:
-      "Beitrags-Währung — verdient durch bestätigte Check-ins, Missionen und Scout-Arbeit.",
+    repHint: "Beitrags-Währung — verdient durch bestätigte Check-ins, Missionen und Scout-Arbeit.",
     repNotProduct:
       "Nicht dasselbe wie Aura Reputation (das Local-SaaS-Produkt) oder dein Firmen-Ops-Score.",
   },
@@ -290,6 +289,89 @@ export const de: MessageTree = {
     hero2: "Hol dir die Abende zurück.",
     blurb:
       "Dein KI-Team entwirft Follow-ups, Posts und Recherche. Du gibst in Minuten frei. Jeden Tag Stunden zurück — das Geld bleibt bei dir.",
+    crew: "Die Crew",
+
+    // Narrative acts
+    act1: "01 / DER HOOK",
+    act1Promise: "Du bist der Owner. KI macht die Arbeit. Du behältst den Upside.",
+
+    act2: "02 / DAS PROBLEM",
+    act2Title: "Tools führen nicht deine Firma",
+    act2Body:
+      "Du verlierst Stunden in Tools, Sheets und Busywork. Fotos auf Instagram schreiben keine Follow-ups und pitchen keine Leads — und du machst einen Job statt ein Business zu besitzen.",
+
+    act3: "03 / DIE WENDE",
+    act3Title: "Du managst keine Software",
+    act3Subtitle: "Du besitzt eine KI-Firma",
+    act3Body:
+      "Aura OS ist das Betriebssystem. Du bist der Founder. KI-Mitarbeiter entwerfen Pitches, buchen Posts, followen up, qualifizieren Leads. Du genehmigst Spend und Outbound. Sie führen aus — und du behältst das Geld.",
+
+    act4: "04 / DIE MASCHINE",
+    act4Title: "So läuft's",
+    act4Step1: "Founding-Seat claimen",
+    act4Step1Body: "299 $ einmalig. Kein Abo. Du bist Owner.",
+    act4Step2: "Deine KI-Firma erwacht",
+    act4Step2Body: "Beschreib dein Business in normalen Worten. Die KI-Crew wird gebrieft.",
+    act4Step3: "Sie arbeiten. Du genehmigst.",
+    act4Step3Body: "Drafts, Pitches, Posts, Follow-ups. Du tippst Ja oder Nein.",
+    act4Step4: "Du kriegst Stunden zurück",
+    act4Step4Body: "Jeden Tag. Echte Arbeit geht raus. Geld bleibt bei dir.",
+
+    act5: "05 / WELTEN IN AURA",
+    act5Title: "Die ganze Story",
+
+    act6: "06 / FAIR LAUNCH",
+    act6Title: "Launch bald",
+    act6Body: "Token und Ökosystem. Kein Pre-Mine, kein VC-Dump. Echte Firma, echter Launch.",
+
+    act7: "07 / CLAIM DEINEN SEAT",
+    act7Title: "Eine Firma besitzen. Kein weiteres Abo.",
+    act7Body:
+      "Founding-Seats 299 $ einmalig. KI macht die Arbeit. Du genehmigst und besitzt den Upside.",
+
+    // Chapter cards — deeper integration
+    chapterHood: "The Hood",
+    chapterHoodLore: "Wo die Crew lebt. Founding-Membership, exklusive Drops, Street Premium.",
+    chapterHoodFeature1: "Founding NFT Collection",
+    chapterHoodFeature2: "Exklusive Member-Perks",
+    chapterHoodFeature3: "Early Access zu Drops",
+    chapterHoodCta: "Hood betreten",
+
+    chapterToken: "Token & Ökosystem",
+    chapterTokenLore: "Fair Launch. Community-owned. Echte Tokenomics, kein VC-Dump.",
+    chapterTokenFeature1: "Fair Launch — kein Pre-Mine",
+    chapterTokenFeature2: "Community Governance",
+    chapterTokenFeature3: "Transparente Tokenomics",
+    chapterTokenCta: "Tokenomics lesen",
+
+    chapterLokal: "Aura Local",
+    chapterLokalLore: "Echte Kunden kommen rein. KI macht Follow-ups, Reviews, Repeat Visits.",
+    chapterLokalFeature1: "Gast-Check-in & Follow-up",
+    chapterLokalFeature2: "Echte Review-Einladungen",
+    chapterLokalFeature3: "Lokales SEO & Reputation",
+    chapterLokalCta: "Für Lokale",
+
+    chapterTry: "Live testen",
+    chapterTryLore: "Sieh deine KI-Firma erwachen. Test Briefing, Drafts und Approval-Flow.",
+    chapterTryFeature1: "Interaktives KI-Briefing",
+    chapterTryFeature2: "Draft & Approve Workflow",
+    chapterTryFeature3: "Testen vor dem Kauf",
+    chapterTryCta: "Live-Demo",
+
+    chapterProof: "Social Proof",
+    chapterProofLore: "Echte Founders. Echte Firmen am Shippen. Echte Ergebnisse, keine Promises.",
+    chapterProofFeature1: "Live Founder Stories",
+    chapterProofFeature2: "Echte Task Completions",
+    chapterProofFeature3: "Stunden gespart, Geld behalten",
+    chapterProofCta: "Proof sehen",
+
+    chapterAccess: "Founding Seats",
+    chapterAccessLore: "Besitz einen Seat. 299 $ einmalig, kein Abo. Du bist Owner, nicht Mieter.",
+    chapterAccessFeature1: "299 $ einmalig — deins für immer",
+    chapterAccessFeature2: "Voller KI-Firmen-Access",
+    chapterAccessFeature3: "Founding Member Status",
+    chapterAccessCta: "Seat claimen",
+
     buy: "Start — 299 $ einmalig",
     lokalAudit: "Kostenloser Reputation-Check",
     watch: "15 Sekunden",
@@ -523,10 +605,8 @@ export const de: MessageTree = {
     liveLatest: "Letzte Aktivität",
     liveEmpty: "In diesem Fenster noch keine öffentliche Aktivität — Null bleibt Null.",
     liveShare: "Live-Proof teilen",
-    liveSharePlain:
-      "Aura OS ist live — autonome AI-Firmen mit öffentlichem Proof of Work.",
-    liveShareStat:
-      "Aura OS Live-Netzwerk: {stat}. Echte Ledger-Belege, kein Pitch-Theater.",
+    liveSharePlain: "Aura OS ist live — autonome AI-Firmen mit öffentlichem Proof of Work.",
+    liveShareStat: "Aura OS Live-Netzwerk: {stat}. Echte Ledger-Belege, kein Pitch-Theater.",
     days: "Tage",
     hours: "Stunden",
     mins: "Min",
@@ -600,8 +680,7 @@ export const de: MessageTree = {
       "Einmal 299 $ — Karte oder digitale Zahlung. KI-Firma wecken. Danach bekommst du einen simplen Invite-Link zum Teilen — Freunde zahlen trotzdem 299 $; du verdienst in-app Gutschrift.",
     friendCode: "Freundes-Code angehängt",
     buyLabel: "Jetzt kaufen",
-    buyBlurb:
-      "Anmelden → 299 $ zahlen → Seat wird freigeschaltet. Das ist die ganze Tür.",
+    buyBlurb: "Anmelden → 299 $ zahlen → Seat wird freigeschaltet. Das ist die ganze Tür.",
     buyCta: "Karte — 299 $",
     buyCryptoCta: "Digitale Zahlung — 299 $",
     buyCryptoGo: "Digital zahlen",
@@ -950,8 +1029,7 @@ export const de: MessageTree = {
   settings: {
     eyebrow: "Identität",
     title: "So verhält sich deine Firma",
-    description:
-      "Hier änderst du, wie Agenten denken — nicht nur, was die Oberfläche sagt.",
+    description: "Hier änderst du, wie Agenten denken — nicht nur, was die Oberfläche sagt.",
     company: "Firma",
     companyHint: "Steht in jedem Agenten-Prompt",
     name: "Name",

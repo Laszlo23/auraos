@@ -36,6 +36,25 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-06-landing-narrative-redesign",
+    date: "2026-09-06",
+    title: "Landing page: cinematic 7-act storytelling + BAYC street premium redesign",
+    summary:
+      "Complete landing redesign with premium crypto/street NFT aesthetic (BAYC energy), cinematic narrative structure, and deeply integrated app world previews. Includes ape crew mascots, stability fixes, and full EN/DE i18n.",
+    items: [
+      "Visual redesign: neon lime / magma orange / gold / deep red / teal accents on dark charcoal base",
+      "BAYC-style ape crew: 6 mascot PNGs in hero (public/brand/apes/) with premium styling",
+      "Cinematic 7-act structure: Hook → Problem → Twist → Machine → Worlds → Fair Launch → Claim",
+      "ACT 05 deeply integrates app worlds: Hood, Token, Lokal, Try, Proof, Access with mini feature previews",
+      "Each world shows 2–3 concrete product features, not just link cards",
+      "Stability fixes: Supabase soft-fail (no-op client when env missing), hydration-safe locale (SSR always EN)",
+      "New utility classes: boss-cta, street-panel, icon-well-neon/magma/gold for consistent premium styling",
+      "Full EN/DE i18n for narrative copy and app integration features",
+      "Mobile-first design with horizontal scroll for crew, responsive world cards",
+    ],
+    tags: ["feature", "improvement", "fix"],
+  },
+  {
     id: "2026-09-05-proof-share",
     date: "2026-09-05",
     title: "Readable proof on mobile + share composers that open filled",
