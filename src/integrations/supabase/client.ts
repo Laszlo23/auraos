@@ -42,8 +42,10 @@ function createSupabaseClient() {
       ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    console.warn(`[Supabase] ${message} — returning no-op client for local development`);
+
+    // Return a no-op client that doesn't crash marketing pages when env is missing
+    return createNoOpSupabaseClient();
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -58,6 +60,74 @@ function createSupabaseClient() {
       flowType: "pkce",
     },
   });
+}
+
+function createNoOpSupabaseClient() {
+  // Minimal no-op client that returns safe responses without throwing
+  const noOpPromise = Promise.resolve({ data: null, error: null });
+  const noOpBuilder = {
+    select: () => noOpBuilder,
+    insert: () => noOpBuilder,
+    update: () => noOpBuilder,
+    delete: () => noOpBuilder,
+    upsert: () => noOpBuilder,
+    eq: () => noOpBuilder,
+    neq: () => noOpBuilder,
+    gt: () => noOpBuilder,
+    gte: () => noOpBuilder,
+    lt: () => noOpBuilder,
+    lte: () => noOpBuilder,
+    like: () => noOpBuilder,
+    ilike: () => noOpBuilder,
+    is: () => noOpBuilder,
+    in: () => noOpBuilder,
+    contains: () => noOpBuilder,
+    containedBy: () => noOpBuilder,
+    filter: () => noOpBuilder,
+    match: () => noOpBuilder,
+    not: () => noOpBuilder,
+    or: () => noOpBuilder,
+    order: () => noOpBuilder,
+    limit: () => noOpBuilder,
+    range: () => noOpBuilder,
+    abortSignal: () => noOpBuilder,
+    single: () => noOpPromise,
+    maybeSingle: () => noOpPromise,
+    then: (resolve: (value: { data: null; error: null }) => unknown) =>
+      resolve({ data: null, error: null }),
+    catch: () => noOpPromise,
+  };
+
+  return {
+    from: () => noOpBuilder,
+    rpc: () => noOpPromise,
+    channel: () => ({
+      on: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    }),
+    auth: {
+      getSession: () => noOpPromise,
+      getUser: () => noOpPromise,
+      signInWithPassword: () => noOpPromise,
+      signInWithOAuth: () => noOpPromise,
+      signUp: () => noOpPromise,
+      signOut: () => noOpPromise,
+      resetPasswordForEmail: () => noOpPromise,
+      updateUser: () => noOpPromise,
+      setSession: () => noOpPromise,
+      refreshSession: () => noOpPromise,
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    },
+    storage: {
+      from: () => ({
+        upload: () => noOpPromise,
+        download: () => noOpPromise,
+        getPublicUrl: () => ({ data: { publicUrl: "" } }),
+        remove: () => noOpPromise,
+        list: () => noOpPromise,
+        createSignedUrl: () => noOpPromise,
+      }),
+    },
+  } as unknown as ReturnType<typeof createClient<Database>>;
 }
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
