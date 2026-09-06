@@ -184,7 +184,7 @@ function Landing() {
           data-tour="hero"
           className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-16 pt-28 sm:pb-24 sm:pt-24"
         >
-          <h1 className="display-hero luxury-reveal max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_8px_40px_oklch(0_0_0_/_0.55)]">
+          <h1 className="display-hero luxury-reveal max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_12px_48px_oklch(0_0_0_/_0.75)]">
             <WordReveal text={t("landing.hero1")} delay={0.06} />
             <br />
             <motion.span
@@ -192,6 +192,9 @@ function Landing() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className="text-money inline-block"
+              style={{
+                textShadow: "0 0 60px rgba(207, 255, 4, 0.5), 0 0 30px rgba(255, 107, 0, 0.4)",
+              }}
             >
               {t("landing.hero2")}
             </motion.span>
@@ -201,18 +204,20 @@ function Landing() {
             initial={{ y: 16 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.9, delay: 0.55 }}
-            className="mt-7 max-w-md text-[16px] leading-relaxed text-foreground/82 sm:text-[17px]"
+            className="mt-7 max-w-md text-[17px] font-semibold leading-relaxed text-foreground/90 sm:text-[18px]"
           >
             {t("landing.blurb")}
           </motion.p>
-          <motion.p
+          <motion.div
             initial={{ y: 10 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.8, delay: 0.62 }}
-            className="mt-3 max-w-lg text-[13px] font-semibold uppercase tracking-[0.14em] text-gold"
+            className="mt-4 inline-block rounded-full border-2 border-neon-lime/40 bg-neon-lime/10 px-5 py-2 backdrop-blur-sm"
           >
-            {t("landing.categoryLine")}
-          </motion.p>
+            <p className="text-[12px] font-black uppercase tracking-[0.16em] text-neon-lime">
+              {t("landing.categoryLine")}
+            </p>
+          </motion.div>
 
           <motion.div
             initial={{ y: 12, opacity: 0 }}
@@ -233,9 +238,11 @@ function Landing() {
               <Link
                 to="/access"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_buy_seat" })}
-                className="cta-liquid cta-magnetic flex items-center justify-center gap-2 rounded-2xl bg-primary px-9 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+                className="boss-cta flex items-center justify-center gap-3 px-10 py-5 text-base"
               >
-                {t("landing.buy")} <ArrowRight className="h-4 w-4" />
+                <Sparkles className="h-5 w-5" />
+                {t("landing.buy")}
+                <ArrowRight className="h-5 w-5" />
               </Link>
               <button
                 type="button"
@@ -243,36 +250,35 @@ function Landing() {
                   trackTeaser("open", { placement: "hero" });
                   setTeaserOpen(true);
                 }}
-                className="group flex items-center justify-center gap-2.5 rounded-2xl border border-white/12 bg-background/35 px-7 py-4 text-sm font-semibold backdrop-blur-md transition-all hover:border-primary/40 hover:bg-foreground/[0.08]"
+                className="group flex items-center justify-center gap-3 rounded-2xl border-2 border-street-teal/50 bg-charcoal/80 px-8 py-4 text-base font-bold uppercase tracking-wide text-street-teal backdrop-blur-md transition-all hover:border-street-teal hover:bg-charcoal hover:shadow-[0_0_32px_rgba(114,223,221,0.4)]"
               >
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/18 text-primary shadow-[0_0_20px_-6px_var(--glow)] transition-transform group-hover:scale-110">
-                  <Play className="h-3 w-3 fill-current" />
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-street-teal/20 text-street-teal shadow-[0_0_24px_-6px_var(--street-teal)] transition-transform group-hover:scale-110">
+                  <Play className="h-4 w-4 fill-current" />
                 </span>
                 {t("landing.watch")}
               </button>
             </div>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
               <Link
                 to="/try"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_try" })}
-                className="inline-flex items-center gap-1.5 text-[14px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                className="inline-flex items-center gap-2 text-[15px] font-bold text-neon-lime underline-offset-4 transition-all hover:text-neon-lime/80 hover:underline hover:drop-shadow-[0_0_8px_rgba(207,255,4,0.6)]"
               >
-                {t("landing.tryCta")} <ArrowRight className="h-3.5 w-3.5" />
+                {t("landing.tryCta")} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/token"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_token" })}
-                className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-primary underline-offset-4 transition-colors hover:underline"
+                className="inline-flex items-center gap-2 text-[15px] font-bold text-magma underline-offset-4 transition-all hover:underline hover:drop-shadow-[0_0_8px_rgba(255,107,0,0.6)]"
               >
                 {t("landing.tokenOnlyCta")}
               </Link>
               <Link
                 to="/hood"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_hood" })}
-                className="jewel inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[13px] font-semibold text-gold underline-offset-4 transition-colors hover:bg-gold/15"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-gold/60 bg-gradient-to-r from-gold/20 to-magma/15 px-4 py-2 text-[14px] font-black uppercase tracking-wide text-gold shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all hover:border-gold hover:bg-gold/25 hover:shadow-[0_0_32px_rgba(255,215,0,0.5)]"
               >
-                {t("landing.navHood")} · {t("landing.hoodCue")}{" "}
-                <ArrowRight className="h-3.5 w-3.5" />
+                {t("landing.navHood")} · {t("landing.hoodCue")} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </motion.div>
@@ -292,19 +298,21 @@ function Landing() {
         id="savings"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-20 sm:py-28"
       >
-        <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-          {t("landing.saveKicker")}
-        </p>
-        <h2 className="display-hero mt-4 max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)]">
+        <div className="inline-block rounded-full border-2 border-magma/50 bg-magma/15 px-4 py-2">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-magma">
+            {t("landing.saveKicker")}
+          </p>
+        </div>
+        <h2 className="display-hero mt-6 max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
           {t("landing.saveTitle")}
         </h2>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
           {t("landing.saveBody")}
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          <div className="glass rounded-[1.5rem] p-6">
-            <span className="icon-well" aria-hidden>
-              <Clock className="h-4 w-4" />
+          <div className="street-panel p-6">
+            <span className="icon-well-neon" aria-hidden>
+              <Clock className="h-5 w-5" />
             </span>
             <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               {t("landing.saveTimeLabel")}
@@ -316,9 +324,9 @@ function Landing() {
               {t("landing.saveTimeHint")}
             </p>
           </div>
-          <div className="glass rounded-[1.5rem] p-6">
-            <span className="icon-well" aria-hidden>
-              <CircleDollarSign className="h-4 w-4" />
+          <div className="street-panel p-6">
+            <span className="icon-well-magma" aria-hidden>
+              <CircleDollarSign className="h-5 w-5" />
             </span>
             <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               {t("landing.saveMoneyLabel")}
@@ -330,9 +338,9 @@ function Landing() {
               {t("landing.saveMoneyHint", { rate: SAVINGS.hourlyValueEur })}
             </p>
           </div>
-          <div className="glass rounded-[1.5rem] p-6">
+          <div className="street-panel p-6">
             <span className="icon-well-gold" aria-hidden>
-              <ChartNoAxesCombined className="h-4 w-4" />
+              <ChartNoAxesCombined className="h-5 w-5" />
             </span>
             <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               {t("landing.saveMonthLabel")}
@@ -361,10 +369,12 @@ function Landing() {
         id="start"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-24 sm:py-32"
       >
-        <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-          {t("landing.audienceKicker")}
-        </p>
-        <h2 className="display-hero mt-4 max-w-3xl text-[clamp(2.2rem,6vw,3.8rem)]">
+        <div className="inline-block rounded-full border-2 border-neon-lime/50 bg-neon-lime/15 px-4 py-2">
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-neon-lime">
+            {t("landing.audienceKicker")}
+          </p>
+        </div>
+        <h2 className="display-hero mt-6 max-w-3xl text-[clamp(2.2rem,6vw,3.8rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
           {t("landing.audienceTitle")}
         </h2>
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -372,10 +382,10 @@ function Landing() {
             to="/auth"
             search={{ mode: "signup" }}
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_os" })}
-            className="glass hover-lift group rounded-[1.65rem] p-6"
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.4)]"
           >
-            <span className="icon-well" aria-hidden>
-              <Rocket className="h-4 w-4" />
+            <span className="icon-well-neon" aria-hidden>
+              <Rocket className="h-5 w-5" />
             </span>
             <h3 className="mt-5 text-xl font-semibold tracking-tight">
               {t("landing.audienceOsTitle")}
@@ -383,17 +393,17 @@ function Landing() {
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
               {t("landing.audienceOsBody")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
-              {t("landing.audienceOsCta")} <ArrowRight className="h-3.5 w-3.5" />
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-neon-lime transition-transform group-hover:translate-x-1">
+              {t("landing.audienceOsCta")} <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
           <Link
             to="/lokal"
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_lokal" })}
-            className="glass hover-lift group rounded-[1.65rem] p-6"
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
           >
-            <span className="icon-well" aria-hidden>
-              <Store className="h-4 w-4" />
+            <span className="icon-well-magma" aria-hidden>
+              <Store className="h-5 w-5" />
             </span>
             <h3 className="mt-5 text-xl font-semibold tracking-tight">
               {t("landing.audienceLokalTitle")}
@@ -401,17 +411,17 @@ function Landing() {
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
               {t("landing.audienceLokalBody")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
-              {t("landing.audienceLokalCta")} <ArrowRight className="h-3.5 w-3.5" />
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
+              {t("landing.audienceLokalCta")} <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
           <Link
             to="/for/builders"
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_builders" })}
-            className="glass hover-lift group rounded-[1.65rem] p-6"
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
           >
             <span className="icon-well" aria-hidden>
-              <Palette className="h-4 w-4" />
+              <Palette className="h-5 w-5" />
             </span>
             <h3 className="mt-5 text-xl font-semibold tracking-tight">
               {t("landing.audienceBuildersTitle")}
@@ -419,17 +429,17 @@ function Landing() {
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
               {t("landing.audienceBuildersBody")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-transform group-hover:translate-x-0.5">
-              {t("landing.audienceBuildersCta")} <ArrowRight className="h-3.5 w-3.5" />
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-street-teal transition-transform group-hover:translate-x-1">
+              {t("landing.audienceBuildersCta")} <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
           <Link
             to="/token"
             onClick={() => trackTeaser("cta_click", { placement: "landing_audience_aura" })}
-            className="glass hover-lift group rounded-[1.65rem] p-6"
+            className="street-panel group p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)]"
           >
             <span className="icon-well-gold" aria-hidden>
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-5 w-5" />
             </span>
             <h3 className="mt-5 text-xl font-semibold tracking-tight">
               {t("landing.audienceAuraTitle")}
@@ -437,8 +447,8 @@ function Landing() {
             <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
               {t("landing.audienceAuraBody")}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-gold transition-transform group-hover:translate-x-0.5">
-              {t("landing.audienceAuraCta")} <ArrowRight className="h-3.5 w-3.5" />
+            <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
+              {t("landing.audienceAuraCta")} <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
         </div>
@@ -461,10 +471,12 @@ function Landing() {
         className="relative z-10 mx-auto max-w-6xl scroll-mt-24 px-6 py-24 sm:py-32"
       >
         <div className="mb-10 max-w-2xl">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
-            {t("landing.howCue")}
-          </p>
-          <h2 className="display-hero mt-3 text-[clamp(1.9rem,5.2vw,3.2rem)]">
+          <div className="inline-block rounded-full border-2 border-street-teal/50 bg-street-teal/15 px-4 py-2">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-street-teal">
+              {t("landing.howCue")}
+            </p>
+          </div>
+          <h2 className="display-hero mt-4 text-[clamp(1.9rem,5.2vw,3.2rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
             {t("landing.howTitle")}
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
@@ -479,20 +491,20 @@ function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ delay: i * 0.07, duration: 0.55 }}
-              className="glass hover-lift relative rounded-3xl px-4 py-5"
+              className="street-panel relative px-4 py-5 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.3)]"
             >
               {i < LOOP.length - 1 ? (
                 <span
                   aria-hidden
-                  className="absolute -right-2 top-1/2 z-[1] hidden -translate-y-1/2 text-primary/55 sm:block"
+                  className="absolute -right-2 top-1/2 z-[1] hidden -translate-y-1/2 text-[24px] font-black text-neon-lime/70 sm:block"
                 >
                   →
                 </span>
               ) : null}
-              <span className="icon-well" aria-hidden>
-                <l.icon className="h-4 w-4" />
+              <span className={i % 2 === 0 ? "icon-well-neon" : "icon-well-magma"} aria-hidden>
+                <l.icon className="h-5 w-5" />
               </span>
-              <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+              <p className="mt-4 text-[11px] font-black uppercase tracking-[0.24em] text-neon-lime">
                 {String(i + 1).padStart(2, "0")} · {t(l.step)}
               </p>
               <p className="mt-2 text-[13px] leading-snug text-muted-foreground">{t(l.body)}</p>
@@ -504,9 +516,11 @@ function Landing() {
           <Link
             to="/access"
             onClick={() => trackTeaser("cta_click", { placement: "landing_how_earn" })}
-            className="cta-liquid cta-magnetic inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+            className="boss-cta inline-flex items-center justify-center gap-3 px-8 py-4"
           >
-            {t("landing.howSeatsCta")} <ArrowRight className="h-4 w-4" />
+            <Rocket className="h-5 w-5" />
+            {t("landing.howSeatsCta")}
+            <ArrowRight className="h-5 w-5" />
           </Link>
           <Link
             to="/how-it-works"
@@ -526,11 +540,11 @@ function Landing() {
         className="relative z-10 border-y border-primary/12 bg-gradient-to-b from-primary/[0.08] via-transparent to-gold/[0.04]"
       >
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <h2 className="display-hero text-[clamp(2rem,6vw,3.2rem)]">
+          <h2 className="display-hero text-[clamp(2rem,6vw,3.2rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
             {t("landing.launchTitle")}
-            <span className="mt-2 flex items-center gap-3 text-primary">
-              <span className="icon-well shrink-0" aria-hidden>
-                <Rocket className="h-4 w-4" />
+            <span className="mt-3 flex items-center gap-3 text-money">
+              <span className="icon-well-neon shrink-0" aria-hidden>
+                <Rocket className="h-5 w-5" />
               </span>
               {t("landing.launchLine")}
             </span>
@@ -551,10 +565,12 @@ function Landing() {
         className="relative z-10 mx-auto grid max-w-6xl scroll-mt-20 gap-6 px-6 pb-24 pt-8 lg:grid-cols-[1.05fr_1fr]"
       >
         <div className="flex flex-col justify-center">
-          <h2 className="display-hero text-[clamp(2rem,7vw,3.4rem)]">
+          <h2 className="display-hero text-[clamp(2rem,7vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
             {t("landing.claimTitle")}
             <br />
-            <span className="text-money">{t("landing.claimTitle2")}</span>
+            <span className="text-money" style={{ textShadow: "0 0 60px rgba(207, 255, 4, 0.5)" }}>
+              {t("landing.claimTitle2")}
+            </span>
           </h2>
           <p className="mt-5 max-w-md text-[14px] leading-relaxed text-muted-foreground">
             {t("landing.claimBody")}
@@ -607,9 +623,11 @@ function Landing() {
             <Link
               to="/access"
               onClick={() => trackTeaser("cta_click", { placement: "landing_claim_buy" })}
-              className="cta-liquid cta-magnetic mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+              className="boss-cta mt-4 flex w-full items-center justify-center gap-3 px-6 py-4 text-sm"
             >
-              {t("landing.unlockCta")} <ArrowRight className="h-3.5 w-3.5" />
+              <Sparkles className="h-4 w-4" />
+              {t("landing.unlockCta")}
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </Panel>
 
