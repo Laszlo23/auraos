@@ -34,6 +34,7 @@ function footerColumns(t: (key: string) => string) {
       links: [
         { to: "/hood", label: "The Hood" },
         { to: "/pit", label: "TICKPIX Pit" },
+        { to: "/trust", label: "Covenant" },
         { to: "/tokenomics", label: "Tokenomics" },
         { to: "/roadmap", label: "Roadmap" },
         { to: "/for/builders", label: "Creators" },

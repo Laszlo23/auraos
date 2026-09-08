@@ -11,6 +11,29 @@ export type BlogPost = {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "make-it-up-by-building",
+    title: "We make it up by building",
+    description:
+      "After Culture Coin was rugged by a former partner — how Aura OS and TICKPIX rebuild trust with receipts, not theater.",
+    date: "2026-09-08",
+    readingMinutes: 6,
+    body: [
+      "Some chapters you don’t get to rewrite. Building Culture’s Culture Coin was rugged by a former partner. People got hurt. Screenshots circulated. Trust left the room.",
+      "We can’t un-rug a past. What we *can* do is refuse to repeat the pattern — and leave a trail of work you can verify without trusting a DM.",
+      "## Two keys, one standard",
+      "**Hood** on Base is the OS founding passport: desk utility for the first circle. **TICKPIX** on Robinhood Chain is culture membership for the tape: a seat you mint, a badge you earn in Aura, Quest XP for showing up — not equity, not a fund, not a second founding collection.",
+      "If a project needs two “founding” JPEGs to keep the story going, the story is the product. Ours isn’t.",
+      "## The boring rules that matter",
+      "1. Official contract addresses and mint URLs live only on **aibusiness.fun** and **nft.aibusiness.fun**.\n2. Changelog, `/proof`, and `/live` stay public — quiet weeks stay honest zeros.\n3. Fair-launch timing is announced on official channels **48 hours** ahead — never by DM, never as a surprise CA.\n4. NFTs are **keys**, not lottery tickets.",
+      "That’s the [community covenant](/trust). Six promises. Hold us to them.",
+      "## What to do if you’re still angry (fair)",
+      "Anger is data. Don’t buy a story. Mint only after you read the CA on Blockscout. Link the same wallet in Aura OS if you want Pit belonging. Share the covenant if someone asks “are these the Culture Coin people?” — yes, same lineage of builders; no, not the same playbook.",
+      "## Links that aren’t vibes",
+      "- Covenant: [aibusiness.fun/trust](/trust)\n- TICKPIX pit: [aibusiness.fun/pit](/pit)\n- Mint: [nft.aibusiness.fun](https://nft.aibusiness.fun)\n- Proof: [/proof](/proof) · Changelog: [/changelog](/changelog)\n- Hood: [/hood](/hood)",
+      "We make it up by building. Every week. In public.",
+    ],
+  },
+  {
     slug: "nfts-as-keys",
     title: "Your NFT is a hotel key, not a lottery ticket",
     description:

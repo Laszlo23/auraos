@@ -15,6 +15,8 @@ Public clips people can steal, plus an OAuth-only X schedule that posts ~2–3×
 | Embed             | `/embed/{postId}`                                                        | iframes / partners                         |
 | Channels drip     | `/channels` → **Fair-launch X drip**                                     | Founder (authenticated)                    |
 | Landing teaser    | `/#share-kit`                                                            | Anyone                                     |
+| Covenant          | [`/trust`](https://aibusiness.fun/trust)                                 | Anyone — trust rebuild narrative           |
+| TICKPIX pit       | [`/pit`](https://aibusiness.fun/pit)                                     | Anyone — culture seats + CA strip          |
 | Per-page OG cards | `/og/{home,wien,share,story,access,nachbar,review,token,lokal,team}.jpg` | Link previews — James Dean × Matrix × Wien |
 
 Code map:

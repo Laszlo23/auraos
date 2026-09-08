@@ -503,6 +503,87 @@ ${CTA}`,
       `Drop this in the group chat that still thinks “AI company” means another chatbot with a logo.\n\n${CTA}`,
     ],
   },
+  {
+    id: "tickpix-pit",
+    title: "TICKPIX — take a seat",
+    vibe: "Culture seats on Robinhood Chain. Not a second Hood. Not a fund.",
+    file: "1fromweek",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "Discord", "Telegram"],
+    hook: "TICKPIX is live. Culture for the tape — verify the CA, never trust a DM.",
+    captions: [
+      `TICKPIX is live on Robinhood Chain.
+
+Mint a seat at nft.aibusiness.fun
+Aura OS: /pit → badge + Quest XP
+
+Not a stock. Not a fund. Not a second Hood.
+Hood stays the OS founding passport.
+
+Verify CA on Blockscout. Never by DM.
+
+Pit → ${SITE_URL}/pit
+Covenant → ${SITE_URL}/trust
+${CTA}`,
+      `Culture seats for the room.
+
+TICKPIX = membership on the tape (chain 4663).
+Hood = OS founding key on Base.
+
+Same team. Different keys. No dilution theater.
+
+Mint → https://nft.aibusiness.fun
+Belong → ${SITE_URL}/pit`,
+      `If someone DMs you a “new Tickpix CA,” it’s not us.
+
+Official mint: nft.aibusiness.fun
+Official pit: ${SITE_URL}/pit
+How we show up: ${SITE_URL}/trust
+
+Ship in public. Verify on-chain.`,
+    ],
+  },
+  {
+    id: "make-good",
+    title: "We make it up by building",
+    vibe: "After Culture Coin was rugged by a former partner — receipts over theater.",
+    file: "aprove",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "Discord", "LinkedIn"],
+    hook: "We can’t rewrite the rug. We can ship verifiable product every day.",
+    captions: [
+      `Building Culture’s Culture Coin was rugged by a former partner.
+
+We can’t erase that. We can show up differently:
+
+• Official CAs only on aibusiness.fun / nft.aibusiness.fun
+• Changelog + /proof in public
+• NFTs as keys, not lottery tickets
+• No second founding collection
+
+Community covenant → ${SITE_URL}/trust
+${CTA}`,
+      `Trust is rebuilt with receipts.
+
+/trust — six promises you can hold us to
+/pit — TICKPIX culture seats (verify CA)
+/proof — what actually shipped
+/changelog — the build log
+
+Never trust a DM with a CA.
+
+${SITE_URL}/trust`,
+      `We do not do “surprise CA” energy.
+
+Fair launch announced 48h on official channels.
+Tickpix CA on Blockscout.
+Hood stays the 1,000 founding circle.
+
+Read it → ${SITE_URL}/trust`,
+    ],
+  },
 ];
 
 export function shareVideoSrc(file: string) {

@@ -21,6 +21,8 @@ export type LaunchDripSlot = {
 
 /** Clip rotation: Wien wave first, then Quant desk + strongest kit posts. */
 const ROTATION_IDS = [
+  "make-good",
+  "tickpix-pit",
   "wien",
   "oida",
   "checkout",
@@ -40,6 +42,16 @@ const ROTATION_IDS = [
 
 /** Short X-native lines (before URL). Keep under ~200 so URL fits in 280. */
 const X_LINES: Record<string, string[]> = {
+  "make-good": [
+    "Culture Coin was rugged by a former partner. We make it up by building — /trust",
+    "Never trust a DM with a CA. Official only: aibusiness.fun + nft.aibusiness.fun",
+    "Receipts over theater. Covenant live → six promises you can hold us to.",
+  ],
+  "tickpix-pit": [
+    "TICKPIX seats live on Robinhood Chain. Mint → nft.aibusiness.fun · Pit → /pit",
+    "Not a second Hood. Culture seats for the tape. Verify CA on Blockscout.",
+    "Hold Tickpix → Pit badge + Quest XP. Hood stays the OS passport.",
+  ],
   wien: [
     "Ned in einem WeWork. In Wien. Cracked screen. Real street.",
     "Ottakring. Echt. Ehrlich. No pitch deck required.",
@@ -152,6 +164,19 @@ function dripSlotKey(y: number, month: number, day: number, hour: number): strin
 function clipBody(sharePostId: string, lineIndex: number): string {
   const lines = X_LINES[sharePostId] ?? ["Aura OS — own a company. Let AI make money."];
   const line = lines[lineIndex % lines.length]!;
+  if (sharePostId === "make-good") {
+    const trust = `${SITE_URL}/trust`;
+    const body = `${line}\n\n${trust}`;
+    return body.length <= 280 ? body : body.slice(0, 280);
+  }
+  if (sharePostId === "tickpix-pit") {
+    const pit = `${SITE_URL}/pit`;
+    const mint = "https://nft.aibusiness.fun";
+    const body = `${line}\n\n${pit}\nMint → ${mint}`;
+    if (body.length <= 280) return body;
+    const short = `${line}\n\n${pit}`;
+    return short.length <= 280 ? short : short.slice(0, 280);
+  }
   const url = shareWatchUrl(sharePostId);
   const seat = `${SITE_URL}/access`;
   const body = `${line}\n\n${url}\nSeat $299 → ${seat}`;
@@ -166,6 +191,12 @@ function clipBody(sharePostId: string, lineIndex: number): string {
 function farcasterCastBody(sharePostId: string, lineIndex: number): string {
   const lines = X_LINES[sharePostId] ?? ["Aura OS — own a company. Let AI make money."];
   const line = lines[lineIndex % lines.length]!;
+  if (sharePostId === "make-good") {
+    return `${line}\n\n${SITE_URL}/trust`.slice(0, 320);
+  }
+  if (sharePostId === "tickpix-pit") {
+    return `${line}\n\n${SITE_URL}/pit`.slice(0, 320);
+  }
   const url = shareWatchUrl(sharePostId);
   const body = `${line}\n\n${url}`;
   return body.slice(0, 320);

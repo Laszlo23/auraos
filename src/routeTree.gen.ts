@@ -46,6 +46,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TischRouteImport } from './routes/tisch'
 import { Route as TokenRouteImport } from './routes/token'
 import { Route as TokenomicsRouteImport } from './routes/tokenomics'
+import { Route as TrustRouteImport } from './routes/trust'
 import { Route as TryRouteImport } from './routes/try'
 import { Route as VerkaufRouteImport } from './routes/verkauf'
 import { Route as WhitepaperRouteImport } from './routes/whitepaper'
@@ -339,6 +340,11 @@ const TokenRoute = TokenRouteImport.update({
 const TokenomicsRoute = TokenomicsRouteImport.update({
   id: '/tokenomics',
   path: '/tokenomics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrustRoute = TrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TryRoute = TryRouteImport.update({
@@ -943,6 +949,7 @@ export interface FileRoutesByFullPath {
   '/tisch': typeof TischRoute
   '/token': typeof TokenRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/trust': typeof TrustRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
@@ -1090,6 +1097,7 @@ export interface FileRoutesByTo {
   '/tisch': typeof TischRoute
   '/token': typeof TokenRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/trust': typeof TrustRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
@@ -1240,6 +1248,7 @@ export interface FileRoutesById {
   '/tisch': typeof TischRoute
   '/token': typeof TokenRoute
   '/tokenomics': typeof TokenomicsRoute
+  '/trust': typeof TrustRoute
   '/try': typeof TryRoute
   '/verkauf': typeof VerkaufRoute
   '/whitepaper': typeof WhitepaperRoute
@@ -1390,6 +1399,7 @@ export interface FileRouteTypes {
     | '/tisch'
     | '/token'
     | '/tokenomics'
+    | '/trust'
     | '/try'
     | '/verkauf'
     | '/whitepaper'
@@ -1537,6 +1547,7 @@ export interface FileRouteTypes {
     | '/tisch'
     | '/token'
     | '/tokenomics'
+    | '/trust'
     | '/try'
     | '/verkauf'
     | '/whitepaper'
@@ -1686,6 +1697,7 @@ export interface FileRouteTypes {
     | '/tisch'
     | '/token'
     | '/tokenomics'
+    | '/trust'
     | '/try'
     | '/verkauf'
     | '/whitepaper'
@@ -1836,6 +1848,7 @@ export interface RootRouteChildren {
   TischRoute: typeof TischRoute
   TokenRoute: typeof TokenRoute
   TokenomicsRoute: typeof TokenomicsRoute
+  TrustRoute: typeof TrustRoute
   TryRoute: typeof TryRoute
   VerkaufRoute: typeof VerkaufRoute
   WhitepaperRoute: typeof WhitepaperRoute
@@ -2157,6 +2170,13 @@ declare module '@tanstack/react-router' {
       path: '/tokenomics'
       fullPath: '/tokenomics'
       preLoaderRoute: typeof TokenomicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/try': {
@@ -3100,6 +3120,7 @@ const rootRouteChildren: RootRouteChildren = {
   TischRoute: TischRoute,
   TokenRoute: TokenRoute,
   TokenomicsRoute: TokenomicsRoute,
+  TrustRoute: TrustRoute,
   TryRoute: TryRoute,
   VerkaufRoute: VerkaufRoute,
   WhitepaperRoute: WhitepaperRoute,

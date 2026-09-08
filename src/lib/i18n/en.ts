@@ -421,6 +421,7 @@ export const en: MessageTree = {
     navWien: "Vienna",
     navHood: "The Hood",
     navPit: "TICKPIX",
+    navTrust: "Covenant",
     navMint: "Join",
     hoodCue: "founding circle",
     tryCta: "Try Aura",

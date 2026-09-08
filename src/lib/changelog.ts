@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-08-community-covenant",
+    date: "2026-09-08",
+    title: "Community covenant — trust rebuild in public",
+    summary:
+      "After Culture Coin was rugged by a former partner, we ship a public covenant, TICKPIX trust surfaces, and growth rails so the room can verify us — never by DM.",
+    items: [
+      "Public /trust — six hold-us-to-it promises + verifiable CA / mint links",
+      "Blog: make-it-up-by-building; share kit posts tickpix-pit + make-good; roadmap stop tickpix-pit",
+      "/pit trust strip → covenant + Blockscout; footer + More nav Covenant",
+      "X/FC drip rotation leads with make-good + tickpix-pit (links /trust and /pit)",
+      "llms.txt + sitemap + docs/COMMUNITY_GROWTH.md playbook",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-08-tickpix-pit",
     date: "2026-09-08",
     title: "TICKPIX pit — Robinhood Chain culture seats in Aura OS",

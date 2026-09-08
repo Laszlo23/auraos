@@ -148,6 +148,14 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     body: "Community assigns social posts, X Spaces show-up, Scout invites, and Channels publishes to a person. Proof URL optional. Quest weekly keys score the work. Maximum growth without inventing equity.",
   },
   {
+    id: "tickpix-pit",
+    when: "Now",
+    status: "live",
+    kind: "love",
+    title: "TICKPIX pit — culture seats, not a second Hood",
+    body: "Robinhood Chain collectibles at nft.aibusiness.fun. Aura /pit verifies holders for Pit badge + soft Quest XP only. Community covenant at /trust: verify on-chain, never by DM. Culture Coin’s past rug does not get a sequel — we ship receipts.",
+  },
+  {
     id: "hood-circle",
     when: "Mint window",
     status: "next",

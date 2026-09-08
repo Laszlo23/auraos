@@ -55,6 +55,7 @@ export function publicNavMore(t: (key: string) => string): PublicNavItem[] {
   return [
     { to: "/try", label: t("landing.navTry") },
     { to: "/pit", label: t("landing.navPit") },
+    { to: "/trust", label: t("landing.navTrust") },
     { to: "/for/builders", label: t("landing.navBuilders") },
     { to: "/lokal", label: t("landing.navLokal") },
     { to: "/proof", label: t("landing.navProof") },
@@ -82,6 +83,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/for/builders": Hammer,
   "/hood": Crown,
   "/pit": Radio,
+  "/trust": Landmark,
   "/try": Zap,
   "/lokal": Store,
   "/proof": ShieldCheck,

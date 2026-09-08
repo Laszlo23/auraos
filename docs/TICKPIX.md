@@ -13,6 +13,7 @@ Culture seats on Robinhood Chain — community membership for the tape, **not** 
 | --- | --- |
 | Mint (canonical) | https://nft.aibusiness.fun |
 | Aura discovery | `/pit` |
+| Community covenant | `/trust` |
 | Community badge + quests | `/community` |
 | Holder soft perk | `holder-perks` → `hasTickpixNft` (+5% quest XP only) |
 | SSOT | `src/lib/tickpix.ts`, `src/lib/tickpix.server.ts` |
