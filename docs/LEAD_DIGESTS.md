@@ -19,7 +19,8 @@ Digests leave Aura via **platform SMTP** (preferred) or the company’s connecte
 
 ```bash
 # /opt/auraos/.env
-PLATFORM_SMTP_HOST=smtp.example.com
+# Must be the SMTP host (e.g. smtp.hostinger.com) — never imap.*
+PLATFORM_SMTP_HOST=smtp.hostinger.com
 PLATFORM_SMTP_PORT=465
 PLATFORM_SMTP_SECURE=true
 PLATFORM_SMTP_USER=…

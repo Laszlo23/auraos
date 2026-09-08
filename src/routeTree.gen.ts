@@ -30,6 +30,7 @@ import { Route as LightpaperRouteImport } from './routes/lightpaper'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as LokalRouteImport } from './routes/lokal'
 import { Route as NachbarRouteRouteImport } from './routes/nachbar/route'
+import { Route as PitRouteImport } from './routes/pit'
 import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -258,6 +259,11 @@ const LokalRoute = LokalRouteImport.update({
 const NachbarRouteRoute = NachbarRouteRouteImport.update({
   id: '/nachbar',
   path: '/nachbar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PitRoute = PitRouteImport.update({
+  id: '/pit',
+  path: '/pit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PitchRoute = PitchRouteImport.update({
@@ -921,6 +927,7 @@ export interface FileRoutesByFullPath {
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
+  '/pit': typeof PitRoute
   '/pitch': typeof PitchRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -1067,6 +1074,7 @@ export interface FileRoutesByTo {
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
+  '/pit': typeof PitRoute
   '/pitch': typeof PitchRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -1216,6 +1224,7 @@ export interface FileRoutesById {
   '/lightpaper': typeof LightpaperRoute
   '/live': typeof LiveRoute
   '/lokal': typeof LokalRoute
+  '/pit': typeof PitRoute
   '/pitch': typeof PitchRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -1365,6 +1374,7 @@ export interface FileRouteTypes {
     | '/lightpaper'
     | '/live'
     | '/lokal'
+    | '/pit'
     | '/pitch'
     | '/pricing'
     | '/privacy'
@@ -1511,6 +1521,7 @@ export interface FileRouteTypes {
     | '/lightpaper'
     | '/live'
     | '/lokal'
+    | '/pit'
     | '/pitch'
     | '/pricing'
     | '/privacy'
@@ -1659,6 +1670,7 @@ export interface FileRouteTypes {
     | '/lightpaper'
     | '/live'
     | '/lokal'
+    | '/pit'
     | '/pitch'
     | '/pricing'
     | '/privacy'
@@ -1808,6 +1820,7 @@ export interface RootRouteChildren {
   LightpaperRoute: typeof LightpaperRoute
   LiveRoute: typeof LiveRoute
   LokalRoute: typeof LokalRoute
+  PitRoute: typeof PitRoute
   PitchRoute: typeof PitchRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -2032,6 +2045,13 @@ declare module '@tanstack/react-router' {
       path: '/nachbar'
       fullPath: '/nachbar'
       preLoaderRoute: typeof NachbarRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pit': {
+      id: '/pit'
+      path: '/pit'
+      fullPath: '/pit'
+      preLoaderRoute: typeof PitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pitch': {
@@ -3064,6 +3084,7 @@ const rootRouteChildren: RootRouteChildren = {
   LightpaperRoute: LightpaperRoute,
   LiveRoute: LiveRoute,
   LokalRoute: LokalRoute,
+  PitRoute: PitRoute,
   PitchRoute: PitchRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,

@@ -33,6 +33,7 @@ function footerColumns(t: (key: string) => string) {
       title: t("footer.ecosystem"),
       links: [
         { to: "/hood", label: "The Hood" },
+        { to: "/pit", label: "TICKPIX Pit" },
         { to: "/tokenomics", label: "Tokenomics" },
         { to: "/roadmap", label: "Roadmap" },
         { to: "/for/builders", label: "Creators" },
@@ -60,13 +61,17 @@ function ProductSwitcher() {
   const pills: { id: string; label: string; href: string }[] = [
     ...PRODUCT_SURFACES.filter((p) => ["os", "lokal", "app"].includes(p.id)),
     { id: "hood", label: "The Hood", href: "/hood" },
+    { id: "pit", label: "TICKPIX", href: "/pit" },
     { id: "builders", label: "Creators", href: "/for/builders" },
   ];
 
   return (
     <div className="flex flex-wrap gap-2">
       {pills.map((p) => {
-        const active = pathname === p.href || (p.id === "hood" && pathname.startsWith("/hood"));
+        const active =
+          pathname === p.href ||
+          (p.id === "hood" && pathname.startsWith("/hood")) ||
+          (p.id === "pit" && pathname.startsWith("/pit"));
         return (
           <button
             key={p.id}

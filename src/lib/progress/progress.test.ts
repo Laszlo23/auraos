@@ -60,4 +60,11 @@ describe("quest registry", () => {
     expect(QUEST_REGISTRY.some((q) => q.key === "growth:space-showup")).toBe(true);
     expect(WEEKLY_QUEST_KEYS).toContain("growth:social-post");
   });
+
+  it("includes Tickpix pit quests", () => {
+    expect(QUEST_REGISTRY.some((q) => q.key === "tickpix:mint")).toBe(true);
+    expect(DAILY_QUEST_KEYS).toContain("tickpix:clock-in");
+    expect(WEEKLY_QUEST_KEYS).toContain("tickpix:share-tape");
+    expect(repForEvent("tickpix:mint")).toBe(8);
+  });
 });

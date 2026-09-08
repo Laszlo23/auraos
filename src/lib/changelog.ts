@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-08-tickpix-pit",
+    date: "2026-09-08",
+    title: "TICKPIX pit — Robinhood Chain culture seats in Aura OS",
+    summary:
+      "Tickpix is community membership for the tape, not a second founding collection and not a fundraise. Mint stays at nft.aibusiness.fun; Aura verifies holders and unlocks Pit belonging.",
+    items: [
+      "Public /pit discovery page — Take a seat deep-links to nft.aibusiness.fun (CCFF00 free / public 0.0001 ETH)",
+      "Holder check on Robinhood Chain (balanceOf) → Pit badge + soft +5% Quest XP (no Hood rebates or seat unlock)",
+      "Community panel: claim tickpix:mint, daily clock-in, share tape card; Quest registry + tickpix-seat achievement",
+      "NFT desk playbook: tickpix-pit strategy; nav/footer Pit links; docs/TICKPIX.md",
+      "Lead digests: PLATFORM_SMTP fixed (smtp.hostinger.com, never imap.*); failed slots can retry",
+    ],
+    tags: ["feature", "improvement", "fix"],
+  },
+  {
     id: "2026-09-06-landing-narrative-redesign",
     date: "2026-09-06",
     title: "Landing page: cinematic 7-act storytelling + BAYC street premium redesign",

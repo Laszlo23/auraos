@@ -15,7 +15,16 @@ export function platformSmtpConfigured(): boolean {
 
 export function loadPlatformSmtpConfig(): SmtpConfig | null {
   if (!platformSmtpConfigured()) return null;
-  const host = process.env["PLATFORM_SMTP_HOST"]!.trim();
+  let host = process.env["PLATFORM_SMTP_HOST"]!.trim();
+  // Hostinger (and others) expose imap.* for mailboxes — that is not SMTP.
+  // Mis-pointing here yields ECONNRESET and silent digest failures.
+  if (/^imap\./i.test(host)) {
+    const smtpHost = host.replace(/^imap\./i, "smtp.");
+    console.warn(
+      `[platform-mail] PLATFORM_SMTP_HOST=${host} looks like IMAP; using ${smtpHost} instead`,
+    );
+    host = smtpHost;
+  }
   const user = process.env["PLATFORM_SMTP_USER"]!.trim();
   const pass = process.env["PLATFORM_SMTP_PASS"]!.trim();
   const from = process.env["PLATFORM_SMTP_FROM"]!.trim();

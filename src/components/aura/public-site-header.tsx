@@ -6,6 +6,7 @@ import {
   Hammer,
   Landmark,
   Menu,
+  Radio,
   ShieldCheck,
   Sparkles,
   Store,
@@ -53,6 +54,7 @@ export function publicNavPrimary(t: (key: string) => string): PublicNavItem[] {
 export function publicNavMore(t: (key: string) => string): PublicNavItem[] {
   return [
     { to: "/try", label: t("landing.navTry") },
+    { to: "/pit", label: t("landing.navPit") },
     { to: "/for/builders", label: t("landing.navBuilders") },
     { to: "/lokal", label: t("landing.navLokal") },
     { to: "/proof", label: t("landing.navProof") },
@@ -79,6 +81,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/pricing": Tag,
   "/for/builders": Hammer,
   "/hood": Crown,
+  "/pit": Radio,
   "/try": Zap,
   "/lokal": Store,
   "/proof": ShieldCheck,

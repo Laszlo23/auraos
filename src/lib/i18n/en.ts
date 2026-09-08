@@ -420,6 +420,7 @@ export const en: MessageTree = {
     navTokenomics: "How money works",
     navWien: "Vienna",
     navHood: "The Hood",
+    navPit: "TICKPIX",
     navMint: "Join",
     hoodCue: "founding circle",
     tryCta: "Try Aura",

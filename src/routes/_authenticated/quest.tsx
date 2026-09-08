@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Copy, Flame, Trophy } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
@@ -20,6 +21,7 @@ import { DAILY_QUEST_KEYS, QUEST_REGISTRY, WEEKLY_QUEST_KEYS } from "@/lib/progr
 import { REP_EARN_RULES } from "@/lib/progress/registry";
 import { questActionHref } from "@/lib/progress/quest-href";
 import { trackAppEvent } from "@/lib/app-track";
+import { getHolderPerks } from "@/lib/trading.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/quest")({
@@ -50,6 +52,11 @@ function QuestHubPage() {
   const mergeGrowth = useMergeSignupGrowth();
   const { data: referralCode } = useReferralCode();
   const mergedOnce = useRef(false);
+  const { data: perks } = useQuery({
+    queryKey: ["holder-perks"],
+    queryFn: () => getHolderPerks(),
+    staleTime: 60_000,
+  });
 
   useEffect(() => {
     if (mergedOnce.current || mergeGrowth.isPending || mergeGrowth.isSuccess) return;
@@ -109,6 +116,24 @@ function QuestHubPage() {
         eyebrow="AURA Quest"
         title="Your world progress"
         description="One XP bar, contribution REP, and badges — across OS, Local, and the city. No tokenomics required on day one."
+        actions={
+          perks?.hasTickpixNft ? (
+            <Chip tone="primary">
+              <Pulse /> Pit seat · {perks.tickpixBalance || 1}
+            </Chip>
+          ) : perks?.hasGenesisNft ? (
+            <Chip tone="gold">
+              <Pulse tone="gold" /> Hood
+            </Chip>
+          ) : (
+            <Link
+              to="/pit"
+              className="rounded-2xl border border-border/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-primary"
+            >
+              TICKPIX pit →
+            </Link>
+          )
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -160,7 +185,7 @@ function QuestHubPage() {
                         </p>
                         <p className="mt-0.5 text-[12px] text-muted-foreground">{q.hint}</p>
                       </div>
-                      <Chip tone={done ? "gold" : "default"}>
+                      <Chip tone={done ? "gold" : "neutral"}>
                         +{q.xp} XP{q.rep ? ` · +${q.rep} REP` : ""}
                       </Chip>
                     </div>

@@ -13,6 +13,7 @@ import { HOOD_GIFT_AURA, HOOD_MAX_SUPPLY } from "@/lib/aura-launch";
 
 export type NftDeskStrategyId =
   | "hood-membership"
+  | "tickpix-pit"
   | "hold-to-earn-fees"
   | "creator-primary"
   | "quant-history"
@@ -67,6 +68,38 @@ export const NFT_DESK_STRATEGIES: NftDeskStrategy[] = [
     trainHint: {
       en: "No ML on floor prices — utility is deterministic perks from holder-perks.ts.",
       de: "Kein ML auf Floor-Preise — Utility sind deterministische Perks aus holder-perks.ts.",
+    },
+  },
+  {
+    id: "tickpix-pit",
+    status: "live",
+    title: {
+      en: "TICKPIX pit (Robinhood Chain culture)",
+      de: "TICKPIX Pit (Robinhood-Chain-Kultur)",
+    },
+    who: {
+      en: "RH Chain traders and CCFF00 crew who want a seat on the tape — not a fundraising NFT.",
+      de: "RH-Chain-Trader und CCFF00-Crew, die einen Seat auf dem Tape wollen — kein Fundraising-NFT.",
+    },
+    how: {
+      en: "Mint at nft.aibusiness.fun (CCFF00 free / public 0.0001 ETH). Link wallet in Aura → Pit badge + Quest XP. Clock-in and tape cards stay on the mint site.",
+      de: "Mint auf nft.aibusiness.fun (CCFF00 gratis / Public 0.0001 ETH). Wallet in Aura linken → Pit-Badge + Quest-XP. Clock-in und Tape-Cards bleiben auf dem Mint-Site.",
+    },
+    not: {
+      en: "Not a second Hood. Not equity. Not a fund. Not x402 rebates or founding-seat unlock.",
+      de: "Kein zweites Hood. Kein Equity. Kein Fund. Keine x402-Rabatte und kein Founding-Seat-Unlock.",
+    },
+    osAdvantage: {
+      en: "Culture membership feeds Community + Quest without diluting OS passport economics.",
+      de: "Kultur-Membership speist Community + Quest, ohne OS-Pass-Ökonomie zu verwässern.",
+    },
+    communityAdvantage: {
+      en: "Shared pit identity — show up daily, print tape cards, later Pit League from royalties — not APY stories.",
+      de: "Geteilte Pit-Identität — täglich zeigen, Tape-Cards drucken, später Pit League aus Royalties — keine APY-Stories.",
+    },
+    trainHint: {
+      en: "Train Growth agents on tape-card share loops — never floor speculation.",
+      de: "Growth-Agenten auf Tape-Card-Share-Loops trainieren — nie Floor-Spekulation.",
     },
   },
   {

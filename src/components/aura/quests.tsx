@@ -82,6 +82,27 @@ export const COMMUNITY_QUESTS: Quest[] = [
     glyph: "◇",
     xp: 180,
   },
+  {
+    key: "tickpix:mint",
+    label: "Take a Tickpix seat",
+    hint: "Mint at nft.aibusiness.fun · link wallet · claim Pit badge",
+    glyph: "▣",
+    xp: 100,
+  },
+  {
+    key: "tickpix:clock-in",
+    label: "Clock in on the tape",
+    hint: "Daily show-up on the Tickpix contract",
+    glyph: "⏱",
+    xp: 25,
+  },
+  {
+    key: "tickpix:share-tape",
+    label: "Share a tape card",
+    hint: "Print + post a Tickpix tape card",
+    glyph: "🖨",
+    xp: 40,
+  },
 ];
 
 /**

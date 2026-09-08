@@ -11,6 +11,7 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 | **AURA VIENNA / Nachbar** | Live | `/wien`, `/nachbar/*` |
 | **AURA QUEST** | **Live (Phase A)** | `/quest`, `src/lib/progress/`, `award_progress` RPC |
 | **AURA Community Squads** | **Live** | `/community`, typed growth tasks (social / Spaces / scout), world pulse |
+| **TICKPIX pit** | **Live** | `/pit` + nft.aibusiness.fun — RH Chain culture seats; Pit badge + Quest XP; **not** a second founding collection (`docs/TICKPIX.md`) |
 | **Growth digital work** | **Live** | Assignable human tasks on squads → Quest `growth:*` XP/REP; templates in `growth-digital-work.ts` |
 | **Beta readiness** | **Live** | Loving one-step Console; funnel `app_events`; Desk $12k prophecy; cohort script `docs/BETA_COHORT.md` |
 | **Public momentum** | Live | `/changelog` (2026-09-02), share kit `quest-squads`, roadmap vibes include Quest + Squads |
@@ -43,6 +44,7 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 - On-chain Hood supply: **1,000** (immutable)
 - **Genesis 777**: profile tier for tokenIds 1–777 + early contributors — does not change contract cap
 - `genesis_number` on `user_progress` links Hood mint to tier
+- **TICKPIX** is a separate RH Chain culture collection (cap 4,663) — never a second founding collection
 
 ## Scouts (Phase B)
 

@@ -91,6 +91,24 @@ export const REP_EARN_RULES: RepRule[] = [
     label: "Scout invite shared",
     hint: "Shared a Scout /lokal?ref invite into the growth loop",
   },
+  {
+    eventKey: "tickpix:mint",
+    rep: 8,
+    label: "Took a Tickpix seat",
+    hint: "Verified Tickpix hold on a linked Robinhood Chain wallet",
+  },
+  {
+    eventKey: "tickpix:clock-in",
+    rep: 2,
+    label: "Clocked in on the tape",
+    hint: "Showed up for daily clock-in on nft.aibusiness.fun",
+  },
+  {
+    eventKey: "tickpix:share-tape",
+    rep: 4,
+    label: "Shared a tape card",
+    hint: "Printed and shared a Tickpix tape card",
+  },
 ];
 
 export type QuestMission = {
@@ -249,6 +267,33 @@ const BASE_QUESTS = [
     glyph: "🟣",
     xp: 35,
     rep: 5,
+    cadence: "weekly",
+  },
+  {
+    key: "tickpix:mint",
+    label: "Take a Tickpix seat",
+    hint: "Mint at nft.aibusiness.fun · link that wallet · claim Pit badge",
+    glyph: "▣",
+    xp: 100,
+    rep: 8,
+    cadence: "once",
+  },
+  {
+    key: "tickpix:clock-in",
+    label: "Clock in on the tape",
+    hint: "One ping per UTC day on the Tickpix contract — showing up is the scarce thing",
+    glyph: "⏱",
+    xp: 25,
+    rep: 2,
+    cadence: "daily",
+  },
+  {
+    key: "tickpix:share-tape",
+    label: "Share a tape card",
+    hint: "Print a Tickpix tape card and post it — meme engine for the pit",
+    glyph: "🖨",
+    xp: 40,
+    rep: 4,
     cadence: "weekly",
   },
 ];

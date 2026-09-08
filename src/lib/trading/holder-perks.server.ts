@@ -1,4 +1,6 @@
 import { walletOwnsGenesis } from "@/lib/genesis.server";
+import { tickpixContractAddress } from "@/lib/tickpix";
+import { loadHasTickpixNft } from "@/lib/tickpix.server";
 import { buildHolderPerks, type HolderPerks } from "@/lib/trading/holder-perks";
 
 type Db = { from: (table: string) => any };
@@ -9,6 +11,10 @@ export function genesisNftContractEnv(): string | null {
     process.env["GENESIS_NFT_CONTRACT"]?.trim() ||
     "";
   return raw || null;
+}
+
+export function tickpixNftContractEnv(): string | null {
+  return tickpixContractAddress();
 }
 
 export async function loadHasGenesisNft(
@@ -73,10 +79,14 @@ export async function loadCompanyHolderPerks(db: Db, companyId: string): Promise
     .eq("company_id", companyId)
     .maybeSingle();
   const hasGenesisNft = await loadHasGenesisNft(db, { companyId });
+  const tickpix = await loadHasTickpixNft(db, { companyId });
   return buildHolderPerks({
     auraBalance: Number(sub?.tokens_remaining ?? 0),
     hasGenesisNft,
     genesisNftContract: genesisNftContractEnv(),
+    hasTickpixNft: tickpix.owns,
+    tickpixNftContract: tickpixNftContractEnv(),
+    tickpixBalance: tickpix.balance,
   });
 }
 
@@ -106,9 +116,13 @@ export async function loadUserHolderPerks(
     auraBalance = Number(sub?.tokens_remaining ?? 0);
   }
   const hasGenesisNft = await loadHasGenesisNft(db, { userId, companyId: resolvedCompany });
+  const tickpix = await loadHasTickpixNft(db, { userId, companyId: resolvedCompany });
   return buildHolderPerks({
     auraBalance,
     hasGenesisNft,
     genesisNftContract: genesisNftContractEnv(),
+    hasTickpixNft: tickpix.owns,
+    tickpixNftContract: tickpixNftContractEnv(),
+    tickpixBalance: tickpix.balance,
   });
 }

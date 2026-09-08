@@ -61,11 +61,11 @@ async function sendOneDigest(opts: {
   const slot = gate.slot;
   const { data: existing } = await supabaseAdmin
     .from("lead_digest_sends")
-    .select("id")
+    .select("id, status")
     .eq("company_id", opts.pref.company_id)
     .eq("slot", slot)
     .maybeSingle();
-  if (existing?.id && !opts.force) {
+  if (existing?.id && existing.status === "sent" && !opts.force) {
     return { companyId: opts.pref.company_id, sent: false, skipped: "already_sent", slot };
   }
 

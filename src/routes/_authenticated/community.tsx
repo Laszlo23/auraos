@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
   Copy,
@@ -39,6 +39,8 @@ import {
   type GrowthTaskKind,
 } from "@/lib/growth-digital-work";
 import { SOCIAL_LINKS } from "@/lib/site";
+import { TICKPIX } from "@/lib/tickpix";
+import { claimTickpixMintQuest, getTickpixStatus } from "@/lib/tickpix.functions";
 import { trackTeaser } from "@/lib/teaser-track";
 import { num, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -100,6 +102,24 @@ function CommunityHubPage() {
   const [xpToast, setXpToast] = useState<{ label: string; amount: number } | null>(null);
   const [joinPrefillTried, setJoinPrefillTried] = useState(false);
   const { data: myUserId } = useUserId();
+
+  const { data: tickpix } = useQuery({
+    queryKey: ["tickpix-status"],
+    queryFn: () => getTickpixStatus(),
+    staleTime: 60_000,
+  });
+  const claimTickpix = useMutation({
+    mutationFn: () => claimTickpixMintQuest(),
+    onSuccess: () => {
+      pop("Pit seat verified", 100);
+      toast.success("TICKPIX Pit badge unlocked");
+      void qc.invalidateQueries({ queryKey: ["tickpix-status"] });
+      void qc.invalidateQueries({ queryKey: ["user-progress"] });
+      void qc.invalidateQueries({ queryKey: ["progress"] });
+      void qc.invalidateQueries({ queryKey: ["holder-perks"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not verify Tickpix"),
+  });
 
   const pop = (label: string, amount: number) => {
     setBurst((n) => n + 1);
@@ -282,6 +302,111 @@ function CommunityHubPage() {
           </div>
         }
       />
+
+      <Panel label="TICKPIX · the pit">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="max-w-xl">
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              Culture seats on Robinhood Chain — mint free if you hold CCFF00, then clock in on the
+              tape. Hood stays the OS passport; Tickpix is belonging for the room.
+            </p>
+            {tickpix?.owns ? (
+              <Chip tone="gold" className="mt-3">
+                <Pulse tone="gold" /> Pit seat · {tickpix.balance} held
+              </Chip>
+            ) : (
+              <p className="mt-3 text-[12px] text-muted-foreground">
+                Link the wallet you minted with under Identity, then claim the badge.
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/pit"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]"
+            >
+              About the pit
+            </Link>
+            <a
+              href={TICKPIX.mintUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackTeaser("cta_click", { placement: "community_tickpix_mint" })}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
+            >
+              Take a seat <ExternalLink className="h-3 w-3" />
+            </a>
+            {tickpix?.owns && !done.has("tickpix:mint") ? (
+              <button
+                type="button"
+                disabled={claimTickpix.isPending}
+                onClick={() => claimTickpix.mutate()}
+                className="rounded-xl bg-primary px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground disabled:opacity-50"
+              >
+                Claim Pit badge
+              </button>
+            ) : null}
+            {done.has("tickpix:mint") ? (
+              <span className="rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-[11px] font-semibold text-primary">
+                Badge claimed
+              </span>
+            ) : null}
+          </div>
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <a
+            href={`${TICKPIX.mintUrl}#clock-in`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              if (done.has("tickpix:clock-in")) return;
+              const key = `tickpix:clock-in:${new Date().toISOString().slice(0, 10)}`;
+              pop("Clocked in", 25);
+              void awardProgress({
+                eventKey: "tickpix:clock-in",
+                xp: 25,
+                rep: 2,
+                idempotencyKey: key,
+              }).then(() => {
+                void qc.invalidateQueries({ queryKey: ["user-progress"] });
+                void qc.invalidateQueries({ queryKey: ["progress"] });
+              });
+            }}
+            className={cn(
+              "flex items-center justify-between rounded-xl border px-3 py-2 text-[12px]",
+              done.has("tickpix:clock-in") ? "border-primary/30 bg-primary/5" : "border-border/40",
+            )}
+          >
+            <span>Clock in today · +25 XP</span>
+            <ExternalLink className="h-3 w-3 text-muted-foreground" />
+          </a>
+          <a
+            href={TICKPIX.mintUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              if (done.has("tickpix:share-tape")) return;
+              pop("Tape shared", 40);
+              void awardProgress({
+                eventKey: "tickpix:share-tape",
+                xp: 40,
+                rep: 4,
+                idempotencyKey: "tickpix:share-tape",
+              }).then(() => {
+                void qc.invalidateQueries({ queryKey: ["user-progress"] });
+                void qc.invalidateQueries({ queryKey: ["progress"] });
+              });
+            }}
+            className={cn(
+              "flex items-center justify-between rounded-xl border px-3 py-2 text-[12px]",
+              done.has("tickpix:share-tape") ? "border-primary/30 bg-primary/5" : "border-border/40",
+            )}
+          >
+            <span>Share a tape card · +40 XP</span>
+            <ExternalLink className="h-3 w-3 text-muted-foreground" />
+          </a>
+        </div>
+      </Panel>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="space-y-6">

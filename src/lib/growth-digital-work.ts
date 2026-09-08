@@ -74,6 +74,15 @@ export const GROWTH_TASK_TEMPLATES: GrowthTaskTemplate[] = [
     href: "https://discord.gg/geUpHt3eSb",
     meta: { platform: "discord" },
   },
+  {
+    id: "tickpix-tape-share",
+    kind: "social_post",
+    title: "Share a TICKPIX tape card",
+    hint: "Print a card at nft.aibusiness.fun · post it · culture for the pit, not a raise",
+    xp: 50,
+    href: "https://nft.aibusiness.fun",
+    meta: { platform: "tickpix", share: "tape_card" },
+  },
 ];
 
 export function growthKindXp(kind: GrowthTaskKind): number {

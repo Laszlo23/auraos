@@ -423,6 +423,7 @@ export const de: MessageTree = {
     navTokenomics: "Wie Geld läuft",
     navWien: "Wien",
     navHood: "The Hood",
+    navPit: "TICKPIX",
     navMint: "Mitmachen",
     hoodCue: "Founding-Kreis",
     tryCta: "Aura testen",

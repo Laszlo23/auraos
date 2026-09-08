@@ -103,4 +103,15 @@ describe("trading sizing & arena", () => {
     expect(perks.perks.find((p) => p.id === "hold-to-earn")?.active).toBe(false);
     expect(perks.nftRoadmap.some((n) => /hold-to-earn/i.test(n.title))).toBe(true);
   });
+
+  it("Tickpix is soft flair only", () => {
+    const perks = buildHolderPerks({ auraBalance: 50, hasTickpixNft: true, tickpixBalance: 2 });
+    expect(perks.hasTickpixNft).toBe(true);
+    expect(perks.tickpixBalance).toBe(2);
+    expect(perks.questXpBoostPct).toBe(15); // spark 10 + tickpix 5
+    expect(perks.strategySlotBonus).toBe(0);
+    expect(perks.x402RebateBps).toBe(0);
+    expect(perks.seasonScoreMultiplier).toBe(1);
+    expect(perks.perks.find((p) => p.id === "tickpix-pit")?.active).toBe(true);
+  });
 });
