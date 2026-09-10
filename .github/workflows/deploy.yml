@@ -61,7 +61,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o BatchMode=yes \
             "$VPS_USER@$VPS_HOST" 'bash -s' <<'REMOTE'
           set -euo pipefail
-          
+
           echo "==> Setting permissions"
           chown -R aura:aura /opt/auraos
           chmod 755 /opt/auraos /opt/auraos/public

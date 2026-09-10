@@ -26,11 +26,7 @@ import { questActionHref } from "@/lib/progress/quest-href";
 import { trackAppEvent } from "@/lib/app-track";
 import { getHolderPerks } from "@/lib/trading.functions";
 import { cn } from "@/lib/utils";
-import {
-  progressWeekKey,
-  scoutInviteKit,
-  scoutInviteXText,
-} from "@/lib/viral-join";
+import { progressWeekKey, scoutInviteKit, scoutInviteXText } from "@/lib/viral-join";
 import { shareIntentHref } from "@/components/aura/share";
 
 export const Route = createFileRoute("/_authenticated/quest")({
@@ -91,8 +87,7 @@ function QuestHubPage() {
 
   const dailyQuests = QUEST_REGISTRY.filter((q) => DAILY_QUEST_KEYS.includes(q.key));
   const weeklyQuests = QUEST_REGISTRY.filter((q) => WEEKLY_QUEST_KEYS.includes(q.key));
-  const nextBadge =
-    achievements?.definitions.find((d) => !achievements.unlocked.has(d.id)) ?? null;
+  const nextBadge = achievements?.definitions.find((d) => !achievements.unlocked.has(d.id)) ?? null;
 
   const scoutJoined = completed.has("scout:joined");
   const scoutLink = referralCode?.code
@@ -156,11 +151,7 @@ function QuestHubPage() {
       const link = await ensureScoutLink();
       if (!link) return;
       const text = scoutInviteXText(link);
-      window.open(
-        shareIntentHref("x", { url: link, text }),
-        "_blank",
-        "noopener,noreferrer",
-      );
+      window.open(shareIntentHref("x", { url: link, text }), "_blank", "noopener,noreferrer");
       claimScoutShare();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Share failed");
@@ -232,7 +223,8 @@ function QuestHubPage() {
           <Panel label="Daily" glow>
             <ul className="space-y-3">
               {dailyQuests.map((q) => {
-                const done = completed.has(q.key) || (q.key === "company:spin" && Boolean(todaySpin));
+                const done =
+                  completed.has(q.key) || (q.key === "company:spin" && Boolean(todaySpin));
                 return (
                   <li
                     key={q.key}
@@ -277,7 +269,10 @@ function QuestHubPage() {
                       <p className="text-[12px] text-muted-foreground">{q.hint}</p>
                     </div>
                     <Link
-                      to={questActionHref(q.key) as "/community" | "/quest" | "/nachbar/heute" | "/channels" | "/missions"}
+                      to={
+                        questActionHref(q.key) as
+                          "/community" | "/quest" | "/nachbar/heute" | "/channels" | "/missions"
+                      }
                       className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary"
                     >
                       {done ? "Done" : "Go"}
@@ -290,8 +285,8 @@ function QuestHubPage() {
 
           <Panel label="Scouts · Vienna">
             <p className="text-[13px] text-muted-foreground">
-              Onboard verified local businesses. When their seat pays, you earn REP and the Connector
-              badge.
+              Onboard verified local businesses. When their seat pays, you earn REP and the
+              Connector badge.
             </p>
             {!scoutJoined ? (
               <div className="mt-4 flex flex-wrap gap-2">
@@ -326,7 +321,9 @@ function QuestHubPage() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                       Your Scout invite
                     </p>
-                    <p className="mt-1 break-all font-mono text-[12px] text-foreground">{scoutLink}</p>
+                    <p className="mt-1 break-all font-mono text-[12px] text-foreground">
+                      {scoutLink}
+                    </p>
                     <button
                       type="button"
                       onClick={() => void copyScoutLink()}

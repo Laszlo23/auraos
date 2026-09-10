@@ -111,7 +111,12 @@ function HoodPage() {
             aria-hidden
             className="hood-glow pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold)_40%,transparent),transparent_68%)]"
           />
-          <HoodPortrait tokenId={previewId} size="hero" showMeta={false} className="relative w-full" />
+          <HoodPortrait
+            tokenId={previewId}
+            size="hero"
+            showMeta={false}
+            className="relative w-full"
+          />
           <p className="relative mt-3 text-center label-luxury-gold text-[10px] tracking-[0.28em]">
             #{preview.tokenId} / {HOOD.maxSupply} · {preview.character.name}
           </p>
@@ -138,7 +143,10 @@ function HoodPage() {
         </p>
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {FEATURED_COURT.map((row) => (
-            <figure key={row.id} className="group overflow-hidden rounded-[1.25rem] border border-gold/20 transition-colors hover:border-gold/40">
+            <figure
+              key={row.id}
+              className="group overflow-hidden rounded-[1.25rem] border border-gold/20 transition-colors hover:border-gold/40"
+            >
               <HoodStillFrame src={row.art} alt={`${row.en} — Hood court portrait.`} />
               <figcaption className="px-3 py-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">
@@ -155,7 +163,9 @@ function HoodPage() {
 
       <section className="relative z-10 mx-auto max-w-6xl px-5 pb-16 sm:px-6 sm:pb-20">
         <div className="jewel rounded-[1.65rem] border border-gold/25 px-6 py-7 sm:px-8 sm:py-8">
-          <p className="label-luxury-gold">{de ? FIRST_THOUSAND.eyebrowDe : FIRST_THOUSAND.eyebrow}</p>
+          <p className="label-luxury-gold">
+            {de ? FIRST_THOUSAND.eyebrowDe : FIRST_THOUSAND.eyebrow}
+          </p>
           <h2 className="mt-2 font-display text-[clamp(1.5rem,3.5vw,2.2rem)] font-semibold tracking-tight">
             {de ? FIRST_THOUSAND.titleDe : FIRST_THOUSAND.title}
           </h2>

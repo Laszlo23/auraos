@@ -35,7 +35,9 @@ export function Panel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        variant === "gold" ? "hood-panel glass-soft hover-lift relative" : "glass hover-lift relative rounded-[1.65rem]",
+        variant === "gold"
+          ? "hood-panel glass-soft hover-lift relative"
+          : "glass hover-lift relative rounded-[1.65rem]",
         showMotif && "overflow-hidden",
         glow && variant === "default" && "shadow-[var(--shadow-glow)]",
         variant === "gold" && "shadow-[var(--shadow-gold)]",
@@ -51,7 +53,9 @@ export function Panel({
               <span className="absolute inset-0 animate-breathe rounded-[1px] bg-primary/50" />
               <span className="relative h-1.5 w-1.5 rotate-45 bg-primary" />
             </span>
-            <h2 className={cn("label-luxury", variant === "gold" && "label-luxury-gold text-[10px]")}>
+            <h2
+              className={cn("label-luxury", variant === "gold" && "label-luxury-gold text-[10px]")}
+            >
               {label}
             </h2>
             {action ? <div className="ml-auto flex items-center gap-2">{action}</div> : null}
@@ -110,7 +114,9 @@ export function SectionTitle({
           <span className="h-1.5 w-1.5 rotate-45 bg-primary/70" />
           {title}
         </h2>
-        {hint ? <p className="prose-narrow mt-1.5 text-[13px] text-muted-foreground/80">{hint}</p> : null}
+        {hint ? (
+          <p className="prose-narrow mt-1.5 text-[13px] text-muted-foreground/80">{hint}</p>
+        ) : null}
       </div>
       {action}
     </div>

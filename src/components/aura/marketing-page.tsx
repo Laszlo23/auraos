@@ -1,1 +1,5 @@
-export { MarketingLayout, MarketingSection, MarketingEyebrow } from "@/components/aura/marketing-layout";
+export {
+  MarketingLayout,
+  MarketingSection,
+  MarketingEyebrow,
+} from "@/components/aura/marketing-layout";

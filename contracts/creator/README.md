@@ -4,10 +4,10 @@ Deploys per-creator ERC-721 collections with primary-sale mint desks.
 
 ## Contracts
 
-| Contract | Role |
-|----------|------|
-| `AuraCreatorCollection.sol` | ERC-721 + EIP-2981 royalties |
-| `AuraCreatorMintDesk.sol` | Primary sales in USDG or ETH |
+| Contract                    | Role                            |
+| --------------------------- | ------------------------------- |
+| `AuraCreatorCollection.sol` | ERC-721 + EIP-2981 royalties    |
+| `AuraCreatorMintDesk.sol`   | Primary sales in USDG or ETH    |
 | `AuraCollectionFactory.sol` | One-tx deploy collection + desk |
 
 ## Deploy

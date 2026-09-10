@@ -7,11 +7,7 @@ import { getAttribution } from "@/lib/attribution";
 import { SITE_URL } from "@/lib/site";
 
 export type ViralJoinCampaign =
-  | "watch"
-  | "share_kit"
-  | "tickpix_tape"
-  | "scout_invite"
-  | "make_good";
+  "watch" | "share_kit" | "tickpix_tape" | "scout_invite" | "make_good";
 
 export function viralJoinHref(opts: {
   path?: "/auth" | "/access";

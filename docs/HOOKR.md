@@ -2,13 +2,13 @@
 
 Infrastructure partner on Robinhood Chain `4663`. **Rules before you sign** — not an airdrop portal, not a Culture Coin sequel.
 
-| Field | Value |
-| --- | --- |
-| Site | https://hookr.fun/ |
-| X | [@hookrfun](https://x.com/hookrfun) only |
-| Chain | Robinhood Chain `4663` |
+| Field                    | Value                                        |
+| ------------------------ | -------------------------------------------- |
+| Site                     | https://hookr.fun/                           |
+| X                        | [@hookrfun](https://x.com/hookrfun) only     |
+| Chain                    | Robinhood Chain `4663`                       |
 | $HOOKR (verify on Hookr) | `0x18E674231A58c239Dc7DaeDcffE15Ec3A24cff5c` |
-| SSOT | `src/lib/hookr.ts` |
+| SSOT                     | `src/lib/hookr.ts`                           |
 
 ## What Hookr is
 
@@ -18,10 +18,10 @@ Hookr’s own security line (we mirror it): no airdrop/claim portal; Hookr does 
 
 ## Aura fit (phased)
 
-| Phase | What we ship now | Later |
-| --- | --- | --- |
-| B (this sprint) | Playbook + builders/token links + covenant language | — |
-| C | Optional creator hooked pools / transparent treasury LP | Agent desk Hookr discovery |
+| Phase           | What we ship now                                        | Later                      |
+| --------------- | ------------------------------------------------------- | -------------------------- |
+| B (this sprint) | Playbook + builders/token links + covenant language     | —                          |
+| C               | Optional creator hooked pools / transparent treasury LP | Agent desk Hookr discovery |
 
 Aura remains the company desk (creator mints, USDG, OKX DEX). Hookr remains pool **rules**. We do **not** launch a speculative Aura/Culture meme on Hookr in this sprint.
 

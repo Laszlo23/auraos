@@ -7,11 +7,7 @@ import { SiteFooter } from "@/components/aura/site-footer";
 import { VerifyStrip } from "@/components/aura/verify-strip";
 import { useLocale } from "@/hooks/use-locale";
 import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
-import {
-  COVENANT_LINKS,
-  COVENANT_PATH,
-  COVENANT_PROMISES,
-} from "@/lib/community-covenant";
+import { COVENANT_LINKS, COVENANT_PATH, COVENANT_PROMISES } from "@/lib/community-covenant";
 import { SITE_URL, SOCIAL_LINKS, url } from "@/lib/site";
 import { HOOKR } from "@/lib/hookr";
 
@@ -76,9 +72,7 @@ function TrustPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {String(i + 1).padStart(2, "0")}
               </p>
-              <h2 className="mt-1 text-[17px] font-semibold">
-                {de ? p.titleDe : p.title}
-              </h2>
+              <h2 className="mt-1 text-[17px] font-semibold">{de ? p.titleDe : p.title}</h2>
               <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
                 {de ? p.bodyDe : p.body}
               </p>
@@ -98,7 +92,12 @@ function TrustPage() {
             <li>
               {de ? "Offizielle X:" : "Official X:"}{" "}
               {x ? (
-                <a href={x.href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                <a
+                  href={x.href}
+                  className="text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   @buildingcultu3
                 </a>
               ) : null}
@@ -142,7 +141,9 @@ function TrustPage() {
 
         <section className="mt-12">
           <h2 className="text-[15px] font-semibold">
-            {de ? "Building Culture — was wir weiterbauen" : "Building Culture — what we keep building"}
+            {de
+              ? "Building Culture — was wir weiterbauen"
+              : "Building Culture — what we keep building"}
           </h2>
           <p className="mt-2 text-[13px] text-muted-foreground">
             {de

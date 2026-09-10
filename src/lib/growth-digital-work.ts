@@ -4,11 +4,7 @@
  */
 
 export type GrowthTaskKind =
-  | "custom"
-  | "social_post"
-  | "space_showup"
-  | "scout_invite"
-  | "channels_publish";
+  "custom" | "social_post" | "space_showup" | "scout_invite" | "channels_publish";
 
 export type GrowthTaskTemplate = {
   id: string;

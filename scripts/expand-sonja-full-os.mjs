@@ -89,8 +89,7 @@ const AGENTS = [
     role: "Yield & Liquidity",
     avatar: "◈",
     accent: "emerald",
-    memory:
-      "Yield desk for seat liquidity path. Paper until armed. Never invent on-chain fills.",
+    memory: "Yield desk for seat liquidity path. Paper until armed. Never invent on-chain fills.",
   },
 ];
 

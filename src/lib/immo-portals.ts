@@ -256,7 +256,10 @@ export function portalSeedUrls(): string[] {
 }
 
 export function portalByHost(urlOrHost: string): ImmoPortal | undefined {
-  let host = urlOrHost.trim().toLowerCase().replace(/^www\./, "");
+  let host = urlOrHost
+    .trim()
+    .toLowerCase()
+    .replace(/^www\./, "");
   try {
     host = new URL(urlOrHost).hostname.replace(/^www\./, "").toLowerCase();
   } catch {

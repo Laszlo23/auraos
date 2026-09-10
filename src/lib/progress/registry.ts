@@ -315,8 +315,12 @@ const BASE_QUESTS = [
 
 export const QUEST_REGISTRY: QuestMission[] = BASE_QUESTS;
 
-export const DAILY_QUEST_KEYS = QUEST_REGISTRY.filter((q) => q.cadence === "daily").map((q) => q.key);
-export const WEEKLY_QUEST_KEYS = QUEST_REGISTRY.filter((q) => q.cadence === "weekly").map((q) => q.key);
+export const DAILY_QUEST_KEYS = QUEST_REGISTRY.filter((q) => q.cadence === "daily").map(
+  (q) => q.key,
+);
+export const WEEKLY_QUEST_KEYS = QUEST_REGISTRY.filter((q) => q.cadence === "weekly").map(
+  (q) => q.key,
+);
 
 export function questByKey(key: string): QuestMission | undefined {
   return QUEST_REGISTRY.find((q) => q.key === key);

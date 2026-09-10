@@ -571,7 +571,9 @@ function AuthPage() {
         setNeedsInviteToContinue(true);
         setMode("signup");
         setMagicCreatesUser(true);
-        toast.message("Complete Aura OS checkout — $29 / month or $299 / year — to open your company.");
+        toast.message(
+          "Complete Aura OS checkout — $29 / month or $299 / year — to open your company.",
+        );
         return false;
       }
       if (gate === "preview") {
@@ -624,12 +626,7 @@ function AuthPage() {
         } else {
           navigate({
             to: dest as
-              | "/console"
-              | "/heute"
-              | "/missions"
-              | "/akquise"
-              | "/trading"
-              | "/onboarding",
+              "/console" | "/heute" | "/missions" | "/akquise" | "/trading" | "/onboarding",
           });
         }
       }

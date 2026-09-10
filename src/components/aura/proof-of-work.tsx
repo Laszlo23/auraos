@@ -72,16 +72,10 @@ export function ProofOfWork({
   const list = steps ?? [];
   const refs = sources ?? [];
   const resultText =
-    result?.trim() ||
-    (done ? "Completed (no write-up filed)." : running ? "Working…" : "Pending");
+    result?.trim() || (done ? "Completed (no write-up filed)." : running ? "Working…" : "Pending");
 
   return (
-    <article
-      className={cn(
-        "glass-soft space-y-4 rounded-2xl p-4 sm:p-5",
-        className,
-      )}
-    >
+    <article className={cn("glass-soft space-y-4 rounded-2xl p-4 sm:p-5", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
           Proof of work
@@ -104,11 +98,7 @@ export function ProofOfWork({
       <dl className="space-y-3 border-t border-border/40 pt-3">
         <MetaRow label="Who">{agentName ?? "Unassigned"}</MetaRow>
         <MetaRow label="When">
-          {completedAt
-            ? timeAgo(completedAt)
-            : createdAt
-              ? `Started ${timeAgo(createdAt)}`
-              : "—"}
+          {completedAt ? timeAgo(completedAt) : createdAt ? `Started ${timeAgo(createdAt)}` : "—"}
         </MetaRow>
         <MetaRow label="Cost">{done ? `${TASK_COST} AURA` : `Up to ${TASK_COST} AURA`}</MetaRow>
         <MetaRow label="Profit">
@@ -139,9 +129,7 @@ export function ProofOfWork({
                 </span>
                 <span>
                   <span className="font-medium text-foreground">{s.label}</span>
-                  {s.detail ? (
-                    <span className="text-muted-foreground"> — {s.detail}</span>
-                  ) : null}
+                  {s.detail ? <span className="text-muted-foreground"> — {s.detail}</span> : null}
                 </span>
               </li>
             ))}

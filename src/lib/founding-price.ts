@@ -1,4 +1,9 @@
-import { OS_YEAR_DISPLAY, OS_YEAR_DISPLAY_DE, OS_YEARLY_CENTS, OS_YEARLY_USD } from "@/lib/os-pricing";
+import {
+  OS_YEAR_DISPLAY,
+  OS_YEAR_DISPLAY_DE,
+  OS_YEARLY_CENTS,
+  OS_YEARLY_USD,
+} from "@/lib/os-pricing";
 
 /** Canonical Aura OS year price (also the Hood mint). Stripe must match cents. */
 export const FOUNDING_SEAT_USD = OS_YEARLY_USD;

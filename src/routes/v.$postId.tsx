@@ -122,7 +122,11 @@ function WatchPage() {
       /* still open */
     }
     trackTeaser("share", { placement: `watch_x:${post.id}`.slice(0, 40) });
-    window.open(shareIntentHref("x", { url: watchUrl, text: shareText }), "_blank", "noopener,noreferrer");
+    window.open(
+      shareIntentHref("x", { url: watchUrl, text: shareText }),
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const postToLinkedIn = () => {

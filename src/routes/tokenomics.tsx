@@ -203,7 +203,10 @@ function TokenomicsPage() {
           </p>
           <ul className="mt-5 space-y-3">
             {ROBINHOOD_CHAIN_POINTS.map((row) => (
-              <li key={row.title.en} className="rounded-2xl border border-border/40 bg-card/20 px-5 py-4">
+              <li
+                key={row.title.en}
+                className="rounded-2xl border border-border/40 bg-card/20 px-5 py-4"
+              >
                 <p className="text-[12px] font-semibold uppercase tracking-[0.16em]">
                   {loc(locale, row.title)}
                 </p>
@@ -373,8 +376,8 @@ function TokenomicsPage() {
             >
               {PRIVATE_SALE_TREASURY}
             </a>
-            . That address is immutable on the current sale contract. Platform rails (x402 /
-            fees / withdrawals) use a separately labeled wallet — see the private sale page.
+            . That address is immutable on the current sale contract. Platform rails (x402 / fees /
+            withdrawals) use a separately labeled wallet — see the private sale page.
           </p>
         </section>
 
@@ -425,8 +428,9 @@ function TokenomicsPage() {
             ))}
           </div>
           <p className="mt-4 text-[12.5px] text-muted-foreground">
-            Aura OS is $29 / month or $299 / year. The Hood mint is a separate optional $299 — 70% to
-            launch liquidity, 30% to developer ops (servers). Seats ≠ equity and ≠ the market token.
+            Aura OS is $29 / month or $299 / year. The Hood mint is a separate optional $299 — 70%
+            to launch liquidity, 30% to developer ops (servers). Seats ≠ equity and ≠ the market
+            token.
           </p>
         </section>
 

@@ -91,9 +91,7 @@ export function HoodMintStage({ locale }: { locale: "en" | "de" }) {
         <HoodEarlyPassGate locale={locale} onUnlocked={setEarlyUnlocked} compact />
       ) : null}
 
-      {mintOpen ? (
-        <HoodWalletMint locale={locale} earlyUnlocked={earlyUnlocked} compact />
-      ) : null}
+      {mintOpen ? <HoodWalletMint locale={locale} earlyUnlocked={earlyUnlocked} compact /> : null}
 
       <details className="group rounded-[1.2rem] border border-gold/20 bg-hood-stage/40 px-4 py-3">
         <summary className="cursor-pointer list-none text-[13px] font-semibold text-foreground/90 marker:content-none [&::-webkit-details-marker]:hidden">

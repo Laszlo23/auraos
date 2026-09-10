@@ -40,7 +40,8 @@ export const Route = createFileRoute("/access")({
       { property: "og:title", content: "Aura OS pricing — $29 / mo or $299 / year" },
       {
         property: "og:description",
-        content: "Fair software: try free, $29 / month, or $299 / year. Same OS. Cancel monthly anytime.",
+        content:
+          "Fair software: try free, $29 / month, or $299 / year. Same OS. Cancel monthly anytime.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/access` },

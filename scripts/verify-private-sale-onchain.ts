@@ -17,12 +17,28 @@ async function main() {
   const code = await client.getBytecode({ address });
   const name = await client.readContract({
     address,
-    abi: [{ type: "function", name: "name", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] }],
+    abi: [
+      {
+        type: "function",
+        name: "name",
+        stateMutability: "view",
+        inputs: [],
+        outputs: [{ type: "string" }],
+      },
+    ],
     functionName: "name",
   });
   const symbol = await client.readContract({
     address,
-    abi: [{ type: "function", name: "symbol", stateMutability: "view", inputs: [], outputs: [{ type: "string" }] }],
+    abi: [
+      {
+        type: "function",
+        name: "symbol",
+        stateMutability: "view",
+        inputs: [],
+        outputs: [{ type: "string" }],
+      },
+    ],
     functionName: "symbol",
   });
   const treasury = await client.readContract({

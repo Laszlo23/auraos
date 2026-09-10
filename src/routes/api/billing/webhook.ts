@@ -187,7 +187,11 @@ export const Route = createFileRoute("/api/billing/webhook")({
                     session.payment_intent,
                     refund.id,
                   );
-                  return Response.json({ received: true, refunded: true, reason: "seats_sold_out" });
+                  return Response.json({
+                    received: true,
+                    refunded: true,
+                    reason: "seats_sold_out",
+                  });
                 } catch (refundErr) {
                   console.error(
                     "[billing/webhook] sold-out refund failed",

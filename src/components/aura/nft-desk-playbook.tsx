@@ -28,9 +28,7 @@ export function NftDeskPlaybookPanel({ className = "" }: { className?: string })
 
   return (
     <section id="nft-desk" className={`scroll-mt-24 ${className}`}>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
-        NFT desk
-      </p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">NFT desk</p>
       <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
         {de
           ? "Transparente Strategien — kein Fake-Aktien-NFT"
@@ -65,7 +63,9 @@ export function NftDeskPlaybookPanel({ className = "" }: { className?: string })
                 {loc(locale, s.osAdvantage)}
               </p>
               <p className="text-[12px] leading-relaxed text-muted-foreground">
-                <span className="font-semibold text-gold">{de ? "Community: " : "Community: "}</span>
+                <span className="font-semibold text-gold">
+                  {de ? "Community: " : "Community: "}
+                </span>
                 {loc(locale, s.communityAdvantage)}
               </p>
             </div>
@@ -95,9 +95,7 @@ export function NftDeskPlaybookPanel({ className = "" }: { className?: string })
                 {c.ok ? "◆" : "◇"}
               </span>
               <span>
-                <span className="font-semibold text-foreground">
-                  {de ? c.labelDe : c.label}
-                </span>
+                <span className="font-semibold text-foreground">{de ? c.labelDe : c.label}</span>
                 {" — "}
                 {de ? c.detailDe : c.detail}
               </span>

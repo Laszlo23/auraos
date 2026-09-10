@@ -8,11 +8,7 @@ import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { concatHex, formatEther, type Address, type Hex } from "viem";
 
-import {
-  alchemyRpcUrl,
-  gasSponsorshipEnabled,
-  nativeGasBufferWei,
-} from "../src/lib/chain-config";
+import { alchemyRpcUrl, gasSponsorshipEnabled, nativeGasBufferWei } from "../src/lib/chain-config";
 import { baseBuilderDataSuffix } from "../src/lib/base-builder";
 import {
   createSponsoredLightClient,
@@ -65,9 +61,7 @@ async function nativeBal(rpc: string, address: string): Promise<bigint> {
 
 async function main() {
   loadDotEnv();
-  const walletAddress = (
-    arg("--address") || "0xF1fcB0c5a9F23CCaB3a16620073f7B26A18f8873"
-  ).trim();
+  const walletAddress = (arg("--address") || "0xF1fcB0c5a9F23CCaB3a16620073f7B26A18f8873").trim();
   const toRaw = (arg("--to") || "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1").trim();
   const feeMult = Number(arg("--fee-mult") || "4");
   const feeGwei = arg("--fee-gwei");
@@ -111,18 +105,14 @@ async function main() {
   const bal = await nativeBal(rpc, from);
   const sponsored = gasSponsorshipEnabled(network);
   const defaultBuffer = nativeGasBufferWei(network, sponsored);
-  const buffer = bufferEth
-    ? BigInt(Math.round(Number(bufferEth) * 1e18))
-    : defaultBuffer;
+  const buffer = bufferEth ? BigInt(Math.round(Number(bufferEth) * 1e18)) : defaultBuffer;
   const spendable = bal > buffer ? bal - buffer : 0n;
 
   const overrides =
     feeGwei != null
       ? {
           maxFeePerGas: BigInt(Math.round(Number(feeGwei) * 1e9)),
-          maxPriorityFeePerGas: BigInt(
-            Math.round(Number(priorityGwei ?? feeGwei) * 1e9),
-          ),
+          maxPriorityFeePerGas: BigInt(Math.round(Number(priorityGwei ?? feeGwei) * 1e9)),
         }
       : {
           maxFeePerGas: { multiplier: feeMult },

@@ -63,15 +63,21 @@ function PitPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{kicker}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+              {kicker}
+            </p>
             <div className="mt-3 inline-flex max-w-xl flex-wrap items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-[12px] font-semibold text-primary">
               {de ? windowCopy.bannerDe : windowCopy.banner}
             </div>
             <h1 className="mt-4 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               {title}
             </h1>
-            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">{lead}</p>
-            <p className="mt-4 max-w-xl text-[14px] leading-relaxed text-foreground/85">{auraLink}</p>
+            <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+              {lead}
+            </p>
+            <p className="mt-4 max-w-xl text-[14px] leading-relaxed text-foreground/85">
+              {auraLink}
+            </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href={mintHref}
@@ -94,7 +100,9 @@ function PitPage() {
                 {de ? "Hood = OS-Pass" : "Hood = OS passport"}
               </Link>
             </div>
-            <p className="mt-6 max-w-lg text-[12px] leading-relaxed text-muted-foreground">{disclaimer}</p>
+            <p className="mt-6 max-w-lg text-[12px] leading-relaxed text-muted-foreground">
+              {disclaimer}
+            </p>
             <div className="mt-6 max-w-xl">
               <VerifyStrip compact de={de} />
               <Link

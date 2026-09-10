@@ -118,7 +118,10 @@ function rpcFor(sepolia: boolean): string {
 }
 
 function artifact(
-  contracts: Record<string, Record<string, { abi: unknown; evm: { bytecode: { object: string } } }>>,
+  contracts: Record<
+    string,
+    Record<string, { abi: unknown; evm: { bytecode: { object: string } } }>
+  >,
   file: string,
   name: string,
 ) {
@@ -132,7 +135,11 @@ async function main() {
   const compileOnly = process.argv.includes("--compile-only");
   const sepolia = process.argv.includes("--sepolia");
   const contracts = compile();
-  const passportArt = artifact(contracts, "contracts/genesis/GenesisPassport.sol", "GenesisPassport");
+  const passportArt = artifact(
+    contracts,
+    "contracts/genesis/GenesisPassport.sol",
+    "GenesisPassport",
+  );
   const dropArt = artifact(contracts, "contracts/launch/AuraHoodGiftDrop.sol", "AuraHoodGiftDrop");
   const deskArt = artifact(contracts, "contracts/launch/AuraLaunchEscrow.sol", "AuraLaunchEscrow");
 

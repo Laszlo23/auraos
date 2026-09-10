@@ -597,8 +597,8 @@ function FinanceSnapshot({
               >
                 <span className="font-semibold text-white/90">{tier.label}</span>
                 {" · "}
-                d30 ${tier.day30Usd.toLocaleString()} · d60 ${tier.day60Usd.toLocaleString()} · d90 $
-                {tier.day90Usd.toLocaleString()}
+                d30 ${tier.day30Usd.toLocaleString()} · d60 ${tier.day60Usd.toLocaleString()} · d90
+                ${tier.day90Usd.toLocaleString()}
                 <p className="mt-0.5 text-white/45">{tier.note}</p>
               </div>
             ))}

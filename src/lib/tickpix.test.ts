@@ -31,8 +31,12 @@ describe("tickpix raid window", () => {
       hook: "TICKPIX CCFF00 free raid extended to 12 Sep 19:00 UTC — verify the CA, never trust a DM.",
       captions: ["raid"],
     };
-    expect(liveSharePost(raidPost, Date.parse("2026-09-10T12:00:00.000Z")).hook).toContain("free raid");
-    expect(liveSharePost(raidPost, Date.parse("2026-09-13T00:00:00.000Z")).hook).toContain("public mint");
+    expect(liveSharePost(raidPost, Date.parse("2026-09-10T12:00:00.000Z")).hook).toContain(
+      "free raid",
+    );
+    expect(liveSharePost(raidPost, Date.parse("2026-09-13T00:00:00.000Z")).hook).toContain(
+      "public mint",
+    );
   });
 
   it("schedules post-raid Tickpix drip without EXTENDED copy", () => {

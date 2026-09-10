@@ -12,12 +12,7 @@ describe("nft desk playbook", () => {
   it("never frames Hood or peg as equity / Tesla shares", () => {
     const blob = [
       NFT_DESK_HARD_NO.en,
-      ...NFT_DESK_STRATEGIES.flatMap((s) => [
-        s.not.en,
-        s.how.en,
-        s.title.en,
-        s.trainHint.en,
-      ]),
+      ...NFT_DESK_STRATEGIES.flatMap((s) => [s.not.en, s.how.en, s.title.en, s.trainHint.en]),
     ].join("\n");
     expect(blob).toMatch(/not equity|Not equity|not a Tesla|not wrapped|not live/i);
     expect(blob.toLowerCase()).not.toMatch(/owns tesla shares|redeem for stock|guaranteed apy/);

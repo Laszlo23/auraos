@@ -1,8 +1,4 @@
-import {
-  buildLeadDigestEmail,
-  shouldSendDigestNow,
-  type LeadDigestLead,
-} from "@/lib/lead-digest";
+import { buildLeadDigestEmail, shouldSendDigestNow, type LeadDigestLead } from "@/lib/lead-digest";
 import { sendDigestMail } from "@/lib/platform-mail.server";
 
 type PrefRow = {
@@ -81,10 +77,7 @@ async function sendOneDigest(opts: {
       const { scoutListingsForCompany } = await import("@/lib/immo-listing-scout.server");
       await scoutListingsForCompany(opts.pref.company_id, { force: Boolean(opts.force) });
     } catch (e) {
-      console.warn(
-        "[lead-digest] listing scout skipped",
-        e instanceof Error ? e.message : e,
-      );
+      console.warn("[lead-digest] listing scout skipped", e instanceof Error ? e.message : e);
     }
   }
 
@@ -106,7 +99,9 @@ async function sendOneDigest(opts: {
 
   const { data: newRows } = await supabaseAdmin
     .from("akquise_leads")
-    .select("id, name, org, email, phone, source_url, address, snippet, score, created_at, metadata")
+    .select(
+      "id, name, org, email, phone, source_url, address, snippet, score, created_at, metadata",
+    )
     .eq("company_id", opts.pref.company_id)
     .gt("created_at", cutoff)
     .order("created_at", { ascending: false })
@@ -114,7 +109,9 @@ async function sendOneDigest(opts: {
 
   const { data: recentRows } = await supabaseAdmin
     .from("akquise_leads")
-    .select("id, name, org, email, phone, source_url, address, snippet, score, created_at, metadata")
+    .select(
+      "id, name, org, email, phone, source_url, address, snippet, score, created_at, metadata",
+    )
     .eq("company_id", opts.pref.company_id)
     .order("created_at", { ascending: false })
     .limit(8);

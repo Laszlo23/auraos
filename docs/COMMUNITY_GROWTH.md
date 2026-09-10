@@ -11,15 +11,15 @@ How we get known on-chain and in communities **without** repeating Culture Coin 
 
 ## Public surfaces (shipped)
 
-| Surface | URL | Job |
-| --- | --- | --- |
-| Covenant | [/trust](https://aibusiness.fun/trust) | Six promises + verify strip |
-| Pit | [/pit](https://aibusiness.fun/pit) | Tickpix discovery + trust strip |
-| Mint | [nft.aibusiness.fun](https://nft.aibusiness.fun) | Canonical mint |
-| Blog essay | [/blog/make-it-up-by-building](https://aibusiness.fun/blog/make-it-up-by-building) | Narrative for share |
-| Share kit | [/share](https://aibusiness.fun/share) `#tickpix-pit` `#make-good` | Copy-ready captions |
-| Proof | [/proof](https://aibusiness.fun/proof) | Work receipts |
-| Roadmap | [/roadmap](https://aibusiness.fun/roadmap) | `tickpix-pit` stop |
+| Surface    | URL                                                                                | Job                             |
+| ---------- | ---------------------------------------------------------------------------------- | ------------------------------- |
+| Covenant   | [/trust](https://aibusiness.fun/trust)                                             | Six promises + verify strip     |
+| Pit        | [/pit](https://aibusiness.fun/pit)                                                 | Tickpix discovery + trust strip |
+| Mint       | [nft.aibusiness.fun](https://nft.aibusiness.fun)                                   | Canonical mint                  |
+| Blog essay | [/blog/make-it-up-by-building](https://aibusiness.fun/blog/make-it-up-by-building) | Narrative for share             |
+| Share kit  | [/share](https://aibusiness.fun/share) `#tickpix-pit` `#make-good`                 | Copy-ready captions             |
+| Proof      | [/proof](https://aibusiness.fun/proof)                                             | Work receipts                   |
+| Roadmap    | [/roadmap](https://aibusiness.fun/roadmap)                                         | `tickpix-pit` stop              |
 
 Code: `src/lib/community-covenant.ts`, `src/routes/trust.tsx`, drip in `src/lib/x-launch-campaign.ts`.
 

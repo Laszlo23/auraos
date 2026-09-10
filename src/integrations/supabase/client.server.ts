@@ -32,6 +32,74 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+function createNoOpSupabaseAdminClient() {
+  // Minimal no-op client that returns safe responses without throwing
+  const noOpPromise = Promise.resolve({ data: null, error: null });
+  const noOpBuilder = {
+    select: () => noOpBuilder,
+    insert: () => noOpBuilder,
+    update: () => noOpBuilder,
+    delete: () => noOpBuilder,
+    upsert: () => noOpBuilder,
+    eq: () => noOpBuilder,
+    neq: () => noOpBuilder,
+    gt: () => noOpBuilder,
+    gte: () => noOpBuilder,
+    lt: () => noOpBuilder,
+    lte: () => noOpBuilder,
+    like: () => noOpBuilder,
+    ilike: () => noOpBuilder,
+    is: () => noOpBuilder,
+    in: () => noOpBuilder,
+    contains: () => noOpBuilder,
+    containedBy: () => noOpBuilder,
+    filter: () => noOpBuilder,
+    match: () => noOpBuilder,
+    not: () => noOpBuilder,
+    or: () => noOpBuilder,
+    order: () => noOpBuilder,
+    limit: () => noOpBuilder,
+    range: () => noOpBuilder,
+    abortSignal: () => noOpBuilder,
+    single: () => noOpPromise,
+    maybeSingle: () => noOpPromise,
+    then: (resolve: (value: { data: null; error: null }) => unknown) =>
+      resolve({ data: null, error: null }),
+    catch: () => noOpPromise,
+  };
+
+  return {
+    from: () => noOpBuilder,
+    rpc: () => noOpPromise,
+    channel: () => ({
+      on: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
+    }),
+    auth: {
+      getSession: () => noOpPromise,
+      getUser: () => noOpPromise,
+      signInWithPassword: () => noOpPromise,
+      signInWithOAuth: () => noOpPromise,
+      signUp: () => noOpPromise,
+      signOut: () => noOpPromise,
+      resetPasswordForEmail: () => noOpPromise,
+      updateUser: () => noOpPromise,
+      setSession: () => noOpPromise,
+      refreshSession: () => noOpPromise,
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    },
+    storage: {
+      from: () => ({
+        upload: () => noOpPromise,
+        download: () => noOpPromise,
+        getPublicUrl: () => ({ data: { publicUrl: "" } }),
+        remove: () => noOpPromise,
+        list: () => noOpPromise,
+        createSignedUrl: () => noOpPromise,
+      }),
+    },
+  } as unknown as ReturnType<typeof createClient<Database>>;
+}
+
 function createSupabaseAdminClient() {
   const SUPABASE_URL = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
   // Prefer classic service_role JWT; also accept new opaque secret keys (sb_secret_…).
@@ -74,8 +142,10 @@ function createSupabaseAdminClient() {
       ...(!SUPABASE_SERVICE_ROLE_KEY ? ["SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY)"] : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Add the service_role / secret key from Supabase → Project Settings → API Keys.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    console.warn(`[Supabase] ${message} — returning no-op client to prevent SSR crash`);
+
+    // Return a no-op client that doesn't crash the build/SSR when env is missing
+    return createNoOpSupabaseAdminClient();
   }
 
   // Fail loudly if someone pasted the anon JWT into SERVICE_ROLE — RLS then

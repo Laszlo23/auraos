@@ -106,12 +106,7 @@ export function LocalDeShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (
-    shellReady &&
-    !needsOnboarding &&
-    !seatPaid &&
-    !LOCAL_SHELL_OPEN_ROUTES.has(pathname)
-  ) {
+  if (shellReady && !needsOnboarding && !seatPaid && !LOCAL_SHELL_OPEN_ROUTES.has(pathname)) {
     return (
       <div className="relative flex min-h-svh flex-col items-center justify-center bg-background px-6 text-center">
         <LanguageToggle className="absolute right-4 top-4" />

@@ -58,7 +58,9 @@ export function portalSearchQueries(portal: ImmoPortal, criteria: ImmoWatchCrite
   const dealWord = deals.includes("kaufen") && !deals.includes("mieten") ? "kaufen" : "mieten";
   const types = criteria.propertyTypes.length ? criteria.propertyTypes : ["wohnung", "haus"];
   const queries = [
-    `site:${portal.host} ${region} ${types[0]} ${dealWord} ${portal.searchHint}`.replace(/\s+/g, " ").trim(),
+    `site:${portal.host} ${region} ${types[0]} ${dealWord} ${portal.searchHint}`
+      .replace(/\s+/g, " ")
+      .trim(),
     `site:${portal.host} ${region} ${types.slice(0, 2).join(" OR ")} ${dealWord} neu`,
   ];
   if (criteria.preferPrivate) {
@@ -123,7 +125,10 @@ export function scoreListing(opts: {
   const deal = detectDeal(blob);
   if (opts.criteria.dealTypes.includes(deal)) score += 12;
   if (/wohnung|apartment/.test(t) && opts.criteria.propertyTypes.includes("wohnung")) score += 8;
-  if (/\bhaus\b|villa|reihenhaus|doppelhaus/.test(t) && opts.criteria.propertyTypes.includes("haus")) {
+  if (
+    /\bhaus\b|villa|reihenhaus|doppelhaus/.test(t) &&
+    opts.criteria.propertyTypes.includes("haus")
+  ) {
     score += 8;
   }
 
@@ -155,7 +160,11 @@ export function listingFromSearchHit(opts: {
   const scored = scoreListing(opts);
   if (scored.score < opts.criteria.minScore) return null;
   const blob = `${opts.title} ${opts.snippet}`;
-  const title = opts.title.replace(/\s*[|\-–—].*$/, "").trim().slice(0, 160) || "Inserat";
+  const title =
+    opts.title
+      .replace(/\s*[|\-–—].*$/, "")
+      .trim()
+      .slice(0, 160) || "Inserat";
   return {
     title,
     address: regionHit(blob, opts.criteria.region) ? opts.criteria.region : null,
@@ -171,7 +180,10 @@ export function listingFromSearchHit(opts: {
   };
 }
 
-export function queriesForScout(criteria: ImmoWatchCriteria, portalLimit: number): { portal: ImmoPortal; queries: string[] }[] {
+export function queriesForScout(
+  criteria: ImmoWatchCriteria,
+  portalLimit: number,
+): { portal: ImmoPortal; queries: string[] }[] {
   return activeImmoPortals()
     .slice(0, portalLimit)
     .map((portal) => ({ portal, queries: portalSearchQueries(portal, criteria) }));

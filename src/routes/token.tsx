@@ -14,26 +14,14 @@ import { RobinhoodMomentumStrip } from "@/components/aura/robinhood-momentum-str
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useLocale } from "@/hooks/use-locale";
 import { visibleRefetchInterval } from "@/hooks/use-aura";
-import {
-  HOOD_GIFT_AURA,
-  HOOD_MAX_SUPPLY,
-  LAUNCH_PROOF,
-} from "@/lib/aura-launch";
-import {
-  AURA_OFFICIAL_CA_SOURCES,
-  AURA_PAIR_URL,
-  auraCaLive,
-} from "@/lib/aura-token";
+import { HOOD_GIFT_AURA, HOOD_MAX_SUPPLY, LAUNCH_PROOF } from "@/lib/aura-launch";
+import { AURA_OFFICIAL_CA_SOURCES, AURA_PAIR_URL, auraCaLive } from "@/lib/aura-token";
 import { auraPairAddress, auraTokenAddress } from "@/lib/aura-self-launch";
 import { num } from "@/lib/format";
 import { OG_CAMPAIGN, ogCampaignUrl } from "@/lib/og-campaign";
 import { PRIVATE_SALE_BONUS_BPS, privateSaleBasescan } from "@/lib/private-sale";
 import { getPrivateSaleLive } from "@/lib/private-sale.functions";
-import {
-  loc,
-  REFERENCE_PEG_DISCLAIMER,
-  TREASURY_REFERENCE_BASKET,
-} from "@/lib/robinhood-momentum";
+import { loc, REFERENCE_PEG_DISCLAIMER, TREASURY_REFERENCE_BASKET } from "@/lib/robinhood-momentum";
 import { pageHead } from "@/lib/seo";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 
@@ -140,16 +128,12 @@ function TokenInvestorPage() {
 
       <div className="relative mx-auto max-w-3xl px-6 py-14 sm:py-20">
         {/* Hero — one composition */}
-        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">
-          AURA
-        </p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-primary">AURA</p>
         <h1 className="mt-4 font-display text-[clamp(2.6rem,9vw,4rem)] font-semibold leading-[0.96] tracking-tight">
           AURA
         </h1>
         <p className="mt-4 max-w-md text-[17px] leading-relaxed text-foreground/85">
-          {de
-            ? "Den Token besitzen — OS optional."
-            : "Own the token — OS optional."}
+          {de ? "Den Token besitzen — OS optional." : "Own the token — OS optional."}
         </p>
         <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground">
           {de
@@ -239,7 +223,9 @@ function TokenInvestorPage() {
           </h2>
           <ul className="mt-5 space-y-3">
             <GiveRow
-              title={de ? `pAURA → ×${launchMultiple} bei T-0` : `pAURA → ×${launchMultiple} at T-0`}
+              title={
+                de ? `pAURA → ×${launchMultiple} bei T-0` : `pAURA → ×${launchMultiple} at T-0`
+              }
               body={
                 de
                   ? `1 pAURA wird ${launchMultiple} AURA. Bonus ist on-chain, nicht Marketing.`
@@ -298,10 +284,7 @@ function TokenInvestorPage() {
               </a>
               {pair || AURA_PAIR_URL ? (
                 <a
-                  href={
-                    AURA_PAIR_URL ??
-                    (pair ? privateSaleBasescan(`/address/${pair}`) : "#")
-                  }
+                  href={AURA_PAIR_URL ?? (pair ? privateSaleBasescan(`/address/${pair}`) : "#")}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-2 inline-block text-[13px] font-semibold text-primary hover:underline"
@@ -348,9 +331,7 @@ function TokenInvestorPage() {
             <table className="w-full min-w-[20rem] text-left text-[13px]">
               <thead className="bg-foreground/[0.03] text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-2.5 font-semibold">
-                    {de ? "Symbol" : "Symbol"}
-                  </th>
+                  <th className="px-4 py-2.5 font-semibold">{de ? "Symbol" : "Symbol"}</th>
                   <th className="px-4 py-2.5 text-right font-semibold">%</th>
                   <th className="px-4 py-2.5 font-semibold">{de ? "Rolle" : "Role"}</th>
                 </tr>
@@ -360,9 +341,7 @@ function TokenInvestorPage() {
                   <tr key={row.id} className="border-t border-border/30">
                     <td className="px-4 py-2.5 font-semibold">{row.symbol}</td>
                     <td className="num px-4 py-2.5 text-right">{row.weightPct}%</td>
-                    <td className="px-4 py-2.5 text-muted-foreground">
-                      {loc(locale, row.role)}
-                    </td>
+                    <td className="px-4 py-2.5 text-muted-foreground">{loc(locale, row.role)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -434,7 +413,10 @@ function TokenInvestorPage() {
             {de
               ? ". Kein Airdrop-Theater. CAs nie per DM."
               : ". No airdrop theater. Never trust a CA by DM."}{" "}
-            <Link to="/trust" className="font-medium text-foreground underline-offset-2 hover:underline">
+            <Link
+              to="/trust"
+              className="font-medium text-foreground underline-offset-2 hover:underline"
+            >
               /trust
             </Link>
           </p>

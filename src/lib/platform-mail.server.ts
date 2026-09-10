@@ -7,9 +7,9 @@ import { sendViaSmtp } from "@/lib/smtp.server";
 export function platformSmtpConfigured(): boolean {
   return Boolean(
     process.env["PLATFORM_SMTP_HOST"]?.trim() &&
-      process.env["PLATFORM_SMTP_USER"]?.trim() &&
-      process.env["PLATFORM_SMTP_PASS"]?.trim() &&
-      process.env["PLATFORM_SMTP_FROM"]?.trim(),
+    process.env["PLATFORM_SMTP_USER"]?.trim() &&
+    process.env["PLATFORM_SMTP_PASS"]?.trim() &&
+    process.env["PLATFORM_SMTP_FROM"]?.trim(),
   );
 }
 

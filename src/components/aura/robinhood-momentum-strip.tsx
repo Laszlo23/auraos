@@ -18,7 +18,8 @@ export function RobinhoodMomentumStrip({ className = "" }: { className?: string 
       </span>
       <span className="text-muted-foreground">{loc(locale, ROBINHOOD_HOMEPAGE_LINE)}</span>
       <span className="inline-flex items-center gap-1 font-semibold text-primary">
-        Read the plan <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        Read the plan{" "}
+        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </span>
     </Link>
   );

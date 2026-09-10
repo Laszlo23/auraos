@@ -60,11 +60,7 @@ const saveSchema = z.object({
   enabled: z.boolean(),
   email: z.string().trim().email().max(200),
   timezone: z.string().trim().min(3).max(80).default("Europe/Vienna"),
-  hours: z
-    .array(z.number().int().min(0).max(23))
-    .min(1)
-    .max(4)
-    .default([8, 16]),
+  hours: z.array(z.number().int().min(0).max(23)).min(1).max(4).default([8, 16]),
   language: z.enum(["de", "en"]).default("de"),
 });
 

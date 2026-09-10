@@ -18,7 +18,8 @@ export function decodeTryCarryover(raw: string | null | undefined): string | nul
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Partial<TryCarryover>;
-    const prompt = typeof parsed.prompt === "string" ? parsed.prompt.trim().slice(0, MAX_PROMPT) : "";
+    const prompt =
+      typeof parsed.prompt === "string" ? parsed.prompt.trim().slice(0, MAX_PROMPT) : "";
     return prompt || null;
   } catch {
     return null;

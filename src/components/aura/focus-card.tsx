@@ -37,7 +37,9 @@ export function FocusCard({ eyebrow, title, children, footer, className }: Focus
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {children}
         </div>
-        {footer ? <div className="mt-4 shrink-0 border-t border-border/30 pt-3">{footer}</div> : null}
+        {footer ? (
+          <div className="mt-4 shrink-0 border-t border-border/30 pt-3">{footer}</div>
+        ) : null}
       </div>
     </section>
   );

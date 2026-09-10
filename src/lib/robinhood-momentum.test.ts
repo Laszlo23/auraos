@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  loc,
-  TREASURY_REFERENCE_BASKET,
-} from "@/lib/robinhood-momentum";
+import { loc, TREASURY_REFERENCE_BASKET } from "@/lib/robinhood-momentum";
 
 describe("robinhood-momentum", () => {
   it("localizes copy", () => {

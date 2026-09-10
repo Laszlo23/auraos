@@ -43,9 +43,9 @@ export type NetworkTotals = {
 };
 
 /** Live network counters — real numbers, never hand-written. */
-export function useNetworkTotals(
-  opts?: { refetchInterval?: number | false | (() => number | false) },
-) {
+export function useNetworkTotals(opts?: {
+  refetchInterval?: number | false | (() => number | false);
+}) {
   return useQuery({
     queryKey: ["network-totals"],
     refetchInterval: opts?.refetchInterval ?? 30_000,

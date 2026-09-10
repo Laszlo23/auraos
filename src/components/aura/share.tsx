@@ -102,11 +102,7 @@ function openShareWindow(href: string) {
   const h = 700;
   const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - w) / 2));
   const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - h) / 2));
-  window.open(
-    href,
-    "_blank",
-    `noopener,noreferrer,width=${w},height=${h},left=${left},top=${top}`,
-  );
+  window.open(href, "_blank", `noopener,noreferrer,width=${w},height=${h},left=${left},top=${top}`);
 }
 
 function useShareActions({

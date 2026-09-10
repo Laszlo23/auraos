@@ -51,10 +51,13 @@ export const Route = createFileRoute("/api/billing/founding-crypto")({
         } = await userClient.auth.getUser();
         if (userErr || !user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-        const limited = rateLimitConsume(`founding-crypto:${user.id}:${clientIpFromRequest(request)}`, {
-          limit: 5,
-          windowMs: 10 * 60_000,
-        });
+        const limited = rateLimitConsume(
+          `founding-crypto:${user.id}:${clientIpFromRequest(request)}`,
+          {
+            limit: 5,
+            windowMs: 10 * 60_000,
+          },
+        );
         if (!limited.ok) {
           return Response.json(
             { error: "Too many checkout attempts. Try again shortly." },
