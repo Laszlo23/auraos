@@ -64,7 +64,12 @@ export const Route = createFileRoute("/lokal")({
 
 function LokalLandingPage() {
   const { locale, setLocale } = useLocale();
-  const [lang, setLang] = useState<UiLocale>("de");
+  // Initialize from URL or default to de to prevent flash
+  const [lang, setLang] = useState<UiLocale>(() => {
+    if (typeof window === "undefined") return "de";
+    const params = new URLSearchParams(window.location.search);
+    return params.get("lang") === "en" ? "en" : "de";
+  });
 
   useLayoutEffect(() => {
     rememberFunnel("local");
