@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { Chip, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
+import { PostWinShareSheet } from "@/components/aura/post-win-share-sheet";
 import { QuestTrail, COMMUNITY_QUESTS } from "@/components/aura/quests";
 import {
   useCommunityHub,
@@ -46,6 +47,8 @@ import { num, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useUserId } from "@/hooks/use-identity";
 import { trackAppEvent } from "@/lib/app-track";
+import { progressWeekKey, tickpixShareText } from "@/lib/viral-join";
+import { shareWatchUrl } from "@/lib/share-posts";
 
 export const Route = createFileRoute("/_authenticated/community")({
   validateSearch: (search: Record<string, unknown>): { join?: string } => {
@@ -101,6 +104,7 @@ function CommunityHubPage() {
   const [burst, setBurst] = useState(0);
   const [xpToast, setXpToast] = useState<{ label: string; amount: number } | null>(null);
   const [joinPrefillTried, setJoinPrefillTried] = useState(false);
+  const [tapeShareOpen, setTapeShareOpen] = useState(false);
   const { data: myUserId } = useUserId();
 
   const { data: tickpix } = useQuery({
@@ -380,33 +384,54 @@ function CommunityHubPage() {
             <span>Clock in today · +25 XP</span>
             <ExternalLink className="h-3 w-3 text-muted-foreground" />
           </a>
-          <a
-            href={TICKPIX.mintUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => {
-              if (done.has("tickpix:share-tape")) return;
-              pop("Tape shared", 40);
-              void awardProgress({
-                eventKey: "tickpix:share-tape",
-                xp: 40,
-                rep: 4,
-                idempotencyKey: "tickpix:share-tape",
-              }).then(() => {
-                void qc.invalidateQueries({ queryKey: ["user-progress"] });
-                void qc.invalidateQueries({ queryKey: ["progress"] });
-              });
-            }}
+          <button
+            type="button"
+            onClick={() => setTapeShareOpen(true)}
             className={cn(
-              "flex items-center justify-between rounded-xl border px-3 py-2 text-[12px]",
+              "flex items-center justify-between rounded-xl border px-3 py-2 text-left text-[12px]",
               done.has("tickpix:share-tape") ? "border-primary/30 bg-primary/5" : "border-border/40",
             )}
           >
             <span>Share a tape card · +40 XP</span>
-            <ExternalLink className="h-3 w-3 text-muted-foreground" />
-          </a>
+            <Send className="h-3 w-3 text-muted-foreground" />
+          </button>
         </div>
       </Panel>
+
+      <PostWinShareSheet
+        open={tapeShareOpen}
+        onOpenChange={setTapeShareOpen}
+        title="Share the tape"
+        description="Post Tickpix + the covenant. XP lands when you hit Copy or open a network."
+        url={shareWatchUrl("tickpix-pit")}
+        text={tickpixShareText()}
+        placement="community_tickpix_tape"
+        onShared={() => {
+          if (done.has("tickpix:share-tape")) return;
+          pop("Tape shared", 40);
+          void awardProgress({
+            eventKey: "tickpix:share-tape",
+            xp: 40,
+            rep: 4,
+            idempotencyKey: progressWeekKey("tickpix:share-tape"),
+          }).then(() => {
+            void qc.invalidateQueries({ queryKey: ["user-progress"] });
+            void qc.invalidateQueries({ queryKey: ["progress"] });
+          });
+        }}
+      >
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          Mint lives at{" "}
+          <a href={TICKPIX.mintUrl} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+            nft.aibusiness.fun
+          </a>
+          . Trust rules at{" "}
+          <Link to="/trust" className="text-primary hover:underline">
+            /trust
+          </Link>
+          .
+        </p>
+      </PostWinShareSheet>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="space-y-6">

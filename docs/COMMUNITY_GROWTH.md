@@ -23,6 +23,53 @@ How we get known on-chain and in communities **without** repeating Culture Coin 
 
 Code: `src/lib/community-covenant.ts`, `src/routes/trust.tsx`, drip in `src/lib/x-launch-campaign.ts`.
 
+## 48h distribution blast (paste-ready)
+
+### Channels — re-seed drip checklist
+
+1. Sign in as founder → **[Channels](https://aibusiness.fun/channels)**
+2. Confirm **X** (and Farcaster if used) OAuth is connected — never store passwords
+3. Start / refresh **Fair-launch X drip** (and FC sister drip)
+4. Confirm next slots include `make-good` + `tickpix-pit` (rotation leads with those)
+5. Leave the worker ticking — do not manually spam the same CA in every reply
+
+### Pin on X (copy)
+
+```
+Culture Coin was rugged by a former partner. We can’t rewrite that.
+
+We make it up by building — rules you can hold us to:
+https://aibusiness.fun/trust
+
+TICKPIX culture seats (verify CA on Blockscout — never by DM):
+https://aibusiness.fun/pit
+Mint → https://nft.aibusiness.fun
+
+Official only: aibusiness.fun · nft.aibusiness.fun
+```
+
+Pin this. Reply with Blockscout token URL when someone asks for the CA.
+
+### Discord / Telegram sticky (copy)
+
+```
+Aura OS · Building Culture continuity
+
+How we show up (covenant): https://aibusiness.fun/trust
+TICKPIX pit: https://aibusiness.fun/pit
+Mint (canonical): https://nft.aibusiness.fun
+
+Hard rule: never trust a CA or mint link from a DM.
+Official domains only: aibusiness.fun · nft.aibusiness.fun
+
+Demo the desk: https://aibusiness.fun/auth → /console
+Share kit: https://aibusiness.fun/share
+```
+
+### Hasan / friends demo
+
+Walk `/console` on Trustline Capital. Friends leave via founding invite or Scout `/lokal?ref=` — not via surprise CAs.
+
 ## Weekly ritual (founder / Channels)
 
 1. **Seed / refresh X + Farcaster drip** on Channels (OAuth only — never store passwords). Rotation leads with `make-good` + `tickpix-pit`.
@@ -42,11 +89,12 @@ Code: `src/lib/community-covenant.ts`, `src/routes/trust.tsx`, drip in `src/lib/
 
 ## On-chain presence checklist
 
-- [ ] Tickpix CA matches env + mint `config.js` (`0xa1F563AA…`)
-- [ ] Blockscout token page linked from `/pit` and `/trust`
-- [ ] Holders can link wallet → Pit badge in Aura
-- [ ] Hood mint / claim still Base-only narrative
-- [ ] `llms.txt` + sitemap list `/trust` `/pit`
+- [x] Tickpix CA matches env + mint `config.js` (`0xa1F563AA…`)
+- [x] Blockscout token page linked from `/pit` and `/trust`
+- [x] Holders can link wallet → Pit badge in Aura
+- [x] Hood mint / claim still Base-only narrative
+- [x] `llms.txt` + sitemap list `/trust` `/pit`
+- [ ] Founder re-seeds X/FC drip + pins covenant post (manual Channels)
 
 ## When someone asks about Culture Coin
 

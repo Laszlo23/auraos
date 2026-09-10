@@ -1,15 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Flame, Trophy } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { DailyWheel } from "@/components/aura/wheel";
+import { PostWinShareSheet } from "@/components/aura/post-win-share-sheet";
 import { Chip, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
 import { useReferralCode } from "@/hooks/use-earn";
 import { useProgress } from "@/hooks/use-progress";
 import {
   useAchievements,
+  useAwardProgress,
   useJoinScout,
   useMergeSignupGrowth,
   useUserProgress,
@@ -23,6 +25,12 @@ import { questActionHref } from "@/lib/progress/quest-href";
 import { trackAppEvent } from "@/lib/app-track";
 import { getHolderPerks } from "@/lib/trading.functions";
 import { cn } from "@/lib/utils";
+import {
+  progressWeekKey,
+  scoutInviteKit,
+  scoutInviteXText,
+} from "@/lib/viral-join";
+import { shareIntentHref } from "@/components/aura/share";
 
 export const Route = createFileRoute("/_authenticated/quest")({
   head: () => ({
@@ -44,13 +52,17 @@ export const Route = createFileRoute("/_authenticated/quest")({
 });
 
 function QuestHubPage() {
+  const qc = useQueryClient();
   const { data: userProg } = useUserProgress();
   const { data: companyProg } = useProgress();
   const { data: achievements } = useAchievements();
   const { data: todaySpin } = useTodaySpin();
+  const { data: referralCode, refetch: refetchReferral } = useReferralCode();
   const joinScout = useJoinScout();
+  const award = useAwardProgress();
+  const [scoutShareOpen, setScoutShareOpen] = useState(false);
+  const [scoutShareUrl, setScoutShareUrl] = useState<string | null>(null);
   const mergeGrowth = useMergeSignupGrowth();
-  const { data: referralCode } = useReferralCode();
   const mergedOnce = useRef(false);
   const { data: perks } = useQuery({
     queryKey: ["holder-perks"],
@@ -86,28 +98,72 @@ function QuestHubPage() {
     ? `${SITE_URL}/lokal?ref=${encodeURIComponent(referralCode.code)}`
     : null;
 
-  const copyScoutLink = async () => {
-    if (!scoutLink) {
-      toast.message("Join Scouts first — then your invite link appears here.");
-      return;
+  const claimScoutShare = () => {
+    if (completed.has("growth:scout-share")) return;
+    void award.mutateAsync({
+      eventKey: "growth:scout-share",
+      xp: 35,
+      rep: 5,
+      idempotencyKey: progressWeekKey("growth:scout-share"),
+    });
+  };
+
+  const ensureScoutLink = async (): Promise<string | null> => {
+    if (!scoutJoined) {
+      await joinScout.mutateAsync();
+      trackAppEvent("scout_join", {});
+      await qc.invalidateQueries({ queryKey: ["referral-code"] });
+      const { data } = await refetchReferral();
+      const code = data?.code;
+      if (!code) {
+        toast.message("Scout joined — invite link minting. Try Share again in a second.");
+        return null;
+      }
+      return `${SITE_URL}/lokal?ref=${encodeURIComponent(code)}`;
     }
-    const kit = `Join Aura Local via my Scout link — when your seat pays, I earn contribution REP for connecting you (not the €49 Aura Reputation product).\n${scoutLink}`;
+    if (scoutLink) return scoutLink;
+    const { data } = await refetchReferral();
+    const code = data?.code;
+    return code ? `${SITE_URL}/lokal?ref=${encodeURIComponent(code)}` : null;
+  };
+
+  const openScoutShare = async () => {
     try {
-      await navigator.clipboard.writeText(kit);
+      const link = await ensureScoutLink();
+      if (!link) return;
+      setScoutShareUrl(link);
+      setScoutShareOpen(true);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open Scout share");
+    }
+  };
+
+  const copyScoutLink = async () => {
+    try {
+      const link = await ensureScoutLink();
+      if (!link) return;
+      await navigator.clipboard.writeText(scoutInviteKit(link));
+      claimScoutShare();
       toast.success("Scout invite kit copied");
     } catch {
       toast.error("Copy failed — select the link manually");
     }
   };
 
-  const shareScoutOnX = () => {
-    if (!scoutLink) {
-      toast.message("Join Scouts first — then your invite link appears here.");
-      return;
+  const shareScoutOnX = async () => {
+    try {
+      const link = await ensureScoutLink();
+      if (!link) return;
+      const text = scoutInviteXText(link);
+      window.open(
+        shareIntentHref("x", { url: link, text }),
+        "_blank",
+        "noopener,noreferrer",
+      );
+      claimScoutShare();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Share failed");
     }
-    const text = `Vienna shops: try Aura Local with my Scout invite. When your seat pays, I earn REP for connecting you.\n${scoutLink}`;
-    const href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    window.open(href, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -231,18 +287,28 @@ function QuestHubPage() {
               badge.
             </p>
             {!scoutJoined ? (
-              <button
-                type="button"
-                disabled={joinScout.isPending}
-                onClick={() => {
-                  void joinScout.mutateAsync().then(() => {
-                    trackAppEvent("scout_join", {});
-                  });
-                }}
-                className="mt-4 rounded-2xl bg-primary px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground"
-              >
-                Join Scouts
-              </button>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={joinScout.isPending}
+                  onClick={() => {
+                    void joinScout.mutateAsync().then(() => {
+                      trackAppEvent("scout_join", {});
+                    });
+                  }}
+                  className="rounded-2xl bg-primary px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground"
+                >
+                  Join Scouts
+                </button>
+                <button
+                  type="button"
+                  disabled={joinScout.isPending}
+                  onClick={() => void openScoutShare()}
+                  className="rounded-2xl border border-border/50 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em]"
+                >
+                  Join + share invite
+                </button>
+              </div>
             ) : (
               <div className="mt-4 space-y-3">
                 <Chip tone="gold">
@@ -264,19 +330,26 @@ function QuestHubPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => shareScoutOnX()}
+                      onClick={() => void shareScoutOnX()}
                       className="ml-2 mt-3 inline-flex items-center gap-2 rounded-xl border border-border/50 px-3 py-2 text-[11px] font-semibold text-foreground"
                     >
                       Share on X
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => void openScoutShare()}
+                      className="ml-2 mt-3 inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-[11px] font-semibold text-primary"
+                    >
+                      Share sheet
+                    </button>
                     <p className="mt-2 text-[11px] text-muted-foreground">
                       Share with shops. Attribution lands when their Local seat pays. Weekly Spaces:
-                      @buildingcultu3 — drop this link in chat.
+                      @buildingcultu3 — drop this link in chat. Completes growth:scout-share.
                     </p>
                   </div>
                 ) : (
                   <p className="text-[12px] text-muted-foreground">
-                    Minting your Scout invite… open Earn if the link does not appear.
+                    Minting your Scout invite… tap Share sheet to refresh the code.
                   </p>
                 )}
               </div>
@@ -334,6 +407,24 @@ function QuestHubPage() {
           </Panel>
         </div>
       </div>
+
+      <PostWinShareSheet
+        open={scoutShareOpen}
+        onOpenChange={(open) => {
+          setScoutShareOpen(open);
+          if (!open) setScoutShareUrl(null);
+        }}
+        title="Share your Scout invite"
+        description="When a shop pays Local via your link, you earn connector REP — not the €49 product."
+        url={scoutShareUrl ?? scoutLink ?? `${SITE_URL}/lokal`}
+        text={
+          scoutShareUrl || scoutLink
+            ? scoutInviteKit(scoutShareUrl ?? scoutLink!)
+            : "Join Aura Local — Vienna first."
+        }
+        placement="quest_scout_share"
+        onShared={claimScoutShare}
+      />
     </div>
   );
 }

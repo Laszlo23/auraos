@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-10-viral-loops",
+    date: "2026-09-10",
+    title: "Viral loops — watch join CTA, post-win share, one-tap Scout",
+    summary:
+      "Watch pages and the share kit convert into attributed joins. Tickpix tape share and Scout invites open a share sheet that awards weekly growth XP.",
+    items: [
+      "ViralJoinCta on /v/$postId + share kit — auth/access with UTM + preserved ref; Pit + covenant links",
+      "PostWinShareSheet on Community Tickpix share-tape and Quest Scout share",
+      "Quest: Join + share invite one-tap; copy/X/share sheet completes growth:scout-share",
+      "docs/COMMUNITY_GROWTH.md — paste-ready X pin, Discord/TG sticky, Channels drip checklist",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-08-community-covenant",
     date: "2026-09-08",
     title: "Community covenant — trust rebuild in public",

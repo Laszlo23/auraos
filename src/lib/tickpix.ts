@@ -18,8 +18,9 @@ export const TICKPIX = {
   explorer: "https://robinhoodchain.blockscout.com",
   /** Soft quest XP bump for holders — never Hood-tier rebates. */
   questXpBoostPct: 5,
-  allowlist: "CCFF00 holders: free during allowlist",
+  allowlist: "CCFF00 holders: free until 12 Sep 19:00 UTC (extended)",
   publicPrice: "0.0001 ETH",
+  raidEndsAt: "2026-09-12T19:00:00.000Z",
 } as const;
 
 export const TICKPIX_COPY = {

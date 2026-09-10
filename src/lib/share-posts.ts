@@ -511,11 +511,12 @@ ${CTA}`,
     aspect: "vertical",
     duration: "15s",
     bestFor: ["X", "Farcaster", "Discord", "Telegram"],
-    hook: "TICKPIX is live. Culture for the tape — verify the CA, never trust a DM.",
+    hook: "TICKPIX CCFF00 free raid extended to 12 Sep 19:00 UTC — verify the CA, never trust a DM.",
     captions: [
-      `TICKPIX is live on Robinhood Chain.
+      `TICKPIX CCFF00 free raid — EXTENDED to 12 Sep 19:00 UTC.
 
-Mint a seat at nft.aibusiness.fun
+Mint a seat at nft.aibusiness.fun (max 3 free if you held CCFF00)
+Then public @ 0.0001 ETH
 Aura OS: /pit → badge + Quest XP
 
 Not a stock. Not a fund. Not a second Hood.
@@ -529,6 +530,7 @@ ${CTA}`,
       `Culture seats for the room.
 
 TICKPIX = membership on the tape (chain 4663).
+CCFF00 free window open until 12 Sep 19:00 UTC.
 Hood = OS founding key on Base.
 
 Same team. Different keys. No dilution theater.

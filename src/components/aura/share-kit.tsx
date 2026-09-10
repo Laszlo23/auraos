@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { ShareBar } from "@/components/aura/share";
+import { ViralJoinCta } from "@/components/aura/viral-join-cta";
 import { WienWaveLoop } from "@/components/aura/wien-wave-loop";
 import {
   downloadShareVideo,
@@ -470,6 +471,7 @@ export function ShareKit({
               text={`Aura OS share kit — hosted clips + captions ready to post. ${SITE_URL}/share`}
               placement={`${placement}_bar`}
             />
+            <ViralJoinCta className="mt-4" campaign="share_kit" content={post.id} />
             <Link
               to="/v/$postId"
               params={{ postId: post.id }}

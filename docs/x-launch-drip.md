@@ -11,7 +11,9 @@ Public clips people can steal, plus an OAuth-only X schedule that posts ~2–3×
 | Surface           | URL / path                                                               | Who                                        |
 | ----------------- | ------------------------------------------------------------------------ | ------------------------------------------ |
 | Share kit         | [`/share`](https://aibusiness.fun/share)                                 | Anyone (no login)                          |
-| Watch page        | `/v/{postId}`                                                            | Anyone — primary link in tweets            |
+| Watch page        | `/v/{postId}`                                                            | Anyone — primary link in tweets + join CTA |
+| Viral join CTA    | watch + share kit → `/auth?utm_…`                                        | Attributed signup / access                 |
+| Post-win sheet    | Community Tickpix · Quest Scout                                          | ShareMoment after wins                     |
 | Embed             | `/embed/{postId}`                                                        | iframes / partners                         |
 | Channels drip     | `/channels` → **Fair-launch X drip**                                     | Founder (authenticated)                    |
 | Landing teaser    | `/#share-kit`                                                            | Anyone                                     |

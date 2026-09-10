@@ -48,9 +48,9 @@ const X_LINES: Record<string, string[]> = {
     "Receipts over theater. Covenant live → six promises you can hold us to.",
   ],
   "tickpix-pit": [
-    "TICKPIX seats live on Robinhood Chain. Mint → nft.aibusiness.fun · Pit → /pit",
-    "Not a second Hood. Culture seats for the tape. Verify CA on Blockscout.",
-    "Hold Tickpix → Pit badge + Quest XP. Hood stays the OS passport.",
+    "TICKPIX CCFF00 free raid EXTENDED → 12 Sep 19:00 UTC. Mint → nft.aibusiness.fun · Pit → /pit",
+    "Held CCFF00? Free seats (max 3). Then public @ 0.0001 ETH. Verify CA on Blockscout.",
+    "Hold Tickpix → Pit badge + Quest XP. Hood stays the OS passport. Culture, not a fund.",
   ],
   wien: [
     "Ned in einem WeWork. In Wien. Cracked screen. Real street.",
