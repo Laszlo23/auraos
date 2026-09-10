@@ -2,8 +2,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { CRYPTO_SEAT_ASSETS, type CryptoSeatAsset } from "@/lib/boost-packs";
-import { FOUNDING_SEAT_DISPLAY } from "@/lib/founding-price";
 import { startFoundingCryptoCheckout, startFoundingSeatCheckout } from "@/lib/founding-seat";
+import {
+  OS_MONTH_DISPLAY,
+  OS_YEAR_DISPLAY,
+  type OsCheckoutPlan,
+} from "@/lib/os-pricing";
 
 const ASSET_LABEL: Record<CryptoSeatAsset, string> = {
   usdc: "USDC",
@@ -16,18 +20,22 @@ export function FoundingPayPanel({
   invite,
   busy,
   onBusy,
+  plan = "year",
 }: {
   invite?: string | null;
   busy?: boolean;
   onBusy?: (v: boolean) => void;
+  plan?: OsCheckoutPlan;
 }) {
   const [rail, setRail] = useState<"pick" | "crypto">("pick");
   const [asset, setAsset] = useState<CryptoSeatAsset>("usdc");
+  const [picked, setPicked] = useState<OsCheckoutPlan>(plan);
 
-  async function payCard() {
+  async function payCard(next: OsCheckoutPlan) {
+    setPicked(next);
     onBusy?.(true);
     try {
-      const url = await startFoundingSeatCheckout(invite);
+      const url = await startFoundingSeatCheckout(invite, next);
       window.location.href = url;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not start card checkout");
@@ -50,8 +58,7 @@ export function FoundingPayPanel({
     return (
       <div className="space-y-3">
         <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-          Pay {FOUNDING_SEAT_DISPLAY} with a digital payment. Seat unlocks after payment finishes —
-          not while it is still confirming.
+          Crypto prepays the first year — {OS_YEAR_DISPLAY}. Monthly is card only.
         </p>
         <div className="grid grid-cols-4 gap-2">
           {CRYPTO_SEAT_ASSETS.map((a) => (
@@ -76,7 +83,7 @@ export function FoundingPayPanel({
           onClick={() => void payCrypto()}
           className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
         >
-          {busy ? "Opening invoice…" : `Pay ${FOUNDING_SEAT_DISPLAY} in ${ASSET_LABEL[asset]}`}
+          {busy ? "Opening invoice…" : `Pay ${OS_YEAR_DISPLAY} in ${ASSET_LABEL[asset]}`}
         </button>
         <button
           type="button"
@@ -93,16 +100,32 @@ export function FoundingPayPanel({
   return (
     <div className="space-y-3">
       <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-        You&apos;re signed in. Pay {FOUNDING_SEAT_DISPLAY} once — card or digital payment. Invite is
-        optional.
+        You&apos;re signed in. Start monthly or take the year — same OS. Invite is optional. Extra
+        compute only if you run hotter.
       </p>
       <button
         type="button"
         disabled={busy}
-        onClick={() => void payCard()}
-        className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        onClick={() => void payCard("year")}
+        className={`w-full rounded-2xl py-3 text-sm font-semibold disabled:opacity-60 ${
+          picked === "year"
+            ? "bg-primary text-primary-foreground"
+            : "border border-border bg-foreground/6 hover:bg-foreground/10"
+        }`}
       >
-        {busy ? "Opening Stripe…" : `Card — ${FOUNDING_SEAT_DISPLAY}`}
+        {busy && picked === "year" ? "Opening Stripe…" : `Year — ${OS_YEAR_DISPLAY} · best value`}
+      </button>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => void payCard("month")}
+        className={`w-full rounded-2xl py-3 text-sm font-semibold disabled:opacity-60 ${
+          picked === "month"
+            ? "bg-primary text-primary-foreground"
+            : "border border-border bg-foreground/6 hover:bg-foreground/10"
+        }`}
+      >
+        {busy && picked === "month" ? "Opening Stripe…" : `Monthly — ${OS_MONTH_DISPLAY} · cancel anytime`}
       </button>
       <button
         type="button"
@@ -110,7 +133,7 @@ export function FoundingPayPanel({
         onClick={() => setRail("crypto")}
         className="w-full rounded-2xl border border-border bg-foreground/6 py-3 text-sm font-medium hover:bg-foreground/10 disabled:opacity-60"
       >
-        Digital payment — {FOUNDING_SEAT_DISPLAY}
+        Digital payment — first year {OS_YEAR_DISPLAY}
       </button>
     </div>
   );

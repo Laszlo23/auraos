@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
+import { ImmoPortalsPanel } from "@/components/aura/immo-portals-panel";
 import { LeadDigestPanel } from "@/components/aura/lead-digest-panel";
 import { ProofOfWork } from "@/components/aura/proof-of-work";
 import { Chip, DataRow, Meter, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
@@ -761,6 +762,7 @@ function AkquisePage() {
           </Panel>
 
           <LeadDigestPanel />
+          <ImmoPortalsPanel />
 
           <Panel label="Pipeline">
             <div className="space-y-1">

@@ -126,7 +126,8 @@ function FcBuilderInvitePage() {
         </h1>
         <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-muted-foreground">
           A founder tagged you on Farcaster. {invite?.credits ?? FC_BUILDER_CREDITS} test AURA
-          waiting after you sign in — enough to try the desk. The founding seat stays $299. Feedback
+          waiting after you sign in — enough to try the desk. Aura OS stays $29 / month or $299 /
+          year. Feedback
           is the ask.
         </p>
 
@@ -185,7 +186,7 @@ function FcBuilderInvitePage() {
               to="/access"
               className="block text-[12px] text-muted-foreground hover:text-foreground"
             >
-              Founding seat still $299 →
+              Aura OS — $29 / mo or $299 / year →
             </Link>
           </div>
         )}

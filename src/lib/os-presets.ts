@@ -58,7 +58,7 @@ export const OS_PRESETS: Record<OsPresetId, OsPresetDef> = {
     akquiseTemplate: "real_estate",
     knowledgeTitle: "Preset · Realty",
     knowledgeSummary:
-      "Focus: qualified property leads + social drafts (X/Facebook). Open /akquise and /channels. No Google-review campaigns.",
+      "Focus: qualified Vienna property leads from Austrian portals (willhaben, ImmoScout24, flatbee, …) + social drafts (X/Facebook). Open /akquise and /channels. Prefer provisionsfrei / von Privat. No Google-review campaigns.",
   },
   service: {
     id: "service",

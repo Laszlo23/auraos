@@ -150,10 +150,11 @@ export function TryAura({ standalone = false }: { standalone?: boolean }) {
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
                   to="/access"
+                  search={{ plan: "year" }}
                   onClick={() => trackTeaser("cta_click", { placement: "try_wake_seat" })}
                   className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
                 >
-                  {de ? "Firma wecken — $299" : "Wake your company — $299"}{" "}
+                  {de ? "Jahr starten — 299 $" : "Start the year — $299"}{" "}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <button
@@ -175,8 +176,8 @@ export function TryAura({ standalone = false }: { standalone?: boolean }) {
             </p>
             <p className="mt-2 text-[15px] leading-relaxed">
               {de
-                ? "Founding Seat $299 einmalig. Abo und Compute extra. Kein Fake-Umsatz in diesem Walkthrough."
-                : "Founding seat $299 one-time. Subscription and compute stay separate. This walkthrough invents no revenue."}
+                ? "Aura OS: 29 $ / Monat oder 299 $ / Jahr. Extra Compute nur wenn du heißer fährst. Kein Fake-Umsatz in diesem Walkthrough."
+                : "Aura OS: $29 / month or $299 / year. Extra compute only if you run hotter. This walkthrough invents no revenue."}
             </p>
             {!standalone ? (
               <Link

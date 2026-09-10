@@ -36,7 +36,7 @@ const SECTIONS = [
   {
     kicker: "02 · Access",
     title: "Founding seats open",
-    body: "Paid founding seats (hard cap 1000) at $299 — no invite required to buy. After purchase you get one invite to share. Token launch stays separate from company compute.",
+    body: "Aura OS is $29 / month or $299 / year (recommended). Founding cohort hard-capped at 1000. No invite required. After you're in you get one invite to share. Token launch stays separate from company compute.",
   },
   {
     kicker: "03 · Genesis key",
@@ -97,7 +97,7 @@ function PitchPage() {
             search={{}}
             className="rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground"
           >
-            Buy founding seat — $299
+            Start the year — $299
           </Link>
           <a
             href="#decks"

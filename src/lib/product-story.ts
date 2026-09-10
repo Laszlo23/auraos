@@ -172,30 +172,30 @@ export const SEAT_BENEFITS: LocaleCopy[] = [
 ];
 
 export const SEAT_NOT_INCLUDED: LocaleCopy = {
-  en: "Subscriptions and compute are separate. $299 is the one-time unlock — not unlimited AI forever.",
-  de: "Abos und Compute sind extra. 299 $ ist der einmalige Unlock — nicht unbegrenzt KI für immer.",
+  en: "Same OS either way. $299 / year is the fair flagship (~two months free vs $29 / month). Extra compute only if you run hotter. The Hood NFT mint is a separate optional $299 — not required to run the company.",
+  de: "Dasselbe OS. 299 $ / Jahr ist der faire Flagship-Preis (rund zwei Monate gratis gegenüber 29 $ / Monat). Extra Compute nur, wenn du heißer fährst. Hood-NFT bleibt ein optionales 299 $-Mint — nicht nötig fürs OS.",
 };
 
 export const PRICING_TIERS = TOKENOMICS.subscriptions.map((s) => ({
   ...s,
   workforce:
-    s.id === "starter"
-      ? { en: "Core", de: "Kern" }
-      : s.id === "growth"
-        ? { en: "Growth", de: "Wachstum" }
-        : { en: "Advanced", de: "Erweitert" },
+    s.id === "month"
+      ? { en: "Full OS", de: "Volles OS" }
+      : s.id === "year"
+        ? { en: "Full OS", de: "Volles OS" }
+        : { en: "Local desk", de: "Lokal-Desk" },
   automation:
-    s.id === "starter"
-      ? { en: "Basic", de: "Basis" }
-      : s.id === "growth"
-        ? { en: "Advanced", de: "Fortgeschritten" }
-        : { en: "Full", de: "Voll" },
+    s.id === "month"
+      ? { en: "Cancel anytime", de: "Jederzeit kündbar" }
+      : s.id === "year"
+        ? { en: "Best value", de: "Bester Deal" }
+        : { en: "Wien shops", de: "Wiener Betriebe" },
   bestFor:
-    s.id === "starter"
-      ? { en: "Small business", de: "Kleiner Betrieb" }
-      : s.id === "growth"
-        ? { en: "Growing company", de: "Wachsendes Unternehmen" }
-        : { en: "Serious operators", de: "Ernsthafte Operatoren" },
+    s.id === "month"
+      ? { en: "Trying the desk", de: "Den Desk testen" }
+      : s.id === "year"
+        ? { en: "Running a company", de: "Eine Firma fahren" }
+        : { en: "Local operators", de: "Lokale Betriebe" },
 }));
 
 export const ECONOMICS_LAYERS: { level: string; title: LocaleCopy; body: LocaleCopy }[] = [

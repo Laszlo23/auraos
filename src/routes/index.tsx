@@ -51,7 +51,7 @@ export const Route = createFileRoute("/")({
       },
       {
         name: "description",
-        content: `AI company operating system. Fair launch ${TOKEN_LAUNCH_DISPLAY}. You're the owner. AI employees execute real work — strategy, sales, growth, operations. Founding seats $299.`,
+        content: `AI company operating system. Fair launch ${TOKEN_LAUNCH_DISPLAY}. You're the owner. AI employees execute real work — strategy, sales, growth, operations. Aura OS $29 / month or $299 / year.`,
       },
       {
         name: "keywords",
@@ -673,7 +673,7 @@ function Landing() {
                   <Rocket className="h-5 w-5" />
                 </span>
                 <span className="rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-gold">
-                  $299 Once
+                  $299 / year
                 </span>
               </div>
               <h3 className="mt-5 text-xl font-semibold tracking-tight">

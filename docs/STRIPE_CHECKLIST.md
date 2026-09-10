@@ -36,7 +36,7 @@ Generated: 2026-08-10T20:53:10.181Z
 
 ### Price truth (2026-09-04)
 
-- Founding seat checkout defaults to **inline `price_data` @ $299** (`FOUNDING_SEAT_CENTS`). Set `STRIPE_FOUNDING_USE_PRICE_ID=1` only after the Dashboard Price ID matches 29900.
+- Aura OS checkout is a **Stripe subscription** via inline `price_data`: **$29 / month** or **$299 / year**. Do not point this flow at a one-time Price ID. Hood mint stays a separate one-time $299.
 - Local Seat checkout defaults to **inline `price_data` @ €99**. Set `STRIPE_LOCAL_USE_PRICE_ID=1` only when `STRIPE_PRICE_LOCAL_SEAT` is verified at 9900 eur.
 - Older smoke rows above showing `9900usd` for founding were **wrong vs UI** — do not trust them for ops.
 

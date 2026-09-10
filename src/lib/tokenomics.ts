@@ -24,23 +24,23 @@ export const TOKENOMICS = {
   },
   subscriptions: [
     {
-      id: "starter",
-      name: "Starter",
-      price: "€49 / mo",
-      blurb: "Founders and small businesses — one company, core AI workforce.",
+      id: "month",
+      name: "Monthly",
+      price: "$29 / mo",
+      blurb: "Same Aura OS. Easy start. Cancel anytime.",
     },
     {
-      id: "growth",
-      name: "Growth",
-      price: "€149 / mo",
-      blurb: "Acquisition, sales & ops employees — recommended path.",
+      id: "year",
+      name: "Year",
+      price: "$299 / year",
+      blurb: "Best value — about two months free vs monthly. The flagship price.",
       recommended: true,
     },
     {
-      id: "autonomous",
-      name: "Autonomous",
-      price: "€399+ / mo",
-      blurb: "Larger workforces, automation, advanced capabilities.",
+      id: "local",
+      name: "Aura Local",
+      price: "€49 / mo",
+      blurb: "Wien shops — reviews, guests, reputation. Review boost extra.",
     },
   ],
   utility: [
@@ -55,7 +55,7 @@ export const TOKENOMICS = {
   ],
   notToken: [
     "Subscriptions (core revenue)",
-    "Founding seats ($299 one-time unlock)",
+    "Aura OS software ($29 / month or $299 / year — grandfathered one-time seats stay valid)",
     "The Hood NFT (first 1,000 only — extra perks + hold-to-earn from real desk fees while held, 70% mint USDC trapped on-chain to buy the fair-launch pool, 30% to immutable ops, 7,777 AURA gift claimable at T-0 into your wallet, not equity, not a fixed APY)",
     "Company compute budgets (AURA ledger for work, separate from market token narrative)",
     "BCC or any other community ticker (Aura OS does not run on BCC)",
@@ -113,7 +113,7 @@ export const WHITEPAPER_SECTIONS = [
   {
     id: "business",
     title: "6. Business model",
-    body: `Subscriptions are the core model: Starter €49/mo, Growth €149/mo (recommended), Autonomous €399+/mo. Expansion comes from adding employees, automation, API usage, additional companies, enterprise, and marketplace fees. The token is not the core business model.`,
+    body: `Subscriptions are the core model: Aura OS $29/month or $299/year (recommended — about two months free), plus Aura Local €49/month for Wien shops. Extra compute, API, additional companies, and marketplace fees are usage — not a second unlock tax. The token is not the core business model.`,
   },
   {
     id: "token",
@@ -225,7 +225,7 @@ export const LIGHTPAPER = {
     },
     {
       h: "How you make money (the company)",
-      p: "Software subscriptions (€49 / €149 / €399+) plus seats, compute, API, and marketplace. Product first.",
+      p: "Software subscriptions ($29 / month or $299 / year) plus Local €49 / month, compute, API, and marketplace. Product first.",
     },
     {
       h: "What the token is for",

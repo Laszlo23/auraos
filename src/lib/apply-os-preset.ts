@@ -1,5 +1,6 @@
 import { hireAgentIfNeeded } from "@/lib/actions";
 import { bootstrapOnboardingProduct } from "@/lib/bootstrap-product";
+import { portalSeedUrls } from "@/lib/immo-portals";
 import { isOsPresetId, OS_PRESETS, presetDefaultNav, type OsPresetId } from "@/lib/os-presets";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -93,7 +94,28 @@ export async function applyOsPresetToCompany(opts: {
           status: "draft",
           target_count: 15,
           objective: "research",
+          seed_urls: preset.akquiseTemplate === "real_estate" ? portalSeedUrls() : [],
         });
+      }
+    }
+
+    if (preset.id === "realty") {
+      try {
+        await supabase.from("immo_listing_watches").upsert(
+          {
+            company_id: opts.companyId,
+            region: "Wien",
+            deal_types: ["mieten"],
+            property_types: ["wohnung", "haus"],
+            prefer_private: true,
+            min_score: 55,
+            enabled: true,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "company_id" },
+        );
+      } catch {
+        /* table may not exist until migration lands */
       }
     }
 

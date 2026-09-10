@@ -261,7 +261,7 @@ ${WIEN_CTA}`,
 Not a script on an iPad.
 An AI employee named Quant — plus Atlas, Vela, Iris, Cass watching the rest of the company.
 
-Starting capital to wake the company: $299.
+Starting capital: $29 / month or $299 / year.
 
 Here's how it works:
 
@@ -296,7 +296,7 @@ Quant in Aura OS:
 → risk meter before size
 → you approve before live
 
-Starting seat: $299.
+Starting: $29 / month or $299 / year.
 You own the company. Quant doesn't own your keys.
 
 ${CTA}`,

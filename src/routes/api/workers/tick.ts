@@ -8,6 +8,7 @@ import { extendLaunchDrips } from "@/lib/launch-drip.server";
 import { runTradingTick } from "@/lib/trading-worker.server";
 import { runSiteLeadsDraftTick, runSubscriptionContentTick } from "@/lib/sites-worker.server";
 import { runLeadDigestTick } from "@/lib/lead-digest.server";
+import { runImmoListingScoutTick } from "@/lib/immo-listing-scout.server";
 
 function authorizeWorker(request: Request): Response | null {
   const secret = process.env["WORKER_SECRET"];
@@ -65,6 +66,11 @@ async function runTick(taskLimit: number) {
     drafted: 0,
     errors: [] as string[],
   });
+  const listingScout = await safe("immoListingScout", () => runImmoListingScoutTick(6), {
+    checked: 0,
+    inserted: 0,
+    errors: [] as string[],
+  });
   const leadDigests = await safe("leadDigests", () => runLeadDigestTick(40), {
     checked: 0,
     sent: 0,
@@ -85,6 +91,7 @@ async function runTick(taskLimit: number) {
       tradingOk: Boolean(trading),
       subscriptions,
       siteLeads,
+      listingScout,
       leadDigests,
       missions,
     });
@@ -101,6 +108,7 @@ async function runTick(taskLimit: number) {
     trading,
     subscriptions,
     siteLeads,
+    listingScout,
     leadDigests,
     missions,
   };

@@ -1,8 +1,13 @@
-/** Canonical founding-seat price. Stripe Price ID must match this amount. */
-export const FOUNDING_SEAT_USD = 299;
-export const FOUNDING_SEAT_CENTS = 29_900;
+import { OS_YEAR_DISPLAY, OS_YEAR_DISPLAY_DE, OS_YEARLY_CENTS, OS_YEARLY_USD } from "@/lib/os-pricing";
+
+/** Canonical Aura OS year price (also the Hood mint). Stripe must match cents. */
+export const FOUNDING_SEAT_USD = OS_YEARLY_USD;
+export const FOUNDING_SEAT_CENTS = OS_YEARLY_CENTS;
 export const FOUNDING_SEAT_DISPLAY = "$299";
 export const FOUNDING_SEAT_DISPLAY_DE = "299 $";
+/** How we say the flagship OS price in public copy. */
+export const FOUNDING_SEAT_PERIOD = OS_YEAR_DISPLAY;
+export const FOUNDING_SEAT_PERIOD_DE = OS_YEAR_DISPLAY_DE;
 
 /** Of each $299: 30% developer ops (servers, infra), 70% product / launch LP. */
 export const PRICE_OPS_BPS = 3_000;

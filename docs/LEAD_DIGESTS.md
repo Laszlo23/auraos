@@ -10,7 +10,9 @@ Twice daily emails of akquise leads to the founder’s real mailbox
 | Prefs + send log | `lead_digest_prefs`, `lead_digest_sends` |
 | Copy + schedule | `src/lib/lead-digest.ts` |
 | Worker send | `src/lib/lead-digest.server.ts` → `/api/workers/tick` |
-| UI | Lead hunter → **Inbox digests** |
+| AT portal catalog | `immo_portals`, `src/lib/immo-portals.ts` |
+| Listing scout | `immo_listing_watches`, `src/lib/immo-listing-scout.ts` |
+| UI | Lead hunter → **Inbox digests** + **AT Immobilien-Portale** |
 | Platform mail | `PLATFORM_SMTP_*` in `.env` |
 
 ## VPS setup (required for delivery)
@@ -30,15 +32,21 @@ PLATFORM_SMTP_FROM_NAME=Aura OS Leads
 ```
 
 Worker cron must already hit `/api/workers/tick` with `WORKER_SECRET` (every ~10m).
-Within the matching local hour, the tick sends once per slot (`YYYY-MM-DD-HH`).
+Within the matching local hour the tick:
+
+1. Scouts public AT portals (Firecrawl / search fallback) for companies with a watch or realty + digest on
+2. Sends the digest once per slot (`YYYY-MM-DD-HH`)
+
+Public listing pages only. No invented emails/phones. Category hubs are dropped.
 
 ## Sonja (enabled)
 
 - Company: Sonja Immobilien  
 - Email: `investment.sn@yahoo.com`  
 - Hours: 8 + 16 Vienna · language DE  
+- Watch: Wien · mieten · Wohnung + Haus · provisionsfrei / von Privat first  
 
-After `PLATFORM_SMTP_*` is live, she can also tap **Send now** on `/akquise`.
+After `PLATFORM_SMTP_*` is live, she can also tap **Send now** on `/akquise` (scouts first, then mails).
 
 ## Founder controls
 

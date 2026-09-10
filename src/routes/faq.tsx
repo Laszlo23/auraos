@@ -142,8 +142,9 @@ const FAQS: { q: string; a: ReactNode }[] = [
     q: "How do I get in?",
     a: (
       <>
-        Buy a founding seat for $299 (1000 seats). No invite required. After you&apos;re seated you
-        get one invite link to share — friends still pay $299. See{" "}
+        Start Aura OS at $29 / month or take the year at $299 (founding cohort capped at 1000). No
+        invite required. After you&apos;re seated you get one invite link to share — friends still
+        pay the same public price. See{" "}
         <Link to="/access" className="text-primary hover:underline">
           /access
         </Link>

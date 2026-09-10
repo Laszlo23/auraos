@@ -2,16 +2,17 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 
 import { useLocale } from "@/hooks/use-locale";
-import { FOUNDING_SEAT_DISPLAY, FOUNDING_SEAT_DISPLAY_DE } from "@/lib/founding-price";
 import {
   ECONOMICS_LAYERS,
-  PRICING_TIERS,
   SEAT_BENEFITS,
   SEAT_NOT_INCLUDED,
   loc,
 } from "@/lib/product-story";
+import { OS_PRICE, osCopy } from "@/lib/os-pricing";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
+
+const LADDER = ["try", "month", "year", "local"] as const;
 
 export function FoundingSeatCard({ className }: { className?: string }) {
   const { locale } = useLocale();
@@ -19,13 +20,15 @@ export function FoundingSeatCard({ className }: { className?: string }) {
   return (
     <article className={cn("glass rounded-[1.8rem] p-6 sm:p-8", className)}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-        {de ? "Founding Seat" : "Founding seat"}
+        {de ? "Aura OS" : "Aura OS"}
       </p>
       <h3 className="mt-2 font-display text-[clamp(1.8rem,4vw,2.6rem)] leading-tight">
-        {FOUNDING_SEAT_DISPLAY}{" "}
-        <span className="text-[1.1rem] text-muted-foreground">{de ? "einmalig" : "one time"}</span>
+        {de ? "299 $ / Jahr" : "$299 / year"}
+        <span className="block text-[1.1rem] font-normal text-muted-foreground">
+          {de ? "oder 29 $ / Monat — du wählst." : "or $29 / month — you choose."}
+        </span>
       </h3>
-      <p className="mt-3 text-[14px] font-semibold">{de ? "Du bekommst:" : "You get:"}</p>
+      <p className="mt-3 text-[14px] font-semibold">{de ? "Im Jahr-Preis:" : "In the year:"}</p>
       <ul className="mt-4 grid gap-2 sm:grid-cols-2">
         {SEAT_BENEFITS.map((b) => (
           <li key={b.en} className="flex items-start gap-2 text-[13px]">
@@ -37,16 +40,24 @@ export function FoundingSeatCard({ className }: { className?: string }) {
       <p className="mt-5 rounded-2xl border border-gold/30 bg-gold/8 px-4 py-3 text-[13px] leading-relaxed">
         {loc(locale, SEAT_NOT_INCLUDED)}
       </p>
-      <Link
-        to="/access"
-        onClick={() => trackTeaser("cta_click", { placement: "seat_card_buy" })}
-        className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
-      >
-        {de
-          ? `Seat kaufen — ${FOUNDING_SEAT_DISPLAY}`
-          : `Buy founding seat — ${FOUNDING_SEAT_DISPLAY}`}{" "}
-        <ArrowRight className="h-4 w-4" />
-      </Link>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link
+          to="/access"
+          search={{ plan: "year" }}
+          onClick={() => trackTeaser("cta_click", { placement: "seat_card_year" })}
+          className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+        >
+          {de ? "Jahr starten — 299 $" : "Start the year — $299"} <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link
+          to="/access"
+          search={{ plan: "month" }}
+          onClick={() => trackTeaser("cta_click", { placement: "seat_card_month" })}
+          className="inline-flex items-center gap-2 rounded-2xl border border-border/60 px-5 py-3 text-sm font-semibold"
+        >
+          {de ? "Monatlich — 29 $" : "Monthly — $29"}
+        </Link>
+      </div>
     </article>
   );
 }
@@ -61,72 +72,74 @@ export function PricingTable() {
       </p>
       <h2 className="mt-3 font-display text-[clamp(1.8rem,5vw,3rem)] leading-[1.05] tracking-tight">
         {de
-          ? "Seat einmal. Abo laufend. Token optional."
-          : "Seat once. Subscription ongoing. Token optional."}
+          ? "Gratis testen. Monatlich. Oder ein Jahr — fair."
+          : "Try free. Go monthly. Or take the year — fair."}
       </h2>
-      <div className="mt-8 overflow-x-auto">
-        <table className="w-full min-w-[36rem] text-left text-[13px]">
-          <thead>
-            <tr className="border-b border-border/40 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-              <th className="py-3 pr-4 font-medium" />
-              {PRICING_TIERS.map((t) => (
-                <th key={t.id} className="py-3 pr-4 font-semibold text-foreground">
-                  {t.name}
-                  {"recommended" in t && t.recommended ? (
-                    <span className="ml-2 text-[10px] text-gold">
-                      {de ? "empfohlen" : "recommended"}
-                    </span>
-                  ) : null}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-border/30">
-              <td className="py-3 pr-4 text-muted-foreground">{de ? "Monatlich" : "Monthly"}</td>
-              {PRICING_TIERS.map((t) => (
-                <td key={t.id} className="py-3 pr-4 font-semibold">
-                  {t.price}
-                </td>
-              ))}
-            </tr>
-            <tr className="border-b border-border/30">
-              <td className="py-3 pr-4 text-muted-foreground">
-                {de ? "KI-Belegschaft" : "AI workforce"}
-              </td>
-              {PRICING_TIERS.map((t) => (
-                <td key={t.id} className="py-3 pr-4">
-                  {loc(locale, t.workforce)}
-                </td>
-              ))}
-            </tr>
-            <tr className="border-b border-border/30">
-              <td className="py-3 pr-4 text-muted-foreground">
-                {de ? "Automation" : "Automation"}
-              </td>
-              {PRICING_TIERS.map((t) => (
-                <td key={t.id} className="py-3 pr-4">
-                  {loc(locale, t.automation)}
-                </td>
-              ))}
-            </tr>
-            <tr>
-              <td className="py-3 pr-4 text-muted-foreground">
-                {de ? "Am besten für" : "Best for"}
-              </td>
-              {PRICING_TIERS.map((t) => (
-                <td key={t.id} className="py-3 pr-4">
-                  {loc(locale, t.bestFor)}
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+      <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {LADDER.map((id) => {
+          const plan = OS_PRICE[id];
+          const copy = osCopy(locale, id);
+          const rec = "recommended" in plan && plan.recommended;
+          return (
+            <article
+              key={id}
+              className={cn(
+                "rounded-[1.6rem] border px-5 py-6",
+                rec ? "border-gold/45 bg-gold/8" : "border-border/50 bg-foreground/[0.02]",
+              )}
+            >
+              {rec ? (
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold">
+                  {de ? "Empfohlen" : "Best value"}
+                </p>
+              ) : (
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {copy.name}
+                </p>
+              )}
+              <p className="mt-2 font-display text-3xl tracking-tight">
+                {copy.price}
+                <span className="text-[1rem] font-normal text-muted-foreground">{copy.period}</span>
+              </p>
+              {rec ? <p className="mt-1 text-[13px] font-semibold">{copy.name}</p> : null}
+              {"note" in copy && copy.note ? (
+                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{copy.note}</p>
+              ) : (
+                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
+                  {id === "try"
+                    ? de
+                      ? "Desk, Quest, Pit — ohne Karte."
+                      : "Desk, Quest, Pit — no card."
+                    : id === "month"
+                      ? de
+                        ? "Jederzeit kündbar. Gleiches OS wie das Jahr."
+                        : "Cancel anytime. Same OS as the year."
+                      : de
+                        ? "Für Wiener Betriebe. Review-Boost extra."
+                        : "For Wien shops. Review boost extra."}
+                </p>
+              )}
+              <Link
+                to={plan.href.startsWith("/access") ? "/access" : plan.href}
+                search={id === "year" ? { plan: "year" } : id === "month" ? { plan: "month" } : undefined}
+                onClick={() => trackTeaser("cta_click", { placement: `price_card_${id}` })}
+                className={cn(
+                  "mt-5 inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-[13px] font-semibold",
+                  rec
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border/60 text-foreground",
+                )}
+              >
+                {copy.cta} <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </article>
+          );
+        })}
       </div>
-      <p className="mt-4 max-w-2xl text-[13px] text-muted-foreground">
+      <p className="mt-6 max-w-2xl text-[13px] text-muted-foreground">
         {de
-          ? `Founding Seat = ${FOUNDING_SEAT_DISPLAY_DE} einmalig. Abo = laufend. AURA = Ökosystem-Schicht, nicht nötig zum Betrieb.`
-          : `Founding seat = ${FOUNDING_SEAT_DISPLAY} one-time. Subscription = ongoing. AURA = ecosystem layer, not required to operate.`}
+          ? "Hood-NFT bleibt ein optionales 299 $-Mint für den Founding-Kreis — nicht nötig, um das OS zu fahren. Extra Compute nur, wenn du mehr fährst."
+          : "The Hood NFT stays an optional $299 mint for the founding circle — not required to run the OS. Extra compute only if you run hotter."}
       </p>
     </section>
   );

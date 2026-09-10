@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { CRYPTO_SEAT_ASSETS, type CryptoSeatAsset } from "@/lib/boost-packs";
 import { startFoundingCryptoCheckout, startFoundingSeatCheckout } from "@/lib/founding-seat";
+import { isOsCheckoutPlan, type OsCheckoutPlan } from "@/lib/os-pricing";
 import { FOUNDING_SEATS_TOTAL } from "@/lib/marketing-scarcity";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { LAUNCH_SHARE_TEXT, SITE_URL } from "@/lib/site";
@@ -20,24 +21,26 @@ import { useLocale } from "@/hooks/use-locale";
 
 export const Route = createFileRoute("/access")({
   validateSearch: (search: Record<string, unknown>) => {
-    const out: { invite?: string; seat?: "cancel" | "success" } = {};
+    const out: { invite?: string; seat?: "cancel" | "success"; plan?: OsCheckoutPlan } = {};
     if (typeof search["invite"] === "string") out.invite = search["invite"];
     if (search["seat"] === "cancel" || search["seat"] === "success") {
       out.seat = search["seat"];
     }
+    if (isOsCheckoutPlan(search["plan"])) out.plan = search["plan"];
     return out;
   },
   head: () => ({
     meta: [
-      { title: "Founding seats — Aura OS" },
+      { title: "Aura OS — $29 / month or $299 / year" },
       {
         name: "description",
-        content: "Buy a founding seat. $299 one-time · 1000 companies · card or crypto.",
+        content:
+          "Start Aura OS monthly at $29, or take the year at $299. Try free. Local shops €49 / month. Hood NFT mint is separate.",
       },
-      { property: "og:title", content: "Founding seats — Aura OS" },
+      { property: "og:title", content: "Aura OS pricing — $29 / mo or $299 / year" },
       {
         property: "og:description",
-        content: "Paid founding seats are open. $299 unlocks your AI company on Aura OS.",
+        content: "Fair software: try free, $29 / month, or $299 / year. Same OS. Cancel monthly anytime.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/access` },
@@ -51,7 +54,8 @@ export const Route = createFileRoute("/access")({
 function AccessPage() {
   const navigate = useNavigate();
   const { t } = useLocale();
-  const { invite: inviteFromLink, seat } = Route.useSearch();
+  const { invite: inviteFromLink, seat, plan: planFromLink } = Route.useSearch();
+  const plan: OsCheckoutPlan = planFromLink ?? "year";
   const [invite, setInvite] = useState(inviteFromLink?.toUpperCase() ?? "");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -67,12 +71,13 @@ function AccessPage() {
     if (seat === "cancel") toast.message(t("access.checkoutCancel"));
   }, [seat, t]);
 
-  const goAuth = (attribution: string | null) => {
+  const goAuth = (attribution: string | null, nextPlan: OsCheckoutPlan = plan) => {
     navigate({
       to: "/auth",
       search: {
         mode: "signup",
         buy: "seat",
+        plan: nextPlan,
         ...(attribution ? { invite: attribution } : {}),
       },
     });
@@ -91,7 +96,7 @@ function AccessPage() {
     return attribution;
   };
 
-  const buySeat = async (rail: "card" | "crypto" = "card") => {
+  const buySeat = async (rail: "card" | "crypto" = "card", nextPlan: OsCheckoutPlan = plan) => {
     setBusy(true);
     try {
       const attribution = await resolveAttribution();
@@ -117,12 +122,12 @@ function AccessPage() {
         const url =
           rail === "crypto"
             ? await startFoundingCryptoCheckout({ invite: attribution, asset })
-            : await startFoundingSeatCheckout(attribution);
+            : await startFoundingSeatCheckout(attribution, nextPlan);
         window.location.href = url;
         return;
       }
 
-      goAuth(attribution);
+      goAuth(attribution, nextPlan);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not start checkout");
     } finally {
@@ -202,11 +207,19 @@ function AccessPage() {
             <button
               type="button"
               disabled={busy}
-              onClick={() => void buySeat("card")}
+              onClick={() => void buySeat("card", "year")}
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-40"
             >
               {busy ? t("access.buyOpening") : t("access.buyCta")}{" "}
               <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void buySeat("card", "month")}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border/60 px-5 py-3.5 text-sm font-semibold disabled:opacity-40"
+            >
+              {t("access.buyCtaMonth")}
             </button>
             <button
               type="button"
@@ -251,7 +264,7 @@ function AccessPage() {
         <Panel label={t("access.shareLabel")} className="mt-8">
           <ShareMoment
             url={`${SITE_URL}/access`}
-            text={`Aura OS founding seats — $299, hard-capped at ${num(FOUNDING_SEATS_TOTAL)}. Live checkout.`}
+            text={`Aura OS — $29 / month or $299 / year. Founding cohort capped at ${num(FOUNDING_SEATS_TOTAL)}.`}
             title="Aura OS founding seats"
             placement="access_share"
             label="Share founding seats"

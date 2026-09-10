@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import { FOUNDING_SEAT_CENTS } from "@/lib/founding-price";
+import {
+  isOsCheckoutPlan,
+  osPlanAmountCents,
+  osPlanInterval,
+  type OsCheckoutPlan,
+} from "@/lib/os-pricing";
 import { clientIpFromRequest, rateLimitConsume } from "@/lib/rate-limit.server";
 import { SITE_URL } from "@/lib/site";
 import { assertStripeChargesEnabled } from "@/lib/stripe-account";
@@ -33,9 +38,7 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
     handlers: {
       POST: async ({ request }) => {
         const secret = process.env["STRIPE_SECRET_KEY"];
-        const priceId = process.env["STRIPE_PRICE_FOUNDING_SEAT"]?.trim();
-        const trustPriceId = process.env["STRIPE_FOUNDING_USE_PRICE_ID"] === "1";
-        if (!secret || (trustPriceId && !priceId)) {
+        if (!secret) {
           return Response.json(
             { error: "Founding seat checkout is not configured" },
             { status: 503 },
@@ -86,8 +89,14 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
           );
         }
 
-        const body = (await request.json().catch(() => ({}))) as { invite?: string };
+        const body = (await request.json().catch(() => ({}))) as {
+          invite?: string;
+          plan?: string;
+        };
         const invite = (body.invite ?? "").trim().toUpperCase() || null;
+        const plan: OsCheckoutPlan = isOsCheckoutPlan(body.plan) ? body.plan : "year";
+        const amountCents = osPlanAmountCents(plan);
+        const interval = osPlanInterval(plan);
 
         const { data: existingSeat } = await supabase
           .from("founding_seats")
@@ -115,26 +124,27 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
 
         const site = process.env["SITE_URL"] || SITE_URL;
         const params = new URLSearchParams();
-        params.set("mode", "payment");
+        params.set("mode", "subscription");
         params.set("success_url", `${site}/auth?seat=success`);
-        params.set("cancel_url", `${site}/access?seat=cancel`);
+        params.set("cancel_url", `${site}/access?seat=cancel&plan=${plan}`);
         params.set("client_reference_id", user.id);
         params.set("metadata[kind]", "founding_seat");
         params.set("metadata[user_id]", user.id);
+        params.set("metadata[os_plan]", plan);
         if (inviteMeta) params.set("metadata[invite_code]", inviteMeta);
-        // Always charge the canonical $299 — Dashboard Price IDs have drifted to $99 before.
-        // Optional: set STRIPE_FOUNDING_USE_PRICE_ID=1 to force the env Price ID (must match cents).
-        if (trustPriceId && priceId) {
-          params.set("line_items[0][price]", priceId);
-        } else {
-          params.set("line_items[0][price_data][currency]", "usd");
-          params.set("line_items[0][price_data][unit_amount]", String(FOUNDING_SEAT_CENTS));
-          params.set("line_items[0][price_data][product_data][name]", "Aura OS Founding Seat");
-          params.set(
-            "line_items[0][price_data][product_data][description]",
-            "One-time founding seat — company OS access",
-          );
-        }
+        params.set("line_items[0][price_data][currency]", "usd");
+        params.set("line_items[0][price_data][unit_amount]", String(amountCents));
+        params.set("line_items[0][price_data][recurring][interval]", interval);
+        params.set(
+          "line_items[0][price_data][product_data][name]",
+          plan === "month" ? "Aura OS — monthly" : "Aura OS — yearly",
+        );
+        params.set(
+          "line_items[0][price_data][product_data][description]",
+          plan === "month"
+            ? "Aura OS software — billed monthly. Cancel anytime."
+            : "Aura OS software — billed yearly. Best value vs monthly.",
+        );
         params.set("line_items[0][quantity]", "1");
         if (user.email && !user.email.toLowerCase().endsWith("@siwe.aibusiness.fun")) {
           params.set("customer_email", user.email);
@@ -162,7 +172,7 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
           return Response.json({
             url: session.url,
             id: session.id,
-            amount_cents: FOUNDING_SEAT_CENTS,
+            amount_cents: amountCents,
           });
         } catch (e) {
           return Response.json(

@@ -51,12 +51,18 @@ Prefer real local SMEs over social profiles. Max 15 items per batch.`,
     goalExample: "Find owners of unrenovated multi-family buildings in Köln willing to sell.",
     defaultTarget: 12,
     agents: ["Juno", "Vela"],
-    searchHints: ["immobilien kontakt email", "Makler Eigentümer", "Mehrfamilienhaus Verkauf"],
+    searchHints: [
+      "site:willhaben.at Wien Wohnung mieten von Privat",
+      "site:flatbee.at Wien provisionsfrei Wohnung",
+      "site:immobilienscout24.at Wien Wohnung OR Haus mieten",
+      "site:bazar.at Wien Wohnung mieten",
+      "site:findmyhome.at Wien Wohnung mieten",
+    ],
     scoringRubric:
-      "Score 0-100 fit against the real-estate brief (buy/sell objective). Prefer concrete property or owner signals.",
-    extractSystem: `You are a real-estate cold-acquisition research agent. Extract real contactable prospects from scraped web pages.
+      "Score 0-100 fit against the real-estate brief. Prefer private / provisionsfrei listings an Austrian agent can broker (Wien + surroundings). Penalize other cities and directory/category pages. Never invent contacts.",
+    extractSystem: `You are a real-estate listing scout for Austrian agents. Extract concrete property ads (not category hubs) from scraped pages.
 Return ONLY a JSON array. Each item: {"name":string|null,"org":string|null,"email":string|null,"phone":string|null,"address":string|null,"snippet":string,"score":number,"source_url":string}.
-snippet: one concrete detail about this prospect or property. Never invent emails or phones. Max 15 items.`,
+org: listing title. snippet: rooms, m², rent/price, district, and whether it is provisionsfrei / von Privat. Prefer listings a broker can take on. Never invent emails or phones. Skip /regional/ and search-index URLs. Max 15 items.`,
     outputKind: "leads",
     objectiveDefault: "buy",
   },

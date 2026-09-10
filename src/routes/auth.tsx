@@ -123,6 +123,7 @@ export const Route = createFileRoute("/auth")({
     funnel?: FunnelId;
     lang?: "de" | "en";
     buy?: "seat";
+    plan?: "month" | "year";
   } => {
     const inviteRaw =
       typeof search["invite"] === "string"
@@ -150,6 +151,9 @@ export const Route = createFileRoute("/auth")({
       ...(funnelRaw && isFunnelId(funnelRaw) ? { funnel: funnelRaw } : {}),
       ...(langRaw === "de" || langRaw === "en" ? { lang: langRaw } : {}),
       ...(search["buy"] === "seat" ? { buy: "seat" as const } : {}),
+      ...(search["plan"] === "month" || search["plan"] === "year"
+        ? { plan: search["plan"] as "month" | "year" }
+        : {}),
     };
   },
   head: () => ({
@@ -312,6 +316,7 @@ function AuthPage() {
     funnel: funnelFromLink,
     lang: langFromLink,
     buy: buyFromLink,
+    plan: planFromLink,
   } = Route.useSearch();
   const entryFunnel: FunnelId =
     funnelFromLink && isFunnelId(funnelFromLink) ? funnelFromLink : peekFunnel();
@@ -566,7 +571,7 @@ function AuthPage() {
         setNeedsInviteToContinue(true);
         setMode("signup");
         setMagicCreatesUser(true);
-        toast.message("Complete $299 founding-seat checkout to open your company.");
+        toast.message("Complete Aura OS checkout — $29 / month or $299 / year — to open your company.");
         return false;
       }
       if (gate === "preview") {
@@ -798,7 +803,7 @@ function AuthPage() {
   const subtitle =
     mode === "signup"
       ? needsInviteToContinue
-        ? "Pay $299 once — card or crypto. Wallet optional, but it makes the Hood mint easy."
+        ? "Pay $29 / month or $299 / year — card. Crypto prepays the year. Wallet optional — it makes the Hood mint easy."
         : isNachbarPatron
           ? "Konto anlegen — dann Check-in und Punkte. Kein Firmenkauf."
           : isLokalEntry
@@ -862,7 +867,7 @@ function AuthPage() {
                   : isLokalEntry
                     ? "Konto anlegen → Betrieb benennen → Aura Reputation freischalten. Dann Google-Bewertungen von echten Kunden anfragen."
                     : isFoundingPath
-                      ? "Wallet or magic link. Then $299 — card or crypto. One thousand seats. The Hood is the circle."
+                      ? "Wallet or magic link. Then $29 / month or $299 / year. One thousand founding seats. The Hood mint is a separate optional $299."
                       : "Eight autonomous employees. One shared memory. A business that keeps working while you sleep — and tells you what it decided when you wake up."}
               </p>
 
@@ -1058,6 +1063,7 @@ function AuthPage() {
                   invite={invite.trim().toUpperCase() || peekStoredInvite()}
                   busy={busy}
                   onBusy={setBusy}
+                  plan={planFromLink === "month" ? "month" : "year"}
                 />
               </div>
             ) : showFoundingMagic ? (
@@ -1107,7 +1113,7 @@ function AuthPage() {
                       <span className="font-semibold uppercase tracking-[0.14em] text-primary">
                         {refFromLink}
                       </span>{" "}
-                      — next step is $299 checkout.
+                      — next step is Aura OS checkout.
                     </span>
                   </div>
                 ) : mode === "signup" && isLokalEntry ? (
@@ -1120,7 +1126,7 @@ function AuthPage() {
                   </p>
                 ) : mode === "signup" && buyFromLink === "seat" ? (
                   <p className="rounded-2xl border border-primary/25 bg-primary/8 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                    After signup we open $299 checkout — card or crypto.
+                    After signup we open checkout — $29 / month or $299 / year.
                   </p>
                 ) : null}
 
@@ -1223,7 +1229,8 @@ function AuthPage() {
                         <Link to="/cookies" className="text-primary hover:underline">
                           Cookies
                         </Link>
-                        . Founding seats are {FOUNDING_SEAT_DISPLAY} one-time — card or crypto.
+                        . Aura OS is $29 / month or {FOUNDING_SEAT_DISPLAY} / year — card or
+                        first-year crypto.
                       </>
                     )}
                   </p>

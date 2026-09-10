@@ -62,9 +62,17 @@ function HowItWorksPage() {
         </Link>
         <Link
           to="/access"
+          search={{ plan: "year" }}
           className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
         >
-          {de ? "Seat — $299" : "Founding seat — $299"}
+          {de ? "Jahr — 299 $" : "Year — $299"}
+        </Link>
+        <Link
+          to="/access"
+          search={{ plan: "month" }}
+          className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
+        >
+          {de ? "Monat — 29 $" : "Month — $29"}
         </Link>
       </section>
     </MarketingLayout>

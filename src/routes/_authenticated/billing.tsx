@@ -233,7 +233,7 @@ function BillingPage() {
         description={
           isOutcomeBilling
             ? `${funnelDef.audience}: pay for outcomes. Compute is metered underneath — success fees for Performance are billed manually after verified wins.`
-            : "Revenue, costs, and budgets. AURA is optional utility — you do not need the token to run the company."
+            : "OS access is $29 / month or $299 / year. Packs below are extra compute — not a second unlock. AURA is optional utility."
         }
         actions={
           <Chip tone="gold">

@@ -102,7 +102,7 @@ const X_LINES: Record<string, string[]> = {
   ],
   makemoney: [
     "Own a company. Let AI make money. Keep the upside.",
-    "Not a chatbot. A company OS you actually own.",
+    "Aura OS: $29 / month or $299 / year. Same desk. Cancel monthly anytime.",
     "Stop renting AI tools. Own the company that runs them.",
   ],
   makemoney2: [
@@ -117,7 +117,7 @@ const X_LINES: Record<string, string[]> = {
   ],
   "auraos-bedroom": [
     "Not a bot. A desk. Quant scans. You approve. Sleep is allowed.",
-    "Risk meters before size. Founder approval before live fire. $299 seat.",
+    "Risk meters before size. Founder approval before live fire. $29 / mo or $299 / year.",
     "Most people still trade alone. Aura founders hire Quant into a company they own.",
   ],
   aprove: [
@@ -213,7 +213,7 @@ function clipBody(sharePostId: string, lineIndex: number, at: Date | number = Da
   }
   const url = shareWatchUrl(sharePostId);
   const seat = `${SITE_URL}/access`;
-  const body = `${line}\n\n${url}\nSeat $299 → ${seat}`;
+  const body = `${line}\n\n${url}\n$29 / mo or $299 / year → ${seat}`;
   if (body.length <= 280) return body;
   const short = `${line}\n\n${url}`;
   if (short.length <= 280) return short;

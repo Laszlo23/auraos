@@ -17,6 +17,11 @@ type PrefRow = {
 };
 
 function asLead(row: Record<string, unknown>): LeadDigestLead {
+  const raw = row.metadata;
+  const metadata =
+    raw && typeof raw === "object" && !Array.isArray(raw)
+      ? (raw as LeadDigestLead["metadata"])
+      : null;
   return {
     id: String(row.id),
     name: (row.name as string | null) ?? null,
@@ -28,6 +33,7 @@ function asLead(row: Record<string, unknown>): LeadDigestLead {
     snippet: (row.snippet as string | null) ?? null,
     score: row.score != null ? Number(row.score) : null,
     created_at: String(row.created_at),
+    metadata,
   };
 }
 
@@ -35,6 +41,7 @@ async function sendOneDigest(opts: {
   pref: PrefRow;
   force?: boolean;
   now?: Date;
+  skipScout?: boolean;
 }): Promise<{
   companyId: string;
   sent: boolean;
@@ -69,6 +76,18 @@ async function sendOneDigest(opts: {
     return { companyId: opts.pref.company_id, sent: false, skipped: "already_sent", slot };
   }
 
+  if (!opts.skipScout) {
+    try {
+      const { scoutListingsForCompany } = await import("@/lib/immo-listing-scout.server");
+      await scoutListingsForCompany(opts.pref.company_id, { force: Boolean(opts.force) });
+    } catch (e) {
+      console.warn(
+        "[lead-digest] listing scout skipped",
+        e instanceof Error ? e.message : e,
+      );
+    }
+  }
+
   const { data: company } = await supabaseAdmin
     .from("companies")
     .select("id, name")
@@ -87,7 +106,7 @@ async function sendOneDigest(opts: {
 
   const { data: newRows } = await supabaseAdmin
     .from("akquise_leads")
-    .select("id, name, org, email, phone, source_url, address, snippet, score, created_at")
+    .select("id, name, org, email, phone, source_url, address, snippet, score, created_at, metadata")
     .eq("company_id", opts.pref.company_id)
     .gt("created_at", cutoff)
     .order("created_at", { ascending: false })
@@ -95,7 +114,7 @@ async function sendOneDigest(opts: {
 
   const { data: recentRows } = await supabaseAdmin
     .from("akquise_leads")
-    .select("id, name, org, email, phone, source_url, address, snippet, score, created_at")
+    .select("id, name, org, email, phone, source_url, address, snippet, score, created_at, metadata")
     .eq("company_id", opts.pref.company_id)
     .order("created_at", { ascending: false })
     .limit(8);
@@ -208,7 +227,10 @@ export async function runLeadDigestTick(limit = 40): Promise<{
 }
 
 /** Force-send for one company (desk / founder “send now”). */
-export async function forceLeadDigestForCompany(companyId: string): Promise<{
+export async function forceLeadDigestForCompany(
+  companyId: string,
+  opts?: { skipScout?: boolean },
+): Promise<{
   sent: boolean;
   slot?: string;
   leadCount?: number;
@@ -224,7 +246,11 @@ export async function forceLeadDigestForCompany(companyId: string): Promise<{
   if (error) return { sent: false, error: error.message };
   if (!pref) return { sent: false, error: "digest_not_configured" };
   if (!pref.enabled) return { sent: false, error: "digest_disabled" };
-  const result = await sendOneDigest({ pref: pref as PrefRow, force: true });
+  const result = await sendOneDigest({
+    pref: pref as PrefRow,
+    force: true,
+    skipScout: opts?.skipScout === true,
+  });
   return {
     sent: result.sent,
     slot: result.slot,

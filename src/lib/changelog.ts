@@ -36,6 +36,36 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-10-os-price-ladder",
+    date: "2026-09-10",
+    title: "Fair OS prices — $29 / month or $299 / year",
+    summary:
+      "$299 stays the flagship year. It is no longer the only door. Monthly $29, Try free, and Aura Local €49 / month are the rest of the ladder. Prior one-time seats stay valid.",
+    items: [
+      "Public story: Try free → $29 / month → $299 / year (recommended, ~2 months free) → Local €49 / month",
+      "Stripe Checkout is now a real subscription (month or year) via price_data — no Dashboard Price ID required",
+      "Crypto still prepays the first year at $299 — monthly is card only",
+      "Hood NFT mint stays a separate optional $299 one-time — not required to run the OS",
+      "Terms grandfather anyone who already paid the old one-time founding seat",
+      "Queued X drip CTAs rewritten off Seat $99 / Seat $299 onto $29 / mo or $299 / year",
+    ],
+    tags: ["improvement"],
+  },
+  {
+    id: "2026-09-10-sonja-immo-scout",
+    date: "2026-09-10",
+    title: "Austrian listing scout for realty desks",
+    summary:
+      "Shared catalog of 18 live AT portals. Twice-daily scout mails matching Vienna ads to agents like Sonja — private / provisionsfrei first.",
+    items: [
+      "immo_portals + immo_listing_watches: willhaben, ImmoScout24, flatbee, bazar, FindMyHome, and the rest of the AT board",
+      "Listing scout (Firecrawl / public search) scores Wien rentals and houses; skips category hubs and invented contacts",
+      "Lead digest greets by name and cards listings (price, rooms, m², portal, Inserat öffnen)",
+      "Realty preset seeds the portal list; Lead hunter shows the catalog next to Inbox digests",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-10-fast-secure",
     date: "2026-09-10",
     title: "Faster images, patched CVEs, safer blog HTML",

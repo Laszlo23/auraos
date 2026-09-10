@@ -8,9 +8,9 @@ import { pageHead } from "@/lib/seo";
 export const Route = createFileRoute("/pricing")({
   head: () =>
     pageHead({
-      title: "Pricing — founding seat $299 + Aura OS subscriptions",
+      title: "Pricing — $29 / month or $299 / year",
       description:
-        "Founding seat is $299 one-time. Subscriptions start at €49 / month. AURA is an optional ecosystem layer — not required to run the company.",
+        "Try Aura free. Run Aura OS at $29 / month or $299 / year. Wien shops: Aura Local €49 / month. Hood NFT mint is a separate optional $299.",
       path: "/pricing",
     }),
   component: PricingPage,
@@ -23,7 +23,7 @@ function PricingPage() {
     <MarketingLayout
       cta={{ to: "/access", label: t("landing.navStart") }}
       showSignIn={false}
-      shareText="Aura OS pricing — $299 founding seat, subscriptions separate."
+      shareText="Aura OS — try free, $29 / month, or $299 / year. Fair software."
     >
       <section className="mx-auto max-w-6xl px-6 pt-16">
         <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-primary">
@@ -34,8 +34,8 @@ function PricingPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-[15px] text-muted-foreground">
           {de
-            ? "Drei Schichten, klar getrennt: Seat einmal, Abo laufend, Token optional."
-            : "Three layers, kept obvious: seat once, subscription ongoing, token optional."}
+            ? "Eine klare Leiter: gratis testen, 29 $ / Monat, oder 299 $ / Jahr. Local extra für Wiener Betriebe. Token optional."
+            : "One clear ladder: try free, $29 / month, or $299 / year. Local for Wien shops. Token optional."}
         </p>
       </section>
       <div className="mx-auto max-w-6xl px-6 py-10">

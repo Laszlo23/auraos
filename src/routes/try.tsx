@@ -9,9 +9,9 @@ import { pageHead } from "@/lib/seo";
 export const Route = createFileRoute("/try")({
   head: () =>
     pageHead({
-      title: "Try Aura — see the company before the $299 seat",
+      title: "Try Aura — see the company before you pay",
       description:
-        "Describe your business. Aura shows a simulated company, workforce, and first mission plan. Then wake it with a $299 founding seat.",
+        "Describe your business. Aura shows a simulated company, workforce, and first mission plan. Then start at $29 / month or take the year at $299.",
       path: "/try",
     }),
   component: TryPage,
