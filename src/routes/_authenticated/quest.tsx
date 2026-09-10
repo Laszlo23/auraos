@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { DailyWheel } from "@/components/aura/wheel";
 import { PostWinShareSheet } from "@/components/aura/post-win-share-sheet";
 import { Chip, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
+import { OsDeskBridge } from "@/components/aura/os-desk-bridge";
 import { useReferralCode } from "@/hooks/use-earn";
 import { useProgress } from "@/hooks/use-progress";
 import {
@@ -195,6 +196,8 @@ function QuestHubPage() {
           )
         }
       />
+
+      <OsDeskBridge />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Panel label="Level" glow delay={0}>

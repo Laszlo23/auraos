@@ -91,3 +91,43 @@ export function covenantTickpixCa(): string | null {
 export function covenantCcff00Ca(): string | null {
   return ccff00NftContractAddress();
 }
+
+export const COVENANT_OFFICIAL_DOMAINS =
+  "aibusiness.fun · nft.aibusiness.fun · hoodstreet.capital · hookr.fun";
+
+export type CovenantVerifyItem = {
+  id: string;
+  label: string;
+  ca: string;
+  explorerUrl: string;
+  mintUrl: string;
+  note: string;
+};
+
+/** Official CAs people should copy — never a DM, never the CCFF00 meme ERC-20. */
+export function covenantVerifyItems(): CovenantVerifyItem[] {
+  const items: CovenantVerifyItem[] = [];
+  const tickpix = covenantTickpixCa();
+  if (tickpix) {
+    items.push({
+      id: "tickpix",
+      label: "TICKPIX NFT",
+      ca: tickpix,
+      explorerUrl: tickpixExplorerTokenUrl(),
+      mintUrl: TICKPIX.mintUrl,
+      note: "Culture seats on Robinhood Chain — not a second Hood.",
+    });
+  }
+  const ccff00 = covenantCcff00Ca();
+  if (ccff00) {
+    items.push({
+      id: "ccff00",
+      label: "CCFF00 NFT",
+      ca: ccff00,
+      explorerUrl: ccff00ExplorerNftUrl(),
+      mintUrl: CCFF00.mintUrl,
+      note: "HoodStreet membership NFT — verify this CA, never the meme ERC-20.",
+    });
+  }
+  return items;
+}

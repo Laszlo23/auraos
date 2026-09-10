@@ -4,19 +4,16 @@ import { motion } from "motion/react";
 
 import { PublicSiteHeader } from "@/components/aura/public-site-header";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { VerifyStrip } from "@/components/aura/verify-strip";
 import { useLocale } from "@/hooks/use-locale";
 import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
 import {
   COVENANT_LINKS,
   COVENANT_PATH,
   COVENANT_PROMISES,
-  covenantCcff00Ca,
-  covenantTickpixCa,
 } from "@/lib/community-covenant";
 import { SITE_URL, SOCIAL_LINKS, url } from "@/lib/site";
-import { CCFF00, ccff00ExplorerNftUrl } from "@/lib/ccff00";
 import { HOOKR } from "@/lib/hookr";
-import { tickpixExplorerTokenUrl } from "@/lib/tickpix";
 
 const TITLE = "Community covenant — how we show up | Aura OS";
 const DESCRIPTION =
@@ -40,8 +37,6 @@ export const Route = createFileRoute("/trust")({
 function TrustPage() {
   const { locale } = useLocale();
   const de = locale === "de";
-  const ca = covenantTickpixCa();
-  const ccff00Ca = covenantCcff00Ca();
   const x = SOCIAL_LINKS.find((s) => s.id === "x");
 
   return (
@@ -91,59 +86,23 @@ function TrustPage() {
           ))}
         </ol>
 
-        <section className="mt-12 rounded-2xl border border-primary/25 bg-primary/5 px-5 py-5">
+        <section className="mt-12">
+          <VerifyStrip de={de} />
+        </section>
+
+        <section className="mt-8 rounded-2xl border border-border/40 px-5 py-5">
           <h2 className="text-[15px] font-semibold">
-            {de ? "Prüfen, nicht glauben" : "Verify, don’t believe"}
+            {de ? "Offizielle Links" : "Official links"}
           </h2>
           <ul className="mt-3 space-y-2 text-[13px] text-muted-foreground">
             <li>
-              Tickpix mint:{" "}
-              <a
-                href="https://nft.aibusiness.fun"
-                className="text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                nft.aibusiness.fun
-              </a>
-            </li>
-            {ca ? (
-              <li className="font-mono text-[12px]">
-                Tickpix CA:{" "}
-                <a
-                  href={tickpixExplorerTokenUrl()}
-                  className="text-primary hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {ca}
+              {de ? "Offizielle X:" : "Official X:"}{" "}
+              {x ? (
+                <a href={x.href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                  @buildingcultu3
                 </a>
-              </li>
-            ) : null}
-            <li>
-              CCFF00 mint:{" "}
-              <a
-                href={CCFF00.mintUrl}
-                className="text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                hoodstreet.capital/ccff00
-              </a>
+              ) : null}
             </li>
-            {ccff00Ca ? (
-              <li className="font-mono text-[12px]">
-                CCFF00 NFT CA:{" "}
-                <a
-                  href={ccff00ExplorerNftUrl()}
-                  className="text-primary hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {ccff00Ca}
-                </a>
-              </li>
-            ) : null}
             <li>
               Hookr:{" "}
               <a
@@ -163,14 +122,6 @@ function TrustPage() {
               >
                 @hookrfun
               </a>
-            </li>
-            <li>
-              {de ? "Offizielle X:" : "Official X:"}{" "}
-              {x ? (
-                <a href={x.href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-                  @buildingcultu3
-                </a>
-              ) : null}
             </li>
           </ul>
           <div className="mt-4 flex flex-wrap gap-2">

@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-10-os-trust-desk",
+    date: "2026-09-10",
+    title: "Try carries into the desk — verify CAs without a DM",
+    summary:
+      "The walkthrough now hands your sentence to onboarding. Community and Quest point back at the command center. Official CAs are one-click copy on /trust and /pit. Quiet zeros stay zeros until you approve work.",
+    items: [
+      "/try saves your brief and continues to /auth — $29 / month and $299 / year stay the paid doors",
+      "Onboarding skip stays hidden until the company actually wakes, so the desk is never empty by default",
+      "Command center banner when work is waiting on your approval before /proof can move",
+      "Copy CA + Blockscout on /trust and /pit — never trust a contract from a DM",
+      "Community + Quest: Run the OS strip → console, first mission, approvals, covenant",
+    ],
+    tags: ["improvement"],
+  },
+  {
     id: "2026-09-10-os-price-ladder",
     date: "2026-09-10",
     title: "Fair OS prices — $29 / month or $299 / year",

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/try")({
     pageHead({
       title: "Try Aura — see the company before you pay",
       description:
-        "Describe your business. Aura shows a simulated company, workforce, and first mission plan. Then start at $29 / month or take the year at $299.",
+        "Describe your business. Aura shows a simulated company, workforce, and first mission. Then continue to your desk — $29 / month or $299 / year.",
       path: "/try",
     }),
   component: TryPage,
@@ -21,7 +21,7 @@ function TryPage() {
   const { t } = useLocale();
   return (
     <MarketingLayout
-      cta={{ to: "/access", label: t("landing.navStart") }}
+      cta={{ to: "/auth", label: t("landing.navStart"), search: { mode: "signup" } }}
       showSignIn={false}
       shareText="Try Aura — see the AI company before you buy the seat."
     >

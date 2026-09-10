@@ -13,6 +13,11 @@ describe("questActionHref", () => {
   it("keeps nachbar portals on heute", () => {
     expect(questActionHref("portal:checkin")).toBe("/nachbar/heute");
   });
+
+  it("sends first-win desk work to the command center", () => {
+    expect(questActionHref("company:first-win")).toBe("/console");
+    expect(questActionHref("desk:approve")).toBe("/console");
+  });
 });
 
 describe("beta prophecy", () => {

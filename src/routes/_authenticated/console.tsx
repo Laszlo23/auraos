@@ -25,6 +25,7 @@ import { RevenueWallet } from "@/components/aura/revenue-wallet";
 import { FirstWin } from "@/components/aura/first-win";
 import { OsFunctionMap } from "@/components/aura/os-function-map";
 import { StartHere } from "@/components/aura/start-here";
+import { ApproveWorkBanner } from "@/components/aura/approve-work-banner";
 import { StreamText } from "@/components/aura/stream-text";
 import { QuestTrail } from "@/components/aura/quests";
 import { MissionDetailSheet } from "@/components/aura/mission-detail-sheet";
@@ -305,6 +306,11 @@ function Home() {
           <p className="mb-4 text-[13px] text-muted-foreground">
             You own the company. Level {level}.
           </p>
+          {awaiting.length > 0 && realResults === 0 ? (
+            <div className="mb-4">
+              <ApproveWorkBanner awaiting={awaiting.length} />
+            </div>
+          ) : null}
           <div className="grid grid-cols-2 gap-2">
             <Snap label="Revenue" value={compactMoney(totals?.revenue ?? 0)} />
             <Snap label="Customers" value={String(customers)} />
@@ -479,6 +485,10 @@ function Home() {
             </>
           }
         />
+
+        {awaiting.length > 0 && realResults === 0 ? (
+          <ApproveWorkBanner awaiting={awaiting.length} />
+        ) : null}
 
         <OsFunctionMap visiblePaths={visiblePaths} hints={mapHints} />
 

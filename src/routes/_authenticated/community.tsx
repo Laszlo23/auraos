@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { Chip, PageHeader, Panel, Pulse } from "@/components/aura/primitives";
+import { OsDeskBridge } from "@/components/aura/os-desk-bridge";
 import { PostWinShareSheet } from "@/components/aura/post-win-share-sheet";
 import { QuestTrail, COMMUNITY_QUESTS } from "@/components/aura/quests";
 import {
@@ -326,6 +327,8 @@ function CommunityHubPage() {
           </div>
         }
       />
+
+      <OsDeskBridge />
 
       <Panel label="TICKPIX · the pit">
         <div className="flex flex-wrap items-start justify-between gap-3">

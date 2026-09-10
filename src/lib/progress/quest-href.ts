@@ -12,6 +12,7 @@ export function questActionHref(key: string): string {
   if (key.startsWith("portal:") || key.startsWith("nachbar:")) return "/nachbar/heute";
   if (key.startsWith("channels:") || key.includes("channels")) return "/channels";
   if (key.startsWith("mission:") || key.startsWith("task:")) return "/missions";
+  if (key.startsWith("desk:") || key === "company:first-win") return "/console";
   if (key === "company:spin") return "/quest";
   return "/quest";
 }

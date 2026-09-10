@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 
 import { Chip } from "@/components/aura/primitives";
 import { useLocale } from "@/hooks/use-locale";
-import { interpretBusiness, ONBOARD_EXAMPLES } from "@/lib/onboard-brief";
+import { interpretBusiness } from "@/lib/onboard-brief";
+import { OS_MONTH_DISPLAY, OS_YEAR_DISPLAY } from "@/lib/os-pricing";
 import { WALKTHROUGH_NOTE, loc } from "@/lib/product-story";
+import { saveTryCarryover } from "@/lib/try-carryover";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
@@ -145,17 +147,44 @@ export function TryAura({ standalone = false }: { standalone?: boolean }) {
                 <Chip>{de ? "Freigabe nötig" : "Approval required"}</Chip>
               </div>
               <p className="mt-6 text-[15px] font-semibold">
-                {de ? "Das kaufst du." : "This is what you're buying."}
+                {de
+                  ? "Walkthrough — noch keine echte Firma. Als Nächstes weckst du deinen Desk."
+                  : "Walkthrough only — not a live company. Next, wake your real desk."}
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
-                  to="/access"
-                  search={{ plan: "year" }}
-                  onClick={() => trackTeaser("cta_click", { placement: "try_wake_seat" })}
+                  to="/auth"
+                  search={{ mode: "signup" }}
+                  onClick={() => {
+                    saveTryCarryover(prompt);
+                    trackTeaser("cta_click", { placement: "try_continue_desk" });
+                  }}
                   className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
                 >
-                  {de ? "Jahr starten — 299 $" : "Start the year — $299"}{" "}
+                  {de ? "Weiter zum Desk" : "Continue to your desk"}{" "}
                   <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/access"
+                  search={{ plan: "month" }}
+                  onClick={() => {
+                    saveTryCarryover(prompt);
+                    trackTeaser("cta_click", { placement: "try_wake_month" });
+                  }}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold"
+                >
+                  {de ? "Monatlich — 29 $" : OS_MONTH_DISPLAY}
+                </Link>
+                <Link
+                  to="/access"
+                  search={{ plan: "year" }}
+                  onClick={() => {
+                    saveTryCarryover(prompt);
+                    trackTeaser("cta_click", { placement: "try_wake_year" });
+                  }}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-4 py-3 text-sm font-semibold"
+                >
+                  {de ? "Jahr — 299 $" : OS_YEAR_DISPLAY}
                 </Link>
                 <button
                   type="button"

@@ -4,13 +4,13 @@ import { motion } from "motion/react";
 
 import { PublicSiteHeader } from "@/components/aura/public-site-header";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { VerifyStrip } from "@/components/aura/verify-strip";
 import { useLocale } from "@/hooks/use-locale";
 import {
   TICKPIX,
   TICKPIX_COPY,
   tickpixCollectionUrl,
   tickpixContractAddress,
-  tickpixExplorerTokenUrl,
   tickpixWindowCopy,
 } from "@/lib/tickpix";
 import { SITE_URL, url } from "@/lib/site";
@@ -95,30 +95,14 @@ function PitPage() {
               </Link>
             </div>
             <p className="mt-6 max-w-lg text-[12px] leading-relaxed text-muted-foreground">{disclaimer}</p>
-            <div className="mt-6 max-w-xl rounded-2xl border border-border/50 bg-foreground/[0.03] px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
-              <p className="font-semibold text-foreground/90">
-                {de ? "Vertrauen · nicht Vibes" : "Trust · not vibes"}
-              </p>
-              <p className="mt-1.5">
-                {de
-                  ? "Offizielle CA nur hier und auf nft.aibusiness.fun. Nie per DM. Culture Coin wurde von einem ehemaligen Partner gerugged — wir machen es mit prüfbarer Arbeit gut."
-                  : "Official CA only here and on nft.aibusiness.fun. Never by DM. Culture Coin was rugged by a former partner — we make it up with work you can verify."}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                <Link to="/trust" className="font-semibold text-primary hover:underline">
-                  {de ? "Community-Bund →" : "Community covenant →"}
-                </Link>
-                {ca ? (
-                  <a
-                    href={tickpixExplorerTokenUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-primary hover:underline"
-                  >
-                    Blockscout
-                  </a>
-                ) : null}
-              </div>
+            <div className="mt-6 max-w-xl">
+              <VerifyStrip compact de={de} />
+              <Link
+                to="/trust"
+                className="mt-2 inline-block text-[12px] font-semibold text-primary hover:underline"
+              >
+                {de ? "Community-Bund →" : "Community covenant →"}
+              </Link>
             </div>
             <div className="mt-4 max-w-xl rounded-2xl border border-border/50 bg-foreground/[0.02] px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
               <p className="font-semibold text-foreground/90">
@@ -196,15 +180,8 @@ function PitPage() {
                 {ca ? (
                   <div className="flex justify-between gap-3">
                     <dt>CA</dt>
-                    <dd>
-                      <a
-                        href={tickpixExplorerTokenUrl()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        {`${ca.slice(0, 6)}…${ca.slice(-4)}`}
-                      </a>
+                    <dd className="break-all text-right font-mono text-[10px] text-foreground/80">
+                      {ca}
                     </dd>
                   </div>
                 ) : null}

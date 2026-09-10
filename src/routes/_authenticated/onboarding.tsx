@@ -28,6 +28,7 @@ import {
 } from "@/lib/onboard-brief";
 import { createRevenueMission, startRevenueMission } from "@/lib/revenue-mission.functions";
 import { trackAppEvent } from "@/lib/app-track";
+import { consumeTryCarryover } from "@/lib/try-carryover";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -98,6 +99,12 @@ function Onboarding() {
   useEffect(() => {
     if (isLokal) setLocale("de");
   }, [isLokal, setLocale]);
+
+  useEffect(() => {
+    if (isLokal) return;
+    const carried = consumeTryCarryover();
+    if (carried) setPrompt(carried);
+  }, [isLokal]);
 
   const pop = (label: string, amount: number, quest?: string) => {
     setBurst((n) => n + 1);
@@ -776,16 +783,22 @@ function Onboarding() {
         </motion.div>
       </AnimatePresence>
 
-      <p className="mt-16 text-[12px] text-muted-foreground">
-        {funnelById(entryFunnel).headline} ·{" "}
-        <button
-          type="button"
-          onClick={() => void finishTo(isLokal ? "/kunden" : "/console")}
-          className="text-primary"
-        >
-          {de ? "Später öffnen" : "Skip for now"}
-        </button>
-      </p>
+      {phase >= 1 ? (
+        <p className="mt-16 text-[12px] text-muted-foreground">
+          {funnelById(entryFunnel).headline} ·{" "}
+          <button
+            type="button"
+            onClick={() => void finishTo(isLokal ? "/kunden" : "/console")}
+            className="text-primary"
+          >
+            {de ? "Später öffnen" : "Skip for now"}
+          </button>
+        </p>
+      ) : (
+        <p className="mt-16 text-[12px] text-muted-foreground">
+          {funnelById(entryFunnel).headline}
+        </p>
+      )}
     </div>
   );
 }
