@@ -40,12 +40,14 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     date: "2026-09-10",
     title: "Viral loops — watch join CTA, post-win share, one-tap Scout",
     summary:
-      "Watch pages and the share kit convert into attributed joins. Tickpix tape share and Scout invites open a share sheet that awards weekly growth XP.",
+      "Watch pages and the share kit convert into attributed joins. Tickpix tape share and Scout invites open a share sheet that awards weekly growth XP. CCFF00 free raid window called out through 12 Sep 19:00 UTC.",
     items: [
       "ViralJoinCta on /v/$postId + share kit — auth/access with UTM + preserved ref; Pit + covenant links",
       "PostWinShareSheet on Community Tickpix share-tape and Quest Scout share",
       "Quest: Join + share invite one-tap; copy/X/share sheet completes growth:scout-share",
+      "TICKPIX /pit + share drip: CCFF00 free raid extended to 12 Sep 19:00 UTC (max 3 free, then public 0.0001 ETH)",
       "docs/COMMUNITY_GROWTH.md — paste-ready X pin, Discord/TG sticky, Channels drip checklist",
+      "Ops: scripts/provision-friend-full-os.mjs for complimentary full-OS friend seats",
     ],
     tags: ["feature", "improvement"],
   },
