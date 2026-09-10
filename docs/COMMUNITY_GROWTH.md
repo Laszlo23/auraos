@@ -45,7 +45,13 @@ TICKPIX culture seats (verify CA on Blockscout — never by DM):
 https://aibusiness.fun/pit
 Mint → https://nft.aibusiness.fun
 
-Official only: aibusiness.fun · nft.aibusiness.fun
+CCFF00 = HoodStreet Proof of Neon (membership NFT):
+https://hoodstreet.capital/ccff00
+
+Readable RH hooks (not an airdrop):
+https://hookr.fun/ · @hookrfun
+
+Official only: aibusiness.fun · nft.aibusiness.fun · hoodstreet.capital · hookr.fun
 ```
 
 Pin this. Reply with Blockscout token URL when someone asks for the CA.
@@ -58,9 +64,11 @@ Aura OS · Building Culture continuity
 How we show up (covenant): https://aibusiness.fun/trust
 TICKPIX pit: https://aibusiness.fun/pit
 Mint (canonical): https://nft.aibusiness.fun
+CCFF00 / HoodStreet: https://hoodstreet.capital/ccff00
+Hookr (RH Uniswap v4 hooks): https://hookr.fun/ · @hookrfun only
 
 Hard rule: never trust a CA or mint link from a DM.
-Official domains only: aibusiness.fun · nft.aibusiness.fun
+Official domains only: aibusiness.fun · nft.aibusiness.fun · hoodstreet.capital · hookr.fun
 
 Demo the desk: https://aibusiness.fun/auth → /console
 Share kit: https://aibusiness.fun/share

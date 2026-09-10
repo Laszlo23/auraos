@@ -42,6 +42,9 @@ import {
 import { SOCIAL_LINKS } from "@/lib/site";
 import { TICKPIX } from "@/lib/tickpix";
 import { claimTickpixMintQuest, getTickpixStatus } from "@/lib/tickpix.functions";
+import { claimCcff00VerifyQuest, getCcff00Status } from "@/lib/ccff00.functions";
+import { CCFF00 } from "@/lib/ccff00";
+import { HOOKR } from "@/lib/hookr";
 import { trackTeaser } from "@/lib/teaser-track";
 import { num, timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -112,6 +115,11 @@ function CommunityHubPage() {
     queryFn: () => getTickpixStatus(),
     staleTime: 60_000,
   });
+  const { data: ccff00 } = useQuery({
+    queryKey: ["ccff00-status"],
+    queryFn: () => getCcff00Status(),
+    staleTime: 60_000,
+  });
   const claimTickpix = useMutation({
     mutationFn: () => claimTickpixMintQuest(),
     onSuccess: () => {
@@ -123,6 +131,18 @@ function CommunityHubPage() {
       void qc.invalidateQueries({ queryKey: ["holder-perks"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not verify Tickpix"),
+  });
+  const claimCcff00 = useMutation({
+    mutationFn: () => claimCcff00VerifyQuest(),
+    onSuccess: () => {
+      pop("CCFF00 verified", 80);
+      toast.success("Hoodstreet · CCFF00 badge unlocked");
+      void qc.invalidateQueries({ queryKey: ["ccff00-status"] });
+      void qc.invalidateQueries({ queryKey: ["user-progress"] });
+      void qc.invalidateQueries({ queryKey: ["progress"] });
+      void qc.invalidateQueries({ queryKey: ["holder-perks"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not verify CCFF00"),
   });
 
   const pop = (label: string, amount: number) => {
@@ -323,6 +343,11 @@ function CommunityHubPage() {
                 Link the wallet you minted with under Identity, then claim the badge.
               </p>
             )}
+            {ccff00?.owns ? (
+              <Chip tone="primary" className="mt-2">
+                <Pulse /> Hoodstreet · CCFF00 · {ccff00.balance}
+              </Chip>
+            ) : null}
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
@@ -340,6 +365,22 @@ function CommunityHubPage() {
             >
               Take a seat <ExternalLink className="h-3 w-3" />
             </a>
+            <a
+              href={CCFF00.mintUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]"
+            >
+              CCFF00 <ExternalLink className="h-3 w-3" />
+            </a>
+            <a
+              href={HOOKR.siteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]"
+            >
+              Hookr <ExternalLink className="h-3 w-3" />
+            </a>
             {tickpix?.owns && !done.has("tickpix:mint") ? (
               <button
                 type="button"
@@ -353,6 +394,21 @@ function CommunityHubPage() {
             {done.has("tickpix:mint") ? (
               <span className="rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-[11px] font-semibold text-primary">
                 Badge claimed
+              </span>
+            ) : null}
+            {ccff00?.owns && !done.has("ccff00:verify") ? (
+              <button
+                type="button"
+                disabled={claimCcff00.isPending}
+                onClick={() => claimCcff00.mutate()}
+                className="rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary disabled:opacity-50"
+              >
+                Claim CCFF00
+              </button>
+            ) : null}
+            {done.has("ccff00:verify") ? (
+              <span className="rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-[11px] font-semibold text-primary">
+                CCFF00 verified
               </span>
             ) : null}
           </div>

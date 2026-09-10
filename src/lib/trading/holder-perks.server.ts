@@ -1,4 +1,6 @@
 import { walletOwnsGenesis } from "@/lib/genesis.server";
+import { ccff00NftContractAddress } from "@/lib/ccff00";
+import { loadHasCcff00Nft } from "@/lib/ccff00.server";
 import { tickpixContractAddress } from "@/lib/tickpix";
 import { loadHasTickpixNft } from "@/lib/tickpix.server";
 import { buildHolderPerks, type HolderPerks } from "@/lib/trading/holder-perks";
@@ -15,6 +17,10 @@ export function genesisNftContractEnv(): string | null {
 
 export function tickpixNftContractEnv(): string | null {
   return tickpixContractAddress();
+}
+
+export function ccff00NftContractEnv(): string | null {
+  return ccff00NftContractAddress();
 }
 
 export async function loadHasGenesisNft(
@@ -80,6 +86,7 @@ export async function loadCompanyHolderPerks(db: Db, companyId: string): Promise
     .maybeSingle();
   const hasGenesisNft = await loadHasGenesisNft(db, { companyId });
   const tickpix = await loadHasTickpixNft(db, { companyId });
+  const ccff00 = await loadHasCcff00Nft(db, { companyId });
   return buildHolderPerks({
     auraBalance: Number(sub?.tokens_remaining ?? 0),
     hasGenesisNft,
@@ -87,6 +94,9 @@ export async function loadCompanyHolderPerks(db: Db, companyId: string): Promise
     hasTickpixNft: tickpix.owns,
     tickpixNftContract: tickpixNftContractEnv(),
     tickpixBalance: tickpix.balance,
+    hasCcff00Nft: ccff00.owns,
+    ccff00NftContract: ccff00NftContractEnv(),
+    ccff00Balance: ccff00.balance,
   });
 }
 
@@ -117,6 +127,7 @@ export async function loadUserHolderPerks(
   }
   const hasGenesisNft = await loadHasGenesisNft(db, { userId, companyId: resolvedCompany });
   const tickpix = await loadHasTickpixNft(db, { userId, companyId: resolvedCompany });
+  const ccff00 = await loadHasCcff00Nft(db, { userId, companyId: resolvedCompany });
   return buildHolderPerks({
     auraBalance,
     hasGenesisNft,
@@ -124,5 +135,8 @@ export async function loadUserHolderPerks(
     hasTickpixNft: tickpix.owns,
     tickpixNftContract: tickpixNftContractEnv(),
     tickpixBalance: tickpix.balance,
+    hasCcff00Nft: ccff00.owns,
+    ccff00NftContract: ccff00NftContractEnv(),
+    ccff00Balance: ccff00.balance,
   });
 }

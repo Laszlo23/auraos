@@ -10,9 +10,12 @@ import {
   COVENANT_LINKS,
   COVENANT_PATH,
   COVENANT_PROMISES,
+  covenantCcff00Ca,
   covenantTickpixCa,
 } from "@/lib/community-covenant";
 import { SITE_URL, SOCIAL_LINKS, url } from "@/lib/site";
+import { CCFF00, ccff00ExplorerNftUrl } from "@/lib/ccff00";
+import { HOOKR } from "@/lib/hookr";
 import { tickpixExplorerTokenUrl } from "@/lib/tickpix";
 
 const TITLE = "Community covenant — how we show up | Aura OS";
@@ -38,6 +41,7 @@ function TrustPage() {
   const { locale } = useLocale();
   const de = locale === "de";
   const ca = covenantTickpixCa();
+  const ccff00Ca = covenantCcff00Ca();
   const x = SOCIAL_LINKS.find((s) => s.id === "x");
 
   return (
@@ -117,6 +121,50 @@ function TrustPage() {
               </li>
             ) : null}
             <li>
+              CCFF00 mint:{" "}
+              <a
+                href={CCFF00.mintUrl}
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                hoodstreet.capital/ccff00
+              </a>
+            </li>
+            {ccff00Ca ? (
+              <li className="font-mono text-[12px]">
+                CCFF00 NFT CA:{" "}
+                <a
+                  href={ccff00ExplorerNftUrl()}
+                  className="text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {ccff00Ca}
+                </a>
+              </li>
+            ) : null}
+            <li>
+              Hookr:{" "}
+              <a
+                href={HOOKR.siteUrl}
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                hookr.fun
+              </a>{" "}
+              ·{" "}
+              <a
+                href={HOOKR.xUrl}
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                @hookrfun
+              </a>
+            </li>
+            <li>
               {de ? "Offizielle X:" : "Official X:"}{" "}
               {x ? (
                 <a href={x.href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
@@ -126,7 +174,7 @@ function TrustPage() {
             </li>
           </ul>
           <div className="mt-4 flex flex-wrap gap-2">
-            {COVENANT_LINKS.slice(0, 6).map((l) => (
+            {COVENANT_LINKS.slice(0, 9).map((l) => (
               <a
                 key={l.href}
                 href={l.href}

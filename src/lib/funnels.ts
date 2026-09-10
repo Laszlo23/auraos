@@ -264,7 +264,7 @@ export const FUNNELS: Record<FunnelId, FunnelDef> = {
     audience: "Web3 builders & NFT artists",
     headline: "Launch your collection. Run your drop on Robinhood Chain.",
     subhead:
-      "Create an ERC-721 collection, mint page, and primary sales desk in USDG or ETH — AI agents handle drop marketing while you keep creative control.",
+      "Create an ERC-721 collection, mint page, and primary sales desk in USDG or ETH — AI agents handle drop marketing while you keep creative control. For readable Uniswap v4 pool rules on Robinhood Chain, see hookr.fun (official links only).",
     cta: "Start creating",
     billingKind: "aura_tokens",
     planIds: [],
@@ -278,7 +278,7 @@ export const FUNNELS: Record<FunnelId, FunnelDef> = {
       akquiseTemplate: null,
       siteTemplate: null,
       strategy:
-        "Creator hub: deploy collection on Robinhood Chain, branded mint storefront, Content Studio for drop threads.",
+        "Creator hub: deploy collection on Robinhood Chain, branded mint storefront, Content Studio for drop threads. Hookr = optional readable v4 hooks later — not an airdrop lane.",
       productName: "NFT Collection",
       productDescription: "Your Robinhood Chain collection with primary mint desk.",
       productPrice: 0,

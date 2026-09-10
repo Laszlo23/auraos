@@ -177,6 +177,10 @@ function QuestHubPage() {
             <Chip tone="primary">
               <Pulse /> Pit seat · {perks.tickpixBalance || 1}
             </Chip>
+          ) : perks?.hasCcff00Nft ? (
+            <Chip tone="primary">
+              <Pulse /> Hoodstreet · CCFF00
+            </Chip>
           ) : perks?.hasGenesisNft ? (
             <Chip tone="gold">
               <Pulse tone="gold" /> Hood

@@ -3,7 +3,7 @@
  */
 
 export function questActionHref(key: string): string {
-  if (key.startsWith("tickpix:")) return "/community";
+  if (key.startsWith("tickpix:") || key.startsWith("ccff00:")) return "/community";
   if (key.startsWith("growth:social") || key.startsWith("growth:space") || key === "growth:scout-share") {
     return "/community";
   }

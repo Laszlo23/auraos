@@ -105,6 +105,38 @@ function BuildersFunnelLanding({ funnel }: { funnel: FunnelDef }) {
         <CreatorStackShowcase />
       </section>
 
+      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-10">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Robinhood Chain partners
+        </p>
+        <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-muted-foreground">
+          Readable Uniswap v4 pool rules live at{" "}
+          <a
+            href="https://hookr.fun/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline-offset-2 hover:underline"
+          >
+            hookr.fun
+          </a>{" "}
+          ·{" "}
+          <a
+            href="https://x.com/hookrfun"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline-offset-2 hover:underline"
+          >
+            @hookrfun
+          </a>
+          . Rules before you sign — not an airdrop portal. Verify CAs on official sites only; never by
+          DM. Covenant →{" "}
+          <Link to="/trust" className="font-medium text-foreground underline-offset-2 hover:underline">
+            /trust
+          </Link>
+          .
+        </p>
+      </section>
+
       <FunnelPainSection title={story.painTitle} body={story.painBody} items={story.painItems} />
       <FunnelWiifmStrip title={story.wiifmTitle} sub={story.wiifmSub} items={story.wiifm} />
       <FunnelStoryBeats beats={story.beats} />

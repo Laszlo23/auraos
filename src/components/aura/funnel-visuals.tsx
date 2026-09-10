@@ -970,6 +970,7 @@ export function storyForFunnel(id: FunnelId): FunnelStory {
           "Robinhood Chain — not Base",
           "You set price & payout wallet",
           "Branded mint page per collection",
+          "Hookr.fun — readable Uniswap v4 hooks (official links only)",
           "Free tier: 1 collection, 100 supply",
         ],
         closeTitle: "Launch your first drop.",

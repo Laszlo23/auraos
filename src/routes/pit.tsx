@@ -119,6 +119,34 @@ function PitPage() {
                 ) : null}
               </div>
             </div>
+            <div className="mt-4 max-w-xl rounded-2xl border border-border/50 bg-foreground/[0.02] px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
+              <p className="font-semibold text-foreground/90">
+                {de ? "RH-Partner" : "RH partners"}
+              </p>
+              <p className="mt-1.5">
+                {de
+                  ? "CCFF00 = HoodStreet Membership (Proof of Neon). Hookr = lesbare Uniswap-v4-Hooks. Beides Kultur/Infra — kein zweites Hood."
+                  : "CCFF00 = HoodStreet membership (Proof of Neon). Hookr = readable Uniswap v4 hooks. Culture/infra — not a second Hood."}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                <a
+                  href="https://hoodstreet.capital/ccff00"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  hoodstreet.capital
+                </a>
+                <a
+                  href="https://hookr.fun/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  hookr.fun
+                </a>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div

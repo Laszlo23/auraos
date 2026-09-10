@@ -406,7 +406,40 @@ function TokenInvestorPage() {
         </section>
 
         {/* 6. NFT desk playbook + OpenSea compat */}
-        <div className="mt-16">
+        <section className="mt-16 rounded-2xl border border-border/40 bg-foreground/[0.02] px-5 py-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Robinhood Chain · Hookr
+          </p>
+          <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+            {de
+              ? "Lesbare Uniswap-v4-Hooks für zukünftige RH-Launches — Regeln vor dem Signieren. Offiziell: "
+              : "Readable Uniswap v4 hooks for future RH launches — rules before you sign. Official: "}
+            <a
+              href="https://hookr.fun/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground underline-offset-2 hover:underline"
+            >
+              hookr.fun
+            </a>
+            {" · "}
+            <a
+              href="https://x.com/hookrfun"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground underline-offset-2 hover:underline"
+            >
+              @hookrfun
+            </a>
+            {de
+              ? ". Kein Airdrop-Theater. CAs nie per DM."
+              : ". No airdrop theater. Never trust a CA by DM."}{" "}
+            <Link to="/trust" className="font-medium text-foreground underline-offset-2 hover:underline">
+              /trust
+            </Link>
+          </p>
+        </section>
+        <div className="mt-8">
           <NftDeskPlaybookPanel />
         </div>
       </div>

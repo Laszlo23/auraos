@@ -23,6 +23,8 @@ export type LaunchDripSlot = {
 const ROTATION_IDS = [
   "make-good",
   "tickpix-pit",
+  "ccff00-hoodstreet",
+  "hookr-rules",
   "wien",
   "oida",
   "checkout",
@@ -44,13 +46,23 @@ const ROTATION_IDS = [
 const X_LINES: Record<string, string[]> = {
   "make-good": [
     "Culture Coin was rugged by a former partner. We make it up by building — /trust",
-    "Never trust a DM with a CA. Official only: aibusiness.fun + nft.aibusiness.fun",
+    "Never trust a DM with a CA. Official only: aibusiness.fun · nft.aibusiness.fun · hoodstreet.capital · hookr.fun",
     "Receipts over theater. Covenant live → six promises you can hold us to.",
   ],
   "tickpix-pit": [
     "TICKPIX CCFF00 free raid EXTENDED → 12 Sep 19:00 UTC. Mint → nft.aibusiness.fun · Pit → /pit",
     "Held CCFF00? Free seats (max 3). Then public @ 0.0001 ETH. Verify CA on Blockscout.",
     "Hold Tickpix → Pit badge + Quest XP. Hood stays the OS passport. Culture, not a fund.",
+  ],
+  "hookr-rules": [
+    "Rules before you sign — Uniswap v4 hooks on Robinhood Chain → hookr.fun · @hookrfun only",
+    "No airdrop DMs. Readable hooks. Official: hookr.fun · covenant → aibusiness.fun/trust",
+    "Anti-Snipe · Surge · Burn · LP Rewards · Nth-buy Pot — fixed at pool open.",
+  ],
+  "ccff00-hoodstreet": [
+    "CCFF00 = HoodStreet Proof of Neon. Aura verifies the NFT on-chain — soft Quest XP only.",
+    "Membership NFT on Robinhood Chain — not Aura founding seats. CA on /trust.",
+    "hoodstreet.capital/ccff00 · then Tickpix pit → aibusiness.fun/pit",
   ],
   wien: [
     "Ned in einem WeWork. In Wien. Cracked screen. Real street.",
@@ -177,6 +189,14 @@ function clipBody(sharePostId: string, lineIndex: number): string {
     const short = `${line}\n\n${pit}`;
     return short.length <= 280 ? short : short.slice(0, 280);
   }
+  if (sharePostId === "ccff00-hoodstreet") {
+    const body = `${line}\n\nhttps://hoodstreet.capital/ccff00\n${SITE_URL}/trust`;
+    return body.length <= 280 ? body : body.slice(0, 280);
+  }
+  if (sharePostId === "hookr-rules") {
+    const body = `${line}\n\nhttps://hookr.fun/\n${SITE_URL}/trust`;
+    return body.length <= 280 ? body : body.slice(0, 280);
+  }
   const url = shareWatchUrl(sharePostId);
   const seat = `${SITE_URL}/access`;
   const body = `${line}\n\n${url}\nSeat $299 → ${seat}`;
@@ -196,6 +216,12 @@ function farcasterCastBody(sharePostId: string, lineIndex: number): string {
   }
   if (sharePostId === "tickpix-pit") {
     return `${line}\n\n${SITE_URL}/pit`.slice(0, 320);
+  }
+  if (sharePostId === "ccff00-hoodstreet") {
+    return `${line}\n\nhttps://hoodstreet.capital/ccff00`.slice(0, 320);
+  }
+  if (sharePostId === "hookr-rules") {
+    return `${line}\n\nhttps://hookr.fun/`.slice(0, 320);
   }
   const url = shareWatchUrl(sharePostId);
   const body = `${line}\n\n${url}`;

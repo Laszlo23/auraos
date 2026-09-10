@@ -109,6 +109,12 @@ export const REP_EARN_RULES: RepRule[] = [
     label: "Shared a tape card",
     hint: "Printed and shared a Tickpix tape card",
   },
+  {
+    eventKey: "ccff00:verify",
+    rep: 6,
+    label: "Verified CCFF00",
+    hint: "Linked a wallet that holds HoodStreet CCFF00 on Robinhood Chain",
+  },
 ];
 
 export type QuestMission = {
@@ -295,6 +301,15 @@ const BASE_QUESTS = [
     xp: 40,
     rep: 4,
     cadence: "weekly",
+  },
+  {
+    key: "ccff00:verify",
+    label: "Verify Hoodstreet CCFF00",
+    hint: "Link a Robinhood Chain wallet that holds CCFF00 — Proof of Neon, soft Quest XP only",
+    glyph: "◈",
+    xp: 80,
+    rep: 6,
+    cadence: "once",
   },
 ];
 

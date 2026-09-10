@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-10-ccff00-hookr",
+    date: "2026-09-10",
+    title: "CCFF00 + Hookr — trust-first Robinhood Chain partners",
+    summary:
+      "Verify HoodStreet CCFF00 membership NFTs on-chain for soft Quest XP. Surface Hookr as readable Uniswap v4 infrastructure — no airdrop theater, no Culture Coin sequel.",
+    items: [
+      "CCFF00 NFT CA SSOT 0x505A22Ff… — balanceOf on linked wallets; hasCcff00Nft +5% Quest XP (never Hood rebates)",
+      "Quest ccff00:verify + Community claim; /pit + /trust partner strips; docs/HOODSTREET_CCFF00.md",
+      "Hookr playbook strategy + builders copy + drip lines; docs/HOOKR.md; covenant links hoodstreet + hookr.fun",
+      "X/FC rotation includes ccff00-hoodstreet + hookr-rules (official URLs only)",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-10-viral-loops",
     date: "2026-09-10",
     title: "Viral loops — watch join CTA, post-win share, one-tap Scout",

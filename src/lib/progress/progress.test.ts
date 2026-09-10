@@ -67,4 +67,9 @@ describe("quest registry", () => {
     expect(WEEKLY_QUEST_KEYS).toContain("tickpix:share-tape");
     expect(repForEvent("tickpix:mint")).toBe(8);
   });
+
+  it("includes CCFF00 HoodStreet verify quest", () => {
+    expect(QUEST_REGISTRY.some((q) => q.key === "ccff00:verify")).toBe(true);
+    expect(repForEvent("ccff00:verify")).toBeGreaterThan(0);
+  });
 });

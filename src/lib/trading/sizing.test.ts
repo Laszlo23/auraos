@@ -114,4 +114,18 @@ describe("trading sizing & arena", () => {
     expect(perks.seasonScoreMultiplier).toBe(1);
     expect(perks.perks.find((p) => p.id === "tickpix-pit")?.active).toBe(true);
   });
+
+  it("CCFF00 is soft flair only and stacks with Tickpix", () => {
+    const perks = buildHolderPerks({
+      auraBalance: 50,
+      hasTickpixNft: true,
+      hasCcff00Nft: true,
+      ccff00Balance: 1,
+    });
+    expect(perks.hasCcff00Nft).toBe(true);
+    expect(perks.questXpBoostPct).toBe(20); // spark 10 + tickpix 5 + ccff00 5
+    expect(perks.strategySlotBonus).toBe(0);
+    expect(perks.x402RebateBps).toBe(0);
+    expect(perks.perks.find((p) => p.id === "ccff00-hoodstreet")?.active).toBe(true);
+  });
 });

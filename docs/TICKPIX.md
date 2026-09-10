@@ -14,6 +14,8 @@ Culture seats on Robinhood Chain — community membership for the tape, **not** 
 | Mint (canonical) | https://nft.aibusiness.fun |
 | Aura discovery | `/pit` |
 | Community covenant | `/trust` |
+| HoodStreet CCFF00 | `/trust` + `docs/HOODSTREET_CCFF00.md` (NFT CA verify) |
+| Hookr (RH hooks) | `docs/HOOKR.md` · hookr.fun |
 | Community badge + quests | `/community` |
 | Holder soft perk | `holder-perks` → `hasTickpixNft` (+5% quest XP only) |
 | SSOT | `src/lib/tickpix.ts`, `src/lib/tickpix.server.ts` |
@@ -22,6 +24,8 @@ Culture seats on Robinhood Chain — community membership for the tape, **not** 
 
 ```bash
 TICKPIX_CONTRACT_ADDRESS=0xa1F563AA9AFF537b8D1dD551B4DB9eFc9EC2D117
+# HoodStreet CCFF00 membership NFT (verify NFT — not meme ERC-20)
+CCFF00_CONTRACT_ADDRESS=0x505A22Ffed8d37ebE580FfD98d2Cdb0021189146
 # optional marketplace / collection URL override
 # TICKPIX_COLLECTION_URL=https://nft.aibusiness.fun
 ```

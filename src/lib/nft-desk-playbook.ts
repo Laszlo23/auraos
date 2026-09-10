@@ -14,6 +14,8 @@ import { HOOD_GIFT_AURA, HOOD_MAX_SUPPLY } from "@/lib/aura-launch";
 export type NftDeskStrategyId =
   | "hood-membership"
   | "tickpix-pit"
+  | "ccff00-hoodstreet"
+  | "hookr-readable-hooks"
   | "hold-to-earn-fees"
   | "creator-primary"
   | "quant-history"
@@ -100,6 +102,70 @@ export const NFT_DESK_STRATEGIES: NftDeskStrategy[] = [
     trainHint: {
       en: "Train Growth agents on tape-card share loops — never floor speculation.",
       de: "Growth-Agenten auf Tape-Card-Share-Loops trainieren — nie Floor-Spekulation.",
+    },
+  },
+  {
+    id: "ccff00-hoodstreet",
+    status: "live",
+    title: {
+      en: "CCFF00 · HoodStreet Proof of Neon",
+      de: "CCFF00 · HoodStreet Proof of Neon",
+    },
+    who: {
+      en: "HoodStreet members — ERC-6551 NFT wallets on Robinhood Chain.",
+      de: "HoodStreet-Members — ERC-6551-NFT-Wallets auf Robinhood Chain.",
+    },
+    how: {
+      en: "Hold CCFF00 NFT (CA on /trust + Blockscout). Link wallet in Aura → badge + soft Quest XP. Tickpix free raid used the CCFF00 snapshot — mint still at nft.aibusiness.fun.",
+      de: "CCFF00-NFT halten (CA auf /trust + Blockscout). Wallet in Aura linken → Badge + soft Quest-XP. Tickpix Free Raid nutzte den CCFF00-Snapshot — Mint weiter auf nft.aibusiness.fun.",
+    },
+    not: {
+      en: "Not Aura founding seats. Not verification via meme ERC-20 ticker alone. Not Hood rebates.",
+      de: "Keine Aura-Founding-Seats. Keine Verifikation nur über Meme-ERC-20-Ticker. Keine Hood-Rabatte.",
+    },
+    osAdvantage: {
+      en: "RH culture density without diluting Base Hood economics.",
+      de: "RH-Kultur-Dichte ohne Base-Hood-Ökonomie zu verwässern.",
+    },
+    communityAdvantage: {
+      en: "Reciprocal membership narrative with HoodStreet — verify on-chain, never by DM.",
+      de: "Gegenseitige Membership-Narrative mit HoodStreet — on-chain prüfen, nie per DM.",
+    },
+    trainHint: {
+      en: "balanceOf on NFT contract only — see ccff00.server.ts.",
+      de: "Nur balanceOf auf dem NFT-Contract — siehe ccff00.server.ts.",
+    },
+  },
+  {
+    id: "hookr-readable-hooks",
+    status: "live",
+    title: {
+      en: "Hookr — readable Uniswap v4 hooks",
+      de: "Hookr — lesbare Uniswap-v4-Hooks",
+    },
+    who: {
+      en: "Creators and desks who want pool rules fixed at open on Robinhood Chain.",
+      de: "Creators und Desks, die Pool-Regeln beim Open auf Robinhood Chain fix wollen.",
+    },
+    how: {
+      en: "Use hookr.fun to compose Anti-Snipe / Surge / Burn / LP Rewards / Nth-buy Pot. Aura links officially — rules before you sign. No pool deploy from Aura this sprint.",
+      de: "hookr.fun nutzen für Anti-Snipe / Surge / Burn / LP Rewards / Nth-buy Pot. Aura verlinkt offiziell — Regeln vor dem Signieren. Kein Pool-Deploy aus Aura in diesem Sprint.",
+    },
+    not: {
+      en: "Not an airdrop portal. Not a Culture Coin sequel. Not surprise CAs by DM.",
+      de: "Kein Airdrop-Portal. Keine Culture-Coin-Fortsetzung. Keine Überraschungs-CAs per DM.",
+    },
+    osAdvantage: {
+      en: "Future RH creator launches can inherit readable hooks while Aura stays the desk.",
+      de: "Zukünftige RH-Creator-Launches können lesbare Hooks erben, während Aura der Desk bleibt.",
+    },
+    communityAdvantage: {
+      en: "Same trust language as our covenant — verify @hookrfun / hookr.fun only.",
+      de: "Dieselbe Trust-Sprache wie unser Bund — nur @hookrfun / hookr.fun prüfen.",
+    },
+    trainHint: {
+      en: "Partner surface only this sprint — see docs/HOOKR.md.",
+      de: "Nur Partner-Surface in diesem Sprint — siehe docs/HOOKR.md.",
     },
   },
   {

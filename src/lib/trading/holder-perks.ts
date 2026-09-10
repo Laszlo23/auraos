@@ -28,6 +28,10 @@ export type HolderPerks = {
   hasTickpixNft: boolean;
   tickpixNftContract: string | null;
   tickpixBalance: number;
+  /** HoodStreet CCFF00 membership NFT — soft flair only. */
+  hasCcff00Nft: boolean;
+  ccff00NftContract: string | null;
+  ccff00Balance: number;
   perks: HolderPerk[];
   /** Transparent roadmap for the future Genesis NFT. */
   nftRoadmap: { title: string; body: string }[];
@@ -103,11 +107,16 @@ export function buildHolderPerks(opts: {
   hasTickpixNft?: boolean;
   tickpixNftContract?: string | null;
   tickpixBalance?: number;
+  hasCcff00Nft?: boolean;
+  ccff00NftContract?: string | null;
+  ccff00Balance?: number;
 }): HolderPerks {
   const auraBalance = Math.max(0, Number(opts.auraBalance) || 0);
   const hasGenesisNft = Boolean(opts.hasGenesisNft);
   const hasTickpixNft = Boolean(opts.hasTickpixNft);
   const tickpixBalance = Math.max(0, Math.floor(Number(opts.tickpixBalance) || 0));
+  const hasCcff00Nft = Boolean(opts.hasCcff00Nft);
+  const ccff00Balance = Math.max(0, Math.floor(Number(opts.ccff00Balance) || 0));
   const tier = resolveHolderTier(auraBalance, hasGenesisNft);
   const base =
     TIERS.find((t) => t.id === (tier === "genesis" ? "core" : tier)) ??
@@ -124,8 +133,9 @@ export function buildHolderPerks(opts: {
   const genesisExtras = hasGenesisNft
     ? { notionalBoostPct: 10, strategySlotBonus: 1, arenaEntryDiscountPct: 25, questXpBoostPct: 10 }
     : { notionalBoostPct: 0, strategySlotBonus: 0, arenaEntryDiscountPct: 0, questXpBoostPct: 0 };
-  /** Soft culture bump only — never strategy slots / x402 / season mult. */
+  /** Soft culture bumps only — never strategy slots / x402 / season mult. */
   const tickpixExtras = hasTickpixNft ? { questXpBoostPct: 5 } : { questXpBoostPct: 0 };
+  const ccff00Extras = hasCcff00Nft ? { questXpBoostPct: 5 } : { questXpBoostPct: 0 };
 
   const notionalBoostPct = base.notionalBoostPct + genesisExtras.notionalBoostPct;
   const strategySlotBonus = base.strategySlotBonus + genesisExtras.strategySlotBonus;
@@ -134,7 +144,10 @@ export function buildHolderPerks(opts: {
     base.arenaEntryDiscountPct + genesisExtras.arenaEntryDiscountPct,
   );
   const questXpBoostPct =
-    base.questXpBoostPct + genesisExtras.questXpBoostPct + tickpixExtras.questXpBoostPct;
+    base.questXpBoostPct +
+    genesisExtras.questXpBoostPct +
+    tickpixExtras.questXpBoostPct +
+    ccff00Extras.questXpBoostPct;
   const x402RebateBps = hasGenesisNft ? HOOD_X402_REBATE_BPS : 0;
   const seasonScoreMultiplier = hasGenesisNft ? HOOD_SEASON_SCORE_MULTIPLIER : 1;
 
@@ -192,6 +205,13 @@ export function buildHolderPerks(opts: {
       active: hasTickpixNft,
     },
     {
+      id: "ccff00-hoodstreet",
+      label: "Hoodstreet · CCFF00",
+      description:
+        "Proof of Neon membership NFT on Robinhood Chain — soft Quest XP only. Not Aura founding seats.",
+      active: hasCcff00Nft,
+    },
+    {
       id: "hold-to-earn",
       label: "Hold-to-earn",
       description:
@@ -218,6 +238,9 @@ export function buildHolderPerks(opts: {
     hasTickpixNft,
     tickpixNftContract: opts.tickpixNftContract ?? null,
     tickpixBalance,
+    hasCcff00Nft,
+    ccff00NftContract: opts.ccff00NftContract ?? null,
+    ccff00Balance,
     perks,
     nftRoadmap: [
       {
@@ -239,6 +262,14 @@ export function buildHolderPerks(opts: {
       {
         title: "TICKPIX — the pit",
         body: "Culture seats on Robinhood Chain (mint at nft.aibusiness.fun). Pit badge + a little Quest XP in Aura OS. Not a second founding collection, not equity.",
+      },
+      {
+        title: "CCFF00 · HoodStreet",
+        body: "Proof of Neon membership (hoodstreet.capital). Aura verifies the NFT on-chain — soft Quest XP only. Not founding seats.",
+      },
+      {
+        title: "Hookr — readable hooks",
+        body: "Uniswap v4 rules on Robinhood Chain (hookr.fun). Infrastructure for future RH launches/LP — read rules before you sign. No airdrop theater.",
       },
     ],
   };
