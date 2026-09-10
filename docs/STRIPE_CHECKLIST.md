@@ -25,14 +25,14 @@ Generated: 2026-08-10T20:53:10.181Z
 
 ## Live fulfillment (manual — charge then refund)
 
-| Flow               | Entry             | Expect                       | Done |
-| ------------------ | ----------------- | ---------------------------- | ---- |
-| Local Seat         | `/boost`          | `local_seat_paid_at` + boost | ☐    |
-| Boost Sichtbarkeit | `/boost`          | grant + social kickoff       | ☐    |
+| Flow               | Entry             | Expect                           | Done |
+| ------------------ | ----------------- | -------------------------------- | ---- |
+| Local Seat         | `/boost`          | `local_seat_paid_at` + boost     | ☐    |
+| Boost Sichtbarkeit | `/boost`          | grant + social kickoff           | ☐    |
 | Founding seat      | `/access` → auth  | `grant_founding_seat` @ **$299** | ☐    |
-| AURA Starter       | `/billing`        | subscription + tokens        | ☐    |
-| Outcome Starter    | funnel `/billing` | funnel tokens                | ☐    |
-| Genesis NFT        | `/wallet`         | genesis_purchases paid       | ☐    |
+| AURA Starter       | `/billing`        | subscription + tokens            | ☐    |
+| Outcome Starter    | funnel `/billing` | funnel tokens                    | ☐    |
+| Genesis NFT        | `/wallet`         | genesis_purchases paid           | ☐    |
 
 ### Price truth (2026-09-04)
 

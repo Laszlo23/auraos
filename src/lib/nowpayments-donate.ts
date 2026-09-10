@@ -18,9 +18,7 @@ export function isDonateOrderId(orderId: string | undefined | null): boolean {
 export function parseDonateAmountUsd(raw: unknown): DonateAmountUsd | null {
   const n = typeof raw === "number" ? raw : Number(raw);
   if (!Number.isFinite(n)) return null;
-  return (DONATE_AMOUNTS_USD as readonly number[]).includes(n)
-    ? (n as DonateAmountUsd)
-    : null;
+  return (DONATE_AMOUNTS_USD as readonly number[]).includes(n) ? (n as DonateAmountUsd) : null;
 }
 
 function nowApiKey(): string {

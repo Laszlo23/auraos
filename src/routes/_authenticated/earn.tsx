@@ -195,7 +195,8 @@ function EarnPage() {
                   </p>
                 ) : (
                   <p className="mb-3 text-[13px] text-muted-foreground">
-                    Share once. They still pay the public price — your invite is attribution, not a gate.
+                    Share once. They still pay the public price — your invite is attribution, not a
+                    gate.
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-3">

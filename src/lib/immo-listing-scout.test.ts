@@ -36,15 +36,17 @@ describe("listing URL filter", () => {
         "https://www.willhaben.at/iad/immobilien/d/mietwohnungen/wien/wien-1100-favoriten/x-773265297/",
       ),
     ).toBe(true);
-    expect(looksLikeListingUrl("https://www.immobilienscout24.at/expose/686ce438eab1d11297b3d6e1")).toBe(
-      true,
-    );
     expect(
-      looksLikeListingUrl("https://www.flatbee.at/properties/property_detail/82b3e494-Fernkorngasse"),
+      looksLikeListingUrl("https://www.immobilienscout24.at/expose/686ce438eab1d11297b3d6e1"),
     ).toBe(true);
-    expect(looksLikeListingUrl("https://www.immobilienscout24.at/regional/wien/wien/wohnung-mieten")).toBe(
-      false,
-    );
+    expect(
+      looksLikeListingUrl(
+        "https://www.flatbee.at/properties/property_detail/82b3e494-Fernkorngasse",
+      ),
+    ).toBe(true);
+    expect(
+      looksLikeListingUrl("https://www.immobilienscout24.at/regional/wien/wien/wohnung-mieten"),
+    ).toBe(false);
     expect(looksLikeListingUrl("https://www.willhaben.at/iad/immobilien/")).toBe(false);
   });
 });

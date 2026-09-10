@@ -5,15 +5,15 @@ Twice daily emails of akquise leads to the founder’s real mailbox
 
 ## What ships
 
-| Piece | Path |
-| --- | --- |
-| Prefs + send log | `lead_digest_prefs`, `lead_digest_sends` |
-| Copy + schedule | `src/lib/lead-digest.ts` |
-| Worker send | `src/lib/lead-digest.server.ts` → `/api/workers/tick` |
-| AT portal catalog | `immo_portals`, `src/lib/immo-portals.ts` |
-| Listing scout | `immo_listing_watches`, `src/lib/immo-listing-scout.ts` |
-| UI | Lead hunter → **Inbox digests** + **AT Immobilien-Portale** |
-| Platform mail | `PLATFORM_SMTP_*` in `.env` |
+| Piece             | Path                                                        |
+| ----------------- | ----------------------------------------------------------- |
+| Prefs + send log  | `lead_digest_prefs`, `lead_digest_sends`                    |
+| Copy + schedule   | `src/lib/lead-digest.ts`                                    |
+| Worker send       | `src/lib/lead-digest.server.ts` → `/api/workers/tick`       |
+| AT portal catalog | `immo_portals`, `src/lib/immo-portals.ts`                   |
+| Listing scout     | `immo_listing_watches`, `src/lib/immo-listing-scout.ts`     |
+| UI                | Lead hunter → **Inbox digests** + **AT Immobilien-Portale** |
+| Platform mail     | `PLATFORM_SMTP_*` in `.env`                                 |
 
 ## VPS setup (required for delivery)
 
@@ -41,10 +41,10 @@ Public listing pages only. No invented emails/phones. Category hubs are dropped.
 
 ## Sonja (enabled)
 
-- Company: Sonja Immobilien  
-- Email: `investment.sn@yahoo.com`  
-- Hours: 8 + 16 Vienna · language DE  
-- Watch: Wien · mieten · Wohnung + Haus · provisionsfrei / von Privat first  
+- Company: Sonja Immobilien
+- Email: `investment.sn@yahoo.com`
+- Hours: 8 + 16 Vienna · language DE
+- Watch: Wien · mieten · Wohnung + Haus · provisionsfrei / von Privat first
 
 After `PLATFORM_SMTP_*` is live, she can also tap **Send now** on `/akquise` (scouts first, then mails).
 
@@ -52,7 +52,7 @@ After `PLATFORM_SMTP_*` is live, she can also tap **Send now** on `/akquise` (sc
 
 On `/akquise` → Inbox digests:
 
-1. Toggle on  
-2. Confirm delivery email  
-3. Save  
+1. Toggle on
+2. Confirm delivery email
+3. Save
 4. Optional: Send now (force)

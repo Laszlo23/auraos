@@ -194,7 +194,9 @@ function Landing() {
           </motion.p>
 
           <h1 className="display-hero luxury-reveal max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_12px_48px_oklch(0_0_0_/_0.75)]">
-            <WordReveal text={t("landing.hero1")} delay={0.06} />
+            <span className="inline-block">
+              <WordReveal text={t("landing.hero1")} delay={0.06} />
+            </span>
             <br />
             <motion.span
               initial={{ y: 22, opacity: 0 }}

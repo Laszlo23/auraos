@@ -128,9 +128,12 @@ function BuildersFunnelLanding({ funnel }: { funnel: FunnelDef }) {
           >
             @hookrfun
           </a>
-          . Rules before you sign — not an airdrop portal. Verify CAs on official sites only; never by
-          DM. Covenant →{" "}
-          <Link to="/trust" className="font-medium text-foreground underline-offset-2 hover:underline">
+          . Rules before you sign — not an airdrop portal. Verify CAs on official sites only; never
+          by DM. Covenant →{" "}
+          <Link
+            to="/trust"
+            className="font-medium text-foreground underline-offset-2 hover:underline"
+          >
             /trust
           </Link>
           .
@@ -207,7 +210,7 @@ function DefaultFunnelLanding({ funnel }: { funnel: FunnelDef }) {
         >
           <a
             href={href}
-          className="cta-liquid cta-magnetic rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
+            className="cta-liquid cta-magnetic rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
           >
             {funnel.cta}
           </a>

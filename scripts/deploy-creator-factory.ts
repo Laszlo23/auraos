@@ -113,7 +113,10 @@ function rpcFor(testnet: boolean): string {
 }
 
 function artifact(
-  contracts: Record<string, Record<string, { abi: unknown; evm: { bytecode: { object: string } } }>>,
+  contracts: Record<
+    string,
+    Record<string, { abi: unknown; evm: { bytecode: { object: string } } }>
+  >,
   file: string,
   name: string,
 ) {
@@ -179,9 +182,7 @@ async function main() {
       `Platform fee bps: ${platformBps}`,
       "",
       "Add to .env:",
-      testnet
-        ? `CREATOR_FACTORY_RH_TESTNET=${factory}`
-        : `CREATOR_FACTORY_RH=${factory}`,
+      testnet ? `CREATOR_FACTORY_RH_TESTNET=${factory}` : `CREATOR_FACTORY_RH=${factory}`,
       "",
     ].join("\n"),
   );

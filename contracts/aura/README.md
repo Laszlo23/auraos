@@ -4,11 +4,11 @@ Fair launch on **Uniswap v2 (Base)**. LP is permanently locked in `AuraLpSink`. 
 
 ## Contracts
 
-| File | Role |
-| --- | --- |
-| `AuraToken.sol` | Fixed supply 777,777,777. No further mint. |
+| File                  | Role                                                                     |
+| --------------------- | ------------------------------------------------------------------------ |
+| `AuraToken.sol`       | Fixed supply 777,777,777. No further mint.                               |
 | `AuraPauraRedeem.sol` | 1 pAURA → 1.11 AURA once opened. Prefund with private-sale AURA reserve. |
-| `AuraLpSink.sol` | Dead-end for Uni v2 LP tokens. No withdraw. |
+| `AuraLpSink.sol`      | Dead-end for Uni v2 LP tokens. No withdraw.                              |
 
 Team / advisor cliffs use OpenZeppelin `VestingWalletCliff` (deployed by script, not a custom file).
 

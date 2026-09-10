@@ -3,11 +3,7 @@ import { toast } from "sonner";
 
 import { CRYPTO_SEAT_ASSETS, type CryptoSeatAsset } from "@/lib/boost-packs";
 import { startFoundingCryptoCheckout, startFoundingSeatCheckout } from "@/lib/founding-seat";
-import {
-  OS_MONTH_DISPLAY,
-  OS_YEAR_DISPLAY,
-  type OsCheckoutPlan,
-} from "@/lib/os-pricing";
+import { OS_MONTH_DISPLAY, OS_YEAR_DISPLAY, type OsCheckoutPlan } from "@/lib/os-pricing";
 
 const ASSET_LABEL: Record<CryptoSeatAsset, string> = {
   usdc: "USDC",
@@ -125,7 +121,9 @@ export function FoundingPayPanel({
             : "border border-border bg-foreground/6 hover:bg-foreground/10"
         }`}
       >
-        {busy && picked === "month" ? "Opening Stripe…" : `Monthly — ${OS_MONTH_DISPLAY} · cancel anytime`}
+        {busy && picked === "month"
+          ? "Opening Stripe…"
+          : `Monthly — ${OS_MONTH_DISPLAY} · cancel anytime`}
       </button>
       <button
         type="button"

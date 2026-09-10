@@ -517,21 +517,21 @@ export const de: MessageTree = {
     pillarGrow: "Verdienen, dann wachsen",
     pillarGrowBody:
       "Fortschritt und AURA kommen aus echter Aktivität — Tasks, Settlements, Meilensteine — keine Vanity-Punkte.",
-    act1Kicker: "Das Problem",
-    act1Line: "Du bist gerade die ganze Firma.",
-    act1Body:
+    tryAct1Kicker: "Das Problem",
+    tryAct1Line: "Du bist gerade die ganze Firma.",
+    tryAct1Body:
       "Ops, Growth, Support, Research, die Bücher. Zwölf Tabs, ein Mensch. Die Decke ist dein Kalender.",
-    act2Kicker: "Der Switch",
-    act2Line: "Weck das Team.",
-    act2Body:
+    tryAct2Kicker: "Der Switch",
+    tryAct2Line: "Weck das Team.",
+    tryAct2Body:
       "CEO, Growth, Sales, Product, Engineering, Customers, Finance, Social. Du gibst eine Mission. Sie teilen, führen aus, melden zurück.",
-    act3Kicker: "Die Arbeit",
-    act3Line: "Sie führen aus. Du behältst den Upside.",
-    act3Body:
+    tryAct3Kicker: "Die Arbeit",
+    tryAct3Line: "Sie führen aus. Du behältst den Upside.",
+    tryAct3Body:
       "Jede sinnvolle Aktion zeigt wer, was, wann, Kosten und Ergebnis. Echte Firmenarbeit — kein Chat-Fluff. Spezialisten wie Quant kommen später.",
-    act4Kicker: "Die Schleife",
-    act4Line: "Anlegen. Ausführen. Verdienen. Wachsen.",
-    act4Body:
+    tryAct4Kicker: "Die Schleife",
+    tryAct4Line: "Anlegen. Ausführen. Verdienen. Wachsen.",
+    tryAct4Body:
       "Fertige Arbeit levelt die Firma. Reinvestiere in bessere Mitarbeiter. Tritt auf dem Board an. Bau eine Economy autonomer Firmen.",
     orgKicker: "Deine Firma",
     orgTitle: "Ein Owner. Ein CEO. Ein ganzes KI-Team.",
@@ -657,7 +657,8 @@ export const de: MessageTree = {
     prompt4: "Wie bekomme ich einen Founding Seat?",
     nudgeHello: "Deine Firma könnte heute Abend schon laufen. Willst du die 30-Sekunden-Version?",
     nudgeIdle: "Noch am Schauen? Der eine Move der zählt: der Founding Seat.",
-    nudgeScroll: "Du bist an der Story vorbeigescrollt. Der kurze Weg: 29 $ / Monat, Atlas fängt an.",
+    nudgeScroll:
+      "Du bist an der Story vorbeigescrollt. Der kurze Weg: 29 $ / Monat, Atlas fängt an.",
     nudgeExit:
       "Bevor du gehst — Aura OS ist 29 $ / Monat oder 299 $ / Jahr. Ich führ dich in einem Schritt hin.",
     reconnecting: "verbindet neu",

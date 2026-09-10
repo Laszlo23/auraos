@@ -225,7 +225,11 @@ function clipBody(sharePostId: string, lineIndex: number, at: Date | number = Da
 }
 
 /** Farcaster cast body — shorter, embed-friendly (Neynar embeds the watch URL). */
-function farcasterCastBody(sharePostId: string, lineIndex: number, at: Date | number = Date.now()): string {
+function farcasterCastBody(
+  sharePostId: string,
+  lineIndex: number,
+  at: Date | number = Date.now(),
+): string {
   const lines = dripLinesFor(sharePostId, at);
   const line = lines[lineIndex % lines.length]!;
   if (sharePostId === "make-good") {
@@ -313,10 +317,7 @@ export function buildFarcasterDripSchedule(fromMs: number = Date.now()): LaunchD
  * Slots that should already have posted between [fromMs, toMs].
  * Used to backfill gaps when the worker was down or seeding started late.
  */
-export function buildMissedDripSlots(
-  fromMs: number,
-  toMs: number = Date.now(),
-): LaunchDripSlot[] {
+export function buildMissedDripSlots(fromMs: number, toMs: number = Date.now()): LaunchDripSlot[] {
   if (!(toMs > fromMs)) return [];
   return buildLaunchDripSchedule(fromMs).filter((s) => {
     const at = Date.parse(s.scheduledAt);

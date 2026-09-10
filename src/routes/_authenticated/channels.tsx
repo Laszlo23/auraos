@@ -218,7 +218,9 @@ function ChannelsPage() {
           <p className="text-[13px] leading-relaxed text-muted-foreground">
             {scheduledWaiting} post{scheduledWaiting === 1 ? "" : "s"} waiting in the queue. Turn on
             Autopublish for{" "}
-            {connectedNoAuto.map((s) => META[s.provider as keyof typeof META]?.name ?? s.provider).join(", ")}{" "}
+            {connectedNoAuto
+              .map((s) => META[s.provider as keyof typeof META]?.name ?? s.provider)
+              .join(", ")}{" "}
             above so the worker can send them live — agents never invent a “published” receipt.
           </p>
         </Panel>
@@ -988,9 +990,7 @@ function ChannelsPage() {
                 {post.status === "scheduled" && !post.external_url ? (
                   <p className="mt-2 text-[11px] text-gold">
                     Queued — turn on Autopublish for this channel to go live
-                    {post.scheduled_at
-                      ? ` · due ${timeAgo(post.scheduled_at)}`
-                      : ""}
+                    {post.scheduled_at ? ` · due ${timeAgo(post.scheduled_at)}` : ""}
                   </p>
                 ) : null}
                 {post.error ? (

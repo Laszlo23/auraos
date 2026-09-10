@@ -420,17 +420,17 @@ function Home() {
           ) : (
             <div className="space-y-3">
               {provenTasks.slice(0, 3).map((t) => (
-                  <ProofOfWork
-                    key={t.id}
-                    agentName={agents.find((a) => a.id === t.agent_id)?.name}
-                    title={t.title}
-                    status={t.status}
-                    result={t.result}
-                    completedAt={t.completed_at}
-                    createdAt={t.created_at}
-                    progress={t.progress}
-                  />
-                ))}
+                <ProofOfWork
+                  key={t.id}
+                  agentName={agents.find((a) => a.id === t.agent_id)?.name}
+                  title={t.title}
+                  status={t.status}
+                  result={t.result}
+                  completedAt={t.completed_at}
+                  createdAt={t.created_at}
+                  progress={t.progress}
+                />
+              ))}
             </div>
           )}
         </FocusCard>
@@ -472,7 +472,8 @@ function Home() {
                     {compact(sub?.tokens_remaining ?? 0)} {TOKEN_SYMBOL}
                   </Chip>
                   <Chip tone="primary">
-                    Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA today
+                    Budget {economy?.auraSpentToday ?? 0}/{economy?.dailyAuraBudget ?? 120} AURA
+                    today
                   </Chip>
                 </>
               ) : null}

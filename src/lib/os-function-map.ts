@@ -4,14 +4,7 @@
  */
 
 export type OsMapPillarId =
-  | "run"
-  | "marketing"
-  | "leads"
-  | "trading"
-  | "liquidity"
-  | "creation"
-  | "growth"
-  | "setup";
+  "run" | "marketing" | "leads" | "trading" | "liquidity" | "creation" | "growth" | "setup";
 
 export type OsMapPillarDef = {
   id: OsMapPillarId;

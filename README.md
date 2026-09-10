@@ -15,7 +15,7 @@ Shipped a clearer, safer **B2B2C MVP loop** so shops and guests finish the same 
 
 | Who                  | What changed                                                                                                                                                                                         |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Guests (Nachbar)** | `/auth?next=/nachbar*` never pitches the $299 founding seat. First-visit “So geht’s”, pending Tresen panel, muted optional Google CTA (no reward styling).                                            |
+| **Guests (Nachbar)** | `/auth?next=/nachbar*` never pitches the $299 founding seat. First-visit “So geht’s”, pending Tresen panel, muted optional Google CTA (no reward styling).                                           |
 | **Shops (Lokal)**    | `/boost` explains three unlock paths + handles Stripe `checkout=success\|cancel`. `/bewertungen` has send how-to + guest-flow copy. `/kunden` shows empty QR states and confirm-only-in-store hints. |
 | **Bridge**           | `/r/review/$token` stays Nachbar-first; Google is secondary and unpaid.                                                                                                                              |
 | **Honesty**          | Confirm remains the mint gate. Docs updated so Review Boost is documented as a bridge, not a blind Google 302.                                                                                       |

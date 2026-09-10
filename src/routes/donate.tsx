@@ -80,7 +80,9 @@ function DonatePage() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
           {t("donate.eyebrow")}
         </p>
-        <h1 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">{t("donate.title")}</h1>
+        <h1 className="mt-3 font-display text-3xl tracking-tight sm:text-4xl">
+          {t("donate.title")}
+        </h1>
         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           {t("donate.lead")}
         </p>

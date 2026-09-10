@@ -5,11 +5,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Panel } from "@/components/aura/primitives";
 import { useLocale } from "@/hooks/use-locale";
 import { NAV, localizedNavHint, localizedNavLabel, type NavItem } from "@/lib/nav";
-import {
-  filterOsMapPillars,
-  readOsMapCollapsed,
-  writeOsMapCollapsed,
-} from "@/lib/os-function-map";
+import { filterOsMapPillars, readOsMapCollapsed, writeOsMapCollapsed } from "@/lib/os-function-map";
 import { cn } from "@/lib/utils";
 
 const NAV_BY_PATH = new Map(NAV.map((n) => [n.to, n]));
@@ -125,13 +121,7 @@ export function OsFunctionMap({
   );
 }
 
-function MapLink({
-  item,
-  locale,
-}: {
-  item: NavItem;
-  locale: "en" | "de";
-}) {
+function MapLink({ item, locale }: { item: NavItem; locale: "en" | "de" }) {
   const label = localizedNavLabel(item, true, locale);
   const hint = localizedNavHint(item, locale);
   return (

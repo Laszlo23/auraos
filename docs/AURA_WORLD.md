@@ -4,24 +4,24 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 
 ## Pillars
 
-| Pillar | Status | Key paths |
-|--------|--------|-----------|
-| **AURA OS** | Live | `src/routes/_authenticated/console.tsx`, missions, agents |
-| **AURA LOCAL** | MVP live | `/lokal`, `/heute`, `/kunden`, `docs/GO_TO_MARKET_LOKAL.md` |
-| **AURA VIENNA / Nachbar** | Live | `/wien`, `/nachbar/*` |
-| **AURA QUEST** | **Live (Phase A)** | `/quest`, `src/lib/progress/`, `award_progress` RPC |
-| **AURA Community Squads** | **Live** | `/community`, typed growth tasks (social / Spaces / scout), world pulse |
-| **TICKPIX pit** | **Live** | `/pit` + nft.aibusiness.fun — RH Chain culture seats; Pit badge + Quest XP; **not** a second founding collection (`docs/TICKPIX.md`) |
-| **Growth digital work** | **Live** | Assignable human tasks on squads → Quest `growth:*` XP/REP; templates in `growth-digital-work.ts` |
-| **Beta readiness** | **Live** | Loving one-step Console; funnel `app_events`; Desk $12k prophecy; cohort script `docs/BETA_COHORT.md` |
-| **Public momentum** | Live | `/changelog` (2026-09-02), share kit `quest-squads`, roadmap vibes include Quest + Squads |
-| **AURA SCOUTS** | **Live (Vienna)** | `join_aura_scout`, Scout invite `/lokal?ref=`, `attribute_scout_business`, leaderboard |
-| **AURA PORTALS** | MVP | `/portal/$slug`, `aura_portals` table |
-| **AURA STREET** | Brewing | Extend `/nachbar/entdecken` — map mode Phase D |
-| **Genesis / Hood** | Partial on-chain | Cap **1,000** Hood; Genesis **777** = profile tier (`src/lib/progress/genesis.ts`) |
-| **Token investor hub** | **Live** | `/token` — buy pAURA, early giveback, CA trust, RH peg; wallet strip; no OS required |
-| **NFT desk playbook** | **Live** | `/token#nft-desk` + `nft-desk-playbook.ts` — transparent strategies; OpenSea metadata compat (`/api/genesis/collection`); Quant Peg/Founding presets; **no** share-NFT / flip bot |
-| **Web3 T-0** | Phase E | Audit before deploy; hold-to-earn **not live** (`holder-perks.ts` `active: false`) |
+| Pillar                    | Status             | Key paths                                                                                                                                                                         |
+| ------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AURA OS**               | Live               | `src/routes/_authenticated/console.tsx`, missions, agents                                                                                                                         |
+| **AURA LOCAL**            | MVP live           | `/lokal`, `/heute`, `/kunden`, `docs/GO_TO_MARKET_LOKAL.md`                                                                                                                       |
+| **AURA VIENNA / Nachbar** | Live               | `/wien`, `/nachbar/*`                                                                                                                                                             |
+| **AURA QUEST**            | **Live (Phase A)** | `/quest`, `src/lib/progress/`, `award_progress` RPC                                                                                                                               |
+| **AURA Community Squads** | **Live**           | `/community`, typed growth tasks (social / Spaces / scout), world pulse                                                                                                           |
+| **TICKPIX pit**           | **Live**           | `/pit` + nft.aibusiness.fun — RH Chain culture seats; Pit badge + Quest XP; **not** a second founding collection (`docs/TICKPIX.md`)                                              |
+| **Growth digital work**   | **Live**           | Assignable human tasks on squads → Quest `growth:*` XP/REP; templates in `growth-digital-work.ts`                                                                                 |
+| **Beta readiness**        | **Live**           | Loving one-step Console; funnel `app_events`; Desk $12k prophecy; cohort script `docs/BETA_COHORT.md`                                                                             |
+| **Public momentum**       | Live               | `/changelog` (2026-09-02), share kit `quest-squads`, roadmap vibes include Quest + Squads                                                                                         |
+| **AURA SCOUTS**           | **Live (Vienna)**  | `join_aura_scout`, Scout invite `/lokal?ref=`, `attribute_scout_business`, leaderboard                                                                                            |
+| **AURA PORTALS**          | MVP                | `/portal/$slug`, `aura_portals` table                                                                                                                                             |
+| **AURA STREET**           | Brewing            | Extend `/nachbar/entdecken` — map mode Phase D                                                                                                                                    |
+| **Genesis / Hood**        | Partial on-chain   | Cap **1,000** Hood; Genesis **777** = profile tier (`src/lib/progress/genesis.ts`)                                                                                                |
+| **Token investor hub**    | **Live**           | `/token` — buy pAURA, early giveback, CA trust, RH peg; wallet strip; no OS required                                                                                              |
+| **NFT desk playbook**     | **Live**           | `/token#nft-desk` + `nft-desk-playbook.ts` — transparent strategies; OpenSea metadata compat (`/api/genesis/collection`); Quant Peg/Founding presets; **no** share-NFT / flip bot |
+| **Web3 T-0**              | Phase E            | Audit before deploy; hold-to-earn **not live** (`holder-perks.ts` `active: false`)                                                                                                |
 
 ## Progress SSOT (Phase A)
 
@@ -33,10 +33,10 @@ Living map of the AURA WORLD pillars vs what ships in this repo. See also the ro
 
 ## REP naming
 
-| Term | Meaning |
-|------|---------|
-| **REP** (`user_progress.rep`) | Contribution currency — verified events only |
-| **`companies.reputation`** | Ops score 0–100 (unchanged) |
+| Term                                                     | Meaning                                          |
+| -------------------------------------------------------- | ------------------------------------------------ |
+| **REP** (`user_progress.rep`)                            | Contribution currency — verified events only     |
+| **`companies.reputation`**                               | Ops score 0–100 (unchanged)                      |
 | **Aura Reputation** (i18n `localProduct.reputationName`) | Local SaaS product €49/mo — not contribution REP |
 
 ## Genesis policy

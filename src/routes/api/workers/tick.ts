@@ -23,11 +23,7 @@ function authorizeWorker(request: Request): Response | null {
   return null;
 }
 
-async function safe<T>(
-  label: string,
-  fn: () => Promise<T>,
-  fallback: T,
-): Promise<T> {
+async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await fn();
   } catch (e) {
@@ -38,21 +34,17 @@ async function safe<T>(
 
 async function runTick(taskLimit: number) {
   // Channels + drip first so social never waits behind trading timeouts.
-  const drip = await safe(
-    "drip",
-    () => extendLaunchDrips(),
-    {
-      companies: 0,
-      created: 0,
-      skipped: 0,
-      farcasterCreated: 0,
-      farcasterSkipped: 0,
-      linkedinCreated: 0,
-      linkedinSkipped: 0,
-      catchUpCreated: 0,
-      catchUpSkipped: 0,
-    },
-  );
+  const drip = await safe("drip", () => extendLaunchDrips(), {
+    companies: 0,
+    created: 0,
+    skipped: 0,
+    farcasterCreated: 0,
+    farcasterSkipped: 0,
+    linkedinCreated: 0,
+    linkedinSkipped: 0,
+    catchUpCreated: 0,
+    catchUpSkipped: 0,
+  });
   const channels = await safe("channels", () => publishDueChannelPosts(20), {
     published: 0,
     skipped: 0,

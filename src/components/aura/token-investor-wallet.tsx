@@ -1,13 +1,7 @@
 import { useMemo } from "react";
 import { formatUnits } from "viem";
 import { base } from "viem/chains";
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useReadContract,
-  useSwitchChain,
-} from "wagmi";
+import { useAccount, useConnect, useDisconnect, useReadContract, useSwitchChain } from "wagmi";
 import type { Connector } from "wagmi";
 import { Link } from "@tanstack/react-router";
 
@@ -83,8 +77,7 @@ export function TokenInvestorWalletStrip({ locale = "en" }: { locale?: "en" | "d
     query: { enabled: Boolean(gifts), refetchInterval: 20_000 },
   });
 
-  const pAuraWhole =
-    pAuraBal.data != null ? Number(formatUnits(pAuraBal.data as bigint, 18)) : 0;
+  const pAuraWhole = pAuraBal.data != null ? Number(formatUnits(pAuraBal.data as bigint, 18)) : 0;
   const projectedAura = pAuraToLaunchAura(pAuraWhole);
   const hoodCount = hoodBal.data != null ? Number(hoodBal.data) : 0;
   const deskDeployed = Boolean(escrow && gifts && passport);
@@ -274,15 +267,7 @@ export function TokenInvestorWalletStrip({ locale = "en" }: { locale?: "en" | "d
   );
 }
 
-function CheckRow({
-  ok,
-  label,
-  href,
-}: {
-  ok: boolean;
-  label: string;
-  href?: string;
-}) {
+function CheckRow({ ok, label, href }: { ok: boolean; label: string; href?: string }) {
   const mark = (
     <span className={ok ? "text-primary" : "text-muted-foreground/60"} aria-hidden>
       {ok ? "◆" : "◇"}

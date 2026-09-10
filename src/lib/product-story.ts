@@ -165,7 +165,10 @@ export const SEAT_BENEFITS: LocaleCopy[] = [
   { en: "Approval controls", de: "Freigabe-Kontrolle" },
   { en: "Proof-of-work system", de: "Proof-of-Work" },
   { en: "Founding badge + The Hood circle", de: "Founding-Badge + The Hood Kreis" },
-  { en: "Most of each seat funds the launch book", de: "Der Großteil jedes Seats füllt das Launch-Buch" },
+  {
+    en: "Most of each seat funds the launch book",
+    de: "Der Großteil jedes Seats füllt das Launch-Buch",
+  },
   { en: "1 referral invite", de: "1 Weiterempfehlungs-Invite" },
   { en: "Founding cohort access", de: "Zugang zur Founding-Kohorte" },
   { en: "Concierge review queue", de: "Concierge-Review-Warteschlange" },

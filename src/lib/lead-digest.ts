@@ -118,14 +118,7 @@ export function buildLeadDigestEmail(opts: {
   const de = opts.language === "de";
   const greeting = greetingFromCompanyName(opts.companyName);
   const hi = greeting ? (de ? `Hallo ${greeting},` : `Hi ${greeting},`) : de ? "Hallo," : "Hi,";
-  const when =
-    opts.slotHour < 12
-      ? de
-        ? "Morgen"
-        : "morning"
-      : de
-        ? "Nachmittag"
-        : "afternoon";
+  const when = opts.slotHour < 12 ? (de ? "Morgen" : "morning") : de ? "Nachmittag" : "afternoon";
   const listingCount = opts.newLeads.filter((l) => l.metadata?.kind === "listing").length;
   const n = opts.newLeads.length;
   const noun =

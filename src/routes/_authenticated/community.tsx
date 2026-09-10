@@ -447,7 +447,9 @@ function CommunityHubPage() {
             onClick={() => setTapeShareOpen(true)}
             className={cn(
               "flex items-center justify-between rounded-xl border px-3 py-2 text-left text-[12px]",
-              done.has("tickpix:share-tape") ? "border-primary/30 bg-primary/5" : "border-border/40",
+              done.has("tickpix:share-tape")
+                ? "border-primary/30 bg-primary/5"
+                : "border-border/40",
             )}
           >
             <span>Share a tape card · +40 XP</span>
@@ -480,7 +482,12 @@ function CommunityHubPage() {
       >
         <p className="mt-3 text-[11px] text-muted-foreground">
           Mint lives at{" "}
-          <a href={TICKPIX.mintUrl} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+          <a
+            href={TICKPIX.mintUrl}
+            className="text-primary hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             nft.aibusiness.fun
           </a>
           . Trust rules at{" "}
@@ -689,10 +696,7 @@ function CommunityHubPage() {
                         Boolean(myUserId) &&
                         t.assignee_user_id !== myUserId;
                       return (
-                        <li
-                          key={t.id}
-                          className="rounded-2xl border border-border/50 px-3 py-2.5"
-                        >
+                        <li key={t.id} className="rounded-2xl border border-border/50 px-3 py-2.5">
                           <div className="flex flex-wrap items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
                               <p className="text-[13px] font-medium">{t.title}</p>
@@ -818,9 +822,7 @@ function CommunityHubPage() {
                     <span className="text-lg">{s.emoji}</span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-semibold">{s.name}</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {s.member_count} members
-                      </p>
+                      <p className="text-[11px] text-muted-foreground">{s.member_count} members</p>
                     </div>
                     <Chip tone="gold">{num(s.squad_xp)} XP</Chip>
                   </li>
@@ -835,7 +837,10 @@ function CommunityHubPage() {
             </p>
             <ul className="max-h-[280px] space-y-3 overflow-y-auto pr-1">
               {(hub?.world_pulse ?? []).map((p) => (
-                <li key={p.id} className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5">
+                <li
+                  key={p.id}
+                  className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5"
+                >
                   <p className="text-[11px] font-semibold text-primary">
                     {p.squad_emoji} {p.squad_name}
                   </p>
@@ -846,7 +851,10 @@ function CommunityHubPage() {
                 </li>
               ))}
               {publicFeed.slice(0, 6).map((row) => (
-                <li key={row.id} className="border-b border-border/30 pb-2 text-[12px] last:border-0">
+                <li
+                  key={row.id}
+                  className="border-b border-border/30 pb-2 text-[12px] last:border-0"
+                >
                   <span className="text-muted-foreground">
                     {row.handle ? `@${row.handle}` : "Network"}
                   </span>

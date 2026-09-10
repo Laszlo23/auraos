@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
 
-import {
-  COVENANT_OFFICIAL_DOMAINS,
-  covenantVerifyItems,
-} from "@/lib/community-covenant";
+import { COVENANT_OFFICIAL_DOMAINS, covenantVerifyItems } from "@/lib/community-covenant";
 import { cn } from "@/lib/utils";
 
 export function VerifyStrip({ compact = false, de = false }: { compact?: boolean; de?: boolean }) {
@@ -35,11 +32,16 @@ export function VerifyStrip({ compact = false, de = false }: { compact?: boolean
         {de
           ? "Offizielle CAs nur auf diesen Domains. Wer per DM eine „neue CA“ schickt, ist nicht wir."
           : "Official CAs only on these domains. A “new CA” in a DM is not us."}{" "}
-        <span className="font-mono text-[11px] text-foreground/80">{COVENANT_OFFICIAL_DOMAINS}</span>
+        <span className="font-mono text-[11px] text-foreground/80">
+          {COVENANT_OFFICIAL_DOMAINS}
+        </span>
       </p>
       <ul className="mt-3 space-y-3">
         {items.map((item) => (
-          <li key={item.id} className="rounded-xl border border-border/40 bg-background/40 px-3 py-2.5">
+          <li
+            key={item.id}
+            className="rounded-xl border border-border/40 bg-background/40 px-3 py-2.5"
+          >
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               {item.label}
             </p>
@@ -52,13 +54,7 @@ export function VerifyStrip({ compact = false, de = false }: { compact?: boolean
                 className="inline-flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] hover:border-primary/40 hover:text-primary"
               >
                 {copied === item.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                {copied === item.id
-                  ? de
-                    ? "Kopiert"
-                    : "Copied"
-                  : de
-                    ? "CA kopieren"
-                    : "Copy CA"}
+                {copied === item.id ? (de ? "Kopiert" : "Copied") : de ? "CA kopieren" : "Copy CA"}
               </button>
               <a
                 href={item.explorerUrl}

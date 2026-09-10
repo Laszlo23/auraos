@@ -100,18 +100,18 @@ function TermsPage() {
           Aura OS is paid software. Public prices are{" "}
           <strong className="text-foreground">$29 USD / month</strong> or{" "}
           <strong className="text-foreground">$299 USD / year</strong> unless we publish a different
-          price before you pay. Monthly can be canceled anytime. Yearly is the best-value path
-          (~two months free vs paying monthly). Crypto checkout, when offered, prepays the first
-          year at $299 — it is not a lifetime license. The Hood NFT mint is a separate optional
-          one-time $299 product and is not required to run the OS. Founding-cohort inventory is
-          capped (currently 1000). Purchase does not grant equity, tokens, or investment rights.
-          Token fair launch (if any) is a separate event.
+          price before you pay. Monthly can be canceled anytime. Yearly is the best-value path (~two
+          months free vs paying monthly). Crypto checkout, when offered, prepays the first year at
+          $299 — it is not a lifetime license. The Hood NFT mint is a separate optional one-time
+          $299 product and is not required to run the OS. Founding-cohort inventory is capped
+          (currently 1000). Purchase does not grant equity, tokens, or investment rights. Token fair
+          launch (if any) is a separate event.
         </p>
         <p>
           After successful payment, your account is marked with a company seat and access unlocks.
           Delivery is electronic / in-product only — there is no physical shipment. If you
-          previously bought a listed one-time founding seat before we moved OS access to
-          month/year billing, that seat stays valid — we do not claw it back.
+          previously bought a listed one-time founding seat before we moved OS access to month/year
+          billing, that seat stays valid — we do not claw it back.
         </p>
       </LegalSection>
 

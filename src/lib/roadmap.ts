@@ -249,7 +249,8 @@ export const ROADMAP_BEATS = [
   {
     week: "W3–4",
     title: "The Hood",
-    detail: "Mint the 1,000. Desk perks on. Hold-to-earn after audit — fee-split contract, not marketing copy.",
+    detail:
+      "Mint the 1,000. Desk perks on. Hold-to-earn after audit — fee-split contract, not marketing copy.",
   },
   {
     week: "T-0",

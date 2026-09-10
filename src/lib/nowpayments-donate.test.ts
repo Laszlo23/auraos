@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  DONATE_AMOUNTS_USD,
-  isDonateOrderId,
-  parseDonateAmountUsd,
-} from "./nowpayments-donate";
+import { DONATE_AMOUNTS_USD, isDonateOrderId, parseDonateAmountUsd } from "./nowpayments-donate";
 
 describe("nowpayments-donate", () => {
   it("accepts preset USD amounts only", () => {

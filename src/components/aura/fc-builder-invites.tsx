@@ -119,9 +119,8 @@ export function FcBuilderInvites() {
     <Panel label="Builder invites · Farcaster" glow data-tour="fc-builder-invites">
       <p className="text-[13px] leading-relaxed text-muted-foreground">
         Pick someone by name or FID. We reply on their latest cast from our connected account —
-        personal link, {FC_BUILDER_CREDITS} test AURA after they sign in. OS stays $29 / mo or $299 /
-        year. One FID,
-        one invite.
+        personal link, {FC_BUILDER_CREDITS} test AURA after they sign in. OS stays $29 / mo or $299
+        / year. One FID, one invite.
       </p>
       {!fc?.connected ? (
         <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">

@@ -144,7 +144,13 @@ export function HoodEarlyPassGate({
 
   if (unlocked) {
     return (
-      <div className={compact ? "hood-panel px-4 py-3" : "rounded-[1.4rem] border border-gold/35 bg-gold/10 px-4 py-3.5"}>
+      <div
+        className={
+          compact
+            ? "hood-panel px-4 py-3"
+            : "rounded-[1.4rem] border border-gold/35 bg-gold/10 px-4 py-3.5"
+        }
+      >
         <p className="label-luxury-gold text-[10px] tracking-[0.22em]">
           {de ? HOOD_EARLY_COPY.kickerDe : HOOD_EARLY_COPY.kicker}
         </p>
@@ -169,7 +175,13 @@ export function HoodEarlyPassGate({
   }
 
   return (
-    <div className={compact ? "hood-panel space-y-3 p-4" : "space-y-3 rounded-[1.4rem] border border-gold/30 bg-hood-stage/70 p-4 sm:p-5"}>
+    <div
+      className={
+        compact
+          ? "hood-panel space-y-3 p-4"
+          : "space-y-3 rounded-[1.4rem] border border-gold/30 bg-hood-stage/70 p-4 sm:p-5"
+      }
+    >
       <div className="flex items-start gap-2">
         <Lock className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
         <div>

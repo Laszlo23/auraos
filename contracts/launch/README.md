@@ -8,16 +8,16 @@ These contracts make the Hood promise **on-chain**:
 4. At T-0 a guardian **proposes** the official AURA + pair. **72 hours** later anyone can execute. USDC buys AURA; those tokens go into the gift drop as claimable bonuses.
 5. No owner withdraw. No rescue of USDC. ETH rejected. Supply of Hoods is an immutable 1,000.
 
-Marketing one-liner: *Mint the Hood. Open the market. AURA hits your wallet. LP is locked forever.*
+Marketing one-liner: _Mint the Hood. Open the market. AURA hits your wallet. LP is locked forever._
 
 This is mechanism, not a legal guarantee. Read the source. Verify on Basescan after deploy.
 
 ## Desk v1 superseded
 
-| Piece | Address (archived) |
-| --- | --- |
-| Passport | `0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2` |
-| Escrow | `0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8` |
+| Piece           | Address (archived)                           |
+| --------------- | -------------------------------------------- |
+| Passport        | `0xaC3868bCEa80aFCCBFFf51229a614E9aD0d836d2` |
+| Escrow          | `0xeB29D8B005AFbfC83388093F2Fe4bcC5a93D2aC8` |
 | Gift lock (90d) | `0xB428138f62F48eb7514d6F24CAc63D04890b74ab` |
 
 v1 cannot change `LOCK_DAYS` or re-point `setLaunchDesk`. Artifact: [`AuraLaunch.v1-superseded.json`](./AuraLaunch.v1-superseded.json). Snapshot holders before cutover:
@@ -28,21 +28,21 @@ npx tsx scripts/migrate-hood-v1.ts
 
 ## What was already live (cannot be rewritten)
 
-| Contract | Address | Residual admin power |
-| --- | --- | --- |
-| pAURA private sale | `0x25f42e74ce4697a29d9f252981fb9efa35aee55c` | Owner can `creditCash`, pause, close. USDC already forwards to immutable treasury. |
-| Aura Relic | `0xf2edf016cba775cec41c6ca308586a814f3d60f5` | Max 7 is immutable. Admin can still change URI / pause. Freeze URI on-chain by not calling `setBaseURI`. |
+| Contract           | Address                                      | Residual admin power                                                                                     |
+| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| pAURA private sale | `0x25f42e74ce4697a29d9f252981fb9efa35aee55c` | Owner can `creditCash`, pause, close. USDC already forwards to immutable treasury.                       |
+| Aura Relic         | `0xf2edf016cba775cec41c6ca308586a814f3d60f5` | Max 7 is immutable. Admin can still change URI / pause. Freeze URI on-chain by not calling `setBaseURI`. |
 
 Do **not** redeploy those. AURA itself still has **no CA until T-0** (self-hosted Uni v2). These desk contracts bind to that CA with a public timelock.
 
 ## Contracts
 
-| File | Role |
-| --- | --- |
-| `GenesisPassport.sol` | Hood NFT. `MAX_SUPPLY = 1000` immutable. No `setMaxSupply`. Metadata freeze. Mint requires desk funding. |
-| `AuraLaunchEscrow.sol` | USDC book. Paid mint / gift mint / fund-then-mint. Propose → 72h → buy into gift drop. |
-| `AuraHoodGiftDrop.sol` | **v2** — 7,777 AURA + buy bonuses. Claim at T-0 into wallet. No clawback. |
-| `AuraHoodGiftLock.sol` | **Deprecated v1** — 90-day lock. Do not deploy for new desks. |
+| File                   | Role                                                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| `GenesisPassport.sol`  | Hood NFT. `MAX_SUPPLY = 1000` immutable. No `setMaxSupply`. Metadata freeze. Mint requires desk funding. |
+| `AuraLaunchEscrow.sol` | USDC book. Paid mint / gift mint / fund-then-mint. Propose → 72h → buy into gift drop.                   |
+| `AuraHoodGiftDrop.sol` | **v2** — 7,777 AURA + buy bonuses. Claim at T-0 into wallet. No clawback.                                |
+| `AuraHoodGiftLock.sol` | **Deprecated v1** — 90-day lock. Do not deploy for new desks.                                            |
 
 ## Deploy order (Sepolia first)
 
@@ -66,24 +66,24 @@ Default ops (same published pAURA treasury): `0x502ce9FB1814cb03843967EC5E0D8F6A
 
 ### Live on Base Sepolia (Desk v2 — 2026-08-31)
 
-| Piece | Address |
-| --- | --- |
+| Piece               | Address                                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Passport (Hood NFT) | [`0xdc7c7b0f59181dfb60c27fea663a16348f749908`](https://sepolia.basescan.org/address/0xdc7c7b0f59181dfb60c27fea663a16348f749908) |
-| Escrow | [`0xf22382855266aafc8bf6df7b611282793c010765`](https://sepolia.basescan.org/address/0xf22382855266aafc8bf6df7b611282793c010765) |
+| Escrow              | [`0xf22382855266aafc8bf6df7b611282793c010765`](https://sepolia.basescan.org/address/0xf22382855266aafc8bf6df7b611282793c010765) |
 | Gift drop (instant) | [`0x449168083441F185C9993f938e3a7cD3cbB2F166`](https://sepolia.basescan.org/address/0x449168083441F185C9993f938e3a7cD3cbB2F166) |
-| USDC (Sepolia) | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
+| USDC (Sepolia)      | `0x036CbD53842c5426634e7929541eC2318f3dCF7e`                                                                                    |
 
 Artifact: `contracts/launch/AuraLaunch.sepolia.json`.
 
 ### Live on Base mainnet (Desk v2 — 2026-08-31)
 
-| Piece | Address |
-| --- | --- |
+| Piece               | Address                                                                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Passport (Hood NFT) | [`0x28eab56b26d4020d0fe985aae96bc2a8dd98d99b`](https://basescan.org/address/0x28eab56b26d4020d0fe985aae96bc2a8dd98d99b) |
-| Escrow | [`0x09aab7435ebf3e4b3763a1462279ab093d1268f8`](https://basescan.org/address/0x09aab7435ebf3e4b3763a1462279ab093d1268f8) |
+| Escrow              | [`0x09aab7435ebf3e4b3763a1462279ab093d1268f8`](https://basescan.org/address/0x09aab7435ebf3e4b3763a1462279ab093d1268f8) |
 | Gift drop (instant) | [`0x09D20a80abcf7f23baa5138C2115AEbC846716C9`](https://basescan.org/address/0x09D20a80abcf7f23baa5138C2115AEbC846716C9) |
-| USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
-| Ops (immutable) | `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1` |
+| USDC                | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`                                                                            |
+| Ops (immutable)     | `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1`                                                                            |
 
 Artifact: `contracts/launch/AuraLaunch.deployed.json`. Desk wiring verified (`launchDesk` + gift `desk` → escrow). `LOCK_DAYS = 0`.
 

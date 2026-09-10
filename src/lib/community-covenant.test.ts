@@ -16,9 +16,9 @@ describe("covenant verify items", () => {
     expect(items.find((i) => i.id === "ccff00")?.ca.toLowerCase()).toBe(
       CCFF00.defaultNftContract.toLowerCase(),
     );
-    expect(items.some((i) => i.ca.toLowerCase() === CCFF00.defaultTokenContract.toLowerCase())).toBe(
-      false,
-    );
+    expect(
+      items.some((i) => i.ca.toLowerCase() === CCFF00.defaultTokenContract.toLowerCase()),
+    ).toBe(false);
     expect(COVENANT_OFFICIAL_DOMAINS).toContain("aibusiness.fun");
     expect(COVENANT_OFFICIAL_DOMAINS).toContain("hookr.fun");
   });

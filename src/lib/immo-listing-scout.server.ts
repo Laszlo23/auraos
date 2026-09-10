@@ -29,8 +29,8 @@ function normalizeUrl(u: string): string {
 function criteriaFromWatch(row: Record<string, unknown> | null): ImmoWatchCriteria {
   if (!row) return DEFAULT_IMMO_WATCH;
   const deals = Array.isArray(row.deal_types)
-    ? (row.deal_types as string[]).filter((d): d is ImmoWatchCriteria["dealTypes"][number] =>
-        d === "mieten" || d === "kaufen",
+    ? (row.deal_types as string[]).filter(
+        (d): d is ImmoWatchCriteria["dealTypes"][number] => d === "mieten" || d === "kaufen",
       )
     : DEFAULT_IMMO_WATCH.dealTypes;
   const types = Array.isArray(row.property_types)
@@ -156,7 +156,9 @@ export async function scoutListingsForCompany(
   }
 
   const criteria = criteriaFromWatch(watch as Record<string, unknown> | null);
-  const portalLimit = opts?.force ? Math.min(10, opts.portalLimit ?? 10) : Math.min(6, opts.portalLimit ?? 6);
+  const portalLimit = opts?.force
+    ? Math.min(10, opts.portalLimit ?? 10)
+    : Math.min(6, opts.portalLimit ?? 6);
   const plan = queriesForScout(criteria, portalLimit);
   const seen = new Map<string, ListingDraft>();
   let scanned = 0;

@@ -102,7 +102,7 @@ export function OnboardingTour() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
           onClick={openTour}
-          className="fixed bottom-6 right-6 z-40 rounded-2xl border border-white/15 bg-background/95 px-4 py-2.5 text-sm font-medium text-foreground shadow-lg backdrop-blur-md transition-colors hover:border-primary/50 hover:bg-background"
+          className="fixed bottom-6 right-6 z-40 rounded-2xl border border-white/15 bg-background/95 px-4 py-2.5 text-sm font-medium text-foreground shadow-lg backdrop-blur-md transition-colors hover:border-primary/50 hover:bg-background sm:bottom-6 max-sm:bottom-24"
         >
           {t("tour.newHere")}
         </motion.button>

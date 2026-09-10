@@ -32,12 +32,7 @@ export function ViralJoinCta({
   });
 
   return (
-    <div
-      className={cn(
-        "rounded-[1.5rem] border border-primary/25 bg-primary/5 p-5",
-        className,
-      )}
-    >
+    <div className={cn("rounded-[1.5rem] border border-primary/25 bg-primary/5 p-5", className)}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">
         Join the room
       </p>

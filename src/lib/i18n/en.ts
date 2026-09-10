@@ -324,7 +324,8 @@ export const en: MessageTree = {
 
     act7: "07 / CLAIM YOUR SEAT",
     act7Title: "Own a company. Fair software.",
-    act7Body: "Aura OS is $29 / month or $299 / year. AI does the work. You approve and own the upside.",
+    act7Body:
+      "Aura OS is $29 / month or $299 / year. AI does the work. You approve and own the upside.",
 
     // Chapter cards — deeper integration
     chapterHood: "The Hood",
@@ -514,21 +515,21 @@ export const en: MessageTree = {
     pillarGrow: "Earn, then grow",
     pillarGrowBody:
       "Progress and AURA come from real activity — tasks, settlements, milestones — not vanity points.",
-    act1Kicker: "The problem",
-    act1Line: "You are currently the whole company.",
-    act1Body:
+    tryAct1Kicker: "The problem",
+    tryAct1Line: "You are currently the whole company.",
+    tryAct1Body:
       "Ops, growth, support, research, the books. Twelve tabs and one human. The ceiling is your calendar.",
-    act2Kicker: "The switch",
-    act2Line: "Wake the team.",
-    act2Body:
+    tryAct2Kicker: "The switch",
+    tryAct2Line: "Wake the team.",
+    tryAct2Body:
       "CEO, growth, sales, product, engineering, customers, finance, social. You give one mission. They split it, execute it, report back.",
-    act3Kicker: "The work",
-    act3Line: "They execute. You own the upside.",
-    act3Body:
+    tryAct3Kicker: "The work",
+    tryAct3Line: "They execute. You own the upside.",
+    tryAct3Body:
       "Every meaningful action shows who, what, when, cost, and result. Real business activity — not chat fluff. Optional specialists (like Quant) come later.",
-    act4Kicker: "The loop",
-    act4Line: "Create. Execute. Earn. Grow.",
-    act4Body:
+    tryAct4Kicker: "The loop",
+    tryAct4Line: "Create. Execute. Earn. Grow.",
+    tryAct4Body:
       "Completed work levels the company. Reinvest in better agents. Compete on the board. Build an economy of autonomous companies.",
     orgKicker: "Your company",
     orgTitle: "One owner. One CEO. A full AI roster.",
@@ -653,9 +654,9 @@ export const en: MessageTree = {
     prompt4: "How do I get a founding seat?",
     nudgeHello: "Your company could be running itself by tonight. Want the thirty-second version?",
     nudgeIdle: "Still looking? I can point you at the one move that matters — the founding seat.",
-    nudgeScroll:
-      "You scrolled past the story. The short path: $29 / month and Atlas starts work.",
-    nudgeExit: "Before you go — Aura OS is $29 / month or $299 / year. I can walk you there in one step.",
+    nudgeScroll: "You scrolled past the story. The short path: $29 / month and Atlas starts work.",
+    nudgeExit:
+      "Before you go — Aura OS is $29 / month or $299 / year. I can walk you there in one step.",
     reconnecting: "reconnecting",
     close: "Close Aura",
     chat: "Chat with Aura",

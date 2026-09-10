@@ -18,7 +18,11 @@ export function MarketingEyebrow({
   return (
     <p
       className={cn(
-        variant === "gold" ? "label-luxury-gold" : variant === "muted" ? "label-luxury text-muted-foreground" : "label-luxury",
+        variant === "gold"
+          ? "label-luxury-gold"
+          : variant === "muted"
+            ? "label-luxury text-muted-foreground"
+            : "label-luxury",
         className,
       )}
     >

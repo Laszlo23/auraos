@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
+import { useState, useEffect } from "react";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,7 @@ import { cn } from "@/lib/utils";
 /**
  * Premium word stagger for hero / act lines.
  * Falls back to a single fade when reduced-motion is on.
+ * Renders full text on SSR to prevent hydration flash.
  */
 export function WordReveal({
   text,
@@ -20,9 +22,15 @@ export function WordReveal({
   as?: "span" | "h1" | "h2" | "p";
 }) {
   const reduced = usePrefersReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const words = text.split(" ");
 
-  if (reduced) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // On SSR or when reduced motion, render full text immediately
+  if (!mounted || reduced) {
     return <Tag className={className}>{text}</Tag>;
   }
 

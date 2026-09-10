@@ -6,7 +6,13 @@ import {
   genesisNumberFromHoodTokenId,
   isGenesisTier,
 } from "@/lib/progress/genesis";
-import { DAILY_QUEST_KEYS, QUEST_REGISTRY, REP_EARN_RULES, WEEKLY_QUEST_KEYS, repForEvent } from "@/lib/progress/registry";
+import {
+  DAILY_QUEST_KEYS,
+  QUEST_REGISTRY,
+  REP_EARN_RULES,
+  WEEKLY_QUEST_KEYS,
+  repForEvent,
+} from "@/lib/progress/registry";
 
 describe("genesis policy", () => {
   it("keeps Hood supply at 1000 on-chain", () => {

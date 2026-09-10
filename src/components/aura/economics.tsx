@@ -2,12 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 
 import { useLocale } from "@/hooks/use-locale";
-import {
-  ECONOMICS_LAYERS,
-  SEAT_BENEFITS,
-  SEAT_NOT_INCLUDED,
-  loc,
-} from "@/lib/product-story";
+import { ECONOMICS_LAYERS, SEAT_BENEFITS, SEAT_NOT_INCLUDED, loc } from "@/lib/product-story";
 import { OS_PRICE, osCopy } from "@/lib/os-pricing";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
@@ -103,7 +98,9 @@ export function PricingTable() {
               </p>
               {rec ? <p className="mt-1 text-[13px] font-semibold">{copy.name}</p> : null}
               {"note" in copy && copy.note ? (
-                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{copy.note}</p>
+                <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
+                  {copy.note}
+                </p>
               ) : (
                 <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
                   {id === "try"
@@ -121,7 +118,9 @@ export function PricingTable() {
               )}
               <Link
                 to={plan.href.startsWith("/access") ? "/access" : plan.href}
-                search={id === "year" ? { plan: "year" } : id === "month" ? { plan: "month" } : undefined}
+                search={
+                  id === "year" ? { plan: "year" } : id === "month" ? { plan: "month" } : undefined
+                }
                 onClick={() => trackTeaser("cta_click", { placement: `price_card_${id}` })}
                 className={cn(
                   "mt-5 inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-[13px] font-semibold",

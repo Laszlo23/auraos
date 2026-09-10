@@ -26,6 +26,7 @@ These are user-provided design reference mascots for visual vibe, not claiming B
 ## Usage
 
 The landing page (`src/routes/index.tsx`) displays these images in a horizontal scrollable strip below the hero CTAs with:
+
 - Thick neon lime borders (2px)
 - Glow shadows on hover
 - Responsive layout (mobile scroll, desktop grid)

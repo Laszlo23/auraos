@@ -2,23 +2,23 @@
 
 Culture seats on Robinhood Chain — community membership for the tape, **not** a second founding collection and **not** a fundraise.
 
-| Layer | Chain | Role |
-| --- | --- | --- |
-| **Hood / Genesis** | Base | OS founding / desk utility key |
-| **TICKPIX** | Robinhood Chain `4663` | Pit culture — badge + Quest XP |
+| Layer              | Chain                  | Role                           |
+| ------------------ | ---------------------- | ------------------------------ |
+| **Hood / Genesis** | Base                   | OS founding / desk utility key |
+| **TICKPIX**        | Robinhood Chain `4663` | Pit culture — badge + Quest XP |
 
 ## Surfaces
 
-| Piece | Path |
-| --- | --- |
-| Mint (canonical) | https://nft.aibusiness.fun |
-| Aura discovery | `/pit` |
-| Community covenant | `/trust` |
-| HoodStreet CCFF00 | `/trust` + `docs/HOODSTREET_CCFF00.md` (NFT CA verify) |
-| Hookr (RH hooks) | `docs/HOOKR.md` · hookr.fun |
-| Community badge + quests | `/community` |
-| Holder soft perk | `holder-perks` → `hasTickpixNft` (+5% quest XP only) |
-| SSOT | `src/lib/tickpix.ts`, `src/lib/tickpix.server.ts` |
+| Piece                    | Path                                                   |
+| ------------------------ | ------------------------------------------------------ |
+| Mint (canonical)         | https://nft.aibusiness.fun                             |
+| Aura discovery           | `/pit`                                                 |
+| Community covenant       | `/trust`                                               |
+| HoodStreet CCFF00        | `/trust` + `docs/HOODSTREET_CCFF00.md` (NFT CA verify) |
+| Hookr (RH hooks)         | `docs/HOOKR.md` · hookr.fun                            |
+| Community badge + quests | `/community`                                           |
+| Holder soft perk         | `holder-perks` → `hasTickpixNft` (+5% quest XP only)   |
+| SSOT                     | `src/lib/tickpix.ts`, `src/lib/tickpix.server.ts`      |
 
 ## Env (VPS)
 
@@ -36,11 +36,11 @@ CCFF00 free raid copy is driven by `TICKPIX.raidEndsAt` (`2026-09-12T19:00:00.00
 
 ## Quests
 
-| Key | Cadence | Verification |
-| --- | --- | --- |
-| `tickpix:mint` | once | On-chain `balanceOf` on a linked wallet |
-| `tickpix:clock-in` | daily | Honor click-through to mint site |
-| `tickpix:share-tape` | weekly | Honor share of tape card |
+| Key                  | Cadence | Verification                            |
+| -------------------- | ------- | --------------------------------------- |
+| `tickpix:mint`       | once    | On-chain `balanceOf` on a linked wallet |
+| `tickpix:clock-in`   | daily   | Honor click-through to mint site        |
+| `tickpix:share-tape` | weekly  | Honor share of tape card                |
 
 Achievement: `tickpix-seat` (unlock event `tickpix:mint`).
 

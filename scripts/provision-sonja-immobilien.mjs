@@ -37,11 +37,15 @@ async function main() {
   const existing = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
   const user = existing.data?.users?.find((u) => u.email?.toLowerCase() === EMAIL.toLowerCase());
   if (!user) {
-    console.error("User not found — create via fix script after createUser, or re-run full OS provision.");
+    console.error(
+      "User not found — create via fix script after createUser, or re-run full OS provision.",
+    );
     process.exit(1);
   }
   await admin.auth.admin.updateUserById(user.id, { password, email_confirm: true });
-  console.log(JSON.stringify({ email: EMAIL, tempPassword: password, console: `${SITE}/console` }, null, 2));
+  console.log(
+    JSON.stringify({ email: EMAIL, tempPassword: password, console: `${SITE}/console` }, null, 2),
+  );
 }
 
 main().catch((err) => {
