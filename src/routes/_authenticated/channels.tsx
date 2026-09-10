@@ -475,7 +475,8 @@ function ChannelsPage() {
           tweet is a short line + watch link, and when{" "}
           <span className="font-mono text-[11px]">media.write</span> is granted the worker attaches
           the native MP4. Connect X with OAuth (never a password). Autopublish must stay on for the
-          worker to send them.
+          worker to send them. LinkedIn is a separate 1×/day morning campaign once Share on LinkedIn
+          is approved — not the 3× X cadence.
         </p>
         {!xStatus?.connected ? (
           <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">

@@ -57,6 +57,8 @@ Set `LINKEDIN_SHARE_SCOPE=1` after **Share on LinkedIn** (`w_member_social`) is 
 
 Comment APIs need separate LinkedIn products — reply automation stays draft/off until approved.
 
+Once share is live, the worker seeds **one post / CEST morning** (`li-drip-2026-09`) when Autopublish is on. Do not clone the 3×/day X cadence.
+
 ## TikTok
 
 Env: `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`

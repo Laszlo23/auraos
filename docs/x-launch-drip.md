@@ -94,6 +94,12 @@ Connect X (OAuth)
 - Public company receipts: `/company/{slug}` (activity, roster, posts).
 - Re-seeding is idempotent via unique `(company_id, campaign_key)`.
 
+### LinkedIn sister campaign (`li-drip-2026-09`)
+
+One longer founder-to-founder post per **09:14 CEST** morning, 14-day horizon. Distinct `campaign_key`s so they never collide with the X unique index.
+
+Worker seeds it only when LinkedIn is connected, Autopublish is on, `LINKEDIN_SHARE_SCOPE=1`, and the token includes `w_member_social`. Until Share on LinkedIn is approved, paste the launch post by hand (copy in `docs/COMMUNITY_GROWTH.md`). Do **not** clone the 3×/day X slots onto LinkedIn.
+
 Migration required once:
 
 ```text

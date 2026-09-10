@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ALL_CHANNELS_FIRE_BODY,
   DRIP_HORIZON_MS,
   DRIP_MAX_SLOTS,
+  LINKEDIN_MAX_SLOTS,
   buildFarcasterDripSchedule,
   buildLaunchDripSchedule,
+  buildLinkedInDripSchedule,
   buildMissedDripSlots,
+  linkedInCampaignLaunchPost,
 } from "@/lib/x-launch-campaign";
 
 describe("buildLaunchDripSchedule", () => {
@@ -46,5 +50,21 @@ describe("buildLaunchDripSchedule", () => {
     expect(fc.length).toBe(x.length);
     expect(fc.every((s) => s.campaignKey.startsWith("fc-drip-"))).toBe(true);
     expect(fc[0]!.body.length).toBeLessThanOrEqual(320);
+  });
+
+  it("builds a LinkedIn drip: one morning post / day, distinct keys", () => {
+    const from = Date.parse("2026-09-10T10:00:00+02:00");
+    const x = buildLaunchDripSchedule(from);
+    const li = buildLinkedInDripSchedule(from);
+    const keys = li.map((s) => s.campaignKey);
+    expect(li.length).toBeGreaterThanOrEqual(13);
+    expect(li.length).toBeLessThanOrEqual(LINKEDIN_MAX_SLOTS);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(li.every((s) => s.campaignKey.startsWith("li-drip-"))).toBe(true);
+    expect(keys.some((k) => x.some((s) => s.campaignKey === k))).toBe(false);
+    expect(li[0]?.campaignKey).toContain("2026-09-11");
+    expect(li.every((s) => s.body.length <= 3000)).toBe(true);
+    expect(linkedInCampaignLaunchPost().length).toBeGreaterThan(80);
+    expect(ALL_CHANNELS_FIRE_BODY.length).toBeLessThanOrEqual(280);
   });
 });

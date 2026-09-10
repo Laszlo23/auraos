@@ -48,6 +48,7 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
       "Hood NFT mint stays a separate optional $299 one-time — not required to run the OS",
       "Terms grandfather anyone who already paid the old one-time founding seat",
       "Queued X drip CTAs rewritten off Seat $99 / Seat $299 onto $29 / mo or $299 / year",
+      "LinkedIn campaign li-drip-2026-09 — one founder post / morning (not the 3× X cadence); needs Share on LinkedIn + reconnect",
     ],
     tags: ["improvement"],
   },

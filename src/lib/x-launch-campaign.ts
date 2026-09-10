@@ -6,6 +6,9 @@ import { tickpixRaidOpen } from "@/lib/tickpix";
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
 /** Farcaster sister drip — same windows, cast-length copy. */
 export const FARCASTER_DRIP_CAMPAIGN = "fc-drip-2026-09";
+/** LinkedIn campaign — one professional post / day (not the 3× X cadence). */
+export const LINKEDIN_DRIP_CAMPAIGN = "li-drip-2026-09";
+export const LINKEDIN_MAX_SLOTS = 14;
 
 /** How far ahead to keep scheduled when no public T-0 date is published. */
 export const DRIP_HORIZON_MS = 14 * 24 * 60 * 60 * 1000;
@@ -330,3 +333,218 @@ export function launchDripSummary(slots: LaunchDripSlot[] = buildLaunchDripSched
     launchPolicy: TOKEN_LAUNCH_DISPLAY,
   };
 }
+
+/** One LinkedIn post per CEST morning — longer, founder-to-founder. */
+const LINKEDIN_CAMPAIGN: { sharePostId: string; body: string }[] = [
+  {
+    sharePostId: "makemoney",
+    body: `Most AI products sell you a chat window — then one scary price.
+
+Aura OS is software for running a real company with AI employees.
+
+You own it. They execute. You approve spend and outbound.
+
+Three honest doors:
+• Try Aura — free
+• Monthly — $29
+• Year — $299 (about two months free vs monthly)
+
+Wien shops: Aura Local €49 / month.
+
+The Hood NFT is a separate optional $299 mint. Not required to run the OS.
+
+Start here: ${SITE_URL}/pricing`,
+  },
+  {
+    sharePostId: "aprove",
+    body: `Autonomy with a leash.
+
+Aura employees draft pitches, follow-ups, posts, and research. Nothing spends money or goes public until you tap yes.
+
+That's the product: a company that works while you sleep — without going feral.
+
+$29 / month or $299 / year. Same desk.
+
+${SITE_URL}/how-it-works`,
+  },
+  {
+    sharePostId: "make-good",
+    body: `Culture Coin was rugged by a former partner. We can't rewrite that.
+
+We make it up by building — with rules you can hold us to:
+
+${SITE_URL}/trust
+
+Official CAs and mint URLs only on aibusiness.fun · nft.aibusiness.fun. Never by DM.
+
+If someone slides you a contract address, it's hostile.`,
+  },
+  {
+    sharePostId: "wien",
+    body: `Not in a WeWork. In Vienna.
+
+A dying homepage, 4-point-something stars, and a cousin who said: you do the internet thing.
+
+That's why Aura Local exists — real visits, real reviews, no envelopes.
+
+€49 / month for shops. Aura OS for the company that runs them.
+
+${SITE_URL}/lokal`,
+  },
+  {
+    sharePostId: "hired",
+    body: `Onboarding: CEO, growth, sales, product, engineering, customers, finance, social.
+
+None of them asked about snacks. All of them wait for your approval on spend.
+
+That's an AI company — not another chatbot seat.
+
+Try free, then $29 / month or $299 / year.
+
+${SITE_URL}/try`,
+  },
+  {
+    sharePostId: "1fromweek",
+    body: `Proof over theater.
+
+Completed work on Aura OS leaves a timestamp, a written result, and a cost. If a number is zero, the work hasn't happened yet.
+
+Live receipts: ${SITE_URL}/proof
+Changelog: ${SITE_URL}/changelog`,
+  },
+  {
+    sharePostId: "donotsleep",
+    body: `They don't sleep. You can.
+
+That's the whole pitch — not “AI will 10x you.” A company that keeps the lights on while you do life.
+
+Fair software: ${SITE_URL}/pricing`,
+  },
+  {
+    sharePostId: "tickpix-pit",
+    body: `Two keys. No dilution.
+
+Hood (Base) = OS founding passport.
+TICKPIX (Robinhood Chain) = culture seats — not a second Hood, not a fundraise.
+
+Verify the CA on Blockscout. Never trust a DM.
+
+Pit: ${SITE_URL}/pit
+Mint: https://nft.aibusiness.fun`,
+  },
+  {
+    sharePostId: "classic",
+    body: `Stop renting AI tools. Own the company that runs them.
+
+Aura OS — $29 / month or $299 / year. Cancel monthly anytime. Year is the flagship.
+
+${SITE_URL}/access`,
+  },
+  {
+    sharePostId: "quest-squads",
+    body: `Not a lonely dashboard. A world you play with friends.
+
+AURA Quest + Squads: XP, REP, shared tasks, world pulse.
+
+Quest → ${SITE_URL}/quest
+Squads → ${SITE_URL}/community`,
+  },
+  {
+    sharePostId: "auraos-bedroom",
+    body: `Not a trading bot. A Quant desk inside a company you own.
+
+Risk meters before size. Founder approval before live fire. Paper first.
+
+$29 / month or $299 / year to wake the company.
+
+${SITE_URL}/trading`,
+  },
+  {
+    sharePostId: "checkout",
+    body: `€500 BAR vs empty Google stars. Oida, ned des.
+
+We don't buy reviews. We buy a Melange after a real visit.
+
+That's Aura Local — reputation as a neighbor who came back.
+
+${SITE_URL}/lokal`,
+  },
+  {
+    sharePostId: "hookr-rules",
+    body: `Rules before you sign.
+
+Readable Uniswap v4 hooks on Robinhood Chain — not an airdrop portal.
+
+hookr.fun · @hookrfun only
+Covenant: ${SITE_URL}/trust`,
+  },
+  {
+    sharePostId: "ccff00-hoodstreet",
+    body: `CCFF00 is HoodStreet Proof of Neon — a membership NFT on Robinhood Chain.
+
+Aura verifies the NFT on-chain. Soft Quest XP only. Not founding seats.
+
+https://hoodstreet.capital/ccff00
+${SITE_URL}/trust`,
+  },
+];
+
+function liDripSlotKey(y: number, month: number, day: number): string {
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return `${LINKEDIN_DRIP_CAMPAIGN}#${y}-${mm}-${dd}`;
+}
+
+/**
+ * LinkedIn drip: one post per morning (09:14 CEST), 14-day horizon.
+ * Distinct campaign_keys so they never collide with the X unique index.
+ */
+export function buildLinkedInDripSchedule(fromMs: number = Date.now()): LaunchDripSlot[] {
+  const endMs = fromMs + DRIP_HORIZON_MS;
+  const slots: LaunchDripSlot[] = [];
+  let index = 0;
+  let cursor = fromMs;
+  const lastDay = cestDateParts(endMs);
+  const fromDay = cestDateParts(fromMs);
+
+  while (cursor <= endMs + 36e5 && slots.length < LINKEDIN_MAX_SLOTS) {
+    const day = cestDateParts(cursor);
+    const skipTodayMorning =
+      day.y === fromDay.y && day.m === fromDay.m && day.d === fromDay.d && fromDay.h >= 9;
+    if (!skipTodayMorning) {
+      const at = cestWallToIso(day.y, day.m, day.d, 9);
+      const atMs = Date.parse(at);
+      if (atMs > fromMs && atMs <= endMs) {
+        const post = LINKEDIN_CAMPAIGN[index % LINKEDIN_CAMPAIGN.length]!;
+        slots.push({
+          campaignKey: liDripSlotKey(day.y, day.m, day.d),
+          sharePostId: post.sharePostId,
+          body: post.body,
+          scheduledAt: at,
+        });
+        index += 1;
+      }
+    }
+    const next = cestWallToIso(day.y, day.m, day.d + 1, 8);
+    cursor = Date.parse(next);
+    if (day.y === lastDay.y && day.m === lastDay.m && day.d === lastDay.d) break;
+  }
+
+  return slots;
+}
+
+/** First LinkedIn campaign post — used for an immediate all-channels fire. */
+export function linkedInCampaignLaunchPost(): string {
+  return LINKEDIN_CAMPAIGN[0]!.body;
+}
+
+/** Short X / Farcaster blast — distinct from the fair-price announcement already live. */
+export const ALL_CHANNELS_FIRE_BODY = `Every public door is open.
+
+Try free.
+$29 / month.
+$299 / year.
+
+Same OS. Hood mint optional.
+
+${SITE_URL}/pricing`;

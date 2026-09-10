@@ -29,7 +29,7 @@ Code: `src/lib/community-covenant.ts`, `src/routes/trust.tsx`, drip in `src/lib/
 
 1. Sign in as founder → **[Channels](https://aibusiness.fun/channels)**
 2. Confirm **X** (and Farcaster if used) OAuth is connected — never store passwords
-3. Start / refresh **Fair-launch X drip** (and FC sister drip)
+3. Start / refresh **Fair-launch X drip** (and FC sister drip). LinkedIn is 1 post/day (`li-drip-2026-09`) after Share on LinkedIn + reconnect
 4. Confirm next slots include `make-good` + `tickpix-pit` (rotation leads with those)
 5. Leave the worker ticking — do not manually spam the same CA in every reply
 
@@ -55,6 +55,29 @@ Official only: aibusiness.fun · nft.aibusiness.fun · hoodstreet.capital · hoo
 ```
 
 Pin this. Reply with Blockscout token URL when someone asks for the CA.
+
+### LinkedIn launch (paste now — API posting needs Share on LinkedIn)
+
+Cadence once live: **one post / morning** (`li-drip-2026-09`), not the 3× X drip. Until `LINKEDIN_SHARE_SCOPE=1` + reconnect with `w_member_social`, paste this on Laszlo’s profile:
+
+```
+Most AI products sell you a chat window — then one scary price.
+
+Aura OS is software for running a real company with AI employees.
+
+You own it. They execute. You approve spend and outbound.
+
+Three honest doors:
+• Try Aura — free
+• Monthly — $29
+• Year — $299 (about two months free vs monthly)
+
+Wien shops: Aura Local €49 / month.
+
+The Hood NFT is a separate optional $299 mint. Not required to run the OS.
+
+Start here: https://aibusiness.fun/pricing
+```
 
 ### Discord / Telegram sticky (copy)
 
