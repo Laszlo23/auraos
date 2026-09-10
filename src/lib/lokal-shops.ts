@@ -49,7 +49,7 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     ],
     secondStudioNote: "Zweites Studio in Mödling: Neudorfer Straße 2, 2340 — kein zweites Listing.",
     googleFindCopy: "Gäste finden uns auf Google",
-    ownerAvatar: "/crew/martina.png",
+    ownerAvatar: "/crew/martina.webp",
     ownerLabel: "Inhaberin",
   },
   "pion-professional": {
@@ -89,7 +89,7 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       },
     ],
     googleFindCopy: "Pion in der Seestadt finden",
-    ownerAvatar: "/crew/evreen.png",
+    ownerAvatar: "/crew/evreen.webp",
     ownerLabel: "Vertrieb",
     webLabel: "Shop",
     howSteps: [
@@ -407,7 +407,7 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
     secondStudioNote:
       "Kein erfundener Fixstandort. Darko fährt Wienweit nach Termin — Straße und Telefon trägt er nach dem Claim selbst ein.",
     googleFindCopy: "Darko nach dem Besuch auf Google finden",
-    ownerAvatar: "/crew/darco.png",
+    ownerAvatar: "/crew/darco.webp",
     ownerLabel: "Fachmann",
     howSteps: [
       {
@@ -432,7 +432,7 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       { title: "Proof", blurb: "Zeitstempel, Ergebnis, Kosten — kein Demo-Theater." },
       { title: "Workforce", blurb: "Atlas, Vela, Juno, Orin, Ledger — echte Rollen." },
     ],
-    ownerAvatar: "/crew/laszlo.png",
+    ownerAvatar: "/crew/laszlo.webp",
     ownerLabel: "Operator",
     webLabel: "Aura OS",
     howSteps: [
@@ -452,7 +452,7 @@ export const LOKAL_SHOP_EDITORIAL: Record<string, LokalShopEditorial> = {
       { title: "Katalog", blurb: "Leistungen, Produkte, Tickets — was du wirklich anbietest." },
       { title: "Termine", blurb: "Anfrage hier oder dein externes Buchungssystem." },
     ],
-    ownerAvatar: "/crew/martina.png",
+    ownerAvatar: "/crew/martina.webp",
     ownerLabel: "Wien",
     webLabel: "Lokal",
     howSteps: [

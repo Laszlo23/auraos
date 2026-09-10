@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-10-fast-secure",
+    date: "2026-09-10",
+    title: "Faster images, patched CVEs, safer blog HTML",
+    summary:
+      "Homepage crew tiles no longer pull megabytes of PNG. Production dependencies patched for high-severity CVEs. Blog essays render without innerHTML.",
+    items: [
+      "Ape crew hero: 512px WebP (~20KB each) with PNG fallback, width/height, lazy-load after the first tile",
+      "Crew avatars on team/Lokal cards served as WebP",
+      "Patched nodemailer 9.1.1; overrides for axios, js-yaml, js-cookie, undici (Snyk high/critical)",
+      "Blog body no longer uses dangerouslySetInnerHTML — static essays stay escaped",
+      "Short cache on /pit /trust /changelog /share /hood HTML to cut SSR load",
+    ],
+    tags: ["improvement", "fix"],
+  },
+  {
     id: "2026-09-10-ccff00-hookr",
     date: "2026-09-10",
     title: "CCFF00 + Hookr — trust-first Robinhood Chain partners",

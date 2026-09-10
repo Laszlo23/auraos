@@ -38,6 +38,11 @@ const PUBLIC_MARKETING_ROUTES = [
   "/team",
   "/pitch",
   "/blog",
+  "/pit",
+  "/trust",
+  "/changelog",
+  "/share",
+  "/hood",
 ];
 
 function isPublicMarketingPage(pathname: string): boolean {

@@ -335,11 +335,19 @@ function Landing() {
                   className="group relative shrink-0"
                 >
                   <div className="relative h-32 w-32 overflow-hidden rounded-2xl border-2 border-neon-lime/40 bg-charcoal shadow-[0_0_24px_rgba(207,255,4,0.2)] transition-all hover:border-neon-lime hover:shadow-[0_0_40px_rgba(207,255,4,0.5)] sm:h-36 sm:w-36">
-                    <img
-                      src={ape.src}
-                      alt={ape.alt}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                    />
+                    <picture>
+                      <source type="image/webp" srcSet={ape.src.replace(/\.png$/, ".webp")} />
+                      <img
+                        src={ape.src}
+                        alt={ape.alt}
+                        width={144}
+                        height={144}
+                        decoding="async"
+                        loading={i === 0 ? "eager" : "lazy"}
+                        fetchPriority={i === 0 ? "high" : "low"}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                      />
+                    </picture>
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   </div>
                 </motion.div>

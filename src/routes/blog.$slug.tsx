@@ -25,6 +25,21 @@ export const Route = createFileRoute("/blog/$slug")({
   component: BlogPostPage,
 });
 
+function BlogParagraph({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <p className="whitespace-pre-line">
+      {parts.map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={i}>{part.slice(2, -2)}</strong>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </p>
+  );
+}
+
 function BlogPostPage() {
   const post = Route.useLoaderData();
 
@@ -65,17 +80,7 @@ function BlogPostPage() {
                 </h2>
               );
             }
-            return (
-              <p
-                key={block.slice(0, 48)}
-                className="whitespace-pre-line"
-                dangerouslySetInnerHTML={{
-                  __html: block
-                    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-                    .replace(/\n/g, "<br/>"),
-                }}
-              />
-            );
+            return <BlogParagraph key={block.slice(0, 48)} text={block} />;
           })}
         </div>
         <div className="mt-12 flex flex-wrap gap-3">
