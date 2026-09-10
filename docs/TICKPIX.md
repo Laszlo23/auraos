@@ -32,6 +32,8 @@ CCFF00_CONTRACT_ADDRESS=0x505A22Ffed8d37ebE580FfD98d2Cdb0021189146
 
 Default CA matches the live mint `config.js`. Alchemy RH RPC is preferred; falls back to `https://rpc.mainnet.chain.robinhood.com`.
 
+CCFF00 free raid copy is driven by `TICKPIX.raidEndsAt` (`2026-09-12T19:00:00.000Z`). After that instant, `/pit`, Community, share kit, and drip switch to public mint (`0.0001 ETH`) — we do not keep advertising a closed window.
+
 ## Quests
 
 | Key | Cadence | Verification |

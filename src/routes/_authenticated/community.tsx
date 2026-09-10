@@ -40,7 +40,7 @@ import {
   type GrowthTaskKind,
 } from "@/lib/growth-digital-work";
 import { SOCIAL_LINKS } from "@/lib/site";
-import { TICKPIX } from "@/lib/tickpix";
+import { TICKPIX, tickpixWindowCopy } from "@/lib/tickpix";
 import { claimTickpixMintQuest, getTickpixStatus } from "@/lib/tickpix.functions";
 import { claimCcff00VerifyQuest, getCcff00Status } from "@/lib/ccff00.functions";
 import { CCFF00 } from "@/lib/ccff00";
@@ -331,8 +331,7 @@ function CommunityHubPage() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-xl">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              Culture seats on Robinhood Chain — mint free if you hold CCFF00, then clock in on the
-              tape. Hood stays the OS passport; Tickpix is belonging for the room.
+              {tickpixWindowCopy().communityBlurb}
             </p>
             {tickpix?.owns ? (
               <Chip tone="gold" className="mt-3">

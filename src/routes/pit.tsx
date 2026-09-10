@@ -11,30 +11,32 @@ import {
   tickpixCollectionUrl,
   tickpixContractAddress,
   tickpixExplorerTokenUrl,
+  tickpixWindowCopy,
 } from "@/lib/tickpix";
 import { SITE_URL, url } from "@/lib/site";
 
 const TITLE = "TICKPIX — the pit | Aura OS";
-const DESCRIPTION =
-  "CCFF00 free raid extended to 12 Sep 19:00 UTC. Mint TICKPIX on Robinhood Chain — max 3 free, then public 0.0001 ETH. Culture seats, not a fund. Pit → aibusiness.fun/pit.";
 
 export const Route = createFileRoute("/pit")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: "TICKPIX — CCFF00 free raid extended" },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: url(TICKPIX.path) },
-      { property: "og:image", content: "https://nft.aibusiness.fun/og-raid.png?v=3" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://nft.aibusiness.fun/og-raid.png?v=3" },
-    ],
-    links: [{ rel: "canonical", href: `${SITE_URL}${TICKPIX.path}` }],
-  }),
+  head: () => {
+    const windowCopy = tickpixWindowCopy();
+    return {
+      meta: [
+        { title: TITLE },
+        { name: "description", content: windowCopy.metaDescription },
+        { property: "og:title", content: windowCopy.metaTitle },
+        { property: "og:description", content: windowCopy.metaDescription },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url(TICKPIX.path) },
+        { property: "og:image", content: "https://nft.aibusiness.fun/og-raid.png?v=3" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: "https://nft.aibusiness.fun/og-raid.png?v=3" },
+      ],
+      links: [{ rel: "canonical", href: `${SITE_URL}${TICKPIX.path}` }],
+    };
+  },
   component: PitPage,
 });
 
@@ -49,6 +51,7 @@ function PitPage() {
   const auraLink = de ? TICKPIX_COPY.auraLinkDe : TICKPIX_COPY.auraLink;
   const disclaimer = de ? TICKPIX_COPY.disclaimerDe : TICKPIX_COPY.disclaimer;
   const cta = de ? TICKPIX_COPY.ctaDe : TICKPIX_COPY.cta;
+  const windowCopy = tickpixWindowCopy();
 
   return (
     <div className="min-h-svh bg-background">
@@ -62,9 +65,7 @@ function PitPage() {
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{kicker}</p>
             <div className="mt-3 inline-flex max-w-xl flex-wrap items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-[12px] font-semibold text-primary">
-              {de
-                ? "CCFF00 Free Raid verlängert · bis 12 Sep 19:00 UTC"
-                : "CCFF00 free raid extended · until 12 Sep 19:00 UTC"}
+              {de ? windowCopy.bannerDe : windowCopy.banner}
             </div>
             <h1 className="mt-4 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               {title}
@@ -163,9 +164,7 @@ function PitPage() {
                 <li>
                   <span className="font-semibold text-primary">01 · Mint</span>
                   <p className="mt-1 text-muted-foreground">
-                    {de
-                      ? `CCFF00 Free Raid verlängert bis 12 Sep 19:00 UTC · max 3 gratis · danach Public ${TICKPIX.publicPrice}. Chain ${TICKPIX.chainId}.`
-                      : `CCFF00 free raid extended to 12 Sep 19:00 UTC · max 3 free · then public ${TICKPIX.publicPrice}. Chain ${TICKPIX.chainId}.`}
+                    {de ? windowCopy.stepMintDe : windowCopy.stepMint}
                   </p>
                 </li>
                 <li>

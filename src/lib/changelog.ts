@@ -46,6 +46,7 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
       "Quest ccff00:verify + Community claim; /pit + /trust partner strips; docs/HOODSTREET_CCFF00.md",
       "Hookr playbook strategy + builders copy + drip lines; docs/HOOKR.md; covenant links hoodstreet + hookr.fun",
       "X/FC rotation includes ccff00-hoodstreet + hookr-rules (official URLs only)",
+      "/pit + drip + share kit auto-flip to public mint after 12 Sep 19:00 UTC — no stale free-raid promises",
     ],
     tags: ["feature", "improvement"],
   },

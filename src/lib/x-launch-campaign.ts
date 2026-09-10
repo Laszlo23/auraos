@@ -1,5 +1,6 @@
 import { SHARE_POSTS, shareWatchUrl } from "@/lib/share-posts";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
+import { tickpixRaidOpen } from "@/lib/tickpix";
 
 /** Stable campaign id for fair-launch drip (rolling schedule — no fixed T-0 clock). */
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
@@ -141,6 +142,19 @@ const X_LINES: Record<string, string[]> = {
   ],
 };
 
+const TICKPIX_PIT_PUBLIC_LINES = [
+  "TICKPIX public mint 0.0001 ETH on Robinhood Chain. Verify CA on Blockscout — never by DM.",
+  "CCFF00 free raid closed. Seats still mint at nft.aibusiness.fun · Pit → /pit",
+  "Hold Tickpix → Pit badge + Quest XP. Hood stays the OS passport. Culture, not a fund.",
+] as const;
+
+function dripLinesFor(sharePostId: string, at: Date | number = Date.now()): string[] {
+  if (sharePostId === "tickpix-pit" && !tickpixRaidOpen(at)) {
+    return [...TICKPIX_PIT_PUBLIC_LINES];
+  }
+  return X_LINES[sharePostId] ?? ["Aura OS — own a company. Let AI make money."];
+}
+
 /** Post windows in CEST (UTC+2 in August) — hours local, quiet before 07:00. */
 const SLOT_HOURS_CEST = [9, 13, 18] as const;
 
@@ -173,8 +187,8 @@ function dripSlotKey(y: number, month: number, day: number, hour: number): strin
   return `${LAUNCH_DRIP_CAMPAIGN}#${y}-${mm}-${dd}T${hh}`;
 }
 
-function clipBody(sharePostId: string, lineIndex: number): string {
-  const lines = X_LINES[sharePostId] ?? ["Aura OS — own a company. Let AI make money."];
+function clipBody(sharePostId: string, lineIndex: number, at: Date | number = Date.now()): string {
+  const lines = dripLinesFor(sharePostId, at);
   const line = lines[lineIndex % lines.length]!;
   if (sharePostId === "make-good") {
     const trust = `${SITE_URL}/trust`;
@@ -208,8 +222,8 @@ function clipBody(sharePostId: string, lineIndex: number): string {
 }
 
 /** Farcaster cast body — shorter, embed-friendly (Neynar embeds the watch URL). */
-function farcasterCastBody(sharePostId: string, lineIndex: number): string {
-  const lines = X_LINES[sharePostId] ?? ["Aura OS — own a company. Let AI make money."];
+function farcasterCastBody(sharePostId: string, lineIndex: number, at: Date | number = Date.now()): string {
+  const lines = dripLinesFor(sharePostId, at);
   const line = lines[lineIndex % lines.length]!;
   if (sharePostId === "make-good") {
     return `${line}\n\n${SITE_URL}/trust`.slice(0, 320);
@@ -268,7 +282,7 @@ export function buildLaunchDripSchedule(fromMs: number = Date.now()): LaunchDrip
       slots.push({
         campaignKey: dripSlotKey(day.y, day.m, day.d, hour),
         sharePostId: id,
-        body: clipBody(id, index),
+        body: clipBody(id, index, atMs),
         scheduledAt: at,
       });
       index += 1;
@@ -288,7 +302,7 @@ export function buildFarcasterDripSchedule(fromMs: number = Date.now()): LaunchD
   return buildLaunchDripSchedule(fromMs).map((s, index) => ({
     ...s,
     campaignKey: s.campaignKey.replace(LAUNCH_DRIP_CAMPAIGN, FARCASTER_DRIP_CAMPAIGN),
-    body: farcasterCastBody(s.sharePostId, index),
+    body: farcasterCastBody(s.sharePostId, index, Date.parse(s.scheduledAt)),
   }));
 }
 

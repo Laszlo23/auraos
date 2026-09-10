@@ -1,4 +1,5 @@
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
+import { tickpixRaidOpen } from "@/lib/tickpix";
 
 export type ShareAspect = "vertical" | "landscape";
 
@@ -622,8 +623,59 @@ export function sharePosterAbsoluteUrl(file: string) {
   return `${SITE_URL}${mediaPath(`/share/${file}.jpg`)}`;
 }
 
+const TICKPIX_PIT_PUBLIC: Pick<SharePost, "hook" | "captions"> = {
+  hook: "TICKPIX public mint — 0.0001 ETH on Robinhood Chain. Verify the CA, never trust a DM.",
+  captions: [
+    `TICKPIX public mint is live.
+
+0.0001 ETH on Robinhood Chain (4663)
+Mint → nft.aibusiness.fun
+Aura OS: /pit → badge + Quest XP
+
+CCFF00 free raid closed 12 Sep 19:00 UTC.
+Holders who minted keep their seats.
+
+Not a stock. Not a fund. Not a second Hood.
+Hood stays the OS founding passport.
+
+Verify CA on Blockscout. Never by DM.
+
+Pit → ${SITE_URL}/pit
+Covenant → ${SITE_URL}/trust
+${CTA}`,
+    `Culture seats for the room.
+
+TICKPIX = membership on the tape (chain 4663).
+Public mint @ 0.0001 ETH.
+Hood = OS founding key on Base.
+
+Same team. Different keys. No dilution theater.
+
+Mint → https://nft.aibusiness.fun
+Belong → ${SITE_URL}/pit`,
+    `If someone DMs you a “new Tickpix CA,” it’s not us.
+
+Official mint: nft.aibusiness.fun
+Official pit: ${SITE_URL}/pit
+How we show up: ${SITE_URL}/trust
+
+Ship in public. Verify on-chain.`,
+  ],
+};
+
+/** Raid captions stay in SHARE_POSTS; after the window we swap Tickpix copy live. */
+export function liveSharePost(post: SharePost, at: Date | number = Date.now()): SharePost {
+  if (post.id !== "tickpix-pit" || tickpixRaidOpen(at)) return post;
+  return { ...post, ...TICKPIX_PIT_PUBLIC };
+}
+
+export function liveSharePosts(at: Date | number = Date.now()): SharePost[] {
+  return SHARE_POSTS.map((p) => liveSharePost(p, at));
+}
+
 export function getSharePost(postId: string): SharePost | undefined {
-  return SHARE_POSTS.find((p) => p.id === postId);
+  const post = SHARE_POSTS.find((p) => p.id === postId);
+  return post ? liveSharePost(post) : undefined;
 }
 
 export function isWienWave(post: SharePost) {

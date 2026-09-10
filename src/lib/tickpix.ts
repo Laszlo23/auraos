@@ -23,6 +23,51 @@ export const TICKPIX = {
   raidEndsAt: "2026-09-12T19:00:00.000Z",
 } as const;
 
+export function tickpixRaidOpen(at: Date | number = Date.now()): boolean {
+  const ms = typeof at === "number" ? at : at.getTime();
+  return ms < Date.parse(TICKPIX.raidEndsAt);
+}
+
+export type TickpixWindowCopy = {
+  metaTitle: string;
+  metaDescription: string;
+  banner: string;
+  bannerDe: string;
+  stepMint: string;
+  stepMintDe: string;
+  communityBlurb: string;
+};
+
+/** Public mint vs CCFF00 free-raid copy — flips at `TICKPIX.raidEndsAt`. */
+export function tickpixWindowCopy(at: Date | number = Date.now()): TickpixWindowCopy {
+  const price = TICKPIX.publicPrice;
+  const chain = TICKPIX.chainId;
+  if (tickpixRaidOpen(at)) {
+    return {
+      metaTitle: "TICKPIX — CCFF00 free raid extended",
+      metaDescription:
+        "CCFF00 free raid extended to 12 Sep 19:00 UTC. Mint TICKPIX on Robinhood Chain — max 3 free, then public 0.0001 ETH. Culture seats, not a fund. Pit → aibusiness.fun/pit.",
+      banner: "CCFF00 free raid extended · until 12 Sep 19:00 UTC",
+      bannerDe: "CCFF00 Free Raid verlängert · bis 12 Sep 19:00 UTC",
+      stepMint: `CCFF00 free raid extended to 12 Sep 19:00 UTC · max 3 free · then public ${price}. Chain ${chain}.`,
+      stepMintDe: `CCFF00 Free Raid verlängert bis 12 Sep 19:00 UTC · max 3 gratis · danach Public ${price}. Chain ${chain}.`,
+      communityBlurb:
+        "Culture seats on Robinhood Chain — mint free if you hold CCFF00 (until 12 Sep 19:00 UTC), then clock in on the tape. Hood stays the OS passport; Tickpix is belonging for the room.",
+    };
+  }
+  return {
+    metaTitle: "TICKPIX — the pit",
+    metaDescription:
+      "Mint TICKPIX culture seats on Robinhood Chain — public 0.0001 ETH. Verify the CA on Blockscout, never by DM. Pit → aibusiness.fun/pit.",
+    banner: `Public mint · ${price} on Robinhood Chain`,
+    bannerDe: `Public Mint · ${price} auf Robinhood Chain`,
+    stepMint: `Public mint ${price} on chain ${chain}. CCFF00 free raid closed 12 Sep 19:00 UTC — seats still mint at nft.aibusiness.fun.`,
+    stepMintDe: `Public Mint ${price} auf Chain ${chain}. CCFF00 Free Raid endete 12 Sep 19:00 UTC — Seats weiter auf nft.aibusiness.fun.`,
+    communityBlurb:
+      "Culture seats on Robinhood Chain — public mint 0.0001 ETH. CCFF00 holders who minted in the raid window keep their seats. Hood stays the OS passport; Tickpix is belonging for the room.",
+  };
+}
+
 export const TICKPIX_COPY = {
   kicker: "TICKPIX · the pit",
   kickerDe: "TICKPIX · The Pit",

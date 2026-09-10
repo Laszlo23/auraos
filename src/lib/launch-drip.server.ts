@@ -36,8 +36,18 @@ export async function seedLaunchDripSlots(
       reposts: 0,
     });
     if (error) {
-      if (error.code === "23505") skipped += 1;
-      else throw error;
+      if (error.code === "23505") {
+        skipped += 1;
+        if (s.sharePostId === "tickpix-pit") {
+          await supabaseAdmin
+            .from("channel_posts")
+            .update({ body: s.body })
+            .eq("company_id", companyId)
+            .eq("campaign_key", s.campaignKey)
+            .eq("provider", "x")
+            .eq("status", "scheduled");
+        }
+      } else throw error;
     } else {
       created += 1;
     }
@@ -71,8 +81,18 @@ export async function seedFarcasterDripSlots(
       reposts: 0,
     });
     if (error) {
-      if (error.code === "23505") skipped += 1;
-      else throw error;
+      if (error.code === "23505") {
+        skipped += 1;
+        if (s.sharePostId === "tickpix-pit") {
+          await supabaseAdmin
+            .from("channel_posts")
+            .update({ body: s.body })
+            .eq("company_id", companyId)
+            .eq("campaign_key", s.campaignKey)
+            .eq("provider", "farcaster")
+            .eq("status", "scheduled");
+        }
+      } else throw error;
     } else {
       created += 1;
     }

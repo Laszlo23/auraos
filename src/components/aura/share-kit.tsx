@@ -22,6 +22,7 @@ import {
   fetchShareVideoFile,
   isWienWave,
   SHARE_POSTS,
+  liveSharePosts,
   shareKitUrl,
   sharePosterSrc,
   shareVideoSrc,
@@ -58,7 +59,10 @@ export function ShareKit({
   const [busy, setBusy] = useState<"dl" | "native" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const catalog = useMemo(() => (filter === "wave" ? wienWavePosts() : SHARE_POSTS), [filter]);
+  const catalog = useMemo(
+    () => (filter === "wave" ? wienWavePosts() : liveSharePosts()),
+    [filter],
+  );
   const post = useMemo(
     () => catalog.find((p) => p.id === activeId) ?? catalog[0] ?? SHARE_POSTS[0]!,
     [activeId, catalog],
