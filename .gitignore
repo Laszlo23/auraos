@@ -60,3 +60,7 @@ secrets/
 .venv-deck/
 .venv-xai/
 
+# T-0 launch treasury — never commit the key
+.aura-t0-treasury.json
+.aura-t0-out.json
+

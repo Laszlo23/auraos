@@ -169,7 +169,7 @@ export const ROADMAP_STOPS: RoadmapStop[] = [
     status: "next",
     kind: "build",
     title: "Fair launch — no VC, no insider dump",
-    body: "AURA on Base via Uniswap v2 — LP in AuraLpSink. Escrowed Hood USDC buys the official pair. Hood owners claim unlocked AURA at T-0. Treasury publishes a TSLA-anchored reference basket for Quant ops. Same rules for everyone who shows up.",
+    body: "AURA on Base via Uniswap v4 — locked AURA/USDC book, published hooks. Escrowed Hood USDC buys the official pair. Hood owners claim unlocked AURA at T-0. Treasury publishes a TSLA-anchored reference basket for Quant ops. Same rules for everyone who shows up.",
   },
   {
     id: "robinhood-chain",

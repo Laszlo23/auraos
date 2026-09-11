@@ -608,6 +608,56 @@ export type Database = {
         }
         Relationships: []
       }
+      aura_buy_orders: {
+        Row: {
+          amount_usd: number
+          company_id: string | null
+          created_at: string
+          id: string
+          pack: string
+          status: string
+          stripe_session: string
+          tx_hash: string | null
+          updated_at: string
+          user_id: string
+          wallet: string
+        }
+        Insert: {
+          amount_usd: number
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          pack: string
+          status?: string
+          stripe_session: string
+          tx_hash?: string | null
+          updated_at?: string
+          user_id: string
+          wallet: string
+        }
+        Update: {
+          amount_usd?: number
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          pack?: string
+          status?: string
+          stripe_session?: string
+          tx_hash?: string | null
+          updated_at?: string
+          user_id?: string
+          wallet?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aura_buy_orders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automations: {
         Row: {
           company_id: string

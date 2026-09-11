@@ -10,15 +10,18 @@ describe("covenant verify items", () => {
     const ids = items.map((i) => i.id);
     expect(ids).toContain("tickpix");
     expect(ids).toContain("ccff00");
-    expect(items.find((i) => i.id === "tickpix")?.ca.toLowerCase()).toBe(
+    expect(ids).toContain("square");
+    expect(items.find((i) => i.id === "square")?.ca).toBeNull();
+    expect(items.find((i) => i.id === "square")?.note).toMatch(/not Hood/i);
+    expect(items.find((i) => i.id === "tickpix")?.ca?.toLowerCase()).toBe(
       TICKPIX.defaultContract.toLowerCase(),
     );
-    expect(items.find((i) => i.id === "ccff00")?.ca.toLowerCase()).toBe(
+    expect(items.find((i) => i.id === "ccff00")?.ca?.toLowerCase()).toBe(
       CCFF00.defaultNftContract.toLowerCase(),
     );
-    expect(items.some((i) => i.ca.toLowerCase() === CCFF00.defaultTokenContract.toLowerCase())).toBe(
-      false,
-    );
+    expect(
+      items.some((i) => i.ca?.toLowerCase() === CCFF00.defaultTokenContract.toLowerCase()),
+    ).toBe(false);
     expect(COVENANT_OFFICIAL_DOMAINS).toContain("aibusiness.fun");
     expect(COVENANT_OFFICIAL_DOMAINS).toContain("hookr.fun");
   });

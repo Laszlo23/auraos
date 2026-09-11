@@ -115,6 +115,24 @@ export const REP_EARN_RULES: RepRule[] = [
     label: "Verified CCFF00",
     hint: "Linked a wallet that holds HoodStreet CCFF00 on Robinhood Chain",
   },
+  {
+    eventKey: "aura:first-swap",
+    rep: 5,
+    label: "First official AURA swap",
+    hint: "Settled an official-pair swap on /swap after T-0",
+  },
+  {
+    eventKey: "aura:lp-week",
+    rep: 8,
+    label: "Provided LP for a week",
+    hint: "Held qualifying official-pair LP for 7 days",
+  },
+  {
+    eventKey: "aura:burn-seen",
+    rep: 1,
+    label: "Read the burn rule",
+    hint: "Opened the published swap-burn bps on /swap — education, not pay-to-win",
+  },
 ];
 
 export type QuestMission = {
@@ -309,6 +327,33 @@ const BASE_QUESTS = [
     glyph: "◈",
     xp: 80,
     rep: 6,
+    cadence: "once",
+  },
+  {
+    key: "aura:first-swap",
+    label: "Make the first official swap",
+    hint: "Quote on /swap, settle AURA/USDC on Base after T-0 — official pairs only",
+    glyph: "⇄",
+    xp: 40,
+    rep: 5,
+    cadence: "once",
+  },
+  {
+    key: "aura:lp-week",
+    label: "Provide LP for seven days",
+    hint: "Hold ≥ USDC-equivalent official LP for a week — XP + dust from the 10% bonus bucket, no promised APY",
+    glyph: "▣",
+    xp: 60,
+    rep: 8,
+    cadence: "weekly",
+  },
+  {
+    key: "aura:burn-seen",
+    label: "Read the AURA burn rule",
+    hint: "Open /swap and read the published swap-burn bps — view-only education",
+    glyph: "△",
+    xp: 10,
+    rep: 1,
     cadence: "once",
   },
 ];

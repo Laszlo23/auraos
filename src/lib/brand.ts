@@ -69,6 +69,9 @@ export const BRAND_ASSETS = {
   hoodOg: "/og/hood.jpg",
   /** Square collection image for marketplaces (OpenSea / Basescan). */
   hoodCollection: "/collection/hood.jpg",
+  /** Default AURA ERC-20 mark for explorers / Clanker / WalletConnect. */
+  tokenMark: "/brand/aura-mark.png",
+  tokenOg: "/og/token.jpg",
 } as const;
 
 export const BRAND_RULES = {

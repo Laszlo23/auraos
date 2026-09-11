@@ -36,6 +36,91 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-11-os-message",
+    date: "2026-09-11",
+    title: "OS message video blast — live on X + Farcaster",
+    summary:
+      "Seven new share-kit clips — AI changing work, no SaaS, OS > SaaS, winners run an OS, workflow, work together — blasting same-day on X (native MP4) and Farcaster (cast + watch link).",
+    items: [
+      "Clips + posters in the public share kit; watch pages at /v/{id}",
+      "Channels → Fire OS message blast queues 14 staggered posts (~25 min apart)",
+      "Campaign key os-message-2026-09; first aichanging posts already published",
+      "Deploy via scripts/deploy-share-media.sh + scripts/seed-os-message.ts",
+    ],
+    tags: ["feature"],
+  },
+  {
+    id: "2026-09-11-aura-buy",
+    date: "2026-09-11",
+    title: "/buy — three ways to get AURA",
+    summary:
+      "Standalone investor page: card plus Aura smart wallet, Base App on the phone, or a browser wallet plus Binance. Official CA stays unpublished until T-0. Card packs are fulfillment, not an on-chain swap at checkout.",
+    items: [
+      "Paths: $29 / $111 / $299 card packs into an Aura Light Account, Base App invite, Binance ETH → Base → official AURA/USDC",
+      "Signup from /buy provisions a smart wallet without an OS founding seat",
+      "Stripe webhook records paid orders; Laszlo sends AURA after T-0 from the launch treasury",
+    ],
+    tags: ["feature"],
+  },
+  {
+    id: "2026-09-11-aura-t0-clock",
+    date: "2026-09-11",
+    title: "AURA T-0 is Sunday 13 Sep 2026, 11:11 Vienna",
+    summary:
+      "48h fair-launch clock is public. Token: AURA on Base. Official book: locked Uniswap v4 AURA/USDC. Seed $1,111 USDC. Starting book $6,000 USDC. CA publishes at T-0 only on this site and X @buildingcultu3 — never by DM.",
+    items: [
+      "Countdown on the landing page runs to Sunday 13 Sep 2026, 11:11 Europe/Vienna (CEST)",
+      "Covenant unchanged: 48 hours ahead, never a CA by DM, never a surprise address",
+      "Official seed is $1,111 USDC into a new launch treasury — not ETH, not the pAURA sale key",
+    ],
+    tags: ["feature"],
+  },
+  {
+    id: "2026-09-11-landing-lime",
+    date: "2026-09-11",
+    title: "Landing chrome is lime — orange stays on the apes",
+    summary:
+      "Public homepage and header no longer use gold or magma. Accents are neon lime, street teal, and burgundy. Orange and gold stay in the ape art only.",
+    items: [
+      "Hero CTAs, world cards, and act labels use lime / teal instead of gold / magma",
+      "boss-cta, text-money, and stage atmosphere drop the orange fill",
+      "Hood nav accent is lime. Founding-seat meter is primary, not gold",
+    ],
+    tags: ["improvement"],
+  },
+  {
+    id: "2026-09-11-aura-flatstart",
+    date: "2026-09-11",
+    title: "AURA FlatStart book — $6,000 USDC at ~$0.001",
+    summary:
+      "Official $1,111 seed stays. The starting book is $6,000 USDC with 18M AURA stacked near the first ticks — a flatter curve so early buys get a real bag. Not all 46.6M LP AURA against $6k.",
+    items: [
+      "FlatStart: $6k USDC under ~$0.001, 18M AURA in a wide near band, rest drips higher — not a Project moon stair",
+      "Clanker deploy preset is Standard; intended lock is our 3-band FlatStart weights",
+      "Official seed $1,111 USDC → launch treasury still published separately",
+    ],
+    tags: ["improvement", "infra"],
+  },
+  {
+    id: "2026-09-10-aura-t0-pack",
+    date: "2026-09-10",
+    title: "AURA T-0 pack: Uni v4 book, $1,111 seed, Square, DexScreener 10/10",
+    summary:
+      "One software token on Base. Official book is locked AURA/USDC on Uniswap v4. Token tax is 0% — you can sell. Trading fee 1–3% lives on the pool. T-0 seed is $1,111 USDC to the launch treasury. CA stays unpublished until the 48h announce.",
+    items: [
+      "AuraToken.sol is the official ERC-20: no owner, no extra mint, no blacklist, no transfer tax. ClankerTokenV4 is not platform AURA",
+      "Pool fees: Dynamic3 1–3% both sides, 15 bps swap burn, 50/25/15/10 LP / ops / burn / Quest. Sniper decay is 15 seconds only",
+      "Official T-0 seed $1,111 USDC → launch treasury / official book — not the sale key",
+      "Token identity + DexScreener JSON at /api/token/aura — logo, header, socials, 0% buy/sell tax. Docs: AURA_CURVE.md + AURA_DEXSCREENER.md",
+      "/token is the sales cockpit: logo, socials, live pAURA stats, honest empty AURA/USDC tape until the pool exists (never ETHUSDT)",
+      "/swap desk: official pairs only, quote without a wallet, AuraGauge stake/claim, trailing 7d fee APR labeled estimate",
+      "/square: Aura Square — Base ERC-6551 binder, cap 1,111. Not Hood, not pAURA, not on /sale. Stripe mint / TBA fund after the CA is public",
+      "/trust + covenant: you can sell, no blacklist, Square listed as a utility binder. Quests aura:first-swap, aura:lp-week, aura:burn-seen",
+      "pAURA still redeems 1 → 1.11. TICKPIX / Hood / CCFF00 stay NFTs. Optional Robinhood wrapper is Phase 4 only",
+    ],
+    tags: ["feature", "infra"],
+  },
+  {
     id: "2026-09-10-os-trust-desk",
     date: "2026-09-10",
     title: "Try carries into the desk — verify CAs without a DM",

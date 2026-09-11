@@ -174,14 +174,14 @@ export function HeroFilm({ className }: { className?: string }) {
       <div className="absolute inset-0 bg-[radial-gradient(88%_68%_at_30%_40%,transparent_0%,color-mix(in_oklab,var(--background)_62%,transparent)_52%,var(--background)_94%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_0%,transparent_22%,var(--background)_96%)] opacity-90" />
       <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent via-background/80 to-background" />
-      {/* Living film edge — cyan/gold hairline that reads as OS chrome */}
+      {/* Living film edge — lime/teal hairline that reads as OS chrome */}
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent opacity-90"
       />
       <div
         aria-hidden
-        className="absolute inset-x-[12%] bottom-[18%] h-px bg-gradient-to-r from-transparent via-gold/35 to-transparent opacity-70"
+        className="absolute inset-x-[12%] bottom-[18%] h-px bg-gradient-to-r from-transparent via-street-teal/40 to-transparent opacity-70"
       />
       <div
         aria-hidden
@@ -189,7 +189,7 @@ export function HeroFilm({ className }: { className?: string }) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 bottom-1/4 h-72 w-72 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--gold)_24%,transparent),transparent_70%)] blur-2xl"
+        className="pointer-events-none absolute -right-16 bottom-1/4 h-72 w-72 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--street-teal)_24%,transparent),transparent_70%)] blur-2xl"
       />
       <div
         aria-hidden

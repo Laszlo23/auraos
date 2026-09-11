@@ -58,13 +58,20 @@ export {
 } from "@/lib/legal-entity";
 
 /**
- * Fair token launch — no fixed public clock.
- * Exact T-0 is announced on official channels 48 hours ahead. No CA until then.
+ * Fair token launch clock — SSOT in aura-t0-clock.ts.
+ * T-0 is Sunday 13 Sep 2026, 11:11 Europe/Vienna. CA still unpublished until then.
  */
-export const TOKEN_LAUNCH_NOTICE_HOURS = 48;
-export const TOKEN_LAUNCH_LABEL = "Fair launch";
-export const TOKEN_LAUNCH_DISPLAY = "Announced 48 hours before T-0";
-export const TOKEN_LAUNCH_DISPLAY_DE = "48 Stunden vor T-0 angekündigt";
+export {
+  TOKEN_LAUNCH_ANNOUNCE_BY_ISO,
+  TOKEN_LAUNCH_AT_ISO,
+  TOKEN_LAUNCH_DISPLAY,
+  TOKEN_LAUNCH_DISPLAY_DE,
+  TOKEN_LAUNCH_LABEL,
+  TOKEN_LAUNCH_NOTICE_HOURS,
+  tokenLaunchAtMs,
+  tokenLaunchIsLive,
+  tokenLaunchRemain,
+} from "@/lib/aura-t0-clock";
 /** Trust line for UI / share — growth in public, never a surprise CA. */
 export const TOKEN_LAUNCH_TRUST =
   "We grow in public. Exact fair-launch time is announced on our official channels 48 hours before — never by DM, never with a surprise CA.";
@@ -119,7 +126,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export const LAUNCH_SHARE_TEXT =
-  "Aura OS just shipped AURA Quest + Community Squads — XP, REP, shared tasks, world pulse. Fair launch announced 48h before T-0 on official channels only. Own a company. Work with your crew. Grow with us.";
+  "Aura OS — AI company operating system. Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna. AURA on Base, locked Uni v4 AURA/USDC. CA only at T-0 on aibusiness.fun + @buildingcultu3 — never by DM.";
 
 /** Aura OS announce post — like, comment, and quote/share to earn whitelist access. */
 export const AURA_LAUNCH_POST_URL = "https://x.com/buildingcultu3/status/2086020001341870326";
@@ -243,6 +250,13 @@ export const PRODUCT_SURFACES: ProductSurface[] = [
     href: "/token",
     group: "product",
     blurb: "Investor hub — buy pAURA without the OS",
+  },
+  {
+    id: "buy",
+    label: "Buy AURA",
+    href: "/buy",
+    group: "product",
+    blurb: "Card, Base Wallet, or browser — official pair only",
   },
   {
     id: "quest",

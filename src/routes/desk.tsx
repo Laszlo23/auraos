@@ -46,12 +46,25 @@ import {
 import { t as translate } from "@/lib/i18n";
 import { pAuraToLaunchAura, PRIVATE_SALE_MIN_USDC, usdcToPAura } from "@/lib/private-sale";
 import {
+  listAuraBuyOrders,
+  markAuraBuySent,
+} from "@/lib/aura-buy.functions";
+import {
   listPrivateSaleCashOrders,
   logPrivateSaleCash,
   sendPrivateSaleCash,
 } from "@/lib/private-sale.functions";
 
-type DeskTab = "personal" | "team" | "finance" | "traffic" | "create" | "shops" | "log" | "sale";
+type DeskTab =
+  | "personal"
+  | "team"
+  | "finance"
+  | "traffic"
+  | "create"
+  | "shops"
+  | "log"
+  | "sale"
+  | "buy";
 
 export const Route = createFileRoute("/desk")({
   head: () => ({
@@ -303,6 +316,11 @@ function Dashboard({
             onClick={() => setActiveTab("sale")}
             label={t("desk.saleTab")}
           />
+          <TabButton
+            active={activeTab === "buy"}
+            onClick={() => setActiveTab("buy")}
+            label={t("desk.buyTab")}
+          />
         </div>
 
         {activeTab === "personal" && (
@@ -330,6 +348,7 @@ function Dashboard({
         )}
         {activeTab === "log" && <LogSaleForm t={t} />}
         {activeTab === "sale" && <PrivateSalePanel t={t} />}
+        {activeTab === "buy" && <AuraBuyOrdersPanel t={t} />}
 
         <SalesKitSection t={t} />
       </div>
@@ -1417,6 +1436,87 @@ function PrivateSalePanel({
                   >
                     {send.isPending ? t("common.loading") : t("desk.saleSend")}
                   </button>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+    </div>
+  );
+}
+
+function AuraBuyOrdersPanel({ t }: { t: (key: string, vars?: Record<string, string | number>) => string }) {
+  const qc = useQueryClient();
+  const [txById, setTxById] = useState<Record<string, string>>({});
+  const queue = useQuery({
+    queryKey: ["desk-aura-buy"],
+    queryFn: () => listAuraBuyOrders({ data: { token: getDeskToken() } }),
+  });
+  const mark = useMutation({
+    mutationFn: (orderId: string) =>
+      markAuraBuySent({
+        data: {
+          token: getDeskToken(),
+          orderId,
+          txHash: txById[orderId] ?? "",
+        },
+      }),
+    onSuccess: () => {
+      toast.success(t("desk.buySent"));
+      void qc.invalidateQueries({ queryKey: ["desk-aura-buy"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div className="space-y-6">
+      <Panel label={t("desk.buyQueue")}>
+        {!queue.data?.canMarkSent ? (
+          <p className="mb-3 text-[12px] text-white/60">{t("desk.buyOnlyLaszlo")}</p>
+        ) : null}
+        {queue.isLoading ? (
+          <Shimmer className="h-16" />
+        ) : !queue.data?.orders.length ? (
+          <p className="text-sm text-white/60">{t("desk.buyNoOrders")}</p>
+        ) : (
+          <ul className="space-y-3">
+            {queue.data.orders.map((order) => (
+              <li
+                key={order.id}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white"
+              >
+                <p className="font-semibold">
+                  ${order.amount_usd} · pack {order.pack} · {order.status}
+                </p>
+                <p className="mt-1 break-all font-mono text-[11px] text-white/60">{order.wallet}</p>
+                {order.tx_hash ? (
+                  <a
+                    href={`https://basescan.org/tx/${order.tx_hash}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block font-mono text-[11px] text-primary"
+                  >
+                    {order.tx_hash}
+                  </a>
+                ) : null}
+                {queue.data.canMarkSent && order.status === "paid" ? (
+                  <div className="mt-3 space-y-2">
+                    <FormField
+                      label={t("desk.buyTx")}
+                      value={txById[order.id] ?? ""}
+                      onChange={(v) => setTxById((cur) => ({ ...cur, [order.id]: v }))}
+                      placeholder="0x…"
+                    />
+                    <button
+                      type="button"
+                      disabled={mark.isPending}
+                      onClick={() => mark.mutate(order.id)}
+                      className="rounded-2xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                    >
+                      {mark.isPending ? t("common.loading") : t("desk.buyMarkSent")}
+                    </button>
+                  </div>
                 ) : null}
               </li>
             ))}

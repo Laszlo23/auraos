@@ -4,6 +4,7 @@ import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import {
   disconnectSocial,
   getLaunchDripStatus,
+  getOsMessageStatus,
   getSocialStatus,
   pollFarcasterSigner,
   publishShareClip,
@@ -11,6 +12,7 @@ import {
   setSocialReplyMode,
   startFarcasterConnect,
   startLaunchDripCampaign,
+  startOsMessageCampaign,
   startSocialConnect,
 } from "@/lib/social.functions";
 import { SHARE_POSTS } from "@/lib/share-posts";
@@ -361,6 +363,39 @@ export function useStartLaunchDrip() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["launch-drip"] });
+      void qc.invalidateQueries({ queryKey: ["table", "channel_posts"] });
+      void qc.invalidateQueries({ queryKey: ["social-status"] });
+      void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });
+    },
+  });
+}
+
+export function useOsMessageStatus() {
+  const { data: company } = useCompany();
+  return useQuery({
+    queryKey: ["os-message", company?.id],
+    enabled: Boolean(company?.id),
+    staleTime: 20_000,
+    queryFn: () => getOsMessageStatus({ data: { companyId: company!.id } }),
+  });
+}
+
+export function useStartOsMessageCampaign() {
+  const qc = useQueryClient();
+  const { data: company } = useCompany();
+  return useMutation({
+    mutationFn: async (opts?: { x?: boolean; farcaster?: boolean }) => {
+      if (!company) throw new Error("No company yet.");
+      return startOsMessageCampaign({
+        data: {
+          companyId: company.id,
+          x: opts?.x !== false,
+          farcaster: opts?.farcaster !== false,
+        },
+      });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["os-message"] });
       void qc.invalidateQueries({ queryKey: ["table", "channel_posts"] });
       void qc.invalidateQueries({ queryKey: ["social-status"] });
       void qc.invalidateQueries({ queryKey: ["table", "activity_events"] });

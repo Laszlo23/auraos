@@ -299,7 +299,7 @@
     color-mix(in oklab, white 34%, transparent) 14%,
     transparent 38%,
     transparent 64%,
-    color-mix(in oklab, var(--gold) 42%, transparent) 100%
+    color-mix(in oklab, var(--street-teal) 42%, transparent) 100%
   );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
@@ -325,7 +325,7 @@
     transparent,
     color-mix(in oklab, white 50%, transparent) 24%,
     color-mix(in oklab, var(--primary) 55%, transparent) 50%,
-    color-mix(in oklab, var(--gold) 35%, transparent) 72%,
+    color-mix(in oklab, var(--street-teal) 35%, transparent) 72%,
     transparent
   );
   opacity: 0.85;
@@ -355,9 +355,8 @@
   background: linear-gradient(
     105deg,
     var(--neon-lime) 0%,
-    var(--gold) 35%,
-    var(--magma) 55%,
-    var(--gold) 75%,
+    color-mix(in oklab, var(--neon-lime) 70%, var(--street-teal)) 40%,
+    var(--street-teal) 62%,
     var(--neon-lime) 100%
   );
   background-size: 220% 100%;
@@ -424,7 +423,7 @@
     ),
     radial-gradient(
       ellipse 70% 50% at 85% 75%,
-      color-mix(in oklab, var(--magma) 16%, transparent),
+      color-mix(in oklab, var(--street-teal) 16%, transparent),
       transparent 65%
     ),
     radial-gradient(
@@ -579,15 +578,19 @@
   overflow: hidden;
   border-radius: 1.2rem;
   border: 2px solid var(--neon-lime);
-  background: linear-gradient(135deg, var(--magma-dark) 0%, var(--magma) 100%);
-  color: var(--foreground);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--neon-lime) 88%, var(--street-teal)) 0%,
+    var(--neon-lime) 100%
+  );
+  color: var(--primary-foreground);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   box-shadow:
     0 0 32px color-mix(in oklab, var(--neon-lime) 55%, transparent),
-    0 8px 24px -6px color-mix(in oklab, var(--magma) 65%, transparent),
-    inset 0 1px 0 color-mix(in oklab, var(--neon-lime) 45%, transparent);
+    0 8px 24px -6px color-mix(in oklab, var(--neon-lime) 55%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 28%, transparent);
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -595,8 +598,8 @@
   transform: translateY(-3px) scale(1.02);
   box-shadow:
     0 0 48px color-mix(in oklab, var(--neon-lime) 75%, transparent),
-    0 12px 36px -8px color-mix(in oklab, var(--magma) 80%, transparent),
-    inset 0 1px 0 color-mix(in oklab, var(--neon-lime) 65%, transparent);
+    0 12px 36px -8px color-mix(in oklab, var(--neon-lime) 70%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 40%, transparent);
 }
 
 .boss-cta::before {
@@ -650,7 +653,7 @@
     90deg,
     transparent,
     var(--primary),
-    color-mix(in oklab, var(--gold) 70%, var(--primary)),
+    color-mix(in oklab, var(--street-teal) 70%, var(--primary)),
     transparent
   );
   animation: vital-scan 3.6s ease-in-out infinite;

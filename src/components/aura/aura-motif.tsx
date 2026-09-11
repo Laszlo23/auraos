@@ -14,7 +14,7 @@ export function AuraMotif({ className }: { className?: string }) {
       )}
     >
       {/* Soft light bloom */}
-      <div className="aura-motif-bloom absolute -bottom-8 -right-6 h-44 w-44 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--primary)_28%,transparent)_0%,color-mix(in_oklab,var(--gold)_10%,transparent)_38%,transparent_70%)] opacity-70 blur-2xl" />
+      <div className="aura-motif-bloom absolute -bottom-8 -right-6 h-44 w-44 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--primary)_28%,transparent)_0%,color-mix(in_oklab,var(--street-teal)_10%,transparent)_38%,transparent_70%)] opacity-70 blur-2xl" />
 
       <svg
         viewBox="0 0 180 180"
@@ -61,7 +61,7 @@ export function AuraMotif({ className }: { className?: string }) {
             y="108"
             width="20"
             height="20"
-            stroke="color-mix(in oklab, var(--gold) 40%, transparent)"
+            stroke="color-mix(in oklab, var(--street-teal) 40%, transparent)"
             strokeWidth="0.7"
             style={{ transformOrigin: "118px 118px", transform: "rotate(45deg)" }}
           />
@@ -75,7 +75,7 @@ export function AuraMotif({ className }: { className?: string }) {
           />
           <path
             d="M132 52 L148 78 L116 78 Z"
-            stroke="color-mix(in oklab, var(--gold) 32%, transparent)"
+            stroke="color-mix(in oklab, var(--street-teal) 32%, transparent)"
             strokeWidth="0.65"
           />
 
@@ -99,7 +99,7 @@ export function AuraMotif({ className }: { className?: string }) {
             cx="86"
             cy="158"
             r="2.5"
-            fill="color-mix(in oklab, var(--gold) 50%, transparent)"
+            fill="color-mix(in oklab, var(--street-teal) 50%, transparent)"
           />
 
           {/* Small square cluster */}

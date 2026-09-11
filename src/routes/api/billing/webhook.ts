@@ -70,6 +70,8 @@ export const Route = createFileRoute("/api/billing/webhook")({
                 boost_grant?: string;
                 kickoff?: string;
                 stripe_account?: string;
+                pack?: string;
+                wallet?: string;
               };
               client_reference_id?: string | null;
               payment_intent?: string | null;
@@ -200,6 +202,29 @@ export const Route = createFileRoute("/api/billing/webhook")({
             return Response.json({ received: true });
           }
 
+          if (session?.metadata?.kind === "aura_buy") {
+            const userId = session.metadata.user_id || session.client_reference_id;
+            const wallet = session.metadata.wallet || "";
+            const pack = session.metadata.pack || "";
+            if (!userId || !session.id || !wallet || !pack) {
+              return Response.json({ error: "Missing AURA buy metadata" }, { status: 400 });
+            }
+            const { recordAuraBuyOrderFromStripe } = await import("@/lib/aura-buy.functions");
+            const amountUsd =
+              typeof session.amount_total === "number"
+                ? session.amount_total / 100
+                : Number(pack);
+            await recordAuraBuyOrderFromStripe({
+              userId,
+              companyId: session.metadata.company_id,
+              wallet,
+              pack,
+              amountUsd,
+              stripeSession: session.id,
+            });
+            return Response.json({ received: true });
+          }
+
           if (session?.metadata?.kind === "genesis_nft") {
             const userId = session.metadata.user_id || session.client_reference_id;
             if (!userId || !session.id) {
@@ -210,6 +235,38 @@ export const Route = createFileRoute("/api/billing/webhook")({
               userId,
               sessionId: session.id,
               ...(session.amount_total != null ? { amountCents: session.amount_total } : {}),
+            });
+            return Response.json({ received: true });
+          }
+
+          if (session?.metadata?.kind === "square_nft") {
+            const userId = session.metadata.user_id || session.client_reference_id;
+            if (!userId || !session.id) {
+              return Response.json({ error: "Missing user_id or session id" }, { status: 400 });
+            }
+            const { markSquarePaidFromStripe } = await import("@/lib/aura-square.functions");
+            await markSquarePaidFromStripe({
+              userId,
+              sessionId: session.id,
+              ...(session.amount_total != null ? { amountCents: session.amount_total } : {}),
+            });
+            return Response.json({ received: true });
+          }
+
+          if (session?.metadata?.kind === "square_tba_fund") {
+            const userId = session.metadata.user_id || session.client_reference_id;
+            const tokenId = Number(session.metadata.token_id ?? 0);
+            const amountUsd = Number(session.metadata.amount_usdc ?? 0);
+            if (!userId || !session.id || !tokenId || !amountUsd) {
+              return Response.json({ error: "Missing Square TBA fund metadata" }, { status: 400 });
+            }
+            const { markSquareTbaFundFromStripe } = await import("@/lib/aura-square.functions");
+            await markSquareTbaFundFromStripe({
+              userId,
+              sessionId: session.id,
+              tokenId,
+              amountUsd,
+              ...(session.metadata.fund_id ? { fundId: session.metadata.fund_id } : {}),
             });
             return Response.json({ received: true });
           }

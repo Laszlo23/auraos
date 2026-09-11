@@ -1,13 +1,15 @@
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
 import { Pulse } from "@/components/aura/primitives";
 import { useLocale } from "@/hooks/use-locale";
 import {
-  SOCIAL_LINKS,
+  padLaunchUnit,
   TOKEN_LAUNCH_DISPLAY,
   TOKEN_LAUNCH_LABEL,
-  TOKEN_LAUNCH_NOTICE_HOURS,
-} from "@/lib/site";
+  tokenLaunchRemain,
+} from "@/lib/aura-t0-clock";
+import { SOCIAL_LINKS } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
@@ -32,9 +34,19 @@ export function SocialJoinRow({ placement, className }: { placement: string; cla
   );
 }
 
+function useLaunchRemain() {
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    setNow(Date.now());
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+  return now === null ? null : tokenLaunchRemain(now);
+}
+
 /**
- * Fair-launch announce panel — no fixed public countdown.
- * Exact T-0 is published on official channels 48 hours ahead (never by DM / surprise CA).
+ * Fair-launch clock — T-0 Sunday 13 Sep 2026, 11:11 Europe/Vienna.
+ * CA still unpublished until that minute.
  */
 export function LaunchCountdown({
   variant = "hero",
@@ -48,6 +60,7 @@ export function LaunchCountdown({
   placement?: string;
 }) {
   const { t } = useLocale();
+  const remain = useLaunchRemain();
 
   if (variant === "compact") {
     return (
@@ -62,11 +75,22 @@ export function LaunchCountdown({
         <span className="text-muted-foreground">
           <span className="text-primary">{TOKEN_LAUNCH_LABEL}</span>
           {" · "}
-          {t("landing.launchCompact", { hours: TOKEN_LAUNCH_NOTICE_HOURS })}
+          {remain?.live
+            ? t("landing.launchLiveCa")
+            : t("landing.launchCompact", { when: TOKEN_LAUNCH_DISPLAY })}
         </span>
       </div>
     );
   }
+
+  const units = remain
+    ? [
+        { n: remain.days, label: t("landing.days"), pad: false },
+        { n: remain.hours, label: t("landing.hours"), pad: true },
+        { n: remain.minutes, label: t("landing.mins"), pad: true },
+        { n: remain.seconds, label: t("landing.secs"), pad: true },
+      ]
+    : null;
 
   return (
     <div className={cn("space-y-6", className)} aria-live="polite">
@@ -80,6 +104,27 @@ export function LaunchCountdown({
           {t("landing.launchOpen")}
           <span className="block text-primary">{t("landing.launchFollow")}</span>
         </p>
+        {remain?.live ? (
+          <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-primary">
+            {t("landing.launchLiveCa")}
+          </p>
+        ) : units ? (
+          <div className="mt-5 grid max-w-md grid-cols-4 gap-2">
+            {units.map((u) => (
+              <div
+                key={u.label}
+                className="rounded-2xl border border-white/10 bg-foreground/5 px-2 py-3 text-center"
+              >
+                <div className="font-display text-2xl tabular-nums tracking-tight text-foreground">
+                  {u.pad ? padLaunchUnit(u.n) : u.n}
+                </div>
+                <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {u.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           {t("landing.launchTrust")}
         </p>

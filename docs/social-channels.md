@@ -57,7 +57,9 @@ Set `LINKEDIN_SHARE_SCOPE=1` after **Share on LinkedIn** (`w_member_social`) is 
 
 Comment APIs need separate LinkedIn products — reply automation stays draft/off until approved.
 
-Once share is live, the worker seeds **one post / CEST morning** (`li-drip-2026-09`) when Autopublish is on. Do not clone the 3×/day X cadence.
+Once share is live, the worker seeds **one post / CEST morning** (`li-drip-2026-09`) when Autopublish is on. Do not clone the 3×/day X cadence. The 48h T-0 announce (`t0-announce-2026-09-13`) is a separate due-now post on X + Farcaster (LinkedIn if Share is live). No CA in that post.
+
+T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna. Runbook: `docs/AURA_T0_RUNBOOK.md`.
 
 ## TikTok
 

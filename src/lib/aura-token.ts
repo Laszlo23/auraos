@@ -10,6 +10,9 @@ export const AURA_MAX_SUPPLY_DISPLAY_DE = "777.777.777";
 export const AURA_TOKEN_CA: `0x${string}` | null = null;
 export const AURA_PAIR_URL: string | null = null;
 export const AURA_OFFICIAL_CA_SOURCES = [
+  "https://aibusiness.fun/token",
+  "https://aibusiness.fun/buy",
+  "https://aibusiness.fun/trust",
   "https://aibusiness.fun/tokenomics",
   "https://x.com/buildingcultu3",
 ] as const;
@@ -160,9 +163,9 @@ export const AURA_LOCKS = [
     id: "liquidity",
     label: "Launch liquidity",
     labelDe: "Start-Liquidität",
-    lock: "Launch LP is sent to AuraLpSink on the official Uniswap v2 USDC/AURA pair at T-0 — no withdraw, not a team wallet.",
+    lock: "Launch LP is a locked Uniswap v4 AURA/USDC FlatStart book at T-0 — $6,000 USDC at ~$0.001, 18M AURA near the first ticks. No team withdraw, not a team wallet.",
     lockDe:
-      "Die Start-LP geht bei T-0 an AuraLpSink auf dem offiziellen Uniswap-v2-USDC/AURA-Paar — kein Withdraw, keine Team-Wallet.",
+      "Die Start-LP ist bei T-0 ein gesperrtes Uniswap-v4-AURA/USDC-FlatStart-Buch — 6.000 $ USDC bei ~0,001 $, 18 Mio. AURA an den ersten Ticks. Kein Team-Withdraw, keine Team-Wallet.",
   },
   {
     id: "hood_gifts",
@@ -229,7 +232,7 @@ export const AURA_BUY_PLAN = {
     },
     {
       t: "T-0 on Base",
-      d: "We deploy AURA from a new empty wallet and seed a Uniswap v2 USDC/AURA pair. LP goes to AuraLpSink (no withdraw). Official CA is published on aibusiness.fun and X @buildingcultu3 only.",
+      d: "We deploy AURA from a new empty wallet and seed a locked Uniswap v4 AURA/USDC FlatStart book ($6,000 USDC at ~$0.001, Dynamic3 fees). Official CA + pool id are published on aibusiness.fun and X @buildingcultu3 only.",
     },
     {
       t: "First official buy",

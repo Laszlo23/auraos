@@ -233,7 +233,7 @@ export const LIGHTPAPER = {
     },
     {
       h: "Fair launch",
-      p: `${TOKEN_LAUNCH_DISPLAY}. €6k initial market-ops plan (€3k buy + €3k across 30 capped agents). Robinhood Chain for creator mints; T-0 on Base. Treasury publishes a TSLA-anchored reference basket after launch — not redemption, not wrapped stock.`,
+      p: `${TOKEN_LAUNCH_DISPLAY}. €6k initial market-ops plan (€3k buy + €3k across 30 capped agents). Robinhood Chain for creator mints; T-0 on Base Uniswap v4 (locked AURA/USDC). Treasury publishes a TSLA-anchored reference basket after launch — not redemption, not wrapped stock.`,
     },
     {
       h: "Control",

@@ -11,7 +11,7 @@ function walletConnectId(): string {
 export function SaleWalletRoot({
   children,
   wcName = "AURA Private Sale",
-  wcDescription = "Buy pAURA on Base before the Uniswap v2 launch",
+  wcDescription = "Buy pAURA on Base before the Uniswap v4 launch",
   wcUrl = "https://aibusiness.fun/sale",
 }: {
   children: ReactNode;
@@ -34,7 +34,7 @@ export function SaleWalletRoot({
                   name: wcName,
                   description: wcDescription,
                   url: wcUrl,
-                  icons: ["https://aibusiness.fun/favicon.ico"],
+                  icons: ["https://aibusiness.fun/brand/aura-mark.png"],
                 },
               }),
             ]

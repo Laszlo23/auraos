@@ -26,11 +26,13 @@ import {
   useConnectChannel,
   useDisconnectChannel,
   useLaunchDripStatus,
+  useOsMessageStatus,
   usePublishShareClip,
   usePublishSocial,
   useSetReplyMode,
   useSocialStatus,
   useStartLaunchDrip,
+  useStartOsMessageCampaign,
   useToggleAutoPublish,
   type SocialProvider,
 } from "@/hooks/use-connections";
@@ -112,7 +114,10 @@ function ChannelsPage() {
   const award = useAwardXp();
   const { data: drip } = useLaunchDripStatus();
   const startDrip = useStartLaunchDrip();
+  const { data: osMessage } = useOsMessageStatus();
+  const startOsMessage = useStartOsMessageCampaign();
   const xStatus = statuses.find((s) => s.provider === "x");
+  const fcStatus = statuses.find((s) => s.provider === "farcaster");
   const tiktokStatus = statuses.find((s) => s.provider === "tiktok");
   const metaStatus = statuses.find((s) => s.provider === "meta");
   const scheduledWaiting = posts.filter((p) => p.status === "scheduled").length;
@@ -218,7 +223,9 @@ function ChannelsPage() {
           <p className="text-[13px] leading-relaxed text-muted-foreground">
             {scheduledWaiting} post{scheduledWaiting === 1 ? "" : "s"} waiting in the queue. Turn on
             Autopublish for{" "}
-            {connectedNoAuto.map((s) => META[s.provider as keyof typeof META]?.name ?? s.provider).join(", ")}{" "}
+            {connectedNoAuto
+              .map((s) => META[s.provider as keyof typeof META]?.name ?? s.provider)
+              .join(", ")}{" "}
             above so the worker can send them live — agents never invent a “published” receipt.
           </p>
         </Panel>
@@ -573,6 +580,109 @@ function ChannelsPage() {
             {drip.preview.firstAt ? ` from ${new Date(drip.preview.firstAt).toLocaleString()}` : ""}
             {drip.preview.lastAt
               ? ` through ${new Date(drip.preview.lastAt).toLocaleString()}`
+              : ""}
+            .
+          </p>
+        ) : null}
+      </Panel>
+
+      <Panel label="OS message blast" glow>
+        <p className="text-[12px] leading-relaxed text-muted-foreground">
+          Same-day blast of 7 new clips on X (native MP4) and Farcaster (cast + watch link),
+          staggered ~25 minutes so rate limits stay happy. First posts go out as soon as the worker
+          ticks. Autopublish turns on for connected channels.
+        </p>
+        {!xStatus?.connected || !fcStatus?.connected ? (
+          <p className="mt-3 rounded-2xl bg-gold/10 px-3 py-2 text-[12px] text-gold">
+            Connect both X and Farcaster above, then fire the blast.
+          </p>
+        ) : null}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            disabled={!xStatus?.connected || !fcStatus?.connected || startOsMessage.isPending}
+            onClick={() =>
+              startOsMessage.mutate(
+                { x: true, farcaster: true },
+                {
+                  onSuccess: (res) => {
+                    notify.success(
+                      res.created
+                        ? `Queued ${res.created} OS-message posts${res.skipped ? ` (${res.skipped} already set)` : ""}.`
+                        : res.skipped
+                          ? "OS message blast already seeded."
+                          : "Blast ready.",
+                    );
+                    celebrate("OS message armed", 120, "channels:os-message");
+                    void triggerWorkerTick({ data: {} }).catch(() => undefined);
+                  },
+                  onError: (e) =>
+                    notify.error(e instanceof Error ? e.message : "Could not start blast"),
+                },
+              )
+            }
+            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {startOsMessage.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
+            {osMessage?.seeded ? "Re-queue OS message blast" : "Fire OS message blast"}
+          </button>
+          <Chip>
+            {osMessage?.seeded
+              ? `${osMessage.posts.length} in queue`
+              : osMessage?.preview
+                ? `Preview · ${osMessage.preview.count} slots`
+                : "Not seeded"}
+          </Chip>
+        </div>
+        {osMessage?.posts && osMessage.posts.length > 0 ? (
+          <ul className="mt-4 max-h-56 space-y-2 overflow-y-auto">
+            {osMessage.posts.slice(0, 14).map((p) => (
+              <li
+                key={p.id}
+                className="rounded-xl border border-border/40 bg-foreground/[0.03] px-3 py-2"
+              >
+                <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                  <span>
+                    {p.provider} · {p.status}
+                  </span>
+                  <span className="num normal-case tracking-normal">
+                    {p.scheduled_at
+                      ? new Date(p.scheduled_at).toLocaleString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—"}
+                  </span>
+                </div>
+                <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-foreground/90">
+                  {p.body}
+                </p>
+                {p.external_url ? (
+                  <a
+                    href={p.external_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-block text-[11px] text-primary hover:underline"
+                  >
+                    Open post
+                  </a>
+                ) : null}
+                {p.error ? <p className="mt-1 text-[11px] text-destructive">{p.error}</p> : null}
+              </li>
+            ))}
+          </ul>
+        ) : osMessage?.preview ? (
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Will schedule {osMessage.preview.xCount} on X + {osMessage.preview.farcasterCount} on
+            Farcaster
+            {osMessage.preview.firstAt
+              ? ` from ${new Date(osMessage.preview.firstAt).toLocaleString()}`
               : ""}
             .
           </p>
@@ -988,9 +1098,7 @@ function ChannelsPage() {
                 {post.status === "scheduled" && !post.external_url ? (
                   <p className="mt-2 text-[11px] text-gold">
                     Queued — turn on Autopublish for this channel to go live
-                    {post.scheduled_at
-                      ? ` · due ${timeAgo(post.scheduled_at)}`
-                      : ""}
+                    {post.scheduled_at ? ` · due ${timeAgo(post.scheduled_at)}` : ""}
                   </p>
                 ) : null}
                 {post.error ? (

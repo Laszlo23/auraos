@@ -1,14 +1,32 @@
+import { T0_ANNOUNCE_POST, T0_ANNOUNCE_POST_FC, T0_ANNOUNCE_POST_X } from "@/lib/aura-t0-clock";
 import { SHARE_POSTS, shareWatchUrl } from "@/lib/share-posts";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 import { tickpixRaidOpen } from "@/lib/tickpix";
 
-/** Stable campaign id for fair-launch drip (rolling schedule — no fixed T-0 clock). */
+/** Stable campaign id for fair-launch drip (rolling schedule through T-0). */
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
+/** One-shot 48h T-0 announce (no CA). Distinct from the rolling drip keys. */
+export const T0_ANNOUNCE_CAMPAIGN = "t0-announce-2026-09-13";
 /** Farcaster sister drip — same windows, cast-length copy. */
 export const FARCASTER_DRIP_CAMPAIGN = "fc-drip-2026-09";
 /** LinkedIn campaign — one professional post / day (not the 3× X cadence). */
 export const LINKEDIN_DRIP_CAMPAIGN = "li-drip-2026-09";
+/** Same-day OS message blast — 7 clips staggered on X + Farcaster. */
+export const OS_MESSAGE_CAMPAIGN = "os-message-2026-09";
 export const LINKEDIN_MAX_SLOTS = 14;
+/** Minutes between OS-message blast slots (same day). */
+export const OS_MESSAGE_STAGGER_MS = 25 * 60 * 1000;
+
+/** Clip order for the OS message blast (share-kit ids). */
+export const OS_MESSAGE_IDS = [
+  "aichanging",
+  "concept",
+  "nosaas",
+  "osos",
+  "winos-winner",
+  "workflow",
+  "worktogether",
+] as const;
 
 /** How far ahead to keep scheduled when no public T-0 date is published. */
 export const DRIP_HORIZON_MS = 14 * 24 * 60 * 60 * 1000;
@@ -143,6 +161,41 @@ const X_LINES: Record<string, string[]> = {
     "Not a chat window — a company you own.",
     "15s. Sound optional. Brains required.",
   ],
+  aichanging: [
+    "AI is changing work. Own the company — don't rent another chatbot.",
+    "The shift isn't better prompts. It's owning the company agents work for.",
+    "AI changed the job. Own the OS that runs it.",
+  ],
+  concept: [
+    "The concept: a company OS. Not another chatbot.",
+    "You name it. Agents wake up. You approve spend.",
+    "Not a chat window with a price tag — a company you own.",
+  ],
+  nosaas: [
+    "Lonely SaaS dashboards are dead. Own a company instead.",
+    "Stop stacking subscriptions. Start owning the OS.",
+    "Another tab won't compound. A company will.",
+  ],
+  osos: [
+    "OS > SaaS. You own the company. Agents execute.",
+    "Rent a tool → their upside. Own the company → yours.",
+    "Software that runs a company — not another monthly seat.",
+  ],
+  "winos-winner": [
+    "Winners run an OS — not a subscription pile.",
+    "Winners don't collect tabs. They run an OS.",
+    "Subscription pile vs company OS. Guess which compounds.",
+  ],
+  workflow: [
+    "Agents execute the workflow. You approve spend and outbound.",
+    "Autonomy with a leash. That's the product.",
+    "Nothing moves a dollar without your approval.",
+  ],
+  worktogether: [
+    "You + AI crew. Working together — not replacing you.",
+    "They draft and ship. You decide.",
+    "Own the company. Work with the agents.",
+  ],
 };
 
 const TICKPIX_PIT_PUBLIC_LINES = [
@@ -225,7 +278,11 @@ function clipBody(sharePostId: string, lineIndex: number, at: Date | number = Da
 }
 
 /** Farcaster cast body — shorter, embed-friendly (Neynar embeds the watch URL). */
-function farcasterCastBody(sharePostId: string, lineIndex: number, at: Date | number = Date.now()): string {
+function farcasterCastBody(
+  sharePostId: string,
+  lineIndex: number,
+  at: Date | number = Date.now(),
+): string {
   const lines = dripLinesFor(sharePostId, at);
   const line = lines[lineIndex % lines.length]!;
   if (sharePostId === "make-good") {
@@ -245,9 +302,91 @@ function farcasterCastBody(sharePostId: string, lineIndex: number, at: Date | nu
   return body.slice(0, 320);
 }
 
+export type T0AnnounceSlot = {
+  provider: "x" | "farcaster" | "linkedin";
+  campaignKey: string;
+  sharePostId: string;
+  body: string;
+  scheduledAt: string;
+};
+
+/** Due-now 48h T-0 announce. No CA. Idempotent campaign keys. */
+export function buildT0AnnounceSlots(nowMs: number = Date.now()): T0AnnounceSlot[] {
+  const scheduledAt = new Date(nowMs).toISOString();
+  return [
+    {
+      provider: "x",
+      campaignKey: `${T0_ANNOUNCE_CAMPAIGN}#x`,
+      sharePostId: "t0-announce",
+      body: T0_ANNOUNCE_POST_X,
+      scheduledAt,
+    },
+    {
+      provider: "farcaster",
+      campaignKey: `${T0_ANNOUNCE_CAMPAIGN}#farcaster`,
+      sharePostId: "t0-announce",
+      body: T0_ANNOUNCE_POST_FC,
+      scheduledAt,
+    },
+    {
+      provider: "linkedin",
+      campaignKey: `${T0_ANNOUNCE_CAMPAIGN}#linkedin`,
+      sharePostId: "t0-announce",
+      body: T0_ANNOUNCE_POST,
+      scheduledAt,
+    },
+  ];
+}
+
+export type OsMessageSlot = {
+  provider: "x" | "farcaster";
+  campaignKey: string;
+  sharePostId: string;
+  body: string;
+  scheduledAt: string;
+};
+
+/**
+ * Same-day OS message blast: 7 X + 7 FC slots, staggered ~25 min.
+ * First slot is due immediately. Idempotent keys: os-message-2026-09#{id}#{provider}
+ */
+export function buildOsMessageSlots(nowMs: number = Date.now()): OsMessageSlot[] {
+  const slots: OsMessageSlot[] = [];
+  OS_MESSAGE_IDS.forEach((id, index) => {
+    const atMs = nowMs + index * OS_MESSAGE_STAGGER_MS;
+    const scheduledAt = new Date(atMs).toISOString();
+    slots.push({
+      provider: "x",
+      campaignKey: `${OS_MESSAGE_CAMPAIGN}#${id}#x`,
+      sharePostId: id,
+      body: clipBody(id, index, atMs),
+      scheduledAt,
+    });
+    slots.push({
+      provider: "farcaster",
+      campaignKey: `${OS_MESSAGE_CAMPAIGN}#${id}#farcaster`,
+      sharePostId: id,
+      body: farcasterCastBody(id, index, atMs),
+      scheduledAt,
+    });
+  });
+  return slots;
+}
+
+export function osMessageSummary(slots: OsMessageSlot[] = buildOsMessageSlots()) {
+  return {
+    campaign: OS_MESSAGE_CAMPAIGN,
+    count: slots.length,
+    xCount: slots.filter((s) => s.provider === "x").length,
+    farcasterCount: slots.filter((s) => s.provider === "farcaster").length,
+    firstAt: slots[0]?.scheduledAt ?? null,
+    lastAt: slots[slots.length - 1]?.scheduledAt ?? null,
+  };
+}
+
 /**
  * Build the fair-launch X drip: ~2–3 posts/day for the next ~14 days
- * (until an official 48h T-0 announce lands), skipping quiet hours (before 07:00 CEST).
+ * through T-0, skipping quiet hours (before 07:00 CEST).
  * Idempotent keys: launch-drip-2026-08#YYYY-MM-DDTHH
  * Worker re-runs this on each tick so the horizon never runs dry.
  */
@@ -313,10 +452,7 @@ export function buildFarcasterDripSchedule(fromMs: number = Date.now()): LaunchD
  * Slots that should already have posted between [fromMs, toMs].
  * Used to backfill gaps when the worker was down or seeding started late.
  */
-export function buildMissedDripSlots(
-  fromMs: number,
-  toMs: number = Date.now(),
-): LaunchDripSlot[] {
+export function buildMissedDripSlots(fromMs: number, toMs: number = Date.now()): LaunchDripSlot[] {
   if (!(toMs > fromMs)) return [];
   return buildLaunchDripSchedule(fromMs).filter((s) => {
     const at = Date.parse(s.scheduledAt);

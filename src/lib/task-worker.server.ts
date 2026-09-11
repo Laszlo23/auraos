@@ -84,16 +84,17 @@ export async function publishDueChannelPosts(limit = 20, companyId?: string) {
       }
 
       const { sharePostIdFromBody } = await import("@/lib/share-media.server");
+      const { getSharePost } = await import("@/lib/share-posts");
       const fromCol =
         typeof post.share_post_id === "string" && post.share_post_id.trim()
           ? post.share_post_id.trim()
           : null;
       const fromBody = sharePostIdFromBody(String(post.body ?? ""));
-      // X, TikTok, and Meta (IG reels/image) can attach share-kit clips.
-      const sharePostId =
+      const candidate =
         provider === "x" || provider === "tiktok" || provider === "meta"
           ? fromCol || fromBody
           : fromCol;
+      const sharePostId = candidate && getSharePost(candidate) ? candidate : undefined;
 
       const result = await publishToProvider(provider, post.company_id, post.body, {
         replyToExternalId: post.reply_to_external_id,

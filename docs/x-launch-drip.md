@@ -58,6 +58,22 @@ Each entry in `SHARE_POSTS` needs:
 | `makemoney2`     | `makemoney2.mp4`                 | Punchier CTA cut                      |
 | (+ kit classics) | `meanwhile`, `aprove`, `wait`, … | Rotated into the drip after the five  |
 
+### OS message blast (Sep 2026)
+
+Campaign key: `os-message-2026-09`. Same-day staggered blast (~25 min apart) on **X + Farcaster**. Start from Channels → **Fire OS message blast**.
+
+| id               | file                 | angle                                      |
+| ---------------- | -------------------- | ------------------------------------------ |
+| `aichanging`     | `aichanging.mp4`     | AI is changing work — own the company      |
+| `concept`        | `concept.mp4`        | Company OS, not another chatbot            |
+| `nosaas`         | `nosaas.mp4`         | Lonely SaaS dashboards are dead            |
+| `osos`           | `osos.mp4`           | OS > SaaS                                  |
+| `winos-winner`   | `winos_winner.mp4`   | Winners run an OS, not a subscription pile |
+| `workflow`       | `workflow.mp4`       | Agents execute; you approve                |
+| `worktogether`   | `worktogether.mp4`   | You + AI crew working together             |
+
+X attaches native MP4 (`media_kind=share_clip`). Farcaster is cast text + `/v/{id}` watch link (no native video upload).
+
 Generate a poster:
 
 ```bash
@@ -87,7 +103,7 @@ Connect X (OAuth)
 ```
 
 - Cadence: slots at **09:14 / 13:14 / 18:14 CEST**, quiet before 07:00.
-- Schedules ~2–3 posts/day for a rolling ~14-day horizon (until an official 48h T-0 announce lands) from [`src/lib/site.ts`](../src/lib/site.ts) (`TOKEN_LAUNCH_DISPLAY` = announced 48 hours before T-0).
+- Schedules ~2–3 posts/day for a rolling ~14-day horizon through T-0 from [`src/lib/aura-t0-clock.ts`](../src/lib/aura-t0-clock.ts) (`TOKEN_LAUNCH_DISPLAY` = Sunday 13 Sep 2026, 11:11 Europe/Vienna). One-shot 48h announce: `t0-announce-2026-09-13` (no CA).
 - Bodies are ≤280 chars: short line + `https://aibusiness.fun/v/{postId}`.
 - Worker attaches the native MP4 when the X token includes `media.write` (reconnect Channels → X after scope add).
 - Humans can still download MP4s from `/share`.

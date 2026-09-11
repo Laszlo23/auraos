@@ -1,6 +1,8 @@
 /**
  * Hookr.fun — Uniswap v4 readable hooks on Robinhood Chain.
  * Infrastructure partner for RH launches/LP — not an airdrop portal, not Culture Coin sequel.
+ * Optional wrapped-AURA Hookr pool is Phase 4 only (docs/AURA_RH_WRAPPER.md).
+ * Never a second official AURA CA at T-0 — canonical token stays on Base.
  */
 
 export const HOOKR = {
@@ -17,9 +19,9 @@ export const HOOKR = {
 
 export const HOOKR_COPY = {
   blurb:
-    "Modular Uniswap v4 hooks on Robinhood Chain. Rules are fixed at pool open — read them before you sign. Official links only: hookr.fun · @hookrfun.",
+    "Modular Uniswap v4 hooks on Robinhood Chain. Rules are fixed at pool open — read them before you sign. Official links only: hookr.fun · @hookrfun. AURA’s official CA is on Base; a Hookr wrapper is optional and later.",
   blurbDe:
-    "Modulare Uniswap-v4-Hooks auf Robinhood Chain. Regeln sind beim Pool-Open fix — lesen vor dem Signieren. Nur offizielle Links: hookr.fun · @hookrfun.",
+    "Modulare Uniswap-v4-Hooks auf Robinhood Chain. Regeln sind beim Pool-Open fix — lesen vor dem Signieren. Nur offizielle Links: hookr.fun · @hookrfun. Die offizielle AURA-CA liegt auf Base; ein Hookr-Wrapper ist optional und später.",
   security:
     "Hookr does not run airdrop/claim portals and does not initiate support DMs. A real contract address does not make a random URL legitimate.",
   securityDe:

@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useState } from "react";
 
+import { AuraOfficialTape } from "@/components/aura/aura-official-tape";
+import { AuraTokenIdentity } from "@/components/aura/aura-token-identity";
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import {
   PublicMobileMenu,
@@ -26,7 +28,7 @@ import { visibleRefetchInterval } from "@/hooks/use-aura";
 
 const TITLE = "AURA Private Sale — pAURA";
 const DESCRIPTION =
-  "Buy pAURA on Base before AURA launches. 1 pAURA becomes 1.11 AURA at Uniswap v2 T-0.";
+  "Buy pAURA on Base before AURA launches. 1 pAURA becomes 1.11 AURA at Uniswap v4 T-0.";
 
 export const Route = createFileRoute("/sale")({
   loader: async () => {
@@ -122,6 +124,9 @@ function SalePage() {
             {t("sale.title")}
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t("sale.lead")}</p>
+          <div className="mt-5">
+            <AuraTokenIdentity de={locale === "de"} compact />
+          </div>
         </header>
 
         <ol className="space-y-4">
@@ -321,6 +326,8 @@ function SalePage() {
             </p>
           )}
         </section>
+
+        <AuraOfficialTape de={locale === "de"} />
 
         <p className="text-[12px] leading-relaxed text-muted-foreground">{t("sale.disclaimer")}</p>
         {contract ? (

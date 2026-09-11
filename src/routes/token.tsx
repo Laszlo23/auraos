@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { lazy, Suspense } from "react";
 
+import { AuraOfficialCas } from "@/components/aura/aura-official-cas";
+import { AuraOfficialTape } from "@/components/aura/aura-official-tape";
+import { AuraTokenIdentity } from "@/components/aura/aura-token-identity";
 import { LanguageToggle } from "@/components/aura/language-toggle";
 import { NftDeskPlaybookPanel } from "@/components/aura/nft-desk-playbook";
 import {
@@ -21,13 +24,11 @@ import {
 } from "@/lib/aura-launch";
 import {
   AURA_OFFICIAL_CA_SOURCES,
-  AURA_PAIR_URL,
   auraCaLive,
 } from "@/lib/aura-token";
-import { auraPairAddress, auraTokenAddress } from "@/lib/aura-self-launch";
 import { num } from "@/lib/format";
 import { OG_CAMPAIGN, ogCampaignUrl } from "@/lib/og-campaign";
-import { PRIVATE_SALE_BONUS_BPS, privateSaleBasescan } from "@/lib/private-sale";
+import { PRIVATE_SALE_BONUS_BPS } from "@/lib/private-sale";
 import { getPrivateSaleLive } from "@/lib/private-sale.functions";
 import {
   loc,
@@ -93,8 +94,6 @@ function TokenInvestorPage() {
     refetchInterval: visibleRefetchInterval(20_000),
   });
   const stats = liveQ.data ?? live;
-  const ca = auraTokenAddress();
-  const pair = auraPairAddress();
   const caLive = auraCaLive();
   const launchMultiple = 1 + PRIVATE_SALE_BONUS_BPS / 10_000;
 
@@ -118,8 +117,11 @@ function TokenInvestorPage() {
             ← Home
           </Link>
           <nav className="ml-auto hidden flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em] md:flex">
-            <Link to="/sale" className="text-muted-foreground hover:text-foreground">
-              {de ? "Kaufen" : "Buy"}
+            <Link to="/buy" className="text-muted-foreground hover:text-foreground">
+              {de ? "AURA kaufen" : "Buy AURA"}
+            </Link>
+            <Link to="/swap" className="text-muted-foreground hover:text-foreground">
+              Swap
             </Link>
             <Link to="/hood" className="text-gold hover:text-gold/90">
               Hood
@@ -151,18 +153,22 @@ function TokenInvestorPage() {
             ? "Den Token besitzen — OS optional."
             : "Own the token — OS optional."}
         </p>
-        <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-muted-foreground">
-          {de
-            ? "Kauf → Claim → Hold. Kein Fake-Aktienanspruch. TSLA ist Referenz-Peg, kein RWA."
-            : "Buy → claim → hold. No fake share claim. TSLA is a reference peg, not RWA."}
-        </p>
+        <div className="mt-6">
+          <AuraTokenIdentity de={de} />
+        </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
-            to="/sale"
+            to="/buy"
             className="cta-liquid flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
           >
-            {de ? "pAURA kaufen" : "Buy pAURA"} <ArrowRight className="h-4 w-4" />
+            {de ? "AURA kaufen" : "Buy AURA"} <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            to="/sale"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-border/50 px-7 py-4 text-sm font-semibold"
+          >
+            {de ? "pAURA kaufen" : "Buy pAURA"}
           </Link>
           <Link
             to="/hood"
@@ -215,6 +221,10 @@ function TokenInvestorPage() {
             {de ? "Zur Private Sale →" : "Open private sale →"}
           </Link>
         </section>
+
+        <div className="mt-16">
+          <AuraOfficialTape de={de} />
+        </div>
 
         {/* Wallet strip */}
         <div className="mt-10">
@@ -283,40 +293,24 @@ function TokenInvestorPage() {
           <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
             {de ? "Offizielle Quellen" : "Official sources only"}
           </h2>
-          {caLive && ca ? (
-            <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/[0.06] p-4">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-primary">
-                AURA CA
-              </p>
-              <a
-                href={privateSaleBasescan(`/token/${ca}`)}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-2 block break-all font-mono text-[13px] text-foreground hover:text-primary"
-              >
-                {ca}
-              </a>
-              {pair || AURA_PAIR_URL ? (
-                <a
-                  href={
-                    AURA_PAIR_URL ??
-                    (pair ? privateSaleBasescan(`/address/${pair}`) : "#")
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-2 inline-block text-[13px] font-semibold text-primary hover:underline"
-                >
-                  {de ? "Pair / Basescan →" : "Pair / Basescan →"}
-                </a>
-              ) : null}
-            </div>
-          ) : (
+          <div className="mt-4">
+            <AuraOfficialCas de={de} />
+          </div>
+          {!caLive ? (
             <p className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[13px] leading-relaxed">
               {de
-                ? `CA veröffentlicht bei T-0 (${TOKEN_LAUNCH_DISPLAY}). Nie Screenshots oder DMs vertrauen.`
-                : `CA publishes at T-0 (${TOKEN_LAUNCH_DISPLAY}). Never trust screenshots or DMs.`}
+                ? `CA veröffentlicht bei T-0 (${TOKEN_LAUNCH_DISPLAY}). Uni v4 AURA/USDC, gesperrte LP. Nie Screenshots oder DMs vertrauen.`
+                : `CA publishes at T-0 (${TOKEN_LAUNCH_DISPLAY}). Uni v4 AURA/USDC, locked LP. Never trust screenshots or DMs.`}
             </p>
-          )}
+          ) : null}
+          <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
+            {de
+              ? "Ein Software-Token. TICKPIX, Hood und CCFF00 bleiben NFTs. Kein zweiter Culture Coin."
+              : "One software token. TICKPIX, Hood, and CCFF00 stay NFTs. No second Culture Coin."}{" "}
+            <Link to="/swap" className="font-semibold text-primary hover:underline">
+              /swap
+            </Link>
+          </p>
           <ul className="mt-4 space-y-2">
             {AURA_OFFICIAL_CA_SOURCES.map((s) => (
               <li key={s}>
@@ -412,8 +406,8 @@ function TokenInvestorPage() {
           </p>
           <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
             {de
-              ? "Lesbare Uniswap-v4-Hooks für zukünftige RH-Launches — Regeln vor dem Signieren. Offiziell: "
-              : "Readable Uniswap v4 hooks for future RH launches — rules before you sign. Official: "}
+              ? "Lesbare Uniswap-v4-Hooks für einen späteren RH-Wrapper — erst wenn das Base-Buch tief ist, nie eine zweite offizielle CA bei T-0. Regeln vor dem Signieren. Offiziell: "
+              : "Readable Uniswap v4 hooks for a later RH wrapper — only after the Base book is deep, never a second official CA at T-0. Rules before you sign. Official: "}
             <a
               href="https://hookr.fun/"
               target="_blank"

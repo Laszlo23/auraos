@@ -43,31 +43,40 @@ export function VerifyStrip({ compact = false, de = false }: { compact?: boolean
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               {item.label}
             </p>
-            <p className="mt-1 break-all font-mono text-[12px] text-foreground/90">{item.ca}</p>
+            <p className="mt-1 break-all font-mono text-[12px] text-foreground/90">
+              {item.ca ??
+                (de
+                  ? "Noch nicht veröffentlicht — 48h-Ankündigung zuerst."
+                  : "Unpublished — 48h announce first.")}
+            </p>
             <p className="mt-1 text-[11px] text-muted-foreground">{item.note}</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void copyCa(item.id, item.ca)}
-                className="inline-flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] hover:border-primary/40 hover:text-primary"
-              >
-                {copied === item.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                {copied === item.id
-                  ? de
-                    ? "Kopiert"
-                    : "Copied"
-                  : de
-                    ? "CA kopieren"
-                    : "Copy CA"}
-              </button>
-              <a
-                href={item.explorerUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] hover:border-primary/40 hover:text-primary"
-              >
-                Blockscout <ExternalLink className="h-3 w-3" />
-              </a>
+              {item.ca ? (
+                <button
+                  type="button"
+                  onClick={() => void copyCa(item.id, item.ca!)}
+                  className="inline-flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] hover:border-primary/40 hover:text-primary"
+                >
+                  {copied === item.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {copied === item.id
+                    ? de
+                      ? "Kopiert"
+                      : "Copied"
+                    : de
+                      ? "CA kopieren"
+                      : "Copy CA"}
+                </button>
+              ) : null}
+              {item.ca ? (
+                <a
+                  href={item.explorerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full border border-border/50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] hover:border-primary/40 hover:text-primary"
+                >
+                  Blockscout <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : null}
               <a
                 href={item.mintUrl}
                 target="_blank"

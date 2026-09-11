@@ -36,8 +36,8 @@ export type PublicNavItem = {
   to: string;
   label: string;
   hash?: string;
-  /** Gold accent (e.g. Hood) */
-  accent?: "gold";
+  /** Lime accent (e.g. Hood) */
+  accent?: "lime";
 };
 
 /** Always visible on desktop — keep this short. */
@@ -46,7 +46,7 @@ export function publicNavPrimary(t: (key: string) => string): PublicNavItem[] {
     { to: "/how-it-works", label: t("landing.navHow") },
     { to: "/pricing", label: t("landing.navPricing") },
     { to: "/token", label: t("landing.navToken") },
-    { to: "/hood", label: t("landing.navHood"), accent: "gold" },
+    { to: "/hood", label: t("landing.navHood"), accent: "lime" },
   ];
 }
 
@@ -60,6 +60,9 @@ export function publicNavMore(t: (key: string) => string): PublicNavItem[] {
     { to: "/lokal", label: t("landing.navLokal") },
     { to: "/proof", label: t("landing.navProof") },
     { to: "/tokenomics", label: t("landing.navTokenomics") },
+    { to: "/buy", label: t("landing.navBuy") },
+    { to: "/swap", label: t("landing.navSwap") },
+    { to: "/square", label: t("landing.navSquare") },
     { to: "/sale", label: t("landing.navSale") },
     { to: "/wien", label: t("landing.navWien") },
   ];
@@ -89,6 +92,9 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "/proof": ShieldCheck,
   "/token": Coins,
   "/tokenomics": Coins,
+  "/buy": Coins,
+  "/swap": Coins,
+  "/square": Coins,
   "/sale": Tag,
   "/wien": Landmark,
 };
@@ -105,9 +111,9 @@ function NavHairline({ className }: { className?: string }) {
 function NavSectionRule() {
   return (
     <div className="my-1.5 flex items-center gap-3 px-4" aria-hidden>
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/35 to-transparent" />
-      <span className="text-[8px] text-gold/50">◆</span>
-      <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gold/35 to-transparent" />
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neon-lime/35 to-transparent" />
+      <span className="text-[8px] text-neon-lime/50">◆</span>
+      <div className="h-px flex-1 bg-gradient-to-l from-transparent via-neon-lime/35 to-transparent" />
     </div>
   );
 }
@@ -122,7 +128,7 @@ function MobileNavRow({
   onClick: () => void;
 }) {
   const Icon = NAV_ICONS[item.to] ?? Sparkles;
-  const gold = item.accent === "gold";
+  const lime = item.accent === "lime";
 
   return (
     <Link
@@ -133,8 +139,8 @@ function MobileNavRow({
         "flex items-center gap-3 rounded-xl px-3 py-2 text-[15px] font-medium tracking-tight transition-colors",
         active
           ? "bg-primary/12 text-foreground"
-          : gold
-            ? "text-gold hover:bg-gold/10"
+          : lime
+            ? "text-neon-lime hover:bg-neon-lime/10"
             : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
       )}
     >
@@ -143,8 +149,8 @@ function MobileNavRow({
           "grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition-colors",
           active
             ? "border-primary/30 bg-primary/10 text-primary"
-            : gold
-              ? "border-gold/25 bg-gold/10 text-gold"
+            : lime
+              ? "border-neon-lime/25 bg-neon-lime/10 text-neon-lime"
               : "border-border/40 bg-foreground/[0.04] text-muted-foreground",
         )}
       >
@@ -202,10 +208,10 @@ function NavLink({
       onClick={onClick}
       className={cn(
         "rounded-xl px-3 py-2 text-sm font-medium transition-colors",
-        item.accent === "gold"
+        item.accent === "lime"
           ? active
-            ? "text-gold"
-            : "text-gold/85 hover:text-gold"
+            ? "text-neon-lime"
+            : "text-neon-lime/85 hover:text-neon-lime"
           : active
             ? "text-foreground"
             : "text-muted-foreground hover:text-foreground",
@@ -469,7 +475,7 @@ export function PublicSiteHeader({
           {ghostCta ? (
             <a
               href={ghostCta.href}
-              className="hidden rounded-xl border border-gold/35 px-3 py-2 text-sm font-semibold text-gold/90 transition-colors hover:border-gold/55 hover:text-gold md:inline-flex"
+              className="hidden rounded-xl border border-neon-lime/35 px-3 py-2 text-sm font-semibold text-neon-lime/90 transition-colors hover:border-neon-lime/55 hover:text-neon-lime md:inline-flex"
             >
               {ghostCta.label}
             </a>

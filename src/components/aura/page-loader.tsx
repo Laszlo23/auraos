@@ -33,7 +33,7 @@ export function PageProgress() {
     >
       <div
         className={cn(
-          "h-full w-full origin-left bg-gradient-to-r from-primary via-gold to-primary transition-opacity duration-300",
+          "h-full w-full origin-left bg-gradient-to-r from-primary via-street-teal to-primary transition-opacity duration-300",
           visible ? "opacity-100" : "opacity-0",
           busy && "animate-[page-loader-slide_1.1s_ease-in-out_infinite]",
         )}

@@ -72,4 +72,13 @@ describe("quest registry", () => {
     expect(QUEST_REGISTRY.some((q) => q.key === "ccff00:verify")).toBe(true);
     expect(repForEvent("ccff00:verify")).toBeGreaterThan(0);
   });
+
+  it("includes AURA curve quests without a second ticker", () => {
+    expect(QUEST_REGISTRY.some((q) => q.key === "aura:first-swap")).toBe(true);
+    expect(QUEST_REGISTRY.some((q) => q.key === "aura:lp-week")).toBe(true);
+    expect(QUEST_REGISTRY.some((q) => q.key === "aura:burn-seen")).toBe(true);
+    expect(WEEKLY_QUEST_KEYS).toContain("aura:lp-week");
+    expect(repForEvent("aura:first-swap")).toBe(5);
+    expect(repForEvent("aura:burn-seen")).toBe(1);
+  });
 });

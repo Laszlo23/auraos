@@ -30,6 +30,8 @@ const PUBLIC_MARKETING_ROUTES = [
   "/wien",
   "/tokenomics",
   "/token",
+  "/swap",
+  "/square",
   "/sale",
   "/whitepaper",
   "/how-it-works",

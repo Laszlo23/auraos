@@ -1,15 +1,22 @@
 import { describe, expect, it } from "vitest";
 
+import { T0_ANNOUNCE_POST_X } from "@/lib/aura-t0-clock";
 import {
   ALL_CHANNELS_FIRE_BODY,
   DRIP_HORIZON_MS,
   DRIP_MAX_SLOTS,
   LINKEDIN_MAX_SLOTS,
+  T0_ANNOUNCE_CAMPAIGN,
   buildFarcasterDripSchedule,
   buildLaunchDripSchedule,
   buildLinkedInDripSchedule,
   buildMissedDripSlots,
+  buildT0AnnounceSlots,
   linkedInCampaignLaunchPost,
+  buildOsMessageSlots,
+  OS_MESSAGE_CAMPAIGN,
+  OS_MESSAGE_IDS,
+  OS_MESSAGE_STAGGER_MS,
 } from "@/lib/x-launch-campaign";
 
 describe("buildLaunchDripSchedule", () => {
@@ -66,5 +73,37 @@ describe("buildLaunchDripSchedule", () => {
     expect(li.every((s) => s.body.length <= 3000)).toBe(true);
     expect(linkedInCampaignLaunchPost().length).toBeGreaterThan(80);
     expect(ALL_CHANNELS_FIRE_BODY.length).toBeLessThanOrEqual(280);
+  });
+
+  it("queues a due-now T-0 announce with no CA and distinct keys", () => {
+    const slots = buildT0AnnounceSlots(Date.parse("2026-09-11T10:31:00+02:00"));
+    const keys = slots.map((s) => s.campaignKey);
+    expect(keys).toEqual([
+      `${T0_ANNOUNCE_CAMPAIGN}#x`,
+      `${T0_ANNOUNCE_CAMPAIGN}#farcaster`,
+      `${T0_ANNOUNCE_CAMPAIGN}#linkedin`,
+    ]);
+    expect(slots[0]?.body).toBe(T0_ANNOUNCE_POST_X);
+    expect(slots.every((s) => !/0x[a-fA-F0-9]{40}/.test(s.body))).toBe(true);
+    expect(slots[0]!.body.length).toBeLessThanOrEqual(280);
+    expect(slots[1]!.body.length).toBeLessThanOrEqual(320);
+  });
+
+  it("builds an OS message blast: 14 slots, staggered, length-safe", () => {
+    const now = Date.parse("2026-09-11T20:00:00+02:00");
+    const slots = buildOsMessageSlots(now);
+    const keys = slots.map((s) => s.campaignKey);
+    expect(slots).toHaveLength(OS_MESSAGE_IDS.length * 2);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(slots.every((s) => s.campaignKey.startsWith(OS_MESSAGE_CAMPAIGN))).toBe(true);
+    expect(slots.filter((s) => s.provider === "x")).toHaveLength(OS_MESSAGE_IDS.length);
+    expect(slots.filter((s) => s.provider === "farcaster")).toHaveLength(OS_MESSAGE_IDS.length);
+    expect(slots.filter((s) => s.provider === "x").every((s) => s.body.length <= 280)).toBe(true);
+    expect(
+      slots.filter((s) => s.provider === "farcaster").every((s) => s.body.length <= 320),
+    ).toBe(true);
+    expect(Date.parse(slots[0]!.scheduledAt)).toBe(now);
+    expect(Date.parse(slots[2]!.scheduledAt) - now).toBe(OS_MESSAGE_STAGGER_MS);
+    expect(OS_MESSAGE_IDS.every((id) => keys.some((k) => k.includes(`#${id}#`)))).toBe(true);
   });
 });

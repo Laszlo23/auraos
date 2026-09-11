@@ -188,7 +188,7 @@ function Landing() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-gold"
+            className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-neon-lime"
           >
             {t("landing.act1")}
           </motion.p>
@@ -202,7 +202,7 @@ function Landing() {
               transition={{ duration: 1, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className="text-money inline-block"
               style={{
-                textShadow: "0 0 60px rgba(207, 255, 4, 0.5), 0 0 30px rgba(255, 107, 0, 0.4)",
+                textShadow: "0 0 60px rgba(207, 255, 4, 0.5)",
               }}
             >
               {t("landing.hero2")}
@@ -268,14 +268,14 @@ function Landing() {
               <Link
                 to="/token"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_token" })}
-                className="inline-flex items-center gap-2 text-[15px] font-bold text-magma underline-offset-4 transition-all hover:underline hover:drop-shadow-[0_0_8px_rgba(255,107,0,0.6)]"
+                className="inline-flex items-center gap-2 text-[15px] font-bold text-street-teal underline-offset-4 transition-all hover:underline hover:drop-shadow-[0_0_8px_rgba(114,223,221,0.6)]"
               >
                 {t("landing.tokenOnlyCta")}
               </Link>
               <Link
                 to="/hood"
                 onClick={() => trackTeaser("cta_click", { placement: "landing_hero_hood" })}
-                className="inline-flex items-center gap-2 rounded-full border-2 border-gold/60 bg-gradient-to-r from-gold/20 to-magma/15 px-4 py-2 text-[14px] font-black uppercase tracking-wide text-gold shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all hover:border-gold hover:bg-gold/25 hover:shadow-[0_0_32px_rgba(255,215,0,0.5)]"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-neon-lime/60 bg-neon-lime/15 px-4 py-2 text-[14px] font-black uppercase tracking-wide text-neon-lime shadow-[0_0_20px_rgba(207,255,4,0.28)] transition-all hover:border-neon-lime hover:bg-neon-lime/25 hover:shadow-[0_0_32px_rgba(207,255,4,0.45)]"
               >
                 {t("landing.navHood")} · {t("landing.hoodCue")} <ArrowRight className="h-4 w-4" />
               </Link>
@@ -297,7 +297,7 @@ function Landing() {
             transition={{ duration: 0.9, delay: 0.75 }}
             className="mt-16"
           >
-            <p className="mb-6 text-center text-[11px] font-black uppercase tracking-[0.28em] text-gold">
+            <p className="mb-6 text-center text-[11px] font-black uppercase tracking-[0.28em] text-neon-lime">
               {t("landing.crew")}
             </p>
             <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2 sm:justify-center">
@@ -378,7 +378,7 @@ function Landing() {
         id="twist"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-20 sm:py-28"
       >
-        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-magma">
+        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-street-teal">
           {t("landing.act3")}
         </p>
         <h2 className="display-hero max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
@@ -429,7 +429,7 @@ function Landing() {
                   →
                 </span>
               ) : null}
-              <span className={i % 2 === 0 ? "icon-well-neon" : "icon-well-magma"} aria-hidden>
+              <span className={i % 2 === 0 ? "icon-well-neon" : "icon-well"} aria-hidden>
                 <l.icon className="h-5 w-5" />
               </span>
               <p className="mt-4 text-[11px] font-black uppercase tracking-[0.24em] text-neon-lime">
@@ -458,7 +458,7 @@ function Landing() {
         id="worlds"
         className="relative z-10 mx-auto max-w-6xl scroll-mt-28 px-6 py-24 sm:py-32"
       >
-        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-gold">
+        <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-neon-lime">
           {t("landing.act5")}
         </p>
         <h2 className="display-hero mb-10 max-w-3xl text-[clamp(2rem,5.5vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
@@ -470,14 +470,14 @@ function Landing() {
           <Link
             to="/hood"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_hood" })}
-            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,215,0,0.5)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(207,255,4,0.4)]"
           >
             <div className="relative z-10">
               <div className="flex items-start justify-between">
-                <span className="icon-well-gold" aria-hidden>
+                <span className="icon-well-neon" aria-hidden>
                   <Sparkles className="h-5 w-5" />
                 </span>
-                <span className="rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-gold">
+                <span className="rounded-full border border-neon-lime/40 bg-neon-lime/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-neon-lime">
                   Collection
                 </span>
               </div>
@@ -494,12 +494,12 @@ function Landing() {
                   t("landing.chapterHoodFeature3"),
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
-                    <span className="h-1 w-1 rounded-full bg-gold" />
+                    <span className="h-1 w-1 rounded-full bg-neon-lime" />
                     {feature}
                   </li>
                 ))}
               </ul>
-              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-neon-lime transition-transform group-hover:translate-x-1">
                 {t("landing.chapterHoodCta")} <ArrowRight className="h-4 w-4" />
               </span>
             </div>
@@ -509,14 +509,14 @@ function Landing() {
           <Link
             to="/token"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_token" })}
-            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.4)]"
           >
             <div className="relative z-10">
               <div className="flex items-start justify-between">
-                <span className="icon-well-magma" aria-hidden>
+                <span className="icon-well" aria-hidden>
                   <CircleDollarSign className="h-5 w-5" />
                 </span>
-                <span className="rounded-full border border-magma/40 bg-magma/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-magma">
+                <span className="rounded-full border border-street-teal/40 bg-street-teal/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-street-teal">
                   Fair Launch
                 </span>
               </div>
@@ -533,12 +533,12 @@ function Landing() {
                   t("landing.chapterTokenFeature3"),
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
-                    <span className="h-1 w-1 rounded-full bg-magma" />
+                    <span className="h-1 w-1 rounded-full bg-street-teal" />
                     {feature}
                   </li>
                 ))}
               </ul>
-              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-street-teal transition-transform group-hover:translate-x-1">
                 {t("landing.chapterTokenCta")} <ArrowRight className="h-4 w-4" />
               </span>
             </div>
@@ -626,14 +626,14 @@ function Landing() {
           <Link
             to="/proof"
             onClick={() => trackTeaser("cta_click", { placement: "landing_worlds_proof" })}
-            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(255,107,0,0.4)]"
+            className="street-panel group relative overflow-hidden p-6 transition-all hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(114,223,221,0.35)]"
           >
             <div className="relative z-10">
               <div className="flex items-start justify-between">
-                <span className="icon-well-magma" aria-hidden>
+                <span className="icon-well" aria-hidden>
                   <ChartNoAxesCombined className="h-5 w-5" />
                 </span>
-                <span className="rounded-full border border-magma/40 bg-magma/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-magma">
+                <span className="rounded-full border border-street-teal/40 bg-street-teal/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-street-teal">
                   Real Results
                 </span>
               </div>
@@ -650,12 +650,12 @@ function Landing() {
                   t("landing.chapterProofFeature3"),
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
-                    <span className="h-1 w-1 rounded-full bg-magma" />
+                    <span className="h-1 w-1 rounded-full bg-street-teal" />
                     {feature}
                   </li>
                 ))}
               </ul>
-              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-magma transition-transform group-hover:translate-x-1">
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-street-teal transition-transform group-hover:translate-x-1">
                 {t("landing.chapterProofCta")} <ArrowRight className="h-4 w-4" />
               </span>
             </div>
@@ -669,10 +669,10 @@ function Landing() {
           >
             <div className="relative z-10">
               <div className="flex items-start justify-between">
-                <span className="icon-well-gold" aria-hidden>
+                <span className="icon-well-neon" aria-hidden>
                   <Rocket className="h-5 w-5" />
                 </span>
-                <span className="rounded-full border border-gold/40 bg-gold/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-gold">
+                <span className="rounded-full border border-neon-lime/40 bg-neon-lime/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-neon-lime">
                   $299 / year
                 </span>
               </div>
@@ -689,12 +689,12 @@ function Landing() {
                   t("landing.chapterAccessFeature3"),
                 ].map((feature, i) => (
                   <li key={i} className="flex items-center gap-2 text-[13px] text-foreground/80">
-                    <span className="h-1 w-1 rounded-full bg-gold" />
+                    <span className="h-1 w-1 rounded-full bg-neon-lime" />
                     {feature}
                   </li>
                 ))}
               </ul>
-              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-gold transition-transform group-hover:translate-x-1">
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide text-neon-lime transition-transform group-hover:translate-x-1">
                 {t("landing.chapterAccessCta")} <ArrowRight className="h-4 w-4" />
               </span>
             </div>
@@ -708,7 +708,7 @@ function Landing() {
       {/* ACT 06 / FAIR LAUNCH — Launching soon */}
       <section
         id="fair-launch"
-        className="relative z-10 border-y border-primary/12 bg-gradient-to-b from-primary/[0.08] via-transparent to-gold/[0.04]"
+        className="relative z-10 border-y border-primary/12 bg-gradient-to-b from-primary/[0.08] via-transparent to-street-teal/[0.05]"
       >
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-neon-lime">
@@ -733,7 +733,7 @@ function Landing() {
         className="relative z-10 mx-auto grid max-w-6xl scroll-mt-20 gap-6 px-6 pb-24 pt-8 lg:grid-cols-[1.05fr_1fr]"
       >
         <div className="flex flex-col justify-center">
-          <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-gold">
+          <p className="mb-4 text-[11px] font-black uppercase tracking-[0.32em] text-neon-lime">
             {t("landing.act7")}
           </p>
           <h2 className="display-hero text-[clamp(2rem,7vw,3.4rem)] drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
@@ -801,7 +801,7 @@ function Landing() {
           <Panel label={t("landing.updatesPanel")} delay={0.08}>
             {joined ? (
               <div className="flex items-start gap-3">
-                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-neon-lime" />
                 <p className="text-[13px] leading-relaxed text-muted-foreground">
                   {t("landing.waitlistJoinedShort", { email: email.trim().toLowerCase() })}
                 </p>

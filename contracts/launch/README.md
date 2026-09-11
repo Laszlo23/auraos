@@ -33,7 +33,7 @@ npx tsx scripts/migrate-hood-v1.ts
 | pAURA private sale | `0x25f42e74ce4697a29d9f252981fb9efa35aee55c` | Owner can `creditCash`, pause, close. USDC already forwards to immutable treasury. |
 | Aura Relic | `0xf2edf016cba775cec41c6ca308586a814f3d60f5` | Max 7 is immutable. Admin can still change URI / pause. Freeze URI on-chain by not calling `setBaseURI`. |
 
-Do **not** redeploy those. AURA itself still has **no CA until T-0** (self-hosted Uni v2). These desk contracts bind to that CA with a public timelock.
+Do **not** redeploy those. AURA itself still has **no CA until T-0** (Uni v4 AURA/USDC on Base). These desk contracts bind to that CA with a public timelock.
 
 ## Contracts
 
@@ -93,7 +93,9 @@ Prefer the tables above. Artifacts are authoritative after deploy — never inve
 
 ## T-0
 
-1. Deploy platform AURA via `npx tsx scripts/aura-t0.ts` (Uniswap v2 on Base — **not** Clanker).
+Sunday **13 Sep 2026, 11:11 Europe/Vienna**. Full operator script: [`docs/AURA_T0_RUNBOOK.md`](../../docs/AURA_T0_RUNBOOK.md).
+
+1. Deploy platform AURA (Uniswap v4 AURA/USDC on Base — locked LP, published hooks). Spec: `docs/AURA_CURVE.md`. **Not** the company Clanker desk.
 2. Publish the CA on aibusiness.fun and X `@buildingcultu3`.
 3. Fund the gift drop with `7,777 × minted Hoods` AURA from the 1% public slice (7,777,778 reserved) — the T-0 script does this when `LAUNCH_GIFT_LOCK_CONTRACT` is set (env name kept; value is GiftDrop).
 4. Guardian calls `proposeV2Market(aura, pair)` (`--propose` on the script, or manually).
@@ -110,7 +112,7 @@ See [`contracts/aura/README.md`](../aura/README.md) for the full self-hosted che
 - [ ] Publish CAs on aibusiness.fun + X `@buildingcultu3`
 - [ ] **48h public announcement** after `proposeV2Market` (timelock is 72h — announce early)
 - [ ] Confirm GiftDrop funded with `7,777 × minted` (plus dust plan)
-- [ ] Confirm LP sent to `AuraLpSink` (no withdraw)
+- [ ] Confirm launch LP is the locked Uni v4 AURA/USDC position (no team withdraw)
 - [ ] Guardian `renounceRole(DEFAULT_ADMIN_ROLE)` after FUNDER set + metadata frozen
 - [ ] Sepolia rehearsal: mint → propose → execute → claim → wallet balance
 
@@ -123,7 +125,7 @@ See [`contracts/aura/README.md`](../aura/README.md) for the full self-hosted che
 - [x] Gift AURA has no admin clawback
 - [x] Claim at T-0 (Desk v2) — no 90-day hostage
 - [x] Market bind is public + 72h delay (propose resets the clock)
-- [x] Uni v2 pair must be the factory pair for USDC/AURA
+- [x] Official book is the published Uni v4 AURA/USDC pool (same token; no second CA)
 - [x] No ETH receive
 - [ ] External audit before mainnet (do this)
 - [ ] Verify source on Basescan / Sourcify after deploy

@@ -18,6 +18,12 @@ describe("questActionHref", () => {
     expect(questActionHref("company:first-win")).toBe("/console");
     expect(questActionHref("desk:approve")).toBe("/console");
   });
+
+  it("sends AURA curve quests to the swap desk", () => {
+    expect(questActionHref("aura:first-swap")).toBe("/swap");
+    expect(questActionHref("aura:lp-week")).toBe("/swap");
+    expect(questActionHref("aura:burn-seen")).toBe("/swap");
+  });
 });
 
 describe("beta prophecy", () => {

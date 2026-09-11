@@ -1,7 +1,9 @@
 /**
- * Clanker deploy helper — Base ERC-20 + Uniswap V4 pool.
+ * Clanker deploy helper — Base ERC-20 + Uniswap V4 pool for **company** tokens.
+ * Platform AURA T-0 is a separate spec: `src/lib/aura-t0-clanker.ts` (build only, no deploy here).
  * Signer = wallet owner EOA; tokenAdmin + primary rewards = Light Account (company smart wallet).
  */
+
 import {
   createPublicClient,
   createWalletClient,
@@ -15,6 +17,8 @@ import { base, baseSepolia } from "viem/chains";
 
 import { alchemyRpcUrl, activeNetwork } from "@/lib/chain-config";
 import { companyTokenPresetById, type CompanyTokenPresetId } from "@/lib/company-token-presets";
+
+export { buildAuraPlatformTgeSpec } from "@/lib/aura-t0-clanker";
 
 export function clankerEnabled(): boolean {
   return process.env["CLANKER_ENABLED"] === "true" || process.env["CLANKER_ENABLED"] === "1";

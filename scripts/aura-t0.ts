@@ -1,5 +1,7 @@
 /**
- * Self-hosted AURA T-0: deploy token, vestings, redeem, Uni v2 LP → sink, fund gifts.
+ * AURA T-0 helpers: compile / deploy token, vestings, redeem, gifts.
+ * Venue is Uniswap v4 locked AURA/USDC (docs/AURA_CURVE.md). This script still
+ * compiles the Solidity in contracts/aura/. Do not treat it as a silent mainnet launch.
  *
  * Usage:
  *   npx tsx scripts/aura-t0.ts --compile-only
@@ -42,6 +44,8 @@ import {
   UNI_V2_FACTORY_ABI,
   UNI_V2_ROUTER_ABI,
 } from "../src/lib/aura-self-launch";
+import { TOKEN_LAUNCH_AT_ISO, tokenLaunchIsLive } from "../src/lib/aura-t0-clock";
+import { AURA_T0_VENUE } from "../src/lib/aura-t0-clanker";
 import { BASE_USDC, PRIVATE_SALE_CONTRACT_LIVE } from "../src/lib/private-sale";
 import { launchEscrowAddress, launchGiftLockAddress } from "../src/lib/aura-launch";
 
@@ -81,12 +85,14 @@ function findImports(importPath: string) {
   return { error: `Missing ${importPath}` };
 }
 
-function compile() {
+function compileAuraContracts() {
   const files = [
     "contracts/aura/AuraToken.sol",
     "contracts/aura/AuraPauraRedeem.sol",
     "contracts/aura/AuraLpSink.sol",
     "contracts/aura/AuraCliffVesting.sol",
+    "contracts/aura/AuraBurnSink.sol",
+    "contracts/aura/AuraGauge.sol",
   ];
   const sources: Record<string, { content: string }> = {};
   for (const file of files) {
@@ -118,6 +124,8 @@ function compile() {
   return out.contracts ?? {};
 }
 
+export { compileAuraContracts };
+
 function deployerKey(): Hex {
   const raw = (
     process.env["AURA_T0_KEY"] ||
@@ -139,7 +147,7 @@ function addrEnv(name: string, fallback: `0x${string}`): `0x${string}` {
 }
 
 function artifact(
-  contracts: ReturnType<typeof compile>,
+  contracts: ReturnType<typeof compileAuraContracts>,
   file: string,
   name: string,
 ): { abi: Abi; bytecode: Hex } {
@@ -161,9 +169,19 @@ async function main() {
   const usdcLiquidity =
     usdcIdx >= 0 && args[usdcIdx + 1] ? BigInt(args[usdcIdx + 1]!) : 0n;
 
-  const compiled = compile();
-  console.log("compiled AuraToken, AuraPauraRedeem, AuraLpSink, AuraCliffVesting");
+  const compiled = compileAuraContracts();
+  console.log(
+    "compiled AuraToken, AuraPauraRedeem, AuraLpSink, AuraCliffVesting, AuraBurnSink, AuraGauge",
+  );
   if (compileOnly) return;
+
+  const legacyV2 = args.includes("--legacy-v2");
+
+  if (!sepolia && !tokenLaunchIsLive()) {
+    throw new Error(
+      `Refusing Base mainnet deploy before T-0 (${TOKEN_LAUNCH_AT_ISO}). Rehearse with --sepolia. Never put AURA_T0_KEY on the public VPS.`,
+    );
+  }
 
   const chain = sepolia ? baseSepolia : base;
   const rpc =
@@ -191,6 +209,8 @@ async function main() {
   const sinkArt = artifact(compiled, "contracts/aura/AuraLpSink.sol", "AuraLpSink");
   const redeemArt = artifact(compiled, "contracts/aura/AuraPauraRedeem.sol", "AuraPauraRedeem");
   const vestArt = artifact(compiled, "contracts/aura/AuraCliffVesting.sol", "AuraCliffVesting");
+  const burnArt = artifact(compiled, "contracts/aura/AuraBurnSink.sol", "AuraBurnSink");
+  const gaugeArt = artifact(compiled, "contracts/aura/AuraGauge.sol", "AuraGauge");
 
   console.log("deployer", account.address);
 
@@ -202,6 +222,24 @@ async function main() {
   const tokenRcpt = await publicClient.waitForTransactionReceipt({ hash: tokenHash });
   const aura = tokenRcpt.contractAddress as `0x${string}`;
   console.log("AuraToken", aura);
+
+  const burnHash = await wallet.deployContract({
+    abi: burnArt.abi,
+    bytecode: burnArt.bytecode,
+    args: [],
+  });
+  const burnRcpt = await publicClient.waitForTransactionReceipt({ hash: burnHash });
+  const burnSink = burnRcpt.contractAddress as `0x${string}`;
+  console.log("AuraBurnSink", burnSink);
+
+  const gaugeHash = await wallet.deployContract({
+    abi: gaugeArt.abi,
+    bytecode: gaugeArt.bytecode,
+    args: [aura, account.address],
+  });
+  const gaugeRcpt = await publicClient.waitForTransactionReceipt({ hash: gaugeHash });
+  const gauge = gaugeRcpt.contractAddress as `0x${string}`;
+  console.log("AuraGauge", gauge);
 
   const sinkHash = await wallet.deployContract({
     abi: sinkArt.abi,
@@ -307,7 +345,7 @@ async function main() {
   let pair: `0x${string}` | null = null;
   let lpLocked = false;
 
-  if (!sepolia || SEPOLIA_UNI_V2_ROUTER) {
+  if (legacyV2 && (!sepolia || SEPOLIA_UNI_V2_ROUTER)) {
     if (usdcLiquidity <= 0n) {
       throw new Error("Pass --usdc-liquidity <USDC 6-decimals> to seed the Uni v2 pair");
     }
@@ -347,7 +385,9 @@ async function main() {
     console.log("pair", pair);
     lpLocked = true;
   } else {
-    console.log("skip LP on Sepolia (set SEPOLIA_UNI_V2_ROUTER to enable)");
+    console.log(
+      `skip Uni v2 LP — T-0 venue is ${AURA_T0_VENUE.pool}. ${AURA_T0_VENUE.clankerPath} Fallback: ${AURA_T0_VENUE.nativeFallback} Never ${AURA_T0_VENUE.factoryTokenForbidden}.`,
+    );
   }
 
   let proposeTx: Hex | null = null;
@@ -387,6 +427,8 @@ async function main() {
     network: sepolia ? "base-sepolia" : "base",
     aura,
     lpSink: sink,
+    burnSink,
+    gauge,
     redeem,
     teamVesting,
     advisorsVesting,
@@ -404,10 +446,13 @@ async function main() {
     deployer: account.address,
     deployedAt: new Date().toISOString(),
     next: [
-      "Publish CA on aibusiness.fun + X @buildingcultu3",
-      "Set AURA_TOKEN_CA / VITE_AURA_TOKEN_CA / AURA_PAIR_CA / AURA_LP_SINK / AURA_PAURA_REDEEM on VPS",
-      "Wait 72h after proposeV2Market then executeMarket()",
-      "Owner openRedeem() on AuraPauraRedeem",
+      "Attach locked Uni v4 AURA/USDC to this AuraToken (Clanker wrap or native v4). Never ClankerTokenV4.",
+      "Official seed $1,111 USDC + $6,000 USDC book from the new treasury — not the sale key",
+      "Publish CA on aibusiness.fun + X @buildingcultu3 in the same minute",
+      "Set AURA_TOKEN_CA / VITE_AURA_TOKEN_CA / AURA_POOL_USDC / AURA_GAUGE / AURA_BURN_SINK / AURA_PAURA_REDEEM / AURA_LAUNCH_TREASURY on VPS — never DMs",
+      "DexScreener token info from /api/token/aura. GoPlus after the 15s sniper fee decays",
+      "Guardian proposeV2Market or proposeAdapter. Wait 72h then executeMarket()",
+      "Owner openRedeem() only after the CA is public. Prefund gift drop 7,777 × minted Hoods",
     ],
   };
   writeFileSync(artifactPath, JSON.stringify(payload, null, 2) + "\n");

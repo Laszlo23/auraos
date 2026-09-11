@@ -425,6 +425,9 @@ export const de: MessageTree = {
     navHood: "The Hood",
     navPit: "TICKPIX",
     navTrust: "Bund",
+    navBuy: "AURA kaufen",
+    navSwap: "Swap",
+    navSquare: "Square",
     navMint: "Mitmachen",
     hoodCue: "Founding-Kreis",
     tryCta: "Aura testen",
@@ -492,9 +495,9 @@ export const de: MessageTree = {
       "Zeitstempel, Ergebnis, datiertes Gedächtnis — Founding Seats auf 1000 begrenzt (nur bezahlte). Hol dir die Proof-Karte.",
     proofCta: "Proof öffnen",
     launchTitle: "Fair Launch.",
-    launchLine: "48 Stunden vorher angekündigt.",
+    launchLine: "Sonntag, 13. Sep 2026, 11:11 Wien.",
     launchBody:
-      "Offen gebaut. Den genauen Fair-Launch-Zeitpunkt kündigen wir 48 Stunden vor T-0 auf offiziellen Kanälen an — nie per DM, nie mit einer Überraschungs-CA. Komm zu Ninty, damit du im Raum bist, wenn’s startet.",
+      "Offen gebaut. T-0 ist Sonntag, 13. Sep 2026, 11:11 Wien. Die CA kommt dann — nur auf aibusiness.fun und @buildingcultu3, nie per DM, nie als Überraschungsadresse. Komm zu Ninty, damit du im Raum bist, wenn’s startet.",
     claimTitle: "Seat kaufen.",
     claimTitle2: "Firma wecken.",
     claimBody:
@@ -614,11 +617,12 @@ export const de: MessageTree = {
     mins: "Min",
     secs: "Sek",
     launchLive: "{label} ist live",
+    launchLiveCa: "T-0 ist live. Offizielle CA nur auf /token — nie per DM.",
     launchOpen: "Offen gebaut.",
-    launchFollow: "T-0 kündigen wir 48 Stunden vorher an.",
+    launchFollow: "T-0: Sonntag, 13. Sep 2026, 11:11 Wien.",
     launchTrust:
-      "Wir wachsen offen. Den genauen Fair-Launch-Zeitpunkt kündigen wir 48 Stunden vorher auf unseren offiziellen Kanälen an — nie per DM, nie mit einer Überraschungs-CA. Bis dahin: Seat sichern, Proof liefern, mitwachsen.",
-    launchCompact: "{hours}h Vorlauf",
+      "Wir wachsen offen. T-0 ist Sonntag, 13. Sep 2026, 11:11 Wien. Die CA erscheint in dieser Minute auf aibusiness.fun und @buildingcultu3 — nie per DM, nie als Überraschungsadresse. Bis dahin: Seat sichern, Proof liefern, mitwachsen.",
+    launchCompact: "{when}",
     kitKicker: "Wien-Welle · gratis Share-Kit",
     kitTitle: "Schmäh with love.",
     kitTitle2: "Gehostete Clips.",
@@ -861,6 +865,13 @@ export const de: MessageTree = {
     linkVerkauf: "Verkaufsdeck",
     linkSale: "Private Sale",
     productPrivateSale: "Private Sale (pAURA, Bar)",
+    buyTab: "AURA-Kartenorders",
+    buyQueue: "Kartenpacks, die auf AURA warten",
+    buyNoOrders: "Noch keine Kartenorders.",
+    buyMarkSent: "Als gesendet markieren",
+    buyTx: "Base-Tx-Hash",
+    buyOnlyLaszlo: "Nur Laszlo markiert nach T-0 als gesendet — Treasury-Key bleibt vom VPS fern.",
+    buySent: "Als gesendet markiert",
     saleTab: "Private Sale",
     trafficTab: "Traffic",
     trafficPageViews: "Seitenaufrufe",
@@ -912,7 +923,7 @@ export const de: MessageTree = {
       "USDC auf Base zahlen. Der Contract mintet pAURA auf deine Wallet. Oder bar am Desk — Laszlo sendet danach.",
     step2Title: "Warten auf T-0",
     step2Body:
-      "Wir starten echten AURA auf Base über Uniswap v2. Die offizielle Adresse kommt nur auf aibusiness.fun und X @buildingcultu3.",
+      "Wir starten echten AURA auf Base über Uniswap v4 (gesperrtes AURA/USDC-Buch). Die offizielle Adresse kommt nur auf aibusiness.fun und X @buildingcultu3.",
     step3Title: "1 pAURA → 1,11 AURA",
     step3Body:
       "Jeder Private-Sale-Käufer bekommt beim Redeem +11%. Unverkaufte pAURA werden nie geprägt.",
@@ -959,13 +970,13 @@ export const de: MessageTree = {
     trustKicker: "Warum das kein Rug ist",
     trustTitle: "Fair Launch. Gesperrte Liquidität. Kein geheimes Mint.",
     trustLead:
-      "AURA startet auf Uniswap v2 bei T-0 — ein öffentliches Base-Paar, kein heimlicher CA in Telegram. Wir bauen einen unruggable Token: fixer Supply, LP in AuraLpSink, Team gesperrt, offizielle Adresse nur auf unserer Site und X.",
-    trustFairTitle: "Fair Launch über Uniswap v2",
+      "AURA startet auf Uniswap v4 bei T-0 — ein öffentliches Base-AURA/USDC-Buch, kein heimlicher CA in Telegram. Wir bauen einen unruggable Token: fixer Supply, gesperrte LP, veröffentlichte Hooks, Team gesperrt, offizielle Adresse nur auf unserer Site und X.",
+    trustFairTitle: "Fair Launch über Uniswap v4",
     trustFairBody:
-      "T-0 kommt 48 Stunden vorher auf aibusiness.fun und X @buildingcultu3. AURA entsteht aus einer neuen, leeren Wallet und wird auf Uniswap v2 (Base) gepaart. Dieselbe CA für alle. Offizielle Adresse nur auf unserer Site und X.",
+      "T-0 kommt 48 Stunden vorher auf aibusiness.fun und X @buildingcultu3. AURA entsteht aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Dieselbe CA für alle. Offizielle Adresse nur auf unserer Site und X.",
     trustLockTitle: "Liquidität bei T-0 gesperrt",
     trustLockBody:
-      "Die Launch-LP geht an AuraLpSink (kein Withdraw) auf dem offiziellen Uni-v2-Paar — nicht in eine Team-Wallet, die wir abziehen können. Das Gegenteil von Honeypot oder Rug.",
+      "Die Launch-LP ist ein gesperrtes Uniswap-v4-AURA/USDC-FlatStart-Buch (6.000 $ USDC bei ~0,001 $) — nicht in eine Team-Wallet, die wir abziehen können. Das Gegenteil von Honeypot oder Rug.",
     trustSupplyTitle: "777.777.777. Das ist die Decke.",
     trustSupplyBody:
       "Der offizielle AURA-Supply ist fest. Dieser Sale mintet keinen AURA. Unverkaufte pAURA wird nie geprägt. Team: 12 Monate Cliff, dann 36 Monate Vesting. Projekt-Anteil aus dem Private Sale: Kauf nach 48 Stunden, 90 Tage nach T-0 gesperrt. Beim Start nichts frei zum Dump.",

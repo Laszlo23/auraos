@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AccessRouteImport } from './routes/access'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BrandRouteImport } from './routes/brand'
+import { Route as BuyRouteImport } from './routes/buy'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as CookiesRouteImport } from './routes/cookies'
@@ -39,8 +40,10 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as SaleRouteImport } from './routes/sale'
 import { Route as ShareRouteImport } from './routes/share'
+import { Route as SquareRouteImport } from './routes/square'
 import { Route as StickerRouteImport } from './routes/sticker'
 import { Route as StoryRouteImport } from './routes/story'
+import { Route as SwapRouteImport } from './routes/swap'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TischRouteImport } from './routes/tisch'
@@ -129,6 +132,8 @@ import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webh
 import { Route as ApiGenesisCollectionRouteImport } from './routes/api/genesis/collection'
 import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
+import { Route as ApiSquareCollectionRouteImport } from './routes/api/square/collection'
+import { Route as ApiTokenAuraRouteImport } from './routes/api/token/aura'
 import { Route as ApiWebhooksQuidliRouteImport } from './routes/api/webhooks/quidli'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
 import { Route as HoodClaimCodeRouteImport } from './routes/hood_.claim.$code'
@@ -156,6 +161,7 @@ import { Route as ApiPublicX402PropertyValuationRouteImport } from './routes/api
 import { Route as ApiPublicX402QuantSignalRouteImport } from './routes/api/public/x402/quant-signal'
 import { Route as ApiPublicX402WebsiteCopyRouteImport } from './routes/api/public/x402/website-copy'
 import { Route as ApiRelicMetaTokenIdRouteImport } from './routes/api/relic/meta/$tokenId'
+import { Route as ApiSquareMetaTokenIdRouteImport } from './routes/api/square/meta/$tokenId'
 import { Route as ApiCreatorMetaSlugTokenIdRouteImport } from './routes/api/creator/meta/$slug.$tokenId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -185,6 +191,11 @@ const AuthRoute = AuthRouteImport.update({
 const BrandRoute = BrandRouteImport.update({
   id: '/brand',
   path: '/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuyRoute = BuyRouteImport.update({
+  id: '/buy',
+  path: '/buy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChangelogRoute = ChangelogRouteImport.update({
@@ -307,6 +318,11 @@ const ShareRoute = ShareRouteImport.update({
   path: '/share',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SquareRoute = SquareRouteImport.update({
+  id: '/square',
+  path: '/square',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StickerRoute = StickerRouteImport.update({
   id: '/sticker',
   path: '/sticker',
@@ -315,6 +331,11 @@ const StickerRoute = StickerRouteImport.update({
 const StoryRoute = StoryRouteImport.update({
   id: '/story',
   path: '/story',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SwapRoute = SwapRouteImport.update({
+  id: '/swap',
+  path: '/swap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeamRoute = TeamRouteImport.update({
@@ -761,6 +782,16 @@ const ApiPublicGreeterRoute = ApiPublicGreeterRouteImport.update({
   path: '/api/public/greeter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSquareCollectionRoute = ApiSquareCollectionRouteImport.update({
+  id: '/api/square/collection',
+  path: '/api/square/collection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTokenAuraRoute = ApiTokenAuraRouteImport.update({
+  id: '/api/token/aura',
+  path: '/api/token/aura',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebhooksQuidliRoute = ApiWebhooksQuidliRouteImport.update({
   id: '/api/webhooks/quidli',
   path: '/api/webhooks/quidli',
@@ -905,6 +936,11 @@ const ApiRelicMetaTokenIdRoute = ApiRelicMetaTokenIdRouteImport.update({
   path: '/api/relic/meta/$tokenId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSquareMetaTokenIdRoute = ApiSquareMetaTokenIdRouteImport.update({
+  id: '/api/square/meta/$tokenId',
+  path: '/api/square/meta/$tokenId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCreatorMetaSlugTokenIdRoute =
   ApiCreatorMetaSlugTokenIdRouteImport.update({
     id: '/api/creator/meta/$slug/$tokenId',
@@ -919,6 +955,7 @@ export interface FileRoutesByFullPath {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/buy': typeof BuyRoute
   '/changelog': typeof ChangelogRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
@@ -942,8 +979,10 @@ export interface FileRoutesByFullPath {
   '/roadmap': typeof RoadmapRoute
   '/sale': typeof SaleRoute
   '/share': typeof ShareRoute
+  '/square': typeof SquareRoute
   '/sticker': typeof StickerRoute
   '/story': typeof StoryRoute
+  '/swap': typeof SwapRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tisch': typeof TischRoute
@@ -1032,6 +1071,8 @@ export interface FileRoutesByFullPath {
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/square/collection': typeof ApiSquareCollectionRoute
+  '/api/token/aura': typeof ApiTokenAuraRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/hood/claim/$code': typeof HoodClaimCodeRoute
@@ -1058,6 +1099,7 @@ export interface FileRoutesByFullPath {
   '/api/public/x402/quant-signal': typeof ApiPublicX402QuantSignalRoute
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
   '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
+  '/api/square/meta/$tokenId': typeof ApiSquareMetaTokenIdRoute
   '/api/public/x402/': typeof ApiPublicX402IndexRoute
   '/api/creator/meta/$slug/$tokenId': typeof ApiCreatorMetaSlugTokenIdRoute
 }
@@ -1067,6 +1109,7 @@ export interface FileRoutesByTo {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/buy': typeof BuyRoute
   '/changelog': typeof ChangelogRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
@@ -1090,8 +1133,10 @@ export interface FileRoutesByTo {
   '/roadmap': typeof RoadmapRoute
   '/sale': typeof SaleRoute
   '/share': typeof ShareRoute
+  '/square': typeof SquareRoute
   '/sticker': typeof StickerRoute
   '/story': typeof StoryRoute
+  '/swap': typeof SwapRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tisch': typeof TischRoute
@@ -1180,6 +1225,8 @@ export interface FileRoutesByTo {
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/square/collection': typeof ApiSquareCollectionRoute
+  '/api/token/aura': typeof ApiTokenAuraRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/hood/claim/$code': typeof HoodClaimCodeRoute
@@ -1206,6 +1253,7 @@ export interface FileRoutesByTo {
   '/api/public/x402/quant-signal': typeof ApiPublicX402QuantSignalRoute
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
   '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
+  '/api/square/meta/$tokenId': typeof ApiSquareMetaTokenIdRoute
   '/api/public/x402': typeof ApiPublicX402IndexRoute
   '/api/creator/meta/$slug/$tokenId': typeof ApiCreatorMetaSlugTokenIdRoute
 }
@@ -1218,6 +1266,7 @@ export interface FileRoutesById {
   '/access': typeof AccessRoute
   '/auth': typeof AuthRoute
   '/brand': typeof BrandRoute
+  '/buy': typeof BuyRoute
   '/changelog': typeof ChangelogRoute
   '/compare': typeof CompareRoute
   '/cookies': typeof CookiesRoute
@@ -1241,8 +1290,10 @@ export interface FileRoutesById {
   '/roadmap': typeof RoadmapRoute
   '/sale': typeof SaleRoute
   '/share': typeof ShareRoute
+  '/square': typeof SquareRoute
   '/sticker': typeof StickerRoute
   '/story': typeof StoryRoute
+  '/swap': typeof SwapRoute
   '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/tisch': typeof TischRoute
@@ -1331,6 +1382,8 @@ export interface FileRoutesById {
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/square/collection': typeof ApiSquareCollectionRoute
+  '/api/token/aura': typeof ApiTokenAuraRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/hood_/claim/$code': typeof HoodClaimCodeRoute
@@ -1357,6 +1410,7 @@ export interface FileRoutesById {
   '/api/public/x402/quant-signal': typeof ApiPublicX402QuantSignalRoute
   '/api/public/x402/website-copy': typeof ApiPublicX402WebsiteCopyRoute
   '/api/relic/meta/$tokenId': typeof ApiRelicMetaTokenIdRoute
+  '/api/square/meta/$tokenId': typeof ApiSquareMetaTokenIdRoute
   '/api/public/x402/': typeof ApiPublicX402IndexRoute
   '/api/creator/meta/$slug/$tokenId': typeof ApiCreatorMetaSlugTokenIdRoute
 }
@@ -1369,6 +1423,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/buy'
     | '/changelog'
     | '/compare'
     | '/cookies'
@@ -1392,8 +1447,10 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/sale'
     | '/share'
+    | '/square'
     | '/sticker'
     | '/story'
+    | '/swap'
     | '/team'
     | '/terms'
     | '/tisch'
@@ -1482,6 +1539,8 @@ export interface FileRouteTypes {
     | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/square/collection'
+    | '/api/token/aura'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/hood/claim/$code'
@@ -1508,6 +1567,7 @@ export interface FileRouteTypes {
     | '/api/public/x402/quant-signal'
     | '/api/public/x402/website-copy'
     | '/api/relic/meta/$tokenId'
+    | '/api/square/meta/$tokenId'
     | '/api/public/x402/'
     | '/api/creator/meta/$slug/$tokenId'
   fileRoutesByTo: FileRoutesByTo
@@ -1517,6 +1577,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/buy'
     | '/changelog'
     | '/compare'
     | '/cookies'
@@ -1540,8 +1601,10 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/sale'
     | '/share'
+    | '/square'
     | '/sticker'
     | '/story'
+    | '/swap'
     | '/team'
     | '/terms'
     | '/tisch'
@@ -1630,6 +1693,8 @@ export interface FileRouteTypes {
     | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/square/collection'
+    | '/api/token/aura'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/hood/claim/$code'
@@ -1656,6 +1721,7 @@ export interface FileRouteTypes {
     | '/api/public/x402/quant-signal'
     | '/api/public/x402/website-copy'
     | '/api/relic/meta/$tokenId'
+    | '/api/square/meta/$tokenId'
     | '/api/public/x402'
     | '/api/creator/meta/$slug/$tokenId'
   id:
@@ -1667,6 +1733,7 @@ export interface FileRouteTypes {
     | '/access'
     | '/auth'
     | '/brand'
+    | '/buy'
     | '/changelog'
     | '/compare'
     | '/cookies'
@@ -1690,8 +1757,10 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/sale'
     | '/share'
+    | '/square'
     | '/sticker'
     | '/story'
+    | '/swap'
     | '/team'
     | '/terms'
     | '/tisch'
@@ -1780,6 +1849,8 @@ export interface FileRouteTypes {
     | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/square/collection'
+    | '/api/token/aura'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/hood_/claim/$code'
@@ -1806,6 +1877,7 @@ export interface FileRouteTypes {
     | '/api/public/x402/quant-signal'
     | '/api/public/x402/website-copy'
     | '/api/relic/meta/$tokenId'
+    | '/api/square/meta/$tokenId'
     | '/api/public/x402/'
     | '/api/creator/meta/$slug/$tokenId'
   fileRoutesById: FileRoutesById
@@ -1818,6 +1890,7 @@ export interface RootRouteChildren {
   AccessRoute: typeof AccessRoute
   AuthRoute: typeof AuthRoute
   BrandRoute: typeof BrandRoute
+  BuyRoute: typeof BuyRoute
   ChangelogRoute: typeof ChangelogRoute
   CompareRoute: typeof CompareRoute
   CookiesRoute: typeof CookiesRoute
@@ -1841,8 +1914,10 @@ export interface RootRouteChildren {
   RoadmapRoute: typeof RoadmapRoute
   SaleRoute: typeof SaleRoute
   ShareRoute: typeof ShareRoute
+  SquareRoute: typeof SquareRoute
   StickerRoute: typeof StickerRoute
   StoryRoute: typeof StoryRoute
+  SwapRoute: typeof SwapRoute
   TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TischRoute: typeof TischRoute
@@ -1883,6 +1958,8 @@ export interface RootRouteChildren {
   ApiGenesisCollectionRoute: typeof ApiGenesisCollectionRoute
   ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
+  ApiSquareCollectionRoute: typeof ApiSquareCollectionRoute
+  ApiTokenAuraRoute: typeof ApiTokenAuraRoute
   ApiWebhooksQuidliRoute: typeof ApiWebhooksQuidliRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
   HoodClaimCodeRoute: typeof HoodClaimCodeRoute
@@ -1907,6 +1984,7 @@ export interface RootRouteChildren {
   ApiPublicX402QuantSignalRoute: typeof ApiPublicX402QuantSignalRoute
   ApiPublicX402WebsiteCopyRoute: typeof ApiPublicX402WebsiteCopyRoute
   ApiRelicMetaTokenIdRoute: typeof ApiRelicMetaTokenIdRoute
+  ApiSquareMetaTokenIdRoute: typeof ApiSquareMetaTokenIdRoute
   ApiPublicX402IndexRoute: typeof ApiPublicX402IndexRoute
   ApiCreatorMetaSlugTokenIdRoute: typeof ApiCreatorMetaSlugTokenIdRoute
 }
@@ -1953,6 +2031,13 @@ declare module '@tanstack/react-router' {
       path: '/brand'
       fullPath: '/brand'
       preLoaderRoute: typeof BrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buy': {
+      id: '/buy'
+      path: '/buy'
+      fullPath: '/buy'
+      preLoaderRoute: typeof BuyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/changelog': {
@@ -2123,6 +2208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/square': {
+      id: '/square'
+      path: '/square'
+      fullPath: '/square'
+      preLoaderRoute: typeof SquareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sticker': {
       id: '/sticker'
       path: '/sticker'
@@ -2135,6 +2227,13 @@ declare module '@tanstack/react-router' {
       path: '/story'
       fullPath: '/story'
       preLoaderRoute: typeof StoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/swap': {
+      id: '/swap'
+      path: '/swap'
+      fullPath: '/swap'
+      preLoaderRoute: typeof SwapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/team': {
@@ -2753,6 +2852,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGreeterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/square/collection': {
+      id: '/api/square/collection'
+      path: '/api/square/collection'
+      fullPath: '/api/square/collection'
+      preLoaderRoute: typeof ApiSquareCollectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/token/aura': {
+      id: '/api/token/aura'
+      path: '/api/token/aura'
+      fullPath: '/api/token/aura'
+      preLoaderRoute: typeof ApiTokenAuraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/quidli': {
       id: '/api/webhooks/quidli'
       path: '/api/webhooks/quidli'
@@ -2942,6 +3055,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRelicMetaTokenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/square/meta/$tokenId': {
+      id: '/api/square/meta/$tokenId'
+      path: '/api/square/meta/$tokenId'
+      fullPath: '/api/square/meta/$tokenId'
+      preLoaderRoute: typeof ApiSquareMetaTokenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/creator/meta/$slug/$tokenId': {
       id: '/api/creator/meta/$slug/$tokenId'
       path: '/api/creator/meta/$slug/$tokenId'
@@ -3090,6 +3210,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessRoute: AccessRoute,
   AuthRoute: AuthRoute,
   BrandRoute: BrandRoute,
+  BuyRoute: BuyRoute,
   ChangelogRoute: ChangelogRoute,
   CompareRoute: CompareRoute,
   CookiesRoute: CookiesRoute,
@@ -3113,8 +3234,10 @@ const rootRouteChildren: RootRouteChildren = {
   RoadmapRoute: RoadmapRoute,
   SaleRoute: SaleRoute,
   ShareRoute: ShareRoute,
+  SquareRoute: SquareRoute,
   StickerRoute: StickerRoute,
   StoryRoute: StoryRoute,
+  SwapRoute: SwapRoute,
   TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TischRoute: TischRoute,
@@ -3155,6 +3278,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGenesisCollectionRoute: ApiGenesisCollectionRoute,
   ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
+  ApiSquareCollectionRoute: ApiSquareCollectionRoute,
+  ApiTokenAuraRoute: ApiTokenAuraRoute,
   ApiWebhooksQuidliRoute: ApiWebhooksQuidliRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
   HoodClaimCodeRoute: HoodClaimCodeRoute,
@@ -3179,6 +3304,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicX402QuantSignalRoute: ApiPublicX402QuantSignalRoute,
   ApiPublicX402WebsiteCopyRoute: ApiPublicX402WebsiteCopyRoute,
   ApiRelicMetaTokenIdRoute: ApiRelicMetaTokenIdRoute,
+  ApiSquareMetaTokenIdRoute: ApiSquareMetaTokenIdRoute,
   ApiPublicX402IndexRoute: ApiPublicX402IndexRoute,
   ApiCreatorMetaSlugTokenIdRoute: ApiCreatorMetaSlugTokenIdRoute,
 }

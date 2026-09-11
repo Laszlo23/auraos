@@ -14,5 +14,6 @@ export function questActionHref(key: string): string {
   if (key.startsWith("mission:") || key.startsWith("task:")) return "/missions";
   if (key.startsWith("desk:") || key === "company:first-win") return "/console";
   if (key === "company:spin") return "/quest";
+  if (key.startsWith("aura:")) return "/swap";
   return "/quest";
 }

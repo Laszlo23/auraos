@@ -883,3 +883,115 @@ export const getLaunchDripStatus = createServerFn({ method: "GET" })
       preview: launchDripSummary(preview),
     };
   });
+
+/**
+ * Seed the OS message blast (7 clips × X + Farcaster), staggered ~25 min.
+ * Idempotent. Turns on auto_publish for connected providers so the worker sends them.
+ */
+export const startOsMessageCampaign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { companyId: string; x?: boolean; farcaster?: boolean }) => ({
+    companyId: String(input.companyId),
+    x: input.x !== false,
+    farcaster: input.farcaster !== false,
+  }))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { seedOsMessageCampaign } = await import("@/lib/launch-drip.server");
+    const { OS_MESSAGE_CAMPAIGN, buildOsMessageSlots, osMessageSummary } =
+      await import("@/lib/x-launch-campaign");
+
+    const { data: company } = await supabaseAdmin
+      .from("companies")
+      .select("id")
+      .eq("id", data.companyId)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!company) throw new Error("Company not found");
+
+    const providers: Array<"x" | "farcaster"> = [];
+    if (data.x) providers.push("x");
+    if (data.farcaster) providers.push("farcaster");
+
+    for (const provider of providers) {
+      const { data: conn } = await supabaseAdmin
+        .from("channel_connections")
+        .select("id, status")
+        .eq("company_id", data.companyId)
+        .eq("provider", provider)
+        .maybeSingle();
+      if (!conn || conn.status !== "connected") {
+        throw new Error(
+          provider === "x"
+            ? "Connect X on Channels first (OAuth — no password)."
+            : "Connect Farcaster on Channels first (Neynar).",
+        );
+      }
+      await supabaseAdmin
+        .from("channel_connections")
+        .update({ auto_publish: true, last_sync: new Date().toISOString() })
+        .eq("id", conn.id);
+    }
+
+    const { created, skipped } = await seedOsMessageCampaign(data.companyId, {
+      x: data.x,
+      farcaster: data.farcaster,
+    });
+
+    await supabaseAdmin.from("activity_events").insert({
+      company_id: data.companyId,
+      kind: "publish",
+      message: `OS message blast ${OS_MESSAGE_CAMPAIGN} (${created} new, ${skipped} already queued)`,
+    });
+
+    const { data: posts } = await supabaseAdmin
+      .from("channel_posts")
+      .select("id, campaign_key, scheduled_at, body, status, provider")
+      .eq("company_id", data.companyId)
+      .like("campaign_key", `${OS_MESSAGE_CAMPAIGN}%`)
+      .order("scheduled_at", { ascending: true });
+
+    return {
+      ok: true as const,
+      created,
+      skipped,
+      summary: osMessageSummary(buildOsMessageSlots()),
+      posts: posts ?? [],
+    };
+  });
+
+/** Upcoming / recent OS-message blast posts for the Channels UI. */
+export const getOsMessageStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { companyId: string }) => ({
+    companyId: String(input.companyId),
+  }))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { OS_MESSAGE_CAMPAIGN, buildOsMessageSlots, osMessageSummary } =
+      await import("@/lib/x-launch-campaign");
+
+    const { data: company } = await supabaseAdmin
+      .from("companies")
+      .select("id")
+      .eq("id", data.companyId)
+      .eq("owner_id", context.userId)
+      .maybeSingle();
+    if (!company) throw new Error("Company not found");
+
+    const { data: posts } = await supabaseAdmin
+      .from("channel_posts")
+      .select(
+        "id, body, status, scheduled_at, published_at, external_url, error, campaign_key, provider",
+      )
+      .eq("company_id", data.companyId)
+      .like("campaign_key", `${OS_MESSAGE_CAMPAIGN}%`)
+      .order("scheduled_at", { ascending: true });
+
+    return {
+      campaign: OS_MESSAGE_CAMPAIGN,
+      seeded: (posts?.length ?? 0) > 0,
+      posts: posts ?? [],
+      preview: osMessageSummary(buildOsMessageSlots()),
+    };
+  });

@@ -3,7 +3,7 @@ import { tickpixRaidOpen } from "@/lib/tickpix";
 
 export type ShareAspect = "vertical" | "landscape";
 
-export type ShareCampaign = "wien-schmah";
+export type ShareCampaign = "wien-schmah" | "os-message";
 
 export type SharePost = {
   id: string;
@@ -44,7 +44,174 @@ Fair launch ${TOKEN_LAUNCH_DISPLAY} → ${SITE_URL}`;
  * Public share kit — funny, copy-ready posts paired with hosted watch pages + MP4s.
  * Everyone can share a link (watch on Aura) or download for native upload. No login.
  */
+const OS_CTA = `Own the company. Let AI make money.
+${CTA}`;
+
 export const SHARE_POSTS: SharePost[] = [
+  {
+    id: "aichanging",
+    title: "AI is changing work",
+    vibe: "Don't rent another tool. Own the company.",
+    file: "aichanging",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "TikTok", "Reels"],
+    campaign: "os-message",
+    hook: "AI is changing work. Own the company — don't rent another chatbot.",
+    captions: [
+      `AI is changing work.
+
+Most people buy another SaaS seat.
+We built an OS so you own the company AI runs.
+
+${OS_CTA}`,
+      `The shift isn't “better prompts.”
+It's owning the company the agents work for.
+
+${OS_CTA}`,
+    ],
+  },
+  {
+    id: "concept",
+    title: "The concept",
+    vibe: "Company OS — not another chatbot.",
+    file: "concept",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "LinkedIn"],
+    campaign: "os-message",
+    hook: "The concept: a company OS. Not another chatbot.",
+    captions: [
+      `The concept is simple.
+
+You name the company.
+AI employees wake up.
+You approve spend and outbound.
+
+That's Aura OS.
+
+${OS_CTA}`,
+      `Not a chat window with a price tag.
+A company you own — agents execute.
+
+${OS_CTA}`,
+    ],
+  },
+  {
+    id: "nosaas",
+    title: "No more lonely SaaS",
+    vibe: "Dashboards without a crew are dead.",
+    file: "nosaas",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "TikTok"],
+    campaign: "os-message",
+    hook: "Lonely SaaS dashboards are dead. Own a company instead.",
+    captions: [
+      `Lonely SaaS dashboards are dead.
+
+You don't need another tab.
+You need a company that works while you sleep.
+
+${OS_CTA}`,
+      `Stop stacking subscriptions.
+Start owning the OS.
+
+${OS_CTA}`,
+    ],
+  },
+  {
+    id: "osos",
+    title: "OS > SaaS",
+    vibe: "You own the company. They execute.",
+    file: "osos",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "Reels"],
+    campaign: "os-message",
+    hook: "OS > SaaS. You own the company. Agents execute.",
+    captions: [
+      `OS > SaaS.
+
+Rent a tool → someone else's upside.
+Own the company → you keep the win.
+
+${OS_CTA}`,
+      `Software that runs a company —
+not another monthly seat.
+
+${OS_CTA}`,
+    ],
+  },
+  {
+    id: "winos-winner",
+    title: "Winners run an OS",
+    vibe: "Not a pile of subscriptions.",
+    file: "winos_winner",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "TikTok"],
+    campaign: "os-message",
+    hook: "Winners run an OS — not a subscription pile.",
+    captions: [
+      `Winners don't collect tabs.
+They run an OS.
+
+Aura OS: own the company. Let AI make money.
+
+${OS_CTA}`,
+      `Subscription pile vs company OS.
+Guess which one compounds.
+
+${OS_CTA}`,
+    ],
+  },
+  {
+    id: "workflow",
+    title: "Agents run the workflow",
+    vibe: "You approve. They ship.",
+    file: "workflow",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "LinkedIn"],
+    campaign: "os-message",
+    hook: "Agents execute the workflow. You approve spend and outbound.",
+    captions: [
+      `Agents execute the workflow.
+You approve spend and outbound.
+Nothing moves a dollar without you.
+
+${OS_CTA}`,
+      `Autonomy with a leash.
+That's the product.
+
+${OS_CTA}`,
+    ],
+  },
+  {
+    id: "worktogether",
+    title: "Work together",
+    vibe: "You + the AI crew.",
+    file: "worktogether",
+    aspect: "vertical",
+    duration: "15s",
+    bestFor: ["X", "Farcaster", "Discord"],
+    campaign: "os-message",
+    hook: "You + AI crew. Working together — not replacing you.",
+    captions: [
+      `You + the AI crew.
+Working together.
+
+They draft and ship.
+You decide.
+
+${OS_CTA}`,
+      `Not “AI replaces you.”
+You own the company. They work with you.
+
+${OS_CTA}`,
+    ],
+  },
   {
     id: "quest-squads",
     title: "Quest + Squads live",

@@ -1,6 +1,6 @@
 /**
- * Self-hosted platform AURA T-0 (Uniswap v2 on Base — no Clanker).
- * CAs stay null until deploy. Never invent one.
+ * Platform AURA T-0 helpers (addresses, redeem math, legacy Uni v2 ABIs for Hood escrow).
+ * Venue is Uniswap v4 on Base — see aura-curve.ts. CAs stay null until deploy. Never invent one.
  */
 
 import {
@@ -99,16 +99,16 @@ export function defaultPauraAddress(): `0x${string}` {
 }
 
 export const AURA_SELF_LAUNCH = {
-  venue: "Uniswap v2 on Base",
-  venueDe: "Uniswap v2 auf Base",
+  venue: "Uniswap v4 on Base",
+  venueDe: "Uniswap v4 auf Base",
   lpLock:
-    "Launch LP is sent to AuraLpSink (no withdraw) on the official Uni v2 USDC/AURA pair — not a team wallet.",
-  lpLockDe:
-    "Die Start-LP geht an AuraLpSink (kein Withdraw) auf dem offiziellen Uni-v2-USDC/AURA-Paar — nicht in eine Team-Wallet.",
+    "Launch LP is a locked Uniswap v4 AURA/USDC FlatStart book — $6,000 USDC at ~$0.001, not a Project moon stair. No team withdraw, not a team wallet.",
+    lpLockDe:
+    "Die Start-LP ist ein gesperrtes Uniswap-v4-AURA/USDC-FlatStart-Buch — 6.000 $ USDC bei ~0,001 $, keine Project-Mondtreppe. Kein Team-Withdraw, keine Team-Wallet.",
   fairLaunch:
-    "AURA is created from a new empty wallet at T-0, paired on Uniswap v2 (Base). Official CA only on aibusiness.fun and X @buildingcultu3. No Clanker fee on the platform TGE.",
+    "AURA is created from a new empty wallet at T-0, paired on Uniswap v4 (Base, AURA/USDC). Locked LP, published hooks. Official CA only on aibusiness.fun and X @buildingcultu3. Platform TGE is not the company-desk Clanker product.",
   fairLaunchDe:
-    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet und wird auf Uniswap v2 (Base) gepaart. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3. Keine Clanker-Gebühr auf dem Platform-TGE.",
+    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Gesperrte LP, veröffentlichte Hooks. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3. Platform-TGE ist nicht das Company-Desk-Clanker-Produkt.",
 } as const;
 
 export const AURA_TOKEN_ABI = [

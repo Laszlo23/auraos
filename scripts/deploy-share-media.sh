@@ -28,6 +28,13 @@ KIT_MP4S=(
   teaser.mp4
   teasernice.mp4
   aura-teaser.mp4
+  aichanging.mp4
+  concept.mp4
+  nosaas.mp4
+  osos.mp4
+  winos_winner.mp4
+  workflow.mp4
+  worktogether.mp4
 )
 
 missing=0

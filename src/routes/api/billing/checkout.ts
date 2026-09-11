@@ -15,9 +15,15 @@ import {
   stripePriceForBoostPack,
 } from "@/lib/boost-packs";
 import { funnelPlanById, isFunnelPlanId, stripePriceForFunnelPlan } from "@/lib/funnel-plans";
+import {
+  auraBuyPackById,
+  isAuraBuyPackId,
+  stripePriceEnvForAuraBuyPack,
+} from "@/lib/aura-buy-guide";
 import { SITE_URL } from "@/lib/site";
 import { assertStripeChargesEnabled } from "@/lib/stripe-account";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
+import { isBaseAddress } from "@/lib/private-sale";
 
 function priceForAuraPlan(plan: string): string | undefined {
   const map: Record<string, string | undefined> = {
@@ -94,6 +100,9 @@ export const Route = createFileRoute("/api/billing/checkout")({
         const body = (await request.json().catch(() => ({}))) as {
           plan?: string;
           company_id?: string;
+          kind?: string;
+          pack?: string;
+          wallet?: string;
         };
         const plan = body.plan ?? "company";
         const companyId = body.company_id;
@@ -120,7 +129,42 @@ export const Route = createFileRoute("/api/billing/checkout")({
         }
         if (user.email) params.set("customer_email", user.email);
 
-        if (plan === LOCAL_SEAT_PLAN_ID) {
+        if (body.kind === "aura_buy" || isAuraBuyPackId(body.pack ?? "") || isAuraBuyPackId(plan)) {
+          const packId = isAuraBuyPackId(body.pack ?? "")
+            ? body.pack
+            : isAuraBuyPackId(plan)
+              ? plan
+              : undefined;
+          const pack = packId ? auraBuyPackById(packId) : undefined;
+          const wallet = (body.wallet ?? "").trim();
+          if (!pack) {
+            return Response.json({ error: "Unknown AURA buy pack" }, { status: 400 });
+          }
+          if (!isBaseAddress(wallet)) {
+            return Response.json({ error: "A provisioned Aura wallet is required" }, { status: 400 });
+          }
+          const price = stripePriceEnvForAuraBuyPack(pack.id);
+          params.set("mode", "payment");
+          params.set("success_url", `${site}/buy?checkout=success`);
+          params.set("cancel_url", `${site}/buy?checkout=cancel`);
+          params.set("metadata[kind]", "aura_buy");
+          params.set("metadata[pack]", pack.id);
+          params.set("metadata[user_id]", user.id);
+          params.set("metadata[wallet]", wallet);
+          params.set("client_reference_id", user.id);
+          if (price) {
+            params.set("line_items[0][price]", price);
+          } else {
+            params.set("line_items[0][price_data][currency]", "usd");
+            params.set("line_items[0][price_data][unit_amount]", String(pack.usd * 100));
+            params.set("line_items[0][price_data][product_data][name]", `AURA card pack $${pack.usd}`);
+            params.set(
+              "line_items[0][price_data][product_data][description]",
+              "Card now. AURA sent to your Aura wallet after T-0. Not an on-chain swap.",
+            );
+          }
+          params.set("line_items[0][quantity]", "1");
+        } else if (plan === LOCAL_SEAT_PLAN_ID) {
           const price = process.env["STRIPE_PRICE_LOCAL_SEAT"]?.trim();
           params.set("mode", "payment");
           params.set("success_url", `${site}/boost?checkout=success`);

@@ -51,6 +51,8 @@ async function runTick(taskLimit: number) {
       linkedinSkipped: 0,
       catchUpCreated: 0,
       catchUpSkipped: 0,
+      t0Created: 0,
+      t0Skipped: 0,
     },
   );
   const channels = await safe("channels", () => publishDueChannelPosts(20), {

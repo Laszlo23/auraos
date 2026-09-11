@@ -209,7 +209,7 @@ export function Meter({ value, tone = "primary" }: { value: number; tone?: "prim
           "h-full rounded-full",
           tone === "gold"
             ? "bg-gradient-to-r from-gold to-primary"
-            : "bg-gradient-to-r from-primary to-gold/80",
+            : "bg-gradient-to-r from-primary to-street-teal",
         )}
       />
     </div>

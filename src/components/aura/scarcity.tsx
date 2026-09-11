@@ -43,7 +43,7 @@ export function FoundingCohort({
   if (compactMode) {
     return (
       <span className="text-[11px] tracking-wide text-muted-foreground">
-        Founding seats · <span className="num text-gold">{ready ? num(remaining) : "—"}</span> of{" "}
+        Founding seats · <span className="num text-neon-lime">{ready ? num(remaining) : "—"}</span> of{" "}
         {num(cap)} left
         {ready ? (
           <>
@@ -72,9 +72,9 @@ export function FoundingCohort({
         <span>
           Founding seats · {ready ? `${num(taken)} seated` : "counting…"} of {num(cap)}
         </span>
-        <span className="num text-gold">{ready ? `${num(remaining)} left` : "—"}</span>
+        <span className="num text-neon-lime">{ready ? `${num(remaining)} left` : "—"}</span>
       </div>
-      <Meter value={ready ? pct : 0} tone="gold" />
+      <Meter value={ready ? pct : 0} tone="primary" />
       <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground/80">
         Paid inventory only — {ready ? `${num(taken)} seated, ${num(remaining)} left` : "counting…"}
         . Locked pricing. Founding badge. One invite each after you seat.
@@ -115,7 +115,7 @@ export function MarketingWaveScarcity({ className }: { className?: string }) {
     >
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
         <span>{WAVE1_LABEL}</span>
-        <span className="num text-gold">
+        <span className="num text-neon-lime">
           {soldOut
             ? "Wave sold out"
             : ready
@@ -123,7 +123,7 @@ export function MarketingWaveScarcity({ className }: { className?: string }) {
               : "—"}
         </span>
       </div>
-      <Meter value={soldOut ? 100 : ready ? pct : 0} tone="gold" />
+      <Meter value={soldOut ? 100 : ready ? pct : 0} tone="primary" />
       <div className="mt-3 flex flex-col gap-2 text-[12px] text-muted-foreground/85 sm:flex-row sm:items-start sm:justify-between">
         <p className="max-w-xl leading-relaxed">
           Paid founding seats only

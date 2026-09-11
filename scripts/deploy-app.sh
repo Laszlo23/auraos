@@ -12,6 +12,8 @@ rsync -az --delete \
   --exclude node_modules --exclude .git --exclude .output --exclude .vinxi \
   --exclude .env --exclude .env.local --exclude .cache --exclude coverage \
   --exclude supabase/.temp --exclude 'public/*.mp4' --exclude yarn.lock \
+  --exclude auraos-landing-pr \
+  --exclude .aura-t0-treasury.json --exclude .aura-t0-out.json \
   -e "ssh -i $SSH_KEY -o IdentitiesOnly=yes -o BatchMode=yes" \
   "$ROOT/" "$HOST:/opt/auraos/"
 

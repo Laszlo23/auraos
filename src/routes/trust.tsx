@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
 
+import { AuraOfficialCas } from "@/components/aura/aura-official-cas";
 import { PublicSiteHeader } from "@/components/aura/public-site-header";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { VerifyStrip } from "@/components/aura/verify-strip";
@@ -90,6 +91,44 @@ function TrustPage() {
           <VerifyStrip de={de} />
         </section>
 
+        <section id="aura" className="mt-8">
+          <h2 className="text-[15px] font-semibold">
+            {de ? "AURA — ein Software-Token" : "AURA — one software token"}
+          </h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {de
+              ? "T-0 auf Base, Uniswap v4, FlatStart-AURA/USDC-Buch (6.000 $ bei ~0,001 $ — keine Project-Treppe). Token-Steuer 0 % — du kannst verkaufen. Handelsgebühr 1–3 % auf dem offiziellen Pool. TICKPIX / Hood / CCFF00 bleiben NFTs. Kein zweiter Culture Coin. Ein optionaler Robinhood-Wrapper kommt erst, wenn das Base-Buch tief ist — nie eine zweite offizielle CA bei T-0."
+              : "T-0 on Base, Uniswap v4, FlatStart AURA/USDC book ($6,000 at ~$0.001 — not a Project stair). Token tax 0% — you can sell. Trading fee 1–3% on the official pool. TICKPIX / Hood / CCFF00 stay NFTs. No second Culture Coin. An optional Robinhood wrapper ships only after the Base book is deep — never a second official CA at T-0."}
+          </p>
+          <div className="mt-4">
+            <AuraOfficialCas de={de} />
+          </div>
+          <p className="mt-3 text-[13px]">
+            <Link to="/swap" className="font-semibold text-primary hover:underline">
+              {de ? "Swap-Desk →" : "Swap desk →"}
+            </Link>
+            {" · "}
+            <Link to="/token" className="font-semibold text-primary hover:underline">
+              /token
+            </Link>
+            {" · "}
+            <Link to="/square" className="font-semibold text-primary hover:underline">
+              {de ? "Aura Square →" : "Aura Square →"}
+            </Link>
+          </p>
+        </section>
+
+        <section className="mt-8 rounded-2xl border border-border/40 px-5 py-5">
+          <h2 className="text-[15px] font-semibold">
+            {de ? "Aura Square — Utility-Binder" : "Aura Square — utility binder"}
+          </h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {de
+              ? "Base ERC-721, Cap 1.111, ERC-6551-TBA. Kein zweites Hood, nicht auf /sale oder pAURA-Schienen. CA erst nach 48h-Ankündigung."
+              : "Base ERC-721, cap 1,111, ERC-6551 TBA. Not a second founding collection, not on /sale or pAURA rails. CA only after the 48h announce."}
+          </p>
+        </section>
+
         <section className="mt-8 rounded-2xl border border-border/40 px-5 py-5">
           <h2 className="text-[15px] font-semibold">
             {de ? "Offizielle Links" : "Official links"}
@@ -125,7 +164,7 @@ function TrustPage() {
             </li>
           </ul>
           <div className="mt-4 flex flex-wrap gap-2">
-            {COVENANT_LINKS.slice(0, 9).map((l) => (
+            {COVENANT_LINKS.map((l) => (
               <a
                 key={l.href}
                 href={l.href}

@@ -27,6 +27,7 @@
     "contracts:migrate-hood-v1": "npx tsx scripts/migrate-hood-v1.ts",
     "contracts:compile:aura": "npx tsx scripts/aura-t0.ts --compile-only",
     "contracts:aura-t0": "npx tsx scripts/aura-t0.ts",
+    "contracts:aura-t0:operator": "npx tsx scripts/aura-t0-operator.ts",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:status": "supabase status -o pretty",
