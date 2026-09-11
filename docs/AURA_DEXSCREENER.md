@@ -55,6 +55,20 @@ JSON: `/api/token/aura` (`src/lib/aura-token-meta.ts`).
 - Links: `/token`, X, Farcaster, Discord, Telegram — direct HTTPS, no link-in-bio
 - Square / Hood / TICKPIX are not this token
 
+### Prep before T-0 (no public CA)
+
+`CREATE` address is deterministic from **deployer + nonce**. With mainnet nonce still `0` and AuraToken as the first deploy:
+
+```bash
+npx tsx scripts/aura-t0-operator.ts predict-ca
+```
+
+That writes `.aura-t0-predicted.json` (gitignored). The predicted Base AuraToken CA matches the Sepolia rehearsal CA when nonce matches.
+
+**Allowed now:** draft DexScreener fields offline; local-only `AURA_TOKEN_CA` / `VITE_AURA_TOKEN_CA` to preview `/token` on your laptop.
+
+**Not allowed before locked book + T-0:** publish the CA on the VPS `/token`, X, Telegram, or submit DexScreener as if it were live. DexScreener **Update Token Info** needs the live Base pair — submit after attach.
+
 After T-0: verify on Basescan / Sourcify, then submit DexScreener **Update Token Info** from the official pair. Never from a clone. Never by DM.
 
 ## Honest limits

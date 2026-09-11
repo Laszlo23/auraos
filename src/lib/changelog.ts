@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-11-t0-safe-path",
+    date: "2026-09-11",
+    title: "T-0 safe path — predict CA, no Sepolia USDC required",
+    summary:
+      "Sepolia Solidity path proven. Operator can predict the mainnet AuraToken CREATE address for local prep. Safe path without testnet USDC is documented: fund Base, paper Uni v4 attach, never publish a CA without a locked book.",
+    items: [
+      "operator predict-ca: deterministic CREATE address from deployer + nonce (local preview only — never VPS before T-0)",
+      "Runbook: safe path without Sepolia USDC; hard gate if Uni v4 attach is unclear",
+      "DexScreener prep notes: draft metadata offline; submit Update Token Info only after the locked pool is live",
+      "Gitignore deploy receipts + predicted CA file so testnet addresses never ship as official",
+    ],
+    tags: ["infra", "improvement"],
+  },
+  {
     id: "2026-09-11-grow-not-extract",
     date: "2026-09-11",
     title: "Grow not extract — 25% fees → locked LP",

@@ -86,6 +86,24 @@ Confirm:
 
 Grow-not-extract after T-0: week-1 protocol sink → locked book SOP in [`AURA_LP_AND_MINT.md`](./AURA_LP_AND_MINT.md) §6.
 
+## Safe path without Sepolia USDC
+
+Testnet USDC is often hard to get. **That is OK.** Do not improvise a broken attach just to “finish” Sepolia.
+
+**Already proven (Sepolia, ETH-only):** AuraToken + sinks + gauge + redeem + vestings + allocation transfers (`broadcast --sepolia`, exit 0). That is the Solidity path. Keep `contracts/aura/Aura.sepolia.json` as the rehearsal receipt. **Do not** publish those Sepolia CAs as official.
+
+**Cannot fake without real USDC:** locked Uni v4 FlatStart book + $1,111 seed. There is no in-repo script that attaches the pool; Clanker wrap / native Position Manager is a **manual** step with **mainnet** USDC on the launch treasury.
+
+**Safe Sunday rule (do not violate):**
+
+1. Mainnet treasury `status` must show ~**$7,111 USDC** + **0.02–0.05 ETH** — not SHORT.
+2. Operator at the desk knows the exact attach sequence (Clanker `existingToken: true` on the **new** mainnet AuraToken, or native v4 + published lock). Dry-read the Clanker UI / docs Saturday; write the click order on paper.
+3. At T-0: deploy token stack **first** → attach **locked** book **before** any public CA → only then `post-t0` + pin on X.
+4. If step 2 is unclear Saturday night → **slip mechanical T-0**. Keep the announced time as marketing only. Public note on X + `/trust`. Never mint a live CA with `pair: null`.
+5. Never put `AURA_T0_KEY` on the VPS. Never use `ClankerTokenV4`. Never shrink the 48h announce.
+
+**Smooth order on the bell:** `status` green → `wait` → `broadcast` (mainnet) → attach lock + seed → verify pool non-withdrawable → `post-t0` → pin CA. Human in the loop the whole way.
+
 ## Sunday 10:45–11:20 Vienna
 
 1. **10:45** — operator at the desk. Script loaded. RPC warm. Base status green. `AURA_T0_KEY` only on this machine.

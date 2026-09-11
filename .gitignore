@@ -63,4 +63,9 @@ secrets/
 # T-0 launch treasury — never commit the key
 .aura-t0-treasury.json
 .aura-t0-out.json
+.aura-t0-predicted.json
+# Network deploy receipts (may include testnet CAs — never publish as official)
+contracts/aura/Aura.sepolia.json
+contracts/aura/Aura.mainnet.json
+contracts/aura/Aura.*.json
 

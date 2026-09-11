@@ -23,6 +23,7 @@ import {
   createPublicClient,
   formatEther,
   formatUnits,
+  getContractAddress,
   http,
   type Address,
 } from "viem";
@@ -55,6 +56,7 @@ import { BASE_USDC } from "../src/lib/private-sale";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const TREASURY_FILE = join(ROOT, ".aura-t0-treasury.json");
+const PREDICTED_FILE = join(ROOT, ".aura-t0-predicted.json");
 const BASE_SEPOLIA_USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as Address;
 const ERC20_BALANCE = [
   {
@@ -106,6 +108,7 @@ Commands:
   wait                  Sleep until ${TOKEN_LAUNCH_AT_ISO} then print GO
   broadcast --sepolia   Rehearsal deploy (allowed anytime)
   broadcast             Mainnet deploy — refuses before T-0
+  predict-ca            Predict mainnet AuraToken CREATE address (no tx)
   hood                  Gift drop + 72h escrow + openRedeem checklist
   post-t0               Env / DexScreener / GoPlus after the CA exists
 `);
@@ -202,6 +205,59 @@ function cmdVenue() {
   console.log(JSON.stringify(AURA_T0_VENUE, null, 2));
   console.log("confirm Saturday: Clanker can attach a pool to an existing ERC-20.");
   console.log("if not, native v4 Position Manager + published lock. Same split. Never ClankerTokenV4.");
+}
+
+async function cmdPredictCa() {
+  applyTreasuryKey();
+  const file = readTreasury();
+  const from = (file?.address || process.env["AURA_LAUNCH_TREASURY"]?.trim()) as Address | undefined;
+  if (!from || !/^0x[a-fA-F0-9]{40}$/.test(from)) {
+    throw new Error("No treasury address. Run: npx tsx scripts/aura-t0-operator.ts treasury");
+  }
+  const rpc = process.env["BASE_RPC_URL"] || "https://mainnet.base.org";
+  const client = createPublicClient({ chain: base, transport: http(rpc) });
+  const nonce = await client.getTransactionCount({ address: from });
+  const aura = getContractAddress({ from, nonce: BigInt(nonce) });
+  const burn = getContractAddress({ from, nonce: BigInt(nonce + 1) });
+  const gauge = getContractAddress({ from, nonce: BigInt(nonce + 2) });
+  const payload = {
+    chainId: 8453,
+    network: "base",
+    deployer: from,
+    mainnetNonce: nonce,
+    predicted: {
+      AuraToken: aura,
+      AuraBurnSink: burn,
+      AuraGauge: gauge,
+    },
+    note:
+      "CREATE address = f(deployer, nonce) only — same as Sepolia when nonce matches. Valid only if AuraToken remains the next CREATE on Base and nonce does not change.",
+    doNot: [
+      "Do not publish this CA on /token, X, or DexScreener before locked book + T-0",
+      "Do not set AURA_TOKEN_CA on the VPS until post-t0",
+      "Local preview only: AURA_TOKEN_CA / VITE_AURA_TOKEN_CA on this machine",
+      "DexScreener Update Token Info needs the live Base pair — submit after attach",
+    ],
+    localPreviewEnv: [
+      `AURA_TOKEN_CA=${aura}`,
+      `VITE_AURA_TOKEN_CA=${aura}`,
+    ],
+    writtenAt: new Date().toISOString(),
+  };
+  writeFileSync(PREDICTED_FILE, JSON.stringify(payload, null, 2) + "\n", { mode: 0o600 });
+  chmodSync(PREDICTED_FILE, 0o600);
+  console.log("Predicted mainnet CAs (no transaction sent):");
+  console.log("  deployer", from);
+  console.log("  mainnetNonce", nonce);
+  console.log("  AuraToken", aura);
+  console.log("  AuraBurnSink (2nd CREATE)", burn);
+  console.log("  AuraGauge (3rd CREATE)", gauge);
+  if (nonce !== 0) {
+    console.warn("WARNING: mainnet nonce is not 0 — prediction is for the *next* CREATE only.");
+  }
+  console.log("wrote", PREDICTED_FILE, "(gitignored — do not publish)");
+  console.log("Local token-page preview: set the two env lines above on THIS machine only. Never VPS before T-0.");
+  console.log("DexScreener: draft metadata now; submit Update Token Info only after the locked pool is live.");
 }
 
 async function cmdWait() {
@@ -316,6 +372,9 @@ async function main() {
       return;
     case "venue":
       cmdVenue();
+      return;
+    case "predict-ca":
+      await cmdPredictCa();
       return;
     case "wait":
       await cmdWait();
