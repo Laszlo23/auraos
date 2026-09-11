@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-11-grow-not-extract",
+    date: "2026-09-11",
+    title: "Grow not extract — 25% fees → locked LP",
+    summary:
+      "Covenant + /trust now state clearly: 25% of official pool fees grow the locked AURA/USDC book (POL). Protocol sink is labeled for locked LP, not ops extract. Week-1 fee→LP SOP is public.",
+    items: [
+      "New covenant promise grow-lp: 25% protocol fees → same locked Uni v4 book; team cannot withdraw launch LP",
+      "CAS / fee split UI: Protocol sink → locked LP (POL); link to docs/AURA_LP_AND_MINT.md",
+      "Week-1 SOP: dedicated AURA_PROTOCOL_SINK, ≥3 sweeps/week, public receipts on /trust#pol",
+      "T-0 operator post-t0 checklist includes AURA_PROTOCOL_SINK + AURA_QUEST_BONUS",
+      "Serve public/docs/*.md (LP SOP + curve) via Caddy so /docs/AURA_LP_AND_MINT.md is live",
+    ],
+    tags: ["improvement", "infra"],
+  },
+  {
     id: "2026-09-11-lp-mint-overview",
     date: "2026-09-11",
     title: "Mint vs LP one-pager — and how liquidity grows",

@@ -79,6 +79,10 @@ if compgen -G "/opt/auraos/public/*.mp4" >/dev/null; then
     cp -an /opt/auraos/public/share/. /opt/auraos/.output/public/share/ 2>/dev/null || true
   fi
 fi
+if [[ -d /opt/auraos/public/docs ]]; then
+  mkdir -p /opt/auraos/.output/public/docs
+  cp -a /opt/auraos/public/docs/. /opt/auraos/.output/public/docs/
+fi
 if compgen -G "/opt/auraos/public/*.pptx" >/dev/null; then
   cp -an /opt/auraos/public/*.pptx /opt/auraos/.output/public/ 2>/dev/null || true
 fi

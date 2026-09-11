@@ -70,6 +70,14 @@ export const COVENANT_PROMISES: CovenantPromise[] = [
     bodyDe: `${TOKEN_LAUNCH_TRUST_DE} Angekündigt: ${TOKEN_LAUNCH_DISPLAY_DE}. T-0 ist Uniswap v4 auf Base (gesperrtes AURA/USDC, veröffentlichte Hooks). Offizielle AURA-CA nur auf /token und /trust.`,
   },
   {
+    id: "grow-lp",
+    title: "Grow locked LP — don’t extract fees",
+    titleDe: "Locked LP wachsen lassen — keine Fee-Extraktion",
+    body: "25% of official pool fees go to the published protocol sink and are added back into the same locked AURA/USDC book (protocol-owned liquidity). The team cannot withdraw launch LP. Week-1 receipts land on /trust. SOP: /docs/AURA_LP_AND_MINT.md.",
+    bodyDe:
+      "25 % der offiziellen Pool-Gebühren gehen in den veröffentlichten Protokoll-Sink und zurück ins gleiche gesperrte AURA/USDC-Buch (protocol-owned liquidity). Das Team kann die Start-LP nicht abziehen. Week-1-Belege auf /trust. SOP: /docs/AURA_LP_AND_MINT.md.",
+  },
+  {
     id: "make-good",
     title: "Make it up by building",
     titleDe: "Wiedergutmachung durch Bauen",
@@ -86,6 +94,7 @@ export const COVENANT_LINKS = [
   { href: `${SITE_URL}/buy`, label: "Buy AURA" },
   { href: `${SITE_URL}/swap`, label: "AURA swap desk" },
   { href: `${SITE_URL}/square`, label: "Aura Square" },
+  { href: `${SITE_URL}/docs/AURA_LP_AND_MINT.md`, label: "LP + POL SOP" },
   { href: `${SITE_URL}/pit`, label: "TICKPIX pit" },
   { href: `${SITE_URL}/hood`, label: "The Hood" },
   { href: TICKPIX.mintUrl, label: "Mint site" },

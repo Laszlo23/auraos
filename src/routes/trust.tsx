@@ -63,8 +63,8 @@ function TrustPage() {
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-foreground/85">
             {de
-              ? "Kein Pitch. Sechs Versprechen, an denen ihr uns messen könnt."
-              : "Not a pitch. Six promises you can hold us to."}
+              ? "Kein Pitch. Sieben Versprechen, an denen ihr uns messen könnt — inkl. 25 % Protokoll-Gebühren → Locked LP."
+              : "Not a pitch. Seven promises you can hold us to — including 25% protocol fees → locked LP."}
           </p>
         </motion.div>
 
@@ -97,8 +97,27 @@ function TrustPage() {
           </h2>
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
             {de
-              ? "T-0 auf Base, Uniswap v4, FlatStart-AURA/USDC-Buch (6.000 $ bei ~0,001 $ — keine Project-Treppe). Token-Steuer 0 % — du kannst verkaufen. Handelsgebühr 1–3 % auf dem offiziellen Pool. TICKPIX / Hood / CCFF00 bleiben NFTs. Kein zweiter Culture Coin. Ein optionaler Robinhood-Wrapper kommt erst, wenn das Base-Buch tief ist — nie eine zweite offizielle CA bei T-0."
-              : "T-0 on Base, Uniswap v4, FlatStart AURA/USDC book ($6,000 at ~$0.001 — not a Project stair). Token tax 0% — you can sell. Trading fee 1–3% on the official pool. TICKPIX / Hood / CCFF00 stay NFTs. No second Culture Coin. An optional Robinhood wrapper ships only after the Base book is deep — never a second official CA at T-0."}
+              ? "T-0 auf Base, Uniswap v4, FlatStart-AURA/USDC-Buch (6.000 $ bei ~0,001 $ — keine Project-Treppe). Token-Steuer 0 % — du kannst verkaufen. Handelsgebühr 1–3 % auf dem offiziellen Pool. 25 % Protokoll-Gebühren wachsen die Locked LP (POL) — das Team kann die Start-LP nicht abziehen. TICKPIX / Hood / CCFF00 bleiben NFTs. Kein zweiter Culture Coin. Ein optionaler Robinhood-Wrapper kommt erst, wenn das Base-Buch tief ist — nie eine zweite offizielle CA bei T-0."
+              : "T-0 on Base, Uniswap v4, FlatStart AURA/USDC book ($6,000 at ~$0.001 — not a Project stair). Token tax 0% — you can sell. Trading fee 1–3% on the official pool. 25% protocol fees grow locked LP (POL) — the team cannot withdraw launch LP. TICKPIX / Hood / CCFF00 stay NFTs. No second Culture Coin. An optional Robinhood wrapper ships only after the Base book is deep — never a second official CA at T-0."}
+          </p>
+          <p className="mt-2 text-[13px] text-muted-foreground" id="pol">
+            {de ? (
+              <>
+                Week-1 POL-Adds: Belege hier. SOP:{" "}
+                <a href="/docs/AURA_LP_AND_MINT.md" className="font-semibold text-primary hover:underline">
+                  /docs/AURA_LP_AND_MINT.md
+                </a>
+                .
+              </>
+            ) : (
+              <>
+                Week-1 POL adds: receipts land here. SOP:{" "}
+                <a href="/docs/AURA_LP_AND_MINT.md" className="font-semibold text-primary hover:underline">
+                  /docs/AURA_LP_AND_MINT.md
+                </a>
+                .
+              </>
+            )}
           </p>
           <div className="mt-4">
             <AuraOfficialCas de={de} />

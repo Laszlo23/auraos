@@ -68,6 +68,14 @@ aibusiness.fun, www.aibusiness.fun {
     file_server
   }
 
+  # Public trust docs (POL SOP, curve) — plain markdown from repo public/docs.
+  @docs path /docs/*
+  handle @docs {
+    root * /opt/auraos/public
+    header Content-Type "text/markdown; charset=utf-8"
+    file_server
+  }
+
   # NOWPayments IPN — only their notification servers (go-live checklist).
   @cryptoIpnBlocked {
     path /api/billing/crypto-ipn

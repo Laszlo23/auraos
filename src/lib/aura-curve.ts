@@ -11,6 +11,7 @@ import { WETH_ADDRESSES } from "@/lib/trading/tokens";
 
 export const AURA_CURVE_DOC = "/docs/AURA_CURVE.md";
 export const AURA_RH_WRAPPER_DOC = "/docs/AURA_RH_WRAPPER.md";
+export const AURA_LP_AND_MINT_DOC = "/docs/AURA_LP_AND_MINT.md";
 
 /** Base WETH — official second pair later, same token. */
 export const BASE_WETH = WETH_ADDRESSES.base;
@@ -152,6 +153,10 @@ export const AURA_CURVE_COPY = {
     "Starting book $6,000 USDC at ~$0.001. First buys get a real bag. Curve is flat-start, not a Project moon stair. Official seed $1,111 stays.",
   startingBookDe:
     "Startbuch 6.000 $ USDC bei ~0,001 $. Erste Käufe bekommen eine echte Tasche. Flat-Start, keine Project-Mondtreppe. Offizieller Seed 1.111 $ bleibt.",
+  protocolOwnedLiquidity:
+    "25% protocol fees → locked LP (POL). Same official AURA/USDC book. Team cannot withdraw launch LP. Week-1 adds get public receipts on /trust.",
+  protocolOwnedLiquidityDe:
+    "25 % Protokoll-Gebühren → Locked LP (POL). Gleiches offizielles AURA/USDC-Buch. Team kann Start-LP nicht abziehen. Week-1-Adds mit öffentlichen Belegen auf /trust.",
 } as const;
 
 export const AURA_AIRDROP_ONLY = ["pAURA redeem +11%", "Hood 7,777 claim"] as const;
@@ -349,8 +354,8 @@ export function auraOfficialCaRows(input: {
     },
     {
       id: "protocol",
-      label: "Protocol sink (ops)",
-      labelDe: "Protokoll-Sink (Ops)",
+      label: "Protocol sink → locked LP (POL)",
+      labelDe: "Protokoll-Sink → Locked LP (POL)",
       value: auraProtocolSinkAddress(),
       kind: "sink",
       t0: true,

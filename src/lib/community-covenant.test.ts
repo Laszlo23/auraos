@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { covenantVerifyItems, COVENANT_OFFICIAL_DOMAINS } from "@/lib/community-covenant";
+import { covenantVerifyItems, COVENANT_OFFICIAL_DOMAINS, COVENANT_PROMISES } from "@/lib/community-covenant";
 import { CCFF00 } from "@/lib/ccff00";
 import { TICKPIX } from "@/lib/tickpix";
 
@@ -24,5 +24,13 @@ describe("covenant verify items", () => {
     ).toBe(false);
     expect(COVENANT_OFFICIAL_DOMAINS).toContain("aibusiness.fun");
     expect(COVENANT_OFFICIAL_DOMAINS).toContain("hookr.fun");
+  });
+
+  it("promises grow-not-extract: 25% protocol fees → locked LP", () => {
+    const grow = COVENANT_PROMISES.find((p) => p.id === "grow-lp");
+    expect(grow).toBeTruthy();
+    expect(grow?.body).toMatch(/25%/);
+    expect(grow?.body).toMatch(/locked/i);
+    expect(grow?.body).toMatch(/AURA_LP_AND_MINT/);
   });
 });

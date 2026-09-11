@@ -279,12 +279,15 @@ function cmdPostT0() {
   console.log("   AURA_TOKEN_CA / VITE_AURA_TOKEN_CA");
   console.log("   AURA_POOL_USDC / VITE_AURA_POOL_USDC");
   console.log("   AURA_GAUGE / AURA_BURN_SINK / AURA_PAURA_REDEEM");
+  console.log("   AURA_PROTOCOL_SINK / VITE_AURA_PROTOCOL_SINK  (25% → locked LP / POL — not ops extract)");
+  console.log("   AURA_QUEST_BONUS / VITE_AURA_QUEST_BONUS");
   console.log("   AURA_LAUNCH_TREASURY / VITE_AURA_LAUNCH_TREASURY  (public address only)");
   console.log("2. Deploy the app so /token and /trust show the CA.");
   console.log("3. Pin the CA on X @buildingcultu3 in the same minute. Never by DM.");
   console.log("4. DexScreener token info from https://aibusiness.fun/api/token/aura");
   console.log("5. GoPlus AFTER the 15s sniper fee has decayed — standing token tax stays 0%.");
   console.log("6. Then hood propose + openRedeem (see: npx tsx scripts/aura-t0-operator.ts hood)");
+  console.log("7. Week-1: sweep protocol sink ≥3×/week into the same locked book — docs/AURA_LP_AND_MINT.md §6");
   console.log("Do NOT copy AURA_T0_KEY onto the VPS.");
 }
 

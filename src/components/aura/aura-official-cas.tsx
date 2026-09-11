@@ -4,6 +4,7 @@ import { Check, Copy } from "lucide-react";
 import {
   AURA_CURVE_COPY,
   AURA_DEV_BUY_USDC,
+  AURA_LP_AND_MINT_DOC,
   auraOfficialCaRows,
   formatBps,
   AURA_REWARD_SPLIT_BPS,
@@ -41,12 +42,19 @@ export function AuraOfficialCas({ de = false }: { de?: boolean }) {
       </p>
       <p className="mt-2 text-[12px] text-muted-foreground">
         {de ? "Fee-Split" : "Fee split"}: LP {formatBps(AURA_REWARD_SPLIT_BPS.lpStakers)} ·{" "}
-        {de ? "Ops" : "ops"} {formatBps(AURA_REWARD_SPLIT_BPS.protocolSink)} · burn{" "}
+        {de ? "POL → Locked LP" : "POL → locked LP"}{" "}
+        {formatBps(AURA_REWARD_SPLIT_BPS.protocolSink)} · burn{" "}
         {formatBps(AURA_REWARD_SPLIT_BPS.burn)} · Quest {formatBps(AURA_REWARD_SPLIT_BPS.questBonus)}
         {" · "}
         {de ? "Swap-Burn" : "swap burn"} {formatBps(AURA_SWAP_BURN_BPS)}
         {" · "}
         {de ? "Seed" : "seed"} ${AURA_DEV_BUY_USDC.toLocaleString("en-US")} USDC
+      </p>
+      <p className="mt-1 text-[12px] text-muted-foreground">
+        {de ? AURA_CURVE_COPY.protocolOwnedLiquidityDe : AURA_CURVE_COPY.protocolOwnedLiquidity}{" "}
+        <a href={AURA_LP_AND_MINT_DOC} className="font-semibold text-primary hover:underline">
+          {de ? "LP + POL SOP →" : "LP + POL SOP →"}
+        </a>
       </p>
       <p className="mt-1 text-[12px] text-muted-foreground">
         {de ? AURA_CURVE_COPY.officialSeedDe : AURA_CURVE_COPY.officialSeed}
