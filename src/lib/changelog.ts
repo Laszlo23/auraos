@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-11-t0-seed-funded",
+    date: "2026-09-11",
+    title: "T-0 seed USDC is on the launch treasury",
+    summary:
+      "Official $1,111-style seed USDC is sitting on the new Base launch treasury (not the pAURA sale key). The separate $6,000 USDC is starting liquidity for the locked Uni v4 AURA/USDC FlatStart book at T-0 — not a market buy into a Safe, and not team tokens.",
+    items: [
+      "Launch treasury on Base holds the seed USDC ahead of Sunday 13 Sep 2026, 11:11 Europe/Vienna",
+      "$6,000 USDC + ~46.7M AURA = locked liquidity book (~$0.001 FlatStart). Locked. No team withdraw",
+      "Team line (93,333,333 AURA) stays in AuraCliffVesting: 12-month cliff, then 36-month linear — nothing free at T-0",
+      "Still needed before T-0: remaining book USDC + gas ETH on the same treasury; CA still unpublished until T-0",
+    ],
+    tags: ["infra"],
+  },
+  {
     id: "2026-09-11-os-message",
     date: "2026-09-11",
     title: "OS message video blast — live on X + Farcaster",
