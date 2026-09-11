@@ -16,6 +16,8 @@ Do **not** miss the minute. A sleep-and-click on a phone will miss it. T-0 is **
 
 Need **~$7,111 USDC + gas ETH** sitting there by Saturday, not at 11:10 Sunday. Swap ETH → USDC on Base into the new treasury. Not Laszlo’s pAURA sale key. Not a mystery contract.
 
+Clear overview of mint vs locked LP vs buys (and planned protocol-fee → LP growth): [`docs/AURA_LP_AND_MINT.md`](./AURA_LP_AND_MINT.md).
+
 Ticker is already `AURA` / `AURA Token`, supply `777,777,777`. Bytecode: `contracts/aura/AuraToken.sol`.
 
 ## Friday (48h announce)

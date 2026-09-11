@@ -6,6 +6,8 @@ TICKPIX, Hood, and CCFF00 stay **NFTs** (keys, not lottery tickets). No TICKPIX 
 
 Canonical numbers live in `src/lib/aura-curve.ts`. This doc is the human reading of that file.
 
+**Mint vs LP vs buys (one-pager):** [`AURA_LP_AND_MINT.md`](./AURA_LP_AND_MINT.md) — all supply is minted once at T-0; $6k is locked starting liquidity; buys do not mint into LP.
+
 ## What we promised and what changed
 
 Public promises that stay:
@@ -126,6 +128,7 @@ Update `/trust` + `/token` **before** T-0 (this repo does that; CAs stay null un
 | --- | --- | --- |
 | 0 | This spec + Uni v2 → v4 copy | — |
 | 1 | AURA + USDC Uni v4, vaults, locked LP, sniper fees, published split, pAURA redeem, CAs on `/token` `/trust` | Multi-hop desk |
+| 1.5 | Protocol fee share (25%) → grow **locked** LP / POL (publish policy first; automate after) — see [`AURA_LP_AND_MINT.md`](./AURA_LP_AND_MINT.md) | Bonding-curve remint |
 | 2 | `/swap` quote + settle, gauge stake/claim, tiny swap-burn | Full DEX |
 | 3 | AURA/WETH, gauge weekly UI, Quest hooks, trailing 7d fee APR | Company tokens as book input |
 | 4 | Optional RH wrapper + Hookr pool | Second official CA |

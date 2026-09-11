@@ -36,6 +36,19 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-11-lp-mint-overview",
+    date: "2026-09-11",
+    title: "Mint vs LP one-pager — and how liquidity grows",
+    summary:
+      "Public doc: all 777,777,777 AURA mint once at T-0. The $6,000 USDC is locked Uni v4 starting liquidity — buys do not mint into LP. After T-0, deeper books come from community LP and (Phase 1.5) protocol fee share into locked LP — not a bonding-curve remint before Sunday.",
+    items: [
+      "New doc: docs/AURA_LP_AND_MINT.md (linked from AURA_CURVE + T-0 runbook)",
+      "T-0 stays FlatStart locked book — too late to rebuild as a mint-on-buy curve",
+      "Planned after T-0: 25% protocol fee share grows locked AURA/USDC LP (published POL policy)",
+    ],
+    tags: ["infra", "improvement"],
+  },
+  {
     id: "2026-09-11-t0-seed-funded",
     date: "2026-09-11",
     title: "T-0 seed USDC is on the launch treasury",
