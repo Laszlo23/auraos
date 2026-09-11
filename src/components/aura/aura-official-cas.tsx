@@ -82,6 +82,13 @@ export function AuraOfficialCas({ de = false }: { de?: boolean }) {
             {row.value ? (
               <>
                 <p className="mt-1 break-all font-mono text-[12px] text-foreground/90">{row.value}</p>
+                {row.kind === "treasury" ? (
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {de
+                      ? "Launch-Wallet — nicht die AURA-CA. Keine Token hierher senden."
+                      : "Launch wallet — not the AURA token. Do not send tokens here."}
+                  </p>
+                ) : null}
                 <div className="mt-2 flex flex-wrap gap-2">
                   <button
                     type="button"

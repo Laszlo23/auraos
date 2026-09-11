@@ -646,7 +646,7 @@ export async function manageOpenPositions(limit = 20) {
         .single();
 
       const calls: { target: Address; data: Hex; value?: bigint }[] = [
-        { target: pair.base, data: encodeApprove(parsed.to, amountIn * 2n) },
+        { target: pair.base, data: encodeApprove(parsed.to, amountIn) },
         { target: parsed.to, data: parsed.data, value: parsed.value },
       ];
       const result =
@@ -946,7 +946,7 @@ export async function executeApprovedSignals(limit = 5, companyId?: string) {
       const calls: { target: Address; data: Hex; value?: bigint }[] = [
         {
           target: pair.quote,
-          data: encodeApprove(parsed.to, amountIn * 2n),
+          data: encodeApprove(parsed.to, amountIn),
         },
         {
           target: parsed.to,

@@ -315,7 +315,7 @@ export async function supplyUsdcToGuessMarketLp(args: {
     const createOp = await executeBatchUserOps(
       args.privateKey,
       [
-        { target: usdc, data: encodeApprove(GUESSMARKET_FACTORY_BASE, fee * 2n) },
+        { target: usdc, data: encodeApprove(GUESSMARKET_FACTORY_BASE, fee) },
         {
           target: GUESSMARKET_FACTORY_BASE,
           data: encodeFunctionData({
@@ -359,7 +359,7 @@ export async function supplyUsdcToGuessMarketLp(args: {
   const lpOp = await executeBatchUserOps(
     args.privateKey,
     [
-      { target: usdc, data: encodeApprove(market, lpUsdc * 2n) },
+      { target: usdc, data: encodeApprove(market, lpUsdc) },
       {
         target: market,
         data: encodeFunctionData({

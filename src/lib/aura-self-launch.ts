@@ -7,6 +7,8 @@ import {
   AURA_ALLOCATIONS,
   AURA_MAX_SUPPLY,
   allocationById,
+  onlyIfAuraCaPublished,
+  publishedAuraTokenAddress,
   readConfiguredBaseAddress,
 } from "@/lib/aura-token";
 import {
@@ -39,17 +41,7 @@ export const AURA_REDEEM_RESERVE_WHOLE =
   PRIVATE_SALE_OPEN_LAUNCH_AURA + PRIVATE_SALE_PROJECT_LAUNCH_AURA;
 
 export function auraTokenAddress(): `0x${string}` | null {
-  const fromProc =
-    typeof process !== "undefined"
-      ? process.env["AURA_TOKEN_CA"] || process.env["VITE_AURA_TOKEN_CA"] || ""
-      : "";
-  const fromVite =
-    typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    typeof import.meta.env["VITE_AURA_TOKEN_CA"] === "string"
-      ? String(import.meta.env["VITE_AURA_TOKEN_CA"])
-      : "";
-  return readConfiguredBaseAddress(fromProc, fromVite);
+  return publishedAuraTokenAddress();
 }
 
 export function auraPairAddress(): `0x${string}` | null {
@@ -63,7 +55,7 @@ export function auraPairAddress(): `0x${string}` | null {
     typeof import.meta.env["VITE_AURA_PAIR_CA"] === "string"
       ? String(import.meta.env["VITE_AURA_PAIR_CA"])
       : "";
-  return readConfiguredBaseAddress(fromProc, fromVite);
+  return onlyIfAuraCaPublished(readConfiguredBaseAddress(fromProc, fromVite));
 }
 
 export function auraLpSinkAddress(): `0x${string}` | null {
@@ -77,7 +69,7 @@ export function auraLpSinkAddress(): `0x${string}` | null {
     typeof import.meta.env["VITE_AURA_LP_SINK"] === "string"
       ? String(import.meta.env["VITE_AURA_LP_SINK"])
       : "";
-  return readConfiguredBaseAddress(fromProc, fromVite);
+  return onlyIfAuraCaPublished(readConfiguredBaseAddress(fromProc, fromVite));
 }
 
 export function auraPauraRedeemAddress(): `0x${string}` | null {
@@ -91,7 +83,7 @@ export function auraPauraRedeemAddress(): `0x${string}` | null {
     typeof import.meta.env["VITE_AURA_PAURA_REDEEM"] === "string"
       ? String(import.meta.env["VITE_AURA_PAURA_REDEEM"])
       : "";
-  return readConfiguredBaseAddress(fromProc, fromVite);
+  return onlyIfAuraCaPublished(readConfiguredBaseAddress(fromProc, fromVite));
 }
 
 export function defaultPauraAddress(): `0x${string}` {

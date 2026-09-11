@@ -102,20 +102,22 @@ Testnet USDC is often hard to get. **That is OK.** Do not improvise a broken att
 4. If step 2 is unclear Saturday night → **slip mechanical T-0**. Keep the announced time as marketing only. Public note on X + `/trust`. Never mint a live CA with `pair: null`.
 5. Never put `AURA_T0_KEY` on the VPS. Never use `ClankerTokenV4`. Never shrink the 48h announce.
 
-**Smooth order on the bell:** `status` green → `wait` → `broadcast` (mainnet) → attach lock + seed → verify pool non-withdrawable → `post-t0` → pin CA. Human in the loop the whole way.
+**Smooth order on the bell:** `status` green → `wait` → `broadcast --go` (mainnet) → attach lock + seed → verify pool non-withdrawable → `post-t0` → pin CA. Human in the loop the whole way.
 
 ## Sunday 10:45–11:20 Vienna
 
 1. **10:45** — operator at the desk. Script loaded. RPC warm. Base status green. `AURA_T0_KEY` only on this machine.
-2. **11:11:00** — `npx tsx scripts/aura-t0-operator.ts wait` then `broadcast` (or broadcast at the bell). Human in the loop. Optional `at`/`sleep until` on this dedicated box.
+2. **11:11:00** — `npx tsx scripts/aura-t0-operator.ts wait` then `broadcast --go` (or broadcast at the bell). Human in the loop. Optional `at`/`sleep until` on this dedicated box. Mainnet refuses without `--go`, if nonce ≠ 0, or if Base block time is still before T-0.
 3. Deploy **AuraToken first** (this is the official CA). Then burn sink, gauge, redeem, vestings, gift prefund.
 4. Attach locked Uni v4 AURA/USDC + **$1,111 USDC seed** + **$6,000 USDC book**.
 5. **11:12–11:20** — `npx tsx scripts/aura-t0-operator.ts post-t0`
-   - Set `AURA_TOKEN_CA` + pool + gauge + burn sink + launch treasury **address** on the VPS
+   - Set `AURA_CA_PUBLISH=1` + `VITE_AURA_CA_PUBLISH=1` + `AURA_TOKEN_CA` + pool + gauge + burn sink + launch treasury **address** on the VPS. Never `AURA_ALLOW_PRE_T0_CA`. Never Sepolia CAs. Never the predicted address until the tx is confirmed.
    - Deploy the app
    - Pin CA on X `@buildingcultu3`
    - DexScreener token info from `/api/token/aura`
    - GoPlus **after** the 15s sniper fee decays
+
+Printable pre-Sunday lock: [`docs/AURA_T0_SAFETY.md`](./AURA_T0_SAFETY.md).
 
 There is no “deposit ETH and Clanker fires at 11:11 by itself.” `src/lib/aura-t0-clanker.ts` **builds the spec only**.
 

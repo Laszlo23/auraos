@@ -5,7 +5,12 @@
  * Human reading: docs/AURA_CURVE.md
  */
 
-import { AURA_MAX_SUPPLY, allocationById, readConfiguredBaseAddress } from "@/lib/aura-token";
+import {
+  AURA_MAX_SUPPLY,
+  allocationById,
+  onlyIfAuraCaPublished,
+  readConfiguredBaseAddress,
+} from "@/lib/aura-token";
 import { BASE_USDC, PRIVATE_SALE_BONUS_BPS } from "@/lib/private-sale";
 import { WETH_ADDRESSES } from "@/lib/trading/tokens";
 
@@ -219,32 +224,32 @@ function readEnvHexId(procKeys: string[], viteKeys: string[]): string | null {
 }
 
 export function auraPoolUsdcId(): string | null {
-  return (
+  return onlyIfAuraCaPublished(
     readEnvHexId(
       ["AURA_POOL_USDC", "AURA_PAIR_CA"],
       ["VITE_AURA_POOL_USDC", "VITE_AURA_PAIR_CA"],
-    )
+    ),
   );
 }
 
 export function auraPoolWethId(): string | null {
-  return readEnvHexId(["AURA_POOL_WETH"], ["VITE_AURA_POOL_WETH"]);
+  return onlyIfAuraCaPublished(readEnvHexId(["AURA_POOL_WETH"], ["VITE_AURA_POOL_WETH"]));
 }
 
 export function auraGaugeAddress(): `0x${string}` | null {
-  return readEnvAddress(["AURA_GAUGE"], ["VITE_AURA_GAUGE"]);
+  return onlyIfAuraCaPublished(readEnvAddress(["AURA_GAUGE"], ["VITE_AURA_GAUGE"]));
 }
 
 export function auraBurnSinkAddress(): `0x${string}` | null {
-  return readEnvAddress(["AURA_BURN_SINK"], ["VITE_AURA_BURN_SINK"]);
+  return onlyIfAuraCaPublished(readEnvAddress(["AURA_BURN_SINK"], ["VITE_AURA_BURN_SINK"]));
 }
 
 export function auraProtocolSinkAddress(): `0x${string}` | null {
-  return readEnvAddress(["AURA_PROTOCOL_SINK"], ["VITE_AURA_PROTOCOL_SINK"]);
+  return onlyIfAuraCaPublished(readEnvAddress(["AURA_PROTOCOL_SINK"], ["VITE_AURA_PROTOCOL_SINK"]));
 }
 
 export function auraQuestBonusAddress(): `0x${string}` | null {
-  return readEnvAddress(["AURA_QUEST_BONUS"], ["VITE_AURA_QUEST_BONUS"]);
+  return onlyIfAuraCaPublished(readEnvAddress(["AURA_QUEST_BONUS"], ["VITE_AURA_QUEST_BONUS"]));
 }
 
 /** Optional RH wrapper — never the official T-0 CA. */

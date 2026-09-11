@@ -152,6 +152,9 @@ export function AuraBuyPacks({ de = false }: { de?: boolean }) {
       <p className="text-[12px] text-muted-foreground">
         {de ? AURA_BUY_COPY.packHintDe : AURA_BUY_COPY.packHint}
       </p>
+      <p className="text-[12px] text-muted-foreground">
+        {de ? AURA_BUY_COPY.packRefundDe : AURA_BUY_COPY.packRefund}
+      </p>
 
       {orders.data?.orders.length ? (
         <ul className="space-y-2 text-[12px] text-muted-foreground">

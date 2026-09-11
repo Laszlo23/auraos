@@ -17,6 +17,7 @@ import {
 import { funnelPlanById, isFunnelPlanId, stripePriceForFunnelPlan } from "@/lib/funnel-plans";
 import {
   auraBuyPackById,
+  auraBuyPacksEnabled,
   isAuraBuyPackId,
   stripePriceEnvForAuraBuyPack,
 } from "@/lib/aura-buy-guide";
@@ -130,6 +131,15 @@ export const Route = createFileRoute("/api/billing/checkout")({
         if (user.email) params.set("customer_email", user.email);
 
         if (body.kind === "aura_buy" || isAuraBuyPackId(body.pack ?? "") || isAuraBuyPackId(plan)) {
+          if (!auraBuyPacksEnabled()) {
+            return Response.json(
+              {
+                error:
+                  "Card packs are paused. AURA still publishes at T-0 on /token — never by DM.",
+              },
+              { status: 503 },
+            );
+          }
           const packId = isAuraBuyPackId(body.pack ?? "")
             ? body.pack
             : isAuraBuyPackId(plan)
@@ -141,7 +151,10 @@ export const Route = createFileRoute("/api/billing/checkout")({
             return Response.json({ error: "Unknown AURA buy pack" }, { status: 400 });
           }
           if (!isBaseAddress(wallet)) {
-            return Response.json({ error: "A provisioned Aura wallet is required" }, { status: 400 });
+            return Response.json(
+              { error: "A provisioned Aura wallet is required" },
+              { status: 400 },
+            );
           }
           const price = stripePriceEnvForAuraBuyPack(pack.id);
           params.set("mode", "payment");
@@ -157,7 +170,10 @@ export const Route = createFileRoute("/api/billing/checkout")({
           } else {
             params.set("line_items[0][price_data][currency]", "usd");
             params.set("line_items[0][price_data][unit_amount]", String(pack.usd * 100));
-            params.set("line_items[0][price_data][product_data][name]", `AURA card pack $${pack.usd}`);
+            params.set(
+              "line_items[0][price_data][product_data][name]",
+              `AURA card pack $${pack.usd}`,
+            );
             params.set(
               "line_items[0][price_data][product_data][description]",
               "Card now. AURA sent to your Aura wallet after T-0. Not an on-chain swap.",

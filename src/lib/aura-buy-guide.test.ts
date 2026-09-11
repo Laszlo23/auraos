@@ -9,6 +9,7 @@ import {
   INVESTOR_DESK_REQUIRES_FOUNDING_SEAT,
   auraBuyOfficialCa,
   auraBuyPackById,
+  auraBuyPacksEnabled,
   investorHandleForUser,
   isAuraBuyPackId,
 } from "@/lib/aura-buy-guide";
@@ -51,8 +52,10 @@ describe("AURA buy guide SSOT", () => {
     expect(AURA_BUY_COPY.path1Body).toMatch(/fulfillment/i);
     expect(AURA_BUY_COPY.path1Body).toMatch(/not an on-chain swap/i);
     expect(AURA_BUY_COPY.path1Honest).toMatch(/after T-0/i);
+    expect(AURA_BUY_COPY.packRefund).toMatch(/founders@aibusiness\.fun/);
     expect(AURA_BUY_COPY.disclaimer).toMatch(/not equity/i);
     expect(AURA_BUY_COPY.disclaimer).toMatch(/never by DM/i);
+    expect(auraBuyPacksEnabled()).toBe(true);
   });
 
   it("does not require a founding seat for the investor desk", () => {

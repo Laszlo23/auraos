@@ -46,11 +46,23 @@ export function WalletExportPanel({
 
   useEffect(() => {
     if (!revealed) return;
-    const t = window.setTimeout(() => {
+    const key = revealed.privateKey;
+    const hide = window.setTimeout(() => {
       setRevealed(null);
       toast.message("Export cleared from this screen.");
     }, 90_000);
-    return () => window.clearTimeout(t);
+    const wipe = window.setTimeout(() => {
+      void navigator.clipboard.readText().then((cur) => {
+        if (cur === key) return navigator.clipboard.writeText("");
+      }).catch(() => undefined);
+    }, 30_000);
+    return () => {
+      window.clearTimeout(hide);
+      window.clearTimeout(wipe);
+      void navigator.clipboard.readText().then((cur) => {
+        if (cur === key) return navigator.clipboard.writeText("");
+      }).catch(() => undefined);
+    };
   }, [revealed]);
 
   const reset = () => {
@@ -83,14 +95,20 @@ export function WalletExportPanel({
     if (!revealed) return;
     await navigator.clipboard.writeText(revealed.privateKey);
     setCopied(true);
-    toast.success("Private key copied. Clear your clipboard after saving.");
+    toast.success("Private key copied. Clipboard clears in ~30s — save it offline now.");
     window.setTimeout(() => setCopied(false), 2000);
   };
 
   const hide = () => {
+    const key = revealed?.privateKey;
     setRevealed(null);
     setConfirmText("");
     setAck(false);
+    if (key) {
+      void navigator.clipboard.readText().then((cur) => {
+        if (cur === key) return navigator.clipboard.writeText("");
+      }).catch(() => undefined);
+    }
     toast.message("Key hidden.");
   };
 

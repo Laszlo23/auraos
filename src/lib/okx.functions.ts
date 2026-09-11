@@ -56,8 +56,6 @@ const SWAP_DIRECTIONS = new Set<TreasurySwapDirection>([
 
 const ERC20_APPROVE_SELECTOR = "0x095ea7b3";
 const ERC20_ALLOWANCE_SELECTOR = "0xdd62ed3e";
-/** One-time max approve so later swaps skip the approve UserOp. */
-const MAX_UINT256 = (1n << 256n) - 1n;
 const WETH_DEPOSIT_SELECTOR = "0xd0e30db0"; // deposit()
 const WETH_WITHDRAW_SELECTOR = "0x2e1a7d4d"; // withdraw(uint256)
 
@@ -438,8 +436,7 @@ export const executeTreasurySwap = createServerFn({ method: "POST" })
       const allowance =
         allowJson.result && allowJson.result !== "0x" ? BigInt(allowJson.result) : 0n;
       if (allowance < amountWei) {
-        // Max approve once — later swaps skip this UserOp.
-        calls.push({ target: fromToken as Address, data: encodeApprove(spender, MAX_UINT256) });
+        calls.push({ target: fromToken as Address, data: encodeApprove(spender, amountWei) });
       }
     }
     calls.push({

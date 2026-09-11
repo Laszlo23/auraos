@@ -228,7 +228,7 @@ export async function supplyUsdcToAerodromeWethLp(args: {
   const swapCalls: { target: Address; data: Hex; value?: bigint }[] = [
     {
       target: usdc,
-      data: encodeApprove((parsed.approveTo || parsed.to) as Address, swapUsdc * 2n),
+      data: encodeApprove((parsed.approveTo || parsed.to) as Address, swapUsdc),
     },
     {
       target: parsed.to,
@@ -399,7 +399,7 @@ export async function withdrawUsdcFromAerodromeWethLp(args: {
       [
         {
           target: WETH_BASE,
-          data: encodeApprove((parsed.approveTo || parsed.to) as Address, wethBal * 2n),
+          data: encodeApprove((parsed.approveTo || parsed.to) as Address, wethBal),
         },
         { target: parsed.to, data: parsed.data, value: parsed.value },
       ],
@@ -529,7 +529,7 @@ export async function claimAndCompoundAeroRewards(args: {
     [
       {
         target: AERO_TOKEN,
-        data: encodeApprove((parsed.approveTo || parsed.to) as Address, aeroBal * 2n),
+        data: encodeApprove((parsed.approveTo || parsed.to) as Address, aeroBal),
       },
       { target: parsed.to, data: parsed.data, value: parsed.value },
     ],

@@ -38,13 +38,15 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
     id: "2026-09-12-security-flows-audit",
     date: "2026-09-12",
-    title: "Pre–T-0 security pass — CA display + deploy hardening",
+    title: "Pre–T-0 security pass — CA publish gates + exact approves",
     summary:
-      "Audit confirmed production is not publishing the predicted AURA CA. Fixed post-T-0 buy/tokenomics CA wiring, stopped predicted-CA files from syncing to the VPS, and locked down deploy excludes.",
+      "Predicted AURA CA stays unpublished until T-0 and an explicit publish flag. Mainnet broadcast needs --go, nonce 0, and Base block time. Desk/yield swaps approve the exact amount. Card-pack refund path is public.",
     items: [
-      "/buy and /tokenomics now read the live CA from auraTokenAddress() (not the always-null constant)",
-      "deploy-app.sh excludes .aura-t0-predicted.json and contracts/aura/Aura.*.json",
-      "Removed predicted CA artifact from the VPS; treasury key was never there",
+      "AURA_CA_PUBLISH required — local predicted CA in .env cannot appear on /token, /trust, /buy, or /api/token/aura",
+      "deploy-app.sh refuses AURA_T0_KEY / pre-T-0 publish flags and strips unpublished CA env from the Vite bundle",
+      "broadcast --go: refuses before T-0, if nonce ≠ 0, or if Base time is early; mainnet key is AURA_T0_KEY only",
+      "OKX / Aerodrome / Pancake / trading worker approve exact amounts — no uint256.max",
+      "Card packs: AURA_BUY_PACKS_ENABLED kill switch + refund to founders@aibusiness.fun; treasury row labeled not-the-CA",
     ],
     tags: ["fix", "infra"],
   },

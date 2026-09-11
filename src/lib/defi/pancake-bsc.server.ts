@@ -224,7 +224,7 @@ export async function supplyUsdcToPancakeUsdtUsdcLp(args: {
     [
       {
         target: usdc,
-        data: encodeApprove((parsed.approveTo || parsed.to) as Address, swapUsdc * 2n),
+        data: encodeApprove((parsed.approveTo || parsed.to) as Address, swapUsdc),
       },
       { target: parsed.to, data: parsed.data, value: parsed.value },
     ],
@@ -389,7 +389,7 @@ export async function withdrawUsdcFromPancakeUsdtUsdcLp(args: {
       [
         {
           target: USDT_BSC,
-          data: encodeApprove((parsed.approveTo || parsed.to) as Address, usdtBal * 2n),
+          data: encodeApprove((parsed.approveTo || parsed.to) as Address, usdtBal),
         },
         { target: parsed.to, data: parsed.data, value: parsed.value },
       ],

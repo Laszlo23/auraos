@@ -107,7 +107,7 @@ Commands:
   venue                 Clanker wrap vs native Uni v4 fallback
   wait                  Sleep until ${TOKEN_LAUNCH_AT_ISO} then print GO
   broadcast --sepolia   Rehearsal deploy (allowed anytime)
-  broadcast             Mainnet deploy — refuses before T-0
+  broadcast --go        Mainnet deploy — refuses before T-0, nonce 0, Base time
   predict-ca            Predict mainnet AuraToken CREATE address (no tx)
   hood                  Gift drop + 72h escrow + openRedeem checklist
   post-t0               Env / DexScreener / GoPlus after the CA exists
@@ -234,11 +234,16 @@ async function cmdPredictCa() {
       "CREATE address = f(deployer, nonce) only — same as Sepolia when nonce matches. Valid only if AuraToken remains the next CREATE on Base and nonce does not change.",
     doNot: [
       "Do not publish this CA on /token, X, or DexScreener before locked book + T-0",
-      "Do not set AURA_TOKEN_CA on the VPS until post-t0",
-      "Local preview only: AURA_TOKEN_CA / VITE_AURA_TOKEN_CA on this machine",
+      "Do not set AURA_TOKEN_CA or AURA_CA_PUBLISH on the VPS until post-t0",
+      "Local preview only: ALLOW_PRE_T0_CA + CA_PUBLISH + AURA_TOKEN_CA on this machine",
+      "Never copy .env or .aura-t0-treasury.json to the VPS",
       "DexScreener Update Token Info needs the live Base pair — submit after attach",
     ],
     localPreviewEnv: [
+      "AURA_ALLOW_PRE_T0_CA=1",
+      "AURA_CA_PUBLISH=1",
+      "VITE_AURA_ALLOW_PRE_T0_CA=1",
+      "VITE_AURA_CA_PUBLISH=1",
       `AURA_TOKEN_CA=${aura}`,
       `VITE_AURA_TOKEN_CA=${aura}`,
     ],
@@ -262,7 +267,7 @@ async function cmdPredictCa() {
 
 async function cmdWait() {
   if (tokenLaunchIsLive()) {
-    console.log("T-0 is live. Run: npx tsx scripts/aura-t0-operator.ts broadcast");
+    console.log("T-0 is live. Run: npx tsx scripts/aura-t0-operator.ts broadcast --go");
     return;
   }
   console.log("waiting until", TOKEN_LAUNCH_AT_ISO, TOKEN_LAUNCH_DISPLAY);
@@ -274,12 +279,18 @@ async function cmdWait() {
     const slice = Math.min(1000, Math.max(50, tokenLaunchAtMs() - Date.now()));
     await new Promise((resolve) => setTimeout(resolve, slice));
   }
-  console.log("\nGO — broadcast now. Human in the loop. Key stays off the VPS.");
+  console.log("\nGO — run: npx tsx scripts/aura-t0-operator.ts broadcast --go");
+  console.log("Human in the loop. Key stays off the VPS.");
 }
 
-function cmdBroadcast(extra: string[]) {
+async function cmdBroadcast(extra: string[]) {
   applyTreasuryKey();
   const sepolia = extra.includes("--sepolia");
+  if (!sepolia && !extra.includes("--go")) {
+    throw new Error(
+      "Mainnet broadcast requires --go. Example: npx tsx scripts/aura-t0-operator.ts broadcast --go",
+    );
+  }
   if (!sepolia && !tokenLaunchIsLive()) {
     const r = tokenLaunchRemain();
     throw new Error(
@@ -288,6 +299,38 @@ function cmdBroadcast(extra: string[]) {
   }
   if (!process.env["AURA_T0_KEY"]) {
     throw new Error("AURA_T0_KEY missing. Run treasury on this machine, or export the key locally — never on the VPS.");
+  }
+  if (!sepolia) {
+    const t0Key = process.env["AURA_T0_KEY"].trim();
+    const privateKey = (process.env["PRIVATE_KEY"] || "").trim();
+    if (
+      privateKey &&
+      t0Key.toLowerCase().replace(/^0x/, "") === privateKey.toLowerCase().replace(/^0x/, "")
+    ) {
+      throw new Error("AURA_T0_KEY equals PRIVATE_KEY — wrong wallet. Aborting.");
+    }
+    const account = privateKeyToAccount(t0Key as `0x${string}`);
+    const file = readTreasury();
+    if (file && account.address.toLowerCase() !== file.address.toLowerCase()) {
+      throw new Error("AURA_T0_KEY is not the launch treasury in .aura-t0-treasury.json.");
+    }
+    const rpc = process.env["BASE_RPC_URL"] || "https://mainnet.base.org";
+    const client = createPublicClient({ chain: base, transport: http(rpc) });
+    const [nonce, block] = await Promise.all([
+      client.getTransactionCount({ address: account.address }),
+      client.getBlock({ blockTag: "latest" }),
+    ]);
+    if (nonce !== 0) {
+      throw new Error(
+        `Refusing: tokenAdmin nonce is ${nonce}. Predicted CA requires nonce 0.`,
+      );
+    }
+    if (Number(block.timestamp) * 1000 < tokenLaunchAtMs()) {
+      throw new Error(
+        `Refusing: Base block time is before T-0 (${TOKEN_LAUNCH_AT_ISO}). Local clock is not enough.`,
+      );
+    }
+    console.log("mainnet preflight ok — nonce 0, Base time ≥ T-0, treasury key matches file");
   }
   const args = ["tsx", "scripts/aura-t0.ts", ...extra];
   console.log("running", "npx", args.join(" "));
@@ -331,13 +374,16 @@ async function cmdHood(sepolia: boolean) {
 
 function cmdPostT0() {
   console.log(`Post T-0 (${TOKEN_LAUNCH_DISPLAY}) — after AuraToken + book are live:`);
-  console.log("1. Set on VPS (public env, not the private key):");
-  console.log("   AURA_TOKEN_CA / VITE_AURA_TOKEN_CA");
+  console.log("1. Set on VPS (public env, not the private key) AFTER the locked book is live:");
+  console.log("   AURA_CA_PUBLISH=1");
+  console.log("   VITE_AURA_CA_PUBLISH=1");
+  console.log("   AURA_TOKEN_CA / VITE_AURA_TOKEN_CA   (mainnet AuraToken — never Sepolia, never predicted-only)");
   console.log("   AURA_POOL_USDC / VITE_AURA_POOL_USDC");
   console.log("   AURA_GAUGE / AURA_BURN_SINK / AURA_PAURA_REDEEM");
   console.log("   AURA_PROTOCOL_SINK / VITE_AURA_PROTOCOL_SINK  (25% → locked LP / POL — not ops extract)");
   console.log("   AURA_QUEST_BONUS / VITE_AURA_QUEST_BONUS");
-  console.log("   AURA_LAUNCH_TREASURY / VITE_AURA_LAUNCH_TREASURY  (public address only)");
+  console.log("   AURA_LAUNCH_TREASURY / VITE_AURA_LAUNCH_TREASURY  (public address only — not the CA)");
+  console.log("   Never set AURA_ALLOW_PRE_T0_CA on the VPS.");
   console.log("2. Deploy the app so /token and /trust show the CA.");
   console.log("3. Pin the CA on X @buildingcultu3 in the same minute. Never by DM.");
   console.log("4. DexScreener token info from https://aibusiness.fun/api/token/aura");
@@ -379,8 +425,8 @@ async function main() {
     case "wait":
       await cmdWait();
       return;
-    case "broadcast":
-      cmdBroadcast(rest);
+      case "broadcast":
+      await cmdBroadcast(rest);
       return;
     case "hood":
       await cmdHood(sepolia);

@@ -69,3 +69,6 @@ contracts/aura/Aura.sepolia.json
 contracts/aura/Aura.mainnet.json
 contracts/aura/Aura.*.json
 
+# Nested leftover checkout (has its own .env — never commit)
+auraos-landing-pr/
+

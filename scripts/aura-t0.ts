@@ -44,7 +44,7 @@ import {
   UNI_V2_FACTORY_ABI,
   UNI_V2_ROUTER_ABI,
 } from "../src/lib/aura-self-launch";
-import { TOKEN_LAUNCH_AT_ISO, tokenLaunchIsLive } from "../src/lib/aura-t0-clock";
+import { TOKEN_LAUNCH_AT_ISO, tokenLaunchAtMs, tokenLaunchIsLive } from "../src/lib/aura-t0-clock";
 import { AURA_T0_VENUE } from "../src/lib/aura-t0-clanker";
 import { BASE_USDC, PRIVATE_SALE_CONTRACT_LIVE } from "../src/lib/private-sale";
 import { launchEscrowAddress, launchGiftLockAddress } from "../src/lib/aura-launch";
@@ -126,18 +126,31 @@ function compileAuraContracts() {
 
 export { compileAuraContracts };
 
-function deployerKey(): Hex {
-  const raw = (
-    process.env["AURA_T0_KEY"] ||
-    process.env["PRIVATE_SALE_DEPLOYER_KEY"] ||
-    process.env["GENESIS_MINTER_KEY"] ||
-    process.env["PRIVATE_KEY"] ||
-    ""
-  ).trim();
-  if (!/^0x[0-9a-fA-F]{64}$/.test(raw)) {
-    throw new Error("AURA_T0_KEY / PRIVATE_KEY must be a 32-byte hex key");
+function isHexKey(raw: string): raw is Hex {
+  return /^0x[0-9a-fA-F]{64}$/.test(raw);
+}
+
+function normKey(raw: string): string {
+  return raw.trim().toLowerCase().replace(/^0x/, "");
+}
+
+function deployerKey(sepolia: boolean): Hex {
+  const t0 = (process.env["AURA_T0_KEY"] || "").trim();
+  if (isHexKey(t0)) return t0;
+  if (sepolia) {
+    const raw = (
+      process.env["PRIVATE_SALE_DEPLOYER_KEY"] ||
+      process.env["GENESIS_MINTER_KEY"] ||
+      process.env["PRIVATE_KEY"] ||
+      ""
+    ).trim();
+    if (isHexKey(raw)) return raw;
   }
-  return raw as Hex;
+  throw new Error(
+    sepolia
+      ? "AURA_T0_KEY / PRIVATE_KEY must be a 32-byte hex key"
+      : "Mainnet requires AURA_T0_KEY from .aura-t0-treasury.json. Never PRIVATE_KEY.",
+  );
 }
 
 function addrEnv(name: string, fallback: `0x${string}`): `0x${string}` {
@@ -177,6 +190,12 @@ async function main() {
 
   const legacyV2 = args.includes("--legacy-v2");
 
+  if (!sepolia && !args.includes("--go")) {
+    throw new Error(
+      "Mainnet deploy requires --go (human confirmation). Rehearse with --sepolia. Never put AURA_T0_KEY on the public VPS.",
+    );
+  }
+
   if (!sepolia && !tokenLaunchIsLive()) {
     throw new Error(
       `Refusing Base mainnet deploy before T-0 (${TOKEN_LAUNCH_AT_ISO}). Rehearse with --sepolia. Never put AURA_T0_KEY on the public VPS.`,
@@ -187,9 +206,32 @@ async function main() {
   const rpc =
     (sepolia ? process.env["BASE_SEPOLIA_RPC_URL"] : process.env["BASE_RPC_URL"]) ||
     (sepolia ? "https://sepolia.base.org" : "https://mainnet.base.org");
-  const account = privateKeyToAccount(deployerKey());
+  const account = privateKeyToAccount(deployerKey(sepolia));
   const publicClient = createPublicClient({ chain, transport: http(rpc) });
   const wallet = createWalletClient({ account, chain, transport: http(rpc) });
+
+  if (!sepolia) {
+    const privateKey = (process.env["PRIVATE_KEY"] || "").trim();
+    const t0Key = (process.env["AURA_T0_KEY"] || "").trim();
+    if (privateKey && t0Key && normKey(privateKey) === normKey(t0Key)) {
+      throw new Error("AURA_T0_KEY equals PRIVATE_KEY — wrong wallet. Aborting.");
+    }
+    const [nonce, block] = await Promise.all([
+      publicClient.getTransactionCount({ address: account.address }),
+      publicClient.getBlock({ blockTag: "latest" }),
+    ]);
+    if (nonce !== 0) {
+      throw new Error(
+        `Refusing: tokenAdmin nonce is ${nonce}. Predicted CA requires nonce 0. Any earlier mainnet tx burned the address.`,
+      );
+    }
+    const blockMs = Number(block.timestamp) * 1000;
+    if (blockMs < tokenLaunchAtMs()) {
+      throw new Error(
+        `Refusing: Base block time is before T-0 (${TOKEN_LAUNCH_AT_ISO}). Local clock is not enough.`,
+      );
+    }
+  }
 
   const usdc = (sepolia ? BASE_SEPOLIA_USDC : BASE_USDC) as `0x${string}`;
   const paura = addrEnv(

@@ -68,6 +68,30 @@ cd /opt/auraos
 rm -f ./server.ts ./server.js ./server.mjs
 npm install --include=dev
 set -a; . ./.env; set +a
+# T-0 CA safety — never bake a predicted CREATE address into the public bundle.
+if [[ -n "${AURA_T0_KEY:-}" ]]; then
+  echo "REFUSING: AURA_T0_KEY must never be on the VPS"
+  exit 1
+fi
+if [[ "${AURA_ALLOW_PRE_T0_CA:-}" == "1" || "${VITE_AURA_ALLOW_PRE_T0_CA:-}" == "1" ]]; then
+  echo "REFUSING: AURA_ALLOW_PRE_T0_CA must never be set on the VPS"
+  exit 1
+fi
+T0_EPOCH=$(date -u -d "2026-09-13 09:11:00" +%s)
+NOW_EPOCH=$(date -u +%s)
+if (( NOW_EPOCH < T0_EPOCH )); then
+  if [[ "${AURA_CA_PUBLISH:-}" == "1" || "${VITE_AURA_CA_PUBLISH:-}" == "1" ]]; then
+    echo "REFUSING: AURA_CA_PUBLISH is set before T-0 — would publish a predicted CA"
+    exit 1
+  fi
+fi
+if [[ "${AURA_CA_PUBLISH:-}" != "1" && "${VITE_AURA_CA_PUBLISH:-}" != "1" ]]; then
+  unset AURA_TOKEN_CA VITE_AURA_TOKEN_CA AURA_PAIR_CA VITE_AURA_PAIR_CA \
+    AURA_POOL_USDC VITE_AURA_POOL_USDC AURA_POOL_WETH VITE_AURA_POOL_WETH \
+    AURA_GAUGE VITE_AURA_GAUGE AURA_BURN_SINK VITE_AURA_BURN_SINK \
+    AURA_PAURA_REDEEM VITE_AURA_PAURA_REDEEM AURA_LP_SINK VITE_AURA_LP_SINK \
+    AURA_PROTOCOL_SINK VITE_AURA_PROTOCOL_SINK AURA_QUEST_BONUS VITE_AURA_QUEST_BONUS
+fi
 export NITRO_PRESET=node-server
 # .env must never force a development JSX runtime into the Nitro build.
 export NODE_ENV=production

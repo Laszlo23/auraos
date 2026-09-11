@@ -1,3 +1,5 @@
+import { tokenLaunchIsLive } from "@/lib/aura-t0-clock";
+
 /** Canonical AURA market-token economics. Percentages match the whitepaper; units sum exactly. */
 
 export const AURA_TOKEN_SYMBOL = "AURA";
@@ -17,21 +19,62 @@ export const AURA_OFFICIAL_CA_SOURCES = [
   "https://x.com/buildingcultu3",
 ] as const;
 
-export function auraCaLive(): boolean {
-  if (AURA_TOKEN_CA) return true;
-  if (typeof process !== "undefined") {
-    const env = process.env["AURA_TOKEN_CA"] || process.env["VITE_AURA_TOKEN_CA"] || "";
-    if (/^0x[a-fA-F0-9]{40}$/.test(env.trim())) return true;
-  }
-  if (
-    typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    typeof import.meta.env["VITE_AURA_TOKEN_CA"] === "string" &&
-    /^0x[a-fA-F0-9]{40}$/.test(String(import.meta.env["VITE_AURA_TOKEN_CA"]).trim())
-  ) {
-    return true;
+function envFlagTrue(...names: string[]): boolean {
+  for (const name of names) {
+    let raw = "";
+    if (typeof process !== "undefined") raw = process.env[name] ?? "";
+    if (
+      !raw &&
+      typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      typeof import.meta.env[name] === "string"
+    ) {
+      raw = String(import.meta.env[name]);
+    }
+    const value = raw.trim().toLowerCase();
+    if (value === "1" || value === "true" || value === "yes") return true;
   }
   return false;
+}
+
+/**
+ * Predicted CREATE addresses in local `.env` must not become public.
+ * Publish only after T-0 (or an explicit local preview) AND `AURA_CA_PUBLISH=1`.
+ * Never set `AURA_ALLOW_PRE_T0_CA` on the VPS.
+ */
+export function auraCaPublishAllowed(nowMs: number = Date.now()): boolean {
+  const publish = envFlagTrue("AURA_CA_PUBLISH", "VITE_AURA_CA_PUBLISH");
+  if (!publish) return false;
+  if (tokenLaunchIsLive(nowMs)) return true;
+  return envFlagTrue("AURA_ALLOW_PRE_T0_CA", "VITE_AURA_ALLOW_PRE_T0_CA");
+}
+
+/** Hide T-0 addresses until publish is allowed — launch treasury stays separate. */
+export function onlyIfAuraCaPublished<T>(value: T | null, nowMs: number = Date.now()): T | null {
+  return auraCaPublishAllowed(nowMs) ? value : null;
+}
+
+function readAuraTokenCaFromEnv(): `0x${string}` | null {
+  const fromProc =
+    typeof process !== "undefined"
+      ? process.env["AURA_TOKEN_CA"] || process.env["VITE_AURA_TOKEN_CA"] || ""
+      : "";
+  const fromVite =
+    typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    typeof import.meta.env["VITE_AURA_TOKEN_CA"] === "string"
+      ? String(import.meta.env["VITE_AURA_TOKEN_CA"])
+      : "";
+  return readConfiguredBaseAddress(fromProc, fromVite);
+}
+
+/** Live official CA — null unless publish is allowed. Same SSOT as auraTokenAddress(). */
+export function publishedAuraTokenAddress(nowMs: number = Date.now()): `0x${string}` | null {
+  return onlyIfAuraCaPublished(readAuraTokenCaFromEnv(), nowMs);
+}
+
+export function auraCaLive(nowMs: number = Date.now()): boolean {
+  return publishedAuraTokenAddress(nowMs) !== null;
 }
 
 export type AuraAllocation = {

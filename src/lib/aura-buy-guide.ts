@@ -53,8 +53,15 @@ export function auraBuyCaPublished(): boolean {
 }
 
 export function auraBuyOfficialCa(): `0x${string}` | null {
-  if (!auraBuyCaPublished()) return null;
   return auraTokenAddress();
+}
+
+/** Kill switch for card packs. Default on. Set AURA_BUY_PACKS_ENABLED=0 on the VPS to pause charges. */
+export function auraBuyPacksEnabled(): boolean {
+  const raw =
+    typeof process !== "undefined" ? process.env["AURA_BUY_PACKS_ENABLED"]?.trim().toLowerCase() : "";
+  if (raw === "0" || raw === "false" || raw === "off") return false;
+  return true;
 }
 
 export const AURA_BUY_COPY = {
@@ -119,6 +126,10 @@ export const AURA_BUY_COPY = {
     "AURA ist Software, keine Beteiligung. Du kannst die Token verlieren. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3 — nie per DM.",
   packHint: "One-time card charge in USD. Not a subscription. Not an on-chain swap.",
   packHintDe: "Einmalige Kartenzahlung in USD. Kein Abo. Kein On-Chain-Swap.",
+  packRefund:
+    "Refund before we send AURA: email founders@aibusiness.fun with the Stripe receipt. After T-0 we fulfill from the paid queue on /buy.",
+  packRefundDe:
+    "Rückerstattung bevor wir AURA senden: founders@aibusiness.fun mit Stripe-Beleg. Nach T-0 erfüllen wir die bezahlte Queue auf /buy.",
 } as const;
 
 export function auraBuySignupHref(): string {
