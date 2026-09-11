@@ -36,6 +36,19 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-security-flows-audit",
+    date: "2026-09-12",
+    title: "Pre–T-0 security pass — CA display + deploy hardening",
+    summary:
+      "Audit confirmed production is not publishing the predicted AURA CA. Fixed post-T-0 buy/tokenomics CA wiring, stopped predicted-CA files from syncing to the VPS, and locked down deploy excludes.",
+    items: [
+      "/buy and /tokenomics now read the live CA from auraTokenAddress() (not the always-null constant)",
+      "deploy-app.sh excludes .aura-t0-predicted.json and contracts/aura/Aura.*.json",
+      "Removed predicted CA artifact from the VPS; treasury key was never there",
+    ],
+    tags: ["fix", "infra"],
+  },
+  {
     id: "2026-09-11-t0-safe-path",
     date: "2026-09-11",
     title: "T-0 safe path — predict CA, no Sepolia USDC required",

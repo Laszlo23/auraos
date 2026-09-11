@@ -12,11 +12,11 @@ import {
   AURA_MAX_SUPPLY_DISPLAY,
   AURA_OFFICIAL_CA_SOURCES,
   AURA_TEAM_VESTING,
-  AURA_TOKEN_CA,
   auraCaLive,
   auraLaunchTreasuryAddress,
   formatAuraAmount,
 } from "@/lib/aura-token";
+import { auraTokenAddress } from "@/lib/aura-self-launch";
 import { PRIVATE_SALE_TREASURY, privateSaleBasescan } from "@/lib/private-sale";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
@@ -129,7 +129,7 @@ function TokenomicsPage() {
         <p className="mt-3 rounded-2xl border border-[color:var(--austria-red)]/40 bg-[color:var(--austria-red)]/10 px-4 py-3 text-[12.5px] leading-relaxed">
           {auraCaLive() ? (
             <>
-              Official CA: <span className="num break-all">{AURA_TOKEN_CA}</span>
+              Official CA: <span className="num break-all">{auraTokenAddress()}</span>
             </>
           ) : (
             <>

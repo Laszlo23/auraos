@@ -29,11 +29,22 @@ describe("AURA buy guide SSOT", () => {
     expect(AURA_BUY_PATH).toBe("/buy");
   });
 
-  it("never invents a CA before T-0", () => {
+  it("never invents a hardcoded CA before T-0", () => {
+    // Constant stays null forever; live CA is env-only via auraTokenAddress().
     expect(AURA_TOKEN_CA).toBeNull();
-    expect(auraBuyOfficialCa()).toBeNull();
     expect(AURA_BUY_COPY.lead).not.toMatch(/0x[a-fA-F0-9]{40}/);
     expect(AURA_BUY_COPY.leadDe).not.toMatch(/0x[a-fA-F0-9]{40}/);
+  });
+
+  it("surfaces the official CA from auraTokenAddress when published", () => {
+    // Must not return the always-null AURA_TOKEN_CA constant after T-0 env is set.
+    const ca = auraBuyOfficialCa();
+    if (ca) {
+      expect(ca).toMatch(/^0x[a-fA-F0-9]{40}$/);
+      expect(ca).not.toBe(AURA_TOKEN_CA);
+    } else {
+      expect(ca).toBeNull();
+    }
   });
 
   it("says card checkout is fulfillment, not an on-chain swap", () => {

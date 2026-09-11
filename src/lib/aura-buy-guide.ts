@@ -4,7 +4,8 @@
  * Never invent a CA. Official book is locked Uni v4 AURA/USDC on Base.
  */
 
-import { AURA_TOKEN_CA, auraCaLive } from "@/lib/aura-token";
+import { auraTokenAddress } from "@/lib/aura-self-launch";
+import { auraCaLive } from "@/lib/aura-token";
 import { TOKEN_LAUNCH_DISPLAY, TOKEN_LAUNCH_DISPLAY_DE } from "@/lib/aura-t0-clock";
 
 export const AURA_BUY_PATH = "/buy" as const;
@@ -53,7 +54,7 @@ export function auraBuyCaPublished(): boolean {
 
 export function auraBuyOfficialCa(): `0x${string}` | null {
   if (!auraBuyCaPublished()) return null;
-  return AURA_TOKEN_CA;
+  return auraTokenAddress();
 }
 
 export const AURA_BUY_COPY = {
