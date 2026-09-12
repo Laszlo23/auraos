@@ -1,5 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
+  BookOpen,
   ChevronDown,
   Coins,
   Crown,
@@ -55,6 +56,7 @@ export function publicNavPrimary(t: (key: string) => string): PublicNavItem[] {
 /** Secondary links — desktop "More" menu + mobile explore section. */
 export function publicNavMore(t: (key: string) => string): PublicNavItem[] {
   return [
+    { to: "/guide", label: t("landing.navGuide") },
     { to: "/pitch", label: t("landing.navPitch") },
     { to: "/try", label: t("landing.navTry") },
     { to: "/pit", label: t("landing.navPit") },
@@ -86,6 +88,7 @@ const HIDE_FROM_MQ = {
 const NAV_ICONS: Record<string, LucideIcon> = {
   "/features": LayoutGrid,
   "/how-it-works": Sparkles,
+  "/guide": BookOpen,
   "/pricing": Tag,
   "/for/builders": Hammer,
   "/hood": Crown,

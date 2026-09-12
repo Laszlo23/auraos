@@ -25,6 +25,7 @@ import { Route as DropRouteImport } from './routes/drop'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GrantsRouteImport } from './routes/grants'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as HoodRouteImport } from './routes/hood'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ImpressumRouteImport } from './routes/impressum'
@@ -243,6 +244,11 @@ const FeaturesRoute = FeaturesRouteImport.update({
 const GrantsRoute = GrantsRouteImport.update({
   id: '/grants',
   path: '/grants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HoodRoute = HoodRouteImport.update({
@@ -977,6 +983,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
+  '/guide': typeof GuideRoute
   '/hood': typeof HoodRoute
   '/how-it-works': typeof HowItWorksRoute
   '/impressum': typeof ImpressumRoute
@@ -1133,6 +1140,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
+  '/guide': typeof GuideRoute
   '/hood': typeof HoodRoute
   '/how-it-works': typeof HowItWorksRoute
   '/impressum': typeof ImpressumRoute
@@ -1292,6 +1300,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
+  '/guide': typeof GuideRoute
   '/hood': typeof HoodRoute
   '/how-it-works': typeof HowItWorksRoute
   '/impressum': typeof ImpressumRoute
@@ -1451,6 +1460,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/grants'
+    | '/guide'
     | '/hood'
     | '/how-it-works'
     | '/impressum'
@@ -1607,6 +1617,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/grants'
+    | '/guide'
     | '/hood'
     | '/how-it-works'
     | '/impressum'
@@ -1765,6 +1776,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/grants'
+    | '/guide'
     | '/hood'
     | '/how-it-works'
     | '/impressum'
@@ -1924,6 +1936,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   GrantsRoute: typeof GrantsRoute
+  GuideRoute: typeof GuideRoute
   HoodRoute: typeof HoodRoute
   HowItWorksRoute: typeof HowItWorksRoute
   ImpressumRoute: typeof ImpressumRoute
@@ -2127,6 +2140,13 @@ declare module '@tanstack/react-router' {
       path: '/grants'
       fullPath: '/grants'
       preLoaderRoute: typeof GrantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hood': {
@@ -3260,6 +3280,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   GrantsRoute: GrantsRoute,
+  GuideRoute: GuideRoute,
   HoodRoute: HoodRoute,
   HowItWorksRoute: HowItWorksRoute,
   ImpressumRoute: ImpressumRoute,

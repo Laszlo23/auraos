@@ -118,6 +118,12 @@ function FeaturesPage() {
           {de ? "Aura testen" : "Try Aura"} <ArrowRight className="h-4 w-4" />
         </Link>
         <Link
+          to="/guide"
+          className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
+        >
+          {t("landing.navGuide")}
+        </Link>
+        <Link
           to="/how-it-works"
           className="inline-flex items-center gap-2 rounded-2xl border border-border/50 px-6 py-3 text-sm font-semibold"
         >

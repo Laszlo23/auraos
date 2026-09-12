@@ -24,6 +24,7 @@ function footerColumns(t: (key: string) => string) {
         { to: "/pitch", label: t("landing.navPitch") },
         { to: "/features", label: t("footer.features") },
         { to: "/how-it-works", label: t("footer.how") },
+        { to: "/guide", label: t("footer.guide") },
         { to: "/try", label: t("footer.try") },
         { to: "/pricing", label: t("footer.pricing") },
         { to: "/proof", label: t("footer.proof") },

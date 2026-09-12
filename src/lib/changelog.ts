@@ -36,6 +36,19 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-founder-guide",
+    date: "2026-09-12",
+    title: "Founder guide — how to get work out of the desk",
+    summary:
+      "A public handbook for the first hour, how to brief Atlas, and the honest rules. README on GitHub matches the same spine.",
+    items: [
+      "New /guide — first hour, prompt swaps, desk map, honest rules (EN/DE)",
+      "Linked from footer, More menu, features, how-it-works, FAQ, llms.txt",
+      "docs/FOUNDER_GUIDE.md for GitHub readers",
+    ],
+    tags: ["feature"],
+  },
+  {
     id: "2026-09-12-ci-honest-cd",
     date: "2026-09-12",
     title: "CI runs tests first. Laptop script is the only deploy.",

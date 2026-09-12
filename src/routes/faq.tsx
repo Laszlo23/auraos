@@ -9,7 +9,7 @@ import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
 const FAQ_PLAIN: Array<{ q: string; a: string }> = [
   {
     q: "What is Aura OS?",
-    a: "An AI company operating system. You wake a company, agents take jobs (social, outreach, trading, support), and you stay in control of publishing and spend. Live at aibusiness.fun.",
+    a: "An AI company operating system. You wake a company, agents take jobs (social, outreach, trading, support), and you stay in control of publishing and spend. Founder guide: aibusiness.fun/guide.",
   },
   {
     q: "Which social channels can I connect?",
@@ -48,7 +48,12 @@ const FAQS: { q: string; a: ReactNode }[] = [
     a: (
       <>
         An AI company operating system. You wake a company, agents take jobs (social, outreach,
-        trading, support), and you stay in control of publishing and spend. Live product:{" "}
+        trading, support), and you stay in control of publishing and spend. For better results, read
+        the{" "}
+        <Link to="/guide" className="text-primary hover:underline">
+          founder guide
+        </Link>
+        . Live product:{" "}
         <a href={SITE_URL} className="text-primary hover:underline">
           aibusiness.fun
         </a>
@@ -255,6 +260,11 @@ function FaqPage() {
         </h1>
         <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           Channels, TikTok approval, Farcaster, and the week-in-review report — short and honest.
+          Want the full first-hour loop?{" "}
+          <Link to="/guide" className="text-primary hover:underline">
+            Founder guide
+          </Link>
+          .
         </p>
 
         <div className="mt-12 divide-y divide-border/40 border-y border-border/40">
