@@ -5,6 +5,7 @@ import { lazy, Suspense, useState } from "react";
 import { AuraOfficialTape } from "@/components/aura/aura-official-tape";
 import { AuraTokenIdentity } from "@/components/aura/aura-token-identity";
 import { LanguageToggle } from "@/components/aura/language-toggle";
+import { LaunchCountdown } from "@/components/aura/launch-countdown";
 import {
   PublicMobileMenu,
   publicNavMore,
@@ -125,30 +126,60 @@ function SalePage() {
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{t("sale.lead")}</p>
           <div className="mt-5">
+            <LaunchCountdown variant="compact" showSocials={false} placement="sale" />
+          </div>
+          <div className="mt-5">
             <AuraTokenIdentity de={locale === "de"} compact />
           </div>
         </header>
 
-        <ol className="space-y-4">
-          {[
-            { n: "01", title: t("sale.step1Title"), body: t("sale.step1Body") },
-            { n: "02", title: t("sale.step2Title"), body: t("sale.step2Body") },
-            { n: "03", title: t("sale.step3Title"), body: t("sale.step3Body") },
-          ].map((step) => (
-            <li
-              key={step.n}
-              className="rounded-2xl border border-border/40 bg-foreground/[0.03] p-4"
-            >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
-                {step.n} · {step.title}
-              </p>
-              <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">{step.body}</p>
-            </li>
-          ))}
-        </ol>
+        <div className="grid grid-cols-3 gap-2">
+          <Stat label={t("sale.statsSold")} value={num(Math.floor(stats.sold))} />
+          <Stat label={t("sale.statsLeft")} value={num(Math.floor(stats.remaining || stats.cap))} />
+          <Stat label={t("sale.statsRaised")} value={`$${num(Math.floor(stats.usdcRaised))}`} />
+        </div>
 
-        <section className="rounded-3xl border border-gold/35 bg-gold/[0.07] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+        {stats.saleClosed ? (
+          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">
+            {t("sale.closed")}
+          </p>
+        ) : null}
+        {stats.paused ? (
+          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">
+            {t("sale.paused")}
+          </p>
+        ) : null}
+        {!contract ? (
+          <p className="rounded-2xl border border-border/40 px-4 py-3 text-sm text-muted-foreground">
+            {t("sale.notConfigured")}
+          </p>
+        ) : (
+          <Suspense
+            fallback={
+              <section className="rounded-3xl border border-border/40 p-5 text-[13px] text-muted-foreground">
+                {t("sale.loadingWallet")}
+              </section>
+            }
+          >
+            <SaleWalletIsland
+              disabled={stats.saleClosed || stats.paused}
+              locale={locale === "de" ? "de" : "en"}
+            />
+          </Suspense>
+        )}
+
+        <section className="rounded-2xl border border-border/40 p-4">
+          <h2 className="font-display text-lg font-semibold">{t("sale.cashTitle")}</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {t("sale.cashBody")}
+          </p>
+        </section>
+
+        <details className="rounded-3xl border border-gold/35 bg-gold/[0.07] p-5">
+          <summary className="cursor-pointer font-display text-lg font-semibold">
+            {t("sale.moreTruth")}
+          </summary>
+          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
             {t("sale.trustKicker")}
           </p>
           <h2 className="mt-2 font-display text-[clamp(1.45rem,6vw,2rem)] font-semibold leading-[1.05] tracking-tight">
@@ -177,15 +208,12 @@ function SalePage() {
               </li>
             ))}
           </ul>
-        </section>
+        </details>
 
-        <section className="rounded-3xl border border-primary/25 bg-foreground/[0.03] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-            {t("sale.buildersKicker")}
-          </p>
-          <h2 className="mt-2 font-display text-[clamp(1.45rem,6vw,2rem)] font-semibold leading-[1.05] tracking-tight">
-            {t("sale.buildersTitle")}
-          </h2>
+        <details className="rounded-3xl border border-primary/25 bg-foreground/[0.03] p-5">
+          <summary className="cursor-pointer font-display text-lg font-semibold">
+            {t("sale.moreProducts")}
+          </summary>
           <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
             {t("sale.buildersLead")}
           </p>
@@ -211,58 +239,19 @@ function SalePage() {
               </li>
             ))}
           </ul>
-        </section>
+        </details>
 
-        <div className="grid grid-cols-3 gap-2">
-          <Stat label={t("sale.statsSold")} value={num(Math.floor(stats.sold))} />
-          <Stat label={t("sale.statsLeft")} value={num(Math.floor(stats.remaining || stats.cap))} />
-          <Stat label={t("sale.statsRaised")} value={`$${num(Math.floor(stats.usdcRaised))}`} />
-        </div>
-
-        {stats.saleClosed ? (
-          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">
-            {t("sale.closed")}
-          </p>
-        ) : null}
-        {stats.paused ? (
-          <p className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm">
-            {t("sale.paused")}
-          </p>
-        ) : null}
-        {!contract ? (
-          <p className="rounded-2xl border border-border/40 px-4 py-3 text-sm text-muted-foreground">
-            {t("sale.notConfigured")}
-          </p>
-        ) : (
-          <Suspense
-            fallback={
-              <section className="rounded-3xl border border-border/40 p-5 text-[13px] text-muted-foreground">
-                Loading wallet…
-              </section>
-            }
-          >
-            <SaleWalletIsland
-              disabled={stats.saleClosed || stats.paused}
-              locale={locale === "de" ? "de" : "en"}
-            />
-          </Suspense>
-        )}
-
-        <section className="rounded-2xl border border-border/40 p-4">
-          <h2 className="font-display text-lg font-semibold">{t("sale.cashTitle")}</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-            {t("sale.cashBody")}
-          </p>
-        </section>
-
-        <section className="rounded-2xl border border-gold/30 bg-gold/[0.06] p-4">
-          <h2 className="font-display text-lg font-semibold">{t("sale.projectLockTitle")}</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-            {t("sale.projectLockBody")}
-          </p>
-        </section>
-
-        <section className="rounded-2xl border border-gold/30 bg-gold/[0.06] p-4">
+        <details className="rounded-3xl border border-gold/30 bg-gold/[0.06] p-5">
+          <summary className="cursor-pointer font-display text-lg font-semibold">
+            {t("sale.moreMoney")}
+          </summary>
+          <section className="mt-4">
+            <h2 className="font-display text-lg font-semibold">{t("sale.projectLockTitle")}</h2>
+            <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+              {t("sale.projectLockBody")}
+            </p>
+          </section>
+        <section className="mt-5 rounded-2xl border border-gold/30 bg-gold/[0.06] p-4">
           <h2 className="font-display text-lg font-semibold">{t("sale.treasuryTitle")}</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
             {t("sale.treasuryBody")}
@@ -305,6 +294,7 @@ function SalePage() {
             {copied === "rails" ? t("sale.copied") : t("sale.copyRails")}
           </button>
         </section>
+        </details>
 
         <AuraOfficialTape de={locale === "de"} />
 

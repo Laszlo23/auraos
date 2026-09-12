@@ -1,5 +1,6 @@
 import { SaleBuyPanel } from "@/components/aura/sale-buy-panel";
 import { SaleKycGate } from "@/components/aura/sale-kyc-gate";
+import { SaleQuest } from "@/components/aura/sale-quest";
 import { PauraRedeemPanel } from "@/components/aura/paura-redeem";
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
 
@@ -12,12 +13,12 @@ export function SaleWalletIsland({
 }) {
   return (
     <SaleWalletRoot>
-      <div className="space-y-4">
+      <SaleQuest>
         <SaleKycGate>
           <SaleBuyPanel disabled={disabled} />
         </SaleKycGate>
         <PauraRedeemPanel locale={locale} />
-      </div>
+      </SaleQuest>
     </SaleWalletRoot>
   );
 }

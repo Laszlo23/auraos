@@ -45,3 +45,7 @@ export const KYC_STATUS_LABEL: Record<KycStatus, string> = {
 export function isKycApproved(status: KycStatus): boolean {
   return status === "approved";
 }
+
+export function kycStatusI18nKey(status: KycStatus): `kyc.status.${KycStatus}` {
+  return `kyc.status.${status}`;
+}

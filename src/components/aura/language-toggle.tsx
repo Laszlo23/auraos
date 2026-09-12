@@ -21,8 +21,7 @@ export function LanguageToggle({ className }: { className?: string }) {
           onClick={() => {
             try {
               const url = new URL(window.location.href);
-              if (code === "en") url.searchParams.set("lang", "en");
-              else url.searchParams.delete("lang");
+              url.searchParams.set("lang", code);
               window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
             } catch {
               /* ignore */

@@ -36,6 +36,19 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-sale-quest-locale",
+    date: "2026-09-12",
+    title: "Sale page that sticks to your language — four moves to buy",
+    summary:
+      "EN/DE no longer snap back on /sale. The buy desk sits up top as a short quest: know the deal, unlock, pay, hold.",
+    items: [
+      "Language toggle writes ?lang=en or ?lang=de and keeps the stored choice on /sale",
+      "KYC gate and Identity panel follow the same locale",
+      "Four-step progress, amount chips, and collapsed trust copy so buying pAURA is obvious",
+    ],
+    tags: ["improvement", "fix"],
+  },
+  {
     id: "2026-09-12-didit-kyc",
     date: "2026-09-12",
     title: "Didit KYC on Identity — sale and live trading wait for approve",

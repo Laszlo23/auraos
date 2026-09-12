@@ -24,11 +24,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const next = ensureUiLocale();
-    if (next !== locale) {
-      setLocaleState(next);
-      applyDocumentLang(next);
-    }
-  }, [locale]);
+    setLocaleState(next);
+    applyDocumentLang(next);
+  }, []);
 
   const setLocale = useCallback((next: UiLocale) => {
     rememberLocale(next);
@@ -49,7 +47,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 export function useLocale(): LocaleCtx {
   const ctx = useContext(Ctx);
   if (!ctx) {
-    // Fallback for routes outside provider (should not happen under Root).
     const locale = typeof window === "undefined" ? "en" : ensureUiLocale();
     return {
       locale,

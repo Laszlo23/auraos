@@ -24,51 +24,62 @@ export function resolveUiLocale(opts?: { acceptLanguage?: string | null }): UiLo
   return localeFromBrowser(opts?.acceptLanguage);
 }
 
+const LOKAL_EXACT = new Set([
+  "/lokal",
+  "/wien",
+  "/story",
+  "/sticker",
+  "/review",
+  "/heute",
+  "/bewertungen",
+  "/kunden",
+  "/social",
+  "/boost",
+  "/desk",
+  "/tisch",
+]);
+
+export function isLokalSurfacePath(path: string): boolean {
+  return (
+    LOKAL_EXACT.has(path) ||
+    path.startsWith("/lokal/") ||
+    path.startsWith("/nachbar") ||
+    path.startsWith("/tisch/")
+  );
+}
+
+/** Pure locale pick — URL param, then stored choice, then Lokal default / browser. */
+export function resolveLocaleFromContext(input: {
+  path: string;
+  langParam: string | null;
+  stored: UiLocale | null;
+  browser: UiLocale;
+}): UiLocale {
+  const lang = (input.langParam || "").toLowerCase();
+  if (lang === "en" || lang === "de") return lang;
+  if (input.stored === "en" || input.stored === "de") return input.stored;
+  if (isLokalSurfacePath(input.path)) return "de";
+  return input.browser;
+}
+
 /** Ensure a locale is persisted on first visit (browser or explicit). */
 export function ensureUiLocale(explicit?: UiLocale | null): UiLocale {
   if (typeof window === "undefined") return explicit || "en";
 
-  // Public Lokal / Nachbar surfaces: path wins over a leftover "en" from OS browsing.
-  try {
-    const path = window.location.pathname;
-    const params = new URLSearchParams(window.location.search);
-    const lokalSurface =
-      path === "/lokal" ||
-      path.startsWith("/lokal/") ||
-      path === "/wien" ||
-      path === "/story" ||
-      path === "/sticker" ||
-      path === "/review" ||
-      path.startsWith("/nachbar") ||
-      path === "/heute" ||
-      path === "/bewertungen" ||
-      path === "/kunden" ||
-      path === "/social" ||
-      path === "/boost" ||
-      path === "/desk" ||
-      path === "/tisch" ||
-      path.startsWith("/tisch/") ||
-      path === "/sale";
-    if (lokalSurface) {
-      if (params.get("lang") === "en") {
-        rememberLocale("en");
-        return "en";
-      }
-      rememberLocale("de");
-      return "de";
-    }
-  } catch {
-    /* ignore */
-  }
-
+  let stored: UiLocale | null = null;
   try {
     const raw = window.localStorage.getItem("aura.ui_locale");
-    if (raw === "de" || raw === "en") return raw;
+    if (raw === "de" || raw === "en") stored = raw;
   } catch {
     /* ignore */
   }
 
-  const next = explicit || localeFromBrowser(navigator.language);
+  const next = resolveLocaleFromContext({
+    path: window.location.pathname,
+    langParam: new URLSearchParams(window.location.search).get("lang"),
+    stored,
+    browser: explicit || localeFromBrowser(navigator.language),
+  });
   rememberLocale(next);
   return next;
 }

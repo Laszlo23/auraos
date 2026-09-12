@@ -91,7 +91,26 @@ function BuyCard({ disabled }: { disabled: boolean }) {
       <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{t("sale.buyHint")}</p>
       <p className="mt-2 text-[12px] text-muted-foreground">{t("sale.needUsdc")}</p>
 
-      <label className="mt-5 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+      <p className="mt-5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+        {t("sale.pickAmount")}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {[50, 111, 250, 500].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setAmount(String(n))}
+            className={`rounded-2xl border px-3 py-1.5 text-[12px] font-semibold ${
+              Number(amount) === n
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-border/50 text-muted-foreground"
+            }`}
+          >
+            {n} USDC
+          </button>
+        ))}
+      </div>
+      <label className="mt-4 block text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
         {t("sale.amount")}
       </label>
       <input
@@ -114,18 +133,18 @@ function BuyCard({ disabled }: { disabled: boolean }) {
       ) : null}
 
       {!isConnected ? (
-        <div className="mt-5">
-          <button
-            type="button"
-            disabled={connecting}
-            onClick={() => {
-              const connector = connectors[0];
-              if (connector) connect({ connector });
-            }}
-            className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-          >
-            {connecting ? t("sale.connecting") : t("sale.connect")}
-          </button>
+        <div className="mt-5 grid gap-2">
+          {connectors.map((connector) => (
+            <button
+              key={connector.uid}
+              type="button"
+              disabled={connecting}
+              onClick={() => connect({ connector })}
+              className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              {connecting ? t("sale.connecting") : t("sale.connectWith", { name: connector.name })}
+            </button>
+          ))}
         </div>
       ) : (
         <div className="mt-5 space-y-2">
@@ -160,7 +179,7 @@ function BuyCard({ disabled }: { disabled: boolean }) {
       )}
       {run.error ? (
         <p className="mt-3 text-[13px] text-red-400">
-          {run.error instanceof Error ? run.error.message : "Error"}
+          {run.error instanceof Error ? run.error.message : t("sale.error")}
         </p>
       ) : null}
     </section>
