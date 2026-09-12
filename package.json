@@ -95,7 +95,7 @@
     "solc": "^0.8.36",
     "supabase": "^2.112.0",
     "tsx": "^4.23.12",
-    "typescript": "^5.8.3",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.56.1",
     "vite": "^8.1.5",
     "vitest": "^3.2.7"
