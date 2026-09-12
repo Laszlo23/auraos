@@ -12,6 +12,8 @@ export type TeamPublic = {
   /** Public crew label — not a statutory title. */
   title: string;
   linkedin: string | null;
+  /** Public X when this person is the app voice. */
+  x?: string;
   blurb: string;
   blurbEn: string;
   avatar: string;
@@ -28,6 +30,7 @@ export const FOUNDERS: TeamPublic[] = [
     name: "Laszlo Bihary",
     title: "Operator · Aura OS",
     linkedin: "https://www.linkedin.com/in/laszlo-bihary/",
+    x: "https://x.com/bihary41418",
     blurb: "Product, Web3 & AI — Vision und Go-to-Market für Aura OS.",
     blurbEn: "Product, Web3 & AI — vision and go-to-market for Aura OS.",
     avatar: "/crew/laszlo.webp",

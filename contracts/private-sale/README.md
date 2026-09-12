@@ -7,7 +7,8 @@ Receipt ERC-20 for the pre-Clanker sale. **Not** launched AURA. At T-0, 1 pAURA 
 - Name / symbol: `AURA Private Sale` / `pAURA`
 - Chain: Base
 - Pay-in: USDC (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`)
-- Treasury (immutable): `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1`
+- pAURA contract USDC sink (immutable `TREASURY()`, **not** the official AURA treasury): `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1`
+- Official AURA treasury: `0x7894a4f43cec1E97CBAa9Cd6676Ac07ABF34dD49`
 - Price: `$1,000,000 / 777,777,777` USDC per pAURA
 - Cap: `231,231,200` pAURA (~33% of AURA after +11%)
 - Min buy: `50` USDC

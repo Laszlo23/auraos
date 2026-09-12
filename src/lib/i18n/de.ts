@@ -322,7 +322,8 @@ export const de: MessageTree = {
 
     act6: "06 / FAIR LAUNCH",
     act6Title: "Launch bald",
-    act6Body: "Token und Ökosystem. Kein Pre-Mine, kein VC-Dump. Echte Firma, echter Launch.",
+    act6Body:
+      "AURA startet auf Base bei T-0. Gesperrte LP. Offizielle CA nur auf unserer Site und X. Zuerst die Firma.",
 
     act7: "07 / CLAIM DEINEN SEAT",
     act7Title: "Eine Firma besitzen. Faire Software.",
@@ -338,9 +339,9 @@ export const de: MessageTree = {
     chapterHoodCta: "Hood betreten",
 
     chapterToken: "Token & Ökosystem",
-    chapterTokenLore: "Fair Launch. Community-owned. Echte Tokenomics, kein VC-Dump.",
-    chapterTokenFeature1: "Fair Launch — kein Pre-Mine",
-    chapterTokenFeature2: "Community Governance",
+    chapterTokenLore: "Fair Launch auf Base. Fixer Supply. Kein VC-Dump. Gründergeführt — kein DAO.",
+    chapterTokenFeature1: "Fair Launch — gesperrte LP, kein VC-Dump",
+    chapterTokenFeature2: "Heute keine Token-Abstimmung",
     chapterTokenFeature3: "Transparente Tokenomics",
     chapterTokenCta: "Tokenomics lesen",
 
@@ -414,10 +415,12 @@ export const de: MessageTree = {
     navOs: "Aura OS",
     navLokal: "Aura Local",
     navHow: "So geht’s",
+    navFeatures: "Funktionen",
     navTry: "Aura testen",
     navProof: "Proof",
     navPricing: "Preise",
     navStart: "Loslegen",
+    navPitch: "Pitch",
     navSale: "Früher Zugang",
     navToken: "Ökosystem",
     navTokenomics: "Wie Geld läuft",
@@ -497,7 +500,7 @@ export const de: MessageTree = {
     launchTitle: "Fair Launch.",
     launchLine: "Sonntag, 13. Sep 2026, 11:11 Wien.",
     launchBody:
-      "Offen gebaut. T-0 ist Sonntag, 13. Sep 2026, 11:11 Wien. Die CA kommt dann — nur auf aibusiness.fun und @buildingcultu3, nie per DM, nie als Überraschungsadresse. Komm zu Ninty, damit du im Raum bist, wenn’s startet.",
+      "Offen gebaut. T-0 ist Sonntag, 13. Sep 2026, 11:11 Wien. Die CA kommt dann — nur auf aibusiness.fun und @bihary41418, nie per DM, nie als Überraschungsadresse. Komm zu Ninty, damit du im Raum bist, wenn’s startet.",
     claimTitle: "Seat kaufen.",
     claimTitle2: "Firma wecken.",
     claimBody:
@@ -621,7 +624,7 @@ export const de: MessageTree = {
     launchOpen: "Offen gebaut.",
     launchFollow: "T-0: Sonntag, 13. Sep 2026, 11:11 Wien.",
     launchTrust:
-      "Wir wachsen offen. T-0 ist Sonntag, 13. Sep 2026, 11:11 Wien. Die CA erscheint in dieser Minute auf aibusiness.fun und @buildingcultu3 — nie per DM, nie als Überraschungsadresse. Bis dahin: Seat sichern, Proof liefern, mitwachsen.",
+      "Wir wachsen offen. T-0 ist Sonntag, 13. Sep 2026, 11:11 Wien. Die CA erscheint in dieser Minute auf aibusiness.fun und @bihary41418 — nie per DM, nie als Überraschungsadresse. Bis dahin: Seat sichern, Proof liefern, mitwachsen.",
     launchCompact: "{when}",
     kitKicker: "Wien-Welle · gratis Share-Kit",
     kitTitle: "Schmäh with love.",
@@ -718,6 +721,7 @@ export const de: MessageTree = {
     proof: "Proof",
     pricing: "Preise",
     how: "So geht’s",
+    features: "Funktionen",
     try: "Aura testen",
     compare: "Warum Aura",
     faq: "FAQ",
@@ -923,7 +927,7 @@ export const de: MessageTree = {
       "USDC auf Base zahlen. Der Contract mintet pAURA auf deine Wallet. Oder bar am Desk — Laszlo sendet danach.",
     step2Title: "Warten auf T-0",
     step2Body:
-      "Wir starten echten AURA auf Base über Uniswap v4 (gesperrtes AURA/USDC-Buch). Die offizielle Adresse kommt nur auf aibusiness.fun und X @buildingcultu3.",
+      "Wir starten echten AURA auf Base über Uniswap v4 (gesperrtes AURA/USDC-Buch). Die offizielle Adresse kommt nur auf aibusiness.fun und X @bihary41418.",
     step3Title: "1 pAURA → 1,11 AURA",
     step3Body:
       "Jeder Private-Sale-Käufer bekommt beim Redeem +11%. Unverkaufte pAURA werden nie geprägt.",
@@ -947,16 +951,16 @@ export const de: MessageTree = {
     projectLockTitle: "Projekt-Anteil ist in diesem Sale — dann gesperrt",
     projectLockBody:
       "3% des Supply (21.021.000 pAURA → 23.333.310 AURA) ist der Projekt-Anteil. Wir kaufen ihn über denselben Contract, frühestens 48 Stunden nach Sale-Start. Diese AURA sind 90 Tage nach T-0 gesperrt. Die anderen 30% sind für offene Käufer. Unverkauft bleibt ungemintet.",
-    treasuryTitle: "Wohin die Sale-USDC gehen",
+    treasuryTitle: "Offizielle AURA-Treasury",
     treasuryBody:
-      "Jeder on-chain Kauf schickt 100% USDC an diese laufende Sale-Treasury. Sie steckt im pAURA-Contract und ändert sich nur mit einem neuen Sale-CA. AURA selbst entsteht bei T-0 aus einer neuen Wallet, mit einer neuen Launch-Treasury, sobald sie gesetzt ist.",
+      "Das ist die offizielle AURA-Launch-Wallet — keine Token-CA. Keine Token hierher senden. Keine andere Adresse als AURA-Treasury behandeln.",
     railsTitle: "Platform-Rails-Wallet",
     railsBody:
-      "Getrennt von der Sale-Treasury: x402-Settlement, optionale OKX-Referrer-Gebühren, Clanker-Platform-Fees und NOWPayments-Auszahlungen nutzen diese veröffentlichte Ops-Wallet. Sale-Käufe landen hier erst nach einem neuen Sale-Contract.",
-    launchTreasuryTitle: "AURA Launch-Treasury",
-    launchTreasuryBody: "Neue Wallet für AURA nach T-0 — nicht der Private-Sale-Admin-Key.",
-    launchTreasuryPending:
-      "Noch nicht veröffentlicht. AURA_LAUNCH_TREASURY vor T-0 auf dem VPS setzen.",
+      "Getrennt von der offiziellen AURA-Treasury: x402-Settlement, optionale OKX-Referrer-Gebühren, Clanker-Platform-Fees und NOWPayments-Auszahlungen nutzen diese veröffentlichte Ops-Wallet.",
+    launchTreasuryTitle: "Offizielle AURA-Treasury",
+    launchTreasuryBody:
+      "Das ist die offizielle AURA-Launch-Wallet — keine Token-CA. Keine Token hierher senden.",
+    launchTreasuryPending: "Die offizielle Treasury steht auf dieser Seite.",
     copy: "Adresse kopieren",
     copyRails: "Rails-Wallet kopieren",
     copied: "Kopiert",
@@ -973,7 +977,7 @@ export const de: MessageTree = {
       "AURA startet auf Uniswap v4 bei T-0 — ein öffentliches Base-AURA/USDC-Buch, kein heimlicher CA in Telegram. Wir bauen einen unruggable Token: fixer Supply, gesperrte LP, veröffentlichte Hooks, Team gesperrt, offizielle Adresse nur auf unserer Site und X.",
     trustFairTitle: "Fair Launch über Uniswap v4",
     trustFairBody:
-      "T-0 kommt 48 Stunden vorher auf aibusiness.fun und X @buildingcultu3. AURA entsteht aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Dieselbe CA für alle. Offizielle Adresse nur auf unserer Site und X.",
+      "T-0 kommt 48 Stunden vorher auf aibusiness.fun und X @bihary41418. AURA entsteht aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Dieselbe CA für alle. Offizielle Adresse nur auf unserer Site und X.",
     trustLockTitle: "Liquidität bei T-0 gesperrt",
     trustLockBody:
       "Die Launch-LP ist ein gesperrtes Uniswap-v4-AURA/USDC-FlatStart-Buch (6.000 $ USDC bei ~0,001 $) — nicht in eine Team-Wallet, die wir abziehen können. Das Gegenteil von Honeypot oder Rug.",
@@ -982,7 +986,7 @@ export const de: MessageTree = {
       "Der offizielle AURA-Supply ist fest. Dieser Sale mintet keinen AURA. Unverkaufte pAURA wird nie geprägt. Team: 12 Monate Cliff, dann 36 Monate Vesting. Projekt-Anteil aus dem Private Sale: Kauf nach 48 Stunden, 90 Tage nach T-0 gesperrt. Beim Start nichts frei zum Dump.",
     trustHonestTitle: "Öffentlicher Geldweg",
     trustHonestBody:
-      "Jeder on-chain Kauf schickt 100% USDC an die laufende Sale-Treasury auf dieser Seite (TREASURY() auf Basescan prüfen). Platform-Rails (x402 / Fees / Auszahlungen) nutzen eine separat beschriftete Ops-Wallet. Launch-AURA nutzt eine neue Treasury, veröffentlicht sobald sie gesetzt ist. pAURA ist ein beschrifteter Beleg. Beim Start: 1 pAURA = 1 AURA + 11%. Jede CA per DM ist ein Betrug.",
+      "Die offizielle AURA-Treasury ist die Launch-Wallet auf dieser Seite. Der laufende pAURA-Contract hat eine eigene unveränderliche USDC-Senke — das ist nicht die AURA-Treasury (TREASURY() auf Basescan prüfen). Platform-Rails (x402 / Fees / Auszahlungen) nutzen eine separat beschriftete Ops-Wallet. pAURA ist ein beschrifteter Beleg. Beim Start: 1 pAURA = 1 AURA + 11%. Jede CA per DM ist ein Betrug.",
     buildersKicker: "Öffentlich gebaut",
     buildersTitle: "Echte Produkte. Dann AURA.",
     buildersLead:

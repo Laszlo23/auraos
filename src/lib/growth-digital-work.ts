@@ -3,6 +3,8 @@
  * Assign social posts, X Spaces show-up, Scout invites — not equity theater.
  */
 
+import { OFFICIAL_X_URL } from "@/lib/site";
+
 export type GrowthTaskKind =
   | "custom"
   | "social_post"
@@ -44,7 +46,7 @@ export const GROWTH_TASK_TEMPLATES: GrowthTaskTemplate[] = [
     title: "Show up on the next Aura X Space",
     hint: "Join live · say hi · drop /quest link in chat · honor-system check-in",
     xp: 80,
-    href: "https://x.com/buildingcultu3",
+    href: OFFICIAL_X_URL,
     meta: { platform: "x_spaces", honor: true },
   },
   {

@@ -5,8 +5,8 @@
  */
 
 import { FOUNDING_SEAT_USD, PRICE_OPS_BPS, PRICE_REMAINDER_BPS } from "@/lib/founding-price";
-import { PRIVATE_SALE_TREASURY, BASE_USDC } from "@/lib/private-sale";
-import { readConfiguredBaseAddress } from "@/lib/aura-token";
+import { BASE_USDC } from "@/lib/private-sale";
+import { AURA_LAUNCH_TREASURY, readConfiguredBaseAddress } from "@/lib/aura-token";
 
 export const HOOD_MAX_SUPPLY = 1000;
 export const HOOD_GIFT_AURA = 7_777;
@@ -23,7 +23,7 @@ export const HOOD_LP_USDC_UNITS = 209_300_000n;
 export const HOOD_OPS_USDC_UNITS = 89_700_000n;
 
 export const LAUNCH_USDC = BASE_USDC;
-export const LAUNCH_OPS_DEFAULT = PRIVATE_SALE_TREASURY;
+export const LAUNCH_OPS_DEFAULT = AURA_LAUNCH_TREASURY;
 
 export const LAUNCH_PROOF = {
   title: "On-chain. Unruggable desk.",
@@ -39,8 +39,8 @@ export const LAUNCH_PROOF = {
     },
     {
       id: "ops",
-      en: "30% ($89.70) to immutable ops — constructor-set, same published treasury as pAURA.",
-      de: "30% (89,70 $) an unveränderliche Ops — im Constructor gesetzt, dieselbe veröffentlichte Treasury wie pAURA.",
+      en: "30% ($89.70) to an immutable ops address set at deploy. That live desk sink is not the official AURA treasury.",
+      de: "30% (89,70 $) an eine unveränderliche Ops-Adresse aus dem Deploy. Diese Live-Desk-Senke ist nicht die offizielle AURA-Treasury.",
     },
     {
       id: "gift",

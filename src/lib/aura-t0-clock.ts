@@ -57,7 +57,7 @@ export function padLaunchUnit(n: number): string {
 /** Full 48h post — docs, pin, LinkedIn. No CA. */
 export const T0_ANNOUNCE_POST = `Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna.
 Token: AURA on Base. Official book: locked Uniswap v4 AURA/USDC. Seed $1,111 USDC. Starting book $6,000 USDC.
-CA will be published at T-0 only on aibusiness.fun and @buildingcultu3 — never by DM.
+CA will be published at T-0 only on aibusiness.fun and @bihary41418 — never by DM.
 Covenant: https://aibusiness.fun/trust`;
 
 /** X-length blast. Keep ≤280. No CA. */
@@ -66,7 +66,7 @@ export const T0_ANNOUNCE_POST_X = `Fair launch T-0: Sun 13 Sep 2026, 11:11 Vienn
 AURA on Base. Locked Uni v4 AURA/USDC.
 Seed $1,111 USDC. Book $6,000 USDC.
 
-CA at T-0 only on aibusiness.fun + @buildingcultu3 — never by DM.
+CA at T-0 only on aibusiness.fun + @bihary41418 — never by DM.
 https://aibusiness.fun/trust`;
 
 /** Farcaster-length blast. Keep ≤320. No CA. */
@@ -74,5 +74,5 @@ export const T0_ANNOUNCE_POST_FC = `Fair launch T-0: Sunday 13 Sep 2026, 11:11 V
 
 AURA on Base. Locked Uni v4 AURA/USDC. Seed $1,111 USDC. Book $6,000 USDC.
 
-CA at T-0 only on aibusiness.fun + @buildingcultu3 — never by DM.
+CA at T-0 only on aibusiness.fun + @bihary41418 — never by DM.
 https://aibusiness.fun/trust`;

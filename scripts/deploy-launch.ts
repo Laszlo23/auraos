@@ -19,7 +19,8 @@ import { createPublicClient, createWalletClient, http, type Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
 
-import { PRIVATE_SALE_TREASURY, BASE_USDC } from "../src/lib/private-sale";
+import { BASE_USDC } from "../src/lib/private-sale";
+import { AURA_LAUNCH_TREASURY } from "../src/lib/aura-token";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE_URI = "https://aibusiness.fun/api/genesis/meta/";
@@ -159,7 +160,7 @@ async function main() {
       ? process.env["LAUNCH_USDC"]?.trim() || BASE_SEPOLIA_USDC
       : process.env["LAUNCH_USDC_MAINNET"]?.trim() || BASE_USDC
   ) as Hex;
-  const ops = (process.env["LAUNCH_OPS"]?.trim() || PRIVATE_SALE_TREASURY) as Hex;
+  const ops = (process.env["LAUNCH_OPS"]?.trim() || AURA_LAUNCH_TREASURY) as Hex;
 
   const fees = await publicClient.estimateFeesPerGas();
   const maxFeePerGas = (fees.maxFeePerGas ?? 1_000_000n) * 15n;

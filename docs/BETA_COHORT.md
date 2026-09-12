@@ -51,7 +51,7 @@ Code: `BETAVN`
 
 1. Squad **Aura Beta** is live — invite `BETAVN` (do not recreate).
 2. Open tasks seeded: X post · Spaces show-up · Scout share · Discord pulse · Channels publish.
-3. **Weekly X Space:** host or join @buildingcultu3 — drop `/quest` in chat — mark Spaces task done.
+3. **Weekly X Space:** host or join @bihary41418 — drop `/quest` in chat — mark Spaces task done.
 4. Post one world-pulse win after each Space.
 
 ---

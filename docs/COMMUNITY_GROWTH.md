@@ -27,12 +27,12 @@ Code: `src/lib/community-covenant.ts`, `src/routes/trust.tsx`, drip in `src/lib/
 
 Clock: [`src/lib/aura-t0-clock.ts`](../src/lib/aura-t0-clock.ts). Runbook: [`docs/AURA_T0_RUNBOOK.md`](./AURA_T0_RUNBOOK.md). **No CA in this post.**
 
-### Pin on X `@buildingcultu3` (copy)
+### Pin on X `@bihary41418` (copy)
 
 ```
 Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna.
 Token: AURA on Base. Official book: locked Uniswap v4 AURA/USDC. Seed $1,111 USDC. Starting book $6,000 USDC.
-CA will be published at T-0 only on aibusiness.fun and @buildingcultu3 — never by DM.
+CA will be published at T-0 only on aibusiness.fun and @bihary41418 — never by DM.
 Covenant: https://aibusiness.fun/trust
 ```
 

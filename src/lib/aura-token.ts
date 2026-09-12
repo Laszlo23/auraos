@@ -1,4 +1,5 @@
 import { tokenLaunchIsLive } from "@/lib/aura-t0-clock";
+import { OFFICIAL_X_URL } from "@/lib/site";
 
 /** Canonical AURA market-token economics. Percentages match the whitepaper; units sum exactly. */
 
@@ -16,7 +17,7 @@ export const AURA_OFFICIAL_CA_SOURCES = [
   "https://aibusiness.fun/buy",
   "https://aibusiness.fun/trust",
   "https://aibusiness.fun/tokenomics",
-  "https://x.com/buildingcultu3",
+  OFFICIAL_X_URL,
 ] as const;
 
 function envFlagTrue(...names: string[]): boolean {
@@ -220,19 +221,22 @@ export const AURA_LOCKS = [
   },
 ] as const;
 
+/** Official AURA launch wallet — public, not a CA. Not the old pAURA sale sink. */
+export const AURA_LAUNCH_TREASURY = "0x7894a4f43cec1E97CBAa9Cd6676Ac07ABF34dD49" as const;
+const REJECTED_PAURA_CONTRACT_SINK = "0x502ce9fb1814cb03843967ec5e0d8f6aa3a3c2e1";
+
 /**
- * T-0 ops. Do not invent a CA, deployer, or treasury address.
- * Set AURA_LAUNCH_TREASURY / VITE_AURA_LAUNCH_TREASURY on the VPS when the new wallet exists.
+ * T-0 ops. Do not invent a CA or a second treasury.
  */
 export const AURA_LAUNCH_OPS = {
   deployer:
-    "AURA is created at T-0 from a new empty wallet — not the private-sale admin wallet and not the live sale treasury. Official CA only on aibusiness.fun and X @buildingcultu3.",
+    "AURA is created at T-0 from a new empty wallet — not the private-sale admin wallet and not the old pAURA sale sink. Official CA only on aibusiness.fun and X @bihary41418.",
   deployerDe:
-    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet — nicht die Private-Sale-Admin-Wallet und nicht die laufende Sale-Treasury. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3.",
+    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet — nicht die Private-Sale-Admin-Wallet und nicht die alte pAURA-Sale-Senke. Offizielle CA nur auf aibusiness.fun und X @bihary41418.",
   treasury:
-    "Launch treasury is a new wallet, published when set. Today's pAURA USDC still goes to the live sale contract treasury (immutable on that contract). Changing the sale destination requires a new sale contract.",
+    "Official AURA treasury is this launch wallet. Do not send tokens here. Do not use any other address as the AURA treasury.",
   treasuryDe:
-    "Die Launch-Treasury ist eine neue Wallet, veröffentlicht sobald sie gesetzt ist. Heutige pAURA-USDC gehen weiter an die laufende Sale-Contract-Treasury (dort unveränderlich). Ein anderes Sale-Ziel braucht einen neuen Sale-Contract.",
+    "Die offizielle AURA-Treasury ist diese Launch-Wallet. Keine Token hierher senden. Keine andere Adresse als AURA-Treasury verwenden.",
 } as const;
 
 export function readConfiguredBaseAddress(
@@ -245,8 +249,8 @@ export function readConfiguredBaseAddress(
   return null;
 }
 
-/** New AURA launch treasury. Null until set on the VPS — never invent one. */
-export function auraLaunchTreasuryAddress(): `0x${string}` | null {
+/** Official AURA launch treasury. Env may override; never the old pAURA contract sink. */
+export function auraLaunchTreasuryAddress(): `0x${string}` {
   const fromProc =
     typeof process !== "undefined"
       ? process.env["AURA_LAUNCH_TREASURY"] || process.env["VITE_AURA_LAUNCH_TREASURY"] || ""
@@ -257,7 +261,11 @@ export function auraLaunchTreasuryAddress(): `0x${string}` | null {
     typeof import.meta.env["VITE_AURA_LAUNCH_TREASURY"] === "string"
       ? String(import.meta.env["VITE_AURA_LAUNCH_TREASURY"])
       : "";
-  return readConfiguredBaseAddress(fromProc, fromVite);
+  const configured = readConfiguredBaseAddress(fromProc, fromVite);
+  if (configured && configured.toLowerCase() !== REJECTED_PAURA_CONTRACT_SINK) {
+    return configured;
+  }
+  return AURA_LAUNCH_TREASURY;
 }
 
 export function allocationById(id: string): AuraAllocation {
@@ -275,7 +283,7 @@ export const AURA_BUY_PLAN = {
     },
     {
       t: "T-0 on Base",
-      d: "We deploy AURA from a new empty wallet and seed a locked Uniswap v4 AURA/USDC FlatStart book ($6,000 USDC at ~$0.001, Dynamic3 fees). Official CA + pool id are published on aibusiness.fun and X @buildingcultu3 only.",
+      d: "We deploy AURA from a new empty wallet and seed a locked Uniswap v4 AURA/USDC FlatStart book ($6,000 USDC at ~$0.001, Dynamic3 fees). Official CA + pool id are published on aibusiness.fun and X @bihary41418 only.",
     },
     {
       t: "First official buy",

@@ -13,7 +13,7 @@ import {
   COVENANT_PATH,
   COVENANT_PROMISES,
 } from "@/lib/community-covenant";
-import { SITE_URL, SOCIAL_LINKS, url } from "@/lib/site";
+import { OFFICIAL_X_MENTION, SITE_URL, SOCIAL_LINKS, url } from "@/lib/site";
 import { HOOKR } from "@/lib/hookr";
 
 const TITLE = "Community covenant — how we show up | Aura OS";
@@ -157,7 +157,7 @@ function TrustPage() {
               {de ? "Offizielle X:" : "Official X:"}{" "}
               {x ? (
                 <a href={x.href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-                  @buildingcultu3
+                  {OFFICIAL_X_MENTION}
                 </a>
               ) : null}
             </li>

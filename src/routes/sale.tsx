@@ -16,7 +16,6 @@ import { BUILDING_CULTURE_PRODUCTS } from "@/lib/building-culture";
 import { num } from "@/lib/format";
 import {
   PAURA_SYMBOL,
-  PRIVATE_SALE_TREASURY,
   PLATFORM_RAILS_TREASURY,
   privateSaleBasescan,
   privateSaleContractAddress,
@@ -66,7 +65,8 @@ function SaleRoute() {
 function SalePage() {
   const { t, locale } = useLocale();
   const live = Route.useLoaderData();
-  const [copied, setCopied] = useState<"sale" | "rails" | null>(null);
+  const [copied, setCopied] = useState<"official" | "rails" | null>(null);
+  const officialTreasury = auraLaunchTreasuryAddress();
 
   const liveQ = useQuery({
     queryKey: ["private-sale-live"],
@@ -77,10 +77,10 @@ function SalePage() {
   const stats = liveQ.data ?? live;
   const contract = privateSaleContractAddress();
 
-  const copyAddress = async (which: "sale" | "rails") => {
+  const copyAddress = async (which: "official" | "rails") => {
     try {
       await navigator.clipboard.writeText(
-        which === "sale" ? PRIVATE_SALE_TREASURY : PLATFORM_RAILS_TREASURY,
+        which === "official" ? officialTreasury : PLATFORM_RAILS_TREASURY,
       );
       setCopied(which);
       window.setTimeout(() => setCopied(null), 1600);
@@ -262,25 +262,25 @@ function SalePage() {
           </p>
         </section>
 
-        <section className="rounded-2xl border border-border/40 p-4">
+        <section className="rounded-2xl border border-gold/30 bg-gold/[0.06] p-4">
           <h2 className="font-display text-lg font-semibold">{t("sale.treasuryTitle")}</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
             {t("sale.treasuryBody")}
           </p>
           <a
-            href={privateSaleBasescan(`/address/${PRIVATE_SALE_TREASURY}`)}
+            href={privateSaleBasescan(`/address/${officialTreasury}`)}
             target="_blank"
             rel="noreferrer"
             className="mt-3 block break-all font-mono text-[12px] text-primary"
           >
-            {PRIVATE_SALE_TREASURY}
+            {officialTreasury}
           </a>
           <button
             type="button"
-            onClick={() => void copyAddress("sale")}
+            onClick={() => void copyAddress("official")}
             className="mt-3 rounded-2xl border border-border/50 px-4 py-2 text-xs font-semibold"
           >
-            {copied === "sale" ? t("sale.copied") : t("sale.copy")}
+            {copied === "official" ? t("sale.copied") : t("sale.copy")}
           </button>
         </section>
 
@@ -304,27 +304,6 @@ function SalePage() {
           >
             {copied === "rails" ? t("sale.copied") : t("sale.copyRails")}
           </button>
-        </section>
-
-        <section className="rounded-2xl border border-border/40 p-4">
-          <h2 className="font-display text-lg font-semibold">{t("sale.launchTreasuryTitle")}</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-            {t("sale.launchTreasuryBody")}
-          </p>
-          {auraLaunchTreasuryAddress() ? (
-            <a
-              href={privateSaleBasescan(`/address/${auraLaunchTreasuryAddress()}`)}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 block break-all font-mono text-[12px] text-primary"
-            >
-              {auraLaunchTreasuryAddress()}
-            </a>
-          ) : (
-            <p className="mt-3 font-mono text-[12px] text-muted-foreground">
-              {t("sale.launchTreasuryPending")}
-            </p>
-          )}
         </section>
 
         <AuraOfficialTape de={locale === "de"} />

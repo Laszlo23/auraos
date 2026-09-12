@@ -18,7 +18,7 @@ import {
   launchEscrowAddress,
   launchGiftLockAddress,
 } from "@/lib/aura-launch";
-import { allocationById } from "@/lib/aura-token";
+import { allocationById, AURA_LAUNCH_TREASURY } from "@/lib/aura-token";
 
 describe("Aura launch desk", () => {
   it("keeps Hood math identical to the Solidity constants", () => {
@@ -32,7 +32,7 @@ describe("Aura launch desk", () => {
     expect(HOOD_LP_USDC_UNITS + HOOD_OPS_USDC_UNITS).toBe(HOOD_PRICE_USDC_UNITS);
     expect(HOOD_GIFT_LOCK_DAYS).toBe(0);
     expect(LAUNCH_MARKET_TIMELOCK_HOURS).toBe(72);
-    expect(LAUNCH_OPS_DEFAULT).toMatch(/^0x[a-fA-F0-9]{40}$/);
+    expect(LAUNCH_OPS_DEFAULT).toBe(AURA_LAUNCH_TREASURY);
     expect(() => assertLaunchMath()).not.toThrow();
   });
 

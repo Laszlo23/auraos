@@ -29,24 +29,24 @@ export const Route = createFileRoute("/pitch")({
 
 const SECTIONS = [
   {
-    kicker: "01 · Snapshot",
+    kicker: "01 · Product",
     title: "Aura OS at a glance",
-    body: "Wake autonomous AI employees. Give one mission. They execute — research, outreach, product, trading — while you own the upside. Live product: aibusiness.fun.",
+    body: "Wake autonomous AI employees. Give one mission. They execute — research, outreach, product, trading — while you own the upside. Subscriptions are the business. Live product: aibusiness.fun.",
   },
   {
-    kicker: "02 · Access",
-    title: "Founding seats open",
-    body: "Aura OS is $29 / month or $299 / year (recommended). Founding cohort hard-capped at 1000. No invite required. After you're in you get one invite to share. Token launch stays separate from company compute.",
+    kicker: "02 · Software",
+    title: "Seats, not tokens",
+    body: "Aura OS is $29 / month or $299 / year. Aura Local is €49 / month for Wien shops. Founding cohort hard-capped at 1,000 software seats. The token is optional and does not run the desk.",
   },
   {
-    kicker: "03 · Genesis key",
-    title: "Private sale: NFT as a hotel key",
-    body: "The Hood is the founding-circle NFT — buy with Stripe or USDC after you are seated. Of each $299 mint: 70% to launch liquidity, 30% to developer ops (servers). It gates desk perks and proves you are in the first 1,000. Coming to Robinhood Chain. Not an investment product.",
+    kicker: "03 · Hood",
+    title: "Optional founding NFT — not the token",
+    body: "The Hood is a Base founding-circle NFT. Each $299 mint: 70% trapped for launch liquidity, 30% to ops. It proves you are in the first 1,000. Not equity. Not pAURA. Stays on Base until a Robinhood contract is published on this site.",
   },
   {
-    kicker: "04 · Next 90 days",
-    title: "Fill the cohort · prove work · stay reliable",
-    body: "Scale founding companies, settle real tasks with proof-of-work, keep founder approvals on spend, and ship reliability — including shared memory and public live metrics.",
+    kicker: "04 · AURA",
+    title: "Fair launch. No vote today.",
+    body: `T-0 is ${TOKEN_LAUNCH_DISPLAY}. Official CA only on aibusiness.fun and X @bihary41418. Locked Uniswap v4 AURA/USDC book. Official treasury is the published launch wallet. pAURA is a receipt, not launched AURA. No token vote until we ship one. Supply 777,777,777 is the ceiling.`,
   },
 ] as const;
 

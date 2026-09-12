@@ -34,7 +34,13 @@ import { WienStoryStrip } from "@/components/aura/wien-story-strip";
 import { trackTeaser } from "@/lib/teaser-track";
 import { captureAttribution } from "@/lib/attribution";
 import { ogCampaignMeta } from "@/lib/og-campaign";
-import { LAUNCH_SHARE_TEXT, SITE_URL, TOKEN_LAUNCH_DISPLAY, mediaPath } from "@/lib/site";
+import {
+  LAUNCH_SHARE_TEXT,
+  OFFICIAL_X_MENTION,
+  SITE_URL,
+  TOKEN_LAUNCH_DISPLAY,
+  mediaPath,
+} from "@/lib/site";
 import { SAVINGS } from "@/lib/savings-story";
 import { SiteFooter } from "@/components/aura/site-footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,7 +77,8 @@ export const Route = createFileRoute("/")({
       { property: "og:locale:alternate", content: "de_DE" },
       { property: "og:locale:alternate", content: "de_AT" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@auraos" },
+      { name: "twitter:site", content: OFFICIAL_X_MENTION },
+      { name: "twitter:creator", content: OFFICIAL_X_MENTION },
       { name: "twitter:title", content: "Aura OS — Own a company. Let AI make money." },
       {
         name: "twitter:description",
@@ -259,11 +266,18 @@ function Landing() {
             </div>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
               <Link
-                to="/try"
-                onClick={() => trackTeaser("cta_click", { placement: "landing_hero_try" })}
+                to="/features"
+                onClick={() => trackTeaser("cta_click", { placement: "landing_hero_features" })}
                 className="inline-flex items-center gap-2 text-[15px] font-bold text-neon-lime underline-offset-4 transition-all hover:text-neon-lime/80 hover:underline hover:drop-shadow-[0_0_8px_rgba(207,255,4,0.6)]"
               >
-                {t("landing.tryCta")} <ArrowRight className="h-4 w-4" />
+                {t("landing.navFeatures")} <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/try"
+                onClick={() => trackTeaser("cta_click", { placement: "landing_hero_try" })}
+                className="inline-flex items-center gap-2 text-[15px] font-bold text-street-teal underline-offset-4 transition-all hover:underline hover:drop-shadow-[0_0_8px_rgba(114,223,221,0.6)]"
+              >
+                {t("landing.tryCta")}
               </Link>
               <Link
                 to="/token"

@@ -114,26 +114,39 @@ function TeamPage() {
                   <p className="mt-1 text-[11px] text-muted-foreground/80">Nachname folgt</p>
                 ) : null}
                 <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{f.blurb}</p>
-                {f.shopSlug ? (
-                  <Link
-                    to="/b/$slug"
-                    params={{ slug: f.shopSlug }}
-                    className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:underline"
-                  >
-                    Betrieb öffnen
-                  </Link>
-                ) : f.linkedin ? (
-                  <a
-                    href={f.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:underline"
-                  >
-                    LinkedIn <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                ) : (
-                  <p className="mt-4 text-[11px] text-muted-foreground/80">Profil folgt</p>
-                )}
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+                  {f.shopSlug ? (
+                    <Link
+                      to="/b/$slug"
+                      params={{ slug: f.shopSlug }}
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:underline"
+                    >
+                      Betrieb öffnen
+                    </Link>
+                  ) : null}
+                  {f.x ? (
+                    <a
+                      href={f.x}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:underline"
+                    >
+                      X <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  ) : null}
+                  {f.linkedin ? (
+                    <a
+                      href={f.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary hover:underline"
+                    >
+                      LinkedIn <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  ) : !f.shopSlug && !f.x ? (
+                    <p className="text-[11px] text-muted-foreground/80">Profil folgt</p>
+                  ) : null}
+                </div>
               </article>
             ))}
           </div>

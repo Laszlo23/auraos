@@ -50,7 +50,7 @@ export const TOKENOMICS = {
     "Selected in-app utility",
     "Agent / company economy rails",
     "Marketplace incentives",
-    "Future governance functions (when shipped)",
+    "No token vote today — only if we ship it",
     "Access & status layers",
   ],
   notToken: [
@@ -118,7 +118,7 @@ export const WHITEPAPER_SECTIONS = [
   {
     id: "token",
     title: "7. Token & fair launch",
-    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, marketplace incentives, and future governance. Fixed maximum supply: 777,777,777 AURA. Each Hood NFT claims 7,777 unlocked AURA at T-0 (+ escrow buy bonus); 70% of the $299 mint USDC is trapped on-chain and can only buy the official pair. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. After T-0 the treasury publishes a reference basket — TSLA as primary anchor, plus Musk-orbit public equities — that Quant uses for market-ops transparency (not redemption, not wrapped stock). Robinhood Chain: creator mints and USDG desk live; Hood and T-0 remain on Base until Robinhood contracts publish. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No AURA contract address until T-0.`,
+    body: `AURA is the ecosystem layer for participation, incentives, progression, selected in-app utility, agent/company economy, and marketplace incentives. There is no AURA token vote today — only if we ship a product. Fixed maximum supply: 777,777,777 AURA. Each Hood NFT claims 7,777 unlocked AURA at T-0 (+ escrow buy bonus); 70% of the $299 mint USDC is trapped on-chain and can only buy the official pair. Fair launch plan (${TOKEN_LAUNCH_DISPLAY}): €3,000 strategic acquisition + €3,000 across 30 risk-controlled market-ops agents. After T-0 the treasury publishes a reference basket — TSLA as primary anchor, plus Musk-orbit public equities — that Quant uses for market-ops transparency (not redemption, not wrapped stock). Robinhood Chain: creator mints and USDG desk live; Hood and T-0 remain on Base until Robinhood contracts publish. Volume target up to $500k cumulative — target, not guaranteed. No wash / self / circular trading. No AURA contract address until T-0.`,
   },
   {
     id: "desks",
@@ -186,7 +186,7 @@ export const WHITEPAPER_SECTIONS_DE = [
   {
     id: "token",
     title: "7. Der Token und der öffentliche Start",
-    body: `AURA ist zum Mitmachen da: Belohnung, Fortschritt, ausgewählte Nutzung in der App, Wirtschaft zwischen Firmen und Programmen, Anreize am Marktplatz, später Mitreden. Höchstens 777.777.777 AURA. Jeder Hood claimt 7.777 freigeschaltete AURA ab T-0 (+ Escrow-Buy-Bonus); 70% der 299-$ Mint-USDC bleiben on-chain und können nur das offizielle Paar kaufen. Plan für den öffentlichen Start (${TOKEN_LAUNCH_DISPLAY_DE}): 3.000 € gezielter erster Kauf plus 3.000 € auf 30 begrenzte Handelsprogramme. Ziel bis 500.000 $ Umsatz im Handel — ein Ziel, keine Garantie. Kein Scheinhandel, kein Handel mit sich selbst, kein Kreis. Vor dem Start gibt es keine AURA-Vertragsadresse.`,
+    body: `AURA ist zum Mitmachen da: Belohnung, Fortschritt, ausgewählte Nutzung in der App, Wirtschaft zwischen Firmen und Programmen, Anreize am Marktplatz. Heute gibt es keine AURA-Token-Abstimmung — nur wenn wir ein Produkt dafür bauen. Höchstens 777.777.777 AURA. Jeder Hood claimt 7.777 freigeschaltete AURA ab T-0 (+ Escrow-Buy-Bonus); 70% der 299-$ Mint-USDC bleiben on-chain und können nur das offizielle Paar kaufen. Plan für den öffentlichen Start (${TOKEN_LAUNCH_DISPLAY_DE}): 3.000 € gezielter erster Kauf plus 3.000 € auf 30 begrenzte Handelsprogramme. Ziel bis 500.000 $ Umsatz im Handel — ein Ziel, keine Garantie. Kein Scheinhandel, kein Handel mit sich selbst, kein Kreis. Vor dem Start gibt es keine AURA-Vertragsadresse.`,
   },
   {
     id: "desks",

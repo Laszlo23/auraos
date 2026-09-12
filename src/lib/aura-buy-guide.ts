@@ -121,9 +121,9 @@ export const AURA_BUY_COPY = {
   settleSoon: "Quote and settle unlock when the official CA is on this page.",
   settleSoonDe: "Quote und Settlement gehen, sobald die offizielle CA hier steht.",
   disclaimer:
-    "AURA is software, not equity. You can lose the tokens. Official CA only on aibusiness.fun and X @buildingcultu3 — never by DM.",
+    "AURA is software, not equity. You can lose the tokens. Official CA only on aibusiness.fun and X @bihary41418 — never by DM.",
   disclaimerDe:
-    "AURA ist Software, keine Beteiligung. Du kannst die Token verlieren. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3 — nie per DM.",
+    "AURA ist Software, keine Beteiligung. Du kannst die Token verlieren. Offizielle CA nur auf aibusiness.fun und X @bihary41418 — nie per DM.",
   packHint: "One-time card charge in USD. Not a subscription. Not an on-chain swap.",
   packHintDe: "Einmalige Kartenzahlung in USD. Kein Abo. Kein On-Chain-Swap.",
   packRefund:

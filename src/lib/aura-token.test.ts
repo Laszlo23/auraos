@@ -4,6 +4,7 @@ import {
   AURA_ALLOCATION_TOTAL,
   AURA_ALLOCATIONS,
   AURA_LAUNCH_OPS,
+  AURA_LAUNCH_TREASURY,
   AURA_LOCKS,
   AURA_MAX_SUPPLY,
   AURA_PROJECT_SALE_LOCK,
@@ -35,15 +36,32 @@ describe("AURA tokenomics", () => {
       "hood_gifts",
     ]);
     expect(AURA_LAUNCH_OPS.deployer).toMatch(/new empty wallet/i);
-    expect(AURA_LAUNCH_OPS.treasury).toMatch(/new wallet/i);
+    expect(AURA_LAUNCH_OPS.treasury).toMatch(/official AURA treasury/i);
   });
 
-  it("reads a launch treasury only when a real Base address is set", () => {
+  it("publishes the official launch treasury and never uses the old pAURA sink", () => {
     expect(readConfiguredBaseAddress("", "not-an-address")).toBeNull();
-    expect(readConfiguredBaseAddress(" 0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1 ")).toBe(
-      "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1",
+    expect(readConfiguredBaseAddress(` ${AURA_LAUNCH_TREASURY} `)).toBe(AURA_LAUNCH_TREASURY);
+    expect(AURA_LAUNCH_TREASURY).toBe("0x7894a4f43cec1E97CBAa9Cd6676Ac07ABF34dD49");
+    expect(AURA_LAUNCH_TREASURY.toLowerCase()).not.toBe(
+      "0x502ce9fb1814cb03843967ec5e0d8f6aa3a3c2e1",
     );
-    expect(auraLaunchTreasuryAddress()).toBeNull();
+
+    const keys = ["AURA_LAUNCH_TREASURY", "VITE_AURA_LAUNCH_TREASURY"] as const;
+    const prev = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
+    try {
+      delete process.env["AURA_LAUNCH_TREASURY"];
+      delete process.env["VITE_AURA_LAUNCH_TREASURY"];
+      expect(auraLaunchTreasuryAddress()).toBe(AURA_LAUNCH_TREASURY);
+
+      process.env["AURA_LAUNCH_TREASURY"] = "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1";
+      expect(auraLaunchTreasuryAddress()).toBe(AURA_LAUNCH_TREASURY);
+    } finally {
+      for (const key of keys) {
+        if (prev[key] === undefined) delete process.env[key];
+        else process.env[key] = prev[key];
+      }
+    }
   });
 
   it("does not publish an env CA before T-0 without explicit flags", () => {
@@ -56,7 +74,7 @@ describe("AURA tokenomics", () => {
       "VITE_AURA_ALLOW_PRE_T0_CA",
     ] as const;
     const prev = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
-    const predicted = "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1";
+    const predicted = "0x1111111111111111111111111111111111111111";
     try {
       process.env["AURA_TOKEN_CA"] = predicted;
       delete process.env["VITE_AURA_TOKEN_CA"];

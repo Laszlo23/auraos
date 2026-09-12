@@ -11,81 +11,12 @@ async function adminDb(): Promise<LooseDb> {
   return supabaseAdmin as unknown as LooseDb;
 }
 
-async function founderWallet(supabase: LooseDb, userId: string): Promise<string | null> {
-  const { data: handle } = await supabase
-    .from("handles")
-    .select("id")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!handle?.id) return null;
-  const { data: smart } = await supabase
-    .from("wallet_bindings")
-    .select("address")
-    .eq("handle_id", handle.id)
-    .eq("kind", "smart")
-    .maybeSingle();
-  if (smart?.address) return smart.address as string;
-  const { data: anyWallet } = await supabase
-    .from("wallet_bindings")
-    .select("address")
-    .eq("handle_id", handle.id)
-    .eq("verified", true)
-    .order("slot", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  return (anyWallet?.address as string | null) ?? null;
-}
-
 export const createSquareCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    if (!auraSquareAddress()) {
-      throw new Error("Aura Square CA is not published yet. Not Hood. Not pAURA.");
-    }
-    const secret = process.env["STRIPE_SECRET_KEY"];
-    const priceId = process.env["STRIPE_PRICE_AURA_SQUARE"]?.trim();
-    if (!secret || !priceId) {
-      throw new Error("Square Stripe is not configured (STRIPE_PRICE_AURA_SQUARE).");
-    }
-
-    const { createStripeCheckoutSession } = await import("@/lib/stripe-checkout");
-    const wallet = await founderWallet(context.supabase as unknown as LooseDb, context.userId);
-    const db = await adminDb();
-    await db.from("square_purchases").upsert(
-      {
-        user_id: context.userId,
-        wallet,
-        status: "pending",
-        amount_cents: AURA_SQUARE.mintUsd * 100,
-        amount_usdc: AURA_SQUARE.mintUsd,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" },
+  .handler(async () => {
+    throw new Error(
+      "Aura Square mint is wallet-only. Connect a wallet on /square and pay $11 USDC on Base.",
     );
-
-    const {
-      data: { user },
-    } = await context.supabase.auth.getUser();
-    const site = process.env["SITE_URL"] || SITE_URL;
-    const params = new URLSearchParams();
-    params.set("mode", "payment");
-    params.set("success_url", `${site}/square?mint=success`);
-    params.set("cancel_url", `${site}/square?mint=cancel`);
-    params.set("client_reference_id", context.userId);
-    params.set("metadata[kind]", "square_nft");
-    params.set("metadata[user_id]", context.userId);
-    params.set("line_items[0][price]", priceId);
-    params.set("line_items[0][quantity]", "1");
-    if (user?.email) params.set("customer_email", user.email);
-
-    const session = await createStripeCheckoutSession(secret, params);
-    await db
-      .from("square_purchases")
-      .update({ stripe_session_id: session.id, updated_at: new Date().toISOString() })
-      .eq("user_id", context.userId);
-    return { url: session.url, id: session.id };
   });
 
 export const createSquareTbaFundCheckout = createServerFn({ method: "POST" })

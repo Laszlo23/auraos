@@ -22,6 +22,7 @@ import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DeskRouteImport } from './routes/desk'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as HoodRouteImport } from './routes/hood'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -226,6 +227,11 @@ const DonateRoute = DonateRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GrantsRoute = GrantsRouteImport.update({
@@ -962,6 +968,7 @@ export interface FileRoutesByFullPath {
   '/desk': typeof DeskRoute
   '/donate': typeof DonateRoute
   '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
   '/hood': typeof HoodRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -1116,6 +1123,7 @@ export interface FileRoutesByTo {
   '/desk': typeof DeskRoute
   '/donate': typeof DonateRoute
   '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
   '/hood': typeof HoodRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -1273,6 +1281,7 @@ export interface FileRoutesById {
   '/desk': typeof DeskRoute
   '/donate': typeof DonateRoute
   '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
   '/hood': typeof HoodRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -1430,6 +1439,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/donate'
     | '/faq'
+    | '/features'
     | '/grants'
     | '/hood'
     | '/how-it-works'
@@ -1584,6 +1594,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/donate'
     | '/faq'
+    | '/features'
     | '/grants'
     | '/hood'
     | '/how-it-works'
@@ -1740,6 +1751,7 @@ export interface FileRouteTypes {
     | '/desk'
     | '/donate'
     | '/faq'
+    | '/features'
     | '/grants'
     | '/hood'
     | '/how-it-works'
@@ -1897,6 +1909,7 @@ export interface RootRouteChildren {
   DeskRoute: typeof DeskRoute
   DonateRoute: typeof DonateRoute
   FaqRoute: typeof FaqRoute
+  FeaturesRoute: typeof FeaturesRoute
   GrantsRoute: typeof GrantsRoute
   HoodRoute: typeof HoodRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -2080,6 +2093,13 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/grants': {
@@ -3217,6 +3237,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeskRoute: DeskRoute,
   DonateRoute: DonateRoute,
   FaqRoute: FaqRoute,
+  FeaturesRoute: FeaturesRoute,
   GrantsRoute: GrantsRoute,
   HoodRoute: HoodRoute,
   HowItWorksRoute: HowItWorksRoute,

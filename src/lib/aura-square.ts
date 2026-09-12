@@ -12,8 +12,10 @@ export const AURA_SQUARE = {
   symbol: "AURASQ",
   path: "/square",
   maxSupply: 1111,
-  /** USDC whole dollars — distinct from Hood $299. */
-  mintUsd: 111,
+  /** Planned wallet mint — $11, not $111. Hood stays $299. Raise later via setMintPriceUsdc. */
+  mintUsd: 11,
+  /** Wallet mint only — USDC 6 decimals. */
+  mintUsdcUnits: 11_000_000n,
   tbaFundMinUsd: 11,
   tbaFundMaxUsd: 1111,
   chainId: 8453,
@@ -37,9 +39,17 @@ export const AURA_SQUARE_COPY = {
   notHoodDe:
     "Cap ist 1.111 — nicht Hoods 1.000. Keine Founding-Rabatte. Kein Überraschungs-AURA-Airdrop in die TBA.",
   stripeHonest:
-    "Stripe does not teleport USDC. After checkout, the ops wallet mints the Square or sends USDC into that TBA on Base. You can lose the tokens. Not equity.",
+    "Mint is wallet-only on Base: approve USDC and call mint(). Stripe does not sell Squares. Optional TBA top-up is a later USDC send — you can lose the tokens. Not equity.",
   stripeHonestDe:
-    "Stripe teleportiert kein USDC. Nach dem Checkout mintet die Ops-Wallet den Square oder schickt USDC in diese TBA auf Base. Du kannst die Token verlieren. Kein Equity.",
+    "Mint nur per Wallet auf Base: USDC freigeben und mint() aufrufen. Stripe verkauft keine Squares. TBA-Aufladung ist ein späterer USDC-Send — du kannst die Token verlieren. Kein Equity.",
+  walletMint:
+    "Connect a wallet on Base. Approve $11 USDC. Call mint(). The Square and its TBA land in that wallet.",
+  walletMintDe:
+    "Wallet auf Base verbinden. 11 $ USDC freigeben. mint() aufrufen. Square und TBA landen in dieser Wallet.",
+  missing:
+    "The Solidity is written. It is not deployed. No CA on Base. No Squares minted. The TBA stays empty until AURA exists after T-0. Metadata is the app icon. There is no on-chain OS perk and no auto-bind. Do not deploy before T-0.",
+  missingDe:
+    "Der Solidity-Code existiert. Er ist nicht deployed. Keine CA auf Base. Keine Squares gemintet. Die TBA bleibt leer, bis AURA nach T-0 existiert. Metadata ist das App-Icon. Kein On-Chain-OS-Perk, kein Auto-Bind. Nicht vor T-0 deployen.",
 } as const;
 
 export function auraSquareAddress(): `0x${string}` | null {
@@ -94,6 +104,13 @@ export const AURA_SQUARE_ABI = [
     name: "mintPriceUsdc",
     stateMutability: "view",
     inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    stateMutability: "view",
+    inputs: [{ name: "owner", type: "address" }],
     outputs: [{ name: "", type: "uint256" }],
   },
 ] as const;

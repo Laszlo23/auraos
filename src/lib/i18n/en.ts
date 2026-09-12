@@ -320,7 +320,8 @@ export const en: MessageTree = {
 
     act6: "06 / FAIR LAUNCH",
     act6Title: "Launching soon",
-    act6Body: "Token and ecosystem. No pre-mine, no VC dump. Real company, real launch.",
+    act6Body:
+      "AURA launches on Base at T-0. Locked LP. Official CA only on our site and X. Company first.",
 
     act7: "07 / CLAIM YOUR SEAT",
     act7Title: "Own a company. Fair software.",
@@ -335,9 +336,9 @@ export const en: MessageTree = {
     chapterHoodCta: "Enter the Hood",
 
     chapterToken: "Token & Ecosystem",
-    chapterTokenLore: "Fair launch. Community-owned. Real tokenomics, no VC dump.",
-    chapterTokenFeature1: "Fair launch — no pre-mine",
-    chapterTokenFeature2: "Community governance",
+    chapterTokenLore: "Fair launch on Base. Fixed supply. No VC dump. Founder-led — not a DAO.",
+    chapterTokenFeature1: "Fair launch — locked LP, no VC dump",
+    chapterTokenFeature2: "No token vote today",
     chapterTokenFeature3: "Transparent tokenomics",
     chapterTokenCta: "Read tokenomics",
 
@@ -411,10 +412,12 @@ export const en: MessageTree = {
     navOs: "Aura OS",
     navLokal: "Aura Local",
     navHow: "How it works",
+    navFeatures: "Features",
     navTry: "Try Aura",
     navProof: "Proof",
     navPricing: "Pricing",
     navStart: "Get started",
+    navPitch: "Pitch",
     navSale: "Early access",
     navToken: "Ecosystem",
     navTokenomics: "How money works",
@@ -494,7 +497,7 @@ export const en: MessageTree = {
     launchTitle: "Fair launch.",
     launchLine: "Sunday 13 Sep 2026, 11:11 Vienna.",
     launchBody:
-      "Built in the open. T-0 is Sunday 13 Sep 2026, 11:11 Europe/Vienna. CA publishes then — only on aibusiness.fun and @buildingcultu3, never by DM, never a surprise address. Join Ninty so you are in the room when it opens.",
+      "Built in the open. T-0 is Sunday 13 Sep 2026, 11:11 Europe/Vienna. CA publishes then — only on aibusiness.fun and @bihary41418, never by DM, never a surprise address. Join Ninty so you are in the room when it opens.",
     claimTitle: "Buy the seat.",
     claimTitle2: "Wake the company.",
     claimBody:
@@ -617,7 +620,7 @@ export const en: MessageTree = {
     launchOpen: "Built in the open.",
     launchFollow: "T-0: Sunday 13 Sep 2026, 11:11 Vienna.",
     launchTrust:
-      "We grow in public. T-0 is Sunday 13 Sep 2026, 11:11 Europe/Vienna. The CA publishes in that minute on aibusiness.fun and @buildingcultu3 — never by DM, never with a surprise address. Until then: seat the company, ship proof, grow with us.",
+      "We grow in public. T-0 is Sunday 13 Sep 2026, 11:11 Europe/Vienna. The CA publishes in that minute on aibusiness.fun and @bihary41418 — never by DM, never with a surprise address. Until then: seat the company, ship proof, grow with us.",
     launchCompact: "{when}",
     kitKicker: "Wien wave · free share kit",
     kitTitle: "Schmäh with love.",
@@ -714,6 +717,7 @@ export const en: MessageTree = {
     proof: "Proof",
     pricing: "Pricing",
     how: "How it works",
+    features: "Features",
     try: "Try Aura",
     compare: "Why Aura",
     faq: "FAQ",
@@ -919,7 +923,7 @@ export const en: MessageTree = {
       "Pay USDC on Base. The contract mints pAURA to your wallet. Or pay cash at Desk — Laszlo sends after.",
     step2Title: "Wait for T-0",
     step2Body:
-      "We launch real AURA on Base via Uniswap v4 (locked AURA/USDC book). The official address is published only on aibusiness.fun and X @buildingcultu3.",
+      "We launch real AURA on Base via Uniswap v4 (locked AURA/USDC book). The official address is published only on aibusiness.fun and X @bihary41418.",
     step3Title: "1 pAURA → 1.11 AURA",
     step3Body: "Every private-sale buyer gets +11% at redeem. Unsold pAURA is never minted.",
     statsSold: "pAURA sold",
@@ -942,15 +946,16 @@ export const en: MessageTree = {
     projectLockTitle: "Project take is in this sale — then locked",
     projectLockBody:
       "3% of supply (21,021,000 pAURA → 23,333,310 AURA) is the project slice. We buy it through this same contract, earliest 48 hours after the sale opened. Those AURA lock for 90 days after T-0. The other 30% is for open buyers. Unsold stays unminted.",
-    treasuryTitle: "Where the sale USDC goes",
+    treasuryTitle: "Official AURA treasury",
     treasuryBody:
-      "Every on-chain buy forwards 100% USDC to this live sale treasury. It is baked into the pAURA contract and cannot change without a new sale CA. AURA itself is created from a new wallet at T-0, with a new launch treasury published when set.",
+      "This is the official AURA launch wallet — not a token CA. Do not send tokens here. Do not treat any other address as the AURA treasury.",
     railsTitle: "Platform rails wallet",
     railsBody:
-      "Separate from the sale treasury: x402 settlement, optional OKX referrer fees, Clanker platform fees, and NOWPayments withdrawals use this published ops wallet. Sale buys do not go here until a new sale contract is deployed.",
-    launchTreasuryTitle: "AURA launch treasury",
-    launchTreasuryBody: "New wallet for AURA after T-0 — not the private-sale admin key.",
-    launchTreasuryPending: "Not published yet. Set AURA_LAUNCH_TREASURY on the VPS before T-0.",
+      "Separate from the official AURA treasury: x402 settlement, optional OKX referrer fees, Clanker platform fees, and NOWPayments withdrawals use this published ops wallet.",
+    launchTreasuryTitle: "Official AURA treasury",
+    launchTreasuryBody:
+      "This is the official AURA launch wallet — not a token CA. Do not send tokens here.",
+    launchTreasuryPending: "Official treasury is published on this page.",
     copy: "Copy address",
     copyRails: "Copy rails wallet",
     copied: "Copied",
@@ -967,7 +972,7 @@ export const en: MessageTree = {
       "AURA launches on Uniswap v4 at T-0 — a public Base AURA/USDC book, not a stealth CA in a Telegram. We are building an unruggable token: fixed supply, locked LP, published hooks, team locked, official address only on our site and X.",
     trustFairTitle: "Fair launch on Uniswap v4",
     trustFairBody:
-      "T-0 is announced 48 hours ahead on aibusiness.fun and X @buildingcultu3. AURA is created from a new empty wallet and paired on Uniswap v4 (Base, AURA/USDC). Same CA for everyone. Official address only on our site and X.",
+      "T-0 is announced 48 hours ahead on aibusiness.fun and X @bihary41418. AURA is created from a new empty wallet and paired on Uniswap v4 (Base, AURA/USDC). Same CA for everyone. Official address only on our site and X.",
     trustLockTitle: "Liquidity locked at T-0",
     trustLockBody:
       "Launch LP is a locked Uniswap v4 AURA/USDC FlatStart book ($6,000 USDC at ~$0.001) — not sitting in a team wallet we can pull. That is the opposite of a honeypot or a rug.",
@@ -976,7 +981,7 @@ export const en: MessageTree = {
       "Official AURA supply is fixed. This sale does not mint AURA. Unsold pAURA is never minted. Team: 12-month cliff, then 36-month vest. Project private-sale take: bought after 48 hours, locked 90 days after T-0. Nothing free to dump at T-0.",
     trustHonestTitle: "Public money path",
     trustHonestBody:
-      "Every on-chain buy sends 100% USDC to the live sale treasury on this page (verify TREASURY() on Basescan). Platform rails (x402 / fees / withdrawals) use a separately labeled ops wallet. Launch AURA uses a new treasury, published when set. pAURA is a labeled receipt. At launch: 1 pAURA = 1 AURA + 11%. Any CA in a DM is a scam.",
+      "Official AURA treasury is the launch wallet on this page. The live pAURA contract has its own immutable USDC sink — that is not the AURA treasury (verify TREASURY() on Basescan). Platform rails (x402 / fees / withdrawals) use a separately labeled ops wallet. pAURA is a labeled receipt. At launch: 1 pAURA = 1 AURA + 11%. Any CA in a DM is a scam.",
     buildersKicker: "Built in public",
     buildersTitle: "Real products. Then AURA.",
     buildersLead:

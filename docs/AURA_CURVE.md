@@ -13,7 +13,7 @@ Canonical numbers live in `src/lib/aura-curve.ts`. This doc is the human reading
 Public promises that stay:
 
 - Fixed supply **777,777,777** AURA. No further mint.
-- **48 hours** announce on aibusiness.fun and X `@buildingcultu3` before T-0. Never a surprise CA. Never a CA by DM. **T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna.** Runbook: `docs/AURA_T0_RUNBOOK.md`.
+- **48 hours** announce on aibusiness.fun and X `@bihary41418` before T-0. Never a surprise CA. Never a CA by DM. **T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna.** Runbook: `docs/AURA_T0_RUNBOOK.md`.
 - Launch LP is **locked** (no team withdraw).
 - Official CA only on the site and that X account.
 - Official T-0 seed **$1,111 USDC** → launch treasury (not the sale key). Separate starting book **$6,000 USDC** at ~**$0.001**.
@@ -78,7 +78,7 @@ Publish these bps on `/trust` and `/token`. Never “deflationary moon.” No pr
 
 | Role | Rule |
 | --- | --- |
-| `tokenAdmin` | Launch treasury — **new empty wallet**, already in T-0 docs. Not Laszlo’s sale key. Not the live pAURA treasury. |
+| `tokenAdmin` | Official AURA treasury `0x7894a4f43cec1E97CBAa9Cd6676Ac07ABF34dD49`. Not Laszlo’s sale key. Not the old pAURA contract sink. |
 | Team vault | 12-month cliff / 36-month vest |
 | Project sale slice | 90-day lock after T-0 |
 | Dev buy | Official seed **$1,111 USDC** → launch treasury (not the sale key) |

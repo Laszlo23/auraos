@@ -28,7 +28,7 @@ Match `src/lib/aura-token.ts` — must sum to 777,777,777. Curve bps live in `sr
 
 Sunday **13 Sep 2026, 11:11 Europe/Vienna**. Operator steps: [`docs/AURA_T0_RUNBOOK.md`](../../docs/AURA_T0_RUNBOOK.md).
 
-1. Announce **48 hours** ahead on aibusiness.fun + X `@buildingcultu3` (done Friday 11 Sep if the clock is live before 11:11 CEST).
+1. Announce **48 hours** ahead on aibusiness.fun + X `@bihary41418` (done Friday 11 Sep if the clock is live before 11:11 CEST).
 2. New empty wallet = `tokenAdmin` / launch treasury. Not the sale key.
 3. Deploy **`AuraToken.sol` first** (this is the official CA). Then `AuraPauraRedeem`, `AuraBurnSink`, `AuraGauge`, vesting wallets. Do **not** CREATE2 a Clanker factory token as AURA.
 4. Attach the locked Uni v4 AURA/USDC book **to that CA** (Clanker pool/lock/fee-split engine, or native v4 locker) with Dynamic3 + sniper decay + 5000/2500/1500/1000 reward split. Official seed **$1,111 USDC**. If Clanker cannot wrap an existing ERC-20, use the native v4 fallback — never switch back to `ClankerTokenV4`.

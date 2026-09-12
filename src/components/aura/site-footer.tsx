@@ -22,6 +22,8 @@ function footerColumns(t: (key: string) => string) {
       title: t("footer.product"),
       links: [
         { to: "/", label: "Aura OS" },
+        { to: "/pitch", label: t("landing.navPitch") },
+        { to: "/features", label: t("footer.features") },
         { to: "/how-it-works", label: t("footer.how") },
         { to: "/try", label: t("footer.try") },
         { to: "/pricing", label: t("footer.pricing") },

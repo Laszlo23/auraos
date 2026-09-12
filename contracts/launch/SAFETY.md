@@ -13,7 +13,7 @@ Complete every box before calling `executeMarket()` on Base.
 ## Announce (48h)
 
 - [ ] Publish Desk v2 + upcoming T-0 on aibusiness.fun
-- [ ] Post CAs on X `@buildingcultu3`
+- [ ] Post CAs on X `@bihary41418`
 - [ ] After `proposeV2Market`, wait full **72h** timelock (announce at least **48h** before execute)
 
 ## Fund & rehearse

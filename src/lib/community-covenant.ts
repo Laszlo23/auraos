@@ -9,6 +9,7 @@ import { CCFF00, ccff00ExplorerNftUrl, ccff00NftContractAddress } from "@/lib/cc
 import { HOOKR } from "@/lib/hookr";
 import { privateSaleBasescan } from "@/lib/private-sale";
 import {
+  OFFICIAL_X_MENTION,
   SITE_URL,
   SOCIAL_LINKS,
   TOKEN_LAUNCH_DISPLAY,
@@ -102,7 +103,7 @@ export const COVENANT_LINKS = [
   { href: CCFF00.mintUrl, label: "CCFF00 mint" },
   { href: ccff00ExplorerNftUrl(), label: "CCFF00 NFT on Blockscout" },
   { href: HOOKR.siteUrl, label: "Hookr.fun" },
-  { href: SOCIAL_LINKS.find((s) => s.id === "x")!.href, label: "X @buildingcultu3" },
+  { href: SOCIAL_LINKS.find((s) => s.id === "x")!.href, label: `X ${OFFICIAL_X_MENTION}` },
   { href: SOCIAL_LINKS.find((s) => s.id === "discord")!.href, label: "Discord" },
 ] as const;
 

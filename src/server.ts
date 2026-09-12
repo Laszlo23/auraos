@@ -34,6 +34,7 @@ const PUBLIC_MARKETING_ROUTES = [
   "/square",
   "/sale",
   "/whitepaper",
+  "/features",
   "/how-it-works",
   "/proof",
   "/nachbar",

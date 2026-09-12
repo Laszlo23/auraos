@@ -351,7 +351,7 @@ function QuestHubPage() {
                     </button>
                     <p className="mt-2 text-[11px] text-muted-foreground">
                       Share with shops. Attribution lands when their Local seat pays. Weekly Spaces:
-                      @buildingcultu3 — drop this link in chat. Completes growth:scout-share.
+                      @bihary41418 — drop this link in chat. Completes growth:scout-share.
                     </p>
                   </div>
                 ) : (

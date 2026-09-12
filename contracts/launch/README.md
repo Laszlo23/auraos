@@ -62,7 +62,7 @@ npx tsx scripts/deploy-launch.ts
 8. Point env at the new CAs (see App env). Pause promoting v1 CAs.
 
 Base USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`  
-Default ops (same published pAURA treasury): `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1`
+Default ops for **new** deploys: official AURA treasury `0x7894a4f43cec1E97CBAa9Cd6676Ac07ABF34dD49`. Live Desk v2 below still has the old immutable ops sink.
 
 ### Live on Base Sepolia (Desk v2 — 2026-08-31)
 
@@ -83,7 +83,7 @@ Artifact: `contracts/launch/AuraLaunch.sepolia.json`.
 | Escrow | [`0x09aab7435ebf3e4b3763a1462279ab093d1268f8`](https://basescan.org/address/0x09aab7435ebf3e4b3763a1462279ab093d1268f8) |
 | Gift drop (instant) | [`0x09D20a80abcf7f23baa5138C2115AEbC846716C9`](https://basescan.org/address/0x09D20a80abcf7f23baa5138C2115AEbC846716C9) |
 | USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
-| Ops (immutable) | `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1` |
+| Ops on this deployed desk (not official AURA treasury) | `0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1` |
 
 Artifact: `contracts/launch/AuraLaunch.deployed.json`. Desk wiring verified (`launchDesk` + gift `desk` → escrow). `LOCK_DAYS = 0`.
 
@@ -96,7 +96,7 @@ Prefer the tables above. Artifacts are authoritative after deploy — never inve
 Sunday **13 Sep 2026, 11:11 Europe/Vienna**. Full operator script: [`docs/AURA_T0_RUNBOOK.md`](../../docs/AURA_T0_RUNBOOK.md).
 
 1. Deploy platform AURA (Uniswap v4 AURA/USDC on Base — locked LP, published hooks). Spec: `docs/AURA_CURVE.md`. **Not** the company Clanker desk.
-2. Publish the CA on aibusiness.fun and X `@buildingcultu3`.
+2. Publish the CA on aibusiness.fun and X `@bihary41418`.
 3. Fund the gift drop with `7,777 × minted Hoods` AURA from the 1% public slice (7,777,778 reserved) — the T-0 script does this when `LAUNCH_GIFT_LOCK_CONTRACT` is set (env name kept; value is GiftDrop).
 4. Guardian calls `proposeV2Market(aura, pair)` (`--propose` on the script, or manually).
 5. Wait 72 hours. Anyone calls `executeMarket()`. Escrowed USDC buys AURA; tokens land in the gift drop.
@@ -109,7 +109,7 @@ See [`contracts/aura/README.md`](../aura/README.md) for the full self-hosted che
 
 - [ ] External audit / peer review of Desk v2 + AuraToken path
 - [ ] Verify source on Basescan / Sourcify (passport, escrow, GiftDrop, AuraToken, LpSink, Redeem)
-- [ ] Publish CAs on aibusiness.fun + X `@buildingcultu3`
+- [ ] Publish CAs on aibusiness.fun + X `@bihary41418`
 - [ ] **48h public announcement** after `proposeV2Market` (timelock is 72h — announce early)
 - [ ] Confirm GiftDrop funded with `7,777 × minted` (plus dust plan)
 - [ ] Confirm launch LP is the locked Uni v4 AURA/USDC position (no team withdraw)

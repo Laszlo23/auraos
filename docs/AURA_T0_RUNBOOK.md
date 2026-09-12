@@ -22,12 +22,12 @@ Ticker is already `AURA` / `AURA Token`, supply `777,777,777`. Bytecode: `contra
 
 ## Friday (48h announce)
 
-Announce copy (no CA) — pin on X `@buildingcultu3`, Farcaster, LinkedIn if Share is live:
+Announce copy (no CA) — pin on X `@bihary41418`, Farcaster, LinkedIn if Share is live:
 
 ```
 Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna.
 Token: AURA on Base. Official book: locked Uniswap v4 AURA/USDC. Seed $1,111 USDC. Starting book $6,000 USDC.
-CA will be published at T-0 only on aibusiness.fun and @buildingcultu3 — never by DM.
+CA will be published at T-0 only on aibusiness.fun and @bihary41418 — never by DM.
 Covenant: https://aibusiness.fun/trust
 ```
 
@@ -113,7 +113,7 @@ Testnet USDC is often hard to get. **That is OK.** Do not improvise a broken att
 5. **11:12–11:20** — `npx tsx scripts/aura-t0-operator.ts post-t0`
    - Set `AURA_CA_PUBLISH=1` + `VITE_AURA_CA_PUBLISH=1` + `AURA_TOKEN_CA` + pool + gauge + burn sink + launch treasury **address** on the VPS. Never `AURA_ALLOW_PRE_T0_CA`. Never Sepolia CAs. Never the predicted address until the tx is confirmed.
    - Deploy the app
-   - Pin CA on X `@buildingcultu3`
+   - Pin CA on X `@bihary41418`
    - DexScreener token info from `/api/token/aura`
    - GoPlus **after** the 15s sniper fee decays
 

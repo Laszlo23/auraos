@@ -16,7 +16,7 @@ import {
   formatAuraAmount,
 } from "@/lib/aura-token";
 import { auraTokenAddress } from "@/lib/aura-self-launch";
-import { PRIVATE_SALE_TREASURY, privateSaleBasescan } from "@/lib/private-sale";
+import { privateSaleBasescan } from "@/lib/private-sale";
 import { ogCampaignMeta } from "@/lib/og-campaign";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY, url } from "@/lib/site";
 import { BCC_TOKEN_DISCLAIMER } from "@/lib/legal-entity";
@@ -345,36 +345,24 @@ function TokenomicsPage() {
             <Panel label="Token create">
               <p className="text-[14px] leading-relaxed">{AURA_LAUNCH_OPS.deployer}</p>
             </Panel>
-            <Panel label="Launch treasury">
+            <Panel label="Official treasury">
               <p className="text-[14px] leading-relaxed">{AURA_LAUNCH_OPS.treasury}</p>
-              {auraLaunchTreasuryAddress() ? (
-                <a
-                  href={privateSaleBasescan(`/address/${auraLaunchTreasuryAddress()}`)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 block break-all font-mono text-[12px] text-primary"
-                >
-                  {auraLaunchTreasuryAddress()}
-                </a>
-              ) : (
-                <p className="mt-3 font-mono text-[12px] text-muted-foreground">
-                  Not published yet — set AURA_LAUNCH_TREASURY on the VPS.
-                </p>
-              )}
+              <a
+                href={privateSaleBasescan(`/address/${auraLaunchTreasuryAddress()}`)}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 block break-all font-mono text-[12px] text-primary"
+              >
+                {auraLaunchTreasuryAddress()}
+              </a>
             </Panel>
           </div>
           <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
-            Today&apos;s pAURA USDC still forwards to the live sale contract treasury{" "}
-            <a
-              href={privateSaleBasescan(`/address/${PRIVATE_SALE_TREASURY}`)}
-              target="_blank"
-              rel="noreferrer"
-              className="break-all font-mono text-primary"
-            >
-              {PRIVATE_SALE_TREASURY}
-            </a>
-            . That address is immutable on the current sale contract. Platform rails (x402 /
-            fees / withdrawals) use a separately labeled wallet — see the private sale page.
+            Official AURA treasury is the launch wallet above. The live pAURA contract still has
+            its own immutable USDC sink — that is not the AURA treasury. Verify{" "}
+            <span className="font-mono">TREASURY()</span> on Basescan if you need the sale
+            destination. Platform rails (x402 / fees / withdrawals) use a separately labeled
+            wallet — see the private sale page.
           </p>
         </section>
 
@@ -502,7 +490,7 @@ function TokenomicsPage() {
           </ol>
           <p className="mt-4 text-[13px] text-muted-foreground">
             Supply and allocation are published above. The contract address is published only at T-0
-            on aibusiness.fun and X @buildingcultu3. Listings are not promised.
+            on aibusiness.fun and X @bihary41418. Listings are not promised.
           </p>
         </section>
 

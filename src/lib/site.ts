@@ -78,6 +78,11 @@ export const TOKEN_LAUNCH_TRUST =
 export const TOKEN_LAUNCH_TRUST_DE =
   "Wir wachsen offen. Den genauen Fair-Launch-Zeitpunkt kündigen wir 48 Stunden vorher auf unseren offiziellen Kanälen an — nie per DM, nie mit einer Überraschungs-CA.";
 
+/** Founder X — Laszlo presents the app here (verified, Spaces). Not @buildingcultu3. */
+export const OFFICIAL_X_HANDLE = "bihary41418" as const;
+export const OFFICIAL_X_MENTION = `@${OFFICIAL_X_HANDLE}` as const;
+export const OFFICIAL_X_URL = `https://x.com/${OFFICIAL_X_HANDLE}` as const;
+
 export type SocialLinkId = "x" | "discord" | "telegram" | "farcaster";
 
 export type SocialLink = {
@@ -94,8 +99,8 @@ export const SOCIAL_LINKS: SocialLink[] = [
   {
     id: "x",
     label: "X",
-    href: "https://x.com/buildingcultu3",
-    hint: "Follow + post Quest / Squads momentum",
+    href: OFFICIAL_X_URL,
+    hint: "Follow Laszlo — Spaces, Quest, Squads",
     questKey: "community:follow-x",
     xp: 80,
   },
@@ -126,10 +131,10 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export const LAUNCH_SHARE_TEXT =
-  "Aura OS — AI company operating system. Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna. AURA on Base, locked Uni v4 AURA/USDC. CA only at T-0 on aibusiness.fun + @buildingcultu3 — never by DM.";
+  `Aura OS — AI company operating system. Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna. AURA on Base, locked Uni v4 AURA/USDC. CA only at T-0 on aibusiness.fun + ${OFFICIAL_X_MENTION} — never by DM.`;
 
-/** Aura OS announce post — like, comment, and quote/share to earn whitelist access. */
-export const AURA_LAUNCH_POST_URL = "https://x.com/buildingcultu3/status/2086020001341870326";
+/** Engage on the founder account until a dedicated announce post is pinned. */
+export const AURA_LAUNCH_POST_URL = OFFICIAL_X_URL;
 
 export type WhitelistTaskId =
   | "follow_x"
@@ -153,8 +158,8 @@ export const WHITELIST_TASKS: WhitelistTask[] = [
   {
     id: "follow_x",
     label: "Follow on X",
-    hint: "Follow @buildingcultu3",
-    href: "https://x.com/buildingcultu3",
+    hint: `Follow ${OFFICIAL_X_MENTION}`,
+    href: OFFICIAL_X_URL,
     group: "required",
   },
   {

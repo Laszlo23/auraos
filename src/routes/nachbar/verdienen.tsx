@@ -61,7 +61,7 @@ function NachbarVerdienenPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           {auraCaLive()
             ? "Claim öffnet, sobald der Button hier steht."
-            : "In-app Reservation aus echten Besuchen. Claim, wenn der CA auf aibusiness.fun und @buildingcultu3 steht — nicht vorher."}
+            : "In-app Reservation aus echten Besuchen. Claim, wenn der CA auf aibusiness.fun und @bihary41418 steht — nicht vorher."}
         </p>
         <p className="mt-2 text-[11px] text-muted-foreground">{AURA_OFFICIAL_CA_SOURCES[0]}</p>
       </Panel>

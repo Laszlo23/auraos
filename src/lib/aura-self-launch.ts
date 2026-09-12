@@ -98,9 +98,9 @@ export const AURA_SELF_LAUNCH = {
     lpLockDe:
     "Die Start-LP ist ein gesperrtes Uniswap-v4-AURA/USDC-FlatStart-Buch — 6.000 $ USDC bei ~0,001 $, keine Project-Mondtreppe. Kein Team-Withdraw, keine Team-Wallet.",
   fairLaunch:
-    "AURA is created from a new empty wallet at T-0, paired on Uniswap v4 (Base, AURA/USDC). Locked LP, published hooks. Official CA only on aibusiness.fun and X @buildingcultu3. Platform TGE is not the company-desk Clanker product.",
+    "AURA is created from a new empty wallet at T-0, paired on Uniswap v4 (Base, AURA/USDC). Locked LP, published hooks. Official CA only on aibusiness.fun and X @bihary41418. Platform TGE is not the company-desk Clanker product.",
   fairLaunchDe:
-    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Gesperrte LP, veröffentlichte Hooks. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3. Platform-TGE ist nicht das Company-Desk-Clanker-Produkt.",
+    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Gesperrte LP, veröffentlichte Hooks. Offizielle CA nur auf aibusiness.fun und X @bihary41418. Platform-TGE ist nicht das Company-Desk-Clanker-Produkt.",
 } as const;
 
 export const AURA_TOKEN_ABI = [

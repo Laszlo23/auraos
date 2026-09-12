@@ -490,7 +490,7 @@ async function main() {
     next: [
       "Attach locked Uni v4 AURA/USDC to this AuraToken (Clanker wrap or native v4). Never ClankerTokenV4.",
       "Official seed $1,111 USDC + $6,000 USDC book from the new treasury — not the sale key",
-      "Publish CA on aibusiness.fun + X @buildingcultu3 in the same minute",
+      "Publish CA on aibusiness.fun + X @bihary41418 in the same minute",
       "Set AURA_TOKEN_CA / VITE_AURA_TOKEN_CA / AURA_POOL_USDC / AURA_GAUGE / AURA_BURN_SINK / AURA_PAURA_REDEEM / AURA_LAUNCH_TREASURY on VPS — never DMs",
       "DexScreener token info from /api/token/aura. GoPlus after the 15s sniper fee decays",
       "Guardian proposeV2Market or proposeAdapter. Wait 72h then executeMarket()",

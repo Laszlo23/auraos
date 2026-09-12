@@ -125,13 +125,13 @@ export const AURA_CURVE_COPY = {
   venue: "Uniswap v4 on Base",
   venueDe: "Uniswap v4 auf Base",
   lpLock:
-    "Launch LP is a locked Uniswap v4 AURA/USDC FlatStart book — $6,000 USDC at ~$0.001, 18M AURA near the first ticks. No team withdraw. Official pool id only on aibusiness.fun and X @buildingcultu3.",
+    "Launch LP is a locked Uniswap v4 AURA/USDC FlatStart book — $6,000 USDC at ~$0.001, 18M AURA near the first ticks. No team withdraw. Official pool id only on aibusiness.fun and X @bihary41418.",
   lpLockDe:
-    "Die Start-LP ist ein gesperrtes Uniswap-v4-AURA/USDC-FlatStart-Buch — 6.000 $ USDC bei ~0,001 $, 18 Mio. AURA an den ersten Ticks. Kein Team-Withdraw. Offizielle Pool-ID nur auf aibusiness.fun und X @buildingcultu3.",
+    "Die Start-LP ist ein gesperrtes Uniswap-v4-AURA/USDC-FlatStart-Buch — 6.000 $ USDC bei ~0,001 $, 18 Mio. AURA an den ersten Ticks. Kein Team-Withdraw. Offizielle Pool-ID nur auf aibusiness.fun und X @bihary41418.",
   fairLaunch:
-    "AURA is created from a new empty wallet at T-0 and paired on Uniswap v4 (Base, AURA/USDC). Locked LP, published hooks, Dynamic3 fees. Official CA only on aibusiness.fun and X @buildingcultu3. Not a company-desk Clanker meme.",
+    "AURA is created from a new empty wallet at T-0 and paired on Uniswap v4 (Base, AURA/USDC). Locked LP, published hooks, Dynamic3 fees. Official CA only on aibusiness.fun and X @bihary41418. Not a company-desk Clanker meme.",
   fairLaunchDe:
-    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Gesperrte LP, veröffentlichte Hooks, Dynamic3-Fees. Offizielle CA nur auf aibusiness.fun und X @buildingcultu3. Kein Company-Desk-Clanker-Meme.",
+    "AURA entsteht bei T-0 aus einer neuen, leeren Wallet und wird auf Uniswap v4 (Base, AURA/USDC) gepaart. Gesperrte LP, veröffentlichte Hooks, Dynamic3-Fees. Offizielle CA nur auf aibusiness.fun und X @bihary41418. Kein Company-Desk-Clanker-Meme.",
   softwareNotEquity:
     "This is software utility plus a public pool. You can lose the tokens. Not equity.",
   softwareNotEquityDe:
@@ -367,8 +367,8 @@ export function auraOfficialCaRows(input: {
     },
     {
       id: "treasury",
-      label: "Launch treasury",
-      labelDe: "Launch-Treasury",
+      label: "Official AURA treasury",
+      labelDe: "Offizielle AURA-Treasury",
       value: input.treasury,
       kind: "treasury",
       t0: true,

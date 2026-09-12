@@ -15,7 +15,7 @@ export const COMMUNITY_QUESTS: Quest[] = [
   {
     key: "community:follow-x",
     label: "Follow on X",
-    hint: "Follow @buildingcultu3 — post the Quest + Squads ship",
+    hint: "Follow @bihary41418 — post the Quest + Squads ship",
     glyph: "⌁",
     xp: 80,
   },

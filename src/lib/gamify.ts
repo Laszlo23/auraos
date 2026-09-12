@@ -72,7 +72,7 @@ export const GROWTH_STARTER_QUESTS: Quest[] = [
   {
     key: "growth:follow-x",
     label: "Follow the build",
-    hint: "Follow @buildingcultu3 on X",
+    hint: "Follow @bihary41418 on X",
     glyph: "⌁",
     xp: 100,
   },

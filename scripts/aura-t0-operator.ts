@@ -385,7 +385,7 @@ function cmdPostT0() {
   console.log("   AURA_LAUNCH_TREASURY / VITE_AURA_LAUNCH_TREASURY  (public address only — not the CA)");
   console.log("   Never set AURA_ALLOW_PRE_T0_CA on the VPS.");
   console.log("2. Deploy the app so /token and /trust show the CA.");
-  console.log("3. Pin the CA on X @buildingcultu3 in the same minute. Never by DM.");
+  console.log("3. Pin the CA on X @bihary41418 in the same minute. Never by DM.");
   console.log("4. DexScreener token info from https://aibusiness.fun/api/token/aura");
   console.log("5. GoPlus AFTER the 15s sniper fee has decayed — standing token tax stays 0%.");
   console.log("6. Then hood propose + openRedeem (see: npx tsx scripts/aura-t0-operator.ts hood)");

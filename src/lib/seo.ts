@@ -3,7 +3,7 @@
  * and JSON-LD consistent across public surfaces.
  */
 
-import { OG_IMAGE, SITE_NAME, SITE_URL, SOCIAL_LINKS, url } from "@/lib/site";
+import { OG_IMAGE, OFFICIAL_X_MENTION, SITE_NAME, SITE_URL, SOCIAL_LINKS, url } from "@/lib/site";
 
 export type PageSeoInput = {
   title: string;
@@ -53,6 +53,8 @@ export function pageHead(input: PageSeoInput) {
     { property: "og:image:height", content: h },
     { property: "og:image:alt", content: imageAlt },
     { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:site", content: OFFICIAL_X_MENTION },
+    { name: "twitter:creator", content: OFFICIAL_X_MENTION },
     { name: "twitter:title", content: input.title },
     { name: "twitter:description", content: input.description },
     { name: "twitter:image", content: image },

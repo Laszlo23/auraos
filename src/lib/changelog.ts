@@ -36,6 +36,68 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-honest-pitch",
+    date: "2026-09-12",
+    title: "Pitch stack is software, then Hood, then AURA",
+    summary:
+      "Public token copy no longer promises a DAO or a pre-mine. /pitch separates the OS seat, the Hood NFT, and the T-0 token.",
+    items: [
+      "No AURA vote today — only if we ship one. Supply stays 777,777,777",
+      "Landing token card drops community-owned / pre-mine",
+      "/pitch: seats → optional Hood → fair launch. Official CA only on site and X",
+    ],
+    tags: ["improvement"],
+  },
+  {
+    id: "2026-09-12-official-treasury",
+    date: "2026-09-12",
+    title: "Official AURA treasury is 0x7894…",
+    summary:
+      "Public pages now show one official launch wallet. The old pAURA contract sink is not the AURA treasury and is no longer featured.",
+    items: [
+      "Official treasury: 0x7894a4f43cec1E97CBAa9Cd6676Ac07ABF34dD49",
+      "/sale, /tokenomics, and /trust no longer present the old pAURA contract sink as the treasury",
+    ],
+    tags: ["fix"],
+  },
+  {
+    id: "2026-09-12-official-x-founder",
+    date: "2026-09-12",
+    title: "Official X is Laszlo — @bihary41418",
+    summary:
+      "The app presents from the founder account you meet in Spaces (verified). CA publish and follow links no longer point at @buildingcultu3.",
+    items: [
+      "Footer, /trust, quests, whitelist, and T-0 copy use @bihary41418",
+      "twitter:site / twitter:creator on public pages",
+    ],
+    tags: ["improvement"],
+  },
+  {
+    id: "2026-09-12-features-site",
+    date: "2026-09-12",
+    title: "/features explains the desk",
+    summary:
+      "A public features page for what Aura OS actually does. Tokens and Square stay optional extras. Square contract is not live.",
+    items: [
+      "New /features — desk surfaces, how you pay, what this is not",
+      "Square planned mint is $11 USDC, not $111 — contract still undeployed",
+      "Square copy lists what is missing: no CA, empty TBA until AURA, no OS perk",
+    ],
+    tags: ["feature"],
+  },
+  {
+    id: "2026-09-12-square-wallet-mint",
+    date: "2026-09-12",
+    title: "Aura Square mint is wallet-only",
+    summary:
+      "/square no longer sells Squares on Stripe. Connect a Base wallet, approve $11 USDC, call mint(). Optional TBA top-up stays a later send.",
+    items: [
+      "Wallet mint: approve exact USDC and mint() — no card checkout for the NFT",
+      "createSquareCheckout refuses new Stripe NFT sessions",
+    ],
+    tags: ["improvement"],
+  },
+  {
     id: "2026-09-12-security-flows-audit",
     date: "2026-09-12",
     title: "Pre–T-0 security pass — CA publish gates + exact approves",
@@ -138,7 +200,7 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     date: "2026-09-11",
     title: "AURA T-0 is Sunday 13 Sep 2026, 11:11 Vienna",
     summary:
-      "48h fair-launch clock is public. Token: AURA on Base. Official book: locked Uniswap v4 AURA/USDC. Seed $1,111 USDC. Starting book $6,000 USDC. CA publishes at T-0 only on this site and X @buildingcultu3 — never by DM.",
+      "48h fair-launch clock is public. Token: AURA on Base. Official book: locked Uniswap v4 AURA/USDC. Seed $1,111 USDC. Starting book $6,000 USDC. CA publishes at T-0 only on this site and X @bihary41418 — never by DM.",
     items: [
       "Countdown on the landing page runs to Sunday 13 Sep 2026, 11:11 Europe/Vienna (CEST)",
       "Covenant unchanged: 48 hours ahead, never a CA by DM, never a surprise address",

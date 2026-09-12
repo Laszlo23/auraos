@@ -66,7 +66,7 @@ VITE_AURA_TOKEN_CA=0x…
 ```
 
 6. `bash scripts/deploy-app.sh` — if it refuses, the env is wrong. Fix env, do not bypass.
-7. Recheck `/api/token/aura` shows the confirmed CA. Pin the same string on X `@buildingcultu3`. Never DM.
+7. Recheck `/api/token/aura` shows the confirmed CA. Pin the same string on X `@bihary41418`. Never DM.
 
 ## After T-0 (same day)
 

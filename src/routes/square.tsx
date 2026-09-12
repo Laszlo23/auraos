@@ -8,16 +8,13 @@ import {
   publicNavPrimary,
 } from "@/components/aura/public-site-header";
 import { SiteFooter } from "@/components/aura/site-footer";
+import { SquareWalletMint } from "@/components/aura/square-wallet-mint";
 import { useLocale } from "@/hooks/use-locale";
-import {
-  createSquareCheckout,
-  createSquareTbaFundCheckout,
-} from "@/lib/aura-square.functions";
+import { createSquareTbaFundCheckout } from "@/lib/aura-square.functions";
 import {
   AURA_SQUARE,
   AURA_SQUARE_COPY,
   auraSquareAddress,
-  auraSquareExplorerUrl,
 } from "@/lib/aura-square";
 import { pageHead } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
@@ -46,24 +43,10 @@ function SquarePage() {
   const { locale, t } = useLocale();
   const de = locale === "de";
   const ca = auraSquareAddress();
-  const explorer = auraSquareExplorerUrl();
-  const [busy, setBusy] = useState<"mint" | "fund" | null>(null);
+  const [busy, setBusy] = useState<"fund" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fundUsd, setFundUsd] = useState(String(AURA_SQUARE.tbaFundMinUsd));
   const [tokenId, setTokenId] = useState("1");
-
-  const startMint = async () => {
-    setError(null);
-    setBusy("mint");
-    try {
-      const out = await createSquareCheckout();
-      if (out.url) window.location.href = out.url;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(null);
-    }
-  };
 
   const startFund = async () => {
     setError(null);
@@ -127,6 +110,9 @@ function SquarePage() {
         <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
           {de ? AURA_SQUARE_COPY.notHoodDe : AURA_SQUARE_COPY.notHood}
         </p>
+        <p className="mt-3 max-w-xl rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[13px] leading-relaxed">
+          {de ? AURA_SQUARE_COPY.missingDe : AURA_SQUARE_COPY.missing}
+        </p>
 
         <ul className="mt-6 grid gap-2 text-[13px] text-muted-foreground sm:grid-cols-3">
           <li className="rounded-xl border border-border/40 px-3 py-2">
@@ -140,48 +126,9 @@ function SquarePage() {
 
         <section className="mt-8 rounded-2xl border border-border/40 px-5 py-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            {de ? "Mint" : "Mint"}
+            {de ? "Wallet-Mint" : "Wallet mint"}
           </p>
-          {ca ? (
-            <p className="mt-2 break-all font-mono text-[12px]">{ca}</p>
-          ) : (
-            <p className="mt-2 text-[13px] text-muted-foreground">
-              {de
-                ? "CA noch nicht veröffentlicht. Wallet-Mint und Stripe warten auf den Contract."
-                : "CA unpublished. Wallet mint and Stripe wait for the contract."}
-            </p>
-          )}
-          {explorer ? (
-            <a
-              href={explorer}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-block text-[13px] font-semibold text-primary hover:underline"
-            >
-              Basescan
-            </a>
-          ) : null}
-          {ca ? (
-            <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">
-              {de
-                ? "Wallet-Mint: USDC freigeben und mint() auf dem Contract aufrufen. Stripe mintet über die Ops-Wallet."
-                : "Wallet mint: approve USDC and call mint() on the contract. Stripe mints via the ops wallet."}
-            </p>
-          ) : null}
-          <button
-            type="button"
-            onClick={() => void startMint()}
-            disabled={!ca || busy !== null}
-            className="mt-4 w-full rounded-xl bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground disabled:opacity-40"
-          >
-            {busy === "mint"
-              ? de
-                ? "Stripe…"
-                : "Stripe…"
-              : de
-                ? `Square mit Stripe · $${AURA_SQUARE.mintUsd}`
-                : `Mint Square with Stripe · $${AURA_SQUARE.mintUsd}`}
-          </button>
+          <SquareWalletMint locale={de ? "de" : "en"} />
         </section>
 
         <section className="mt-6 rounded-2xl border border-border/40 px-5 py-5">

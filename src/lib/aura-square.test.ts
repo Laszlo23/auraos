@@ -13,6 +13,7 @@ describe("Aura Square", () => {
     expect(AURA_SQUARE.maxSupply).toBe(1111);
     expect(AURA_SQUARE.maxSupply).not.toBe(HOOD.maxSupply);
     expect(AURA_SQUARE.mintUsd).not.toBe(HOOD.mintUsd);
+    expect(AURA_SQUARE.mintUsdcUnits).toBe(BigInt(AURA_SQUARE.mintUsd) * 1_000_000n);
     expect(AURA_SQUARE.path).toBe("/square");
     expect(auraSquareAddress()).toBeNull();
     expect(AURA_SQUARE_COPY.lead).toMatch(/Not founding seats/i);
@@ -20,6 +21,11 @@ describe("Aura Square", () => {
     expect(squareTokenMetadata(1).attributes.some((a) => String(a.value).includes("Hood"))).toBe(
       true,
     );
-    expect(AURA_SQUARE_COPY.stripeHonest).toMatch(/ops wallet/i);
+    expect(AURA_SQUARE_COPY.walletMint).toMatch(/wallet/i);
+    expect(AURA_SQUARE.mintUsd).toBe(11);
+    expect(AURA_SQUARE_COPY.walletMint).toMatch(/\$11 USDC/i);
+    expect(AURA_SQUARE_COPY.missing).toMatch(/not deployed/i);
+    expect(AURA_SQUARE_COPY.stripeHonest).toMatch(/wallet-only/i);
+    expect(AURA_SQUARE_COPY.stripeHonest).not.toMatch(/ops wallet mints the Square/i);
   });
 });

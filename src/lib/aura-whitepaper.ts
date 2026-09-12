@@ -184,7 +184,7 @@ export const AURA_WHITEPAPER: WpSection[] = [
           "Contributor and referral rewards tied to verified activity",
           "AI-agent and marketplace transactions",
           "Premium access and merchant benefits",
-          "Selected governance where legally and technically appropriate",
+          "No token vote today — only if we ship it",
           "Optional staking / locking for tiers — never a promise of yield",
         ],
       },
@@ -196,7 +196,7 @@ export const AURA_WHITEPAPER: WpSection[] = [
     blocks: [
       {
         kind: "lead",
-        text: `Maximum supply: ${AURA_MAX_SUPPLY_DISPLAY} AURA. Fixed cap unless a future governance process explicitly authorizes otherwise.`,
+        text: `Maximum supply: ${AURA_MAX_SUPPLY_DISPLAY} AURA. Fixed cap. No later vote can raise it.`,
       },
       {
         kind: "table",
@@ -261,7 +261,7 @@ export const AURA_WHITEPAPER: WpSection[] = [
     blocks: [
       {
         kind: "p",
-        text: "Vienna community (e.g. WhatsApp) can accelerate formation — without unnecessary collection of personal phone numbers. GDPR: minimum necessary data, access control, deletion rights. Governance starts founder-led, then transparent treasury, then selected community votes — never decentralization as marketing. Treasury: multisig, limits, public reporting where possible.",
+        text: "Vienna community (e.g. WhatsApp) can accelerate formation — without unnecessary collection of personal phone numbers. GDPR: minimum necessary data, access control, deletion rights. Ops stay founder-led with a public treasury. Token votes only if we ship a product — never decentralization as marketing. Treasury: multisig, limits, public reporting where possible.",
       },
       {
         kind: "notice",
@@ -489,7 +489,7 @@ export const AURA_WHITEPAPER_DE: WpSection[] = [
           "Belohnung für geprüfte Arbeit und für Empfehlungen, die halten",
           "Zahlungen zwischen KI-Mitarbeitern und am Marktplatz",
           "Besserer Zugang und Vorteile für Betriebe",
-          "Mitreden, wo Recht und Technik das hergeben",
+          "Heute keine Token-Abstimmung — nur wenn wir sie bauen",
           "Freiwillig festlegen für Stufen — niemals mit Zinsversprechen",
         ],
       },
@@ -501,7 +501,7 @@ export const AURA_WHITEPAPER_DE: WpSection[] = [
     blocks: [
       {
         kind: "lead",
-        text: `Höchstens ${AURA_MAX_SUPPLY_DISPLAY_DE} AURA. Die Menge bleibt fest, außer eine spätere, offene Abstimmung ändert das ausdrücklich.`,
+        text: `Höchstens ${AURA_MAX_SUPPLY_DISPLAY_DE} AURA. Die Menge bleibt fest. Keine spätere Abstimmung kann sie erhöhen.`,
       },
       {
         kind: "table",
@@ -566,7 +566,7 @@ export const AURA_WHITEPAPER_DE: WpSection[] = [
     blocks: [
       {
         kind: "p",
-        text: "Eine Wiener Gruppe — etwa auf WhatsApp — kann den Anfang beschleunigen. Dafür muss niemand seine Handynummer abliefern, wenn’s nicht nötig ist. DSGVO: so wenig Daten wie möglich, wer darf ran, Recht auf Löschen. Am Anfang entscheidet das Gründungsteam. Dann eine offene Firmenreserve. Dann Abstimmungen, wo sie Sinn haben. „Dezentral“ ist kein Werbespruch. Die Reserve: mehrere Schlüssel, Grenzen, Berichte wenn möglich.",
+        text: "Eine Wiener Gruppe — etwa auf WhatsApp — kann den Anfang beschleunigen. Dafür muss niemand seine Handynummer abliefern, wenn’s nicht nötig ist. DSGVO: so wenig Daten wie möglich, wer darf ran, Recht auf Löschen. Heute entscheidet das Gründungsteam, mit öffentlicher Treasury. Token-Abstimmungen nur wenn wir ein Produkt dafür bauen. „Dezentral“ ist kein Werbespruch. Die Reserve: mehrere Schlüssel, Grenzen, Berichte wenn möglich.",
       },
       {
         kind: "notice",

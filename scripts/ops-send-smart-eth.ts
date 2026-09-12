@@ -2,7 +2,7 @@
  * One-shot ops: send spendable ETH from Aura Light Account on Base.
  * Bumps fees so a stuck "replacement underpriced" UserOp can be replaced.
  *
- *   npx tsx scripts/ops-send-smart-eth.ts --address 0xF1fc… --to 0x502c…
+ *   npx tsx scripts/ops-send-smart-eth.ts --address 0xF1fc… --to 0x7894…
  */
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
@@ -19,6 +19,7 @@ import {
   decryptOwnerKey,
   type LightClient,
 } from "../src/lib/wallet.server";
+import { AURA_LAUNCH_TREASURY } from "../src/lib/aura-token";
 
 function loadDotEnv(path = ".env") {
   try {
@@ -68,7 +69,7 @@ async function main() {
   const walletAddress = (
     arg("--address") || "0xF1fcB0c5a9F23CCaB3a16620073f7B26A18f8873"
   ).trim();
-  const toRaw = (arg("--to") || "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1").trim();
+  const toRaw = (arg("--to") || AURA_LAUNCH_TREASURY).trim();
   const feeMult = Number(arg("--fee-mult") || "4");
   const feeGwei = arg("--fee-gwei");
   const priorityGwei = arg("--priority-gwei");

@@ -5,6 +5,7 @@ import {
   Crown,
   Hammer,
   Landmark,
+  LayoutGrid,
   Menu,
   Radio,
   ShieldCheck,
@@ -43,6 +44,7 @@ export type PublicNavItem = {
 /** Always visible on desktop — keep this short. */
 export function publicNavPrimary(t: (key: string) => string): PublicNavItem[] {
   return [
+    { to: "/features", label: t("landing.navFeatures") },
     { to: "/how-it-works", label: t("landing.navHow") },
     { to: "/pricing", label: t("landing.navPricing") },
     { to: "/token", label: t("landing.navToken") },
@@ -53,6 +55,7 @@ export function publicNavPrimary(t: (key: string) => string): PublicNavItem[] {
 /** Secondary links — desktop "More" menu + mobile explore section. */
 export function publicNavMore(t: (key: string) => string): PublicNavItem[] {
   return [
+    { to: "/pitch", label: t("landing.navPitch") },
     { to: "/try", label: t("landing.navTry") },
     { to: "/pit", label: t("landing.navPit") },
     { to: "/trust", label: t("landing.navTrust") },
@@ -81,6 +84,7 @@ const HIDE_FROM_MQ = {
 } as const;
 
 const NAV_ICONS: Record<string, LucideIcon> = {
+  "/features": LayoutGrid,
   "/how-it-works": Sparkles,
   "/pricing": Tag,
   "/for/builders": Hammer,

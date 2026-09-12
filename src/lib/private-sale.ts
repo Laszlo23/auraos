@@ -4,9 +4,9 @@ export const PAURA_NAME = "AURA Private Sale";
 export const PAURA_SYMBOL = "pAURA";
 
 /**
- * Immutable treasury on the live pAURA contract (`TREASURY()`).
- * Every on-chain `buy` / `buyFor` sends 100% USDC here — never invent a different address.
- * Changing the destination requires a new sale contract + CA cutover.
+ * Immutable USDC sink on the live pAURA contract (`TREASURY()`).
+ * Not the official AURA treasury. Do not show this as “the treasury” on public pages.
+ * Official AURA wallet is `AURA_LAUNCH_TREASURY`.
  */
 export const PRIVATE_SALE_TREASURY = "0x502ce9FB1814cb03843967EC5E0D8F6AA3A3C2e1" as const;
 
