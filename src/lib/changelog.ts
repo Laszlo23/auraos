@@ -36,6 +36,19 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-didit-kyc",
+    date: "2026-09-12",
+    title: "Didit KYC on Identity — sale and live trading wait for approve",
+    summary:
+      "Hosted Didit verification. Status only on our side. Token sale and live Quant need an approved session. The $29 OS seat does not.",
+    items: [
+      "Identity → Legal identity starts a Didit session and returns to /identity?kyc=return",
+      "Webhook /api/webhooks/didit (signed) plus refresh-on-return",
+      "Sale buy panel and live trading stay gated until approved",
+    ],
+    tags: ["feature"],
+  },
+  {
     id: "2026-09-12-founder-guide",
     date: "2026-09-12",
     title: "Founder guide — how to get work out of the desk",

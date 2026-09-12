@@ -135,8 +135,10 @@ import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webh
 import { Route as ApiGenesisCollectionRouteImport } from './routes/api/genesis/collection'
 import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
+import { Route as ApiPublicKycHealthRouteImport } from './routes/api/public/kyc-health'
 import { Route as ApiSquareCollectionRouteImport } from './routes/api/square/collection'
 import { Route as ApiTokenAuraRouteImport } from './routes/api/token/aura'
+import { Route as ApiWebhooksDiditRouteImport } from './routes/api/webhooks/didit'
 import { Route as ApiWebhooksQuidliRouteImport } from './routes/api/webhooks/quidli'
 import { Route as ApiWorkersTickRouteImport } from './routes/api/workers/tick'
 import { Route as HoodClaimCodeRouteImport } from './routes/hood_.claim.$code'
@@ -800,6 +802,11 @@ const ApiPublicGreeterRoute = ApiPublicGreeterRouteImport.update({
   path: '/api/public/greeter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicKycHealthRoute = ApiPublicKycHealthRouteImport.update({
+  id: '/api/public/kyc-health',
+  path: '/api/public/kyc-health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSquareCollectionRoute = ApiSquareCollectionRouteImport.update({
   id: '/api/square/collection',
   path: '/api/square/collection',
@@ -808,6 +815,11 @@ const ApiSquareCollectionRoute = ApiSquareCollectionRouteImport.update({
 const ApiTokenAuraRoute = ApiTokenAuraRouteImport.update({
   id: '/api/token/aura',
   path: '/api/token/aura',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksDiditRoute = ApiWebhooksDiditRouteImport.update({
+  id: '/api/webhooks/didit',
+  path: '/api/webhooks/didit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWebhooksQuidliRoute = ApiWebhooksQuidliRouteImport.update({
@@ -1092,8 +1104,10 @@ export interface FileRoutesByFullPath {
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/public/kyc-health': typeof ApiPublicKycHealthRoute
   '/api/square/collection': typeof ApiSquareCollectionRoute
   '/api/token/aura': typeof ApiTokenAuraRoute
+  '/api/webhooks/didit': typeof ApiWebhooksDiditRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/hood/claim/$code': typeof HoodClaimCodeRoute
@@ -1249,8 +1263,10 @@ export interface FileRoutesByTo {
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/public/kyc-health': typeof ApiPublicKycHealthRoute
   '/api/square/collection': typeof ApiSquareCollectionRoute
   '/api/token/aura': typeof ApiTokenAuraRoute
+  '/api/webhooks/didit': typeof ApiWebhooksDiditRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/hood/claim/$code': typeof HoodClaimCodeRoute
@@ -1409,8 +1425,10 @@ export interface FileRoutesById {
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
+  '/api/public/kyc-health': typeof ApiPublicKycHealthRoute
   '/api/square/collection': typeof ApiSquareCollectionRoute
   '/api/token/aura': typeof ApiTokenAuraRoute
+  '/api/webhooks/didit': typeof ApiWebhooksDiditRoute
   '/api/webhooks/quidli': typeof ApiWebhooksQuidliRoute
   '/api/workers/tick': typeof ApiWorkersTickRoute
   '/hood_/claim/$code': typeof HoodClaimCodeRoute
@@ -1569,8 +1587,10 @@ export interface FileRouteTypes {
     | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/public/kyc-health'
     | '/api/square/collection'
     | '/api/token/aura'
+    | '/api/webhooks/didit'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/hood/claim/$code'
@@ -1726,8 +1746,10 @@ export interface FileRouteTypes {
     | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/public/kyc-health'
     | '/api/square/collection'
     | '/api/token/aura'
+    | '/api/webhooks/didit'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/hood/claim/$code'
@@ -1885,8 +1907,10 @@ export interface FileRouteTypes {
     | '/api/genesis/collection'
     | '/api/public/ai-health'
     | '/api/public/greeter'
+    | '/api/public/kyc-health'
     | '/api/square/collection'
     | '/api/token/aura'
+    | '/api/webhooks/didit'
     | '/api/webhooks/quidli'
     | '/api/workers/tick'
     | '/hood_/claim/$code'
@@ -1997,8 +2021,10 @@ export interface RootRouteChildren {
   ApiGenesisCollectionRoute: typeof ApiGenesisCollectionRoute
   ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
+  ApiPublicKycHealthRoute: typeof ApiPublicKycHealthRoute
   ApiSquareCollectionRoute: typeof ApiSquareCollectionRoute
   ApiTokenAuraRoute: typeof ApiTokenAuraRoute
+  ApiWebhooksDiditRoute: typeof ApiWebhooksDiditRoute
   ApiWebhooksQuidliRoute: typeof ApiWebhooksQuidliRoute
   ApiWorkersTickRoute: typeof ApiWorkersTickRoute
   HoodClaimCodeRoute: typeof HoodClaimCodeRoute
@@ -2912,6 +2938,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGreeterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/kyc-health': {
+      id: '/api/public/kyc-health'
+      path: '/api/public/kyc-health'
+      fullPath: '/api/public/kyc-health'
+      preLoaderRoute: typeof ApiPublicKycHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/square/collection': {
       id: '/api/square/collection'
       path: '/api/square/collection'
@@ -2924,6 +2957,13 @@ declare module '@tanstack/react-router' {
       path: '/api/token/aura'
       fullPath: '/api/token/aura'
       preLoaderRoute: typeof ApiTokenAuraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/didit': {
+      id: '/api/webhooks/didit'
+      path: '/api/webhooks/didit'
+      fullPath: '/api/webhooks/didit'
+      preLoaderRoute: typeof ApiWebhooksDiditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/webhooks/quidli': {
@@ -3341,8 +3381,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGenesisCollectionRoute: ApiGenesisCollectionRoute,
   ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
+  ApiPublicKycHealthRoute: ApiPublicKycHealthRoute,
   ApiSquareCollectionRoute: ApiSquareCollectionRoute,
   ApiTokenAuraRoute: ApiTokenAuraRoute,
+  ApiWebhooksDiditRoute: ApiWebhooksDiditRoute,
   ApiWebhooksQuidliRoute: ApiWebhooksQuidliRoute,
   ApiWorkersTickRoute: ApiWorkersTickRoute,
   HoodClaimCodeRoute: HoodClaimCodeRoute,

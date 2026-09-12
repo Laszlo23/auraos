@@ -223,6 +223,10 @@ export const GUIDE_RULES: LocaleCopy[] = [
     en: "Google review links are optional and unpaid. Confirm in-store is the mint gate for guest stamps.",
     de: "Google-Review-Links sind optional und unbezahlt. Bestätigung im Laden ist das Mint-Tor für Gast-Stempel.",
   },
+  {
+    en: "KYC (Didit) is required for the token sale and live trading. The $29 OS seat does not need it. We store status only.",
+    de: "KYC (Didit) ist Pflicht für Token-Sale und Live-Trading. Der 29-$-OS-Sitz braucht das nicht. Wir speichern nur den Status.",
+  },
 ];
 
 export const GUIDE_MORE: Array<{ href: string; label: LocaleCopy; body: LocaleCopy }> = [

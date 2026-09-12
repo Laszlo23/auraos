@@ -3448,6 +3448,9 @@ export type Database = {
           growth_quests: string[]
           growth_xp: number
           id: string
+          kyc_provider: string | null
+          kyc_status: string
+          kyc_verified_at: string | null
         }
         Insert: {
           created_at?: string
@@ -3457,6 +3460,9 @@ export type Database = {
           growth_quests?: string[]
           growth_xp?: number
           id: string
+          kyc_provider?: string | null
+          kyc_status?: string
+          kyc_verified_at?: string | null
         }
         Update: {
           created_at?: string
@@ -3466,6 +3472,9 @@ export type Database = {
           growth_quests?: string[]
           growth_xp?: number
           id?: string
+          kyc_provider?: string | null
+          kyc_status?: string
+          kyc_verified_at?: string | null
         }
         Relationships: []
       }

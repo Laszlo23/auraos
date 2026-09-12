@@ -83,6 +83,10 @@ function PrivacyPage() {
             numbers.
           </li>
           <li>Technical logs for APIs, authentication, webhooks, and fraud prevention.</li>
+          <li>
+            Identity-verification status (approved / declined / in review) when you complete KYC.
+            Document images and biometric captures stay with Didit — we do not store them.
+          </li>
         </ul>
       </LegalSection>
 
@@ -106,7 +110,24 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. How we use data">
+      <LegalSection title="4. Identity verification (Didit)">
+        <p>
+          When you start KYC we send you to Didit&apos;s hosted flow (ID, liveness, face match as
+          configured in our workflow). Didit is the processor for those documents. We keep a session
+          id, vendor user id, and the resulting status so we can gate the token sale and live
+          trading. The software seat does not require KYC.
+        </p>
+        <p>
+          Webhook: <span className="font-mono text-[12px]">/api/webhooks/didit</span>. You can
+          start or resume verification from{" "}
+          <Link to="/identity" className="text-primary hover:underline">
+            /identity
+          </Link>
+          .
+        </p>
+      </LegalSection>
+
+      <LegalSection title="5. How we use data">
         <p>We use this information to:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Provide and secure {SITE_NAME} and your company workspace.</li>
@@ -119,7 +140,7 @@ function PrivacyPage() {
         <p>We do not sell your personal data.</p>
       </LegalSection>
 
-      <LegalSection title="5. Legal bases (EEA/UK where applicable)">
+      <LegalSection title="6. Legal bases (EEA/UK where applicable)">
         <p>
           Depending on the activity: performance of a contract (account + paid seat), legitimate
           interests (security, product improvement, fraud prevention), consent (optional marketing
@@ -128,7 +149,7 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Connected accounts">
+      <LegalSection title="7. Connected accounts">
         <p>
           When you connect Google Mail, Outlook, X, LinkedIn, Meta, TikTok, or Farcaster, we store
           the tokens needed for the features you turn on. You can disconnect channels anytime; we
@@ -136,7 +157,7 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Cookies & local storage">
+      <LegalSection title="8. Cookies & local storage">
         <p>
           We use essential cookies and local storage for authentication, sessions, and attribution.
           Stripe Checkout may set its own cookies when you pay. See the{" "}
@@ -147,17 +168,18 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Sharing">
+      <LegalSection title="9. Sharing">
         <p>We share data only with:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Processors that run the product (hosting, database, email, auth, AI providers).</li>
           <li>Stripe for payments, fraud tools, and invoicing.</li>
+          <li>Didit for identity verification when you start KYC.</li>
           <li>Authorities when required by law.</li>
         </ul>
         <p>We do not sell personal data to advertisers.</p>
       </LegalSection>
 
-      <LegalSection title="9. Retention">
+      <LegalSection title="10. Retention">
         <p>
           Account and company data are kept while your account is active. Payment and entitlement
           records are retained as needed for accounting, tax, chargebacks, and legal claims
@@ -166,7 +188,7 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Your choices">
+      <LegalSection title="11. Your choices">
         <p>
           You can update profile data in-product, disconnect integrations, and request access,
           correction, or deletion by emailing {LEGAL_EMAIL}. Depending on your location you may have
@@ -175,14 +197,14 @@ function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="11. International transfers">
+      <LegalSection title="12. International transfers">
         <p>
           We and our processors may process data in the EU, US, and other countries. Where required,
           we rely on appropriate safeguards (e.g. standard contractual clauses) with vendors.
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Changes">
+      <LegalSection title="13. Changes">
         <p>
           We may update this policy as the product evolves. Material changes will be reflected here
           with a new “Last updated” date.

@@ -21,6 +21,7 @@ import { useAwardXp, useProgress } from "@/hooks/use-progress";
 import { useCompany, useCompanyTable } from "@/hooks/use-aura";
 import { useSmartWallet } from "@/hooks/use-earn";
 import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
+import { requireKycApproved, useKycStatus } from "@/hooks/use-kyc";
 import { useMyHandle } from "@/hooks/use-identity";
 import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
 import { getTreasuryBalance } from "@/lib/treasury.functions";
@@ -79,6 +80,7 @@ function TradingPage() {
   const { data: company } = useCompany();
   const { data: handle } = useMyHandle();
   const fio = useFioReady();
+  const kyc = useKycStatus();
   const { data: wallet } = useSmartWallet(handle?.id);
   const [advanced, setAdvanced] = useState(false);
   const { data: trades = [] } = useCompanyTable<Trade>("trades", {
@@ -361,6 +363,13 @@ function TradingPage() {
         });
         return;
       }
+      if (!requireKycApproved(kyc.data, "trading")) {
+        toast.message("Verify identity before live trading", {
+          description: "Didit KYC is required when this host gates the live desk.",
+          action: { label: "Open", onClick: () => (window.location.href = "/identity") },
+        });
+        return;
+      }
     }
     setBusy("arm");
     try {
@@ -423,6 +432,12 @@ function TradingPage() {
         )
       ) {
         toast.message("Set up FIO on Identity first", {
+          action: { label: "Open", onClick: () => (window.location.href = "/identity") },
+        });
+        return;
+      }
+      if (!requireKycApproved(kyc.data, "trading")) {
+        toast.message("Verify identity before going live", {
           action: { label: "Open", onClick: () => (window.location.href = "/identity") },
         });
         return;

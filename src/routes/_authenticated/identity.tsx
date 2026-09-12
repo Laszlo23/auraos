@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
+import { KycPanel } from "@/components/aura/kyc-panel";
 import { Chip, PageHeader, Panel } from "@/components/aura/primitives";
 import { SessionKeysPanel, SmartWalletPanel } from "@/components/aura/smart-wallet";
 import { useAwardXp } from "@/hooks/use-progress";
@@ -667,6 +668,8 @@ function IdentityBody() {
           </Chip>
         }
       />
+
+      <KycPanel />
 
       {!handle ? (
         <ClaimCard onDone={() => celebrate("Handle claimed", 150, "identity:handle")} />
