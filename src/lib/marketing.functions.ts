@@ -373,6 +373,7 @@ Keep posts under 280 chars when channel is X. Be funny, clear, not investment ad
 Company: ${company.name}. Tagline: ${company.tagline ?? "AI company OS"}.
 Return exactly ${data.count} ideas.`,
       "ideas",
+      { lane: "smart" },
     );
 
     const ideasRaw = Array.isArray(raw["ideas"]) ? raw["ideas"] : [];

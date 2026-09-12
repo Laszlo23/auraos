@@ -1,20 +1,32 @@
 /**
  * Unified AI gateway for Aura OS (post-Lovable).
  *
- * Cheap-first OpenAI-compatible chain:
- *   Gemini → Moonshot → Groq → FreeLLM → OpenAI → Lovable → xAI
+ * OpenRouter first when OPENROUTER_API_KEY is set — one key, the live catalog,
+ * Auto Router (market-ranked per prompt), and ~latest aliases so we ride new
+ * frontier releases without another SDK. Direct keys stay as fallbacks:
+ *   OpenRouter → Gemini → Moonshot → Groq → FreeLLM → OpenAI → Lovable → xAI
  *
- * FreeLLMAPI (https://github.com/tashfeenahmed/freellmapi) aggregates free-tier
- * providers behind one /v1 endpoint with model=auto routing. Keep paid keys as
- * fallbacks when the free pool is rate-limited.
+ * Lanes (quality, not vanity):
+ *   fast  — public greeter, high-volume chat
+ *   smart — Atlas, weekly reports, conversion copy, outreach
+ *   json  — structured extract / plan jobs
  *
- * xAI stays last — soft-fail on credit/billing so chat still works elsewhere.
- * Set FREELLM_API_KEY + FREELLM_BASE_URL (e.g. http://127.0.0.1:3001/v1).
  * Optional AI_PROVIDER_ORDER overrides try order.
  */
 
 export type AiProviderName =
-  "gemini" | "groq" | "moonshot" | "xai" | "freellm" | "openai" | "lovable";
+  | "openrouter"
+  | "gemini"
+  | "groq"
+  | "moonshot"
+  | "xai"
+  | "freellm"
+  | "openai"
+  | "lovable";
+
+export type AiLane = "fast" | "smart" | "json";
+
+export const AI_LANES: readonly AiLane[] = ["fast", "smart", "json"];
 
 type Provider = {
   name: AiProviderName;
@@ -23,7 +35,8 @@ type Provider = {
   model: string;
 };
 
-const DEFAULT_ORDER: AiProviderName[] = [
+export const AI_PROVIDER_DEFAULT_ORDER: AiProviderName[] = [
+  "openrouter",
   "gemini",
   "moonshot",
   "groq",
@@ -32,6 +45,8 @@ const DEFAULT_ORDER: AiProviderName[] = [
   "lovable",
   "xai",
 ];
+
+const DEFAULT_ORDER = AI_PROVIDER_DEFAULT_ORDER;
 
 function env(...keys: string[]): string | undefined {
   for (const k of keys) {
@@ -56,8 +71,23 @@ function buildProviders(): Record<AiProviderName, Provider | null> {
   const openaiKey = env("OPENAI_API_KEY");
   const openaiBase = (env("OPENAI_BASE_URL") ?? "https://api.openai.com/v1").replace(/\/+$/, "");
   const lovableKey = env("LOVABLE_API_KEY");
+  const openrouterKey = env("OPENROUTER_API_KEY");
+  const siteUrl = (env("SITE_URL") ?? "https://aibusiness.fun").replace(/\/+$/, "");
 
   return {
+    openrouter: openrouterKey
+      ? {
+          name: "openrouter",
+          chatUrl: "https://openrouter.ai/api/v1/chat/completions",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${openrouterKey}`,
+            "HTTP-Referer": siteUrl,
+            "X-Title": "Aura OS",
+          },
+          model: env("OPENROUTER_MODEL") ?? "openrouter/auto",
+        }
+      : null,
     gemini: geminiKey
       ? {
           name: "gemini",
@@ -142,21 +172,27 @@ function buildProviders(): Record<AiProviderName, Provider | null> {
   };
 }
 
-function providerOrder(): AiProviderName[] {
+export function resolveAiProviderOrder(): AiProviderName[] {
   const raw = env("AI_PROVIDER_ORDER");
-  if (!raw) return DEFAULT_ORDER;
   const allowed = new Set(DEFAULT_ORDER);
   const parsed = raw
-    .split(/[,:\s]+/)
-    .map((s) => s.trim().toLowerCase() as AiProviderName)
-    .filter((s) => allowed.has(s));
-  return parsed.length ? parsed : DEFAULT_ORDER;
+    ? raw
+        .split(/[,:\s]+/)
+        .map((s) => s.trim().toLowerCase() as AiProviderName)
+        .filter((s) => allowed.has(s))
+    : [];
+  const order = parsed.length ? parsed : [...DEFAULT_ORDER];
+  // Stale AI_PROVIDER_ORDER from before OpenRouter shipped should not hide a live key.
+  if (env("OPENROUTER_API_KEY") && !order.includes("openrouter")) {
+    order.unshift("openrouter");
+  }
+  return order;
 }
 
 function providers(): Provider[] {
   const map = buildProviders();
   const list: Provider[] = [];
-  for (const name of providerOrder()) {
+  for (const name of resolveAiProviderOrder()) {
     const p = map[name];
     if (p) list.push(p);
   }
@@ -168,7 +204,7 @@ export function aiConfigured(): boolean {
 }
 
 export function aiConfigHint(): string {
-  return "Prefer GEMINI_API_KEY (gemini-3.6-flash). Fallbacks: MOONSHOT_API_KEY, GROQ_API_KEY, FREELLM_API_KEY + FREELLM_BASE_URL, OPENAI_API_KEY. XAI_API_KEY is last-resort when credits remain.";
+  return "Prefer OPENROUTER_API_KEY (Auto Router + latest frontier). Fallbacks: GEMINI_API_KEY, MOONSHOT_API_KEY, GROQ_API_KEY, FREELLM_API_KEY + FREELLM_BASE_URL, OPENAI_API_KEY. XAI_API_KEY is last-resort when credits remain.";
 }
 
 export function aiProviderNames(): AiProviderName[] {
@@ -214,6 +250,87 @@ function isSoftFail(status: number, detail: string): boolean {
 
 const DEFAULT_MAX_TOKENS = 1024;
 
+export type OpenRouterLaneSpec = {
+  model: string;
+  fallbacks: string[];
+  costTier: "low" | "medium" | "high";
+  jsonMode?: boolean;
+  preferThroughput?: boolean;
+};
+
+function csvModels(raw: string | undefined, fallback: string[]): string[] {
+  if (!raw) return fallback;
+  const parsed = raw
+    .split(/[,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parsed.length ? parsed : fallback;
+}
+
+/** Curated OpenRouter ladder. ~latest aliases follow each lab's newest ship. */
+export function openRouterLaneSpec(lane: AiLane): OpenRouterLaneSpec {
+  switch (lane) {
+    case "fast":
+      return {
+        model: env("OPENROUTER_FAST_MODEL", "OPENROUTER_MODEL") ?? "openrouter/auto",
+        fallbacks: csvModels(env("OPENROUTER_FAST_FALLBACKS"), [
+          "~google/gemini-flash-latest",
+          "~openai/gpt-mini-latest",
+        ]).slice(0, 3),
+        costTier: "low",
+        preferThroughput: true,
+      };
+    case "smart":
+      return {
+        model: env("OPENROUTER_SMART_MODEL", "OPENROUTER_MODEL") ?? "openrouter/auto",
+        fallbacks: csvModels(env("OPENROUTER_SMART_FALLBACKS"), [
+          "~anthropic/claude-sonnet-latest",
+          "~openai/gpt-latest",
+          "~google/gemini-pro-latest",
+        ]).slice(0, 3),
+        costTier: "high",
+      };
+    case "json":
+      return {
+        model: env("OPENROUTER_JSON_MODEL", "OPENROUTER_MODEL") ?? "openrouter/auto",
+        fallbacks: csvModels(env("OPENROUTER_JSON_FALLBACKS"), [
+          "~openai/gpt-mini-latest",
+          "~google/gemini-flash-latest",
+          "~anthropic/claude-haiku-latest",
+        ]).slice(0, 3),
+        costTier: "medium",
+        jsonMode: true,
+      };
+    default: {
+      const _exhaustive: never = lane;
+      return _exhaustive;
+    }
+  }
+}
+
+function chatPayload(
+  p: Provider,
+  lane: AiLane,
+  body: Record<string, unknown>,
+): Record<string, unknown> {
+  if (p.name !== "openrouter") return body;
+  const spec = openRouterLaneSpec(lane);
+  const payload: Record<string, unknown> = {
+    ...body,
+    model: typeof body.model === "string" && body.model ? body.model : spec.model,
+    models: spec.fallbacks,
+    route: "fallback",
+    plugins: [{ id: "auto-router", cost_tier: spec.costTier }],
+  };
+  if (spec.preferThroughput) {
+    payload.provider = { sort: "throughput" };
+  }
+  if (spec.jsonMode) {
+    payload.response_format = { type: "json_object" };
+  }
+  return payload;
+}
+
 function messageText(choice: {
   message?: {
     content?: string | null;
@@ -240,10 +357,13 @@ export async function aiChat(opts: {
   maxTokens?: number;
   /** Override per-provider timeout (ms). */
   timeoutMs?: number;
+  /** Quality lane — defaults to fast. Use smart for Atlas / founder work. */
+  lane?: AiLane;
 }): Promise<string> {
   const chain = providers();
   if (chain.length === 0) throw new Error(`AI is not configured. ${aiConfigHint()}`);
 
+  const lane: AiLane = opts.lane ?? "fast";
   const messages: ChatMessage[] = [
     ...(opts.system ? [{ role: "system" as const, content: opts.system }] : []),
     ...opts.messages,
@@ -259,11 +379,13 @@ export async function aiChat(opts: {
         method: "POST",
         headers: p.headers,
         signal: fetchTimeoutSignal(timeoutMs),
-        body: JSON.stringify({
-          model: opts.model ?? p.model,
-          messages,
-          max_tokens: maxTokens,
-        }),
+        body: JSON.stringify(
+          chatPayload(p, lane, {
+            model: p.name === "openrouter" ? opts.model : (opts.model ?? p.model),
+            messages,
+            max_tokens: maxTokens,
+          }),
+        ),
       });
     } catch {
       lastError = `${p.name} unreachable`;
@@ -297,12 +419,14 @@ export async function aiChatStream(opts: {
   messages: { role: "user" | "assistant"; content: string }[];
   model?: string;
   maxTokens?: number;
+  lane?: AiLane;
 }): Promise<Response> {
   const chain = providers();
   if (chain.length === 0) {
     return new Response(`AI is not configured. ${aiConfigHint()}`, { status: 500 });
   }
 
+  const lane: AiLane = opts.lane ?? "fast";
   const messages: ChatMessage[] = [
     ...(opts.system ? [{ role: "system" as const, content: opts.system }] : []),
     ...opts.messages,
@@ -318,13 +442,15 @@ export async function aiChatStream(opts: {
       upstream = await fetch(p.chatUrl, {
         method: "POST",
         headers: p.headers,
-        signal: fetchTimeoutSignal(20_000),
-        body: JSON.stringify({
-          model: opts.model ?? p.model,
-          stream: true,
-          messages,
-          max_tokens: maxTokens,
-        }),
+        signal: fetchTimeoutSignal(lane === "smart" ? 30_000 : 20_000),
+        body: JSON.stringify(
+          chatPayload(p, lane, {
+            model: p.name === "openrouter" ? opts.model : (opts.model ?? p.model),
+            stream: true,
+            messages,
+            max_tokens: maxTokens,
+          }),
+        ),
       });
     } catch {
       lastDetail = `${p.name} unreachable`;
@@ -393,6 +519,7 @@ export async function aiChatStream(opts: {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-cache",
         "X-Aura-AI-Provider": p.name,
+        "X-Aura-AI-Lane": lane,
       },
     });
   }
@@ -405,10 +532,13 @@ export async function aiJson(
   system: string,
   user: string,
   fallbackKey = "result",
+  opts?: { lane?: AiLane; timeoutMs?: number },
 ): Promise<Record<string, unknown>> {
   const chain = providers();
   if (chain.length === 0) throw new Error(`missing_ai_key — ${aiConfigHint()}`);
 
+  const lane: AiLane = opts?.lane ?? "json";
+  const timeoutMs = opts?.timeoutMs ?? AI_FETCH_MS;
   let lastError = "ai_unavailable";
   for (const p of chain) {
     let res: Response;
@@ -416,17 +546,19 @@ export async function aiJson(
       res = await fetch(p.chatUrl, {
         method: "POST",
         headers: p.headers,
-        signal: fetchTimeoutSignal(),
-        body: JSON.stringify({
-          model: p.model,
-          messages: [
-            {
-              role: "system",
-              content: `${system} Return strict JSON only — no markdown fences, no prose outside JSON.`,
-            },
-            { role: "user", content: user },
-          ],
-        }),
+        signal: fetchTimeoutSignal(timeoutMs),
+        body: JSON.stringify(
+          chatPayload(p, lane, {
+            model: p.name === "openrouter" ? undefined : p.model,
+            messages: [
+              {
+                role: "system",
+                content: `${system} Return strict JSON only — no markdown fences, no prose outside JSON.`,
+              },
+              { role: "user", content: user },
+            ],
+          }),
+        ),
       });
     } catch {
       lastError = `${p.name}_unreachable`;
@@ -442,6 +574,7 @@ export async function aiJson(
       continue;
     }
     const data = (await res.json()) as {
+      model?: string;
       choices?: {
         message?: {
           content?: string | null;
@@ -452,7 +585,12 @@ export async function aiJson(
     };
     const text = data.choices?.[0] ? messageText(data.choices[0]) : null;
     const raw = (text ?? "").replace(/```json|```/g, "").trim();
-    const meta = { served_by: p.name, generated_at: new Date().toISOString() };
+    const meta = {
+      served_by: p.name,
+      served_model: typeof data.model === "string" ? data.model : undefined,
+      lane,
+      generated_at: new Date().toISOString(),
+    };
     try {
       return { ...(JSON.parse(raw) as Record<string, unknown>), ...meta };
     } catch {

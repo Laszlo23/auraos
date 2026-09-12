@@ -526,16 +526,16 @@ export const en: MessageTree = {
       "Ops, growth, support, research, the books. Twelve tabs and one human. The ceiling is your calendar.",
     act2Kicker: "The switch",
     act2Line: "Wake the team.",
-    act2Body:
+    act2Story:
       "CEO, growth, sales, product, engineering, customers, finance, social. You give one mission. They split it, execute it, report back.",
     act3Kicker: "The work",
     act3Line: "They execute. You own the upside.",
-    act3Body:
+    act3Story:
       "Every meaningful action shows who, what, when, cost, and result. Real business activity — not chat fluff. Optional specialists (like Quant) come later.",
     act4Kicker: "The loop",
     act4Line: "Create. Execute. Earn. Grow.",
     act4Body:
-      "Completed work levels the company. Reinvest in better agents. Compete on the board. Build an economy of autonomous companies.",
+      "Completed work levels the company. Reinvest in better agents. Compete on the board.",
     orgKicker: "Your company",
     orgTitle: "One owner. One CEO. A full AI roster.",
     orgBody: "You set the mission. The CEO splits work. Agents execute and file proof.",
@@ -609,7 +609,7 @@ export const en: MessageTree = {
     liveLatest: "Latest activity",
     liveEmpty: "No public activity in this window yet — zeros stay zeros.",
     liveShare: "Share live proof",
-    liveSharePlain: "Aura OS is live — autonomous AI companies with public proof of work.",
+    liveSharePlain: "Aura OS is live — AI company desks with public proof of work.",
     liveShareStat: "Aura OS live network: {stat}. Real ledger receipts, not pitch theater.",
     days: "Days",
     hours: "Hours",
@@ -742,6 +742,27 @@ export const en: MessageTree = {
     success: "Thank you — if the payment finished, it should land shortly.",
     cancel: "Checkout canceled. You can try again anytime.",
     note: "Secure checkout. Same rails we use for founding seats.",
+    onchainTitle: "Or send USDC on Base",
+    onchainBody:
+      "Official launch wallet — not a token CA. Native USDC on Base only. Do not send tokens here.",
+    copyWallet: "Copy wallet",
+    copiedWallet: "Copied",
+  },
+  drop: {
+    eyebrow: "Official notice",
+    title: "You're early",
+    lead: "This is not an AURA airdrop and not a mystery token. If your wallet is on the founder notice list, you're in the room. Fair launch is Sunday 13 Sep 2026, 11:11 Europe/Vienna. CA only on this site and X @bihary41418.",
+    paste: "Paste a wallet",
+    check: "Check this wallet",
+    checking: "Checking…",
+    connect: "Connect wallet",
+    disconnect: "Disconnect",
+    listed: "This wallet is on the founder notice list. Same official links as everyone else — no special CA.",
+    notListed: "This wallet is not on the list. You can still read the project here. Never trust a token that showed up uninvited.",
+    invalid: "That does not look like a wallet.",
+    pitch: "Pitch",
+    trust: "Covenant",
+    token: "AURA",
   },
   changelog: {
     joinDiscord: "Join Discord",
@@ -762,7 +783,7 @@ export const en: MessageTree = {
     stopHeroBody: "This is a company you own. You give instructions — AI employees do the work.",
     stopStepsTitle: "How it works",
     stopStepsBody:
-      "Three steps: describe the business, the AI staff get hired, they work while you sleep.",
+      "Three steps: describe the business, the AI staff get hired, you approve the risky stuff.",
     stopWhyTitle: "Why it actually works",
     stopWhyBody:
       "One shared memory, every action measured in money, and you approve anything risky.",

@@ -52,7 +52,7 @@ export const Route = createFileRoute("/api/public/greeter")({
 
         if (messages.length === 0) return new Response("Messages are required", { status: 400 });
 
-        return aiChatStream({ system: SYSTEM, messages, maxTokens: 220 });
+        return aiChatStream({ system: SYSTEM, messages, maxTokens: 220, lane: "fast" });
       },
     },
   },

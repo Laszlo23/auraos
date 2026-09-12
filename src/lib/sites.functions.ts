@@ -242,6 +242,7 @@ Rules: keep brand voice clear and concrete; one job per line; no exclamation mar
         pricing: data.content.pricing ?? "",
       }),
       "hero",
+      { lane: "smart" },
     );
 
     const polished: SiteContent = {

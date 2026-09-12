@@ -187,12 +187,13 @@ export function CeoChat({ variant = "full" }: { variant?: "full" | "rail" }) {
               : res.status === 402
                 ? "Your AI credits are exhausted. Top up to keep Atlas working."
                 : detail.includes("not configured") ||
+                    detail.includes("OPENROUTER") ||
                     detail.includes("FREELLM") ||
                     detail.includes("GEMINI_API_KEY") ||
                     detail.includes("XAI_API_KEY") ||
                     detail.includes("MOONSHOT") ||
                     detail.includes("provider key")
-                  ? "Atlas is offline: FreeLLM or a fallback provider key is missing on the server."
+                  ? "Atlas is offline: OPENROUTER_API_KEY or a fallback provider key is missing on the server."
                   : detail || "Atlas could not respond.",
         );
       }

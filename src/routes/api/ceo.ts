@@ -73,6 +73,7 @@ ${contextBlock}`;
           system,
           messages: messages.map((m) => ({ role: m.role, content: m.content.slice(0, 4000) })),
           maxTokens: 500,
+          lane: "smart",
         });
 
         // Soft-persist founder intent to Mem0 (best-effort; do not block SSE).

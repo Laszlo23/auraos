@@ -3,7 +3,6 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LEGAL_EMAIL,
   NINTY,
-  NOWPAYMENTS_DONATE_BUTTON,
   PRODUCT_SURFACES,
   SITE_NAME,
   SITE_URL,
@@ -219,17 +218,9 @@ export function SiteFooter({
             <Link
               to="/donate"
               onClick={() => trackTeaser("cta_click", { placement: "footer_donate" })}
-              className="inline-flex shrink-0 opacity-90 transition-opacity hover:opacity-100"
-              aria-label={t("footer.donate")}
+              className="inline-flex shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/80 transition-colors hover:text-foreground"
             >
-              <img
-                src={NOWPAYMENTS_DONATE_BUTTON}
-                alt={t("footer.donate")}
-                width={200}
-                height={40}
-                className="h-9 w-auto"
-                loading="lazy"
-              />
+              {t("footer.donate")}
             </Link>
             <button
               type="button"

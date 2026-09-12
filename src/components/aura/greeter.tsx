@@ -290,6 +290,7 @@ export function Greeter() {
             : res.status === 402
               ? t("greeter.errEmpty")
               : detail.includes("not configured") ||
+                  detail.includes("OPENROUTER") ||
                   detail.includes("FREELLM") ||
                   detail.includes("GEMINI_API_KEY") ||
                   detail.includes("XAI_API_KEY") ||

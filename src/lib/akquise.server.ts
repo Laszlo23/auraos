@@ -1,7 +1,7 @@
 // Server-only helpers for research + AI drafting.
 // Prefer Firecrawl when FIRECRAWL_API_KEY is set; otherwise DuckDuckGo + fetch fallback.
 
-import { aiChat, aiConfigHint } from "@/lib/ai.server";
+import { aiChat, aiConfigHint, type AiLane } from "@/lib/ai.server";
 
 const FIRECRAWL_DIRECT = "https://api.firecrawl.dev/v1";
 const FIRECRAWL_LOVABLE = "https://connector-gateway.lovable.dev/firecrawl/v2";
@@ -258,12 +258,13 @@ export async function firecrawlScrape(url: string): Promise<ScrapedPage | null> 
 export async function askAi(
   system: string,
   user: string,
-  opts?: { maxTokens?: number; timeoutMs?: number },
+  opts?: { maxTokens?: number; timeoutMs?: number; lane?: AiLane },
 ): Promise<string> {
   try {
     return await aiChat({
       system,
       messages: [{ role: "user", content: user }],
+      lane: opts?.lane ?? "smart",
       ...(opts?.maxTokens != null ? { maxTokens: opts.maxTokens } : {}),
       ...(opts?.timeoutMs != null ? { timeoutMs: opts.timeoutMs } : {}),
     });

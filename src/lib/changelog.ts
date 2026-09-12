@@ -36,6 +36,45 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-ci-honest-cd",
+    date: "2026-09-12",
+    title: "CI runs tests first. Laptop script is the only deploy.",
+    summary:
+      "GitHub was failing on Prettier before tests, and the unused Deploy workflow died on empty VPS secrets. Tests now run first. Production still ships with deploy-app.sh.",
+    items: [
+      "CI: unit tests, then lint without Prettier-as-error, then build",
+      "Removed Deploy to Production — empty VPS_* secrets, not a ship path",
+      "Homepage #problem / #twist keep the intended copy (duplicate i18n keys renamed)",
+    ],
+    tags: ["fix", "infra"],
+  },
+  {
+    id: "2026-09-12-openrouter-lanes",
+    date: "2026-09-12",
+    title: "Atlas now rides OpenRouter Auto Router",
+    summary:
+      "One key unlocks the live model catalog. Atlas, copy, and outreach use the smart lane; the public greeter stays on the fast lane. ~latest aliases pick up new frontier releases without a redeploy.",
+    items: [
+      "OPENROUTER_API_KEY is first in the provider chain when set",
+      "Lanes: fast (greeter), smart (Atlas / weekly / conversion / outreach), json (extract / plans)",
+      "Fallbacks still hit Gemini, Moonshot, Groq, then the rest if OpenRouter is busy",
+    ],
+    tags: ["improvement", "infra"],
+  },
+  {
+    id: "2026-09-12-t0-book-funding",
+    date: "2026-09-12",
+    title: "T-0 book USDC is landing on the official wallet",
+    summary:
+      "Launch liquidity is going into the published Base treasury — not the old pAURA sink, not a token CA. Verify on Basescan. Do not send tokens here.",
+    items: [
+      "Official wallet: 0x7894a4f43cec1E97CBAa9Cd6676Ac07ABF34dD49",
+      "Plan stays $1,111 seed + $6,000 locked Uni v4 book, plus gas ETH",
+      "Same address as /trust and /tokenomics — never a CA in a DM",
+    ],
+    tags: ["infra"],
+  },
+  {
     id: "2026-09-12-honest-pitch",
     date: "2026-09-12",
     title: "Pitch stack is software, then Hood, then AURA",

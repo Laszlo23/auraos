@@ -21,6 +21,7 @@ import { Route as CompareRouteImport } from './routes/compare'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DeskRouteImport } from './routes/desk'
 import { Route as DonateRouteImport } from './routes/donate'
+import { Route as DropRouteImport } from './routes/drop'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GrantsRouteImport } from './routes/grants'
@@ -222,6 +223,11 @@ const DeskRoute = DeskRouteImport.update({
 const DonateRoute = DonateRouteImport.update({
   id: '/donate',
   path: '/donate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DropRoute = DropRouteImport.update({
+  id: '/drop',
+  path: '/drop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -967,6 +973,7 @@ export interface FileRoutesByFullPath {
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
   '/donate': typeof DonateRoute
+  '/drop': typeof DropRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
@@ -1122,6 +1129,7 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
   '/donate': typeof DonateRoute
+  '/drop': typeof DropRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
@@ -1280,6 +1288,7 @@ export interface FileRoutesById {
   '/cookies': typeof CookiesRoute
   '/desk': typeof DeskRoute
   '/donate': typeof DonateRoute
+  '/drop': typeof DropRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/grants': typeof GrantsRoute
@@ -1438,6 +1447,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/desk'
     | '/donate'
+    | '/drop'
     | '/faq'
     | '/features'
     | '/grants'
@@ -1593,6 +1603,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/desk'
     | '/donate'
+    | '/drop'
     | '/faq'
     | '/features'
     | '/grants'
@@ -1750,6 +1761,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/desk'
     | '/donate'
+    | '/drop'
     | '/faq'
     | '/features'
     | '/grants'
@@ -1908,6 +1920,7 @@ export interface RootRouteChildren {
   CookiesRoute: typeof CookiesRoute
   DeskRoute: typeof DeskRoute
   DonateRoute: typeof DonateRoute
+  DropRoute: typeof DropRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   GrantsRoute: typeof GrantsRoute
@@ -2086,6 +2099,13 @@ declare module '@tanstack/react-router' {
       path: '/donate'
       fullPath: '/donate'
       preLoaderRoute: typeof DonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/drop': {
+      id: '/drop'
+      path: '/drop'
+      fullPath: '/drop'
+      preLoaderRoute: typeof DropRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -3236,6 +3256,7 @@ const rootRouteChildren: RootRouteChildren = {
   CookiesRoute: CookiesRoute,
   DeskRoute: DeskRoute,
   DonateRoute: DonateRoute,
+  DropRoute: DropRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   GrantsRoute: GrantsRoute,

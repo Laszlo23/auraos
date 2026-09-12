@@ -336,6 +336,7 @@ Honesty: do not invent facts or revenue. needs_web=true when research, competito
         .filter(Boolean)
         .join("\n\n"),
       "plan",
+      { lane: "json" },
     )) as {
       plan?: string[];
       needs_web?: boolean;
@@ -474,6 +475,7 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
         .filter(Boolean)
         .join("\n\n"),
       "summary",
+      { lane: "smart", timeoutMs: 30_000 },
     )) as {
       summary?: string;
       outcome?: string;
@@ -540,7 +542,7 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
   await persistSteps(db, task.id, steps, 88, { artifact });
 
   // ——— Optional: live social publish (X / Farcaster) ———
-  let publishNotes: string[] = [];
+  const publishNotes: string[] = [];
   if (isSocialPublishTask(task.title, task.description)) {
     steps = [
       ...steps.filter((s) => s.id !== "publish"),

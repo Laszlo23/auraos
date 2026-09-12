@@ -138,6 +138,7 @@ Return JSON: {"proposals":[{"title":"...","description":"...","agent":"Cass","pr
         .filter(Boolean)
         .join("\n"),
       "proposals",
+      { lane: "smart" },
     );
 
     const list = Array.isArray(raw["proposals"]) ? (raw["proposals"] as ProposedAction[]) : [];

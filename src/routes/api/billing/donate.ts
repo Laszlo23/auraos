@@ -1,10 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import {
-  createDonationInvoice,
-  nowPaymentsConfigured,
-  parseDonateAmountUsd,
-} from "@/lib/nowpayments-donate";
+import { parseDonateAmountUsd } from "@/lib/nowpayments-donate";
+import { createDonationInvoice, nowPaymentsConfigured } from "@/lib/nowpayments-donate.server";
 import { clientIpFromRequest, rateLimitConsume } from "@/lib/rate-limit.server";
 
 /**

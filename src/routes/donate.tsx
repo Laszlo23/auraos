@@ -4,8 +4,9 @@ import { useState } from "react";
 
 import { SiteFooter } from "@/components/aura/site-footer";
 import { useLocale } from "@/hooks/use-locale";
+import { auraLaunchTreasuryAddress } from "@/lib/aura-token";
 import { DONATE_AMOUNTS_USD, type DonateAmountUsd } from "@/lib/nowpayments-donate";
-import { NOWPAYMENTS_DONATE_BUTTON, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 import { cn } from "@/lib/utils";
 
@@ -34,10 +35,14 @@ function DonatePage() {
   const [amount, setAmount] = useState<DonateAmountUsd>(25);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const officialTreasury = auraLaunchTreasuryAddress();
 
   async function startCheckout() {
     setBusy(true);
     setError(null);
+    setCheckoutUrl(null);
     trackTeaser("cta_click", { placement: "donate_checkout" });
     try {
       const res = await fetch("/api/billing/donate", {
@@ -49,10 +54,21 @@ function DonatePage() {
       if (!res.ok || !json.url) {
         throw new Error(json.error || "Could not start donation");
       }
-      window.location.assign(json.url);
+      setCheckoutUrl(json.url);
+      window.location.href = json.url;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Donation failed");
       setBusy(false);
+    }
+  }
+
+  async function copyTreasury() {
+    try {
+      await navigator.clipboard.writeText(officialTreasury);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* select the address manually */
     }
   }
 
@@ -120,25 +136,24 @@ function DonatePage() {
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+        <div className="mt-8 flex flex-col items-start gap-4">
           <button
             type="button"
             disabled={busy}
             onClick={() => void startCheckout()}
-            className="inline-flex items-center gap-3 rounded-xl border border-border/50 bg-foreground/[0.04] px-3 py-2 transition-opacity hover:opacity-100 disabled:cursor-wait disabled:opacity-60"
+            className="rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-wait disabled:opacity-60"
             aria-label={t("donate.cta")}
           >
-            <img
-              src={NOWPAYMENTS_DONATE_BUTTON}
-              alt=""
-              width={200}
-              height={40}
-              className="h-9 w-auto"
-            />
-            <span className="pr-2 text-[12px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {busy ? t("donate.starting") : `$${amount}`}
-            </span>
+            {busy ? t("donate.starting") : `${t("donate.cta")} · $${amount}`}
           </button>
+          {checkoutUrl ? (
+            <a
+              href={checkoutUrl}
+              className="text-[13px] font-semibold text-primary underline-offset-2 hover:underline"
+            >
+              {t("donate.cta")} →
+            </a>
+          ) : null}
           {error ? (
             <p className="text-[13px] text-destructive" role="alert">
               {error}
@@ -147,6 +162,28 @@ function DonatePage() {
         </div>
 
         <p className="mt-6 text-[12px] text-muted-foreground">{t("donate.note")}</p>
+
+        <section className="mt-10 rounded-2xl border border-border/40 p-4">
+          <h2 className="font-display text-lg font-semibold">{t("donate.onchainTitle")}</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+            {t("donate.onchainBody")}
+          </p>
+          <a
+            href={`https://basescan.org/address/${officialTreasury}`}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 block break-all font-mono text-[12px] text-primary"
+          >
+            {officialTreasury}
+          </a>
+          <button
+            type="button"
+            onClick={() => void copyTreasury()}
+            className="mt-3 rounded-2xl border border-border/50 px-4 py-2 text-xs font-semibold"
+          >
+            {copied ? t("donate.copiedWallet") : t("donate.copyWallet")}
+          </button>
+        </section>
       </div>
 
       <SiteFooter />

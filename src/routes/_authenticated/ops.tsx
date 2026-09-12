@@ -5,6 +5,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel, Shimmer } from "@/components/aura/primitives";
+import {
+  getFollowerNoticeSummary,
+  importFollowerNoticeCsv,
+} from "@/lib/follower-notice.functions";
+import { parseFollowerNoticeCsv } from "@/lib/follower-notice";
 import { issueHoodGiveawayBatch, listHoodGiveawayCodes } from "@/lib/hood-giveaway.functions";
 import { getOpsDashboard, triggerOpsTick, type OpsDashboard } from "@/lib/ops.functions";
 import { issuePreviewPassBatch, listPreviewPasses } from "@/lib/preview-pass.functions";
@@ -23,6 +28,8 @@ function OpsPage() {
   const qc = useQueryClient();
   const [issuedCodes, setIssuedCodes] = useState<string[]>([]);
   const [issuedPreview, setIssuedPreview] = useState<string[]>([]);
+  const [csvPreview, setCsvPreview] = useState<string>("");
+  const [csvName, setCsvName] = useState("csv");
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["ops-dashboard"],
     queryFn: async (): Promise<OpsDashboard> =>
@@ -42,6 +49,27 @@ function OpsPage() {
     queryKey: ["ops-preview-passes"],
     queryFn: () => listPreviewPasses(),
     staleTime: 15_000,
+  });
+
+  const noticeList = useQuery({
+    queryKey: ["ops-follower-notices"],
+    queryFn: () => getFollowerNoticeSummary(),
+    staleTime: 15_000,
+  });
+
+  const parsedCsv = parseFollowerNoticeCsv(csvPreview);
+
+  const importNotice = useMutation({
+    mutationFn: () =>
+      importFollowerNoticeCsv({
+        data: { csv: csvPreview, batch: csvName },
+      }),
+    onSuccess: (res) => {
+      toast.success(`Imported ${res.inserted} new wallets · ${res.already} already listed`);
+      setCsvPreview("");
+      void qc.invalidateQueries({ queryKey: ["ops-follower-notices"] });
+    },
+    onError: (e: Error) => toast.error(e.message || "CSV import failed"),
   });
 
   const issuePreview = useMutation({
@@ -237,6 +265,47 @@ function OpsPage() {
             ))}
           </ul>
         ) : null}
+      </Panel>
+
+      <Panel label="Follower notice CSV">
+        <p className="text-[13px] text-muted-foreground">
+          Wallet list only. Official page is{" "}
+          <a href={`${SITE_URL}/drop`} className="text-primary">
+            {SITE_URL}/drop
+          </a>
+          . Not an AURA airdrop — people come to the site. Never send from the T-0 treasury.
+        </p>
+        <p className="mt-2 text-[12px] text-muted-foreground">
+          Listed {noticeList.data?.total ?? "—"} · opened {noticeList.data?.seen ?? "—"}
+        </p>
+        <label className="mt-4 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Upload CSV
+          <input
+            type="file"
+            accept=".csv,text/csv,text/plain"
+            className="mt-2 block w-full text-[12px] text-foreground"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setCsvName(file.name.slice(0, 80) || "csv");
+              void file.text().then(setCsvPreview);
+            }}
+          />
+        </label>
+        {csvPreview ? (
+          <p className="mt-3 text-[12px] text-muted-foreground">
+            {parsedCsv.wallets.length} unique wallets · {parsedCsv.duplicates} dupes ·{" "}
+            {parsedCsv.invalidCount} skipped
+          </p>
+        ) : null}
+        <button
+          type="button"
+          disabled={!parsedCsv.wallets.length || importNotice.isPending}
+          onClick={() => importNotice.mutate()}
+          className="mt-4 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary disabled:opacity-50"
+        >
+          {importNotice.isPending ? "Importing…" : "Import wallets"}
+        </button>
       </Panel>
 
       <Panel label="Stuck missions · no update &gt; 30m">

@@ -58,6 +58,7 @@ export function FailedWorkPanel({ tasks, agents }: Props) {
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <p className="text-[13px] text-muted-foreground">
           Failed work stays visible. Soft AI fails (
+          <span className="text-foreground">openrouter_soft_fail</span>,{" "}
           <span className="text-foreground">xai_soft_fail</span>,{" "}
           <span className="text-foreground">freellm_unreachable</span>) usually mean the provider
           chain was down — retry once AI is healthy again.

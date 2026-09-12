@@ -126,7 +126,7 @@ Goal: ${opts.goal}
 Brief: ${opts.brief}
 Region: ${opts.region ?? "any"}
 Hints: ${opts.template.searchHints.join(" | ")}`,
-      { maxTokens: 800, timeoutMs: 25_000 },
+      { maxTokens: 800, timeoutMs: 25_000, lane: "json" },
     );
     const planned = parseJsonBlock<{ queries?: string[] }>(raw, {});
     if (planned.queries?.length) {
@@ -185,6 +185,7 @@ ${corpus}`;
     const raw = await askAi(`${template.extractSystem}\n${systemExtra}`, user, {
       maxTokens: 4096,
       timeoutMs: 35_000,
+      lane: "json",
     });
     return parseJsonBlock<ProspectDraft[]>(raw, []);
   };

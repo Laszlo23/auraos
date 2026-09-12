@@ -292,6 +292,7 @@ async function maybeSummarize(snapshot: WeeklyReportSnapshot): Promise<string> {
   try {
     const { aiChat } = await import("@/lib/ai.server");
     const text = await aiChat({
+      lane: "smart",
       system: `You are Atlas, CEO of ${snapshot.companyName} on Aura OS.
 Write ONE short paragraph (max 60 words) for a boss-facing weekly report.
 Rules: only use the numbers given. Never invent reach, revenue, or followers growth. Plain executive English. No emojis.`,
