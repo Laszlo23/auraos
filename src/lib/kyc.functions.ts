@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { DIDIT_VERIFY_CALLBACK_PATH } from "@/lib/didit-workflow";
+import { isKycApproved, type KycStatus } from "@/lib/kyc-status";
 import { SITE_URL } from "@/lib/site";
-import type { KycStatus } from "@/lib/didit.server";
 
 type KycRow = {
   user_id: string;
@@ -102,6 +103,31 @@ export async function persistKycDecision(input: {
   return (data as KycRow | null) ?? (row as KycRow);
 }
 
+export async function alreadyProcessedDiditEvent(eventId: string): Promise<boolean> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = asDb(supabaseAdmin);
+  const { data } = await db.from("didit_webhook_events").select("event_id").eq("event_id", eventId).maybeSingle();
+  return Boolean(data?.event_id);
+}
+
+export async function markDiditEventProcessed(input: {
+  eventId: string;
+  sessionId?: string | null;
+  status?: string | null;
+}): Promise<void> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = asDb(supabaseAdmin);
+  const { error } = await db.from("didit_webhook_events").upsert(
+    {
+      event_id: input.eventId,
+      session_id: input.sessionId ?? null,
+      status: input.status ?? null,
+    },
+    { onConflict: "event_id" },
+  );
+  if (error) throw error;
+}
+
 export const getKycPublicConfig = createServerFn({ method: "GET" }).handler(async () => {
   const { diditConfigured, diditGates } = await import("@/lib/didit.server");
   return {
@@ -113,7 +139,7 @@ export const getKycPublicConfig = createServerFn({ method: "GET" }).handler(asyn
 export const getKycStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<KycView> => {
-    const { diditConfigured, diditGates, isKycApproved } = await import("@/lib/didit.server");
+    const { diditConfigured, diditGates } = await import("@/lib/didit.server");
     const db = asDb(context.supabase);
     const { data } = await db
       .from("user_kyc")
@@ -141,7 +167,7 @@ export const startKycSession = createServerFn({ method: "POST" })
 
     const session = await createDiditSession({
       vendorData: context.userId,
-      callback: `${SITE_URL}/identity?kyc=return`,
+      callback: `${SITE_URL}${DIDIT_VERIFY_CALLBACK_PATH}`,
     });
     if (!session.url) throw new Error("Didit did not return a verification URL.");
 
@@ -163,7 +189,7 @@ export const startKycSession = createServerFn({ method: "POST" })
 export const refreshKycStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<KycView> => {
-    const { getDiditDecision, listDiditSessionsForVendor, diditConfigured, diditGates, isKycApproved } =
+    const { getDiditDecision, listDiditSessionsForVendor, diditConfigured, diditGates } =
       await import("@/lib/didit.server");
     const db = asDb(context.supabase);
     const { data: row } = await db

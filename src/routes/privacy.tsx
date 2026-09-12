@@ -112,10 +112,11 @@ function PrivacyPage() {
 
       <LegalSection title="4. Identity verification (Didit)">
         <p>
-          When you start KYC we send you to Didit&apos;s hosted flow (ID, liveness, face match as
-          configured in our workflow). Didit is the processor for those documents. We keep a session
-          id, vendor user id, and the resulting status so we can gate the token sale and live
-          trading. The software seat does not require KYC.
+          When you start KYC we open Didit&apos;s hosted flow (in-page or redirect — ID, liveness,
+          face match as configured in our workflow). Didit is the processor for those documents. We
+          keep a session id, vendor user id, and the resulting status so we can gate the token sale
+          and live trading. The software seat does not require KYC. The signed webhook is the
+          approval record — the in-app callback is not.
         </p>
         <p>
           Webhook: <span className="font-mono text-[12px]">/api/webhooks/didit</span>. You can

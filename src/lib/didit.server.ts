@@ -1,21 +1,22 @@
 /**
  * Didit verification API — server only.
  * Docs: https://docs.didit.me/sessions-api/create-session
+ * Webhooks: https://docs.didit.me/integration/webhooks
  */
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export const DIDIT_API_BASE = "https://verification.didit.me";
+import { DIDIT_WORKFLOW_ID } from "@/lib/didit-workflow";
+import {
+  type DiditSessionStatus,
+  type KycStatus,
+  isKycApproved,
+} from "@/lib/kyc-status";
 
-export type KycStatus =
-  | "none"
-  | "not_started"
-  | "in_progress"
-  | "in_review"
-  | "approved"
-  | "declined"
-  | "expired"
-  | "abandoned";
+export type { DiditSessionStatus, KycStatus };
+export { isKycApproved };
+
+export const DIDIT_API_BASE = "https://verification.didit.me";
 
 export type DiditGate = "sale" | "trading";
 
@@ -55,47 +56,37 @@ export function diditGateOn(gate: DiditGate): boolean {
   return diditConfigured() && diditGates().includes(gate);
 }
 
+/** Map Didit literals (case-sensitive) to stored status. Unknown → in_progress, never approved. */
 export function mapDiditStatus(raw: string | null | undefined): KycStatus {
-  const n = (raw ?? "").trim().toLowerCase().replace(/\s+/g, "_");
-  switch (n) {
-    case "":
-    case "none":
-      return "none";
-    case "approved":
-      return "approved";
-    case "declined":
-      return "declined";
-    case "in_review":
-      return "in_review";
-    case "not_started":
+  switch (raw) {
+    case "Not Started":
       return "not_started";
-    case "in_progress":
-    case "awaiting_user":
-    case "resubmitted":
+    case "In Progress":
       return "in_progress";
-    case "expired":
-    case "kyc_expired":
-      return "expired";
-    case "abandoned":
+    case "Awaiting User":
+      return "awaiting_user";
+    case "In Review":
+      return "in_review";
+    case "Approved":
+      return "approved";
+    case "Declined":
+      return "declined";
+    case "Resubmitted":
+      return "resubmitted";
+    case "Abandoned":
       return "abandoned";
+    case "Expired":
+      return "expired";
+    case "Kyc Expired":
+      return "kyc_expired";
+    case null:
+    case undefined:
+    case "":
+      return "none";
     default:
       return "in_progress";
   }
 }
-
-export function isKycApproved(status: KycStatus): boolean {
-  return status === "approved";
-}
-
-type WorkflowRow = {
-  workflow_id?: string;
-  uuid?: string;
-  workflow_label?: string;
-  workflow_type?: string | null;
-  status?: string;
-  is_default?: boolean;
-  is_archived?: boolean;
-};
 
 async function diditFetch(path: string, init?: RequestInit): Promise<Response> {
   const key = diditApiKey();
@@ -111,23 +102,8 @@ async function diditFetch(path: string, init?: RequestInit): Promise<Response> {
   });
 }
 
-export async function resolveDiditWorkflowId(): Promise<string> {
-  const pinned = (process.env.DIDIT_WORKFLOW_ID || "").trim();
-  if (pinned) return pinned;
-
-  const res = await diditFetch("/v3/workflows/?limit=50");
-  if (!res.ok) {
-    throw new Error(`Didit workflows failed (${res.status}). Publish a KYC workflow in the console.`);
-  }
-  const body = (await res.json()) as { results?: WorkflowRow[] };
-  const rows = body.results ?? [];
-  const published = rows.filter(
-    (w) => w.status === "published" && !w.is_archived && (w.workflow_type ?? "kyc") === "kyc",
-  );
-  const pick = published.find((w) => w.is_default) ?? published[0] ?? rows.find((w) => w.status === "published");
-  const id = pick?.workflow_id || pick?.uuid;
-  if (!id) throw new Error("No published Didit KYC workflow. Create one at business.didit.me → Workflows.");
-  return id;
+export function diditWorkflowId(): string {
+  return DIDIT_WORKFLOW_ID;
 }
 
 export async function createDiditSession(input: {
@@ -135,7 +111,7 @@ export async function createDiditSession(input: {
   callback: string;
   language?: string;
 }): Promise<DiditSession> {
-  const workflow_id = await resolveDiditWorkflowId();
+  const workflow_id = diditWorkflowId();
   const res = await diditFetch("/v3/session/", {
     method: "POST",
     body: JSON.stringify({
@@ -182,92 +158,120 @@ export async function listDiditSessionsForVendor(vendorData: string): Promise<Di
   return body.results ?? [];
 }
 
-function shortenFloats(data: unknown): unknown {
-  if (Array.isArray(data)) return data.map(shortenFloats);
-  if (data !== null && typeof data === "object") {
+/** Whole-number floats (1.0) → integers. Matches Didit X-Signature-V2 canonicalisation. */
+export function shortenFloats(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(shortenFloats);
+  if (v && typeof v === "object") {
     return Object.fromEntries(
-      Object.entries(data as Record<string, unknown>).map(([k, v]) => [k, shortenFloats(v)]),
+      Object.entries(v as Record<string, unknown>).map(([k, x]) => [k, shortenFloats(x)]),
     );
   }
-  if (typeof data === "number" && !Number.isInteger(data) && data % 1 === 0) {
-    return Math.trunc(data);
-  }
-  return data;
+  if (typeof v === "number" && !Number.isInteger(v) && v % 1 === 0) return Math.trunc(v);
+  return v;
 }
 
-function sortKeys(obj: unknown): unknown {
-  if (Array.isArray(obj)) return obj.map(sortKeys);
-  if (obj !== null && typeof obj === "object") {
-    return Object.keys(obj as Record<string, unknown>)
+/** Recursive lexicographic key sort (array order preserved). */
+export function sortKeys(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(sortKeys);
+  if (v && typeof v === "object") {
+    return Object.keys(v as object)
       .sort()
-      .reduce<Record<string, unknown>>((acc, key) => {
-        acc[key] = sortKeys((obj as Record<string, unknown>)[key]);
+      .reduce<Record<string, unknown>>((acc, k) => {
+        acc[k] = sortKeys((v as Record<string, unknown>)[k]);
         return acc;
       }, {});
   }
-  return obj;
+  return v;
 }
 
+export function canonicalDiditWebhookBody(jsonBody: unknown): string {
+  return JSON.stringify(sortKeys(shortenFloats(jsonBody)));
+}
+
+function safeHexEqual(expectedHex: string, header: string): boolean {
+  const a = Buffer.from(expectedHex, "utf8");
+  const b = Buffer.from(header, "utf8");
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/**
+ * Verify X-Signature-V2: freshness ≤ 300s → canonicalise → HMAC-SHA256 → constant-time compare.
+ */
 export function verifyDiditWebhook(input: {
   jsonBody: unknown;
-  rawBody: string;
   signatureV2: string | null;
-  signatureRaw: string | null;
-  signatureSimple: string | null;
   timestamp: string | null;
   secret: string;
   nowSec?: number;
 }): boolean {
-  const { jsonBody, rawBody, signatureV2, signatureRaw, signatureSimple, timestamp, secret } = input;
-  if (!secret || !timestamp) return false;
+  const { jsonBody, signatureV2, timestamp, secret } = input;
+  if (!secret || !signatureV2 || !timestamp) return false;
   const now = input.nowSec ?? Math.floor(Date.now() / 1000);
-  const ts = Number.parseInt(timestamp, 10);
+  const ts = Number(timestamp);
   if (!Number.isFinite(ts) || Math.abs(now - ts) > 300) return false;
 
-  const safeEq = (expectedHex: string, header: string) => {
-    const a = Buffer.from(expectedHex, "utf8");
-    const b = Buffer.from(header, "utf8");
-    return a.length === b.length && timingSafeEqual(a, b);
-  };
-  const hmac = (payload: string) => createHmac("sha256", secret).update(payload, "utf8").digest("hex");
-
-  if (signatureV2) {
-    const canonical = JSON.stringify(sortKeys(shortenFloats(jsonBody)));
-    if (safeEq(hmac(canonical), signatureV2)) return true;
-  }
-  if (signatureRaw) {
-    const expected = createHmac("sha256", secret).update(rawBody, "utf8").digest("hex");
-    if (safeEq(expected, signatureRaw)) return true;
-  }
-  if (signatureSimple && jsonBody && typeof jsonBody === "object") {
-    const body = jsonBody as Record<string, unknown>;
-    const nested =
-      body.data && typeof body.data === "object" ? (body.data as Record<string, unknown>) : null;
-    const canonical = [
-      String(body.timestamp ?? ""),
-      String(body.session_id ?? nested?.session_id ?? ""),
-      String(body.status ?? nested?.status ?? ""),
-      String(body.webhook_type ?? body.event ?? ""),
-    ].join(":");
-    if (safeEq(hmac(canonical), signatureSimple)) return true;
-  }
-  return false;
+  const expected = createHmac("sha256", secret)
+    .update(canonicalDiditWebhookBody(jsonBody), "utf8")
+    .digest("hex");
+  return safeHexEqual(expected, signatureV2);
 }
 
 export function extractDiditWebhookSession(payload: unknown): {
+  eventId: string | null;
   sessionId: string | null;
   vendorData: string | null;
   status: string | null;
+  workflowId: string | null;
+  webhookType: string | null;
+  timestamp: number | null;
 } {
   if (!payload || typeof payload !== "object") {
-    return { sessionId: null, vendorData: null, status: null };
+    return {
+      eventId: null,
+      sessionId: null,
+      vendorData: null,
+      status: null,
+      workflowId: null,
+      webhookType: null,
+      timestamp: null,
+    };
   }
   const root = payload as Record<string, unknown>;
-  const data =
-    root.data && typeof root.data === "object" ? (root.data as Record<string, unknown>) : root;
-  return {
-    sessionId: typeof data.session_id === "string" ? data.session_id : null,
-    vendorData: typeof data.vendor_data === "string" ? data.vendor_data : null,
-    status: typeof data.status === "string" ? data.status : null,
+  const nested =
+    root.data && typeof root.data === "object" ? (root.data as Record<string, unknown>) : null;
+  const pickStr = (...vals: unknown[]) => {
+    for (const v of vals) {
+      if (typeof v === "string" && v.trim()) return v;
+    }
+    return null;
   };
+  const tsRaw = root.timestamp;
+  const timestamp =
+    typeof tsRaw === "number" && Number.isFinite(tsRaw)
+      ? tsRaw
+      : typeof tsRaw === "string" && Number.isFinite(Number(tsRaw))
+        ? Number(tsRaw)
+        : null;
+  return {
+    eventId: pickStr(root.event_id),
+    sessionId: pickStr(root.session_id, nested?.session_id),
+    vendorData: pickStr(root.vendor_data, nested?.vendor_data),
+    status: pickStr(root.status, nested?.status),
+    workflowId: pickStr(root.workflow_id, nested?.workflow_id),
+    webhookType: pickStr(root.webhook_type, root.event),
+    timestamp,
+  };
+}
+
+export function diditEventDedupeKey(extracted: {
+  eventId: string | null;
+  sessionId: string | null;
+  webhookType: string | null;
+  timestamp: number | null;
+}): string | null {
+  if (extracted.eventId) return extracted.eventId;
+  if (extracted.sessionId && extracted.webhookType && extracted.timestamp != null) {
+    return `${extracted.sessionId}:${extracted.webhookType}:${extracted.timestamp}`;
+  }
+  return null;
 }

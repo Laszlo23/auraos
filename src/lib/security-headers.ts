@@ -107,6 +107,9 @@ const CSP_DIRECTIVES = [
     "https://*.stripe.com",
     "https://app.fio.net",
     "https://*.fio.net",
+    "https://verify.didit.me",
+    "https://verification.didit.me",
+    "https://*.didit.me",
   ].join(" "),
   [
     "frame-src 'self'",
@@ -121,6 +124,8 @@ const CSP_DIRECTIVES = [
     "https://*.reown.com",
     "https://nowpayments.io",
     "https://*.nowpayments.io",
+    "https://verify.didit.me",
+    "https://*.didit.me",
   ].join(" "),
   [
     "form-action 'self'",

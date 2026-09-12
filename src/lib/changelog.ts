@@ -42,8 +42,9 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     summary:
       "Hosted Didit verification. Status only on our side. Token sale and live Quant need an approved session. The $29 OS seat does not.",
     items: [
-      "Identity → Legal identity starts a Didit session and returns to /identity?kyc=return",
-      "Webhook /api/webhooks/didit (signed) plus refresh-on-return",
+      "POST /api/verify creates the session server-side and returns { url, session_id }",
+      "Identity opens Didit’s in-page SDK after consent; webhook is the decision source of truth",
+      "Webhook verifies X-Signature-V2 + 300s freshness + event_id dedupe",
       "Sale buy panel and live trading stay gated until approved",
     ],
     tags: ["feature"],

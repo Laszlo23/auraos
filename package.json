@@ -41,6 +41,7 @@
     "@account-kit/smart-contracts": "^4.88.4",
     "@ai-sdk/openai": "^4.0.41",
     "@ai-sdk/react": "^4.0.67",
+    "@didit-protocol/sdk-web": "^0.3.1",
     "@lovable.dev/cloud-auth-js": "^1.1.2",
     "@neynar/nodejs-sdk": "^3.177.0",
     "@radix-ui/react-dialog": "^1.1.15",

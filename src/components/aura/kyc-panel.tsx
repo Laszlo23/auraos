@@ -1,26 +1,28 @@
-import { useEffect } from "react";
-import { BadgeCheck, ExternalLink, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BadgeCheck, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Chip, Panel } from "@/components/aura/primitives";
 import { useRefreshKyc, useStartKyc, useKycStatus } from "@/hooks/use-kyc";
-import type { KycStatus } from "@/lib/didit.server";
+import { KYC_STATUS_LABEL, type KycStatus } from "@/lib/kyc-status";
 
-const LABEL: Record<KycStatus, string> = {
-  none: "Not started",
-  not_started: "Link ready",
-  in_progress: "In progress",
-  in_review: "In review",
-  approved: "Approved",
-  declined: "Declined",
-  expired: "Expired",
-  abandoned: "Abandoned",
-};
+async function openDiditVerification(url: string): Promise<"completed" | "cancelled" | "failed"> {
+  const { DiditSdk } = await import("@didit-protocol/sdk-web");
+  return new Promise((resolve) => {
+    DiditSdk.shared.onComplete = (result) => {
+      if (result.type === "completed") resolve("completed");
+      else if (result.type === "cancelled") resolve("cancelled");
+      else resolve("failed");
+    };
+    void DiditSdk.shared.startVerification({ url });
+  });
+}
 
 export function KycPanel() {
   const { data, isLoading } = useKycStatus();
   const start = useStartKyc();
   const refresh = useRefreshKyc();
+  const [consented, setConsented] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -29,7 +31,7 @@ export function KycPanel() {
     refresh.mutate(undefined, {
       onSuccess: (status) => {
         if (status.approved) toast.success("Identity approved.");
-        else toast.message("Verification saved. Status: " + LABEL[status.status]);
+        else toast.message("Verification saved. Status: " + KYC_STATUS_LABEL[status.status]);
       },
       onError: (e) => toast.error(e instanceof Error ? e.message : "Could not refresh KYC."),
     });
@@ -37,7 +39,7 @@ export function KycPanel() {
 
   if (!isLoading && data && !data.configured) return null;
 
-  const status = data?.status ?? "none";
+  const status: KycStatus = data?.status ?? "none";
   const approved = Boolean(data?.approved);
 
   return (
@@ -56,7 +58,7 @@ export function KycPanel() {
                 <BadgeCheck className="h-3 w-3" /> Approved
               </Chip>
             ) : (
-              <Chip tone={status === "declined" ? "gold" : undefined}>{LABEL[status]}</Chip>
+              <Chip tone={status === "declined" ? "gold" : undefined}>{KYC_STATUS_LABEL[status]}</Chip>
             )}
           </div>
           <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
@@ -71,15 +73,55 @@ export function KycPanel() {
               Verified {new Date(data.verifiedAt).toLocaleDateString()}
             </p>
           ) : null}
+          {!approved ? (
+            <label className="mt-3 flex items-start gap-2 text-[12px] leading-relaxed text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={consented}
+                onChange={(e) => setConsented(e.target.checked)}
+                className="mt-0.5 h-3.5 w-3.5 accent-primary"
+              />
+              <span>
+                I agree to verify my identity with Didit. Aura keeps the session status. Didit
+                processes my ID and liveness check.
+              </span>
+            </label>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
             {!approved ? (
               <button
                 type="button"
-                disabled={start.isPending || isLoading}
+                disabled={start.isPending || isLoading || !consented}
                 onClick={() => {
                   start.mutate(undefined, {
-                    onSuccess: (res) => {
-                      window.location.href = res.url;
+                    onSuccess: async (res) => {
+                      try {
+                        const flow = await openDiditVerification(res.url);
+                        if (flow === "cancelled") {
+                          toast.message("Verification closed. You can continue later.");
+                          return;
+                        }
+                        if (flow === "failed") {
+                          toast.error("Verification window failed. Try again.");
+                          return;
+                        }
+                        refresh.mutate(undefined, {
+                          onSuccess: (status) => {
+                            if (status.approved) toast.success("Identity approved.");
+                            else
+                              toast.message(
+                                "Didit finished. Status: " + KYC_STATUS_LABEL[status.status],
+                              );
+                          },
+                          onError: () =>
+                            toast.message(
+                              "Flow finished. Status updates when Didit’s webhook lands.",
+                            ),
+                        });
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Could not open Didit.");
+                        window.location.href = res.url;
+                      }
                     },
                     onError: (e) =>
                       toast.error(e instanceof Error ? e.message : "Could not start verification."),
@@ -87,7 +129,7 @@ export function KycPanel() {
                 }}
                 className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground disabled:opacity-50"
               >
-                {start.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
+                {start.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 {status === "none" ? "Start verification" : "Continue verification"}
               </button>
             ) : null}

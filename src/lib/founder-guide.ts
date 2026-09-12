@@ -224,8 +224,8 @@ export const GUIDE_RULES: LocaleCopy[] = [
     de: "Google-Review-Links sind optional und unbezahlt. Bestätigung im Laden ist das Mint-Tor für Gast-Stempel.",
   },
   {
-    en: "KYC (Didit) is required for the token sale and live trading. The $29 OS seat does not need it. We store status only.",
-    de: "KYC (Didit) ist Pflicht für Token-Sale und Live-Trading. Der 29-$-OS-Sitz braucht das nicht. Wir speichern nur den Status.",
+    en: "KYC (Didit) is required for the token sale and live trading. Start it on /identity after consent. We store status only — Didit’s webhook is the approval.",
+    de: "KYC (Didit) ist Pflicht für Token-Sale und Live-Trading. Start auf /identity nach Einwilligung. Wir speichern nur den Status — Didits Webhook ist die Freigabe.",
   },
 ];
 

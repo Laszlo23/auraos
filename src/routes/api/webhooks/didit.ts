@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { persistKycDecision } from "@/lib/kyc.functions";
+import {
+  alreadyProcessedDiditEvent,
+  markDiditEventProcessed,
+  persistKycDecision,
+} from "@/lib/kyc.functions";
 
 export const Route = createFileRoute("/api/webhooks/didit")({
   server: {
@@ -14,48 +18,56 @@ export const Route = createFileRoute("/api/webhooks/didit")({
         });
       },
       POST: async ({ request }) => {
-        const { diditWebhookSecret, extractDiditWebhookSession, verifyDiditWebhook } =
+        const { diditEventDedupeKey, diditWebhookSecret, extractDiditWebhookSession, verifyDiditWebhook } =
           await import("@/lib/didit.server");
         const secret = diditWebhookSecret();
         if (!secret) {
-          return Response.json({ error: "Webhook not configured" }, { status: 503 });
+          return new Response("not configured", { status: 503 });
         }
 
         const raw = await request.text();
-        let jsonBody: unknown = null;
+        let parsed: unknown = null;
         try {
-          jsonBody = raw.trim() ? JSON.parse(raw) : null;
+          parsed = raw.trim() ? JSON.parse(raw) : null;
         } catch {
-          return Response.json({ error: "invalid json" }, { status: 400 });
+          return new Response("invalid json", { status: 400 });
         }
 
-        const ok = verifyDiditWebhook({
-          jsonBody,
-          rawBody: raw,
-          signatureV2: request.headers.get("x-signature-v2"),
-          signatureRaw: request.headers.get("x-signature"),
-          signatureSimple: request.headers.get("x-signature-simple"),
-          timestamp: request.headers.get("x-timestamp"),
-          secret,
-        });
-        if (!ok) return Response.json({ error: "unauthorized" }, { status: 401 });
+        const sig = request.headers.get("x-signature-v2");
+        const ts = request.headers.get("x-timestamp");
+        if (!verifyDiditWebhook({ jsonBody: parsed, signatureV2: sig, timestamp: ts, secret })) {
+          return new Response("unauthorized", { status: 401 });
+        }
 
-        const extracted = extractDiditWebhookSession(jsonBody);
-        if (extracted.sessionId || extracted.vendorData) {
-          try {
+        const extracted = extractDiditWebhookSession(parsed);
+        const eventKey = diditEventDedupeKey(extracted);
+        if (eventKey && (await alreadyProcessedDiditEvent(eventKey))) {
+          return new Response("ok");
+        }
+
+        try {
+          if (extracted.sessionId || extracted.vendorData) {
             await persistKycDecision({
               userId: extracted.vendorData,
               sessionId: extracted.sessionId,
               vendorData: extracted.vendorData,
               rawStatus: extracted.status,
+              workflowId: extracted.workflowId,
             });
-          } catch (err) {
-            console.error("[didit/webhook] persist failed", err);
-            return Response.json({ error: "persist failed" }, { status: 500 });
           }
+          if (eventKey) {
+            await markDiditEventProcessed({
+              eventId: eventKey,
+              sessionId: extracted.sessionId,
+              status: extracted.status,
+            });
+          }
+        } catch (err) {
+          console.error("[didit/webhook] persist failed", err);
+          return new Response("persist failed", { status: 500 });
         }
 
-        return Response.json({ ok: true });
+        return new Response("ok");
       },
     },
   },

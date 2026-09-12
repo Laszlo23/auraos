@@ -1,6 +1,30 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getKycStatus, refreshKycStatus, startKycSession, type KycView } from "@/lib/kyc.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { getKycStatus, refreshKycStatus, type KycView } from "@/lib/kyc.functions";
+
+async function createVerifySession(): Promise<{ url: string; session_id: string }> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  if (!token) throw new Error("Sign in to verify your identity.");
+  const res = await fetch("/api/verify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({}),
+  });
+  const payload = (await res.json().catch(() => ({}))) as {
+    url?: string;
+    session_id?: string;
+    error?: string;
+  };
+  if (!res.ok || !payload.url || !payload.session_id) {
+    throw new Error(payload.error === "kyc_not_configured" ? "KYC is not configured." : "Could not start verification.");
+  }
+  return { url: payload.url, session_id: payload.session_id };
+}
 
 export function useKycPublicConfig() {
   return useQuery({
@@ -26,7 +50,7 @@ export function useKycStatus(enabled = true) {
 export function useStartKyc() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => startKycSession(),
+    mutationFn: () => createVerifySession(),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["kyc-status"] });
     },

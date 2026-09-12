@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { useKycPublicConfig, useKycStatus } from "@/hooks/use-kyc";
 import { useSupabaseSession } from "@/hooks/use-supabase-session";
+import { KYC_STATUS_LABEL, type KycStatus } from "@/lib/kyc-status";
 
 export function SaleKycGate({ children }: { children: ReactNode }) {
   const config = useKycPublicConfig();
@@ -52,7 +53,8 @@ export function SaleKycGate({ children }: { children: ReactNode }) {
           <ShieldCheck className="h-4 w-4 text-primary" /> Verify before you buy
         </p>
         <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-          Status: {kyc.data?.status ?? "none"}. Open Identity, run Didit, then come back here.
+          Status: {KYC_STATUS_LABEL[(kyc.data?.status ?? "none") as KycStatus]}. Open Identity, run
+          Didit, then come back here.
         </p>
         <Link
           to="/identity"

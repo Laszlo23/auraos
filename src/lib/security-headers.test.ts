@@ -24,6 +24,8 @@ describe("CSP report-only", () => {
     expect(CONTENT_SECURITY_POLICY_REPORT_ONLY).toContain("https://*.supabase.co");
     expect(CONTENT_SECURITY_POLICY_REPORT_ONLY).toContain("https://*.walletconnect.com");
     expect(CONTENT_SECURITY_POLICY_REPORT_ONLY).toContain("https://maps.google.com");
+    expect(CONTENT_SECURITY_POLICY_REPORT_ONLY).toContain("https://verify.didit.me");
+    expect(CONTENT_SECURITY_POLICY_REPORT_ONLY).toContain("https://*.didit.me");
     expect(CONTENT_SECURITY_POLICY_REPORT_ONLY).not.toContain("/0");
     expect(CONTENT_SECURITY_POLICY_REPORT_ONLY).not.toContain("unsafe-eval");
   });

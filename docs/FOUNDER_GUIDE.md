@@ -44,7 +44,7 @@ Atlas reads company name, city, strategy, and knowledge on every turn.
 - You can run the whole OS **without a token or an NFT**. Official AURA CA only on [aibusiness.fun](https://aibusiness.fun) and X `@bihary41418` — never a DM.
 - Nachbar guest points ≠ company AURA ≠ founder progress.
 - Google review links are optional and unpaid. Confirm in-store is the mint gate for guest stamps.
-- **KYC (Didit)** is required for the token sale and live trading. The $29 OS seat does not need it. Start it on `/identity`. We store status only.
+- **KYC (Didit)** is required for the token sale and live trading. The $29 OS seat does not need it. Start it on `/identity` after consent. We store status only — Didit’s webhook is the approval.
 
 ## Also on the site
 

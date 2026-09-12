@@ -99,6 +99,7 @@ import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticated/website'
 import { Route as AuthenticatedX402RouteImport } from './routes/_authenticated/x402'
 import { Route as ApiCeoRouteImport } from './routes/api/ceo'
+import { Route as ApiVerifyRouteImport } from './routes/api/verify'
 import { Route as BSlugRouteImport } from './routes/b.$slug'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -620,6 +621,11 @@ const ApiCeoRoute = ApiCeoRouteImport.update({
   path: '/api/ceo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiVerifyRoute = ApiVerifyRouteImport.update({
+  id: '/api/verify',
+  path: '/api/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BSlugRoute = BSlugRouteImport.update({
   id: '/b/$slug',
   path: '/b/$slug',
@@ -1068,6 +1074,7 @@ export interface FileRoutesByFullPath {
   '/website': typeof AuthenticatedWebsiteRoute
   '/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
+  '/api/verify': typeof ApiVerifyRoute
   '/b/$slug': typeof BSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/c/$slug': typeof CSlugRoute
@@ -1227,6 +1234,7 @@ export interface FileRoutesByTo {
   '/website': typeof AuthenticatedWebsiteRoute
   '/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
+  '/api/verify': typeof ApiVerifyRoute
   '/b/$slug': typeof BSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/c/$slug': typeof CSlugRoute
@@ -1389,6 +1397,7 @@ export interface FileRoutesById {
   '/_authenticated/website': typeof AuthenticatedWebsiteRoute
   '/_authenticated/x402': typeof AuthenticatedX402Route
   '/api/ceo': typeof ApiCeoRoute
+  '/api/verify': typeof ApiVerifyRoute
   '/b/$slug': typeof BSlugRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/c/$slug': typeof CSlugRoute
@@ -1551,6 +1560,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/x402'
     | '/api/ceo'
+    | '/api/verify'
     | '/b/$slug'
     | '/blog/$slug'
     | '/c/$slug'
@@ -1710,6 +1720,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/x402'
     | '/api/ceo'
+    | '/api/verify'
     | '/b/$slug'
     | '/blog/$slug'
     | '/c/$slug'
@@ -1871,6 +1882,7 @@ export interface FileRouteTypes {
     | '/_authenticated/website'
     | '/_authenticated/x402'
     | '/api/ceo'
+    | '/api/verify'
     | '/b/$slug'
     | '/blog/$slug'
     | '/c/$slug'
@@ -1992,6 +2004,7 @@ export interface RootRouteChildren {
   WhitepaperRoute: typeof WhitepaperRoute
   WienRoute: typeof WienRoute
   ApiCeoRoute: typeof ApiCeoRoute
+  ApiVerifyRoute: typeof ApiVerifyRoute
   BSlugRoute: typeof BSlugRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CSlugRoute: typeof CSlugRoute
@@ -2686,6 +2699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCeoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/verify': {
+      id: '/api/verify'
+      path: '/api/verify'
+      fullPath: '/api/verify'
+      preLoaderRoute: typeof ApiVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/b/$slug': {
       id: '/b/$slug'
       path: '/b/$slug'
@@ -3352,6 +3372,7 @@ const rootRouteChildren: RootRouteChildren = {
   WhitepaperRoute: WhitepaperRoute,
   WienRoute: WienRoute,
   ApiCeoRoute: ApiCeoRoute,
+  ApiVerifyRoute: ApiVerifyRoute,
   BSlugRoute: BSlugRoute,
   BlogSlugRoute: BlogSlugRoute,
   CSlugRoute: CSlugRoute,
