@@ -34,8 +34,9 @@ jobs:
         run: npm test
 
       - name: Lint
-        # Prettier-as-error is deferred formatting debt (250+). Real lint still gates.
-        run: npx eslint src --max-warnings 200 --rule "prettier/prettier: off"
+        # Prettier-as-error is deferred formatting debt. Real lint still gates.
+        run: |
+          npx eslint src --max-warnings 200 --rule "prettier/prettier: off"
 
       - name: Typecheck (non-blocking — exactOptionalPropertyTypes debt)
         run: npx tsc --noEmit -p tsconfig.json
