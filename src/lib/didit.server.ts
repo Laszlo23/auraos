@@ -106,6 +106,29 @@ export function diditWorkflowId(): string {
   return DIDIT_WORKFLOW_ID;
 }
 
+export class DiditSessionError extends Error {
+  readonly code: "credits" | "forbidden" | "failed";
+  constructor(code: "credits" | "forbidden" | "failed", message: string) {
+    super(message);
+    this.name = "DiditSessionError";
+    this.code = code;
+  }
+}
+
+export function classifyDiditSessionFailure(status: number, body: string): DiditSessionError {
+  const lower = body.toLowerCase();
+  if (status === 400 && (lower.includes("credit") || lower.includes("top up"))) {
+    return new DiditSessionError(
+      "credits",
+      "Didit has no credits. Top up at https://business.didit.me",
+    );
+  }
+  if (status === 403) {
+    return new DiditSessionError("forbidden", "Didit rejected the API key.");
+  }
+  return new DiditSessionError("failed", `Didit session failed (${status}).`);
+}
+
 export async function createDiditSession(input: {
   vendorData: string;
   callback: string;
@@ -125,7 +148,7 @@ export async function createDiditSession(input: {
   });
   const text = await res.text();
   if (!res.ok) {
-    throw new Error(`Didit session failed (${res.status}): ${text.slice(0, 240)}`);
+    throw classifyDiditSessionFailure(res.status, text);
   }
   const session = JSON.parse(text) as DiditSession;
   if (!session.session_id) throw new Error("Didit returned no session_id.");

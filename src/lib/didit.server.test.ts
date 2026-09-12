@@ -3,6 +3,7 @@ import { createHmac } from "node:crypto";
 
 import { DIDIT_WORKFLOW_ID } from "./didit-workflow";
 import {
+  classifyDiditSessionFailure,
   canonicalDiditWebhookBody,
   diditEventDedupeKey,
   extractDiditWebhookSession,
@@ -16,6 +17,16 @@ describe("Didit workflow id", () => {
     expect(DIDIT_WORKFLOW_ID).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
+  });
+});
+
+describe("Didit session errors", () => {
+  it("maps a credit failure", () => {
+    const err = classifyDiditSessionFailure(
+      400,
+      '{"detail":"You don\'t have enough credits to perform this request."}',
+    );
+    expect(err.code).toBe("credits");
   });
 });
 

@@ -16,7 +16,8 @@ export const Route = createFileRoute("/api/verify")({
         const auth = await requireUserFromRequest(request);
         if (!auth.ok) return auth.response;
 
-        const { createDiditSession, diditConfigured } = await import("@/lib/didit.server");
+        const { DiditSessionError, createDiditSession, diditConfigured } =
+          await import("@/lib/didit.server");
         if (!diditConfigured()) {
           return Response.json({ error: "kyc_not_configured" }, { status: 503 });
         }
@@ -40,7 +41,14 @@ export const Route = createFileRoute("/api/verify")({
 
           return Response.json({ url: session.url, session_id: session.session_id });
         } catch (err) {
-          console.error("[didit/verify] session create failed", err);
+          if (err instanceof DiditSessionError) {
+            console.error("[didit/verify] session create failed", err.code);
+            return Response.json(
+              { error: err.code === "credits" ? "didit_credits" : "session_create_failed" },
+              { status: err.code === "credits" ? 402 : 502 },
+            );
+          }
+          console.error("[didit/verify] session create failed");
           return Response.json({ error: "session_create_failed" }, { status: 502 });
         }
       },

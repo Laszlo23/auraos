@@ -21,7 +21,12 @@ async function createVerifySession(): Promise<{ url: string; session_id: string 
     error?: string;
   };
   if (!res.ok || !payload.url || !payload.session_id) {
-    throw new Error(payload.error === "kyc_not_configured" ? "KYC is not configured." : "Could not start verification.");
+    if (payload.error === "kyc_not_configured") throw new Error("KYC is not configured.");
+    if (payload.error === "didit_credits") {
+      throw new Error("Didit has no credits. Top up at business.didit.me, then try again.");
+    }
+    if (res.status === 401) throw new Error("Sign in again, then start verification.");
+    throw new Error("Could not start verification.");
   }
   return { url: payload.url, session_id: payload.session_id };
 }
