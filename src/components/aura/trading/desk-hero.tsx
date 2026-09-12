@@ -72,13 +72,13 @@ export function DeskHero({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-            Quant Desk
+            Trading desk
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-            AI-powered trading intelligence
+            Aura watches ETH for you
           </h1>
           <p className="mt-1.5 max-w-lg text-[13px] text-muted-foreground">
-            Market → Quant → Position → Risk. Simple outside, powerful underneath.
+            It can open small trades inside your daily cap. Stop anytime.
           </p>
         </div>
 
@@ -86,13 +86,13 @@ export function DeskHero({
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Chip tone={armed ? "gold" : "neutral"}>
               <Pulse tone={armed ? "gold" : "muted"} />
-              {armed ? "ARMED" : "DISARMED"}
+              {armed ? "On" : "Off"}
             </Chip>
             {paper ? (
-              <Chip tone="neutral">PAPER MODE</Chip>
+              <Chip tone="neutral">Practice</Chip>
             ) : (
               <Chip tone="danger">
-                <ShieldAlert className="h-3 w-3" /> LIVE
+                <ShieldAlert className="h-3 w-3" /> Real money
               </Chip>
             )}
           </div>
@@ -126,7 +126,7 @@ export function DeskHero({
                     : "text-muted-foreground",
                 )}
               >
-                {mode}
+                {mode === "paper" ? "Practice" : "Real money"}
               </button>
             );
           })}
@@ -144,7 +144,7 @@ export function DeskHero({
             ) : (
               <Pause className="h-3.5 w-3.5" />
             )}
-            Disarm
+            Stop
           </button>
         ) : (
           <button
@@ -159,7 +159,7 @@ export function DeskHero({
             ) : (
               <Play className="h-3.5 w-3.5" />
             )}
-            Arm Quant
+            Start
           </button>
         )}
       </div>

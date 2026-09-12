@@ -179,6 +179,15 @@ export const GUIDE_DESK: Array<{
     href: "/knowledge",
   },
   {
+    id: "grow",
+    title: { en: "Put money to work", de: "Geld arbeiten lassen" },
+    body: {
+      en: "Three paths: let Aura trade ETH, park USDC to earn, or play a 3-minute call. Practice first. Live trading needs KYC.",
+      de: "Drei Wege: Aura handelt ETH, USDC parken und verdienen, oder 3-Minuten-Tipp. Erst üben. Live-Trading braucht KYC.",
+    },
+    href: "/trading",
+  },
+  {
     id: "report",
     title: { en: "Week in review", de: "Wochenbericht" },
     body: {

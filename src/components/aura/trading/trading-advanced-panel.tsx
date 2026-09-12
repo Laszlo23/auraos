@@ -98,7 +98,7 @@ export function TradingAdvancedPanel({
       {armed ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border/50 bg-foreground/[0.03] px-5 py-3.5">
           <p className="text-[13px] text-muted-foreground">
-            Quant evaluates MA/breakout entries on each tick. Cron runs every ~10m — or run now.
+            Aura checks the market about every 10 minutes — or run a check now.
           </p>
           <button
             type="button"
@@ -106,7 +106,7 @@ export function TradingAdvancedPanel({
             onClick={onRunQuant}
             className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
           >
-            {busy === "quant-tick" ? "Running Quant…" : "Run Quant now"}
+            {busy === "quant-tick" ? "Checking…" : "Check market now"}
           </button>
         </div>
       ) : null}
@@ -116,7 +116,17 @@ export function TradingAdvancedPanel({
         invalidateKeys={[["trading-readiness"], ["trading-arena"]]}
       />
 
-      {companyId ? <YieldDeskPanel companyId={companyId} /> : null}
+      {companyId ? (
+        <details className="rounded-3xl border border-border/50 bg-foreground/[0.02] px-5 py-4">
+          <summary className="cursor-pointer text-[14px] font-semibold tracking-tight">
+            Earn / liquidity (all books)
+          </summary>
+          <p className="mt-2 mb-4 text-[13px] text-muted-foreground">
+            Same earning rails as the simple path, plus autopilots. Most people can ignore this.
+          </p>
+          <YieldDeskPanel companyId={companyId} />
+        </details>
+      ) : null}
 
       {needsKeyBanner ? (
         <div
@@ -124,10 +134,10 @@ export function TradingAdvancedPanel({
           className="flex flex-col gap-3 rounded-3xl border border-primary/35 bg-primary/[0.08] px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <p className="text-sm font-semibold text-primary">Trade session key required next</p>
+            <p className="text-sm font-semibold text-primary">Allow trading next</p>
             <p className="mt-1 text-[13px] text-muted-foreground">
-              Quant still cannot place swaps until you issue a Trade session key — a revocable
-              permission slip, not your seed phrase.
+              Aura still cannot swap until you allow it — a revocable permission slip, not your seed
+              phrase.
             </p>
           </div>
           <button
@@ -136,7 +146,7 @@ export function TradingAdvancedPanel({
             onClick={onIssueKey}
             className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
           >
-            {issuingKey ? "Issuing…" : "Issue Trade key"}
+            {issuingKey ? "Allowing…" : "Allow trading"}
           </button>
         </div>
       ) : null}

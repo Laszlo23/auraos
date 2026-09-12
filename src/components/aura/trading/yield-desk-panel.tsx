@@ -66,7 +66,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
   const paperMut = useMutation({
     mutationFn: (paper: boolean) => setYieldPaperMode({ data: { companyId, paper } }),
     onSuccess: (_data, paper) => {
-      toast.success(paper ? "Paper mode on" : "Live mode — Aave+Aero+Venus+Pancake+GuessMarket");
+      toast.success(paper ? "Practice on" : "Real money on");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -158,8 +158,8 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
 
   if (deskQ.isLoading && !state) {
     return (
-      <Panel label="Yield Desk" glow>
-        <p className="text-[13px] text-muted-foreground">Waking Yield agent…</p>
+      <Panel label="Earn" glow>
+        <p className="text-[13px] text-muted-foreground">Loading earning books…</p>
       </Panel>
     );
   }
@@ -170,23 +170,23 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
 
   return (
     <div className="space-y-5" data-tour="yield-desk">
-      <Panel label="Yield Desk — money that works for money" glow>
+      <Panel label="Earn — park leftover cash" glow>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-xl">
             <p className="text-[15px] font-semibold tracking-tight">
-              Dual-desk OS: Quant turns inventory. Yield parks the rest.
+              Trading spends. This parks what is left so it can earn.
             </p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              Live rails: Aave, Aerodrome+compound, Venus, Pancake, GuessMarket pred LP (Base)
-              (BNB). Other books stay paper until wired — founder-capped either way.
+              Live: interest (Aave, Venus), pools (Aerodrome, Pancake), and one prediction book.
+              Everything else stays practice until we wire it. You set the cap.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Chip tone={state?.yieldPaper ? "gold" : "danger"}>
-              {state?.yieldPaper ? "Paper" : "Live (5 rails)"}
+              {state?.yieldPaper ? "Practice" : "Real money"}
             </Chip>
             <Chip tone={state?.yieldArmed ? "primary" : "neutral"}>
-              {state?.yieldArmed ? "Armed" : "Disarmed"}
+              {state?.yieldArmed ? "On" : "Off"}
             </Chip>
             <Chip tone={TIER_TONES[(state?.maxRiskTier as YieldRiskTier) ?? "balanced"]}>
               {riskTierLabel((state?.maxRiskTier as YieldRiskTier) ?? "balanced")}
@@ -198,10 +198,10 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
 
         <div className="mt-5 grid gap-3 sm:grid-cols-4">
           {[
-            { k: "Budget", v: `$${(state?.maxNotional ?? 0).toFixed(0)}` },
-            { k: "Open", v: `$${(state?.openNotional ?? 0).toFixed(0)}` },
-            { k: "Mark", v: `$${(state?.openMark ?? 0).toFixed(2)}` },
-            { k: "Paper PnL", v: `$${(state?.paperPnl ?? 0).toFixed(4)}` },
+            { k: "Cap", v: `$${(state?.maxNotional ?? 0).toFixed(0)}` },
+            { k: "Working", v: `$${(state?.openNotional ?? 0).toFixed(0)}` },
+            { k: "Now worth", v: `$${(state?.openMark ?? 0).toFixed(2)}` },
+            { k: "Practice P/L", v: `$${(state?.paperPnl ?? 0).toFixed(4)}` },
           ].map((s) => (
             <div
               key={s.k}
@@ -220,7 +220,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
             onClick={() => armMut.mutate(!state?.yieldArmed)}
             className="rounded-xl bg-foreground px-4 py-2 text-[12px] font-semibold text-background"
           >
-            {state?.yieldArmed ? "Disarm Yield" : "Arm Yield"}
+            {state?.yieldArmed ? "Turn off" : "Turn on"}
           </button>
           <button
             type="button"
@@ -228,7 +228,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
             onClick={tryLive}
             className="rounded-xl border border-border/60 px-4 py-2 text-[12px] font-semibold"
           >
-            {state?.yieldPaper ? "Try live mode" : "Back to paper"}
+            {state?.yieldPaper ? "Use real money" : "Back to practice"}
           </button>
           {(["conservative", "balanced", "aggressive", "extreme"] as YieldRiskTier[]).map((t) => (
             <button
@@ -248,10 +248,13 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
         </div>
       </Panel>
 
-      <Panel label="Autopilot engines" glow>
-        <p className="text-[13px] text-muted-foreground">
-          Creative OS automations — Epoch Hunter, Idle Router, IL Thermostat, Compound Cascade, Risk
-          Autopilot. Scan anytime; execute only when armed.
+      <details className="rounded-3xl border border-border/50 bg-foreground/[0.03] px-5 py-4">
+        <summary className="cursor-pointer text-[14px] font-semibold tracking-tight">
+          Autopilots (optional)
+        </summary>
+        <p className="mt-3 text-[13px] text-muted-foreground">
+          Helpers that can move leftover cash, harvest rewards, or lower risk. Scan first. Run only
+          when earning is on.
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -323,7 +326,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-[12px] font-semibold text-primary-foreground disabled:opacity-50"
           >
             <Zap className="h-3.5 w-3.5" />
-            {busy === "run" ? "Running…" : "Execute autopilot"}
+            {busy === "run" ? "Running…" : "Run selected helpers"}
           </button>
         </div>
 
@@ -398,10 +401,16 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
             </table>
           </div>
         ) : null}
-      </Panel>
+      </details>
 
-      <Panel label="Strategy books" glow>
-        <div className="grid gap-3 md:grid-cols-2">
+      <details className="rounded-3xl border border-border/50 bg-foreground/[0.03] px-5 py-4">
+        <summary className="cursor-pointer text-[14px] font-semibold tracking-tight">
+          All earning books
+        </summary>
+        <p className="mt-3 text-[13px] text-muted-foreground">
+          Same rails as the simple Earn path, plus books that are still practice-only.
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
           {catalog.map((c) => (
             <div
               key={c.id}
@@ -416,15 +425,11 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                   <Chip tone={TIER_TONES[c.riskTier]}>{riskTierLabel(c.riskTier)}</Chip>
                   <Chip tone="gold">~{c.targetApyPct}% mid</Chip>
                   <Chip tone={c.liveReady ? "primary" : "neutral"}>
-                    {c.liveReady ? "Live ready" : "Paper"}
+                    {c.liveReady ? "Live" : "Practice"}
                   </Chip>
                 </div>
               </div>
               <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">{c.standOut}</p>
-              <p className="mt-2 text-[10px] text-muted-foreground">
-                {c.chain.toUpperCase()} · {c.protocol} · {c.kind} · band {c.apyBand[0]}–
-                {c.apyBand[1]}%
-              </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <input
                   type="number"
@@ -440,16 +445,16 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                   onClick={() => void onAllocate(c.id)}
                   className="rounded-lg bg-foreground px-3 py-1.5 text-[11px] font-semibold text-background disabled:opacity-40"
                 >
-                  {busy === c.id ? "…" : "Allocate"}
+                  {busy === c.id ? "…" : "Put to work"}
                 </button>
               </div>
             </div>
           ))}
         </div>
-      </Panel>
+      </details>
 
       {openPositions.length ? (
-        <Panel label="Open yield positions">
+        <Panel label="Open positions">
           <div className="space-y-2">
             {openPositions.map((p) => (
               <div
@@ -459,8 +464,8 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                 <div>
                   <p className="text-[13px] font-medium">{p.catalog_id}</p>
                   <p className="text-[11px] text-muted-foreground">
-                    {p.protocol} · {p.paper ? "paper" : "live"} · principal $
-                    {Number(p.principal_usdc).toFixed(2)} · accrued $
+                    {p.protocol} · {p.paper ? "practice" : "real"} · $
+                    {Number(p.principal_usdc).toFixed(2)} in · earned $
                     {Number(p.accrued_usdc).toFixed(4)}
                   </p>
                 </div>
@@ -470,7 +475,7 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
                   onClick={() => void onClose(p.id)}
                   className="rounded-lg border border-border/60 px-3 py-1.5 text-[11px] font-semibold"
                 >
-                  Close
+                  Pull out
                 </button>
               </div>
             ))}

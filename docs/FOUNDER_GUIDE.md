@@ -33,6 +33,7 @@ Atlas reads company name, city, strategy, and knowledge on every turn.
 | Channels | `/channels` | Draft, schedule, drip — Autopublish is opt-in |
 | Lead hunter | `/akquise` | Research + drafts. You send the mail |
 | Knowledge | `/knowledge` | Offers, prices, voice — tomorrow gets sharper |
+| Put money to work | `/trading` | Trade, earn, or play — practice first. Live trading needs KYC |
 | Week in review | `/report` | Public `/w/…` snapshot. Quiet weeks stay honest |
 | Aura Local | `/lokal` | Shops + guests. Different ledger from company AURA |
 

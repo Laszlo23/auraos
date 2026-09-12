@@ -46,16 +46,16 @@ import { clampFounderRiskPct } from "@/lib/trading/risk-policy";
 export const Route = createFileRoute("/_authenticated/trading")({
   head: () => ({
     meta: [
-      { title: "Grow your money — trade, liquidity, or Pulse | Aura OS" },
+      { title: "Put money to work | Aura OS" },
       {
         name: "description",
         content:
-          "Put USDC into an AI trading strategy, earn from liquidity, or play a 3-minute ETH up/down Pulse.",
+          "Let Aura trade ETH, park USDC to earn, or play a 3-minute up/down call. Practice first.",
       },
-      { property: "og:title", content: "Grow your money — Aura OS" },
+      { property: "og:title", content: "Put money to work — Aura OS" },
       {
         property: "og:description",
-        content: "Trade with AI, provide liquidity, or call ETH up/down in 3-minute Pulse rounds.",
+        content: "Three simple paths: trade, earn, or play. Practice first, real money when ready.",
       },
     ],
   }),
@@ -65,13 +65,13 @@ export const Route = createFileRoute("/_authenticated/trading")({
 const TOUR_STOPS = [
   {
     target: "[data-tour='trading-market']",
-    title: "Advanced desk",
-    body: "Charts, risk, and live signals live here when you need them — start from the simple Grow paths first.",
+    title: "Pro desk",
+    body: "Charts and risk live here if you want them. Most people stay on the simple paths.",
   },
   {
     target: "[data-tour='trading-checklist']",
     title: "Get ready",
-    body: "Strategy → allow trading → fund & start. Live fills are on-chain Base swaps.",
+    body: "Pick a style, add USDC, start. Live fills are real Base swaps.",
   },
 ];
 
@@ -246,7 +246,7 @@ function TradingPage() {
       if (opts?.openLab ?? advanced) {
         scrollToLab({ highlight: true });
       }
-      toast.success(`${res.name} is ready — continue with Allow trading & Start.`);
+      toast.success(`${res.name} is ready — tap Start when you want Aura to begin.`);
       await invalidateTrading();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not apply preset");
@@ -256,7 +256,7 @@ function TradingPage() {
   };
 
   const onIssueKey = async () => {
-    if (!company) return;
+    if (!company) return false;
     setIssuingKey(true);
     try {
       await issueAgentSessionKey({
@@ -271,14 +271,25 @@ function TradingPage() {
         },
       });
       pop("Trade key issued", 100, "trading:session");
-      toast.success("Trade session key issued. You can revoke it anytime on Wallet.");
+      toast.success("Trading allowed. Revoke anytime on Wallet.");
       await invalidateTrading();
       void qc.invalidateQueries({ queryKey: ["session-keys"] });
+      return true;
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not issue session key");
+      toast.error(e instanceof Error ? e.message : "Could not allow trading");
+      return false;
     } finally {
       setIssuingKey(false);
     }
+  };
+
+  const onStartSimpleTrade = async () => {
+    if (!company) return;
+    if (!readiness?.hasTradeKey) {
+      const ok = await onIssueKey();
+      if (!ok) return;
+    }
+    await onArm(true);
   };
 
   const onCreate = async () => {
@@ -387,10 +398,10 @@ function TradingPage() {
             `Desk armed · Quant checked ${tick.evald?.checked ?? 0} · ${tick.evald?.signals ?? 0} signal(s) · ${tick.exec?.executed ?? 0} fill(s)`,
           );
         } else {
-          toast.success("Desk armed — Quant can trade inside caps.");
+          toast.success("Trading is on — Aura can trade inside your cap.");
         }
       } else {
-        toast.success("Desk disarmed.");
+        toast.success("Trading stopped.");
       }
       await invalidateTrading();
     } catch (e) {
@@ -448,8 +459,8 @@ function TradingPage() {
       await setTradingPaperMode({ data: { companyId: company.id, paper } });
       toast.success(
         paper
-          ? "Paper mode on — mark fills only, excluded from arena."
-          : "Live mode — real Base swaps when armed.",
+          ? "Practice on — pretend fills only."
+          : "Real money on — Base swaps when you start.",
       );
       await invalidateTrading();
     } catch (e) {
@@ -528,12 +539,12 @@ function TradingPage() {
       <SpotlightTour
         stops={TOUR_STOPS}
         storageKey="aura.trading.setup.tour.v5"
-        ctaLabel="How Grow funds works"
+        ctaLabel="How this works"
         replayLabel="Replay tips"
         autoOpen={onboarding && advanced}
       />
 
-      <FioPayoutNudge context="going live with Grow funds" />
+      <FioPayoutNudge context="turning on real-money trading" />
 
       <GrowFundsHub
         path={growPath}
@@ -548,12 +559,11 @@ function TradingPage() {
         companyId={company?.id ?? null}
         readiness={readiness}
         tradeBusyId={busy}
-        issuingKey={issuingKey}
-        armBusy={busy === "arm"}
+        armBusy={busy === "arm" || issuingKey}
         paperBusy={busy === "paper"}
         onPickStrategy={(id) => void onPreset(id, { openLab: false })}
-        onIssueKey={() => void onIssueKey()}
-        onStartTrade={() => void onArm(true)}
+        onStartTrade={() => void onStartSimpleTrade()}
+        onStopTrade={() => void onArm(false)}
         onPracticeTrade={() => void onPaperMode(true)}
         onRealMoneyTrade={() => void onPaperMode(false)}
         childrenAdvanced={

@@ -11,6 +11,7 @@ import {
 } from "@/components/aura/trading/simple-trade-path";
 import { PulseUpDownPanel } from "@/components/aura/trading/pulse-up-down-panel";
 import type { DeskReadiness } from "@/components/aura/trading/start-checklist";
+import { writeGrowPathQuery } from "@/lib/trading/simple-path";
 import { currency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -29,12 +30,11 @@ export function GrowFundsHub({
   companyId,
   readiness,
   tradeBusyId,
-  issuingKey,
   armBusy,
   paperBusy,
   onPickStrategy,
-  onIssueKey,
   onStartTrade,
+  onStopTrade,
   onPracticeTrade,
   onRealMoneyTrade,
   childrenAdvanced,
@@ -51,12 +51,11 @@ export function GrowFundsHub({
   companyId: string | null;
   readiness: DeskReadiness | undefined;
   tradeBusyId: string | null;
-  issuingKey?: boolean | undefined;
   armBusy?: boolean | undefined;
   paperBusy?: boolean | undefined;
   onPickStrategy: (presetId: SimpleTradePresetId) => void;
-  onIssueKey: () => void;
   onStartTrade: () => void;
+  onStopTrade: () => void;
   onPracticeTrade: () => void;
   onRealMoneyTrade: () => void;
   childrenAdvanced?: ReactNode;
@@ -67,21 +66,26 @@ export function GrowFundsHub({
   const tradeLive = tradeWorkingUsdc > 0 || Boolean(readiness?.armed);
   const liquidityLive = liquidityWorkingUsdc > 0;
 
+  const setPath = (next: GrowPath) => {
+    onPath(next);
+    writeGrowPathQuery(next);
+  };
+
   const nextStep = (() => {
     if (needsFund) {
       return {
         title: "First: add USDC",
-        body: "Deposit USDC (or ETH and convert) on Wallet, then pick a path below.",
+        body: "Open Wallet, deposit USDC (or ETH and convert), then pick a path.",
         cta: { label: "Open Wallet", to: "/wallet" as const },
       };
     }
     if (!path) {
       return {
-        title: "Pick how you want money to grow",
+        title: "Pick one way to put money to work",
         body:
           tradeLive || liquidityLive
-            ? "You already have capital working — open a path to manage it, or start the other one."
-            : "Trade with AI, earn from liquidity, or call ETH on Pulse. Paper first — live USDC after you fund Wallet.",
+            ? "You already have money working — open a path to manage it."
+            : "Let Aura trade, park cash to earn, or play a 3-minute ETH call.",
         cta: null,
       };
     }
@@ -91,22 +95,22 @@ export function GrowFundsHub({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Capital"
-        title="Grow your money"
-        description="Trade, earn liquidity, or play a quick 3-minute Pulse. Pick one path — Aura handles the rest."
+        eyebrow="Money"
+        title="Put money to work"
+        description="Three simple paths. Pick one. Aura handles the rest."
         actions={
           <button
             type="button"
             onClick={() => onAdvanced(!advanced)}
             className={cn(
-              "inline-flex items-center gap-2 rounded-2xl px-3.5 py-2 text-[12px] font-semibold transition-colors",
+              "inline-flex items-center gap-1.5 text-[12px] font-medium transition-colors",
               advanced
-                ? "bg-foreground/10 text-foreground"
-                : "bg-foreground/6 text-muted-foreground hover:text-foreground",
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             <Settings2 className="h-3.5 w-3.5" />
-            {advanced ? "Simple view" : "Advanced"}
+            {advanced ? "Simple view" : "Pro desk"}
           </button>
         }
       />
@@ -116,11 +120,11 @@ export function GrowFundsHub({
           {totalWorking > 0 ? (
             <>
               <span className="font-semibold text-foreground">{currency(totalWorking, 2)}</span> is
-              working right now (still yours — in Aave / pools / trades, not vanished)
+              working (still yours — in a trade, loan, or pool)
               {totalResult !== 0 ? (
                 <>
                   {" "}
-                  · result so far{" "}
+                  · so far{" "}
                   <span
                     className={cn(
                       "font-mono font-semibold",
@@ -132,44 +136,38 @@ export function GrowFundsHub({
                   </span>
                 </>
               ) : null}
-              . See the full map anytime on{" "}
+              . Full map on{" "}
               <Link
                 to="/wallet"
                 className="font-semibold text-primary underline-offset-2 hover:underline"
               >
-                Wallet → Grow
+                Wallet
               </Link>
               .
             </>
           ) : (
             <>
-              Free to deploy:{" "}
+              Ready to use:{" "}
               <span className="font-mono font-semibold text-foreground">
                 {currency(availableUsdc, 2)} USDC
               </span>
-              . Put it into trading, liquidity, or a quick Pulse below.
+              .
             </>
           )}
         </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-3">
           {[
-            { k: "Available", v: availableUsdc, hint: "Ready to deploy", hot: needsFund },
+            { k: "Ready", v: availableUsdc, hint: "In your wallet", hot: needsFund },
             {
-              k: "In trading",
-              v: tradeWorkingUsdc,
-              hint: tradeLive ? "Strategy active" : "No open trades",
-              hot: tradeLive,
+              k: "Working",
+              v: totalWorking,
+              hint: tradeLive || liquidityLive ? "In a trade or earning" : "Nothing deployed yet",
+              hot: totalWorking > 0,
             },
             {
-              k: "In liquidity",
-              v: liquidityWorkingUsdc,
-              hint: liquidityLive ? "Earning now" : "No positions",
-              hot: liquidityLive,
-            },
-            {
-              k: "Result so far",
+              k: "Result",
               v: totalResult,
-              hint: totalWorking > 0 ? "Combined PnL / yield" : "Shows after money works",
+              hint: totalWorking > 0 ? "Profit, loss, or interest so far" : "Shows once money works",
               hot: totalResult !== 0,
             },
           ].map((s) => (
@@ -186,8 +184,8 @@ export function GrowFundsHub({
               <p
                 className={cn(
                   "mt-1 font-mono text-[20px] font-semibold tabular-nums",
-                  s.k === "Result so far" && totalResult > 0 && "text-primary",
-                  s.k === "Result so far" && totalResult < 0 && "text-destructive",
+                  s.k === "Result" && totalResult > 0 && "text-primary",
+                  s.k === "Result" && totalResult < 0 && "text-destructive",
                 )}
               >
                 {currency(s.v, 2)}
@@ -228,36 +226,36 @@ export function GrowFundsHub({
             {(!path || path === "trade") && (
               <PathCard
                 active={path === "trade"}
-                onClick={() => onPath(path === "trade" ? null : "trade")}
+                onClick={() => setPath(path === "trade" ? null : "trade")}
                 icon={<LineChart className="h-6 w-6" />}
-                title="Trade with AI"
-                body="Aura opens and closes trades for you — or follows smart money. Growth = trade profit/loss."
-                cta="Start trading"
-                badge={tradeLive ? "Working" : availableUsdc >= 5 ? "Recommended" : null}
+                title="Let Aura trade"
+                body="Aura buys and sells ETH for you. You can win or lose."
+                cta="Start"
+                badge={tradeLive ? "On" : availableUsdc >= 5 ? "Popular" : null}
                 compact={path === "trade"}
               />
             )}
             {(!path || path === "liquidity") && (
               <PathCard
                 active={path === "liquidity"}
-                onClick={() => onPath(path === "liquidity" ? null : "liquidity")}
+                onClick={() => setPath(path === "liquidity" ? null : "liquidity")}
                 icon={<Droplets className="h-6 w-6" />}
-                title="Provide liquidity"
-                body="Park USDC in lending or pools. Growth = interest and trading fees over time."
-                cta="Start earning"
-                badge={liquidityLive ? "Working" : null}
+                title="Earn interest"
+                body="Park USDC. You earn when others borrow or trade."
+                cta="Start"
+                badge={liquidityLive ? "On" : null}
                 compact={path === "liquidity"}
               />
             )}
             {(!path || path === "pulse") && (
               <PathCard
                 active={path === "pulse"}
-                onClick={() => onPath(path === "pulse" ? null : "pulse")}
+                onClick={() => setPath(path === "pulse" ? null : "pulse")}
                 icon={<Timer className="h-6 w-6" />}
-                title="Pulse · 3 min"
-                body="Call ETH up or down every 3 minutes. Fast rounds, clear payout — play with a demo bankroll."
-                cta="Play Pulse"
-                badge="New"
+                title="Play 3 minutes"
+                body="Call ETH up or down. Demo money — a game, not a job."
+                cta="Play"
+                badge="Game"
                 compact={path === "pulse"}
               />
             )}
@@ -266,10 +264,10 @@ export function GrowFundsHub({
           {path ? (
             <button
               type="button"
-              onClick={() => onPath(null)}
+              onClick={() => setPath(null)}
               className="text-[12px] font-medium text-muted-foreground hover:text-foreground"
             >
-              ← Choose a different path
+              ← All paths
             </button>
           ) : null}
 
@@ -282,12 +280,11 @@ export function GrowFundsHub({
               <SimpleTradePath
                 readiness={readiness}
                 busyId={tradeBusyId}
-                issuingKey={issuingKey}
                 armBusy={armBusy}
                 paperBusy={paperBusy}
                 onPickStrategy={onPickStrategy}
-                onIssueKey={onIssueKey}
                 onStart={onStartTrade}
+                onStop={onStopTrade}
                 onPracticeMode={onPracticeTrade}
                 onRealMoney={onRealMoneyTrade}
               />
@@ -305,10 +302,8 @@ export function GrowFundsHub({
           ) : null}
 
           {path === "liquidity" && !companyId ? (
-            <Panel label="Provide liquidity">
-              <p className="text-[13px] text-muted-foreground">
-                Finish onboarding to unlock this path.
-              </p>
+            <Panel label="Earn">
+              <p className="text-[13px] text-muted-foreground">Finish setup to unlock this path.</p>
             </Panel>
           ) : null}
 
@@ -323,10 +318,8 @@ export function GrowFundsHub({
           ) : null}
 
           {path === "pulse" && !companyId ? (
-            <Panel label="Pulse">
-              <p className="text-[13px] text-muted-foreground">
-                Finish onboarding to unlock Pulse.
-              </p>
+            <Panel label="Play">
+              <p className="text-[13px] text-muted-foreground">Finish setup to unlock Pulse.</p>
             </Panel>
           ) : null}
         </>
@@ -384,16 +377,19 @@ function PathCard({
           >
             {title}
           </h2>
-          {badge ? <Chip tone={badge === "Working" ? "primary" : "gold"}>{badge}</Chip> : null}
+          {badge ? <Chip tone={badge === "On" ? "primary" : "gold"}>{badge}</Chip> : null}
         </div>
-        {!compact ? (
-          <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
-        ) : (
-          <p className="mt-0.5 text-[12px] text-muted-foreground">{body}</p>
-        )}
+        <p
+          className={cn(
+            "text-muted-foreground",
+            compact ? "mt-0.5 text-[12px]" : "mt-2 text-[13px] leading-relaxed",
+          )}
+        >
+          {body}
+        </p>
         {!compact ? (
           <span className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary">
-            {active ? "Selected — continue below" : cta}
+            {active ? "Continue below" : cta}
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>
         ) : null}

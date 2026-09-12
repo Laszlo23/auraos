@@ -62,19 +62,19 @@ export function TradingSetup({
 
   const steps = [
     { id: "strategy" as const, label: "Pick a strategy", done: hasStrategy },
-    { id: "key" as const, label: "Trade session key", done: Boolean(r?.hasTradeKey) },
+    { id: "key" as const, label: "Allow trading", done: Boolean(r?.hasTradeKey) },
     {
       id: "go-live" as const,
-      label: "Fund & arm",
+      label: "Fund & start",
       done: Boolean(r?.armed),
     },
   ];
 
   return (
-    <Panel label="Get Quant ready" glow data-tour="trading-checklist" className="overflow-hidden">
+    <Panel label="Get trading ready" glow data-tour="trading-checklist" className="overflow-hidden">
       <p className="text-[13px] leading-relaxed text-muted-foreground">
-        Three steps to put money to work: pick a strategy, allow trading, then fund & start. Live
-        fills are real Base swaps — use Practice mode first if you want.
+        Pick a style, allow Aura to trade, then add USDC and start. Live fills are real Base swaps —
+        use Practice first if you want.
       </p>
 
       <ol className="mt-5 flex flex-wrap gap-2">
@@ -150,13 +150,12 @@ export function TradingSetup({
             <div>
               <Chip tone="primary">Step 2 · required</Chip>
               <h3 className="mt-3 text-lg font-semibold tracking-tight">
-                Issue a Trade session key
+                Allow Aura to trade
               </h3>
               <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-                This is a <span className="font-semibold text-foreground">permission slip</span> for
-                Quant — not your seed phrase. It lets the agent place capped on-chain swaps on Base
-                through your smart wallet. You can revoke it anytime on Wallet. Without this key,
-                Arm stays locked.
+                This is a <span className="font-semibold text-foreground">permission slip</span> —
+                not your seed phrase. Aura can only spend inside your daily cap. Revoke anytime on
+                Wallet.
               </p>
             </div>
             <KeyRound className="h-8 w-8 shrink-0 text-primary" />
@@ -164,7 +163,7 @@ export function TradingSetup({
           <ul className="mt-4 space-y-1.5 text-[12px] text-muted-foreground">
             <li>· Spend stays inside your daily USDC cap</li>
             <li>· Only Trade actions — not withdrawals to random addresses</li>
-            <li>· Revoke = Quant stops immediately</li>
+            <li>· Revoke = Aura stops immediately</li>
           </ul>
           <div className="mt-5 flex flex-wrap gap-2">
             <button
@@ -181,7 +180,7 @@ export function TradingSetup({
               ) : (
                 <>
                   <KeyRound className="h-4 w-4" />
-                  Issue Trade session key
+                  Allow trading
                 </>
               )}
             </button>
@@ -201,14 +200,13 @@ export function TradingSetup({
       {phase === "go-live" ? (
         <div className="mt-6 rounded-2xl border border-border/60 bg-foreground/[0.03] p-5">
           <Chip tone="gold">Step 3 · on-chain</Chip>
-          <h3 className="mt-3 text-lg font-semibold tracking-tight">Fund the wallet, then arm</h3>
+          <h3 className="mt-3 text-lg font-semibold tracking-tight">Add USDC, then start</h3>
           <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-            When armed, Quant executes fully on Base — real DEX swaps from your smart wallet.
-            Deposit <span className="font-semibold text-foreground">USDC</span> for size, or deposit{" "}
-            <span className="font-semibold text-foreground">ETH</span> and convert to USDC in Wallet
-            (OKX). Keep a little ETH for gas unless sponsorship is on. Prefer{" "}
-            <span className="font-semibold text-foreground">Paper</span> first if you want simulated
-            fills — paper never scores in the arena.
+            When you start, Aura can swap on Base from your wallet. Deposit{" "}
+            <span className="font-semibold text-foreground">USDC</span>, or deposit{" "}
+            <span className="font-semibold text-foreground">ETH</span> and convert on Wallet. Keep a
+            little ETH for gas. Prefer <span className="font-semibold text-foreground">Practice</span>{" "}
+            first if you want pretend fills.
           </p>
           <div className="mt-4 grid gap-2 text-[12px]">
             <p className={cn(r?.funded ? "text-gold" : "text-muted-foreground")}>
@@ -243,7 +241,7 @@ export function TradingSetup({
                 onClick={onEnablePaper}
                 className="rounded-2xl bg-foreground/8 px-4 py-3.5 text-sm font-semibold disabled:opacity-50"
               >
-                {paperBusy ? "Switching…" : "Switch to Paper first"}
+                {paperBusy ? "Switching…" : "Practice first"}
               </button>
             ) : null}
             <button
@@ -258,7 +256,7 @@ export function TradingSetup({
               ) : (
                 <Play className="h-4 w-4" />
               )}
-              Arm Quant
+              Start trading
             </button>
           </div>
           {!r?.canArm && r?.blockReason ? (
@@ -269,9 +267,9 @@ export function TradingSetup({
 
       {phase === "done" ? (
         <div className="mt-6 rounded-2xl border border-gold/20 bg-gold/[0.05] p-5">
-          <p className="text-sm font-semibold text-gold">Quant is armed</p>
+          <p className="text-sm font-semibold text-gold">Trading is on</p>
           <p className="mt-1 text-[13px] text-muted-foreground">
-            Caps and Disarm are your kill switch. Revisit the lab anytime to re-check strategies.
+            Caps and Stop are your kill switch. Revisit the lab anytime to re-check a style.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {onReviewBacktest ? (

@@ -1099,7 +1099,7 @@ export const en: MessageTree = {
       },
       trading: {
         title: "Trading",
-        blurb: "Grow funds with AI trading and liquidity work.",
+        blurb: "Let Aura trade, park USDC to earn, or play a 3-minute call.",
       },
       liquidity: {
         title: "Liquidity & funds",
@@ -1242,9 +1242,9 @@ export const en: MessageTree = {
     },
     products: { label: "Products", hint: "Things your company sells" },
     trading: {
-      label: "Grow funds",
-      plain: "Grow",
-      hint: "Trade with AI or provide liquidity",
+      label: "Put money to work",
+      plain: "Money",
+      hint: "Trade, earn, or play — three simple paths",
     },
     wallet: {
       label: "Wallet",

@@ -1104,7 +1104,7 @@ export const de: MessageTree = {
       },
       trading: {
         title: "Trading",
-        blurb: "Kapital wachsen mit KI-Trading und Liquidity.",
+        blurb: "Aura handelt, USDC parken und verdienen, oder 3-Minuten-Tipp.",
       },
       liquidity: {
         title: "Liquidität & Funds",
@@ -1246,9 +1246,9 @@ export const de: MessageTree = {
     },
     products: { label: "Produkte", hint: "Was deine Firma verkauft" },
     trading: {
-      label: "Kapital wachsen",
-      plain: "Grow",
-      hint: "Mit KI handeln oder Liquidität stellen",
+      label: "Geld arbeiten lassen",
+      plain: "Geld",
+      hint: "Handeln, verdienen oder spielen — drei einfache Wege",
     },
     wallet: {
       label: "Wallet",

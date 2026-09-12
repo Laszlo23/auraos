@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-trading-simple",
+    date: "2026-09-12",
+    title: "Trading that anyone can start — pick a path, tap Start",
+    summary:
+      "Grow funds is now Put money to work: three plain paths. Trading is two steps. Earning starts with one interest book. Session keys stay under the hood.",
+    items: [
+      "Let Aura trade: pick a style, then Start — we allow trading for you",
+      "Earn interest: park USDC in one recommended book; other rails stay under Other ways",
+      "Play 3 minutes stays a demo game, not a job",
+      "Pro desk (charts, all books, autopilots) is one quiet link",
+    ],
+    tags: ["improvement"],
+  },
+  {
     id: "2026-09-12-sale-quest-locale",
     date: "2026-09-12",
     title: "Sale page that sticks to your language — four moves to buy",

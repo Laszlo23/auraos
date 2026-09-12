@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Chip, Panel } from "@/components/aura/primitives";
 import { FioPayoutNudge } from "@/components/aura/fio-payout-nudge";
+import { MoneyModeToggle } from "@/components/aura/trading/money-mode-toggle";
 import { YIELD_CATALOG, type YieldRiskTier } from "@/lib/defi/catalog";
 import {
   allocateYield,
@@ -14,7 +15,6 @@ import {
   getYieldDeskState,
   setYieldDeskArmed,
   setYieldPaperMode,
-  updateYieldRisk,
 } from "@/lib/defi/yield.functions";
 import { confirmFioOrContinue, useFioReady } from "@/hooks/use-fio-ready";
 import { cn } from "@/lib/utils";
@@ -36,30 +36,31 @@ type YieldDeskSnapshot = {
   }>;
 };
 
-const SIMPLE_BOOKS = [
+const BOOKS = [
   {
     id: "base_aave_usdc",
     title: "Earn interest",
     Icon: PiggyBank,
-    plainHow: "Your USDC is lent out. Borrowers pay interest — that is your return.",
+    plainHow: "Your USDC is lent out. Borrowers pay you. Slow and simple.",
     recommend: true,
   },
   {
     id: "base_aero_usdc_weth_lp",
-    title: "Provide pool liquidity",
+    title: "Help a trading pool",
     Icon: Droplets,
-    plainHow:
-      "You add capital to a trading pool. Traders pay fees; you earn a share. Value can move vs holding (impermanent loss).",
+    plainHow: "You add money to a pool. Traders pay fees. Value can move vs just holding.",
     recommend: false,
   },
   {
     id: "bsc_venus_usdc",
     title: "Earn interest (BNB)",
     Icon: Landmark,
-    plainHow: "Same as lending on Base — park USDC on BNB Chain for borrow interest.",
+    plainHow: "Same idea as lending, on BNB Chain.",
     recommend: false,
   },
 ] as const;
+
+const CHIPS = [25, 50, 100] as const;
 
 export function SimpleLiquidityPath({
   companyId,
@@ -70,9 +71,10 @@ export function SimpleLiquidityPath({
 }) {
   const qc = useQueryClient();
   const fio = useFioReady();
-  const [amountById, setAmountById] = useState<Record<string, string>>({});
+  const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [showMore, setShowMore] = useState(false);
+  const [picked, setPicked] = useState<string>("base_aave_usdc");
 
   const deskQ = useQuery({
     queryKey: ["yield-desk", companyId],
@@ -91,12 +93,15 @@ export function SimpleLiquidityPath({
   );
 
   const books = useMemo(() => {
-    return SIMPLE_BOOKS.flatMap((b) => {
+    return BOOKS.flatMap((b) => {
       const cat = YIELD_CATALOG.find((c) => c.id === b.id);
       if (!cat || !allowed.has(b.id)) return [];
       return [{ ...b, cat }];
     });
   }, [allowed]);
+
+  const featured = books.find((b) => b.id === picked) ?? books[0];
+  const extra = books.filter((b) => b.id !== featured?.id);
 
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["yield-desk", companyId] });
@@ -106,7 +111,7 @@ export function SimpleLiquidityPath({
   const paperMut = useMutation({
     mutationFn: (paper: boolean) => setYieldPaperMode({ data: { companyId, paper } }),
     onSuccess: (_d, paper) => {
-      toast.success(paper ? "Practice mode on" : "Real money mode");
+      toast.success(paper ? "Practice on — no real USDC moves" : "Real money on");
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -117,7 +122,7 @@ export function SimpleLiquidityPath({
       !confirmFioOrContinue(
         fio.ready,
         "yield-live",
-        "Real money mode moves USDC on-chain. Attest a FIO handle first for a clear receive identity.",
+        "Real money moves USDC on-chain. Set a FIO name on Identity first so people can send to you by name.",
       )
     ) {
       toast.message("Set up FIO on Identity first", {
@@ -128,30 +133,21 @@ export function SimpleLiquidityPath({
     paperMut.mutate(false);
   };
 
-  async function setTier(maxRiskTier: YieldRiskTier) {
-    try {
-      await updateYieldRisk({ data: { companyId, maxRiskTier } });
-      toast.success(maxRiskTier === "conservative" ? "Safer ceiling" : "Balanced ceiling");
-      refresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not update risk");
-    }
-  }
-
-  async function onPutToWork(catalogId: string) {
-    const raw = amountById[catalogId] ?? "50";
+  async function onPutToWork() {
+    if (!featured) return;
+    const raw = amount || String(Math.min(50, Math.max(featured.cat.minUsdc, 25)));
     const amountUsdc = Number(raw);
     if (!Number.isFinite(amountUsdc) || amountUsdc <= 0) {
       toast.error("Enter an amount in USDC");
       return;
     }
-    setBusy(catalogId);
+    setBusy(featured.id);
     try {
       if (!state?.yieldArmed) {
         await setYieldDeskArmed({ data: { companyId, armed: true } });
       }
-      await allocateYield({ data: { companyId, catalogId, amountUsdc } });
-      toast.success("Money is at work");
+      await allocateYield({ data: { companyId, catalogId: featured.id, amountUsdc } });
+      toast.success("Money is earning");
       refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not put money to work");
@@ -175,15 +171,22 @@ export function SimpleLiquidityPath({
 
   if (deskQ.isLoading && !state) {
     return (
-      <Panel label="Provide liquidity">
+      <Panel label="Earn">
         <p className="text-[13px] text-muted-foreground">Loading…</p>
       </Panel>
     );
   }
 
   const openPositions = (state?.positions ?? []).filter((p) => p.status === "open");
-  const tier = (state?.maxRiskTier as YieldRiskTier) ?? "balanced";
   const needsFund = availableUsdc < 1 && openPositions.length === 0;
+  const defaultAmt = featured
+    ? Math.min(
+        Math.max(featured.cat.minUsdc, 50),
+        availableUsdc > 0 ? Math.floor(availableUsdc) : 50,
+      )
+    : 50;
+  const amt = amount || String(defaultAmt);
+  const [lo, hi] = featured?.cat.apyBand ?? [0, 0];
 
   return (
     <div className="space-y-5">
@@ -191,7 +194,7 @@ export function SimpleLiquidityPath({
         <Panel label="Money is earning" glow>
           <ul className="space-y-3">
             {openPositions.map((p) => {
-              const book = SIMPLE_BOOKS.find((b) => b.id === p.catalog_id);
+              const book = BOOKS.find((b) => b.id === p.catalog_id);
               const cat = YIELD_CATALOG.find((c) => c.id === p.catalog_id);
               return (
                 <li
@@ -203,7 +206,7 @@ export function SimpleLiquidityPath({
                       {book?.title ?? cat?.name ?? p.catalog_id}
                     </p>
                     <p className="mt-0.5 font-mono text-[12px] text-muted-foreground">
-                      ${(p.principal_usdc ?? 0).toFixed(2)} in · mark $
+                      ${(p.principal_usdc ?? 0).toFixed(2)} in · now $
                       {(p.mark_usdc ?? p.principal_usdc ?? 0).toFixed(2)}
                       {typeof p.accrued_usdc === "number"
                         ? ` · earned $${p.accrued_usdc.toFixed(4)}`
@@ -225,140 +228,133 @@ export function SimpleLiquidityPath({
         </Panel>
       ) : null}
 
-      <Panel label="How this grows your money" glow>
-        <p className="text-[14px] leading-relaxed text-muted-foreground">
-          Enter an amount and put it to work. You earn interest (lending) or fees (pools). Returns
-          vary — not a promise.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            disabled={paperMut.isPending || Boolean(state?.yieldPaper)}
-            onClick={() => paperMut.mutate(true)}
-            className={cn(
-              "rounded-2xl px-3 py-1.5 text-[11px] font-semibold disabled:opacity-50",
-              state?.yieldPaper ? "bg-gold/16 text-gold" : "bg-foreground/6 text-muted-foreground",
-            )}
-          >
-            Practice
-          </button>
-          <button
-            type="button"
-            disabled={paperMut.isPending || !state?.yieldPaper}
-            onClick={goRealMoney}
-            className={cn(
-              "rounded-2xl px-3 py-1.5 text-[11px] font-semibold disabled:opacity-50",
-              !state?.yieldPaper
-                ? "bg-primary/14 text-primary"
-                : "bg-foreground/6 text-muted-foreground",
-            )}
-          >
-            Real money
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowMore((v) => !v)}
-            className="rounded-2xl px-3 py-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground"
-          >
-            {showMore ? "Hide risk" : "Risk settings"}
-          </button>
-        </div>
-        <FioPayoutNudge context="turning on real money liquidity" className="mt-3" />
-        {showMore ? (
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => void setTier("conservative")}
-              className={cn(
-                "rounded-2xl px-3.5 py-2 text-[12px] font-semibold",
-                tier === "conservative"
-                  ? "bg-gold/16 text-gold"
-                  : "bg-foreground/6 text-muted-foreground",
-              )}
-            >
-              Safer
-            </button>
-            <button
-              type="button"
-              onClick={() => void setTier("balanced")}
-              className={cn(
-                "rounded-2xl px-3.5 py-2 text-[12px] font-semibold",
-                tier !== "conservative"
-                  ? "bg-primary/14 text-primary"
-                  : "bg-foreground/6 text-muted-foreground",
-              )}
-            >
-              Balanced
-            </button>
-          </div>
-        ) : null}
-        {needsFund ? (
-          <p className="mt-4 text-[13px] text-gold">
-            No USDC yet —{" "}
-            <Link to="/wallet" className="font-semibold underline-offset-2 hover:underline">
-              fund your wallet
-            </Link>{" "}
-            first.
-          </p>
-        ) : (
-          <p className="mt-4 text-[12px] text-muted-foreground">
-            Available to deploy:{" "}
-            <span className="font-mono text-foreground">${availableUsdc.toFixed(2)}</span>
-          </p>
-        )}
-      </Panel>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        {books.map((b) => {
-          const [lo, hi] = b.cat.apyBand;
-          const defaultAmt = Math.min(
-            Math.max(b.cat.minUsdc, 50),
-            availableUsdc > 0 ? Math.floor(availableUsdc) : 50,
-          );
-          const amt = amountById[b.id] ?? String(defaultAmt);
-          const isBusy = busy === b.id;
-          return (
-            <Panel key={b.id} label={b.title} glow={b.recommend || b.cat.liveReady}>
-              <div className="flex items-start justify-between gap-2">
-                <b.Icon className="h-5 w-5 text-primary" />
-                <div className="flex flex-wrap gap-1">
-                  {b.recommend ? <Chip tone="gold">Start here</Chip> : null}
-                  <Chip tone={b.cat.liveReady ? "primary" : "neutral"}>
-                    {b.cat.liveReady ? "Live" : "Practice"}
-                  </Chip>
-                </div>
+      {featured ? (
+        <Panel label="Park USDC and earn" glow>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-2">
+                <featured.Icon className="h-5 w-5 text-primary" />
+                <p className="text-[15px] font-semibold tracking-tight">{featured.title}</p>
+                {featured.recommend ? <Chip tone="gold">Start here</Chip> : null}
               </div>
-              <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">{b.plainHow}</p>
-              <p className="mt-3 text-[11px] text-muted-foreground">
-                Typical{" "}
+              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                {featured.plainHow} Typical{" "}
                 <span className="font-mono text-foreground">
                   {lo}–{hi}%
                 </span>{" "}
-                / year (illustrative)
+                / year — not a promise.
               </p>
-              <label className="mt-4 block text-[11px] text-muted-foreground">
-                Amount (USDC)
-                <input
-                  type="number"
-                  min={b.cat.minUsdc}
-                  value={amt}
-                  onChange={(e) => setAmountById((prev) => ({ ...prev, [b.id]: e.target.value }))}
-                  className="mt-1.5 w-full rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-sm outline-none"
-                />
-              </label>
+            </div>
+            <MoneyModeToggle
+              practice={Boolean(state?.yieldPaper)}
+              busy={paperMut.isPending}
+              onPractice={() => paperMut.mutate(true)}
+              onReal={goRealMoney}
+            />
+          </div>
+          <FioPayoutNudge context="turning on real money earning" className="mt-3" />
+
+          {needsFund ? (
+            <p className="mt-4 text-[13px] text-gold">
+              No USDC yet —{" "}
+              <Link to="/wallet" className="font-semibold underline-offset-2 hover:underline">
+                add some on Wallet
+              </Link>{" "}
+              first.
+            </p>
+          ) : (
+            <p className="mt-4 text-[12px] text-muted-foreground">
+              Available:{" "}
+              <span className="font-mono text-foreground">${availableUsdc.toFixed(2)}</span>
+            </p>
+          )}
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {CHIPS.map((n) => (
+              <button
+                key={n}
+                type="button"
+                disabled={needsFund || (availableUsdc > 0 && n > availableUsdc)}
+                onClick={() => setAmount(String(n))}
+                className={cn(
+                  "rounded-2xl px-3 py-1.5 text-[12px] font-semibold disabled:opacity-40",
+                  amt === String(n)
+                    ? "bg-primary/14 text-primary"
+                    : "bg-foreground/6 text-muted-foreground",
+                )}
+              >
+                ${n}
+              </button>
+            ))}
+            {availableUsdc >= 1 ? (
               <button
                 type="button"
-                disabled={isBusy || needsFund}
-                onClick={() => void onPutToWork(b.id)}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                onClick={() => setAmount(String(Math.floor(availableUsdc)))}
+                className={cn(
+                  "rounded-2xl px-3 py-1.5 text-[12px] font-semibold",
+                  Number(amt) === Math.floor(availableUsdc)
+                    ? "bg-primary/14 text-primary"
+                    : "bg-foreground/6 text-muted-foreground",
+                )}
               >
-                {isBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                {isBusy ? "Working…" : "Put money to work"}
+                All
               </button>
-            </Panel>
-          );
-        })}
-      </div>
+            ) : null}
+          </div>
+
+          <label className="mt-3 block text-[11px] text-muted-foreground">
+            Amount (USDC)
+            <input
+              type="number"
+              min={featured.cat.minUsdc}
+              value={amt}
+              onChange={(e) => setAmount(e.target.value)}
+              className="mt-1.5 w-full max-w-xs rounded-2xl bg-foreground/6 px-3.5 py-2.5 text-sm outline-none"
+            />
+          </label>
+
+          <button
+            type="button"
+            disabled={busy === featured.id || needsFund}
+            onClick={() => void onPutToWork()}
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+          >
+            {busy === featured.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+            {busy === featured.id ? "Working…" : "Put money to work"}
+          </button>
+        </Panel>
+      ) : null}
+
+      {extra.length ? (
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowMore((v) => !v)}
+            className="text-[12px] font-medium text-muted-foreground hover:text-foreground"
+          >
+            {showMore ? "Hide other ways" : "Other ways to earn"}
+          </button>
+          {showMore ? (
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              {extra.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => {
+                    setPicked(b.id);
+                    setShowMore(false);
+                  }}
+                  className="rounded-3xl border border-border/50 bg-foreground/[0.03] p-4 text-left hover:border-primary/30"
+                >
+                  <b.Icon className="h-5 w-5 text-primary" />
+                  <p className="mt-2 text-[14px] font-semibold">{b.title}</p>
+                  <p className="mt-1 text-[12px] text-muted-foreground">{b.plainHow}</p>
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

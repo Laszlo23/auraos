@@ -107,21 +107,20 @@ export function PulseUpDownPanel({ companyId }: { companyId: string }) {
 
   return (
     <div className="space-y-4">
-      <Panel label="Pulse · 3 min" glow>
+      <Panel label="Play · 3 minutes" glow>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              ETH up or down
+              Will ETH go up or down?
             </p>
             <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-muted-foreground">
-              Pick the next move. Lock before the timer hits zero — winners pay{" "}
+              Pick a side before the timer hits zero. Winners pay{" "}
               <span className="font-semibold text-foreground">{state?.payoutMult ?? 1.85}×</span>.
-              Paper bankroll first so you can play without moving chain funds.
+              This uses demo money — not your wallet USDC.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Chip tone="gold">Paper</Chip>
-            <Chip tone="primary">WETH/USDC</Chip>
+            <Chip tone="gold">Demo money</Chip>
           </div>
         </div>
 

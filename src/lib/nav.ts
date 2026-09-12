@@ -168,9 +168,9 @@ export const NAV: NavItem[] = [
   },
   {
     to: "/trading",
-    label: "Grow funds",
-    plain: "Grow",
-    hint: "Trade with AI or provide liquidity",
+    label: "Put money to work",
+    plain: "Money",
+    hint: "Trade, earn, or play — three simple paths",
     icon: CandlestickChart,
     group: "Revenue",
     live: true,

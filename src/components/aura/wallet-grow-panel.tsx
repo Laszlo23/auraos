@@ -244,11 +244,11 @@ export function WalletGrowPanel({
                       <p className="text-[13px] font-semibold">{name}</p>
                       {p.paper ? (
                         <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Paper
+                          Practice
                         </span>
                       ) : (
                         <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">
-                          Live
+                          Real
                         </span>
                       )}
                     </div>
@@ -259,7 +259,7 @@ export function WalletGrowPanel({
                         : null}
                     </p>
                     <p className="mt-1 text-[11px] text-muted-foreground">
-                      Not gone — withdraw anytime from Grow funds → Liquidity.
+                      Still yours — pull out anytime from Earn.
                     </p>
                   </div>
                   <div className="text-right">
@@ -300,7 +300,7 @@ export function WalletGrowPanel({
                       {t.side.toUpperCase()} {t.symbol}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      {t.paper ? "Paper" : "Live"} · size in desk
+                      {t.paper ? "Practice" : "Real"} · trade size
                     </p>
                   </div>
                 </div>
@@ -325,8 +325,8 @@ export function WalletGrowPanel({
       {working < 1 && cashUsdc >= 0 && !loading ? (
         <Panel label="Nothing earning yet">
           <p className="text-[13px] text-muted-foreground">
-            Park USDC in Aave, trade with AI, or play a quick 3-minute ETH Pulse — it will show here
-            so you always know where capital went.
+            Let Aura trade, park USDC to earn, or play a 3-minute ETH call — it shows up here so you
+            always know where the money went.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
@@ -334,7 +334,7 @@ export function WalletGrowPanel({
               className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground"
             >
               <Sparkles className="h-3.5 w-3.5" />
-              Open Grow funds
+              Put money to work
             </Link>
             <a
               href="/trading?path=pulse"
@@ -350,7 +350,7 @@ export function WalletGrowPanel({
             to="/trading"
             className="inline-flex items-center gap-2 rounded-2xl bg-primary/14 px-4 py-2.5 text-xs font-semibold text-primary"
           >
-            Manage on Grow funds
+            Manage money
           </Link>
         </div>
       )}
