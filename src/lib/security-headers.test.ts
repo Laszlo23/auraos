@@ -59,6 +59,7 @@ describe("VITE_* stay public", () => {
     expect(isForbiddenViteKey("VITE_SUPABASE_SERVICE_ROLE_KEY")).toBe(true);
     expect(isForbiddenViteKey("VITE_PRIVATE_SALE_DEPLOYER_KEY")).toBe(true);
     expect(isForbiddenViteKey("VITE_HOOD_EARLY_PASS")).toBe(true);
+    expect(isForbiddenViteKey("VITE_ALCHEMY_API_KEY")).toBe(true);
     expect(isForbiddenViteKey("VITE_PRIVATE_SALE_CONTRACT")).toBe(false);
   });
 

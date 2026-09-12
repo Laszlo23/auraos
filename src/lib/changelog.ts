@@ -36,6 +36,20 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-12-desk-trim",
+    date: "2026-09-12",
+    title: "A quieter desk — Money, Wallet, and Verify up front",
+    summary:
+      "Unused screens gone. Simple nav now shows money paths and KYC. Client Alchemy keys cannot ship in the bundle.",
+    items: [
+      "Ten unused UI files removed — they were not imported anywhere",
+      "Simple menu keeps Money, Wallet, and Verify without dumping the whole Revenue list",
+      "In-app Sales is now Deals so it is not confused with the token sale",
+      "Pro trading desk loads only when you open it",
+    ],
+    tags: ["improvement"],
+  },
+  {
     id: "2026-09-12-trading-simple",
     date: "2026-09-12",
     title: "Trading that anyone can start — pick a path, tap Start",

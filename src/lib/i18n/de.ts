@@ -1248,12 +1248,12 @@ export const de: MessageTree = {
     trading: {
       label: "Geld arbeiten lassen",
       plain: "Geld",
-      hint: "Handeln, verdienen oder spielen — drei einfache Wege",
+      hint: "Handeln, verdienen oder spielen — Guthaben liegt in Wallet",
     },
     wallet: {
       label: "Wallet",
       plain: "Guthaben",
-      hint: "Einzahladresse, Salden und Aktivität",
+      hint: "USDC einzahlen, dann arbeiten lassen",
     },
     x402: {
       label: "Machine API",
@@ -1267,7 +1267,7 @@ export const de: MessageTree = {
     },
     customers: { label: "Kunden", hint: "Alle, die bei dir gekauft haben" },
     marketing: { label: "Marketing", hint: "Kampagnen die Leute reinholen" },
-    sales: { label: "Sales", hint: "Offene Deals" },
+    sales: { label: "Deals", plain: "Deals", hint: "Pipeline — nicht der Token-Sale" },
     website: { label: "Website", hint: "Deine öffentliche Site von Agenten" },
     business: {
       label: "Business-Seite",
@@ -1305,8 +1305,8 @@ export const de: MessageTree = {
     },
     identity: {
       label: "Identität",
-      plain: "Handle & Wallets",
-      hint: "Dein @handle und verknüpfte Wallets",
+      plain: "Verify",
+      hint: "Handle, KYC und Session-Keys — für Live-Trading und den Sale",
     },
     billing: {
       label: "Economy",

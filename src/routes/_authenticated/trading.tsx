@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -7,7 +7,11 @@ import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { SpotlightTour } from "@/components/aura/spotlight-tour";
 import type { BacktestSnapshot } from "@/components/aura/trading/backtest-results-dialog";
 import { GrowFundsHub, type GrowPath } from "@/components/aura/trading/grow-funds-hub";
-import { TradingAdvancedPanel } from "@/components/aura/trading/trading-advanced-panel";
+const TradingAdvancedPanel = lazy(() =>
+  import("@/components/aura/trading/trading-advanced-panel").then((m) => ({
+    default: m.TradingAdvancedPanel,
+  })),
+);
 import { TradingPageDrawers } from "@/components/aura/trading/trading-page-drawers";
 import type {
   Signal,
@@ -567,6 +571,11 @@ function TradingPage() {
         onPracticeTrade={() => void onPaperMode(true)}
         onRealMoneyTrade={() => void onPaperMode(false)}
         childrenAdvanced={
+          <Suspense
+            fallback={
+              <p className="text-[13px] text-muted-foreground">Loading pro desk…</p>
+            }
+          >
           <TradingAdvancedPanel
             companyId={company?.id ?? null}
             armed={armed}
@@ -598,6 +607,7 @@ function TradingPage() {
             onSaveRisk={() => void onSaveRisk()}
             onReviewBacktest={openBacktestReview}
           />
+          </Suspense>
         }
       />
 

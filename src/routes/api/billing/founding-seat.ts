@@ -109,7 +109,8 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
 
         const { data: remaining, error: remErr } = await supabase.rpc("founding_seats_remaining");
         if (remErr) {
-          return Response.json({ error: remErr.message }, { status: 500 });
+          console.error("[billing/founding-seat] remaining", remErr);
+          return Response.json({ error: "checkout_failed" }, { status: 500 });
         }
         if ((remaining as number) <= 0) {
           return Response.json({ error: "Founding seats are sold out" }, { status: 409 });

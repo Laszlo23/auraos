@@ -1244,12 +1244,12 @@ export const en: MessageTree = {
     trading: {
       label: "Put money to work",
       plain: "Money",
-      hint: "Trade, earn, or play — three simple paths",
+      hint: "Trade, earn, or play — balances live on Wallet",
     },
     wallet: {
       label: "Wallet",
       plain: "Funds",
-      hint: "Deposit address, balances and activity",
+      hint: "Deposit USDC, then put it to work",
     },
     x402: {
       label: "Machine API",
@@ -1263,7 +1263,7 @@ export const en: MessageTree = {
     },
     customers: { label: "Customers", hint: "Everyone who bought from you" },
     marketing: { label: "Marketing", hint: "Campaigns that bring people in" },
-    sales: { label: "Sales", hint: "Deals in progress" },
+    sales: { label: "Deals", plain: "Deals", hint: "Pipeline — not the token sale" },
     website: { label: "Website", hint: "Your public site, written by agents" },
     business: {
       label: "Business site",
@@ -1301,8 +1301,8 @@ export const en: MessageTree = {
     },
     identity: {
       label: "Identity",
-      plain: "Handle & wallets",
-      hint: "Your @handle and linked wallets",
+      plain: "Verify",
+      hint: "Handle, KYC, and session keys — needed for live trading and the sale",
     },
     billing: {
       label: "Economy",

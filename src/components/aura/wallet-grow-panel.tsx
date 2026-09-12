@@ -383,7 +383,7 @@ export function WalletWorkingHint({
         trading · <span className="font-mono font-semibold">{currency(cashUsdc, 2)}</span> still
         liquid
       </p>
-      <p className="mt-1 text-[11px] text-muted-foreground">Tap Grow for the full breakdown →</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">Tap Working for the full breakdown →</p>
     </button>
   );
 }

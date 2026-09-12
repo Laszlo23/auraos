@@ -105,7 +105,10 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
   const visibleGroups = useMemo(
     () =>
       NAV_GROUPS.filter((g) => visibleNav.some((n) => n.group === g)).filter(
-        (g) => !simple || !isMoreGroup(g),
+        (g) =>
+          !simple ||
+          !isMoreGroup(g) ||
+          visibleNav.some((n) => n.group === g && n.core),
       ),
     [visibleNav, simple],
   );
@@ -220,6 +223,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
               >
                 {visibleNav
                   .filter((n) => n.group === group)
+                  .filter((n) => !simple || !isMoreGroup(group) || n.core)
                   .map((item) => {
                     const active = pathname === item.to;
                     const Icon = item.icon;
@@ -496,6 +500,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                     <div className="grid grid-cols-4 gap-2.5">
                       {visibleNav
                         .filter((n) => n.group === group)
+                        .filter((n) => !simple || !isMoreGroup(group) || n.core)
                         .map((item) => {
                           const Icon = item.icon;
                           const active = pathname === item.to;
@@ -597,6 +602,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
             <CommandGroup key={group} heading={group}>
               {visibleNav
                 .filter((n) => n.group === group)
+                .filter((n) => !simple || !isMoreGroup(group) || n.core)
                 .map((item) => (
                   <CommandItem
                     key={item.to}

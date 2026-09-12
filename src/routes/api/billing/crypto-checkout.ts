@@ -92,10 +92,8 @@ export const Route = createFileRoute("/api/billing/crypto-checkout")({
           .select("id")
           .single();
         if (insErr || !checkout?.id) {
-          return Response.json(
-            { error: insErr?.message || "Could not create checkout" },
-            { status: 500 },
-          );
+          console.error("[billing/crypto-checkout] insert", insErr);
+          return Response.json({ error: "checkout_failed" }, { status: 500 });
         }
 
         try {

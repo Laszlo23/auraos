@@ -1,7 +1,16 @@
 /**
  * Client-only Robinhood Chain config for creator mint wallet.
  * Never falls back to VITE_CHAIN_NETWORK (Base) — creator flows are RH-only.
+ * Never embed Alchemy (or other) API keys in VITE_* — Vite inlines those.
  */
+
+const PUBLIC_RH_MAINNET = "https://rpc.robinhoodchain.com";
+const PUBLIC_RH_TESTNET = "https://testnet-rpc.robinhoodchain.com";
+
+/** Alchemy / provider paths that would leak a key if inlined. */
+export function isKeyedRpcUrl(url: string): boolean {
+  return /\/v2\/[A-Za-z0-9_-]{16,}/.test(url) || /alchemy\.com\/v2\//i.test(url);
+}
 
 export function clientCreatorChainId(): number {
   const raw = import.meta.env["VITE_CREATOR_CHAIN_ID"];
@@ -12,17 +21,14 @@ export function clientCreatorChainId(): number {
 }
 
 export function clientCreatorRpcUrl(): string {
+  const testnet = clientCreatorChainId() === 46630;
+  const fallback = testnet ? PUBLIC_RH_TESTNET : PUBLIC_RH_MAINNET;
   const explicit = import.meta.env["VITE_ROBINHOOD_RPC_URL"];
   if (typeof explicit === "string" && explicit.trim().startsWith("http")) {
-    return explicit.trim().replace(/\/$/, "");
+    const url = explicit.trim().replace(/\/$/, "");
+    if (!isKeyedRpcUrl(url)) return url;
   }
-  const alchemyKey = import.meta.env["VITE_ALCHEMY_API_KEY"];
-  const testnet = clientCreatorChainId() === 46630;
-  if (typeof alchemyKey === "string" && alchemyKey.trim()) {
-    const sub = testnet ? "robinhood-testnet" : "robinhood-mainnet";
-    return `https://${sub}.g.alchemy.com/v2/${alchemyKey.trim()}`;
-  }
-  return testnet ? "https://testnet-rpc.robinhoodchain.com" : "https://rpc.robinhoodchain.com";
+  return fallback;
 }
 
 export function clientCreatorStableAddress(): `0x${string}` {

@@ -361,7 +361,7 @@ export function WalletDesk({
           {
             k: "On-chain cash",
             v: `${currency(totalCash, 2)} USDC`,
-            h: "Smart wallet — send, swap, fund Grow",
+            h: "Smart wallet — send, swap, then put to work",
           },
           {
             k: "Working",
@@ -371,7 +371,7 @@ export function WalletDesk({
           {
             k: "Pulse",
             v: `${currency(Number(company?.pulse_paper_usdc ?? 0), 2)}`,
-            h: "Paper bankroll on Grow — not on-chain cash",
+            h: "Demo Pulse bankroll — not on-chain cash",
           },
         ].map((row) => (
           <div
@@ -546,7 +546,7 @@ export function WalletDesk({
               { id: "receive" as const, label: "Receive", icon: ArrowDownLeft },
               { id: "send" as const, label: "Send", icon: ArrowUpRight },
               { id: "exchange" as const, label: "Exchange", icon: ArrowLeftRight },
-              { id: "grow" as const, label: "Grow", icon: Sprout },
+              { id: "grow" as const, label: "Working", icon: Sprout },
               { id: "activity" as const, label: "Activity", icon: History },
             ] as const
           ).map(({ id, label, icon: Icon }) => (
@@ -577,7 +577,7 @@ export function WalletDesk({
             onClick={() => openTab("grow")}
             className="font-semibold text-primary underline-offset-2 hover:underline"
           >
-            Grow
+            Working
           </button>
           .
         </p>
@@ -590,7 +590,7 @@ export function WalletDesk({
                 amount: usdc,
                 hint:
                   Number(yieldQ.data?.openNotional ?? 0) >= 0.5
-                    ? "Liquid only — more may be earning in Grow"
+                    ? "Liquid only — more may be earning under Working"
                     : "Trading desk cash",
               },
               { key: "eth", label: nativeSym, amount: eth, hint: "Native · gas + convert" },
