@@ -23,12 +23,14 @@ import {
   privateSaleContractAddress,
   usdcToPAura,
 } from "@/lib/private-sale";
+import { listedWalletDoors } from "@/lib/wallet-doors";
 
 function BuyCard({ disabled }: { disabled: boolean }) {
   const { t } = useLocale();
   const contract = privateSaleContractAddress();
   const { address, isConnected, chainId } = useAccount();
   const { connectors, connect, isPending: connecting } = useConnect();
+  const doors = useMemo(() => listedWalletDoors(connectors), [connectors]);
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: switching } = useSwitchChain();
   const [amount, setAmount] = useState(String(PRIVATE_SALE_MIN_USDC));
@@ -134,7 +136,7 @@ function BuyCard({ disabled }: { disabled: boolean }) {
 
       {!isConnected ? (
         <div className="mt-5 grid gap-2">
-          {connectors.map((connector) => (
+          {doors.map((connector) => (
             <button
               key={connector.uid}
               type="button"

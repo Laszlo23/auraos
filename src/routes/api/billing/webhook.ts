@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { auraBuyPackFromAmountCents, isAuraBuyPackId } from "@/lib/aura-buy-guide";
+import {
+  recordAuraBuyOrderFromStripe,
+  resolveAuraBuyWalletForUser,
+} from "@/lib/aura-buy.functions";
 import { FOUNDING_SEAT_CENTS } from "@/lib/founding-price";
 import { funnelPlanById, isFunnelPlanId } from "@/lib/funnel-plans";
 import { planById } from "@/lib/plans";
@@ -204,12 +209,15 @@ export const Route = createFileRoute("/api/billing/webhook")({
 
           if (session?.metadata?.kind === "aura_buy") {
             const userId = session.metadata.user_id || session.client_reference_id;
-            const wallet = session.metadata.wallet || "";
-            const pack = session.metadata.pack || "";
+            const pack = isAuraBuyPackId(session.metadata.pack ?? "")
+              ? session.metadata.pack
+              : auraBuyPackFromAmountCents(session.amount_total);
+            const wallet = userId
+              ? await resolveAuraBuyWalletForUser(userId, session.metadata.wallet)
+              : null;
             if (!userId || !session.id || !wallet || !pack) {
               return Response.json({ error: "Missing AURA buy metadata" }, { status: 400 });
             }
-            const { recordAuraBuyOrderFromStripe } = await import("@/lib/aura-buy.functions");
             const amountUsd =
               typeof session.amount_total === "number"
                 ? session.amount_total / 100

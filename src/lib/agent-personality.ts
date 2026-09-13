@@ -37,6 +37,13 @@ const VOICES: Record<string, AgentVoice> = {
     waiting: "Copy draft needs approval.",
     failed: "Offer didn't land — iterate.",
   },
+  Designer: {
+    tagline: "Brand and pages. Ships the site.",
+    idle: "Ready to make a page.",
+    working: "Building the landing page.",
+    waiting: "Page is a draft — publish on /website.",
+    failed: "Page did not ship — try again from /website.",
+  },
   Ledger: {
     tagline: "Conservative. Numbers first.",
     idle: "Books quiet — drop a bill anytime.",

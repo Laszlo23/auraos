@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { base } from "viem/chains";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 
 import { SaleWalletRoot } from "@/components/aura/sale-wallet";
+import { listedWalletDoors } from "@/lib/wallet-doors";
 import { RELIC_TEASERS } from "@/lib/relic-campaign";
 import { claimRelic, getRelicVaultStatus, type RelicClaimResult } from "@/lib/relic.functions";
 
@@ -121,6 +122,7 @@ function claimMessage(result: RelicClaimResult): string {
 function ClaimForm({ remaining }: { remaining: number }) {
   const { address, isConnected, chainId } = useAccount();
   const { connectors, connect, isPending: connecting } = useConnect();
+  const doors = useMemo(() => listedWalletDoors(connectors), [connectors]);
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: switching } = useSwitchChain();
   const [phrase, setPhrase] = useState("");
@@ -151,7 +153,7 @@ function ClaimForm({ remaining }: { remaining: number }) {
     >
       {!isConnected ? (
         <div className="flex flex-col gap-2">
-          {connectors.map((connector) => (
+          {doors.map((connector) => (
             <button
               key={connector.uid}
               type="button"

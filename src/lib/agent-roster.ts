@@ -39,7 +39,15 @@ export const AGENT_ROSTER: Record<string, AgentDef> = {
     avatar: "◆",
     accent: "violet",
     memory:
-      "Product and storefront. Writes landing copy and merchandising briefs. Never invent live revenue metrics.",
+      "Product and storefront. Writes landing copy and ships a real /s/$slug page. Never invent live revenue metrics.",
+  },
+  Designer: {
+    name: "Designer",
+    role: "Brand & pages",
+    avatar: "❖",
+    accent: "violet",
+    memory:
+      "Designer. Creates the company landing page on /website. Brand, offer, and interface — never invent traffic or revenue.",
   },
   Vela: {
     name: "Vela",
@@ -83,9 +91,9 @@ export const AGENT_ROSTER: Record<string, AgentDef> = {
 
 export const PRODUCT_AGENT_MAP: Record<string, string[]> = {
   trading: ["Quant", "Yield", "Ledger"],
-  commerce: ["Iris", "Vela", "Juno", "Ledger"],
-  studio: ["Vela", "Orin", "Iris"],
-  creator: ["Vela", "Orin", "Iris", "Atlas"],
+  commerce: ["Iris", "Designer", "Vela", "Juno", "Ledger"],
+  studio: ["Vela", "Orin", "Iris", "Designer"],
+  creator: ["Vela", "Orin", "Iris", "Designer", "Atlas"],
 };
 
 type Db = { from: (t: string) => any };

@@ -94,7 +94,11 @@ export function isAuraReputationPlan(id: unknown): id is typeof AURA_REPUTATION_
 }
 
 export function stripePriceForAuraReputation(): string | undefined {
-  return process.env["STRIPE_PRICE_AURA_REPUTATION"]?.trim() || undefined;
+  return (
+    process.env["STRIPE_PRICE_AURA_REPUTATION"]?.trim() ||
+    process.env["STRIPE_PRICE_MONTHLY"]?.trim() ||
+    undefined
+  );
 }
 
 export const LOCAL_DE_NICHES = [

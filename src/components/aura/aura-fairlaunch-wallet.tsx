@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { base } from "wagmi/chains";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
@@ -13,10 +13,7 @@ import {
 import { quoteAuraSwap } from "@/lib/aura-swap.functions";
 import { visibleRefetchInterval } from "@/hooks/use-aura";
 import { cn } from "@/lib/utils";
-
-function connectorKind(name: string): "walletconnect" | "browser" {
-  return name.toLowerCase().includes("walletconnect") ? "walletconnect" : "browser";
-}
+import { isWalletConnectConnector, listedWalletDoors } from "@/lib/wallet-doors";
 
 function shortAddr(addr: string): string {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
@@ -27,6 +24,7 @@ export function AuraFairlaunchWallet({ de = false, live }: { de?: boolean; live:
   const { connectors, connect, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: switching } = useSwitchChain();
+  const doors = useMemo(() => listedWalletDoors(connectors), [connectors]);
   const [amount, setAmount] = useState("111");
   const [copied, setCopied] = useState(false);
   const ca = auraGetOfficialCa();
@@ -61,21 +59,31 @@ export function AuraFairlaunchWallet({ de = false, live }: { de?: boolean; live:
 
       {!isConnected ? (
         <div className="grid gap-2 sm:grid-cols-2">
-          {connectors.map((connector) => {
-            const kind = connectorKind(connector.name);
+          {doors.map((connector) => {
+            const walletConnect = isWalletConnectConnector(connector);
             return (
               <button
                 key={connector.uid}
                 type="button"
                 disabled={isPending}
-                onClick={() => connect({ connector })}
+                onClick={() =>
+                  connect(
+                    { connector, chainId: base.id },
+                    {
+                      onError: (err) => {
+                        const raw = err instanceof Error ? err.message : "Could not connect.";
+                        toast.error(raw);
+                      },
+                    },
+                  )
+                }
                 className="rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {isPending
                   ? de
                     ? AURA_GET_COPY.connectingDe
                     : AURA_GET_COPY.connecting
-                  : kind === "walletconnect"
+                  : walletConnect
                     ? de
                       ? AURA_GET_COPY.connectWcDe
                       : AURA_GET_COPY.connectWc

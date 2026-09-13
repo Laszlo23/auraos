@@ -9,6 +9,7 @@ import {
   INVESTOR_DESK_REQUIRES_FOUNDING_SEAT,
   auraBuyOfficialCa,
   auraBuyPackById,
+  auraBuyPackFromAmountCents,
   auraBuyPacksEnabled,
   investorHandleForUser,
   isAuraBuyPackId,
@@ -22,6 +23,8 @@ describe("AURA buy guide SSOT", () => {
     expect(isAuraBuyPackId("111")).toBe(true);
     expect(isAuraBuyPackId("30")).toBe(false);
     expect(auraBuyPackById("299")?.usd).toBe(299);
+    expect(auraBuyPackFromAmountCents(11100)).toBe("111");
+    expect(auraBuyPackFromAmountCents(50)).toBeUndefined();
   });
 
   it("keeps the exact Base App and Binance invite URLs", () => {

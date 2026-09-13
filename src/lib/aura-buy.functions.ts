@@ -370,6 +370,25 @@ export const markAuraBuySent = createServerFn({ method: "POST" })
     return { ok: true, txHash: data.txHash };
   });
 
+/** Smart wallet for a paid card pack when Payment Link metadata omitted it. */
+export async function resolveAuraBuyWalletForUser(
+  userId: string,
+  hinted?: string | null,
+): Promise<string | null> {
+  if (hinted && isBaseAddress(hinted)) return hinted;
+  const db = await getSupabaseAdmin();
+  const { data } = await db
+    .from("wallet_bindings")
+    .select("address")
+    .eq("user_id", userId)
+    .eq("kind", "smart")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  const address = typeof data?.address === "string" ? data.address : "";
+  return isBaseAddress(address) ? address : null;
+}
+
 export async function recordAuraBuyOrderFromStripe(opts: {
   userId: string;
   companyId?: string | null;

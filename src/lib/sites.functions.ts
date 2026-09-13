@@ -9,6 +9,7 @@ import {
   type LandingTemplateId,
   type SiteContent,
 } from "@/lib/sites/templates";
+import { uniqueSiteSlug } from "@/lib/sites/unique-slug";
 
 type LooseDb = {
   from: (table: string) => any;
@@ -128,7 +129,7 @@ export const createCompanySite = createServerFn({ method: "POST" })
     const supabase = asDb(context.supabase);
     const company = await ownedCompany(supabase, context.userId);
     const content = defaultContentFor(company.name, data.templateId);
-    const slug = data.slug || slugifyBrand(company.name) || `site-${Date.now().toString(36)}`;
+    const slug = data.slug || (await uniqueSiteSlug(supabase, company.name));
     const { data: row, error } = await supabase
       .from("company_sites")
       .insert({

@@ -3,9 +3,20 @@
 /** Required for Managed Payments (see Stripe docs). */
 export const STRIPE_API_VERSION = "2025-03-31.basil";
 
+/** SaaS / electronically supplied services — required when Managed Payments is on. */
+export const STRIPE_DEFAULT_TAX_CODE =
+  process.env["STRIPE_PRODUCT_TAX_CODE"]?.trim() || "txcd_10103000";
+
 export function stripeManagedPaymentsEnabled(): boolean {
   // Default on — set STRIPE_MANAGED_PAYMENTS=0 to fall back to classic Checkout.
   return process.env["STRIPE_MANAGED_PAYMENTS"] !== "0";
+}
+
+function ensurePriceDataTaxCode(body: URLSearchParams) {
+  const hasPriceData = [...body.keys()].some((key) => key.startsWith("line_items[0][price_data]"));
+  if (!hasPriceData) return;
+  if (body.get("line_items[0][price_data][product_data][tax_code]")) return;
+  body.set("line_items[0][price_data][product_data][tax_code]", STRIPE_DEFAULT_TAX_CODE);
 }
 
 export type StripeCheckoutSession = {
@@ -37,6 +48,7 @@ export async function createStripeCheckoutSession(
   }
 
   const connected = Boolean(opts?.stripeAccount);
+  ensurePriceDataTaxCode(body);
   if (!connected && stripeManagedPaymentsEnabled()) {
     body.set("managed_payments[enabled]", "true");
   }
@@ -48,15 +60,26 @@ export async function createStripeCheckoutSession(
   };
   if (opts?.stripeAccount) headers["Stripe-Account"] = opts.stripeAccount;
 
-  const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-    method: "POST",
-    headers,
-    body,
-  });
+  const post = (payload: URLSearchParams) =>
+    fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
+      headers,
+      body: payload,
+    });
 
-  const json = (await res.json()) as StripeCheckoutSession & {
+  let res = await post(body);
+  let json = (await res.json()) as StripeCheckoutSession & {
     error?: { message?: string; code?: string; param?: string };
   };
+
+  const taxBlocked =
+    !res.ok && /tax.?code|managed.?payments/i.test(json.error?.message ?? "");
+  if (taxBlocked && body.get("managed_payments[enabled]") === "true") {
+    const classic = new URLSearchParams(body);
+    classic.delete("managed_payments[enabled]");
+    res = await post(classic);
+    json = (await res.json()) as typeof json;
+  }
 
   if (!res.ok || !json.url || !json.id) {
     const detail = [json.error?.message, json.error?.param ? `(${json.error.param})` : null]

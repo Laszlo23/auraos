@@ -7,6 +7,8 @@ import { formatMemoryContext, mergeAgentMemory } from "@/lib/agent-memory";
 import { TASK_COST } from "@/lib/task-cost";
 import { publishToProvider } from "@/lib/social-api.server";
 import { SOCIAL_AGENTS } from "@/lib/social-oauth.server";
+import { isLandingPageTask } from "@/lib/task-landing-page";
+import { shipLandingPageFromTask } from "@/lib/task-landing-page.server";
 import { agentJson } from "@/lib/x402-ai";
 
 export type TaskStep = {
@@ -230,6 +232,7 @@ export async function executeTask(
   }
 
   const doSearch = needsWebResearch(task.title, task.description);
+  const doLanding = isLandingPageTask(task.title, task.description, agentName, agentRole);
 
   let steps: TaskStep[] = [
     { id: "plan", label: "Build step-by-step plan", status: "pending" },
@@ -239,6 +242,9 @@ export async function executeTask(
       status: "pending",
     },
     { id: "synthesize", label: "Write deliverable from evidence", status: "pending" },
+    ...(doLanding
+      ? [{ id: "landing", label: "Create the public landing page", status: "pending" as const }]
+      : []),
     { id: "file", label: "File result + burn AURA", status: "pending" },
   ];
 
@@ -652,6 +658,34 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
       resultText = `${resultText}\n\nPublish failed: ${msg.slice(0, 200)}`;
     }
     await persistSteps(db, task.id, steps, 92, { artifact });
+  }
+
+  if (doLanding) {
+    steps = markStep(steps, "landing", "running", "Writing the page into /website…");
+    await persistSteps(db, task.id, steps, 90, {
+      result: `${agentName} · creating the landing page…`,
+    });
+    try {
+      const shipped = await shipLandingPageFromTask(db, {
+        companyId: task.company_id,
+        companyName: company?.name ?? "Untitled",
+        title: task.title,
+        description: task.description,
+        agentName,
+      });
+      steps = markStep(
+        steps,
+        "landing",
+        "done",
+        shipped.created ? `Draft page ${shipped.path}` : `Updated ${shipped.path}`,
+      );
+      resultText = `${resultText}\n\nPage: ${shipped.url} · open /website to edit and publish.`;
+    } catch (landErr) {
+      const msg = landErr instanceof Error ? landErr.message : String(landErr);
+      steps = markStep(steps, "landing", "failed", msg.slice(0, 160));
+      resultText = `${resultText}\n\nPage not created: ${msg.slice(0, 200)}`;
+    }
+    await persistSteps(db, task.id, steps, 93, { artifact });
   }
 
   // ——— Step 4: File + burn ———

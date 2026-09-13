@@ -19,11 +19,16 @@ import {
   auraBuyPackById,
   auraBuyPacksEnabled,
   isAuraBuyPackId,
+  stripePaymentLinkEnvForAuraBuyPack,
   stripePriceEnvForAuraBuyPack,
 } from "@/lib/aura-buy-guide";
 import { SITE_URL } from "@/lib/site";
 import { assertStripeChargesEnabled } from "@/lib/stripe-account";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
+import {
+  isStripePaymentLinkUrl,
+  withStripePaymentLinkContext,
+} from "@/lib/stripe-payment-link";
 import { isBaseAddress } from "@/lib/private-sale";
 
 function priceForAuraPlan(plan: string): string | undefined {
@@ -178,8 +183,33 @@ export const Route = createFileRoute("/api/billing/checkout")({
               "line_items[0][price_data][product_data][description]",
               "Card now. AURA sent to your Aura wallet after T-0. Not an on-chain swap.",
             );
+            params.set("line_items[0][price_data][product_data][tax_code]", "txcd_10000000");
           }
           params.set("line_items[0][quantity]", "1");
+          try {
+            const session = await createStripeCheckoutSession(secret, params);
+            return Response.json({ url: session.url, id: session.id });
+          } catch (sessionErr) {
+            const link = stripePaymentLinkEnvForAuraBuyPack(pack.id);
+            if (link && isStripePaymentLinkUrl(link)) {
+              return Response.json({
+                url: withStripePaymentLinkContext(link, {
+                  clientReferenceId: user.id,
+                  email: user.email ?? undefined,
+                }),
+                fallback: "payment_link",
+              });
+            }
+            return Response.json(
+              {
+                error:
+                  sessionErr instanceof Error
+                    ? sessionErr.message
+                    : "Could not create checkout session",
+              },
+              { status: 502 },
+            );
+          }
         } else if (plan === LOCAL_SEAT_PLAN_ID) {
           const price = process.env["STRIPE_PRICE_LOCAL_SEAT"]?.trim();
           params.set("mode", "payment");

@@ -12,6 +12,7 @@ export const NEVER_TRANSLATE_BRANDS = [
   "Vela",
   "Orin",
   "Iris",
+  "Designer",
   "Cass",
   "Juno",
   "Ledger",

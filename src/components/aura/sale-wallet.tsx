@@ -23,6 +23,7 @@ export function SaleWalletRoot({
     const projectId = walletConnectId();
     return createConfig({
       chains: [base],
+      multiInjectedProviderDiscovery: false,
       connectors: [
         injected({ shimDisconnect: true }),
         ...(projectId

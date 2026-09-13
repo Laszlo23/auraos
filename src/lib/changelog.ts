@@ -36,6 +36,43 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-13-stripe-checkout",
+    date: "2026-09-13",
+    title: "Card checkout and buy.stripe.com links.",
+    summary:
+      "AURA packs and Aura OS now open a real Stripe Checkout Session. If Session create fails, we fall back to the Payment Link and still fulfill from the webhook.",
+    items: [
+      "/get card packs: Checkout Session, then buy.stripe.com fallback",
+      "/access monthly and yearly: catalog prices plus Payment Link fallback",
+      "Webhook records AURA orders even when Payment Link omitted the wallet",
+    ],
+    tags: ["fix"],
+  },
+  {
+    id: "2026-09-13-designer-page",
+    date: "2026-09-13",
+    title: "Designer actually makes the page.",
+    summary:
+      "Iris and Designer no longer stop at a text brief. A landing-page task now writes a real /website draft with a public /s/$slug URL.",
+    items: [
+      "Create a landing page / merchandising tasks ship company_sites",
+      "Marketplace Designer is a real roster agent",
+    ],
+    tags: ["fix"],
+  },
+  {
+    id: "2026-09-13-wallet-doors",
+    date: "2026-09-13",
+    title: "Two wallet doors, not six.",
+    summary:
+      "Connect now shows one browser wallet and one WalletConnect QR. Extra EIP-6963 copies are hidden so the button actually opens a wallet.",
+    items: [
+      "/get Your wallet: Browser wallet + WalletConnect",
+      "Same two doors on /sale and the relic vault",
+    ],
+    tags: ["fix"],
+  },
+  {
     id: "2026-09-13-get-aura",
     date: "2026-09-13",
     title: "/get — two doors to the token.",

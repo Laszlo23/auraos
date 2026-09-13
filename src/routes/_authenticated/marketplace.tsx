@@ -15,6 +15,7 @@ import {
   listAgentListings,
   publishAgentListing,
 } from "@/lib/economy.functions";
+import { AGENT_ROSTER } from "@/lib/agent-roster";
 import { TOKEN_SYMBOL } from "@/lib/plans";
 
 export const Route = createFileRoute("/_authenticated/marketplace")({
@@ -166,12 +167,13 @@ function MarketplacePage() {
       return;
     }
 
+    const roster = AGENT_ROSTER[name];
     await supabase.from("agents").insert({
       company_id: company.id,
-      name,
-      role: name,
-      avatar: entry[2],
-      accent: "primary",
+      name: roster?.name ?? name,
+      role: roster?.role ?? name,
+      avatar: roster?.avatar ?? entry[2],
+      accent: roster?.accent ?? "primary",
       status: "active",
       current_task: "Just hired — awaiting first brief",
       health: 100,
@@ -181,7 +183,7 @@ function MarketplacePage() {
       credits_used: 0,
       tasks_completed: 0,
       lessons_count: 0,
-      memory: entry[3],
+      memory: roster?.memory ?? entry[3],
     });
     await supabase.from("activity_events").insert({
       company_id: company.id,
@@ -201,11 +203,14 @@ function MarketplacePage() {
       .eq("name", name)
       .maybeSingle();
     if (hired?.id) {
+      const landing = name === "Designer";
       await supabase.from("tasks").insert({
         company_id: company.id,
         agent_id: hired.id,
-        title: `Onboard ${name}`,
-        description: `Read company knowledge and file a 5-bullet brief for the founder on how you will help. Do not invent metrics.`,
+        title: landing ? "Create a landing page" : `Onboard ${name}`,
+        description: landing
+          ? `Create a public landing page for this company on /website. Brand, offer, and CTA. Leave it as a draft. Do not invent traffic or revenue.`
+          : `Read company knowledge and file a 5-bullet brief for the founder on how you will help. Do not invent metrics.`,
         status: "queued",
         priority: "medium",
         roi: 0,

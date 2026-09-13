@@ -224,6 +224,7 @@ export function agentsForMission(mission: string): string[] {
   }
   if (/website|landing|product|store|shop/.test(m)) {
     set.add("Iris");
+    set.add("Designer");
     set.add("Cass");
   }
   if (/support|help|ticket/.test(m)) set.add("Juno");

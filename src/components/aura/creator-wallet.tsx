@@ -22,6 +22,7 @@ export function CreatorWalletRoot({ children, slug }: { children: ReactNode; slu
     const mintUrl = `https://aibusiness.fun/c/${slug}`;
     return createConfig({
       chains: [chain],
+      multiInjectedProviderDiscovery: false,
       connectors: [
         injected({ shimDisconnect: true }),
         ...(projectId

@@ -29,6 +29,7 @@ const ROLE_BLURB: Record<string, { title: string; blurb: string }> = {
   Juno: { title: "Customer Success", blurb: "Handles customers and follow-up." },
   Orin: { title: "Social", blurb: "Creates and prepares content." },
   Iris: { title: "Product", blurb: "Builds products and experiences." },
+  Designer: { title: "Designer", blurb: "Creates the company landing page." },
   Ledger: { title: "Finance", blurb: "Tracks costs and economics." },
   Quant: { title: "Funds", blurb: "Trades only after you set caps." },
   Yield: { title: "Yield", blurb: "Parks idle cash under your rules." },
@@ -123,8 +124,8 @@ export function interpretBusiness(raw: string): OnboardBrief {
     : product === "trading"
       ? ["Atlas", "Quant", "Yield", "Ledger"]
       : product === "studio"
-        ? ["Atlas", "Vela", "Orin", "Iris"]
-        : ["Atlas", "Vela", "Juno", "Iris", "Ledger"];
+        ? ["Atlas", "Vela", "Orin", "Iris", "Designer"]
+        : ["Atlas", "Vela", "Juno", "Iris", "Designer", "Ledger"];
 
   const roles: WorkforceRole[] = agents
     .filter((n) => AGENT_ROSTER[n] && ROLE_BLURB[n])

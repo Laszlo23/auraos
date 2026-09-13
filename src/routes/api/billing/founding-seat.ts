@@ -6,12 +6,18 @@ import {
   isOsCheckoutPlan,
   osPlanAmountCents,
   osPlanInterval,
+  stripePaymentLinkEnvForOsPlan,
+  stripePriceEnvForOsPlan,
   type OsCheckoutPlan,
 } from "@/lib/os-pricing";
 import { clientIpFromRequest, rateLimitConsume } from "@/lib/rate-limit.server";
 import { SITE_URL } from "@/lib/site";
 import { assertStripeChargesEnabled } from "@/lib/stripe-account";
 import { createStripeCheckoutSession } from "@/lib/stripe-checkout";
+import {
+  isStripePaymentLinkUrl,
+  withStripePaymentLinkContext,
+} from "@/lib/stripe-payment-link";
 
 function accessTokenFromRequest(request: Request): string | null {
   const auth = request.headers.get("authorization") ?? request.headers.get("Authorization");
@@ -133,19 +139,24 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
         params.set("metadata[user_id]", user.id);
         params.set("metadata[os_plan]", plan);
         if (inviteMeta) params.set("metadata[invite_code]", inviteMeta);
-        params.set("line_items[0][price_data][currency]", "usd");
-        params.set("line_items[0][price_data][unit_amount]", String(amountCents));
-        params.set("line_items[0][price_data][recurring][interval]", interval);
-        params.set(
-          "line_items[0][price_data][product_data][name]",
-          plan === "month" ? "Aura OS — monthly" : "Aura OS — yearly",
-        );
-        params.set(
-          "line_items[0][price_data][product_data][description]",
-          plan === "month"
-            ? "Aura OS software — billed monthly. Cancel anytime."
-            : "Aura OS software — billed yearly. Best value vs monthly.",
-        );
+        const catalogPrice = stripePriceEnvForOsPlan(plan);
+        if (catalogPrice) {
+          params.set("line_items[0][price]", catalogPrice);
+        } else {
+          params.set("line_items[0][price_data][currency]", "usd");
+          params.set("line_items[0][price_data][unit_amount]", String(amountCents));
+          params.set("line_items[0][price_data][recurring][interval]", interval);
+          params.set(
+            "line_items[0][price_data][product_data][name]",
+            plan === "month" ? "Aura OS — monthly" : "Aura OS — yearly",
+          );
+          params.set(
+            "line_items[0][price_data][product_data][description]",
+            plan === "month"
+              ? "Aura OS software — billed monthly. Cancel anytime."
+              : "Aura OS software — billed yearly. Best value vs monthly.",
+          );
+        }
         params.set("line_items[0][quantity]", "1");
         if (user.email && !user.email.toLowerCase().endsWith("@siwe.aibusiness.fun")) {
           params.set("customer_email", user.email);
@@ -176,6 +187,17 @@ export const Route = createFileRoute("/api/billing/founding-seat")({
             amount_cents: amountCents,
           });
         } catch (e) {
+          const link = stripePaymentLinkEnvForOsPlan(plan);
+          if (link && isStripePaymentLinkUrl(link)) {
+            return Response.json({
+              url: withStripePaymentLinkContext(link, {
+                clientReferenceId: user.id,
+                email: user.email ?? undefined,
+              }),
+              amount_cents: amountCents,
+              fallback: "payment_link",
+            });
+          }
           return Response.json(
             { error: e instanceof Error ? e.message : "Could not create checkout session" },
             { status: 502 },

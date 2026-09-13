@@ -22,6 +22,16 @@ export function osPlanInterval(plan: OsCheckoutPlan): "month" | "year" {
   return plan === "month" ? "month" : "year";
 }
 
+export function stripePriceEnvForOsPlan(plan: OsCheckoutPlan): string | undefined {
+  const key = plan === "month" ? "STRIPE_PRICE_OS_MONTH" : "STRIPE_PRICE_OS_YEAR";
+  return process.env[key]?.trim() || undefined;
+}
+
+export function stripePaymentLinkEnvForOsPlan(plan: OsCheckoutPlan): string | undefined {
+  const key = plan === "month" ? "STRIPE_PAYMENT_LINK_OS_MONTH" : "STRIPE_PAYMENT_LINK_OS_YEAR";
+  return process.env[key]?.trim() || undefined;
+}
+
 export const OS_PRICE = {
   try: {
     id: "try" as const,

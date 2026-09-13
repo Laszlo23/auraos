@@ -14,9 +14,24 @@ export const AURA_BUY_BASE_APP_URL = "https://base.app/invite/friends/KCFJ42BF";
 export const AURA_BUY_BINANCE_URL = "https://www.binance.com/register?ref=BXKGGJD6";
 
 export const AURA_BUY_PACKS = [
-  { id: "29", usd: 29, envKey: "STRIPE_PRICE_AURA_BUY_29" },
-  { id: "111", usd: 111, envKey: "STRIPE_PRICE_AURA_BUY_111" },
-  { id: "299", usd: 299, envKey: "STRIPE_PRICE_AURA_BUY_299" },
+  {
+    id: "29",
+    usd: 29,
+    envKey: "STRIPE_PRICE_AURA_BUY_29",
+    linkEnvKey: "STRIPE_PAYMENT_LINK_AURA_BUY_29",
+  },
+  {
+    id: "111",
+    usd: 111,
+    envKey: "STRIPE_PRICE_AURA_BUY_111",
+    linkEnvKey: "STRIPE_PAYMENT_LINK_AURA_BUY_111",
+  },
+  {
+    id: "299",
+    usd: 299,
+    envKey: "STRIPE_PRICE_AURA_BUY_299",
+    linkEnvKey: "STRIPE_PAYMENT_LINK_AURA_BUY_299",
+  },
 ] as const;
 
 export type AuraBuyPackId = (typeof AURA_BUY_PACKS)[number]["id"];
@@ -36,6 +51,20 @@ export function stripePriceEnvForAuraBuyPack(id: AuraBuyPackId): string | undefi
   if (!pack) return undefined;
   const raw = process.env[pack.envKey]?.trim();
   return raw || undefined;
+}
+
+export function stripePaymentLinkEnvForAuraBuyPack(id: AuraBuyPackId): string | undefined {
+  const pack = auraBuyPackById(id);
+  if (!pack) return undefined;
+  const raw = process.env[pack.linkEnvKey]?.trim();
+  return raw || undefined;
+}
+
+export function auraBuyPackFromAmountCents(cents: number | null | undefined): AuraBuyPackId | undefined {
+  if (typeof cents !== "number" || !Number.isFinite(cents)) return undefined;
+  const usd = Math.round(cents / 100);
+  const pack = AURA_BUY_PACKS.find((p) => p.usd === usd);
+  return pack?.id;
 }
 
 /** Investor desk is a free Light Account — no $29 OS seat, no business brief. */
