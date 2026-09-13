@@ -13,11 +13,11 @@ function read(): boolean {
 
 /** Simple mode is ON by default: only the core surfaces are shown, in plain language. */
 export function useSimpleMode() {
-  const [simple, setSimple] = useState(true);
+  const [simple, setSimpleState] = useState(true);
 
   useEffect(() => {
-    setSimple(read());
-    const sync = () => setSimple(read());
+    setSimpleState(read());
+    const sync = () => setSimpleState(read());
     window.addEventListener(EVENT, sync);
     window.addEventListener("storage", sync);
     return () => {
