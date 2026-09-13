@@ -56,6 +56,7 @@ import { BASE_USDC } from "../src/lib/private-sale";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const TREASURY_FILE = join(ROOT, ".aura-t0-treasury.json");
+const SECOND_BUY_FILE = join(ROOT, ".aura-second-buy.json");
 const PREDICTED_FILE = join(ROOT, ".aura-t0-predicted.json");
 const BASE_SEPOLIA_USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as Address;
 const ERC20_BALANCE = [
@@ -102,6 +103,7 @@ Dedicated machine only. Never the public VPS. Never print the key.
 
 Commands:
   treasury              Create a new empty tokenAdmin wallet (gitignored)
+  second-buy            Create a separate market-buy wallet (not tokenAdmin)
   status [--sepolia]    ETH + USDC + nonce on that wallet
   compile               solc AuraToken + sinks (no tx)
   venue                 Clanker wrap vs native Uni v4 fallback
@@ -157,6 +159,31 @@ function cmdTreasury(force: boolean) {
   console.log("swap ETH → USDC into THIS wallet. Do not send 1,111 ETH. Do not use the sale key.");
 }
 
+function cmdSecondBuy(force: boolean) {
+  if (existsSync(SECOND_BUY_FILE) && !force) {
+    const existing = JSON.parse(readFileSync(SECOND_BUY_FILE, "utf8")) as TreasuryFile;
+    console.log("second-buy wallet already exists (pass --force to rotate)");
+    console.log("address", existing.address);
+    console.log("role", "post–T-0 market buy on the live Uni v4 AURA/USDC book — not the deployer");
+    return;
+  }
+  const privateKey = generatePrivateKey();
+  const account = privateKeyToAccount(privateKey);
+  const payload: TreasuryFile = {
+    address: account.address,
+    privateKey,
+    createdAt: new Date().toISOString(),
+    warning:
+      "Second-buy wallet only. Never commit. Never copy to the VPS. Never use as AURA_T0_KEY. Fund USDC + gas from a non-T-0 source. Buy on the published pair after the book is live.",
+  };
+  writeFileSync(SECOND_BUY_FILE, JSON.stringify(payload, null, 2) + "\n", { mode: 0o600 });
+  chmodSync(SECOND_BUY_FILE, 0o600);
+  console.log("wrote", SECOND_BUY_FILE, "(mode 0600, gitignored — key not printed)");
+  console.log("second-buy wallet", account.address);
+  console.log("fund after T-0 from a non-treasury source: USDC + ~0.01 ETH gas on Base");
+  console.log("USDC", BASE_USDC);
+}
+
 async function cmdStatus(sepolia: boolean) {
   const file = readTreasury();
   const fromEnv = (process.env["AURA_LAUNCH_TREASURY"] || "").trim();
@@ -193,6 +220,34 @@ async function cmdStatus(sepolia: boolean) {
     `${AURA_T0_GAS_ETH.min}–${AURA_T0_GAS_ETH.max}`,
     Number(formatEther(eth)) >= AURA_T0_GAS_ETH.min ? "OK" : "SHORT",
   );
+  const team = (process.env["AURA_WALLET_TEAM_BENEFICIARY"] || "").trim();
+  const teamOk =
+    /^0x[a-fA-F0-9]{40}$/.test(team) && team.toLowerCase() !== address.toLowerCase();
+  console.log(
+    "team beneficiary",
+    teamOk ? team : team || "(missing)",
+    teamOk ? "OK" : "SET the Safe — not the deployer",
+  );
+  if (existsSync(SECOND_BUY_FILE) && !sepolia) {
+    const second = JSON.parse(readFileSync(SECOND_BUY_FILE, "utf8")) as TreasuryFile;
+    const [secondEth, secondUsdc] = await Promise.all([
+      client.getBalance({ address: second.address }),
+      client.readContract({
+        address: usdc,
+        abi: ERC20_BALANCE,
+        functionName: "balanceOf",
+        args: [second.address],
+      }),
+    ]);
+    const secondUsdcHuman = Number(formatUnits(secondUsdc, 6));
+    console.log("second-buy", second.address);
+    console.log("second-buy ETH", formatEther(secondEth));
+    console.log(
+      "second-buy USDC",
+      secondUsdcHuman,
+      secondUsdcHuman > 0 ? "OK" : "SHORT — need Base USDC to buy the live book",
+    );
+  }
 }
 
 function cmdDesk() {
@@ -369,7 +424,16 @@ async function cmdBroadcast(extra: string[]) {
         `Refusing: Base block time is before T-0 (${TOKEN_LAUNCH_AT_ISO}). Local clock is not enough.`,
       );
     }
-    console.log("mainnet preflight ok — nonce 0, Base time ≥ T-0, treasury key matches file");
+    const team = (process.env["AURA_WALLET_TEAM_BENEFICIARY"] || "").trim();
+    if (
+      !/^0x[a-fA-F0-9]{40}$/.test(team) ||
+      team.toLowerCase() === account.address.toLowerCase()
+    ) {
+      throw new Error(
+        "Set AURA_WALLET_TEAM_BENEFICIARY to the team Safe 0x96E85b3560C6959783c158B39672206afB6365ac — not the deployer.",
+      );
+    }
+    console.log("mainnet preflight ok — nonce 0, Base time ≥ T-0, treasury key matches file, team Safe set");
   }
   const args = ["tsx", "scripts/aura-t0.ts", ...extra];
   console.log("running", "npx", args.join(" "));
@@ -448,6 +512,9 @@ async function main() {
       return;
     case "treasury":
       cmdTreasury(force);
+      return;
+    case "second-buy":
+      cmdSecondBuy(force);
       return;
     case "status":
       await cmdStatus(sepolia);

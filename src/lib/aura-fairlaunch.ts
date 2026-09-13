@@ -48,9 +48,9 @@ export const AURA_GET_COPY = {
   smartTag: "No crypto yet",
   smartTagDe: "Noch kein Crypto",
   smartBody:
-    "Create a free Aura account. We open a smart wallet on Base. Pay with a card. AURA lands in that wallet after T-0. This is fulfillment — not an on-chain swap at checkout.",
+    "Create a free Aura account. We open a smart wallet on Base. Pay with a card. After T-0, pack net buys the live official Uniswap v4 AURA/USDC tick and AURA lands in that wallet. Fulfillment — not an on-chain swap at checkout, not a Stripe-implied price.",
   smartBodyDe:
-    "Kostenloses Aura-Konto. Wir öffnen eine Smart Wallet auf Base. Du zahlst mit Karte. AURA kommt nach T-0 in diese Wallet. Das ist Erfüllung — kein On-Chain-Swap an der Kasse.",
+    "Kostenloses Aura-Konto. Wir öffnen eine Smart Wallet auf Base. Du zahlst mit Karte. Nach T-0 kauft das Pack-Net den Live-Tick des offiziellen Uniswap-v4-AURA/USDC-Buchs und AURA landet in dieser Wallet. Erfüllung — kein On-Chain-Swap an der Kasse, kein von Stripe implizierter Preis.",
   smartCta: "Start with a smart wallet",
   smartCtaDe: "Mit Smart Wallet starten",
   walletTitle: "Your wallet",

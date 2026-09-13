@@ -497,3 +497,49 @@ export async function publishFarcasterCast(
 export function encryptSignerUuid(uuid: string): string {
   return encryptToken(uuid);
 }
+
+/** Official Farcaster account for founder notice pings. */
+export const FOUNDER_FARCASTER_FID = 873944;
+export const FOUNDER_FARCASTER_USERNAME = "0xleonardo";
+
+export async function fetchFarcasterFollowerHandles(
+  fid: number,
+  opts?: { max?: number },
+): Promise<{ handles: string[]; fetched: number }> {
+  const max = Math.min(opts?.max ?? 5_000, 5_000);
+  const handles: string[] = [];
+  const seen = new Set<string>();
+  let cursor: string | undefined;
+  let pages = 0;
+
+  while (handles.length < max && pages < 80) {
+    const url = new URL(`${NEYNAR_BASE}/farcaster/followers`);
+    url.searchParams.set("fid", String(Math.floor(fid)));
+    url.searchParams.set("limit", "100");
+    if (cursor) url.searchParams.set("cursor", cursor);
+    const res = await fetch(url, { headers: neynarHeaders() });
+    const json = (await res.json()) as {
+      users?: Array<Record<string, unknown> & { user?: Record<string, unknown> }>;
+      next?: { cursor?: string };
+      message?: string;
+    };
+    if (!res.ok) throw new Error(json.message || `Followers failed (${res.status})`);
+    pages += 1;
+    const rows = json.users ?? [];
+    if (rows.length === 0) break;
+    for (const row of rows) {
+      const u = row.user ?? row;
+      const username = String(u["username"] ?? "")
+        .trim()
+        .replace(/^@/, "");
+      if (!username || seen.has(username.toLowerCase())) continue;
+      seen.add(username.toLowerCase());
+      handles.push(username);
+      if (handles.length >= max) break;
+    }
+    cursor = json.next?.cursor;
+    if (!cursor) break;
+  }
+
+  return { handles, fetched: handles.length };
+}

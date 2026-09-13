@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
 
+import { AuraBuyReceipts } from "@/components/aura/aura-buy-receipts";
 import { AuraOfficialCas } from "@/components/aura/aura-official-cas";
 import { PublicSiteHeader } from "@/components/aura/public-site-header";
 import { SiteFooter } from "@/components/aura/site-footer";
@@ -122,6 +123,7 @@ function TrustPage() {
           <div className="mt-4">
             <AuraOfficialCas de={de} />
           </div>
+          <AuraBuyReceipts de={de} />
           <p className="mt-3 text-[13px]">
             <Link to="/swap" className="font-semibold text-primary hover:underline">
               {de ? "Swap-Desk →" : "Swap desk →"}

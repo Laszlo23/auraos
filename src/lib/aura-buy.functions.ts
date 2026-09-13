@@ -2,13 +2,20 @@ import { createServerFn } from "@tanstack/react-start";
 import type { Hex } from "viem";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { gasSponsorshipEnabled } from "@/lib/chain-config";
+import {
+  centsToUsd,
+  stripeCardFeeCentsEstimate,
+  stripeNetCents,
+  toAuraBuyPublicReceipt,
+  usdcUnitsFromNetCents,
+} from "@/lib/aura-buy-lp";
 import {
   INVESTOR_COMPANY_NAME,
   INVESTOR_DESK_REQUIRES_FOUNDING_SEAT,
   investorHandleForUser,
   isAuraBuyPackId,
 } from "@/lib/aura-buy-guide";
+import { gasSponsorshipEnabled } from "@/lib/chain-config";
 import { isBaseAddress } from "@/lib/private-sale";
 
 type LooseDb = { from: (table: string) => any };
@@ -31,12 +38,18 @@ export type AuraBuyOrderRow = {
   wallet: string;
   pack: string;
   amount_usd: number;
+  net_usd: number | null;
   stripe_session: string;
   status: "paid" | "sent" | "failed";
+  lp_status: "reserved" | "usdc_onchain" | "swapped" | "sent";
   tx_hash: string | null;
+  swap_tx_hash: string | null;
   created_at: string;
   updated_at: string;
 };
+
+const AURA_BUY_ORDER_COLUMNS =
+  "id, user_id, company_id, wallet, pack, amount_usd, net_usd, stripe_session, status, lp_status, tx_hash, swap_tx_hash, created_at, updated_at";
 
 async function getSupabaseAdmin(): Promise<LooseDb> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -273,9 +286,7 @@ export const listMyAuraBuyOrders = createServerFn({ method: "GET" })
     const db = await getSupabaseAdmin();
     const { data, error } = await db
       .from("aura_buy_orders")
-      .select(
-        "id, user_id, company_id, wallet, pack, amount_usd, stripe_session, status, tx_hash, created_at, updated_at",
-      )
+      .select(AURA_BUY_ORDER_COLUMNS)
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false })
       .limit(20);
@@ -302,9 +313,7 @@ export const listAuraBuyOrders = createServerFn({ method: "POST" })
     const db = await getSupabaseAdmin();
     const { data: rows, error } = await db
       .from("aura_buy_orders")
-      .select(
-        "id, user_id, company_id, wallet, pack, amount_usd, stripe_session, status, tx_hash, created_at, updated_at",
-      )
+      .select(AURA_BUY_ORDER_COLUMNS)
       .order("created_at", { ascending: false })
       .limit(80);
     if (error) {
@@ -353,7 +362,9 @@ export const markAuraBuySent = createServerFn({ method: "POST" })
       .from("aura_buy_orders")
       .update({
         status: "sent",
+        lp_status: "sent",
         tx_hash: data.txHash,
+        swap_tx_hash: data.txHash,
         updated_at: new Date().toISOString(),
       })
       .eq("id", data.orderId)
@@ -396,6 +407,12 @@ export async function recordAuraBuyOrderFromStripe(opts: {
   pack: string;
   amountUsd: number;
   stripeSession: string;
+  amountCents?: number;
+  feeCents?: number;
+  netCents?: number;
+  feeEstimated?: boolean;
+  paymentIntent?: string | null;
+  fundsAvailable?: boolean;
 }): Promise<{ inserted: boolean }> {
   if (!opts.userId || !opts.stripeSession) {
     throw new Error("Missing user or Stripe session");
@@ -414,18 +431,52 @@ export async function recordAuraBuyOrderFromStripe(opts: {
     .maybeSingle();
   if (existing?.id) return { inserted: false };
 
+  const amountCents = opts.amountCents ?? Math.round(opts.amountUsd * 100);
+  const feeCents = opts.feeCents ?? stripeCardFeeCentsEstimate(amountCents);
+  const netCents = opts.netCents ?? stripeNetCents(amountCents, feeCents);
+
   const { error } = await db.from("aura_buy_orders").insert({
     user_id: opts.userId,
     company_id: opts.companyId || null,
     wallet: opts.wallet,
     pack: opts.pack,
     amount_usd: opts.amountUsd,
+    amount_cents: amountCents,
+    fee_cents: feeCents,
+    net_usd: centsToUsd(netCents),
+    fee_usd: centsToUsd(feeCents),
+    fee_estimated: opts.feeEstimated ?? opts.feeCents == null,
+    usdc_units: usdcUnitsFromNetCents(netCents).toString(),
+    payment_intent: opts.paymentIntent || null,
+    funds_available: Boolean(opts.fundsAvailable),
     stripe_session: opts.stripeSession,
     status: "paid",
+    lp_status: "reserved",
   });
   if (error) {
     if (error.code === "23505") return { inserted: false };
     throw error;
   }
   return { inserted: true };
+}
+
+export async function listAuraBuyPublicReceipts(limit = 40) {
+  const db = await getSupabaseAdmin();
+  const { data, error } = await db
+    .from("aura_buy_orders")
+    .select(
+      "id, pack, amount_usd, net_usd, wallet, usdc_tx_hash, swap_tx_hash, tx_hash, created_at, lp_status",
+    )
+    .eq("lp_status", "sent")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    if (error.message?.includes("does not exist") || error.message?.includes("column")) {
+      return [];
+    }
+    throw error;
+  }
+  return (data ?? [])
+    .map((row) => toAuraBuyPublicReceipt(row as never))
+    .filter((row): row is NonNullable<typeof row> => Boolean(row));
 }

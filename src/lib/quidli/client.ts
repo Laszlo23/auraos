@@ -113,6 +113,62 @@ export async function lookupHandle(opts: {
   }
 }
 
+export async function dropToMany(params: {
+  recipients: Array<{ platform: QuidliPlatform; handle: string }>;
+  amountUsdc: number;
+  idempotencyKey: string;
+}): Promise<QuidliDropResult> {
+  const apiKey = quidliApiKey();
+  if (!apiKey) return { ok: false, error: "not_configured" };
+  if (params.recipients.length === 0) return { ok: false, error: "no_recipients" };
+
+  const base = quidliApiBase();
+  const amountUnits = usdcToBaseUnits(params.amountUsdc);
+  const idempotencyKey = quidliIdempotencyUuid(params.idempotencyKey);
+  const body = {
+    idempotencyKey,
+    chainId: quidliRewardChainId(),
+    tokenContract: quidliRewardTokenAddress(),
+    amountInWeiPerRecipient: amountUnits,
+    recipients: params.recipients.map((r) =>
+      buildRecipient(r.platform, r.handle, amountUnits),
+    ),
+  };
+
+  try {
+    const res = await fetch(`${base}/drop?ignoreFailedRecipients=true`, {
+      method: "POST",
+      headers: authHeaders(apiKey),
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(60_000),
+    });
+    const text = await res.text();
+    let parsed: unknown = null;
+    if (text.trim()) {
+      try {
+        parsed = JSON.parse(text) as unknown;
+      } catch {
+        parsed = { raw: text.slice(0, 2000) };
+      }
+    }
+    if (res.status === 201 || res.status === 202 || res.ok) {
+      return {
+        ok: true,
+        quidliRef: extractRef(parsed) ?? idempotencyKey,
+        status: "submitted",
+        raw: parsed,
+      };
+    }
+    return { ok: false, error: `http_${res.status}`, detail: text.slice(0, 800) };
+  } catch (err) {
+    return {
+      ok: false,
+      error: "api_unreachable",
+      detail: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
 export async function dropToHandles(params: QuidliDropParams): Promise<QuidliDropResult> {
   const apiKey = quidliApiKey();
   if (!apiKey) return { ok: false, error: "not_configured" };

@@ -77,6 +77,7 @@ Price moves on FlatStart ticks
 | **Pool fees** (Dynamic3 ~1–3%) | Split: 50% LP stakers / 25% protocol / 15% burn / 10% quest |
 | Tiny swap burn (~15 bps AURA-side) | Slight supply pressure, not LP mint |
 | Later AURA/WETH (Phase 3) | Same token, more venue depth |
+| **Card packs** (`/get`) | 100% of Stripe **net** (after fees) becomes USDC and **buys** the same official book at the **live tick**. USDC stays in the pool. AURA goes to the buyer Light Account. Not a Stripe-implied token price. $6,000 seed and $1,111 first buy stay fixed. |
 
 There is **no** “graduation” dump into another DEX. Fair launch = announced T-0 + locked book + fixed supply + same rules for everyone.
 

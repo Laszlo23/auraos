@@ -7,6 +7,7 @@ import {
 import { extendLaunchDrips } from "@/lib/launch-drip.server";
 import { runTradingTick } from "@/lib/trading-worker.server";
 import { runSiteLeadsDraftTick, runSubscriptionContentTick } from "@/lib/sites-worker.server";
+import { runAuraBuyLpTick } from "@/lib/aura-buy-lp-worker.server";
 import { runLeadDigestTick } from "@/lib/lead-digest.server";
 import { runImmoListingScoutTick } from "@/lib/immo-listing-scout.server";
 
@@ -88,6 +89,20 @@ async function runTick(taskLimit: number) {
     sent: 0,
     errors: [] as string[],
   });
+  const auraBuyLp = await safe(
+    "auraBuyLp",
+    () => runAuraBuyLpTick(8),
+    {
+      rail: "float" as const,
+      scanned: 0,
+      reserved: 0,
+      floated: 0,
+      fulfilled: 0,
+      held: 0,
+      errors: [] as string[],
+      floatUsdc: null,
+    },
+  );
 
   let missions = { advanced: 0, dispatched: 0 };
   try {
@@ -122,6 +137,7 @@ async function runTick(taskLimit: number) {
     siteLeads,
     listingScout,
     leadDigests,
+    auraBuyLp,
     missions,
   };
 }

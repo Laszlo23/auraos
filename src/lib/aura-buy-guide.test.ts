@@ -54,8 +54,12 @@ describe("AURA buy guide SSOT", () => {
   it("says card checkout is fulfillment, not an on-chain swap", () => {
     expect(AURA_BUY_COPY.path1Body).toMatch(/fulfillment/i);
     expect(AURA_BUY_COPY.path1Body).toMatch(/not an on-chain swap/i);
+    expect(AURA_BUY_COPY.path1Body).toMatch(/live official Uniswap v4/i);
+    expect(AURA_BUY_COPY.path1Body).toMatch(/not a Stripe-implied token price/i);
     expect(AURA_BUY_COPY.path1Honest).toMatch(/after T-0/i);
+    expect(AURA_BUY_COPY.packHint).toMatch(/live tick/i);
     expect(AURA_BUY_COPY.packRefund).toMatch(/founders@aibusiness\.fun/);
+    expect(AURA_BUY_COPY.packRefund).toMatch(/\/trust/);
     expect(AURA_BUY_COPY.disclaimer).toMatch(/not equity/i);
     expect(AURA_BUY_COPY.disclaimer).toMatch(/never by DM/i);
     expect(auraBuyPacksEnabled()).toBe(true);

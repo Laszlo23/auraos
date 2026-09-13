@@ -22,7 +22,8 @@ describe("AURA token metadata", () => {
     expect(json.name).toBe(AURA_TOKEN_NAME);
     expect(json.symbol).toBe(AURA_TOKEN_SYMBOL);
     expect(json.description).toBe(AURA_TOKEN_DESCRIPTION);
-    expect(json.image).toMatch(/\/brand\/aura-mark\.png$/);
+    expect(json.image).toMatch(/\/brand\/aura-token\.png$/);
+    expect(json.image_ipfs).toBe("ipfs://bafkreiawamrou72lmqboesv3ispg4ol3pkrlme4i4gspjrtph66agq6hhy");
     expect(json.icon).toBe(json.image);
     expect(json.header).toBe(auraTokenOgUrl());
     expect(json.website).toBe(AURA_TOKEN_WEBSITE);
@@ -53,7 +54,7 @@ describe("AURA token metadata", () => {
       questBonus: ZERO,
       lpStakerRecipient: ZERO,
     });
-    expect(spec["image"]).toMatch(/aura-mark\.png/);
+    expect(spec["image"]).toMatch(/aura-token\.png/);
     const meta = spec["metadata"] as { description: string; socialMediaUrls: unknown[] };
     expect(meta.description).toBe(auraClankerMetadata().description);
     expect(meta.socialMediaUrls.length).toBe(4);

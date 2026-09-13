@@ -10,6 +10,7 @@ import { HOOKR } from "@/lib/hookr";
 import { privateSaleBasescan } from "@/lib/private-sale";
 import {
   OFFICIAL_X_MENTION,
+  GITHUB_REPO_URL,
   SITE_URL,
   SOCIAL_LINKS,
   TOKEN_LAUNCH_DISPLAY,
@@ -74,9 +75,9 @@ export const COVENANT_PROMISES: CovenantPromise[] = [
     id: "grow-lp",
     title: "Grow locked LP — don’t extract fees",
     titleDe: "Locked LP wachsen lassen — keine Fee-Extraktion",
-    body: "25% of official pool fees go to the published protocol sink and are added back into the same locked AURA/USDC book (protocol-owned liquidity). The team cannot withdraw launch LP. Week-1 receipts land on /trust. SOP: /docs/AURA_LP_AND_MINT.md.",
+    body: "25% of official pool fees go to the published protocol sink and are added back into the same locked AURA/USDC book (protocol-owned liquidity). Card packs: 100% of Stripe net buys that same book at the live tick after T-0. The team cannot withdraw launch LP. Week-1 and pack receipts land on /trust. SOP: /docs/AURA_LP_AND_MINT.md.",
     bodyDe:
-      "25 % der offiziellen Pool-Gebühren gehen in den veröffentlichten Protokoll-Sink und zurück ins gleiche gesperrte AURA/USDC-Buch (protocol-owned liquidity). Das Team kann die Start-LP nicht abziehen. Week-1-Belege auf /trust. SOP: /docs/AURA_LP_AND_MINT.md.",
+      "25 % der offiziellen Pool-Gebühren gehen in den veröffentlichten Protokoll-Sink und zurück ins gleiche gesperrte AURA/USDC-Buch (protocol-owned liquidity). Karten-Packs: 100 % des Stripe-Nets kauft nach T-0 dasselbe Buch zum Live-Tick. Das Team kann die Start-LP nicht abziehen. Week-1- und Pack-Belege auf /trust. SOP: /docs/AURA_LP_AND_MINT.md.",
   },
   {
     id: "make-good",
@@ -96,6 +97,7 @@ export const COVENANT_LINKS = [
   { href: `${SITE_URL}/swap`, label: "AURA swap desk" },
   { href: `${SITE_URL}/square`, label: "Aura Square" },
   { href: `${SITE_URL}/docs/AURA_LP_AND_MINT.md`, label: "LP + POL SOP" },
+  { href: GITHUB_REPO_URL, label: "GitHub (open source)" },
   { href: `${SITE_URL}/pit`, label: "TICKPIX pit" },
   { href: `${SITE_URL}/hood`, label: "The Hood" },
   { href: TICKPIX.mintUrl, label: "Mint site" },

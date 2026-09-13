@@ -31,6 +31,7 @@ describe("covenant verify items", () => {
     expect(grow).toBeTruthy();
     expect(grow?.body).toMatch(/25%/);
     expect(grow?.body).toMatch(/locked/i);
+    expect(grow?.body).toMatch(/live tick/);
     expect(grow?.body).toMatch(/AURA_LP_AND_MINT/);
   });
 });

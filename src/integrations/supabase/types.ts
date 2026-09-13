@@ -610,41 +610,74 @@ export type Database = {
       }
       aura_buy_orders: {
         Row: {
+          amount_cents: number | null
           amount_usd: number
           company_id: string | null
           created_at: string
+          fee_cents: number | null
+          fee_estimated: boolean
+          fee_usd: number | null
+          funds_available: boolean
           id: string
+          lp_status: string
+          net_usd: number | null
           pack: string
+          payment_intent: string | null
           status: string
           stripe_session: string
+          swap_tx_hash: string | null
           tx_hash: string | null
           updated_at: string
+          usdc_tx_hash: string | null
+          usdc_units: number | null
           user_id: string
           wallet: string
         }
         Insert: {
+          amount_cents?: number | null
           amount_usd: number
           company_id?: string | null
           created_at?: string
+          fee_cents?: number | null
+          fee_estimated?: boolean
+          fee_usd?: number | null
+          funds_available?: boolean
           id?: string
+          lp_status?: string
+          net_usd?: number | null
           pack: string
+          payment_intent?: string | null
           status?: string
           stripe_session: string
+          swap_tx_hash?: string | null
           tx_hash?: string | null
           updated_at?: string
+          usdc_tx_hash?: string | null
+          usdc_units?: number | string | null
           user_id: string
           wallet: string
         }
         Update: {
+          amount_cents?: number | null
           amount_usd?: number
           company_id?: string | null
           created_at?: string
+          fee_cents?: number | null
+          fee_estimated?: boolean
+          fee_usd?: number | null
+          funds_available?: boolean
           id?: string
+          lp_status?: string
+          net_usd?: number | null
           pack?: string
+          payment_intent?: string | null
           status?: string
           stripe_session?: string
+          swap_tx_hash?: string | null
           tx_hash?: string | null
           updated_at?: string
+          usdc_tx_hash?: string | null
+          usdc_units?: number | string | null
           user_id?: string
           wallet?: string
         }

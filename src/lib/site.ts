@@ -84,7 +84,7 @@ export const OFFICIAL_X_HANDLE = "bihary41418" as const;
 export const OFFICIAL_X_MENTION = `@${OFFICIAL_X_HANDLE}` as const;
 export const OFFICIAL_X_URL = `https://x.com/${OFFICIAL_X_HANDLE}` as const;
 
-export type SocialLinkId = "x" | "discord" | "telegram" | "farcaster";
+export type SocialLinkId = "x" | "discord" | "telegram" | "farcaster" | "github";
 
 export type SocialLink = {
   id: SocialLinkId;
@@ -95,6 +95,9 @@ export type SocialLink = {
   questKey: string;
   xp: number;
 };
+
+/** Public GitHub — source of truth for contracts, docs, and product. */
+export const GITHUB_REPO_URL = "https://github.com/Laszlo23/auraos";
 
 export const SOCIAL_LINKS: SocialLink[] = [
   {
@@ -127,6 +130,14 @@ export const SOCIAL_LINKS: SocialLink[] = [
     href: "https://farcaster.xyz/0xleonardo",
     hint: "Follow — cast your first badge",
     questKey: "community:follow-farcaster",
+    xp: 80,
+  },
+  {
+    id: "github",
+    label: "GitHub",
+    href: GITHUB_REPO_URL,
+    hint: "Open source — contracts, docs, product",
+    questKey: "community:star-github",
     xp: 80,
   },
 ];

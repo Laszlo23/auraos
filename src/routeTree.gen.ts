@@ -137,6 +137,7 @@ import { Route as ApiBillingFoundingSeatRouteImport } from './routes/api/billing
 import { Route as ApiBillingWebhookRouteImport } from './routes/api/billing/webhook'
 import { Route as ApiGenesisCollectionRouteImport } from './routes/api/genesis/collection'
 import { Route as ApiPublicAiHealthRouteImport } from './routes/api/public/ai-health'
+import { Route as ApiPublicAuraBuyReceiptsRouteImport } from './routes/api/public/aura-buy-receipts'
 import { Route as ApiPublicGreeterRouteImport } from './routes/api/public/greeter'
 import { Route as ApiPublicKycHealthRouteImport } from './routes/api/public/kyc-health'
 import { Route as ApiSquareCollectionRouteImport } from './routes/api/square/collection'
@@ -815,6 +816,12 @@ const ApiPublicAiHealthRoute = ApiPublicAiHealthRouteImport.update({
   path: '/api/public/ai-health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAuraBuyReceiptsRoute =
+  ApiPublicAuraBuyReceiptsRouteImport.update({
+    id: '/api/public/aura-buy-receipts',
+    path: '/api/public/aura-buy-receipts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicGreeterRoute = ApiPublicGreeterRouteImport.update({
   id: '/api/public/greeter',
   path: '/api/public/greeter',
@@ -1124,6 +1131,7 @@ export interface FileRoutesByFullPath {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
+  '/api/public/aura-buy-receipts': typeof ApiPublicAuraBuyReceiptsRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/public/kyc-health': typeof ApiPublicKycHealthRoute
   '/api/square/collection': typeof ApiSquareCollectionRoute
@@ -1286,6 +1294,7 @@ export interface FileRoutesByTo {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
+  '/api/public/aura-buy-receipts': typeof ApiPublicAuraBuyReceiptsRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/public/kyc-health': typeof ApiPublicKycHealthRoute
   '/api/square/collection': typeof ApiSquareCollectionRoute
@@ -1451,6 +1460,7 @@ export interface FileRoutesById {
   '/api/billing/webhook': typeof ApiBillingWebhookRoute
   '/api/genesis/collection': typeof ApiGenesisCollectionRoute
   '/api/public/ai-health': typeof ApiPublicAiHealthRoute
+  '/api/public/aura-buy-receipts': typeof ApiPublicAuraBuyReceiptsRoute
   '/api/public/greeter': typeof ApiPublicGreeterRoute
   '/api/public/kyc-health': typeof ApiPublicKycHealthRoute
   '/api/square/collection': typeof ApiSquareCollectionRoute
@@ -1616,6 +1626,7 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/genesis/collection'
     | '/api/public/ai-health'
+    | '/api/public/aura-buy-receipts'
     | '/api/public/greeter'
     | '/api/public/kyc-health'
     | '/api/square/collection'
@@ -1778,6 +1789,7 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/genesis/collection'
     | '/api/public/ai-health'
+    | '/api/public/aura-buy-receipts'
     | '/api/public/greeter'
     | '/api/public/kyc-health'
     | '/api/square/collection'
@@ -1942,6 +1954,7 @@ export interface FileRouteTypes {
     | '/api/billing/webhook'
     | '/api/genesis/collection'
     | '/api/public/ai-health'
+    | '/api/public/aura-buy-receipts'
     | '/api/public/greeter'
     | '/api/public/kyc-health'
     | '/api/square/collection'
@@ -2058,6 +2071,7 @@ export interface RootRouteChildren {
   ApiBillingWebhookRoute: typeof ApiBillingWebhookRoute
   ApiGenesisCollectionRoute: typeof ApiGenesisCollectionRoute
   ApiPublicAiHealthRoute: typeof ApiPublicAiHealthRoute
+  ApiPublicAuraBuyReceiptsRoute: typeof ApiPublicAuraBuyReceiptsRoute
   ApiPublicGreeterRoute: typeof ApiPublicGreeterRoute
   ApiPublicKycHealthRoute: typeof ApiPublicKycHealthRoute
   ApiSquareCollectionRoute: typeof ApiSquareCollectionRoute
@@ -2990,6 +3004,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/aura-buy-receipts': {
+      id: '/api/public/aura-buy-receipts'
+      path: '/api/public/aura-buy-receipts'
+      fullPath: '/api/public/aura-buy-receipts'
+      preLoaderRoute: typeof ApiPublicAuraBuyReceiptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/greeter': {
       id: '/api/public/greeter'
       path: '/api/public/greeter'
@@ -3443,6 +3464,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBillingWebhookRoute: ApiBillingWebhookRoute,
   ApiGenesisCollectionRoute: ApiGenesisCollectionRoute,
   ApiPublicAiHealthRoute: ApiPublicAiHealthRoute,
+  ApiPublicAuraBuyReceiptsRoute: ApiPublicAuraBuyReceiptsRoute,
   ApiPublicGreeterRoute: ApiPublicGreeterRoute,
   ApiPublicKycHealthRoute: ApiPublicKycHealthRoute,
   ApiSquareCollectionRoute: ApiSquareCollectionRoute,

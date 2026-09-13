@@ -36,6 +36,32 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-13-open-source",
+    date: "2026-09-13",
+    title: "Open source on GitHub — contracts + product in public",
+    summary:
+      "The Aura OS repo is public. Footer, /trust, and social links point at github.com/Laszlo23/auraos. Mainnet T-0 deploy receipt (Aura.deployed.json) ships in-repo.",
+    items: [
+      "GitHub linked from footer + community covenant",
+      "contracts/aura/Aura.deployed.json published (AuraToken + sinks + vestings on Base)",
+      "Keys and predicted-only files stay gitignored — never on the VPS",
+    ],
+    tags: ["infra", "improvement"],
+  },
+  {
+    id: "2026-09-13-stripe-lp-rail",
+    date: "2026-09-13",
+    title: "Card packs buy the official book.",
+    summary:
+      "After T-0, 100% of AURA pack net (after Stripe fees) becomes USDC and buys on the live official Uniswap v4 AURA/USDC tick. Not a Stripe-implied price. Receipts land on /trust.",
+    items: [
+      "Paid packs queue as a card reserve until the official CA and pool id are published",
+      "Fulfillment wallet USDC float swaps into the locked book; AURA goes to the Light Account",
+      "Public receipts: net USD, swap tx, buyer wallet",
+    ],
+    tags: ["feature"],
+  },
+  {
     id: "2026-09-13-stripe-checkout",
     date: "2026-09-13",
     title: "Card checkout and buy.stripe.com links.",

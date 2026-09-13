@@ -12,6 +12,11 @@ import {
 import { parseFollowerNoticeCsv } from "@/lib/follower-notice";
 import { issueHoodGiveawayBatch, listHoodGiveawayCodes } from "@/lib/hood-giveaway.functions";
 import { getOpsDashboard, triggerOpsTick, type OpsDashboard } from "@/lib/ops.functions";
+import {
+  FOLLOWER_PING_CONFIRM,
+  previewFollowerPing,
+  runFollowerPing,
+} from "@/lib/quidli.functions";
 import { issuePreviewPassBatch, listPreviewPasses } from "@/lib/preview-pass.functions";
 import { PREVIEW_PASS_CODE, previewPassShareUrl } from "@/lib/preview-pass";
 import { displayUserLabel } from "@/lib/siwe-display";
@@ -30,6 +35,9 @@ function OpsPage() {
   const [issuedPreview, setIssuedPreview] = useState<string[]>([]);
   const [csvPreview, setCsvPreview] = useState<string>("");
   const [csvName, setCsvName] = useState("csv");
+  const [pingAmount, setPingAmount] = useState(0.01);
+  const [pingExtras, setPingExtras] = useState("");
+  const [pingConfirm, setPingConfirm] = useState("");
   const { data, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["ops-dashboard"],
     queryFn: async (): Promise<OpsDashboard> =>
@@ -70,6 +78,48 @@ function OpsPage() {
       void qc.invalidateQueries({ queryKey: ["ops-follower-notices"] });
     },
     onError: (e: Error) => toast.error(e.message || "CSV import failed"),
+  });
+
+  const pingPreview = useQuery({
+    queryKey: ["ops-follower-ping", pingAmount, pingExtras],
+    queryFn: () =>
+      previewFollowerPing({
+        data: { amountUsdc: pingAmount, extraHandles: pingExtras },
+      }),
+    staleTime: 30_000,
+  });
+
+  const pingDry = useMutation({
+    mutationFn: () =>
+      runFollowerPing({
+        data: {
+          amountUsdc: pingAmount,
+          extraHandles: pingExtras,
+          dryRun: true,
+        },
+      }),
+    onSuccess: (res) =>
+      toast.success(
+        `Dry run · ${res.queued} this batch · ${res.totalPending} pending · $${res.costUsd}`,
+      ),
+    onError: (e: Error) => toast.error(e.message || "Dry run failed"),
+  });
+
+  const pingSend = useMutation({
+    mutationFn: () =>
+      runFollowerPing({
+        data: {
+          amountUsdc: pingAmount,
+          extraHandles: pingExtras,
+          confirm: pingConfirm,
+          dryRun: false,
+        },
+      }),
+    onSuccess: (res) => {
+      toast.success(`Sent ${res.queued} · ${res.remainingAfter} left · $${res.costUsd}`);
+      void qc.invalidateQueries({ queryKey: ["ops-follower-ping"] });
+    },
+    onError: (e: Error) => toast.error(e.message || "Follower ping failed"),
   });
 
   const issuePreview = useMutation({
@@ -305,6 +355,66 @@ function OpsPage() {
           className="mt-4 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary disabled:opacity-50"
         >
           {importNotice.isPending ? "Importing…" : "Import wallets"}
+        </button>
+      </Panel>
+
+      <Panel label="Follower USDC ping · Quidli">
+        <p className="text-[13px] text-muted-foreground">
+          Tiny USDC on Base to Farcaster followers of @{pingPreview.data?.farcaster ?? "0xleonardo"} via
+          Quidli — not the T-0 treasury. X/Telegram need a handle list (X cannot dump all 1,110
+          followers). Recipients claim on Quidli; official page is {SITE_URL}/drop.
+        </p>
+        <p className="mt-2 text-[12px] text-muted-foreground">
+          FC {pingPreview.data?.fcFollowers ?? "—"} · extras {pingPreview.data?.extraHandles ?? "—"} ·
+          already {pingPreview.data?.alreadySent ?? "—"} · this size ~$
+          {pingPreview.data?.estimatedCostUsd ?? "—"}
+        </p>
+        <label className="mt-4 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          USDC each (0.01–0.11)
+          <input
+            type="number"
+            min={0.01}
+            max={0.11}
+            step={0.01}
+            value={pingAmount}
+            onChange={(e) => setPingAmount(Number(e.target.value) || 0.01)}
+            className="mt-2 block w-32 rounded-xl border border-border/50 bg-foreground/[0.03] px-3 py-2 text-[13px] text-foreground"
+          />
+        </label>
+        <label className="mt-4 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Extra X / Telegram handles
+          <textarea
+            value={pingExtras}
+            onChange={(e) => setPingExtras(e.target.value)}
+            placeholder={"bihary41418\nx:friend\ntg:OxLaszlo"}
+            className="mt-2 block h-24 w-full rounded-xl border border-border/50 bg-foreground/[0.03] px-3 py-2 font-mono text-[12px] text-foreground"
+          />
+        </label>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={pingDry.isPending}
+            onClick={() => pingDry.mutate()}
+            className="rounded-2xl border border-border/50 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em]"
+          >
+            {pingDry.isPending ? "Checking…" : "Dry run next 75"}
+          </button>
+        </div>
+        <label className="mt-4 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Type {FOLLOWER_PING_CONFIRM} to send
+          <input
+            value={pingConfirm}
+            onChange={(e) => setPingConfirm(e.target.value)}
+            className="mt-2 block w-full max-w-sm rounded-xl border border-border/50 bg-foreground/[0.03] px-3 py-2 font-mono text-[13px] text-foreground"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={pingSend.isPending || pingConfirm !== FOLLOWER_PING_CONFIRM}
+          onClick={() => pingSend.mutate()}
+          className="mt-3 rounded-2xl bg-primary/14 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary disabled:opacity-50"
+        >
+          {pingSend.isPending ? "Sending…" : "Send next 75"}
         </button>
       </Panel>
 

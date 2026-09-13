@@ -10,6 +10,10 @@ import { BRAND_ASSETS } from "@/lib/brand";
 import { AURA_TOKEN_NAME, AURA_TOKEN_SYMBOL } from "@/lib/aura-token";
 import { SITE_URL, SOCIAL_LINKS } from "@/lib/site";
 
+/** Official AURA ERC-20 icon (IPFS). HTTPS copy lives at /brand/aura-token.png. */
+export const AURA_TOKEN_IMAGE_CID = "bafkreiawamrou72lmqboesv3ispg4ol3pkrlme4i4gspjrtph66agq6hhy";
+export const AURA_TOKEN_IMAGE_IPFS = `ipfs://${AURA_TOKEN_IMAGE_CID}`;
+
 export const AURA_TOKEN_WEBSITE = `${SITE_URL}/token`;
 export const AURA_TOKEN_DOCS = [
   `${SITE_URL}/tokenomics`,
@@ -38,7 +42,7 @@ function envImageOverride(): string | null {
 }
 
 export function auraTokenImageUrl(): string {
-  return envImageOverride() ?? `${SITE_URL}${BRAND_ASSETS.markPng}`;
+  return envImageOverride() ?? `${SITE_URL}${BRAND_ASSETS.tokenMark}`;
 }
 
 export function auraTokenOgUrl(): string {
@@ -102,6 +106,7 @@ export type AuraTokenMetaJson = {
   symbol: string;
   description: string;
   image: string;
+  image_ipfs: string;
   icon: string;
   header: string;
   external_url: string;
@@ -127,6 +132,7 @@ export function auraTokenMetaJson(): AuraTokenMetaJson {
     symbol: AURA_TOKEN_SYMBOL,
     description: AURA_TOKEN_DESCRIPTION,
     image: icon,
+    image_ipfs: AURA_TOKEN_IMAGE_IPFS,
     icon,
     header: auraTokenOgUrl(),
     external_url: AURA_TOKEN_WEBSITE,

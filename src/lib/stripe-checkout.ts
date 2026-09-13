@@ -97,6 +97,25 @@ export async function createStripeCheckoutSession(
   };
 }
 
+export async function retrieveStripeCheckoutSession(
+  secret: string,
+  sessionId: string,
+  query = "",
+): Promise<Record<string, unknown>> {
+  const url = `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}${query ? `?${query}` : ""}`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Stripe-Version": STRIPE_API_VERSION,
+    },
+  });
+  const json = (await res.json()) as { error?: { message?: string } };
+  if (!res.ok) {
+    throw new Error(json.error?.message || `Could not retrieve checkout session (HTTP ${res.status})`);
+  }
+  return json as Record<string, unknown>;
+}
+
 /** Refund a PaymentIntent (e.g. founding seat sold out after checkout). */
 export async function refundStripePaymentIntent(
   secret: string,

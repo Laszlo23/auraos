@@ -9,6 +9,8 @@ import {
 import { FOUNDING_SEAT_CENTS } from "@/lib/founding-price";
 import { funnelPlanById, isFunnelPlanId } from "@/lib/funnel-plans";
 import { planById } from "@/lib/plans";
+import { retrieveStripeCheckoutSession } from "@/lib/stripe-checkout";
+import { stripeCheckoutExpandQuery, stripePackNetFromCheckout } from "@/lib/stripe-pack-net";
 import { cycleWindow } from "@/lib/subscription";
 
 function verifyStripeSignature(rawBody: string, header: string | null, secret: string): boolean {
@@ -222,6 +224,25 @@ export const Route = createFileRoute("/api/billing/webhook")({
               typeof session.amount_total === "number"
                 ? session.amount_total / 100
                 : Number(pack);
+            let net:
+              | ReturnType<typeof stripePackNetFromCheckout>
+              | undefined;
+            const secret = process.env["STRIPE_SECRET_KEY"]?.trim();
+            if (secret && session.id) {
+              try {
+                const expanded = await retrieveStripeCheckoutSession(
+                  secret,
+                  session.id,
+                  stripeCheckoutExpandQuery(),
+                );
+                net = stripePackNetFromCheckout(expanded);
+              } catch (err) {
+                console.warn(
+                  "[billing/webhook] aura_buy net lookup",
+                  err instanceof Error ? err.message : err,
+                );
+              }
+            }
             await recordAuraBuyOrderFromStripe({
               userId,
               companyId: session.metadata.company_id,
@@ -229,6 +250,18 @@ export const Route = createFileRoute("/api/billing/webhook")({
               pack,
               amountUsd,
               stripeSession: session.id,
+              ...(net
+                ? {
+                    amountCents: net.amountCents,
+                    feeCents: net.feeCents,
+                    netCents: net.netCents,
+                    feeEstimated: net.feeEstimated,
+                    paymentIntent: net.paymentIntent,
+                    fundsAvailable: net.fundsAvailable,
+                  }
+                : typeof session.payment_intent === "string"
+                  ? { paymentIntent: session.payment_intent }
+                  : {}),
             });
             return Response.json({ received: true });
           }
@@ -450,6 +483,26 @@ export const Route = createFileRoute("/api/billing/webhook")({
             amount: tokens,
             reason: grantReason,
           });
+        }
+
+        if (event.type === "charge.refunded" || event.type === "charge.dispute.created") {
+          const paymentIntent =
+            typeof event.data?.object?.payment_intent === "string"
+              ? event.data.object.payment_intent
+              : null;
+          if (paymentIntent) {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            await supabaseAdmin
+              .from("aura_buy_orders")
+              .update({
+                status: "failed",
+                funds_available: false,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("payment_intent", paymentIntent)
+              .eq("status", "paid")
+              .in("lp_status", ["reserved", "usdc_onchain"]);
+          }
         }
 
         return Response.json({ received: true });

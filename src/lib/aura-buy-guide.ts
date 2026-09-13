@@ -1,6 +1,7 @@
 /**
  * Standalone /buy SSOT — three ways to get AURA after T-0.
- * Card checkout is fulfillment (cash-desk), not an on-chain swap.
+ * Card checkout is fulfillment (cash-desk), not an on-chain swap at checkout.
+ * After T-0, net proceeds buy on the live official Uni v4 AURA/USDC tick.
  * Never invent a CA. Official book is locked Uni v4 AURA/USDC on Base.
  */
 
@@ -106,11 +107,13 @@ export const AURA_BUY_COPY = {
   path1Title: "Easiest — no crypto yet",
   path1TitleDe: "Am einfachsten — noch kein Crypto",
   path1Body:
-    "Create a free Aura account. We open a smart wallet on Base. Pay with a card. We send AURA into that wallet after T-0. This is fulfillment — like the cash desk — not an on-chain swap at checkout.",
+    "Create a free Aura account. We open a smart wallet on Base. Pay with a card. After T-0, 100% of the pack net (after Stripe fees) becomes USDC and buys on the live official Uniswap v4 AURA/USDC tick. AURA lands in that wallet. This is fulfillment — like the cash desk — not an on-chain swap at checkout, and not a Stripe-implied token price.",
   path1BodyDe:
-    "Kostenloses Aura-Konto. Wir öffnen eine Smart Wallet auf Base. Du zahlst mit Karte. AURA kommt nach T-0 in diese Wallet. Das ist Erfüllung — wie der Cash-Desk — kein On-Chain-Swap an der Kasse.",
-  path1Honest: "Card now. AURA in your Aura wallet after T-0 — we email you.",
-  path1HonestDe: "Karte jetzt. AURA nach T-0 in deiner Aura-Wallet — wir mailen dir.",
+    "Kostenloses Aura-Konto. Wir öffnen eine Smart Wallet auf Base. Du zahlst mit Karte. Nach T-0 wird 100 % des Pack-Nets (nach Stripe-Gebühren) zu USDC und kauft zum Live-Tick des offiziellen Uniswap-v4-AURA/USDC-Buchs. AURA landet in dieser Wallet. Das ist Erfüllung — wie der Cash-Desk — kein On-Chain-Swap an der Kasse und kein von Stripe implizierter Tokenpreis.",
+  path1Honest:
+    "Card now. After T-0 we buy on the live official tick and send AURA to your Aura wallet — we email you.",
+  path1HonestDe:
+    "Karte jetzt. Nach T-0 kaufen wir zum Live-Tick des offiziellen Buchs und senden AURA in deine Aura-Wallet — wir mailen dir.",
   path1CtaSignup: "Create a free account",
   path1CtaSignupDe: "Kostenloses Konto",
   path1CtaWallet: "Open my Aura wallet",
@@ -153,12 +156,14 @@ export const AURA_BUY_COPY = {
     "AURA is software, not equity. You can lose the tokens. Official CA only on aibusiness.fun and X @bihary41418 — never by DM.",
   disclaimerDe:
     "AURA ist Software, keine Beteiligung. Du kannst die Token verlieren. Offizielle CA nur auf aibusiness.fun und X @bihary41418 — nie per DM.",
-  packHint: "One-time card charge in USD. Not a subscription. Not an on-chain swap.",
-  packHintDe: "Einmalige Kartenzahlung in USD. Kein Abo. Kein On-Chain-Swap.",
+  packHint:
+    "One-time card charge in USD. Not a subscription. Not an on-chain swap at checkout. After T-0 the net buys the official book at the live tick.",
+  packHintDe:
+    "Einmalige Kartenzahlung in USD. Kein Abo. Kein On-Chain-Swap an der Kasse. Nach T-0 kauft das Net das offizielle Buch zum Live-Tick.",
   packRefund:
-    "Refund before we send AURA: email founders@aibusiness.fun with the Stripe receipt. After T-0 we fulfill from the paid queue on /get.",
+    "Refund before we send AURA: email founders@aibusiness.fun with the Stripe receipt. After T-0 we fulfill from the paid queue on /get at the live official tick. Public receipts land on /trust.",
   packRefundDe:
-    "Rückerstattung bevor wir AURA senden: founders@aibusiness.fun mit Stripe-Beleg. Nach T-0 erfüllen wir die bezahlte Queue auf /get.",
+    "Rückerstattung bevor wir AURA senden: founders@aibusiness.fun mit Stripe-Beleg. Nach T-0 erfüllen wir die bezahlte Queue auf /get zum Live-Tick. Öffentliche Belege auf /trust.",
 } as const;
 
 export function auraBuySignupHref(): string {

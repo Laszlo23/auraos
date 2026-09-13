@@ -64,10 +64,12 @@ secrets/
 .aura-t0-treasury.json
 .aura-t0-out.json
 .aura-t0-predicted.json
-# Network deploy receipts (may include testnet CAs — never publish as official)
+.aura-second-buy.json
+# Network deploy receipts — keep testnet private; publish mainnet Aura.deployed.json
 contracts/aura/Aura.sepolia.json
 contracts/aura/Aura.mainnet.json
 contracts/aura/Aura.*.json
+!contracts/aura/Aura.deployed.json
 
 # Nested leftover checkout (has its own .env — never commit)
 auraos-landing-pr/

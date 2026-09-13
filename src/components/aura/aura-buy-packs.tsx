@@ -164,7 +164,7 @@ export function AuraBuyPacks({ de = false, compact = false }: { de?: boolean; co
         <ul className="space-y-2 text-[12px] text-muted-foreground">
           {orders.data.orders.map((order) => (
             <li key={order.id} className="rounded-xl border border-border/40 px-3 py-2">
-              ${order.amount_usd} · {order.status}
+              ${order.net_usd ?? order.amount_usd} · {order.lp_status ?? order.status}
               {order.tx_hash ? (
                 <span className="ml-2 font-mono text-[11px]">{order.tx_hash.slice(0, 10)}…</span>
               ) : null}
