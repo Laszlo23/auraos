@@ -11,6 +11,7 @@ import { HolderAdvantages } from "@/components/aura/trading/holder-advantages";
 import { useMyHandle } from "@/hooks/use-identity";
 import { useSmartWallet } from "@/hooks/use-earn";
 import { useCompany } from "@/hooks/use-aura";
+import { useLocale } from "@/hooks/use-locale";
 import { useProgress } from "@/hooks/use-progress";
 import { getCompanyEconomy } from "@/lib/economy.functions";
 import { getHolderPerks } from "@/lib/trading.functions";
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/_authenticated/wallet")({
 });
 
 function WalletPage() {
+  const { t } = useLocale();
   const { data: handle } = useMyHandle();
   const { data: wallet } = useSmartWallet(handle?.id);
   const { data: company } = useCompany();
@@ -54,8 +56,8 @@ function WalletPage() {
     <div className="space-y-8">
       <PageHeader
         eyebrow="Wallet"
-        title="Your money, on-chain"
-        description="Balances, badges, receive, send, and exchange. Fund USDC on Base — keep a little ETH for gas until sponsorship is on."
+        title={t("walletPage.title")}
+        description={t("walletPage.description")}
       />
       <WalletDesk seat={progress?.seat_number ?? null} {...(perks ? { perks } : {})} />
       <GenesisPassport

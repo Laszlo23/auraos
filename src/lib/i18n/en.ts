@@ -908,7 +908,7 @@ export const en: MessageTree = {
     trafficTopPages: "Top pages",
     trafficGa: "Google Analytics 4",
     trafficGaMissing:
-      "Add GA4_PROPERTY_ID and GA4_SERVICE_ACCOUNT_JSON on the VPS to pull GA reports here. Measurement ID G-PZMRS91Q88 is already on the site.",
+      "Add GA4_PROPERTY_ID=549148530 and GA4_SERVICE_ACCOUNT_JSON on the VPS to pull GA reports here. The page tag is G-PZMRS91Q88 — 549148530 is the Admin property, not a G- code.",
     trafficGaCounts: "{views} page views · {sessions} sessions (14 days)",
     trafficError: "Could not load traffic.",
     trafficRelics: "Relics",
@@ -1310,5 +1310,21 @@ export const en: MessageTree = {
       hint: "Revenue, costs, budgets — product money, not the token",
     },
     settings: { label: "Settings", hint: "Preferences and account" },
+  },
+  walletPage: {
+    title: "Your money, on-chain",
+    description:
+      "Balances, receive, send, and exchange. This is desk working capital — not the AURA launch wallet.",
+    chip: "AI working capital",
+    workingCapital:
+      "Fund this wallet so Aura can trade and earn — with hard caps — and prove it. You can lose this. The locked T-0 book is a different address.",
+  },
+  moneyHub: {
+    title: "Put money to work",
+    description:
+      "Give Aura a slice of USDC. It trades or parks it so you can see what it does. Caps stay on. You can lose this. Not the official launch wallet.",
+    firstTitle: "First: add USDC",
+    firstBody: "Open Wallet, deposit USDC (or ETH and convert), then pick a path.",
+    firstCta: "Open Wallet",
   },
 };

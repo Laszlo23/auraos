@@ -24,7 +24,9 @@ import { rootOrganizationGraph } from "@/lib/seo";
 import { ensureUiLocale } from "@/lib/i18n";
 import {
   flushQueuedGaPageViews,
+  GA4_PROPERTY_ID,
   GA_MEASUREMENT_ID,
+  gtagBootstrapHtml,
   trackPublicPageView,
 } from "@/lib/site-pageview";
 
@@ -94,50 +96,6 @@ function RouteAnalytics() {
   useEffect(() => {
     trackPublicPageView(pathname);
   }, [pathname]);
-  return null;
-}
-
-/** Load GA after first paint so it does not compete with LCP / fonts. */
-function DeferredAnalytics() {
-  useEffect(() => {
-    const id = GA_MEASUREMENT_ID;
-    const boot = () => {
-      if (document.getElementById("aura-gtag")) return;
-      const w = window as Window & {
-        dataLayer?: unknown[];
-        gtag?: (...args: unknown[]) => void;
-      };
-      w.dataLayer = w.dataLayer || [];
-      w.gtag = function gtag(...args: unknown[]) {
-        w.dataLayer!.push(args);
-      };
-      w.gtag("js", new Date());
-      w.gtag("config", id, { send_page_view: false });
-      const s = document.createElement("script");
-      s.id = "aura-gtag";
-      s.async = true;
-      s.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
-      s.onload = () => flushQueuedGaPageViews();
-      document.head.appendChild(s);
-    };
-
-    const ric = (
-      window as Window & {
-        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-      }
-    ).requestIdleCallback;
-    if (typeof ric === "function") {
-      const handle = ric(boot, { timeout: 3500 });
-      return () => {
-        (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(
-          handle,
-        );
-      };
-    }
-    const t = window.setTimeout(boot, 2200);
-    return () => window.clearTimeout(t);
-  }, []);
-
   return null;
 }
 
@@ -227,6 +185,16 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          onLoad={() => flushQueuedGaPageViews()}
+        />
+        <script
+          // Property 549148530 is the GA Admin id. The live tag is G-PZMRS91Q88.
+          data-ga4-property={GA4_PROPERTY_ID}
+          dangerouslySetInnerHTML={{ __html: gtagBootstrapHtml() }}
+        />
       </head>
       <body className="min-h-screen antialiased">
         {children}
@@ -283,7 +251,6 @@ function RootChrome() {
       <Toaster position="top-center" />
       <InstallApp />
       <RouteAnalytics />
-      <DeferredAnalytics />
     </>
   );
 }

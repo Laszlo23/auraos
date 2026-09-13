@@ -36,6 +36,21 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-13-bell-is-funded",
+    date: "2026-09-13",
+    title: "The book is funded. Sunday is a desk, not a wish.",
+    summary:
+      "Official Base wallet now holds the $6,000 locked book, the $1,111 seed, and gas. 11:11 is clicks: deploy, lock the pair, pin the CA. Not a token address in a DM.",
+    items: [
+      "Launch wallet 0x7894… holds $7,237 USDC + 0.11 ETH — over the $7,111 bar, nonce still 0",
+      "Sunday paper: wrap AuraToken into a locked Uni v4 AURA/USDC book, or native v4 + lock — never a factory meme token",
+      "Operator status now prints nonce. desk prints the 10:45 → pin sequence",
+      "Wallet and Money say this is AI working capital — not the launch pile",
+      "Google Analytics fires on first paint (G-PZMRS91Q88) so public views actually land",
+    ],
+    tags: ["infra", "improvement"],
+  },
+  {
     id: "2026-09-12-desk-trim",
     date: "2026-09-12",
     title: "A quieter desk — Money, Wallet, and Verify up front",

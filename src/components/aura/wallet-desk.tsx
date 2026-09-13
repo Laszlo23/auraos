@@ -38,6 +38,7 @@ import {
 import { WalletExportPanel } from "@/components/aura/wallet-export";
 import { WalletGrowPanel, WalletWorkingHint } from "@/components/aura/wallet-grow-panel";
 import { useCompany } from "@/hooks/use-aura";
+import { useLocale } from "@/hooks/use-locale";
 import { useFioReady } from "@/hooks/use-fio-ready";
 import { useMyHandle } from "@/hooks/use-identity";
 import { useProvisionSmartWallet, useSmartWallet } from "@/hooks/use-earn";
@@ -73,6 +74,7 @@ export function WalletDesk({
   const { data: wallet, isLoading: walletLoading } = useSmartWallet(handleId);
   const provision = useProvisionSmartWallet();
   const { data: company } = useCompany();
+  const { t } = useLocale();
   const fio = useFioReady();
 
   const [tab, setTab] = useState<DeskTab>(null);
@@ -401,7 +403,11 @@ export function WalletDesk({
               ) : (
                 <Chip>Gas: keep {nativeSym}</Chip>
               )}
+              <Chip tone="gold">{t("walletPage.chip")}</Chip>
             </div>
+            <p className="mt-3 max-w-xl text-[12px] leading-relaxed text-muted-foreground">
+              {t("walletPage.workingCapital")}
+            </p>
             {(() => {
               const workingUsdc = Number(yieldQ.data?.openMark ?? yieldQ.data?.openNotional ?? 0);
               const totalPicture = totalCash + workingUsdc;

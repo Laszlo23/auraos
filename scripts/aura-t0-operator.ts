@@ -102,9 +102,10 @@ Dedicated machine only. Never the public VPS. Never print the key.
 
 Commands:
   treasury              Create a new empty tokenAdmin wallet (gitignored)
-  status [--sepolia]    ETH + USDC on that wallet
+  status [--sepolia]    ETH + USDC + nonce on that wallet
   compile               solc AuraToken + sinks (no tx)
   venue                 Clanker wrap vs native Uni v4 fallback
+  desk                  Print Sunday 10:45 → pin-CA sequence + attach clicks
   wait                  Sleep until ${TOKEN_LAUNCH_AT_ISO} then print GO
   broadcast --sepolia   Rehearsal deploy (allowed anytime)
   broadcast --go        Mainnet deploy — refuses before T-0, nonce 0, Base time
@@ -170,7 +171,7 @@ async function cmdStatus(sepolia: boolean) {
     (sepolia ? "https://sepolia.base.org" : "https://mainnet.base.org");
   const usdc = (sepolia ? BASE_SEPOLIA_USDC : BASE_USDC) as Address;
   const client = createPublicClient({ chain, transport: http(rpc) });
-  const [eth, usdcRaw] = await Promise.all([
+  const [eth, usdcRaw, nonce] = await Promise.all([
     client.getBalance({ address }),
     client.readContract({
       address: usdc,
@@ -178,18 +179,56 @@ async function cmdStatus(sepolia: boolean) {
       functionName: "balanceOf",
       args: [address],
     }),
+    client.getTransactionCount({ address }),
   ]);
   const usdcHuman = Number(formatUnits(usdcRaw, 6));
   console.log("network", sepolia ? "base-sepolia" : "base");
   console.log("tokenAdmin", address);
   console.log("ETH", formatEther(eth));
   console.log("USDC", usdcHuman);
+  console.log("nonce", nonce, nonce === 0 ? "OK" : "DEAD — predicted CA invalid");
   console.log("need USDC", AURA_T0_TREASURY_USDC, usdcHuman >= AURA_T0_TREASURY_USDC ? "OK" : "SHORT");
   console.log(
     "need ETH",
     `${AURA_T0_GAS_ETH.min}–${AURA_T0_GAS_ETH.max}`,
     Number(formatEther(eth)) >= AURA_T0_GAS_ETH.min ? "OK" : "SHORT",
   );
+}
+
+function cmdDesk() {
+  console.log(`AURA Sunday desk — ${TOKEN_LAUNCH_DISPLAY}`);
+  console.log("Paper: docs/AURA_T0_ATTACH.md. Human in the loop. Key stays off the VPS.");
+  console.log("");
+  console.log("10:45 Vienna");
+  console.log("  1. This machine only. RPC warm. export AURA_WALLET_TEAM_BENEFICIARY=0x96E85b3560C6959783c158B39672206afB6365ac");
+  console.log("  2. npx tsx scripts/aura-t0-operator.ts status");
+  console.log("     Need: USDC ≥ 7111 OK · ETH ≥ 0.02 OK · nonce 0 OK");
+  console.log("  3. If any SHORT or nonce ≠ 0 → stop. Do not broadcast.");
+  console.log("");
+  console.log("11:10");
+  console.log("  npx tsx scripts/aura-t0-operator.ts wait");
+  console.log("");
+  console.log("11:11 GO");
+  console.log("  npx tsx scripts/aura-t0-operator.ts broadcast --go");
+  console.log("  If it refuses → stop. Do not send a manual tx.");
+  console.log("  Copy AuraToken from the receipt. Predicted file is a check only.");
+  console.log("");
+  console.log("Attach locked book BEFORE any public CA  (docs/AURA_T0_ATTACH.md)");
+  console.log("  Path A — Clanker wrap existingToken: true on the NEW AuraToken.");
+  console.log("  Path B — native Uni v4 Position Manager + published lock.");
+  console.log("  Same numbers: $6,000 book · $1,111 seed · Standard · Dynamic3 · 50/25/15/10 · 15 bps burn.");
+  console.log("  Never ClankerTokenV4. Never create a second AURA.");
+  console.log("  Slip mechanical T-0 if the UI wants to mint a factory token.");
+  console.log("");
+  console.log("Verify");
+  console.log("  Pool exists on Base. LP cannot be withdrawn by the team.");
+  console.log("  Seed $1,111 USDC hit the book. Bought AURA sits on 0x7894… (treasury), not a new mint.");
+  console.log("");
+  console.log("Then post-t0");
+  console.log("  npx tsx scripts/aura-t0-operator.ts post-t0");
+  console.log("  VPS env + bash scripts/deploy-app.sh");
+  console.log("  curl -sS https://aibusiness.fun/api/token/aura  → address = confirmed CA");
+  console.log("  Pin that same CA on X @bihary41418. Never DM.");
 }
 
 function cmdCompile() {
@@ -418,6 +457,9 @@ async function main() {
       return;
     case "venue":
       cmdVenue();
+      return;
+    case "desk":
+      cmdDesk();
       return;
     case "predict-ca":
       await cmdPredictCa();

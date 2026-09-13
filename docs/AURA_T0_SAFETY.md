@@ -29,7 +29,8 @@ Production today must stay `address: null` on `https://aibusiness.fun/api/token/
 ## Saturday checklist (laptop, not VPS)
 
 ```bash
-npx tsx scripts/aura-t0-operator.ts status          # nonce path: predict-ca; ETH + USDC
+npx tsx scripts/aura-t0-operator.ts status          # ETH + USDC + nonce
+npx tsx scripts/aura-t0-operator.ts desk            # 10:45 → pin-CA + attach clicks
 npx tsx scripts/aura-t0-operator.ts predict-ca      # writes gitignored .aura-t0-predicted.json
 npx tsx scripts/aura-t0-operator.ts broadcast       # must refuse today (no --go / before T-0)
 npx tsx scripts/aura-t0-operator.ts broadcast --sepolia   # rehearsal only
@@ -40,7 +41,7 @@ npx tsx scripts/aura-t0-operator.ts broadcast --sepolia   # rehearsal only
 - [ ] `/opt/auraos/.env` on VPS: `AURA_TOKEN_CA`, `VITE_AURA_TOKEN_CA`, `AURA_CA_PUBLISH` empty
 - [ ] `curl -sS https://aibusiness.fun/api/token/aura` → `"address":null`
 - [ ] `/token` `/trust` `/buy` `/tokenomics`: AURA row **Unpublished**; treasury labeled launch wallet
-- [ ] Uni v4 attach path proven, or public slip — never mint a live CA with `pair: null`
+- [ ] Uni v4 attach path on paper: [`AURA_T0_ATTACH.md`](./AURA_T0_ATTACH.md). If unclear, public slip — never mint a live CA with `pair: null`
 - [ ] Card-pack queue: desk `listAuraBuyOrders` — note paid/unsent. Kill switch: `AURA_BUY_PACKS_ENABLED=0`
 
 ## Sunday bell (dedicated machine)

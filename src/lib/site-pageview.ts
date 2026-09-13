@@ -1,9 +1,34 @@
 import { captureAttribution } from "@/lib/attribution";
+import { SITE_URL } from "@/lib/site";
 import { trackTeaser } from "@/lib/teaser-track";
 
+/** Web stream. This is the ID that belongs in gtag/js — not the numeric property. */
 export const GA_MEASUREMENT_ID = "G-PZMRS91Q88";
+/** GA Admin property (Admin URL /p549148530). Used for Data API reports, not the page tag. */
+export const GA4_PROPERTY_ID = "549148530";
 
 const STATIC_EXT = /\.(js|css|mjs|map|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico|mp4|webm)$/i;
+
+export function gtagBootstrapHtml(measurementId = GA_MEASUREMENT_ID): string {
+  return `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${measurementId}',{send_page_view:false});`;
+}
+
+export function gaPageViewParams(path: string): {
+  page_path: string;
+  page_title: string;
+  page_location: string;
+  send_to: string;
+} {
+  const origin =
+    typeof window !== "undefined" && window.location?.origin ? window.location.origin : SITE_URL;
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  return {
+    page_path: path,
+    page_title: typeof document !== "undefined" ? document.title : "",
+    page_location: `${origin}${path}${search}`,
+    send_to: GA_MEASUREMENT_ID,
+  };
+}
 
 type GtagWindow = Window & {
   gtag?: (...args: unknown[]) => void;
@@ -42,11 +67,7 @@ export function sendGaPageView(path: string): void {
   if (typeof window === "undefined") return;
   const w = window as GtagWindow;
   if (typeof w.gtag === "function") {
-    w.gtag("event", "page_view", {
-      page_path: path,
-      page_title: document.title,
-      send_to: GA_MEASUREMENT_ID,
-    });
+    w.gtag("event", "page_view", gaPageViewParams(path));
     return;
   }
   w.__auraPvQueue = w.__auraPvQueue || [];
@@ -61,10 +82,6 @@ export function flushQueuedGaPageViews(): void {
   w.__auraPvQueue = [];
   if (typeof w.gtag !== "function") return;
   for (const path of queued) {
-    w.gtag("event", "page_view", {
-      page_path: path,
-      page_title: document.title,
-      send_to: GA_MEASUREMENT_ID,
-    });
+    w.gtag("event", "page_view", gaPageViewParams(path));
   }
 }

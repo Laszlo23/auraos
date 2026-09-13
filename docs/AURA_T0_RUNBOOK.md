@@ -97,7 +97,7 @@ Testnet USDC is often hard to get. **That is OK.** Do not improvise a broken att
 **Safe Sunday rule (do not violate):**
 
 1. Mainnet treasury `status` must show ~**$7,111 USDC** + **0.02–0.05 ETH** — not SHORT.
-2. Operator at the desk knows the exact attach sequence (Clanker `existingToken: true` on the **new** mainnet AuraToken, or native v4 + published lock). Dry-read the Clanker UI / docs Saturday; write the click order on paper.
+2. Operator at the desk knows the exact attach sequence. Printable click order: [`docs/AURA_T0_ATTACH.md`](./AURA_T0_ATTACH.md) (`npx tsx scripts/aura-t0-operator.ts desk`).
 3. At T-0: deploy token stack **first** → attach **locked** book **before** any public CA → only then `post-t0` + pin on X.
 4. If step 2 is unclear Saturday night → **slip mechanical T-0**. Keep the announced time as marketing only. Public note on X + `/trust`. Never mint a live CA with `pair: null`.
 5. Never put `AURA_T0_KEY` on the VPS. Never use `ClankerTokenV4`. Never shrink the 48h announce.
@@ -117,7 +117,7 @@ Testnet USDC is often hard to get. **That is OK.** Do not improvise a broken att
    - DexScreener token info from `/api/token/aura`
    - GoPlus **after** the 15s sniper fee decays
 
-Printable pre-Sunday lock: [`docs/AURA_T0_SAFETY.md`](./AURA_T0_SAFETY.md).
+Printable pre-Sunday lock: [`docs/AURA_T0_SAFETY.md`](./AURA_T0_SAFETY.md). Attach + 10:45 bell: [`docs/AURA_T0_ATTACH.md`](./AURA_T0_ATTACH.md).
 
 There is no “deposit ETH and Clanker fires at 11:11 by itself.” `src/lib/aura-t0-clanker.ts` **builds the spec only**.
 

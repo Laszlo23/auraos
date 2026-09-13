@@ -912,7 +912,7 @@ export const de: MessageTree = {
     trafficTopPages: "Top-Seiten",
     trafficGa: "Google Analytics 4",
     trafficGaMissing:
-      "GA4_PROPERTY_ID und GA4_SERVICE_ACCOUNT_JSON auf dem VPS setzen, damit GA-Zahlen hier landen. Measurement-ID G-PZMRS91Q88 ist schon auf der Site.",
+      "GA4_PROPERTY_ID=549148530 und GA4_SERVICE_ACCOUNT_JSON auf dem VPS setzen, damit GA-Zahlen hier landen. Der Page-Tag ist G-PZMRS91Q88 — 549148530 ist die Admin-Property, kein G-Code.",
     trafficGaCounts: "{views} Pageviews · {sessions} Sessions (14 Tage)",
     trafficError: "Traffic konnte nicht geladen werden.",
     trafficRelics: "Relics",
@@ -1314,5 +1314,21 @@ export const de: MessageTree = {
       hint: "Umsatz, Kosten, Budgets — Produktgeld, nicht der Token",
     },
     settings: { label: "Einstellungen", hint: "Präferenzen und Konto" },
+  },
+  walletPage: {
+    title: "Dein Geld, on-chain",
+    description:
+      "Guthaben, empfangen, senden, tauschen. Das ist Desk-Arbeitskapital — nicht die AURA-Launch-Wallet.",
+    chip: "KI-Arbeitskapital",
+    workingCapital:
+      "Fülle diese Wallet, damit Aura handeln und verdienen kann — mit Caps — und das beweist. Du kannst das verlieren. Das gesperrte T-0-Buch ist eine andere Adresse.",
+  },
+  moneyHub: {
+    title: "Geld arbeiten lassen",
+    description:
+      "Gib Aura einen Teil USDC. Es handelt oder parkt, damit du siehst, was es kann. Caps bleiben. Du kannst das verlieren. Nicht die offizielle Launch-Wallet.",
+    firstTitle: "Zuerst: USDC einzahlen",
+    firstBody: "Wallet öffnen, USDC einzahlen (oder ETH und tauschen), dann einen Weg wählen.",
+    firstCta: "Wallet öffnen",
   },
 };

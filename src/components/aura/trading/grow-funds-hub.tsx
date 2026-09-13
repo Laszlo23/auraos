@@ -11,6 +11,7 @@ import {
 } from "@/components/aura/trading/simple-trade-path";
 import { PulseUpDownPanel } from "@/components/aura/trading/pulse-up-down-panel";
 import type { DeskReadiness } from "@/components/aura/trading/start-checklist";
+import { useLocale } from "@/hooks/use-locale";
 import { writeGrowPathQuery } from "@/lib/trading/simple-path";
 import { currency } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -60,6 +61,7 @@ export function GrowFundsHub({
   onRealMoneyTrade: () => void;
   childrenAdvanced?: ReactNode;
 }) {
+  const { t } = useLocale();
   const totalWorking = tradeWorkingUsdc + liquidityWorkingUsdc;
   const totalResult = tradeResultUsdc + liquidityResultUsdc;
   const needsFund = availableUsdc < 1 && totalWorking < 1;
@@ -74,9 +76,9 @@ export function GrowFundsHub({
   const nextStep = (() => {
     if (needsFund) {
       return {
-        title: "First: add USDC",
-        body: "Open Wallet, deposit USDC (or ETH and convert), then pick a path.",
-        cta: { label: "Open Wallet", to: "/wallet" as const },
+        title: t("moneyHub.firstTitle"),
+        body: t("moneyHub.firstBody"),
+        cta: { label: t("moneyHub.firstCta"), to: "/wallet" as const },
       };
     }
     if (!path) {
@@ -96,8 +98,8 @@ export function GrowFundsHub({
     <div className="space-y-6">
       <PageHeader
         eyebrow="Money"
-        title="Put money to work"
-        description="Three simple paths. Pick one. Aura handles the rest."
+        title={t("moneyHub.title")}
+        description={t("moneyHub.description")}
         actions={
           <button
             type="button"
