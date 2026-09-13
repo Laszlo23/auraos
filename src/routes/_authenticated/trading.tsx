@@ -54,7 +54,7 @@ export const Route = createFileRoute("/_authenticated/trading")({
       {
         name: "description",
         content:
-          "Let Aura trade ETH, park USDC to earn, or play a 3-minute up/down call. Practice first.",
+          "DeFi in plain words. Ready, Working, Result. Trade, earn, or play. Practice first.",
       },
       { property: "og:title", content: "Put money to work — Aura OS" },
       {

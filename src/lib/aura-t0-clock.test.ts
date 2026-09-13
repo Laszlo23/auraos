@@ -13,6 +13,7 @@ import {
   tokenLaunchAnnounceByMs,
   tokenLaunchAtMs,
   tokenLaunchIsLive,
+  tokenLaunchDisplay,
   tokenLaunchRemain,
 } from "@/lib/aura-t0-clock";
 
@@ -23,6 +24,12 @@ describe("AURA T-0 clock", () => {
     expect(TOKEN_LAUNCH_DISPLAY).toMatch(/Sunday 13 Sep 2026/);
     expect(TOKEN_LAUNCH_DISPLAY).toMatch(/11:11/);
     expect(TOKEN_LAUNCH_DISPLAY_DE).toMatch(/13\. Sep 2026/);
+  });
+
+  it("prints the public clock in the visitor's language", () => {
+    expect(tokenLaunchDisplay("en")).toBe(TOKEN_LAUNCH_DISPLAY);
+    expect(tokenLaunchDisplay("de")).toBe(TOKEN_LAUNCH_DISPLAY_DE);
+    expect(tokenLaunchDisplay("de")).toMatch(/Wien/);
   });
 
   it("keeps a strict 48h announce gate (Friday 11:11 CEST)", () => {

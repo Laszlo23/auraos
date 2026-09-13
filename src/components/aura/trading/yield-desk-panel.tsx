@@ -174,11 +174,11 @@ export function YieldDeskPanel({ companyId }: { companyId: string }) {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-xl">
             <p className="text-[15px] font-semibold tracking-tight">
-              Trading spends. This parks what is left so it can earn.
+              Same story as Simple view: Ready sits, Working earns, Result is the score.
             </p>
             <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              Live: interest (Aave, Venus), pools (Aerodrome, Pancake), and one prediction book.
-              Everything else stays practice until we wire it. You set the cap.
+              Trading spends. This parks what is left. Live books: Aave and Venus (interest),
+              Aerodrome and Pancake (pools). You set the cap. Pull out anytime. Not a bank.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

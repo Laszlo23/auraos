@@ -112,9 +112,9 @@ export function WalletGrowPanel({
     <div className="space-y-5">
       <Panel label="Where your money is" glow>
         <p className="text-[13px] leading-relaxed text-muted-foreground">
-          Money in Aave or a pool is{" "}
-          <span className="font-semibold text-foreground">still yours</span> — it left the liquid
-          USDC line so it can earn. This tab is the full picture.
+          Ready is cash in this wallet. Working is USDC that left the liquid line so it can trade or
+          earn — <span className="font-semibold text-foreground">still yours</span>. Result shows up
+          on Money. This tab is the full picture.
         </p>
 
         {loading ? (
@@ -153,14 +153,14 @@ export function WalletGrowPanel({
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {[
                 {
-                  k: "Cash in wallet",
+                  k: "Ready",
                   v: cashUsdc,
-                  hint: "Ready to send / swap / deploy",
+                  hint: "Sitting here — send, swap, or deploy",
                   icon: Wallet,
                   hot: cashUsdc > 0,
                 },
                 {
-                  k: "In liquidity",
+                  k: "Earning",
                   v: liquidityUsdc,
                   hint:
                     openYield.length > 0
@@ -259,7 +259,7 @@ export function WalletGrowPanel({
                         : null}
                     </p>
                     <p className="mt-1 text-[11px] text-muted-foreground">
-                      Still yours — pull out anytime from Earn.
+                      Still yours — pull out anytime on Money.
                     </p>
                   </div>
                   <div className="text-right">

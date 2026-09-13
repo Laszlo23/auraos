@@ -52,4 +52,20 @@ describe("locale resolve", () => {
     expect(t("kyc.signIn", "de")).toBe("Anmelden");
     expect(t("sale.playTitle", "en")).not.toBe("sale.playTitle");
   });
+
+  it("has a self-explaining DeFi money hub in both catalogs", () => {
+    expect(t("moneyHub.eyebrow", "en")).toMatch(/DeFi/);
+    expect(t("moneyHub.step1", "de")).toMatch(/USDC/);
+    expect(t("moneyHub.earnRisk", "en")).toMatch(/Not a bank/);
+    expect(t("moneyHub.pathEarn", "en")).toBe("Earn on USDC");
+  });
+
+  it("has T-0 hero clock copy in both catalogs", () => {
+    expect(t("landing.heroClockKicker", "en")).toMatch(/T-0/);
+    expect(t("landing.heroClockKicker", "de")).toMatch(/T-0/);
+    expect(t("landing.act6Title", "en")).toBe("The bell is today");
+    expect(t("landing.act6Title", "de")).toBe("Heute ist T-0");
+    expect(t("landing.heroClockLine", "en")).not.toMatch(/0x[a-fA-F0-9]{40}/);
+    expect(t("landing.heroClockLiveLine", "de")).toMatch(/\/token/);
+  });
 });

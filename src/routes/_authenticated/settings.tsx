@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -126,6 +126,7 @@ function SettingsPage() {
     const navPrefs = [...checkedPaths];
     if (!navPrefs.includes("/console")) navPrefs.unshift("/console");
     if (!navPrefs.includes("/settings")) navPrefs.push("/settings");
+    if (!navPrefs.includes("/profile")) navPrefs.push("/profile");
 
     try {
       await applyOsPresetToCompany({
@@ -278,7 +279,12 @@ function SettingsPage() {
         <p className="mb-2 mt-6 text-xs uppercase tracking-[0.2em] text-muted-foreground">
           {t("settings.menuLabel")}
         </p>
-        <p className="mb-3 text-[12px] text-muted-foreground">{t("settings.menuHint")}</p>
+        <p className="mb-3 text-[12px] text-muted-foreground">
+          {t("settings.menuHint")}{" "}
+          <Link to="/profile" search={{ edit: true }} className="text-foreground underline-offset-2 hover:underline">
+            {t("settings.editButtonsOnProfile")}
+          </Link>
+        </p>
         <div className="grid max-h-[22rem] gap-1.5 overflow-y-auto rounded-2xl border border-border/60 p-3 sm:grid-cols-2">
           {checkboxItems.map((item) => {
             const on = checkedPaths.has(item.to);

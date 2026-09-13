@@ -8,6 +8,7 @@ import {
   Briefcase,
   CalendarDays,
   CandlestickChart,
+  CircleUser,
   Compass,
   CreditCard,
   FolderClosed,
@@ -174,7 +175,7 @@ export const NAV: NavItem[] = [
     to: "/trading",
     label: "Put money to work",
     plain: "Money",
-    hint: "Trade, earn, or play — balances live on Wallet",
+    hint: "DeFi in plain words: trade, earn, or play — cash lives on Wallet",
     icon: CandlestickChart,
     group: "Revenue",
     live: true,
@@ -184,7 +185,7 @@ export const NAV: NavItem[] = [
     to: "/wallet",
     label: "Wallet",
     plain: "Funds",
-    hint: "Deposit USDC, then put it to work",
+    hint: "Add USDC here, then give it a job on Money",
     icon: Wallet,
     group: "Revenue",
     live: true,
@@ -325,6 +326,15 @@ export const NAV: NavItem[] = [
     live: true,
   },
   {
+    to: "/profile",
+    label: "Profile",
+    plain: "Profile",
+    hint: "Your official card — edit name, bio, and which buttons you see",
+    icon: CircleUser,
+    group: "System",
+    core: true,
+  },
+  {
     to: "/identity",
     label: "Identity",
     plain: "Verify",
@@ -402,11 +412,15 @@ export function localizedNavHint(item: NavItem, locale: UiLocale): string | unde
 /** The short list a first-time user should see. */
 export const CORE_NAV = NAV.filter((n) => n.core);
 
-/** Always keep Settings reachable in simple lists. */
+/** Always keep Profile and Settings reachable in simple lists. */
 function withSettings(items: NavItem[]): NavItem[] {
-  if (items.some((n) => n.to === "/settings")) return items;
-  const settings = NAV.find((n) => n.to === "/settings");
-  return settings ? [...items, settings] : items;
+  let next = items;
+  for (const to of ["/profile", "/settings"] as const) {
+    if (next.some((n) => n.to === to)) continue;
+    const item = NAV.find((n) => n.to === to);
+    if (item) next = [...next, item];
+  }
+  return next;
 }
 
 /** Filter nav by funnel preset paths. Empty preset = default CORE_NAV when simple. */

@@ -24,6 +24,7 @@ import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DropRouteImport } from './routes/drop'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as GetRouteImport } from './routes/get'
 import { Route as GrantsRouteImport } from './routes/grants'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as HoodRouteImport } from './routes/hood'
@@ -87,6 +88,7 @@ import { Route as AuthenticatedMissionsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedOpsRouteImport } from './routes/_authenticated/ops'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedProofsRouteImport } from './routes/_authenticated/proofs'
 import { Route as AuthenticatedQuestRouteImport } from './routes/_authenticated/quest'
 import { Route as AuthenticatedReportRouteImport } from './routes/_authenticated/report'
@@ -242,6 +244,11 @@ const FaqRoute = FaqRouteImport.update({
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetRoute = GetRouteImport.update({
+  id: '/get',
+  path: '/get',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GrantsRoute = GrantsRouteImport.update({
@@ -559,6 +566,11 @@ const AuthenticatedOpsRoute = AuthenticatedOpsRouteImport.update({
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProofsRoute = AuthenticatedProofsRouteImport.update({
@@ -1000,6 +1012,7 @@ export interface FileRoutesByFullPath {
   '/drop': typeof DropRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/get': typeof GetRoute
   '/grants': typeof GrantsRoute
   '/guide': typeof GuideRoute
   '/hood': typeof HoodRoute
@@ -1062,6 +1075,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/proofs': typeof AuthenticatedProofsRoute
   '/quest': typeof AuthenticatedQuestRoute
   '/report': typeof AuthenticatedReportRoute
@@ -1160,6 +1174,7 @@ export interface FileRoutesByTo {
   '/drop': typeof DropRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/get': typeof GetRoute
   '/grants': typeof GrantsRoute
   '/guide': typeof GuideRoute
   '/hood': typeof HoodRoute
@@ -1222,6 +1237,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ops': typeof AuthenticatedOpsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/proofs': typeof AuthenticatedProofsRoute
   '/quest': typeof AuthenticatedQuestRoute
   '/report': typeof AuthenticatedReportRoute
@@ -1323,6 +1339,7 @@ export interface FileRoutesById {
   '/drop': typeof DropRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/get': typeof GetRoute
   '/grants': typeof GrantsRoute
   '/guide': typeof GuideRoute
   '/hood': typeof HoodRoute
@@ -1385,6 +1402,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/ops': typeof AuthenticatedOpsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/proofs': typeof AuthenticatedProofsRoute
   '/_authenticated/quest': typeof AuthenticatedQuestRoute
   '/_authenticated/report': typeof AuthenticatedReportRoute
@@ -1486,6 +1504,7 @@ export interface FileRouteTypes {
     | '/drop'
     | '/faq'
     | '/features'
+    | '/get'
     | '/grants'
     | '/guide'
     | '/hood'
@@ -1548,6 +1567,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/ops'
     | '/products'
+    | '/profile'
     | '/proofs'
     | '/quest'
     | '/report'
@@ -1646,6 +1666,7 @@ export interface FileRouteTypes {
     | '/drop'
     | '/faq'
     | '/features'
+    | '/get'
     | '/grants'
     | '/guide'
     | '/hood'
@@ -1708,6 +1729,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/ops'
     | '/products'
+    | '/profile'
     | '/proofs'
     | '/quest'
     | '/report'
@@ -1808,6 +1830,7 @@ export interface FileRouteTypes {
     | '/drop'
     | '/faq'
     | '/features'
+    | '/get'
     | '/grants'
     | '/guide'
     | '/hood'
@@ -1870,6 +1893,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/ops'
     | '/_authenticated/products'
+    | '/_authenticated/profile'
     | '/_authenticated/proofs'
     | '/_authenticated/quest'
     | '/_authenticated/report'
@@ -1971,6 +1995,7 @@ export interface RootRouteChildren {
   DropRoute: typeof DropRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
+  GetRoute: typeof GetRoute
   GrantsRoute: typeof GrantsRoute
   GuideRoute: typeof GuideRoute
   HoodRoute: typeof HoodRoute
@@ -2172,6 +2197,13 @@ declare module '@tanstack/react-router' {
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get': {
+      id: '/get'
+      path: '/get'
+      fullPath: '/get'
+      preLoaderRoute: typeof GetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/grants': {
@@ -2613,6 +2645,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/proofs': {
@@ -3236,6 +3275,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOpsRoute: typeof AuthenticatedOpsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProofsRoute: typeof AuthenticatedProofsRoute
   AuthenticatedQuestRoute: typeof AuthenticatedQuestRoute
   AuthenticatedReportRoute: typeof AuthenticatedReportRoute
@@ -3280,6 +3320,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOpsRoute: AuthenticatedOpsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProofsRoute: AuthenticatedProofsRoute,
   AuthenticatedQuestRoute: AuthenticatedQuestRoute,
   AuthenticatedReportRoute: AuthenticatedReportRoute,
@@ -3339,6 +3380,7 @@ const rootRouteChildren: RootRouteChildren = {
   DropRoute: DropRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
+  GetRoute: GetRoute,
   GrantsRoute: GrantsRoute,
   GuideRoute: GuideRoute,
   HoodRoute: HoodRoute,

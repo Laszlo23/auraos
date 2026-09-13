@@ -1,3 +1,4 @@
+import { useLocale } from "@/hooks/use-locale";
 import { cn } from "@/lib/utils";
 
 export function MoneyModeToggle({
@@ -11,6 +12,7 @@ export function MoneyModeToggle({
   onPractice: () => void;
   onReal: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <div className="inline-flex rounded-2xl bg-foreground/6 p-1">
       <button
@@ -22,7 +24,7 @@ export function MoneyModeToggle({
           practice ? "bg-background text-foreground shadow-sm" : "text-muted-foreground",
         )}
       >
-        Practice
+        {t("moneyHub.practice")}
       </button>
       <button
         type="button"
@@ -33,7 +35,7 @@ export function MoneyModeToggle({
           !practice ? "bg-background text-foreground shadow-sm" : "text-muted-foreground",
         )}
       >
-        Real money
+        {t("moneyHub.realMoney")}
       </button>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   parseNavPrefs,
   presetDefaultNav,
   resolveVisibleNav,
+  toggleNavPref,
 } from "@/lib/os-presets";
 
 describe("os-presets", () => {
@@ -20,6 +21,7 @@ describe("os-presets", () => {
     expect(paths).toContain("/wallet");
     expect(paths).toContain("/console");
     expect(paths).toContain("/settings");
+    expect(paths).toContain("/profile");
     expect(paths).not.toContain("/trading");
     expect(paths).not.toContain("/business");
   });
@@ -35,15 +37,17 @@ describe("os-presets", () => {
     expect(tos).toContain("/console");
     expect(tos).toContain("/channels");
     expect(tos).toContain("/settings");
+    expect(tos).toContain("/profile");
     expect(tos).not.toContain("/trading");
   });
 
-  it("parseNavPrefs normalizes and keeps settings", () => {
+  it("parseNavPrefs normalizes and keeps pinned items", () => {
     const parsed = parseNavPrefs(["/akquise", "nope", "/channels"]);
     expect(parsed).toContain("/akquise");
     expect(parsed).toContain("/channels");
     expect(parsed).toContain("/settings");
     expect(parsed).toContain("/console");
+    expect(parsed).toContain("/profile");
   });
 
   it("community preset stays inside OS (no Nachbar nav)", () => {
@@ -51,6 +55,15 @@ describe("os-presets", () => {
     expect(paths).toContain("/community");
     expect(paths).toContain("/quest");
     expect(paths).not.toContain("/nachbar/heute");
+  });
+
+  it("toggleNavPref cannot hide pinned paths", () => {
+    const next = toggleNavPref(["/console", "/channels", "/settings", "/profile"], "/profile");
+    expect(next).toContain("/profile");
+    expect(next).toContain("/console");
+    const withoutChannels = toggleNavPref(next, "/channels");
+    expect(withoutChannels).not.toContain("/channels");
+    expect(withoutChannels).toContain("/profile");
   });
 
   it("exposes EN/DE settings and navOs strings", () => {

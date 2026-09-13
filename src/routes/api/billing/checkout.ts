@@ -158,8 +158,8 @@ export const Route = createFileRoute("/api/billing/checkout")({
           }
           const price = stripePriceEnvForAuraBuyPack(pack.id);
           params.set("mode", "payment");
-          params.set("success_url", `${site}/buy?checkout=success`);
-          params.set("cancel_url", `${site}/buy?checkout=cancel`);
+          params.set("success_url", `${site}/get?checkout=success&way=smart`);
+          params.set("cancel_url", `${site}/get?checkout=cancel&way=smart`);
           params.set("metadata[kind]", "aura_buy");
           params.set("metadata[pack]", pack.id);
           params.set("metadata[user_id]", user.id);

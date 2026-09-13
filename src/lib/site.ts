@@ -69,6 +69,7 @@ export {
   TOKEN_LAUNCH_LABEL,
   TOKEN_LAUNCH_NOTICE_HOURS,
   tokenLaunchAtMs,
+  tokenLaunchDisplay,
   tokenLaunchIsLive,
   tokenLaunchRemain,
 } from "@/lib/aura-t0-clock";
@@ -258,10 +259,10 @@ export const PRODUCT_SURFACES: ProductSurface[] = [
   },
   {
     id: "buy",
-    label: "Buy AURA",
-    href: "/buy",
+    label: "Get AURA",
+    href: "/get",
     group: "product",
-    blurb: "Card, Base Wallet, or browser — official pair only",
+    blurb: "Smart wallet or your wallet — official pair only",
   },
   {
     id: "quest",

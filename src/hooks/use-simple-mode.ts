@@ -26,8 +26,7 @@ export function useSimpleMode() {
     };
   }, []);
 
-  const toggle = useCallback(() => {
-    const next = !read();
+  const setSimple = useCallback((next: boolean) => {
     try {
       localStorage.setItem(KEY, next ? "1" : "0");
     } catch {
@@ -36,5 +35,9 @@ export function useSimpleMode() {
     window.dispatchEvent(new Event(EVENT));
   }, []);
 
-  return { simple, toggle };
+  const toggle = useCallback(() => {
+    setSimple(!read());
+  }, [setSimple]);
+
+  return { simple, toggle, setSimple };
 }

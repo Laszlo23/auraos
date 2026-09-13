@@ -50,7 +50,7 @@ function SwapPage() {
             ← Home
           </Link>
           <nav className="ml-auto hidden flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em] md:flex">
-            <Link to="/buy" className="text-muted-foreground hover:text-foreground">
+            <Link to="/get" className="text-muted-foreground hover:text-foreground">
               {de ? "AURA kaufen" : "Buy AURA"}
             </Link>
             <Link to="/token" className="text-muted-foreground hover:text-foreground">

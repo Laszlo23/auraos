@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowRight, Droplets, LineChart, Settings2, Sparkles, Timer, Wallet } from "lucide-react";
+import { ArrowRight, Droplets, LineChart, Settings2, Timer, Wallet } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Chip, PageHeader, Panel } from "@/components/aura/primitives";
@@ -67,37 +67,17 @@ export function GrowFundsHub({
   const needsFund = availableUsdc < 1 && totalWorking < 1;
   const tradeLive = tradeWorkingUsdc > 0 || Boolean(readiness?.armed);
   const liquidityLive = liquidityWorkingUsdc > 0;
+  const guideStep = needsFund ? 1 : !path ? 2 : 3;
 
   const setPath = (next: GrowPath) => {
     onPath(next);
     writeGrowPathQuery(next);
   };
 
-  const nextStep = (() => {
-    if (needsFund) {
-      return {
-        title: t("moneyHub.firstTitle"),
-        body: t("moneyHub.firstBody"),
-        cta: { label: t("moneyHub.firstCta"), to: "/wallet" as const },
-      };
-    }
-    if (!path) {
-      return {
-        title: "Pick one way to put money to work",
-        body:
-          tradeLive || liquidityLive
-            ? "You already have money working — open a path to manage it."
-            : "Let Aura trade, park cash to earn, or play a 3-minute ETH call.",
-        cta: null,
-      };
-    }
-    return null;
-  })();
-
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Money"
+        eyebrow={t("moneyHub.eyebrow")}
         title={t("moneyHub.title")}
         description={t("moneyHub.description")}
         actions={
@@ -106,75 +86,76 @@ export function GrowFundsHub({
             onClick={() => onAdvanced(!advanced)}
             className={cn(
               "inline-flex items-center gap-1.5 text-[12px] font-medium transition-colors",
-              advanced
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground",
+              advanced ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
             <Settings2 className="h-3.5 w-3.5" />
-            {advanced ? "Simple view" : "Pro desk"}
+            {advanced ? t("moneyHub.simpleView") : t("moneyHub.proDesk")}
           </button>
         }
       />
 
-      <Panel label="Your money" glow>
+      {!advanced ? <HowDeFiWorks step={guideStep} /> : null}
+
+      <Panel label={t("moneyHub.statsLabel")} glow>
         <p className="mb-4 text-[13px] leading-relaxed text-muted-foreground">
           {totalWorking > 0 ? (
             <>
-              <span className="font-semibold text-foreground">{currency(totalWorking, 2)}</span> is
-              working (still yours — in a trade, loan, or pool)
+              {t("moneyHub.workingLead", { amount: currency(totalWorking, 2) })}{" "}
               {totalResult !== 0 ? (
-                <>
-                  {" "}
-                  · so far{" "}
-                  <span
-                    className={cn(
-                      "font-mono font-semibold",
-                      totalResult > 0 ? "text-primary" : "text-destructive",
-                    )}
-                  >
-                    {totalResult > 0 ? "+" : ""}
-                    {currency(totalResult, 2)}
-                  </span>
-                </>
-              ) : null}
-              . Full map on{" "}
+                <span
+                  className={cn(
+                    "font-mono font-semibold",
+                    totalResult > 0 ? "text-primary" : "text-destructive",
+                  )}
+                >
+                  {totalResult > 0 ? "+" : ""}
+                  {currency(totalResult, 2)}
+                </span>
+              ) : null}{" "}
               <Link
                 to="/wallet"
                 className="font-semibold text-primary underline-offset-2 hover:underline"
               >
-                Wallet
+                {t("moneyHub.workingWallet")}
               </Link>
-              .
             </>
           ) : (
-            <>
-              Ready to use:{" "}
-              <span className="font-mono font-semibold text-foreground">
-                {currency(availableUsdc, 2)} USDC
-              </span>
-              .
-            </>
+            t("moneyHub.readyLead", { amount: currency(availableUsdc, 2) })
           )}
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           {[
-            { k: "Ready", v: availableUsdc, hint: "In your wallet", hot: needsFund },
             {
-              k: "Working",
-              v: totalWorking,
-              hint: tradeLive || liquidityLive ? "In a trade or earning" : "Nothing deployed yet",
-              hot: totalWorking > 0,
+              k: t("moneyHub.statsReady"),
+              v: availableUsdc,
+              hint: needsFund ? t("moneyHub.statsReadyHintEmpty") : t("moneyHub.statsReadyHint"),
+              hot: needsFund,
+              kind: "ready" as const,
             },
             {
-              k: "Result",
+              k: t("moneyHub.statsWorking"),
+              v: totalWorking,
+              hint:
+                tradeLive || liquidityLive
+                  ? t("moneyHub.statsWorkingHintOn")
+                  : t("moneyHub.statsWorkingHintOff"),
+              hot: totalWorking > 0,
+              kind: "working" as const,
+            },
+            {
+              k: t("moneyHub.statsResult"),
               v: totalResult,
-              hint: totalWorking > 0 ? "Profit, loss, or interest so far" : "Shows once money works",
+              hint:
+                totalWorking > 0
+                  ? t("moneyHub.statsResultHintOn")
+                  : t("moneyHub.statsResultHintOff"),
               hot: totalResult !== 0,
+              kind: "result" as const,
             },
           ].map((s) => (
             <div
-              key={s.k}
+              key={s.kind}
               className={cn(
                 "rounded-2xl border px-4 py-3",
                 s.hot
@@ -186,8 +167,8 @@ export function GrowFundsHub({
               <p
                 className={cn(
                   "mt-1 font-mono text-[20px] font-semibold tabular-nums",
-                  s.k === "Result" && totalResult > 0 && "text-primary",
-                  s.k === "Result" && totalResult < 0 && "text-destructive",
+                  s.kind === "result" && totalResult > 0 && "text-primary",
+                  s.kind === "result" && totalResult < 0 && "text-destructive",
                 )}
               >
                 {currency(s.v, 2)}
@@ -198,43 +179,59 @@ export function GrowFundsHub({
         </div>
       </Panel>
 
-      {!advanced && nextStep ? (
+      {!advanced && needsFund ? (
         <div className="flex flex-col gap-3 rounded-[1.5rem] border border-primary/30 bg-primary/[0.08] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-3">
             <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-primary/16 text-primary">
-              {needsFund ? <Wallet className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+              <Wallet className="h-4 w-4" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-foreground">{nextStep.title}</p>
+              <p className="text-sm font-semibold text-foreground">{t("moneyHub.firstTitle")}</p>
               <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                {nextStep.body}
+                {t("moneyHub.firstBody")}
               </p>
             </div>
           </div>
-          {nextStep.cta ? (
-            <Link
-              to={nextStep.cta.to}
-              className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-center text-xs font-semibold text-primary-foreground"
-            >
-              {nextStep.cta.label}
-            </Link>
-          ) : null}
+          <Link
+            to="/wallet"
+            className="shrink-0 rounded-2xl bg-primary px-4 py-2.5 text-center text-xs font-semibold text-primary-foreground"
+          >
+            {t("moneyHub.firstCta")}
+          </Link>
         </div>
       ) : null}
 
       {!advanced ? (
         <>
+          {!path ? (
+            <div>
+              <p className="text-sm font-semibold text-foreground">{t("moneyHub.pickTitle")}</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                {tradeLive || liquidityLive ? t("moneyHub.pickBodyLive") : t("moneyHub.pickBody")}
+              </p>
+            </div>
+          ) : null}
+
           <div className={cn("grid gap-4", path ? "md:grid-cols-1" : "md:grid-cols-3")}>
             {(!path || path === "trade") && (
               <PathCard
                 active={path === "trade"}
                 onClick={() => setPath(path === "trade" ? null : "trade")}
                 icon={<LineChart className="h-6 w-6" />}
-                title="Let Aura trade"
-                body="Aura buys and sells ETH for you. You can win or lose."
-                cta="Start"
-                badge={tradeLive ? "On" : availableUsdc >= 5 ? "Popular" : null}
+                title={t("moneyHub.pathTrade")}
+                body={t("moneyHub.pathTradeBody")}
+                risk={t("moneyHub.pathTradeRisk")}
+                cta={t("moneyHub.pathTradeCta")}
+                badge={
+                  tradeLive
+                    ? t("moneyHub.pathOn")
+                    : availableUsdc >= 5
+                      ? t("moneyHub.pathPopular")
+                      : null
+                }
+                badgeTone={tradeLive ? "primary" : "gold"}
                 compact={path === "trade"}
+                continueLabel={t("moneyHub.continue")}
               />
             )}
             {(!path || path === "liquidity") && (
@@ -242,11 +239,14 @@ export function GrowFundsHub({
                 active={path === "liquidity"}
                 onClick={() => setPath(path === "liquidity" ? null : "liquidity")}
                 icon={<Droplets className="h-6 w-6" />}
-                title="Earn interest"
-                body="Park USDC. You earn when others borrow or trade."
-                cta="Start"
-                badge={liquidityLive ? "On" : null}
+                title={t("moneyHub.pathEarn")}
+                body={t("moneyHub.pathEarnBody")}
+                risk={t("moneyHub.pathEarnRisk")}
+                cta={t("moneyHub.pathEarnCta")}
+                badge={liquidityLive ? t("moneyHub.pathOn") : null}
+                badgeTone="primary"
                 compact={path === "liquidity"}
+                continueLabel={t("moneyHub.continue")}
               />
             )}
             {(!path || path === "pulse") && (
@@ -254,11 +254,14 @@ export function GrowFundsHub({
                 active={path === "pulse"}
                 onClick={() => setPath(path === "pulse" ? null : "pulse")}
                 icon={<Timer className="h-6 w-6" />}
-                title="Play 3 minutes"
-                body="Call ETH up or down. Demo money — a game, not a job."
-                cta="Play"
-                badge="Game"
+                title={t("moneyHub.pathPlay")}
+                body={t("moneyHub.pathPlayBody")}
+                risk={t("moneyHub.pathPlayRisk")}
+                cta={t("moneyHub.pathPlayCta")}
+                badge={t("moneyHub.pathPlayRisk")}
+                badgeTone="gold"
                 compact={path === "pulse"}
+                continueLabel={t("moneyHub.continue")}
               />
             )}
           </div>
@@ -269,7 +272,7 @@ export function GrowFundsHub({
               onClick={() => setPath(null)}
               className="text-[12px] font-medium text-muted-foreground hover:text-foreground"
             >
-              ← All paths
+              {t("moneyHub.allPaths")}
             </button>
           ) : null}
 
@@ -304,8 +307,8 @@ export function GrowFundsHub({
           ) : null}
 
           {path === "liquidity" && !companyId ? (
-            <Panel label="Earn">
-              <p className="text-[13px] text-muted-foreground">Finish setup to unlock this path.</p>
+            <Panel label={t("moneyHub.pathEarn")}>
+              <p className="text-[13px] text-muted-foreground">{t("moneyHub.earnLocked")}</p>
             </Panel>
           ) : null}
 
@@ -320,8 +323,8 @@ export function GrowFundsHub({
           ) : null}
 
           {path === "pulse" && !companyId ? (
-            <Panel label="Play">
-              <p className="text-[13px] text-muted-foreground">Finish setup to unlock Pulse.</p>
+            <Panel label={t("moneyHub.pathPlay")}>
+              <p className="text-[13px] text-muted-foreground">{t("moneyHub.playLocked")}</p>
             </Panel>
           ) : null}
         </>
@@ -332,24 +335,72 @@ export function GrowFundsHub({
   );
 }
 
+function HowDeFiWorks({ step }: { step: 1 | 2 | 3 }) {
+  const { t } = useLocale();
+  const steps = [
+    { n: 1 as const, title: t("moneyHub.step1"), body: t("moneyHub.step1Body") },
+    { n: 2 as const, title: t("moneyHub.step2"), body: t("moneyHub.step2Body") },
+    { n: 3 as const, title: t("moneyHub.step3"), body: t("moneyHub.step3Body") },
+  ];
+
+  return (
+    <ol className="grid gap-2 sm:grid-cols-3" data-tour="defi-how">
+      {steps.map((s) => {
+        const hot = s.n === step;
+        const done = s.n < step;
+        return (
+          <li
+            key={s.n}
+            className={cn(
+              "rounded-2xl border px-4 py-3",
+              hot
+                ? "border-primary/40 bg-primary/[0.08]"
+                : done
+                  ? "border-border/35 bg-foreground/[0.02]"
+                  : "border-border/40 bg-foreground/[0.03]",
+            )}
+          >
+            <p
+              className={cn(
+                "text-[10px] font-black uppercase tracking-[0.2em]",
+                hot ? "text-primary" : "text-muted-foreground",
+              )}
+            >
+              {String(s.n).padStart(2, "0")}
+            </p>
+            <p className="mt-1 text-[13px] font-semibold tracking-tight">{s.title}</p>
+            <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{s.body}</p>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function PathCard({
   active,
   onClick,
   icon,
   title,
   body,
+  risk,
   cta,
   badge,
+  badgeTone = "gold",
   compact,
+  continueLabel,
 }: {
   active: boolean;
   onClick: () => void;
   icon: ReactNode;
   title: string;
   body: string;
+  risk: string;
   cta: string;
   badge?: string | null;
+  badgeTone?: "primary" | "gold";
   compact?: boolean;
+  continueLabel: string;
 }) {
   return (
     <button
@@ -379,7 +430,7 @@ function PathCard({
           >
             {title}
           </h2>
-          {badge ? <Chip tone={badge === "On" ? "primary" : "gold"}>{badge}</Chip> : null}
+          {badge ? <Chip tone={badgeTone}>{badge}</Chip> : null}
         </div>
         <p
           className={cn(
@@ -390,10 +441,13 @@ function PathCard({
           {body}
         </p>
         {!compact ? (
-          <span className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary">
-            {active ? "Continue below" : cta}
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </span>
+          <>
+            <p className="mt-2 text-[11px] font-medium text-foreground/70">{risk}</p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-primary">
+              {active ? continueLabel : cta}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </>
         ) : null}
       </div>
     </button>

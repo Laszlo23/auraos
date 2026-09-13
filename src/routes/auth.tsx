@@ -38,6 +38,7 @@ const SAFE_NEXT = new Set([
   "/kunden",
   "/channels",
   "/buy",
+  "/get",
 ]);
 /** Accounts newer than this are treated as first-time signups for invite burn. */
 const NEW_USER_WINDOW_MS = 2 * 60 * 1000;
@@ -53,7 +54,8 @@ type PostAuthDest =
   | `/lokal/claim/${string}`
   | `/i/fc/${string}`
   | `/oauth/consent?${string}`
-  | "/buy";
+  | "/buy"
+  | "/get";
 
 function isNachbarNext(next?: string): next is `/nachbar${string}` {
   return isSafeNachbarPath(next);

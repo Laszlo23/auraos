@@ -117,7 +117,7 @@ function TokenInvestorPage() {
             ← Home
           </Link>
           <nav className="ml-auto hidden flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.16em] md:flex">
-            <Link to="/buy" className="text-muted-foreground hover:text-foreground">
+            <Link to="/get" className="text-muted-foreground hover:text-foreground">
               {de ? "AURA kaufen" : "Buy AURA"}
             </Link>
             <Link to="/swap" className="text-muted-foreground hover:text-foreground">
@@ -159,7 +159,7 @@ function TokenInvestorPage() {
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
-            to="/buy"
+            to="/get"
             className="cta-liquid flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
           >
             {de ? "AURA kaufen" : "Buy AURA"} <ArrowRight className="h-4 w-4" />

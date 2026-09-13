@@ -17,6 +17,7 @@ import {
 import { isMoreGroup, NAV_GROUPS, localizedNavHint, localizedNavLabel } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { navItemChrome, useNavButtonView } from "@/hooks/use-nav-button-view";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
 import { useSwipeAxis } from "@/hooks/use-swipe-axis";
 import { compact } from "@/lib/format";
@@ -74,6 +75,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
   const { data: sub } = useSubscription();
   const { data: progress } = useProgress();
   const { simple, toggle: toggleSimple } = useSimpleMode();
+  const { view: buttonView } = useNavButtonView();
   const reducedMotion = usePrefersReducedMotion();
   const [liteChrome, setLiteChrome] = useState(false);
 
@@ -227,6 +229,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                   .map((item) => {
                     const active = pathname === item.to;
                     const Icon = item.icon;
+                    const chrome = navItemChrome(buttonView, { active, collapsed });
                     return (
                       <Link
                         key={item.to}
@@ -234,13 +237,7 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                         title={
                           localizedNavHint(item, locale) ?? localizedNavLabel(item, simple, locale)
                         }
-                        className={cn(
-                          "group relative flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-colors",
-                          active
-                            ? "text-foreground"
-                            : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
-                          collapsed && "justify-center px-0",
-                        )}
+                        className={chrome.link}
                       >
                         {active && (
                           <motion.span
@@ -250,17 +247,14 @@ function AuraOsShell({ children }: { children: React.ReactNode }) {
                           />
                         )}
                         <Icon
-                          className={cn(
-                            "relative h-[17px] w-[17px] shrink-0",
-                            active && "text-primary",
-                          )}
+                          className={cn(chrome.icon, active && "text-primary")}
                         />
-                        {!collapsed && (
+                        {!chrome.hideLabel && (
                           <span className="relative truncate">
                             {localizedNavLabel(item, simple, locale)}
                           </span>
                         )}
-                        {!collapsed && item.live && (
+                        {!chrome.hideLabel && item.live && (
                           <span className="relative ml-auto">
                             <Pulse tone={active ? "primary" : "muted"} />
                           </span>

@@ -27,7 +27,7 @@ describe("AURA buy guide SSOT", () => {
   it("keeps the exact Base App and Binance invite URLs", () => {
     expect(AURA_BUY_BASE_APP_URL).toBe("https://base.app/invite/friends/KCFJ42BF");
     expect(AURA_BUY_BINANCE_URL).toBe("https://www.binance.com/register?ref=BXKGGJD6");
-    expect(AURA_BUY_PATH).toBe("/buy");
+    expect(AURA_BUY_PATH).toBe("/get");
   });
 
   it("never invents a hardcoded CA before T-0", () => {

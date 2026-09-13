@@ -54,6 +54,11 @@ export function padLaunchUnit(n: number): string {
   return String(n).padStart(2, "0");
 }
 
+/** Locale-aware public clock label. Never invent a CA. */
+export function tokenLaunchDisplay(locale: string = "en"): string {
+  return locale === "de" ? TOKEN_LAUNCH_DISPLAY_DE : TOKEN_LAUNCH_DISPLAY;
+}
+
 /** Full 48h post — docs, pin, LinkedIn. No CA. */
 export const T0_ANNOUNCE_POST = `Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna.
 Token: AURA on Base. Official book: locked Uniswap v4 AURA/USDC. Seed $1,111 USDC. Starting book $6,000 USDC.

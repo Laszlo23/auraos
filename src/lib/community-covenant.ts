@@ -92,7 +92,7 @@ export const COVENANT_LINKS = [
   { href: `${SITE_URL}/changelog`, label: "Changelog" },
   { href: `${SITE_URL}/proof`, label: "Proof" },
   { href: `${SITE_URL}/token`, label: "AURA token" },
-  { href: `${SITE_URL}/buy`, label: "Buy AURA" },
+  { href: `${SITE_URL}/get`, label: "Get AURA" },
   { href: `${SITE_URL}/swap`, label: "AURA swap desk" },
   { href: `${SITE_URL}/square`, label: "Aura Square" },
   { href: `${SITE_URL}/docs/AURA_LP_AND_MINT.md`, label: "LP + POL SOP" },

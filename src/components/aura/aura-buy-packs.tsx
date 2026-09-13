@@ -41,7 +41,7 @@ async function startAuraBuyCheckout(opts: {
   window.location.assign(payload.url);
 }
 
-export function AuraBuyPacks({ de = false }: { de?: boolean }) {
+export function AuraBuyPacks({ de = false, compact = false }: { de?: boolean; compact?: boolean }) {
   const { data: userId } = useUserId();
   const qc = useQueryClient();
   const [busyPack, setBusyPack] = useState<AuraBuyPackId | null>(null);
@@ -90,17 +90,21 @@ export function AuraBuyPacks({ de = false }: { de?: boolean }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-[13px] leading-relaxed text-muted-foreground">
-        {de ? AURA_BUY_COPY.path1BodyDe : AURA_BUY_COPY.path1Body}
-      </p>
-      <p className="text-[13px] font-semibold text-foreground">
-        {de ? AURA_BUY_COPY.path1HonestDe : AURA_BUY_COPY.path1Honest}
-      </p>
+      {compact ? null : (
+        <>
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            {de ? AURA_BUY_COPY.path1BodyDe : AURA_BUY_COPY.path1Body}
+          </p>
+          <p className="text-[13px] font-semibold text-foreground">
+            {de ? AURA_BUY_COPY.path1HonestDe : AURA_BUY_COPY.path1Honest}
+          </p>
+        </>
+      )}
 
       {!userId ? (
         <Link
           to="/auth"
-          search={{ mode: "signup", next: "/buy" }}
+          search={{ mode: "signup", next: "/get" }}
           className="cta-liquid inline-flex rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
         >
           {de ? AURA_BUY_COPY.path1CtaSignupDe : AURA_BUY_COPY.path1CtaSignup}

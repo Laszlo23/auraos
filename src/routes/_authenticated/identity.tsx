@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
   AtSign,
@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { Celebrate, XpToast } from "@/components/aura/celebrate";
 import { KycPanel } from "@/components/aura/kyc-panel";
+import { OfficialProfileCard } from "@/components/aura/official-profile";
 import { Chip, PageHeader, Panel } from "@/components/aura/primitives";
 import { SessionKeysPanel, SmartWalletPanel } from "@/components/aura/smart-wallet";
 import { useAwardXp } from "@/hooks/use-progress";
@@ -34,7 +35,6 @@ import {
   useResolveFio,
   useRevalidateFio,
   useUnbindWallet,
-  useUpdateHandle,
   useVerifyWallet,
   useWallets,
   type WalletBinding,
@@ -498,143 +498,6 @@ function FioPanel({
   );
 }
 
-function ProfileEditor({
-  handle,
-  onSaved,
-}: {
-  handle: {
-    id: string;
-    handle: string;
-    display_name: string;
-    bio: string | null;
-    avatar: string;
-    is_public: boolean;
-  };
-  onSaved: () => void;
-}) {
-  const updateHandle = useUpdateHandle();
-  const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(handle.display_name);
-  const [bio, setBio] = useState(handle.bio ?? "");
-  const [avatar, setAvatar] = useState(handle.avatar || "◎");
-
-  useEffect(() => {
-    setName(handle.display_name);
-    setBio(handle.bio ?? "");
-    setAvatar(handle.avatar || "◎");
-  }, [handle.display_name, handle.bio, handle.avatar]);
-
-  if (!editing) {
-    return (
-      <div className="flex flex-wrap items-center gap-4">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-3xl bg-primary/12 text-2xl">
-          {handle.avatar}
-        </span>
-        <div className="min-w-[220px] flex-1">
-          <p className="text-lg font-semibold tracking-tight">{handle.display_name}</p>
-          <p className="text-[12.5px] text-muted-foreground">
-            {handle.bio ?? "Add a line about what you are building."}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          className="rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={() => updateHandle.mutate({ id: handle.id, is_public: !handle.is_public })}
-          className={cn(
-            "rounded-2xl px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] transition-opacity hover:opacity-85",
-            handle.is_public
-              ? "bg-primary/14 text-primary"
-              : "bg-foreground/8 text-muted-foreground",
-          )}
-        >
-          {handle.is_public ? "Public" : "Private"}
-        </button>
-        <a
-          href={`/u/${handle.handle}`}
-          className="rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
-        >
-          View profile
-        </a>
-      </div>
-    );
-  }
-
-  const valid = name.trim().length > 1;
-
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="glass-soft flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl">
-          <input
-            value={avatar}
-            onChange={(e) => setAvatar(e.target.value.slice(0, 4))}
-            aria-label="Avatar emoji"
-            className="w-10 bg-transparent text-center text-2xl outline-none"
-          />
-        </label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Display name"
-          aria-label="Display name"
-          className="glass-soft min-w-[200px] flex-1 rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/40"
-        />
-      </div>
-      <textarea
-        value={bio}
-        onChange={(e) => setBio(e.target.value)}
-        rows={3}
-        maxLength={240}
-        placeholder="One line on what your company is building…"
-        aria-label="Bio"
-        className="glass-soft w-full resize-none rounded-2xl px-4 py-3 text-sm outline-none placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/40"
-      />
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          disabled={!valid || updateHandle.isPending}
-          onClick={async () => {
-            try {
-              await updateHandle.mutateAsync({
-                id: handle.id,
-                display_name: name.trim(),
-                bio: bio.trim() || null,
-                avatar: avatar.trim() || "◎",
-              });
-              setEditing(false);
-              onSaved();
-              toast.success("Profile saved.");
-            } catch {
-              toast.error("Could not save profile.");
-            }
-          }}
-          className="rounded-2xl bg-primary px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-foreground disabled:opacity-40"
-        >
-          {updateHandle.isPending ? "Saving…" : "Save"}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setName(handle.display_name);
-            setBio(handle.bio ?? "");
-            setAvatar(handle.avatar || "◎");
-            setEditing(false);
-          }}
-          className="rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function IdentityBody() {
   const { data: handle } = useMyHandle();
   const { data: wallets = [] } = useWallets(handle?.id);
@@ -675,8 +538,30 @@ function IdentityBody() {
         <ClaimCard onDone={() => celebrate("Handle claimed", 150, "identity:handle")} />
       ) : (
         <>
-          <Panel label="Public profile" glow>
-            <ProfileEditor handle={handle} onSaved={() => celebrate("Profile updated", 25)} />
+          <Panel
+            label="Public profile"
+            glow
+            action={
+              <Link
+                to="/profile"
+                search={{ edit: true }}
+                className="rounded-2xl bg-foreground/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Edit official
+              </Link>
+            }
+          >
+            <OfficialProfileCard
+              handle={handle}
+              action={
+                <a
+                  href={`/u/${handle.handle}`}
+                  className="rounded-2xl bg-foreground/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  View profile
+                </a>
+              }
+            />
           </Panel>
 
           <FioPanel

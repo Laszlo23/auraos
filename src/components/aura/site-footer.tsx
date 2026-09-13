@@ -38,7 +38,7 @@ function footerColumns(t: (key: string) => string) {
         { to: "/pit", label: "TICKPIX Pit" },
         { to: "/trust", label: "Covenant" },
         { to: "/tokenomics", label: "Tokenomics" },
-        { to: "/buy", label: "Buy AURA" },
+        { to: "/get", label: t("landing.navBuy") },
         { to: "/swap", label: "Swap desk" },
         { to: "/square", label: "Aura Square" },
         { to: "/token", label: "AURA" },

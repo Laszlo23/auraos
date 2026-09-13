@@ -14,6 +14,7 @@ export const AURA_TOKEN_CA: `0x${string}` | null = null;
 export const AURA_PAIR_URL: string | null = null;
 export const AURA_OFFICIAL_CA_SOURCES = [
   "https://aibusiness.fun/token",
+  "https://aibusiness.fun/get",
   "https://aibusiness.fun/buy",
   "https://aibusiness.fun/trust",
   "https://aibusiness.fun/tokenomics",

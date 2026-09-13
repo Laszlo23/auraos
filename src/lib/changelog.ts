@@ -36,6 +36,62 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-13-get-aura",
+    date: "2026-09-13",
+    title: "/get — two doors to the token.",
+    summary:
+      "A standalone fair-launch page whose only job is buying AURA. Smart wallet plus card, or the wallet you already have. Official book only. Never a CA by DM.",
+    items: [
+      "New /get storefront: pick Smart wallet or Your wallet",
+      "Smart wallet: free Aura account, Light Account on Base, card packs — AURA after T-0",
+      "Your wallet: MetaMask, Rabby, or WalletConnect, then Uniswap v4 AURA/USDC when the CA is live",
+      "/buy keeps working and sends you to /get",
+    ],
+    tags: ["feature"],
+  },
+  {
+    id: "2026-09-13-official-profile",
+    date: "2026-09-13",
+    title: "Your official profile — and the buttons you keep.",
+    summary:
+      "Founders get a Profile page: edit the public card, turn menu buttons on or off, and change how those buttons look. The sidebar follows live.",
+    items: [
+      "New /profile: official name, bio, avatar, public or private",
+      "Edit mode: enable or disable sidebar buttons without a Settings save",
+      "Button view: Simple or Full, plus Comfortable / Compact / Icons — the menu changes as you pick",
+      "Identity still holds KYC and wallets; official card edits live on Profile",
+    ],
+    tags: ["feature"],
+  },
+  {
+    id: "2026-09-13-defi-plain",
+    date: "2026-09-13",
+    title: "DeFi in plain words — Ready, Working, Result.",
+    summary:
+      "Money now explains itself: add USDC, give it a job, watch three numbers. Earn says how Aave works and that it is not a bank.",
+    items: [
+      "Three-step strip on Money: add USDC → pick a job → watch Ready / Working / Result",
+      "Each path says what happens and what can go wrong before you tap Start",
+      "Earn walks Aave in three lines and warns: not a bank, pull out anytime",
+      "Wallet Working uses the same Ready / Earning / Trading words — no more “from Earn” dead end",
+    ],
+    tags: ["improvement"],
+  },
+  {
+    id: "2026-09-13-hero-bell",
+    date: "2026-09-13",
+    title: "The hero now counts to 11:11.",
+    summary:
+      "Landing opens on the T-0 clock. Sunday 13 Sep 2026, 11:11 Vienna. When the bell rings it flips to the official CA — only on /token, never a DM.",
+    items: [
+      "Hero clock runs to the funded T-0 instant (hours, minutes, seconds on launch day)",
+      "German visitors get Wien copy; English gets Vienna",
+      "After 11:11 the card says the CA lives on /token — never a screenshot, never a DM",
+      "Fair-launch section no longer says “launching soon” — the bell is today",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
     id: "2026-09-13-bell-is-funded",
     date: "2026-09-13",
     title: "The book is funded. Sunday is a desk, not a wish.",

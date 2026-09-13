@@ -184,8 +184,8 @@ function Landing() {
         onCtaClick={() => trackTeaser("cta_click", { placement: "landing_header_start" })}
       />
 
-      {/* ACT 01 / THE HOOK — one composition: brand · headline · line · CTAs · crew · film */}
-      <section className="relative z-10 flex min-h-[100svh] items-end overflow-hidden sm:items-center">
+      {/* ACT 01 / THE HOOK — T-0 clock first, then brand · headline · CTAs · film */}
+      <section className="relative z-10 flex min-h-[100svh] items-start overflow-hidden">
         <HeroFilm />
         <div
           data-tour="hero"
@@ -200,13 +200,21 @@ function Landing() {
             {t("landing.act1")}
           </motion.p>
 
-          <h1 className="display-hero luxury-reveal max-w-4xl text-[clamp(3.1rem,11.5vw,7rem)] drop-shadow-[0_12px_48px_oklch(0_0_0_/_0.75)]">
-            <WordReveal text={t("landing.hero1")} delay={0.06} />
+          <motion.div
+            initial={{ y: 14, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.75, delay: 0.16 }}
+          >
+            <LaunchCountdown variant="stage" showSocials={false} placement="landing_hero_bell" />
+          </motion.div>
+
+          <h1 className="display-hero luxury-reveal mt-7 max-w-4xl text-[clamp(2.4rem,8vw,5.2rem)] drop-shadow-[0_12px_48px_oklch(0_0_0_/_0.75)]">
+            <WordReveal text={t("landing.hero1")} delay={0.22} />
             <br />
             <motion.span
               initial={{ y: 22, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="text-money inline-block"
               style={{
                 textShadow: "0 0 60px rgba(207, 255, 4, 0.5)",
@@ -220,19 +228,10 @@ function Landing() {
             initial={{ y: 16 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.9, delay: 0.55 }}
-            className="mt-7 max-w-md text-[17px] font-semibold leading-relaxed text-foreground/90 sm:text-[18px]"
+            className="mt-5 max-w-md text-[17px] font-semibold leading-relaxed text-foreground/90 sm:text-[18px]"
           >
             {t("landing.act1Promise")}
           </motion.p>
-
-          <motion.div
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.75, delay: 0.66 }}
-            className="mt-5 max-w-xl"
-          >
-            <RobinhoodMomentumStrip />
-          </motion.div>
 
           <motion.div
             initial={{ y: 18 }}
@@ -294,6 +293,15 @@ function Landing() {
                 {t("landing.navHood")} · {t("landing.hoodCue")} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.75, delay: 0.72 }}
+            className="mt-6 max-w-xl"
+          >
+            <RobinhoodMomentumStrip />
           </motion.div>
 
           <motion.div

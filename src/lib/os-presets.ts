@@ -9,7 +9,7 @@ export type OsPresetDef = {
   /** i18n key under settings.preset.* / navOs.presets.* */
   labelKey: string;
   blurbKey: string;
-  /** Default checked menu paths (Settings always appended). */
+  /** Default checked menu paths (Console, Settings, Profile always appended). */
   navPaths: string[];
   /** Preferred mobile tab order (first 4 that exist in visible nav). */
   mobileTabs: string[];
@@ -23,12 +23,29 @@ export type OsPresetDef = {
   knowledgeSummary: string;
 };
 
-const ALWAYS = ["/console", "/settings"] as const;
+/** Always reachable — founders cannot hide these from the sidebar. */
+export const PINNED_NAV_PATHS = ["/console", "/settings", "/profile"] as const;
 
 function withAlways(paths: string[]): string[] {
-  const set = new Set<string>([...ALWAYS, ...paths]);
+  const set = new Set<string>([...PINNED_NAV_PATHS, ...paths]);
   // Preserve NAV order for stable checkbox grids / menus.
   return NAV.map((n) => n.to).filter((to) => set.has(to));
+}
+
+export function isPinnedNavPath(to: string): boolean {
+  return (PINNED_NAV_PATHS as readonly string[]).includes(to);
+}
+
+export function normalizeNavPrefs(paths: string[]): string[] {
+  return withAlways(paths);
+}
+
+export function toggleNavPref(paths: string[], to: string): string[] {
+  if (isPinnedNavPath(to)) return withAlways(paths);
+  const set = new Set(paths);
+  if (set.has(to)) set.delete(to);
+  else set.add(to);
+  return withAlways([...set]);
 }
 
 export const OS_PRESETS: Record<OsPresetId, OsPresetDef> = {
@@ -219,9 +236,9 @@ export function presetDefaultNav(id: OsPresetId): string[] {
   return [...OS_PRESETS[id].navPaths];
 }
 
-/** Paths that Settings lets founders toggle (exclude Settings itself — always on). */
+/** Paths Settings / Profile let founders toggle (pinned items stay on). */
 export function navPathsForCheckboxGrid(): NavItem[] {
-  return NAV.filter((n) => n.to !== "/settings");
+  return NAV.filter((n) => !isPinnedNavPath(n.to) || n.to === "/console");
 }
 
 export function parseNavPrefs(raw: unknown): string[] | null {
@@ -292,9 +309,13 @@ export function resolveMobileTabs(opts: {
 }
 
 function withSettingsItem(items: NavItem[]): NavItem[] {
-  if (items.some((n) => n.to === "/settings")) return items;
-  const settings = NAV.find((n) => n.to === "/settings");
-  return settings ? [...items, settings] : items;
+  let next = items;
+  for (const to of PINNED_NAV_PATHS) {
+    if (next.some((n) => n.to === to)) continue;
+    const item = NAV.find((n) => n.to === to);
+    if (item) next = [...next, item];
+  }
+  return next;
 }
 
 /** Infer preset from free-text onboarding / niche. */
