@@ -33,7 +33,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.cursor/
+.cursor/*
+!.cursor/environment.json
+!.cursor/install.sh
+!.cursor/dev.sh
+!.cursor/node-env.sh
 
 # Local Supabase / Docker leftovers
 supabase/.temp
