@@ -52,7 +52,7 @@ JSON: `/api/token/aura` (`src/lib/aura-token-meta.ts`).
 - Icon: `https://aibusiness.fun/brand/aura-mark.png`
 - Header: `/og/token.jpg`
 - Description under ~200 characters
-- Links: `/token`, X, Farcaster, Discord, Telegram — direct HTTPS, no link-in-bio
+- Links: `/token`, X, Farcaster [`/auraos`](https://farcaster.xyz/~/channel/auraos), Discord, Telegram — direct HTTPS, no link-in-bio
 - Square / Hood / TICKPIX are not this token
 
 ### Prep before T-0 (no public CA)

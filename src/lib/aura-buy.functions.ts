@@ -14,6 +14,7 @@ import {
   INVESTOR_DESK_REQUIRES_FOUNDING_SEAT,
   investorHandleForUser,
   isAuraBuyPackId,
+  parseAuraBuyUsd,
 } from "@/lib/aura-buy-guide";
 import { gasSponsorshipEnabled } from "@/lib/chain-config";
 import { isBaseAddress } from "@/lib/private-sale";
@@ -420,6 +421,10 @@ export async function recordAuraBuyOrderFromStripe(opts: {
   if (!isAuraBuyPackId(opts.pack)) {
     throw new Error("Unknown AURA buy pack");
   }
+  const amountUsd = parseAuraBuyUsd(opts.amountUsd) ?? parseAuraBuyUsd(opts.pack);
+  if (amountUsd == null) {
+    throw new Error("AURA buy amount out of range");
+  }
   if (!isBaseAddress(opts.wallet)) {
     throw new Error("Valid Base wallet required");
   }
@@ -431,7 +436,7 @@ export async function recordAuraBuyOrderFromStripe(opts: {
     .maybeSingle();
   if (existing?.id) return { inserted: false };
 
-  const amountCents = opts.amountCents ?? Math.round(opts.amountUsd * 100);
+  const amountCents = opts.amountCents ?? Math.round(amountUsd * 100);
   const feeCents = opts.feeCents ?? stripeCardFeeCentsEstimate(amountCents);
   const netCents = opts.netCents ?? stripeNetCents(amountCents, feeCents);
 
@@ -440,7 +445,7 @@ export async function recordAuraBuyOrderFromStripe(opts: {
     company_id: opts.companyId || null,
     wallet: opts.wallet,
     pack: opts.pack,
-    amount_usd: opts.amountUsd,
+    amount_usd: amountUsd,
     amount_cents: amountCents,
     fee_cents: feeCents,
     net_usd: centsToUsd(netCents),

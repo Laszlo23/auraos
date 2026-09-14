@@ -106,6 +106,7 @@ export const COVENANT_LINKS = [
   { href: ccff00ExplorerNftUrl(), label: "CCFF00 NFT on Blockscout" },
   { href: HOOKR.siteUrl, label: "Hookr.fun" },
   { href: SOCIAL_LINKS.find((s) => s.id === "x")!.href, label: `X ${OFFICIAL_X_MENTION}` },
+  { href: SOCIAL_LINKS.find((s) => s.id === "farcaster")!.href, label: "Farcaster /auraos" },
   { href: SOCIAL_LINKS.find((s) => s.id === "discord")!.href, label: "Discord" },
 ] as const;
 

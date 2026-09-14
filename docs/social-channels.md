@@ -84,6 +84,8 @@ For `PULL_FROM_URL` later, verify `aibusiness.fun` (or your CDN prefix) under Ti
 
 ## Farcaster (Neynar)
 
+**Official channel:** [farcaster.xyz/~/channel/auraos](https://farcaster.xyz/~/channel/auraos) (`/auraos`).
+
 Not classic OAuth — **Neynar signer**:
 
 Env (preferred — agent / bot):

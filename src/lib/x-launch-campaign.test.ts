@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { T0_ANNOUNCE_POST_X } from "@/lib/aura-t0-clock";
+import { T0_ANNOUNCE_POST_X, caLiveAnnouncePostX } from "@/lib/aura-t0-clock";
 import {
   ALL_CHANNELS_FIRE_BODY,
+  CA_LIVE_ANNOUNCE_CAMPAIGN,
   DRIP_HORIZON_MS,
   DRIP_MAX_SLOTS,
   LINKEDIN_MAX_SLOTS,
   T0_ANNOUNCE_CAMPAIGN,
+  buildCaLiveAnnounceSlots,
   buildFarcasterDripSchedule,
   buildLaunchDripSchedule,
   buildLinkedInDripSchedule,
@@ -105,5 +107,15 @@ describe("buildLaunchDripSchedule", () => {
     expect(Date.parse(slots[0]!.scheduledAt)).toBe(now);
     expect(Date.parse(slots[2]!.scheduledAt) - now).toBe(OS_MESSAGE_STAGGER_MS);
     expect(OS_MESSAGE_IDS.every((id) => keys.some((k) => k.includes(`#${id}#`)))).toBe(true);
+  });
+
+  it("queues a due-now CA-live pin with the official CA", () => {
+    const ca = "0xdb1e6d4fab43c8cb5871d32d41df00ea34350723";
+    const body = caLiveAnnouncePostX(ca);
+    expect(body).toContain(ca);
+    expect(body.length).toBeLessThanOrEqual(280);
+    expect(body).toMatch(/AURA is LIVE/i);
+    expect(CA_LIVE_ANNOUNCE_CAMPAIGN).toBe("ca-live-2026-09-13");
+    void buildCaLiveAnnounceSlots;
   });
 });

@@ -16,9 +16,12 @@ import {
 } from "@/lib/boost-packs";
 import { funnelPlanById, isFunnelPlanId, stripePriceForFunnelPlan } from "@/lib/funnel-plans";
 import {
-  auraBuyPackById,
+  AURA_BUY_MAX_USD,
+  AURA_BUY_MIN_USD,
+  auraBuyPackIdFromUsd,
   auraBuyPacksEnabled,
   isAuraBuyPackId,
+  parseAuraBuyUsd,
   stripePaymentLinkEnvForAuraBuyPack,
   stripePriceEnvForAuraBuyPack,
 } from "@/lib/aura-buy-guide";
@@ -108,6 +111,7 @@ export const Route = createFileRoute("/api/billing/checkout")({
           company_id?: string;
           kind?: string;
           pack?: string;
+          amount_usd?: number | string;
           wallet?: string;
         };
         const plan = body.plan ?? "company";
@@ -135,7 +139,12 @@ export const Route = createFileRoute("/api/billing/checkout")({
         }
         if (user.email) params.set("customer_email", user.email);
 
-        if (body.kind === "aura_buy" || isAuraBuyPackId(body.pack ?? "") || isAuraBuyPackId(plan)) {
+        if (
+          body.kind === "aura_buy" ||
+          body.amount_usd != null ||
+          isAuraBuyPackId(body.pack ?? "") ||
+          isAuraBuyPackId(plan)
+        ) {
           if (!auraBuyPacksEnabled()) {
             return Response.json(
               {
@@ -145,15 +154,18 @@ export const Route = createFileRoute("/api/billing/checkout")({
               { status: 503 },
             );
           }
-          const packId = isAuraBuyPackId(body.pack ?? "")
-            ? body.pack
-            : isAuraBuyPackId(plan)
-              ? plan
-              : undefined;
-          const pack = packId ? auraBuyPackById(packId) : undefined;
+          const usd =
+            parseAuraBuyUsd(body.amount_usd) ??
+            parseAuraBuyUsd(body.pack) ??
+            parseAuraBuyUsd(plan);
           const wallet = (body.wallet ?? "").trim();
-          if (!pack) {
-            return Response.json({ error: "Unknown AURA buy pack" }, { status: 400 });
+          if (usd == null) {
+            return Response.json(
+              {
+                error: `Enter a whole USD amount between $${AURA_BUY_MIN_USD} and $${AURA_BUY_MAX_USD.toLocaleString("en-US")}`,
+              },
+              { status: 400 },
+            );
           }
           if (!isBaseAddress(wallet)) {
             return Response.json(
@@ -161,12 +173,14 @@ export const Route = createFileRoute("/api/billing/checkout")({
               { status: 400 },
             );
           }
-          const price = stripePriceEnvForAuraBuyPack(pack.id);
+          const packId = auraBuyPackIdFromUsd(usd);
+          const price = stripePriceEnvForAuraBuyPack(packId);
           params.set("mode", "payment");
           params.set("success_url", `${site}/get?checkout=success&way=smart`);
           params.set("cancel_url", `${site}/get?checkout=cancel&way=smart`);
           params.set("metadata[kind]", "aura_buy");
-          params.set("metadata[pack]", pack.id);
+          params.set("metadata[pack]", packId);
+          params.set("metadata[amount_usd]", packId);
           params.set("metadata[user_id]", user.id);
           params.set("metadata[wallet]", wallet);
           params.set("client_reference_id", user.id);
@@ -174,10 +188,10 @@ export const Route = createFileRoute("/api/billing/checkout")({
             params.set("line_items[0][price]", price);
           } else {
             params.set("line_items[0][price_data][currency]", "usd");
-            params.set("line_items[0][price_data][unit_amount]", String(pack.usd * 100));
+            params.set("line_items[0][price_data][unit_amount]", String(usd * 100));
             params.set(
               "line_items[0][price_data][product_data][name]",
-              `AURA card pack $${pack.usd}`,
+              `AURA card buy $${usd}`,
             );
             params.set(
               "line_items[0][price_data][product_data][description]",
@@ -190,7 +204,7 @@ export const Route = createFileRoute("/api/billing/checkout")({
             const session = await createStripeCheckoutSession(secret, params);
             return Response.json({ url: session.url, id: session.id });
           } catch (sessionErr) {
-            const link = stripePaymentLinkEnvForAuraBuyPack(pack.id);
+            const link = stripePaymentLinkEnvForAuraBuyPack(packId);
             if (link && isStripePaymentLinkUrl(link)) {
               return Response.json({
                 url: withStripePaymentLinkContext(link, {

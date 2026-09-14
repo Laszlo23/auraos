@@ -9,6 +9,12 @@ import { TOKEN_LAUNCH_DISPLAY, TOKEN_LAUNCH_DISPLAY_DE } from "@/lib/aura-t0-clo
 
 export const AURA_GET_PATH = "/get" as const;
 
+/** Native ETH / WETH on Base — Farcaster & Base App wallets usually hold ETH, not USDC. */
+export const BASE_NATIVE_ETH = "ETH" as const;
+export const BASE_WETH = "0x4200000000000000000000000000000000000006" as const;
+
+export type AuraUniswapInput = "ETH" | "WETH" | "USDC";
+
 export function auraGetCaLive(): boolean {
   return auraBuyCaPublished();
 }
@@ -17,12 +23,33 @@ export function auraGetOfficialCa(): `0x${string}` | null {
   return auraBuyOfficialCa();
 }
 
-/** Uniswap swap URL only after the official CA is published. */
-export function officialAuraUniswapUrl(ca: `0x${string}` | null = auraGetOfficialCa()): string | null {
+function uniswapInputCurrency(input: AuraUniswapInput): string {
+  switch (input) {
+    case "ETH":
+      return BASE_NATIVE_ETH;
+    case "WETH":
+      return BASE_WETH;
+    case "USDC":
+      return BASE_USDC;
+    default: {
+      const _exhaustive: never = input;
+      return _exhaustive;
+    }
+  }
+}
+
+/**
+ * Uniswap deep link after the official CA is published.
+ * Default input is ETH — Farcaster / Base App wallets rarely hold USDC.
+ */
+export function officialAuraUniswapUrl(
+  ca: `0x${string}` | null = auraGetOfficialCa(),
+  input: AuraUniswapInput = "ETH",
+): string | null {
   if (!ca) return null;
   const params = new URLSearchParams({
     chain: "base",
-    inputCurrency: BASE_USDC,
+    inputCurrency: uniswapInputCurrency(input),
     outputCurrency: ca,
   });
   return `https://app.uniswap.org/swap?${params.toString()}`;
@@ -55,16 +82,16 @@ export const AURA_GET_COPY = {
   smartCtaDe: "Mit Smart Wallet starten",
   walletTitle: "Your wallet",
   walletTitleDe: "Deine Wallet",
-  walletTag: "MetaMask, Rabby, WalletConnect",
-  walletTagDe: "MetaMask, Rabby, WalletConnect",
+  walletTag: "Farcaster, Base App, MetaMask, WalletConnect",
+  walletTagDe: "Farcaster, Base App, MetaMask, WalletConnect",
   walletBody:
-    "Connect the wallet you already have. When the official CA is live, buy AURA/USDC on Uniswap v4 on Base. Copy the CA only from this page.",
+    "Connect the wallet you already have (Farcaster / Base App works). Buy with ETH or USDC on Uniswap on Base. Copy the CA only from this page.",
   walletBodyDe:
-    "Verbinde die Wallet, die du schon hast. Wenn die offizielle CA live ist, kaufst du AURA/USDC auf Uniswap v4 auf Base. CA nur von dieser Seite kopieren.",
+    "Verbinde die Wallet, die du schon hast (Farcaster / Base App geht). Kauf mit ETH oder USDC auf Uniswap auf Base. CA nur von dieser Seite kopieren.",
   walletCta: "Use my wallet",
   walletCtaDe: "Meine Wallet nutzen",
-  connectInjected: "Browser wallet",
-  connectInjectedDe: "Browser-Wallet",
+  connectInjected: "Browser / Farcaster wallet",
+  connectInjectedDe: "Browser- / Farcaster-Wallet",
   connectWc: "WalletConnect",
   connectWcDe: "WalletConnect",
   connecting: "Connecting…",
@@ -79,13 +106,17 @@ export const AURA_GET_COPY = {
   copyCaDe: "Offizielle CA kopieren",
   copied: "Copied",
   copiedDe: "Kopiert",
+  buyUniEth: "Buy with ETH",
+  buyUniEthDe: "Mit ETH kaufen",
+  buyUniUsdc: "Buy with USDC",
+  buyUniUsdcDe: "Mit USDC kaufen",
   buyUni: "Buy on Uniswap",
   buyUniDe: "Auf Uniswap kaufen",
   viewToken: "View on Basescan",
   viewTokenDe: "Auf Basescan",
-  quoteHint: "Quote is the official book. Settlement is on Uniswap v4 on Base — not a surprise pair.",
+  quoteHint: "Quote is the official book. Settlement is on Uniswap on Base — ETH or USDC in, AURA out.",
   quoteHintDe:
-    "Quote ist das offizielle Buch. Settlement auf Uniswap v4 auf Base — kein Überraschungspaar.",
+    "Quote ist das offizielle Buch. Settlement auf Uniswap auf Base — ETH oder USDC rein, AURA raus.",
   notLive:
     "Connect now so you are ready. The buy button unlocks when the official CA is on this page.",
   notLiveDe:

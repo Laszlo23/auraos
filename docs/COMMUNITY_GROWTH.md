@@ -23,7 +23,34 @@ How we get known on-chain and in communities **without** repeating Culture Coin 
 
 Code: `src/lib/community-covenant.ts`, `src/routes/trust.tsx`, drip in `src/lib/x-launch-campaign.ts`.
 
+## Post-T0 — CA is live (pin this)
+
+### Pin on X `@bihary41418`
+
+```
+AURA is LIVE on Base.
+
+CA: 0xdb1e6d4fab43c8cb5871d32d41df00ea34350723
+
+Get: https://aibusiness.fun/get
+Token: https://aibusiness.fun/token
+Trust: https://aibusiness.fun/trust
+
+Buy with ETH or USDC. Official only here + @bihary41418 — never by DM.
+```
+
+Farcaster channel: [farcaster.xyz/~/channel/auraos](https://farcaster.xyz/~/channel/auraos)
+
+Queue from repo (X + Farcaster + OS blast + drip refresh):
+
+```bash
+npx tsx scripts/seed-ca-live-announce.ts
+```
+
+Worker publishes due posts when `auto_publish` is on for connected channels.
+
 ## 48h T-0 announce (Sunday 13 Sep 2026, 11:11 Vienna)
+
 
 Clock: [`src/lib/aura-t0-clock.ts`](../src/lib/aura-t0-clock.ts). Runbook: [`docs/AURA_T0_RUNBOOK.md`](./AURA_T0_RUNBOOK.md). **No CA in this post.**
 

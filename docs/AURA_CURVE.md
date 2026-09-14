@@ -131,7 +131,9 @@ Update `/trust` + `/token` **before** T-0 (this repo does that; CAs stay null un
 | 1.5 | Protocol fee share (25%) → grow **locked** LP / POL (publish policy first; automate after) — see [`AURA_LP_AND_MINT.md`](./AURA_LP_AND_MINT.md) | Bonding-curve remint |
 | 2 | `/swap` quote + settle, gauge stake/claim, tiny swap-burn | Full DEX |
 | 3 | AURA/WETH, gauge weekly UI, Quest hooks, trailing 7d fee APR | Company tokens as book input |
-| 4 | Optional RH wrapper + Hookr pool | Second official CA |
+| 4 | Optional RH wrapper + Hookr pool — spec + sketches only until Base liquidity gate | Second official CA |
+
+Phase 4 detail: [`AURA_RH_WRAPPER.md`](./AURA_RH_WRAPPER.md) · gate: [`AURA_BASE_LIQUIDITY_PLAN.md`](./AURA_BASE_LIQUIDITY_PLAN.md).
 
 ## What we will not do
 

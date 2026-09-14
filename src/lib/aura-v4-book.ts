@@ -3,16 +3,16 @@
  * Pool id / hook / CA come from published env. Never invent an AURA CA.
  */
 
-import { encodeAbiParameters, encodePacked, keccak256, type Address, type Hex } from "viem";
+import { encodeAbiParameters, encodePacked, keccak256, getAddress, type Address, type Hex } from "viem";
 
 import { BASE_USDC } from "@/lib/private-sale";
 
 /** Uniswap canonical Base deployments — not AURA. */
 export const UNISWAP_V4_BASE = {
-  poolManager: "0x498581ff718922c3f8e6A244956aF099B2652b2b",
-  universalRouter: "0x6fF5693b99212Da76Ad316178A184AB56D299b43",
-  quoter: "0x0d5e0F971ed27FBFf6c2837bf31316121532048D",
-  permit2: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+  poolManager: getAddress("0x498581ff718922c3f8e6A244956aF099B2652b2b"),
+  universalRouter: getAddress("0x6ff5693b99212da76ad316178a184ab56d299b43"),
+  quoter: getAddress("0x0d5e0F971ed27FBFf6c2837bf31316121532048D"),
+  permit2: getAddress("0x000000000022D473030F116dDEE9F6B43aC78BA3"),
 } as const;
 
 /** Dynamic-fee flag used by Uni v4 / Clanker Dynamic3. */

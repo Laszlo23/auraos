@@ -81,3 +81,46 @@ AURA on Base. Locked Uni v4 AURA/USDC. Seed $1,111 USDC. Book $6,000 USDC.
 
 CA at T-0 only on aibusiness.fun + @bihary41418 — never by DM.
 https://aibusiness.fun/trust`;
+
+/** Post-T0: CA is public. Keep ≤280 (X). */
+export function caLiveAnnouncePostX(ca: string): string {
+  return `AURA is LIVE on Base.
+
+CA: ${ca}
+
+Get: https://aibusiness.fun/get
+Token: https://aibusiness.fun/token
+Trust: https://aibusiness.fun/trust
+
+Buy with ETH or USDC. Official only here + @bihary41418 — never by DM.`;
+}
+
+/** Post-T0 Farcaster. Keep ≤320. */
+export function caLiveAnnouncePostFc(ca: string): string {
+  return `AURA is LIVE on Base.
+
+CA: ${ca}
+Get: https://aibusiness.fun/get
+Channel: https://farcaster.xyz/~/channel/auraos
+
+Buy with ETH or USDC on Uniswap. Official CA only on aibusiness.fun — never by DM.`;
+}
+
+/** Post-T0 LinkedIn / long form. */
+export function caLiveAnnouncePost(ca: string): string {
+  return `AURA is live on Base.
+
+Official contract address:
+${ca}
+
+Buy with ETH or USDC:
+https://aibusiness.fun/get
+
+Token page + covenant:
+https://aibusiness.fun/token
+https://aibusiness.fun/trust
+
+Farcaster channel: https://farcaster.xyz/~/channel/auraos
+
+Official CA only on aibusiness.fun and X @bihary41418 — never by DM. AURA is software, not equity.`;
+}

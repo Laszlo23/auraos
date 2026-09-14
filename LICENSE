@@ -1,0 +1,15 @@
+Copyright (c) 2025-2026 Ninty LLC
+
+All rights reserved.
+
+Aura OS, the Aura mark, contracts under contracts/aura/, and related product
+materials are proprietary works of Ninty LLC.
+
+The public GitHub mirror is for transparency and builder review. Viewing the
+source does not grant any license to copy, modify, distribute, sublicense,
+commercially exploit, or rebrand this software or its trademarks.
+
+Third-party open-source components remain under their respective licenses
+(see package.json / dependency notices).
+
+For licensing or partnership inquiries: founders@aibusiness.fun

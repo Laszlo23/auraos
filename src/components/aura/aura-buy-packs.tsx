@@ -7,20 +7,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserId } from "@/hooks/use-identity";
 import {
   AURA_BUY_COPY,
-  AURA_BUY_PACKS,
+  AURA_BUY_MAX_USD,
+  AURA_BUY_MIN_USD,
+  AURA_BUY_PRESETS_USD,
+  auraBuyPackIdFromUsd,
   auraBuySignupHref,
-  type AuraBuyPackId,
+  parseAuraBuyUsd,
 } from "@/lib/aura-buy-guide";
 import { ensureInvestorDesk, listMyAuraBuyOrders } from "@/lib/aura-buy.functions";
 
 async function startAuraBuyCheckout(opts: {
-  pack: AuraBuyPackId;
+  amountUsd: number;
   companyId: string;
   wallet: string;
 }) {
   const { data: sessionData } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
   if (!accessToken) throw new Error("Sign in again to pay with a card.");
+  const pack = auraBuyPackIdFromUsd(opts.amountUsd);
   const res = await fetch("/api/billing/checkout", {
     method: "POST",
     headers: {
@@ -29,7 +33,8 @@ async function startAuraBuyCheckout(opts: {
     },
     body: JSON.stringify({
       kind: "aura_buy",
-      pack: opts.pack,
+      amount_usd: opts.amountUsd,
+      pack,
       company_id: opts.companyId,
       wallet: opts.wallet,
     }),
@@ -44,7 +49,8 @@ async function startAuraBuyCheckout(opts: {
 export function AuraBuyPacks({ de = false, compact = false }: { de?: boolean; compact?: boolean }) {
   const { data: userId } = useUserId();
   const qc = useQueryClient();
-  const [busyPack, setBusyPack] = useState<AuraBuyPackId | null>(null);
+  const [amountInput, setAmountInput] = useState("111");
+  const [busy, setBusy] = useState(false);
 
   const desk = useQuery({
     queryKey: ["investor-desk", userId],
@@ -71,22 +77,33 @@ export function AuraBuyPacks({ de = false, compact = false }: { de?: boolean; co
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const pay = async (pack: AuraBuyPackId) => {
-    setBusyPack(pack);
+  const pay = async (rawAmount?: string) => {
+    const usd = parseAuraBuyUsd(rawAmount ?? amountInput);
+    if (usd == null) {
+      toast.error(
+        de
+          ? `Betrag: $${AURA_BUY_MIN_USD}–$${AURA_BUY_MAX_USD.toLocaleString("de-DE")} (ganze Dollar).`
+          : `Enter $${AURA_BUY_MIN_USD}–$${AURA_BUY_MAX_USD.toLocaleString("en-US")} (whole dollars).`,
+      );
+      return;
+    }
+    setBusy(true);
     try {
       const row = desk.data ?? (await ensureInvestorDesk());
       if (!row.wallet) throw new Error(de ? "Wallet fehlt noch." : "Wallet is not ready yet.");
       await startAuraBuyCheckout({
-        pack,
+        amountUsd: usd,
         companyId: row.companyId,
         wallet: row.wallet,
       });
     } catch (err) {
       toast.error((err as Error).message || (de ? "Checkout fehlgeschlagen." : "Checkout failed."));
     } finally {
-      setBusyPack(null);
+      setBusy(false);
     }
   };
+
+  const canPay = Boolean(userId && desk.data?.wallet && !busy);
 
   return (
     <div className="space-y-4">
@@ -140,16 +157,61 @@ export function AuraBuyPacks({ de = false, compact = false }: { de?: boolean; co
         </div>
       )}
 
-      <div className="grid gap-2 sm:grid-cols-3">
-        {AURA_BUY_PACKS.map((pack) => (
+      <div className="space-y-2">
+        <label className="block text-[12px] font-medium text-muted-foreground" htmlFor="aura-buy-usd">
+          {de ? AURA_BUY_COPY.amountLabelDe : AURA_BUY_COPY.amountLabel}
+        </label>
+        <div className="flex flex-wrap items-stretch gap-2">
+          <div className="relative min-w-[8rem] flex-1">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+              $
+            </span>
+            <input
+              id="aura-buy-usd"
+              type="number"
+              inputMode="numeric"
+              min={AURA_BUY_MIN_USD}
+              max={AURA_BUY_MAX_USD}
+              step={1}
+              value={amountInput}
+              onChange={(e) => setAmountInput(e.target.value)}
+              disabled={!userId || busy}
+              className="w-full rounded-2xl border border-border/50 bg-background py-3 pl-7 pr-4 text-sm font-semibold tabular-nums disabled:opacity-40"
+            />
+          </div>
           <button
-            key={pack.id}
             type="button"
-            disabled={!userId || !desk.data?.wallet || busyPack !== null}
-            onClick={() => void pay(pack.id)}
-            className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-4 text-sm font-semibold text-foreground disabled:opacity-40"
+            disabled={!canPay}
+            onClick={() => void pay()}
+            className="rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40"
           >
-            {busyPack === pack.id ? (de ? "Weiter…" : "Continue…") : `$${pack.usd}`}
+            {busy
+              ? de
+                ? "Weiter…"
+                : "Continue…"
+              : de
+                ? AURA_BUY_COPY.amountCtaDe
+                : AURA_BUY_COPY.amountCta}
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          {de ? AURA_BUY_COPY.amountRangeDe : AURA_BUY_COPY.amountRange}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {AURA_BUY_PRESETS_USD.map((usd) => (
+          <button
+            key={usd}
+            type="button"
+            disabled={!canPay}
+            onClick={() => {
+              setAmountInput(String(usd));
+              void pay(String(usd));
+            }}
+            className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-foreground disabled:opacity-40"
+          >
+            ${usd}
           </button>
         ))}
       </div>

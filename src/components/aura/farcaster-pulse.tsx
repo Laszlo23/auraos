@@ -13,7 +13,7 @@ import {
 import { timeAgo } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const CHANNELS = ["base", "crypto", "ai", "founders", "trading"] as const;
+const CHANNELS = ["auraos", "base", "crypto", "ai", "founders", "trading"] as const;
 
 export function FarcasterPulse() {
   const caps = useQuery({
@@ -22,9 +22,9 @@ export function FarcasterPulse() {
     staleTime: 60_000,
   });
   const [mode, setMode] = useState<"feed" | "search" | "people">("feed");
-  const [channel, setChannel] = useState<(typeof CHANNELS)[number]>("base");
-  const [query, setQuery] = useState("Base AI agents");
-  const [peopleQ, setPeopleQ] = useState("0xleonardo");
+  const [channel, setChannel] = useState<(typeof CHANNELS)[number]>("auraos");
+  const [query, setQuery] = useState("Aura OS");
+  const [peopleQ, setPeopleQ] = useState("auraos");
   const [busy, setBusy] = useState(false);
 
   const feedQ = useQuery({

@@ -20,11 +20,13 @@ describe("AURA fair-launch storefront", () => {
     expect(officialAuraUniswapUrl(null)).toBeNull();
     expect(officialAuraBasescanUrl(null)).toBeNull();
     const ca = "0x1111111111111111111111111111111111111111" as const;
-    const uni = officialAuraUniswapUrl(ca);
-    expect(uni).toContain("app.uniswap.org/swap");
-    expect(uni).toContain("chain=base");
-    expect(uni).toContain(encodeURIComponent(BASE_USDC));
-    expect(uni).toContain(ca);
+    const uniEth = officialAuraUniswapUrl(ca);
+    expect(uniEth).toContain("app.uniswap.org/swap");
+    expect(uniEth).toContain("chain=base");
+    expect(uniEth).toContain("inputCurrency=ETH");
+    expect(uniEth).toContain(ca);
+    const uniUsdc = officialAuraUniswapUrl(ca, "USDC");
+    expect(uniUsdc).toContain(encodeURIComponent(BASE_USDC));
     expect(officialAuraBasescanUrl(ca)).toBe(`https://basescan.org/token/${ca}`);
   });
 });

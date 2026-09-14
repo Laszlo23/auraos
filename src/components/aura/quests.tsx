@@ -35,8 +35,8 @@ export const COMMUNITY_QUESTS: Quest[] = [
   },
   {
     key: "community:follow-farcaster",
-    label: "Follow on Farcaster",
-    hint: "Follow 0xleonardo — cast your first quest badge",
+    label: "Join on Farcaster",
+    hint: "Join /auraos — cast your first quest badge",
     glyph: "◎",
     xp: 80,
   },

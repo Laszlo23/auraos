@@ -12,7 +12,9 @@ export function isWalletConnectConnector(c: WalletDoorConnector): boolean {
 export function isInjectedConnector(c: WalletDoorConnector): boolean {
   return (
     c.type === "injected" ||
-    /metaMask|injected|rabby|brave|coinbase|phantom|okx|rainbow/i.test(`${c.id} ${c.name}`)
+    /metaMask|injected|rabby|brave|coinbase|phantom|okx|rainbow|farcaster|warpcast|base.?app|base.?wallet/i.test(
+      `${c.id} ${c.name}`,
+    )
   );
 }
 

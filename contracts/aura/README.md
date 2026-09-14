@@ -18,6 +18,8 @@ Official AURA is **`AuraToken.sol`**. Clanker’s factory token (`ClankerTokenV4
 | `AuraGauge.sol` | Stake AURA to earn a share of published fees. No promised APY. |
 | `AuraLpSink.sol` | Legacy Uni v2 LP sink (Hood escrow still has a v2-shaped bind). Prefer the v4 lock at T-0. |
 
+**Phase 4 sketches (not deployed):** [`sketch/`](./sketch/) — `AuraRhLockbox` (Base) + `AuraRhWrapper` (RH). Spec: [`docs/AURA_RH_WRAPPER.md`](../../docs/AURA_RH_WRAPPER.md). Gate: [`docs/AURA_BASE_LIQUIDITY_PLAN.md`](../../docs/AURA_BASE_LIQUIDITY_PLAN.md).
+
 Team / advisor cliffs use OpenZeppelin `VestingWalletCliff` (deployed by script, not a custom file).
 
 ## Allocations (whole tokens)

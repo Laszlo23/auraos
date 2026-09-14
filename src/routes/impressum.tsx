@@ -11,6 +11,7 @@ import {
   SITE_NAME,
   SITE_URL,
   legalAddressDisplay,
+  siteCopyrightLine,
   url,
 } from "@/lib/site";
 
@@ -87,6 +88,19 @@ function ImpressumPage() {
             /team
           </Link>
           {named.length > 1 ? ` · ${named.length} names published` : null}.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Copyright">
+        <p>
+          {siteCopyrightLine()} {SITE_NAME}, the Aura mark, and related product materials are
+          protected by copyright and other applicable IP laws. Source may be viewable on GitHub for
+          transparency; that does not grant a license to copy, fork commercially, or rebrand without
+          written permission from {LEGAL_ENTITY}. Licensing inquiries:{" "}
+          <a className="text-primary hover:underline" href={`mailto:${LEGAL_EMAIL}`}>
+            {LEGAL_EMAIL}
+          </a>
+          .
         </p>
       </LegalSection>
 

@@ -11,14 +11,53 @@ import {
   auraTrailingFeeApr7d,
   formatBps,
 } from "@/lib/aura-curve";
+import {
+  auraGetOfficialCa,
+  BASE_WETH,
+  officialAuraUniswapUrl,
+  type AuraUniswapInput,
+} from "@/lib/aura-fairlaunch";
 import { getAuraSwapDesk, quoteAuraSwap } from "@/lib/aura-swap.functions";
 import { AURA_SWAP_ASSETS, type AuraSwapAsset } from "@/lib/aura-swap.server";
+import { BASE_USDC } from "@/lib/private-sale";
 import { visibleRefetchInterval } from "@/hooks/use-aura";
 
+function settleInputFor(from: AuraSwapAsset): AuraUniswapInput | null {
+  switch (from) {
+    case "ETH":
+      return "ETH";
+    case "WETH":
+      return "WETH";
+    case "USDC":
+      return "USDC";
+    case "AURA":
+      return null;
+    default: {
+      const _exhaustive: never = from;
+      return _exhaustive;
+    }
+  }
+}
+
+function uniswapOutputCurrency(asset: AuraUniswapInput): string {
+  switch (asset) {
+    case "ETH":
+      return "ETH";
+    case "WETH":
+      return BASE_WETH;
+    case "USDC":
+      return BASE_USDC;
+    default: {
+      const _exhaustive: never = asset;
+      return _exhaustive;
+    }
+  }
+}
+
 export function AuraSwapDesk({ de = false }: { de?: boolean }) {
-  const [from, setFrom] = useState<AuraSwapAsset>("USDC");
+  const [from, setFrom] = useState<AuraSwapAsset>("ETH");
   const [to, setTo] = useState<AuraSwapAsset>("AURA");
-  const [amount, setAmount] = useState("100");
+  const [amount, setAmount] = useState("0.02");
   const [stakeAmount, setStakeAmount] = useState("");
   const [burnSeen, setBurnSeen] = useState(false);
 
@@ -51,6 +90,27 @@ export function AuraSwapDesk({ de = false }: { de?: boolean }) {
   };
 
   const settleReady = Boolean(quote?.live);
+  const settleHref = useMemo(() => {
+    const ca = auraGetOfficialCa();
+    if (!ca || !settleReady) return null;
+    // Buying AURA: deep-link Uniswap with the pay asset as input.
+    if (to === "AURA") {
+      const input = settleInputFor(from);
+      return input ? officialAuraUniswapUrl(ca, input) : null;
+    }
+    // Selling AURA: Uniswap with AURA as input (output is the other side).
+    if (from === "AURA") {
+      const out = settleInputFor(to);
+      if (!out) return null;
+      const params = new URLSearchParams({
+        chain: "base",
+        inputCurrency: ca,
+        outputCurrency: uniswapOutputCurrency(out),
+      });
+      return `https://app.uniswap.org/swap?${params.toString()}`;
+    }
+    return null;
+  }, [from, to, settleReady]);
   const burnHint = useMemo(
     () =>
       de
@@ -157,20 +217,34 @@ export function AuraSwapDesk({ de = false }: { de?: boolean }) {
           ) : null}
         </div>
 
-        <button
-          type="button"
-          disabled={!settleReady}
-          className="mt-4 w-full rounded-xl bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {settleReady
-            ? de
-              ? "Auf Base settlen"
-              : "Settle on Base"
-            : de
-              ? "Settlement nach T-0"
-              : "Settle after T-0"}
-        </button>
+        {settleHref ? (
+          <a
+            href={settleHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground"
+          >
+            {de ? "Auf Uniswap settlen (Base)" : "Settle on Uniswap (Base)"}
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="mt-4 w-full rounded-xl bg-primary px-4 py-2.5 text-[13px] font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {settleReady
+              ? de
+                ? "Route öffnet Uniswap"
+                : "Open Uniswap to settle"
+              : de
+                ? "Settlement nach T-0"
+                : "Settle after T-0"}
+          </button>
+        )}
         <p className="mt-2 text-[12px] text-muted-foreground">
+          {de
+            ? "Farcaster- / Base-App-Wallets: mit ETH kaufen. USDC geht auch. Settlement läuft auf Uniswap — nicht in dieser Seite."
+            : "Farcaster / Base App wallets: buy with ETH. USDC works too. Settlement is on Uniswap — not inside this page."}{" "}
           {de ? AURA_CURVE_COPY.softwareNotEquityDe : AURA_CURVE_COPY.softwareNotEquity}
         </p>
       </section>

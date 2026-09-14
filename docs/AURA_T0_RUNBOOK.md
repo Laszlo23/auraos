@@ -22,7 +22,7 @@ Ticker is already `AURA` / `AURA Token`, supply `777,777,777`. Bytecode: `contra
 
 ## Friday (48h announce)
 
-Announce copy (no CA) — pin on X `@bihary41418`, Farcaster, LinkedIn if Share is live:
+Announce copy (no CA) — pin on X `@bihary41418`, Farcaster [/auraos](https://farcaster.xyz/~/channel/auraos), LinkedIn if Share is live:
 
 ```
 Fair launch T-0: Sunday 13 Sep 2026, 11:11 Europe/Vienna.

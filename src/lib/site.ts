@@ -48,6 +48,18 @@ export const NINTY = {
 /** Operator entity for invoices, terms, and Stripe public details. */
 export const LEGAL_ENTITY = NINTY.name;
 
+/** Copyright holder — SSOT for footer, Impressum, LICENSE. */
+export const COPYRIGHT_HOLDER = LEGAL_ENTITY;
+export const COPYRIGHT_YEAR_START = 2025;
+
+/** e.g. "© 2025–2026 Ninty LLC. All rights reserved." */
+export function siteCopyrightLine(atYear = new Date().getFullYear()): string {
+  const end = Number.isFinite(atYear) ? Math.max(COPYRIGHT_YEAR_START, Math.trunc(atYear)) : COPYRIGHT_YEAR_START;
+  const years =
+    end > COPYRIGHT_YEAR_START ? `${COPYRIGHT_YEAR_START}–${end}` : String(COPYRIGHT_YEAR_START);
+  return `© ${years} ${COPYRIGHT_HOLDER}. All rights reserved.`;
+}
+
 /** Re-export trust roster + BCC separation for convenience. */
 export {
   BCC_TOKEN_DISCLAIMER,
@@ -83,6 +95,11 @@ export const TOKEN_LAUNCH_TRUST_DE =
 export const OFFICIAL_X_HANDLE = "bihary41418" as const;
 export const OFFICIAL_X_MENTION = `@${OFFICIAL_X_HANDLE}` as const;
 export const OFFICIAL_X_URL = `https://x.com/${OFFICIAL_X_HANDLE}` as const;
+
+/** Official Farcaster channel — public home for Aura OS casts. */
+export const OFFICIAL_FARCASTER_CHANNEL = "auraos" as const;
+export const OFFICIAL_FARCASTER_URL =
+  `https://farcaster.xyz/~/channel/${OFFICIAL_FARCASTER_CHANNEL}` as const;
 
 export type SocialLinkId = "x" | "discord" | "telegram" | "farcaster" | "github";
 
@@ -127,8 +144,8 @@ export const SOCIAL_LINKS: SocialLink[] = [
   {
     id: "farcaster",
     label: "Farcaster",
-    href: "https://farcaster.xyz/0xleonardo",
-    hint: "Follow — cast your first badge",
+    href: OFFICIAL_FARCASTER_URL,
+    hint: "Join /auraos — cast your first badge",
     questKey: "community:follow-farcaster",
     xp: 80,
   },
@@ -176,9 +193,9 @@ export const WHITELIST_TASKS: WhitelistTask[] = [
   },
   {
     id: "follow_farcaster",
-    label: "Follow on Farcaster",
-    hint: "Follow 0xleonardo",
-    href: "https://farcaster.xyz/0xleonardo/",
+    label: "Join on Farcaster",
+    hint: "Join the /auraos channel",
+    href: OFFICIAL_FARCASTER_URL,
     group: "chat_or",
   },
   {

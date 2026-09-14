@@ -25,16 +25,22 @@ export function AuraFairlaunchWallet({ de = false, live }: { de?: boolean; live:
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: switching } = useSwitchChain();
   const doors = useMemo(() => listedWalletDoors(connectors), [connectors]);
-  const [amount, setAmount] = useState("111");
+  const [amount, setAmount] = useState("0.02");
+  const [payWith, setPayWith] = useState<"ETH" | "USDC">("ETH");
   const [copied, setCopied] = useState(false);
   const ca = auraGetOfficialCa();
-  const uni = officialAuraUniswapUrl(ca);
+  const uniEth = officialAuraUniswapUrl(ca, "ETH");
+  const uniUsdc = officialAuraUniswapUrl(ca, "USDC");
+  const uni = payWith === "ETH" ? uniEth : uniUsdc;
   const scan = officialAuraBasescanUrl(ca);
   const onBase = chainId === base.id;
 
   const quoteQ = useQuery({
-    queryKey: ["aura-get-quote", amount],
-    queryFn: () => quoteAuraSwap({ data: { from: "USDC", to: "AURA", amount } }),
+    queryKey: ["aura-get-quote", payWith, amount],
+    queryFn: () =>
+      quoteAuraSwap({
+        data: { from: payWith === "ETH" ? "ETH" : "USDC", to: "AURA", amount },
+      }),
     enabled: live && Number(amount) > 0,
     refetchInterval: visibleRefetchInterval(20_000),
   });
@@ -121,9 +127,29 @@ export function AuraFairlaunchWallet({ de = false, live }: { de?: boolean; live:
 
       {live && ca ? (
         <>
+          <div className="grid grid-cols-2 gap-2">
+            {(["ETH", "USDC"] as const).map((asset) => (
+              <button
+                key={asset}
+                type="button"
+                onClick={() => {
+                  setPayWith(asset);
+                  setAmount(asset === "ETH" ? "0.02" : "111");
+                }}
+                className={cn(
+                  "rounded-2xl border px-4 py-2.5 text-sm font-semibold transition-colors",
+                  payWith === asset
+                    ? "border-primary bg-primary/12 text-primary"
+                    : "border-border/50 text-muted-foreground",
+                )}
+              >
+                {asset}
+              </button>
+            ))}
+          </div>
           <label className="block">
             <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              USDC
+              {payWith}
             </span>
             <input
               value={amount}
@@ -137,7 +163,7 @@ export function AuraFairlaunchWallet({ de = false, live }: { de?: boolean; live:
               <p className="text-muted-foreground">{de ? "Quote…" : "Quoting…"}</p>
             ) : quoteQ.data?.amountOut ? (
               <p className="font-semibold">
-                {quoteQ.data.amountIn} USDC → {quoteQ.data.amountOut} AURA
+                {quoteQ.data.amountIn} {payWith} → {quoteQ.data.amountOut} AURA
               </p>
             ) : (
               <p className="text-muted-foreground">
@@ -156,7 +182,13 @@ export function AuraFairlaunchWallet({ de = false, live }: { de?: boolean; live:
                   !onBase && isConnected && "opacity-80",
                 )}
               >
-                {de ? AURA_GET_COPY.buyUniDe : AURA_GET_COPY.buyUni}
+                {payWith === "ETH"
+                  ? de
+                    ? AURA_GET_COPY.buyUniEthDe
+                    : AURA_GET_COPY.buyUniEth
+                  : de
+                    ? AURA_GET_COPY.buyUniUsdcDe
+                    : AURA_GET_COPY.buyUniUsdc}
               </a>
             ) : null}
             <button
@@ -173,6 +205,16 @@ export function AuraFairlaunchWallet({ de = false, live }: { de?: boolean; live:
                   : AURA_GET_COPY.copyCa}
             </button>
           </div>
+          {payWith === "ETH" && uniUsdc ? (
+            <a
+              href={uniUsdc}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-[13px] font-semibold text-primary hover:underline"
+            >
+              {de ? AURA_GET_COPY.buyUniUsdcDe : AURA_GET_COPY.buyUniUsdc}
+            </a>
+          ) : null}
           <p className="break-all font-mono text-[12px] text-muted-foreground">{ca}</p>
           {scan ? (
             <a

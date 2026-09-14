@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <sub>© 2025–2026 Ninty LLC. All rights reserved. See <a href="LICENSE">LICENSE</a>.</sub>
+</p>
+
+<p align="center">
   <a href="https://aibusiness.fun">aibusiness.fun</a>
   ·
   <a href="https://aibusiness.fun/guide">Founder guide</a>

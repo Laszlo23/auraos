@@ -7,6 +7,7 @@ import {
   SITE_NAME,
   SITE_URL,
   SOCIAL_LINKS,
+  siteCopyrightLine,
 } from "@/lib/site";
 import { AuraMark } from "@/components/aura/aura-logo";
 import { ShareBar } from "@/components/aura/share";
@@ -206,15 +207,20 @@ export function SiteFooter({
             "sm:flex-row sm:items-center sm:justify-between",
           )}
         >
-          <span className="inline-flex items-center gap-2 normal-case tracking-normal">
-            <AuraMark className="h-4 w-4 text-primary" />
-            <span className="uppercase tracking-[0.24em]">
-              {SITE_NAME} · {NINTY.short} · {NINTY.tagline} ·{" "}
-              <a href={SITE_URL} className="transition-colors hover:text-foreground">
-                aibusiness.fun
-              </a>
+          <div className="flex flex-col gap-2 normal-case tracking-normal">
+            <span className="inline-flex items-center gap-2">
+              <AuraMark className="h-4 w-4 text-primary" />
+              <span className="uppercase tracking-[0.24em]">
+                {SITE_NAME} · {NINTY.short} · {NINTY.tagline} ·{" "}
+                <a href={SITE_URL} className="transition-colors hover:text-foreground">
+                  aibusiness.fun
+                </a>
+              </span>
             </span>
-          </span>
+            <p className="text-[11px] tracking-[0.08em] text-muted-foreground/90">
+              {siteCopyrightLine()}
+            </p>
+          </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <Link
               to="/donate"

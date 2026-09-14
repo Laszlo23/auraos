@@ -36,6 +36,59 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 /** Newest first. Add entries at the top when you ship. */
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    id: "2026-09-14-copyright",
+    date: "2026-09-14",
+    title: "Copyright — Ninty LLC",
+    summary:
+      "Public GitHub is for transparency. Copyright stays with Ninty LLC — footer, Impressum, LICENSE, and README now say so explicitly.",
+    items: [
+      "Footer + /impressum copyright line via siteCopyrightLine()",
+      "LICENSE: all rights reserved; viewing source is not a reuse license",
+      "README credit under the Aura OS lockup",
+    ],
+    tags: ["infra", "improvement"],
+  },
+  {
+    id: "2026-09-13-card-any-amount",
+    date: "2026-09-13",
+    title: "/get card buy — any USD amount",
+    summary:
+      "Stripe card checkout on /get is no longer locked to $29 / $111 / $299. Enter any whole dollar in range; presets stay as shortcuts. Net still buys the official Uni v4 book after T-0.",
+    items: [
+      "Free-form USD input + $29 / $111 / $299 quick chips",
+      "Checkout Session price_data for custom amounts (preset Stripe Price IDs still work)",
+      "DB pack CHECK relaxed to whole-USD labels in $11–$10,000",
+    ],
+    tags: ["feature", "improvement"],
+  },
+  {
+    id: "2026-09-13-wallet-eth-settle",
+    date: "2026-09-13",
+    title: "/get wallet path — ETH settle on Uniswap",
+    summary:
+      "Browser and Farcaster wallet buy defaults to ETH → AURA on the official Base book. USDC toggle stays. Settle opens Uniswap instead of a dead button.",
+    items: [
+      "ETH-default deep links + ETH/USDC toggle on the swap desk",
+      "Official Farcaster channel locked to farcaster.xyz/~/channel/auraos",
+      "CA-live announce campaign + aggregator depth scripts in-repo",
+    ],
+    tags: ["feature", "fix"],
+  },
+  {
+    id: "2026-09-13-rh-wrapper-sketch",
+    date: "2026-09-13",
+    title: "Phase 4 RH wrapper — spec + sketches, no deploy",
+    summary:
+      "Robinhood wAURA stays optional and labeled wrapper. Base liquidity gate first. Lockbox + wrapper Solidity live under contracts/aura/sketch only.",
+    items: [
+      "docs/AURA_RH_WRAPPER.md — full Phase 4 architecture, gate, Hookr pool rules",
+      "docs/AURA_BASE_LIQUIDITY_PLAN.md — TVL/volume gate + week-by-week POL",
+      "contracts/aura/sketch/AuraRhLockbox.sol + AuraRhWrapper.sol — DO NOT DEPLOY",
+      "Official AURA CA remains Base-only; AURA_RH_WRAPPER env stays empty",
+    ],
+    tags: ["infra"],
+  },
+  {
     id: "2026-09-13-open-source",
     date: "2026-09-13",
     title: "Open source on GitHub — contracts + product in public",

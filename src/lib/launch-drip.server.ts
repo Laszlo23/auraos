@@ -6,6 +6,7 @@ import {
   buildLinkedInDripSchedule,
   buildMissedDripSlots,
   buildT0AnnounceSlots,
+  buildCaLiveAnnounceSlots,
   LAUNCH_DRIP_CAMPAIGN,
   FARCASTER_DRIP_CAMPAIGN,
   LINKEDIN_DRIP_CAMPAIGN,
@@ -162,6 +163,49 @@ export async function seedT0AnnouncePosts(
     linkedin: Boolean(opts.linkedIn),
   };
   const slots = buildT0AnnounceSlots().filter((s) => allow[s.provider]);
+  let created = 0;
+  let skipped = 0;
+
+  for (const s of slots) {
+    const { error } = await supabaseAdmin.from("channel_posts").insert({
+      company_id: companyId,
+      provider: s.provider,
+      body: s.body,
+      status: "scheduled",
+      scheduled_at: s.scheduledAt,
+      agent_name: SOCIAL_AGENTS[s.provider],
+      campaign_key: s.campaignKey,
+      share_post_id: null,
+      media_kind: null,
+      impressions: 0,
+      likes: 0,
+      reposts: 0,
+    });
+    if (error) {
+      if (error.code === "23505") skipped += 1;
+      else throw error;
+    } else {
+      created += 1;
+    }
+  }
+
+  return { created, skipped };
+}
+
+/**
+ * Queue the post-T0 CA-live pin as due-now posts.
+ * Idempotent via (company_id, campaign_key).
+ */
+export async function seedCaLiveAnnouncePosts(
+  companyId: string,
+  opts: { x?: boolean; farcaster?: boolean; linkedIn?: boolean } = {},
+): Promise<{ created: number; skipped: number }> {
+  const allow = {
+    x: Boolean(opts.x),
+    farcaster: Boolean(opts.farcaster),
+    linkedin: Boolean(opts.linkedIn),
+  };
+  const slots = buildCaLiveAnnounceSlots().filter((s) => allow[s.provider]);
   let created = 0;
   let skipped = 0;
 

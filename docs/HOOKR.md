@@ -22,8 +22,9 @@ Hookr’s own security line (we mirror it): no airdrop/claim portal; Hookr does 
 | --- | --- | --- |
 | B (this sprint) | Playbook + builders/token links + covenant language | — |
 | C | Optional creator hooked pools / transparent treasury LP | Agent desk Hookr discovery |
+| **4** | — | **wAURA wrapper** on RH after Base liquidity gate — [`AURA_RH_WRAPPER.md`](./AURA_RH_WRAPPER.md) · [`AURA_BASE_LIQUIDITY_PLAN.md`](./AURA_BASE_LIQUIDITY_PLAN.md) |
 
-Aura remains the company desk (creator mints, USDG, OKX DEX). Hookr remains pool **rules**. We do **not** launch a speculative Aura/Culture meme on Hookr in this sprint.
+Aura remains the company desk (creator mints, USDG, OKX DEX). Hookr remains pool **rules**. We do **not** launch a speculative Aura/Culture meme on Hookr in this sprint. Official AURA CA stays on Base.
 
 ## Surfaces
 

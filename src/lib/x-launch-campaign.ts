@@ -1,4 +1,12 @@
-import { T0_ANNOUNCE_POST, T0_ANNOUNCE_POST_FC, T0_ANNOUNCE_POST_X } from "@/lib/aura-t0-clock";
+import {
+  T0_ANNOUNCE_POST,
+  T0_ANNOUNCE_POST_FC,
+  T0_ANNOUNCE_POST_X,
+  caLiveAnnouncePost,
+  caLiveAnnouncePostFc,
+  caLiveAnnouncePostX,
+} from "@/lib/aura-t0-clock";
+import { auraTokenAddress } from "@/lib/aura-self-launch";
 import { SHARE_POSTS, shareWatchUrl } from "@/lib/share-posts";
 import { SITE_URL, TOKEN_LAUNCH_DISPLAY } from "@/lib/site";
 import { tickpixRaidOpen } from "@/lib/tickpix";
@@ -7,6 +15,8 @@ import { tickpixRaidOpen } from "@/lib/tickpix";
 export const LAUNCH_DRIP_CAMPAIGN = "launch-drip-2026-08";
 /** One-shot 48h T-0 announce (no CA). Distinct from the rolling drip keys. */
 export const T0_ANNOUNCE_CAMPAIGN = "t0-announce-2026-09-13";
+/** Post-T0: official CA is public — pin this. */
+export const CA_LIVE_ANNOUNCE_CAMPAIGN = "ca-live-2026-09-13";
 /** Farcaster sister drip — same windows, cast-length copy. */
 export const FARCASTER_DRIP_CAMPAIGN = "fc-drip-2026-09";
 /** LinkedIn campaign — one professional post / day (not the 3× X cadence). */
@@ -333,6 +343,41 @@ export function buildT0AnnounceSlots(nowMs: number = Date.now()): T0AnnounceSlot
       campaignKey: `${T0_ANNOUNCE_CAMPAIGN}#linkedin`,
       sharePostId: "t0-announce",
       body: T0_ANNOUNCE_POST,
+      scheduledAt,
+    },
+  ];
+}
+
+/**
+ * Due-now post-T0 CA pin. Requires published AURA_TOKEN_CA.
+ * Idempotent campaign keys: ca-live-2026-09-13#{provider}
+ */
+export function buildCaLiveAnnounceSlots(nowMs: number = Date.now()): T0AnnounceSlot[] {
+  const ca = auraTokenAddress();
+  if (!ca) {
+    throw new Error("AURA CA is not published — set AURA_TOKEN_CA + AURA_CA_PUBLISH before ca-live announce");
+  }
+  const scheduledAt = new Date(nowMs).toISOString();
+  return [
+    {
+      provider: "x",
+      campaignKey: `${CA_LIVE_ANNOUNCE_CAMPAIGN}#x`,
+      sharePostId: "ca-live",
+      body: caLiveAnnouncePostX(ca),
+      scheduledAt,
+    },
+    {
+      provider: "farcaster",
+      campaignKey: `${CA_LIVE_ANNOUNCE_CAMPAIGN}#farcaster`,
+      sharePostId: "ca-live",
+      body: caLiveAnnouncePostFc(ca),
+      scheduledAt,
+    },
+    {
+      provider: "linkedin",
+      campaignKey: `${CA_LIVE_ANNOUNCE_CAMPAIGN}#linkedin`,
+      sharePostId: "ca-live",
+      body: caLiveAnnouncePost(ca),
       scheduledAt,
     },
   ];

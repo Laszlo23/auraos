@@ -23,7 +23,8 @@ export function SaleWalletRoot({
     const projectId = walletConnectId();
     return createConfig({
       chains: [base],
-      multiInjectedProviderDiscovery: false,
+      // true so Farcaster / Base App in-app EIP-1193 providers are discovered
+      multiInjectedProviderDiscovery: true,
       connectors: [
         injected({ shimDisconnect: true }),
         ...(projectId
