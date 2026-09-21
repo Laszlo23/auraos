@@ -322,8 +322,23 @@ function AuthPage() {
     buy: buyFromLink,
     plan: planFromLink,
   } = Route.useSearch();
+  const peekedFunnel = peekFunnel();
+  const lokalNext =
+    typeof nextFromLink === "string" &&
+    (nextFromLink.startsWith("/heute") ||
+      nextFromLink.startsWith("/lokal") ||
+      nextFromLink.startsWith("/nachbar"));
   const entryFunnel: FunnelId =
-    funnelFromLink && isFunnelId(funnelFromLink) ? funnelFromLink : peekFunnel();
+    funnelFromLink && isFunnelId(funnelFromLink)
+      ? funnelFromLink
+      : buyFromLink === "seat"
+        ? "os"
+        : lokalNext
+          ? "local"
+          : // Bare /auth from OS chrome must stay OS even after browsing /lokal.
+            peekedFunnel === "local"
+            ? "os"
+            : peekedFunnel;
   /** Explicit ?funnel= from a /for/* CTA — skips founding-seat gate. Browsing alone does not. */
   const isFunnelEntry = Boolean(funnelFromLink && funnelFromLink !== "os");
   /** Founding-seat buyers must never see local pitch, even if peekFunnel() returns "local". */

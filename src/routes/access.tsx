@@ -78,6 +78,7 @@ function AccessPage() {
         mode: "signup",
         buy: "seat",
         plan: nextPlan,
+        funnel: "os",
         ...(attribution ? { invite: attribution } : {}),
       },
     });
