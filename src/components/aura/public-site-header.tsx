@@ -426,7 +426,8 @@ export function PublicSiteHeader({
   const ctaLink = cta ?? {
     to: "/auth",
     label: t("landing.navStart"),
-    search: { mode: "signup" },
+    // Always Aura OS — do not inherit sticky /lokal funnel from localStorage.
+    search: { mode: "signup", funnel: "os" },
   };
 
   return (
@@ -460,7 +461,7 @@ export function PublicSiteHeader({
           {showSignIn ? (
             <button
               type="button"
-              onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
+              onClick={() => navigate({ to: "/auth", search: { mode: "signin", funnel: "os" } })}
               className="hidden rounded-xl px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
             >
               {t("landing.signIn")}
@@ -499,7 +500,7 @@ export function PublicSiteHeader({
                 {showSignIn ? (
                   <button
                     type="button"
-                    onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })}
+                    onClick={() => navigate({ to: "/auth", search: { mode: "signin", funnel: "os" } })}
                     className="rounded-xl border border-border/50 px-3 py-2 text-sm font-semibold"
                   >
                     {t("landing.signIn")}

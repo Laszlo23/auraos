@@ -102,9 +102,21 @@ export function captureAttribution(): Attribution {
     lang: pathLang,
   };
 
-  // Explicit ?funnel= wins; /for/* and /lokal only fill the key if empty (first-touch).
-  if ((p.get("funnel") || path === "/lokal") && pathFunnel !== "os") {
+  // Explicit ?funnel= always wins. /for/* and /lokal are first-touch only (do not
+  // clobber an existing funnel). Primary OS surfaces reset sticky lokal browsing
+  // so Get started / Sign in / console stay on Aura OS after visiting /lokal.
+  const isOsSurface =
+    path === "/" ||
+    path === "/access" ||
+    path === "/pricing" ||
+    path === "/how-it-works" ||
+    path === "/features" ||
+    path === "/console" ||
+    path === "/auth";
+  if (p.get("funnel") && pathFunnel !== "os") {
     rememberFunnel(pathFunnel);
+  } else if (isOsSurface && !p.get("funnel")) {
+    rememberFunnel("os");
   } else if (pathFunnel !== "os") {
     try {
       const existing = window.localStorage.getItem(FUNNEL_KEY);

@@ -540,7 +540,7 @@ Return JSON {"summary":"...","outcome":"...","next":"...","memory_update":"≤50
   await persistSteps(db, task.id, steps, 88, { artifact });
 
   // ——— Optional: live social publish (X / Farcaster) ———
-  let publishNotes: string[] = [];
+  const publishNotes: string[] = [];
   if (isSocialPublishTask(task.title, task.description)) {
     steps = [
       ...steps.filter((s) => s.id !== "publish"),
