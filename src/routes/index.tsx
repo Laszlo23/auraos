@@ -90,7 +90,7 @@ export const Route = createFileRoute("/")({
       { rel: "alternate", hreflang: "de", href: `${SITE_URL}/?lang=de` },
       { rel: "alternate", hreflang: "en", href: `${SITE_URL}/?lang=en` },
       { rel: "alternate", hreflang: "x-default", href: `${SITE_URL}/` },
-      { rel: "preload", as: "image", href: "/aura-teaser-poster.jpg", fetchPriority: "high" },
+      { rel: "preload", as: "image", href: mediaPath("/aura-teaser-poster.jpg"), fetchPriority: "high" },
     ],
     scripts: [
       {

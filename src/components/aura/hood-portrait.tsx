@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { mediaPath } from "@/lib/site";
 import { resolveHoodTraits, type HoodSealId } from "@/lib/hood-traits";
 import { cn } from "@/lib/utils";
@@ -180,6 +181,7 @@ export function HoodStillFrame({
   alt: string;
   className?: string;
 }) {
+  const [failed, setFailed] = useState(false);
   return (
     <div
       className={cn(
@@ -187,15 +189,23 @@ export function HoodStillFrame({
         className,
       )}
     >
-      <img
-        src={mediaPath(src)}
-        alt={alt}
-        width={800}
-        height={800}
-        loading="lazy"
-        decoding="async"
-        className="aspect-square w-full object-cover film-grade"
-      />
+      {failed ? (
+        <div className="flex aspect-square w-full flex-col items-center justify-center gap-2 bg-hood-stage/80 px-4 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gold/80">Portrait</p>
+          <p className="text-[12px] text-muted-foreground">{alt}</p>
+        </div>
+      ) : (
+        <img
+          src={mediaPath(src)}
+          alt={alt}
+          width={800}
+          height={800}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+          className="aspect-square w-full object-cover film-grade"
+        />
+      )}
     </div>
   );
 }
