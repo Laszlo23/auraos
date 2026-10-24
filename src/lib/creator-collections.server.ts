@@ -43,8 +43,8 @@ function rpcUrl(): string {
   const url = alchemyRpcUrl({ network: creatorNetwork() });
   if (url) return url;
   return creatorNetwork() === "robinhood-testnet"
-    ? "https://testnet-rpc.robinhoodchain.com"
-    : "https://rpc.robinhoodchain.com";
+    ? "https://rpc.testnet.chain.robinhood.com"
+    : "https://rpc.mainnet.chain.robinhood.com";
 }
 
 export function creatorDeployReady(): boolean {

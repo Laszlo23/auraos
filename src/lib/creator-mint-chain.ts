@@ -4,8 +4,8 @@
  * Never embed Alchemy (or other) API keys in VITE_* — Vite inlines those.
  */
 
-const PUBLIC_RH_MAINNET = "https://rpc.robinhoodchain.com";
-const PUBLIC_RH_TESTNET = "https://testnet-rpc.robinhoodchain.com";
+const PUBLIC_RH_MAINNET = "https://rpc.mainnet.chain.robinhood.com";
+const PUBLIC_RH_TESTNET = "https://rpc.testnet.chain.robinhood.com";
 
 /** Alchemy / provider paths that would leak a key if inlined. */
 export function isKeyedRpcUrl(url: string): boolean {
