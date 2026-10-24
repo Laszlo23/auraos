@@ -106,10 +106,10 @@ function rpcFor(testnet: boolean): string {
   const alchemy = process.env["ALCHEMY_API_KEY"]?.trim();
   if (testnet) {
     if (alchemy) return `https://robinhood-testnet.g.alchemy.com/v2/${alchemy}`;
-    return "https://testnet-rpc.robinhoodchain.com";
+    return "https://rpc.testnet.chain.robinhood.com";
   }
   if (alchemy) return `https://robinhood-mainnet.g.alchemy.com/v2/${alchemy}`;
-  return "https://rpc.robinhoodchain.com";
+  return "https://rpc.mainnet.chain.robinhood.com";
 }
 
 function artifact(
